@@ -1,0 +1,1772 @@
+# group: fullsuite   (batch 6 green run, dev, real-sample mapping converters P1-29, P1-31, P1-32, P1-33, P1-35 harness)
+# date: 2026-10-23T14:50:13Z (UTC)
+# command: python -m pytest -p no:cacheprovider -q -rf --continue-on-collection-errors    (cwd ~/tracer; pyproject addopts apply)
+# interpreter: <scratchpad>/b6-env3.12/bin/python   (env built with: UV_PROJECT_ENVIRONMENT=<env> uv sync --locked --all-groups --python 3.12)
+# versions: python 3.12.14; pydantic 2.14.1, pydantic-core 2.50.1, pytest 9.1.1, jsonschema 4.26.0, hypothesis 6.170.5, cryptography 50.0.2
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# note: other agents edit src and tests concurrently; failures and collection errors outside the five mapping files are theirs
+# ------------------------------------------------------------------------------
+........................................................................ [  3%]
+........................................................................ [  7%]
+...............FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF.......... [ 10%]
+.....F.................................................................. [ 14%]
+........................................................................ [ 18%]
+........................................................................ [ 21%]
+........................................................F............... [ 25%]
+........................................................................ [ 28%]
+........................................................................ [ 32%]
+........................................................................ [ 36%]
+........................................................................ [ 39%]
+........................................................................ [ 43%]
+........................................................................ [ 47%]
+........................................................................ [ 50%]
+........................................................................ [ 54%]
+..............................................F......................... [ 57%]
+........................................................................ [ 61%]
+........................................................................ [ 65%]
+........................................................................ [ 68%]
+........................................................................ [ 72%]
+........................................................................ [ 76%]
+........................................................................ [ 79%]
+........................................................................ [ 83%]
+........................................................................ [ 86%]
+............................................................F........... [ 90%]
+........................................................................ [ 94%]
+........................................................................ [ 97%]
+.............................................                            [100%]
+=================================== FAILURES ===================================
+______________ test_run_and_export_bundle_are_registered_entities ______________
+
+    def test_run_and_export_bundle_are_registered_entities() -> None:
+        """ADR 0001 Decision 4 (``rbnd`` RunBundle, ``exp`` ExportBundle), ADR 0009 Decision 5 (records
+        of fact, not versioned), ADR 0016 Decision 7. Both are ``EntityBase`` entities with their
+        registered prefix, neither has ``version`` or ``content_digest``, and the registry finds them
+        (the gate-bound ``test_every_entity_has_registered_prefix`` needs exactly these two)."""
+        registry = api("registry")
+        base = api("base")
+        entities = registry.entity_classes()
+>       assert entities["rbnd"] is run_class()
+               ^^^^^^^^^^^^^^^^
+E       KeyError: 'rbnd'
+
+packages/evalschema/tests/test_bundle.py:133: KeyError
+_______________________ test_bundle_value_objects_shape ________________________
+
+    def test_bundle_value_objects_shape() -> None:
+        """The three value objects of P1-14 (contract section 2): ``WithheldRecord{kind, record_id}``,
+        ``PayloadRedaction{subject_id, redaction}`` and ``ProvenanceRedaction{item_id, field, reason}``
+        (ADR 0016 Decision 9, D2: item, field, reason, never the run id). Frozen, ``extra=forbid``,
+        no entity fields, and none of them is a ``RedactionRecord`` (which keeps its four fields)."""
+        base = api("base")
+        registry = api("registry")
+        value_objects = registry.value_object_classes()
+        expected = {
+            "WithheldRecord": {"kind", "record_id"},
+            "PayloadRedaction": {"subject_id", "redaction"},
+            "ProvenanceRedaction": {"item_id", "field", "reason"},
+        }
+        for name, fields in expected.items():
+>           model = registered_class(name)
+                    ^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:165: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'WithheldRecord'
+
+    def registered_class(name: str) -> Any:
+        """The module-level model class ``name`` of the package, wherever the architect put it.
+    
+        Used for the value objects whose module api-surface 19.4.1 does not fix. A missing class fails
+        the test that needs it (AssertionError), never collection."""
+        found = {model.__name__: model for model in api("registry").model_classes()}
+>       assert name in found, f"{name} is not implemented yet"
+               ^^^^^^^^^^^^^
+E       AssertionError: WithheldRecord is not implemented yet
+
+packages/evalschema/tests/_support_b2.py:106: AssertionError
+_______________ test_bundle_closed_sets_are_exact_and_emit_enum ________________
+
+    def test_bundle_closed_sets_are_exact_and_emit_enum() -> None:
+        """ADR 0003 Decision 1 (closed sets), as the other batches: ``ExportBundle.purpose`` is
+        internal, shared_export, benchmark; ``WithheldRecord.kind`` names the nine record kinds of
+        contract section 2.3; ``ProvenanceRedaction.field`` is ``source_run_id`` and ``reason`` is
+        ``unresolved_reference``. Each emits an ``enum`` (never ``const``), and any other string,
+        also a case or white-space variant, is rejected."""
+        bundle = api("bundle")
+>       assert tuple(bundle.EXPORT_PURPOSES) == ("internal", "shared_export", "benchmark")
+                     ^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'EXPORT_PURPOSES'
+
+packages/evalschema/tests/test_bundle.py:186: AttributeError
+__________________ test_withheld_record_kind_matches_id_kind ___________________
+
+    def test_withheld_record_kind_matches_id_kind() -> None:
+        """ADR 0004 Decision 2a (a declaration names record kinds and IDs): the ID is a typed ID of
+        the kind the entry names, and no other string is accepted. ``record_id`` is a typed ID field,
+        so the registry walks (``test_every_id_reference_field_has_registered_prefix``) apply."""
+>       withheld = registered_class("WithheldRecord")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:224: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'WithheldRecord'
+
+    def registered_class(name: str) -> Any:
+        """The module-level model class ``name`` of the package, wherever the architect put it.
+    
+        Used for the value objects whose module api-surface 19.4.1 does not fix. A missing class fails
+        the test that needs it (AssertionError), never collection."""
+        found = {model.__name__: model for model in api("registry").model_classes()}
+>       assert name in found, f"{name} is not implemented yet"
+               ^^^^^^^^^^^^^
+E       AssertionError: WithheldRecord is not implemented yet
+
+packages/evalschema/tests/_support_b2.py:106: AssertionError
+__________ test_run_bundle_of_a_consistent_run_is_accepted[T0-human] ___________
+
+tier = 'T0', origin = 'human'
+
+    @pytest.mark.parametrize("origin", ORIGINS)
+    @pytest.mark.parametrize("tier", TIERS)
+    def test_run_bundle_of_a_consistent_run_is_accepted(tier: str, origin: str) -> None:
+        """The fixture world is a valid bundle at every tier and for both caller origins: a bundle of
+        one run holds its snapshot, recording, transcript, turns, exchanges, tool calls, spans,
+        results, verdict, usage and cost. It also keeps its content: dumping the model and loading
+        the dump gives the same bundle."""
+        doc = run_bundle_doc(tier=tier, origin=origin)
+>       bundle = load_run(doc)
+                 ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:265: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b7.py:117: in load_run
+    return run_class().model_validate(doc)
+           ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+________ test_run_bundle_of_a_consistent_run_is_accepted[T0-simulated] _________
+
+tier = 'T0', origin = 'simulated'
+
+    @pytest.mark.parametrize("origin", ORIGINS)
+    @pytest.mark.parametrize("tier", TIERS)
+    def test_run_bundle_of_a_consistent_run_is_accepted(tier: str, origin: str) -> None:
+        """The fixture world is a valid bundle at every tier and for both caller origins: a bundle of
+        one run holds its snapshot, recording, transcript, turns, exchanges, tool calls, spans,
+        results, verdict, usage and cost. It also keeps its content: dumping the model and loading
+        the dump gives the same bundle."""
+        doc = run_bundle_doc(tier=tier, origin=origin)
+>       bundle = load_run(doc)
+                 ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:265: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b7.py:117: in load_run
+    return run_class().model_validate(doc)
+           ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+__________ test_run_bundle_of_a_consistent_run_is_accepted[T1-human] ___________
+
+tier = 'T1', origin = 'human'
+
+    @pytest.mark.parametrize("origin", ORIGINS)
+    @pytest.mark.parametrize("tier", TIERS)
+    def test_run_bundle_of_a_consistent_run_is_accepted(tier: str, origin: str) -> None:
+        """The fixture world is a valid bundle at every tier and for both caller origins: a bundle of
+        one run holds its snapshot, recording, transcript, turns, exchanges, tool calls, spans,
+        results, verdict, usage and cost. It also keeps its content: dumping the model and loading
+        the dump gives the same bundle."""
+        doc = run_bundle_doc(tier=tier, origin=origin)
+>       bundle = load_run(doc)
+                 ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:265: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b7.py:117: in load_run
+    return run_class().model_validate(doc)
+           ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+________ test_run_bundle_of_a_consistent_run_is_accepted[T1-simulated] _________
+
+tier = 'T1', origin = 'simulated'
+
+    @pytest.mark.parametrize("origin", ORIGINS)
+    @pytest.mark.parametrize("tier", TIERS)
+    def test_run_bundle_of_a_consistent_run_is_accepted(tier: str, origin: str) -> None:
+        """The fixture world is a valid bundle at every tier and for both caller origins: a bundle of
+        one run holds its snapshot, recording, transcript, turns, exchanges, tool calls, spans,
+        results, verdict, usage and cost. It also keeps its content: dumping the model and loading
+        the dump gives the same bundle."""
+        doc = run_bundle_doc(tier=tier, origin=origin)
+>       bundle = load_run(doc)
+                 ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:265: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b7.py:117: in load_run
+    return run_class().model_validate(doc)
+           ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+__________ test_run_bundle_of_a_consistent_run_is_accepted[T2-human] ___________
+
+tier = 'T2', origin = 'human'
+
+    @pytest.mark.parametrize("origin", ORIGINS)
+    @pytest.mark.parametrize("tier", TIERS)
+    def test_run_bundle_of_a_consistent_run_is_accepted(tier: str, origin: str) -> None:
+        """The fixture world is a valid bundle at every tier and for both caller origins: a bundle of
+        one run holds its snapshot, recording, transcript, turns, exchanges, tool calls, spans,
+        results, verdict, usage and cost. It also keeps its content: dumping the model and loading
+        the dump gives the same bundle."""
+        doc = run_bundle_doc(tier=tier, origin=origin)
+>       bundle = load_run(doc)
+                 ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:265: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b7.py:117: in load_run
+    return run_class().model_validate(doc)
+           ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+________ test_run_bundle_of_a_consistent_run_is_accepted[T2-simulated] _________
+
+tier = 'T2', origin = 'simulated'
+
+    @pytest.mark.parametrize("origin", ORIGINS)
+    @pytest.mark.parametrize("tier", TIERS)
+    def test_run_bundle_of_a_consistent_run_is_accepted(tier: str, origin: str) -> None:
+        """The fixture world is a valid bundle at every tier and for both caller origins: a bundle of
+        one run holds its snapshot, recording, transcript, turns, exchanges, tool calls, spans,
+        results, verdict, usage and cost. It also keeps its content: dumping the model and loading
+        the dump gives the same bundle."""
+        doc = run_bundle_doc(tier=tier, origin=origin)
+>       bundle = load_run(doc)
+                 ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:265: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b7.py:117: in load_run
+    return run_class().model_validate(doc)
+           ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+________________ test_bundle_roundtrip_model_json_schema_model _________________
+
+    def test_bundle_roundtrip_model_json_schema_model() -> None:
+        """SCOPE P1-14 (binding name). Model -> JSON -> model is the identity for both bundles at every
+        tier; the JSON of a model validates against its JSON Schema (draft 2020-12); the schema
+        rejects a document with an unknown top-level member and one that lacks a required member; and
+        ``model_validate_json`` of the dump equals the model. Cross-record rules are code-only and are
+        listed with the other known gaps (contract section 8)."""
+        for tier in TIERS:
+            doc = run_bundle_doc(tier=tier)
+>           bundle = load_run(doc)
+                     ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:280: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b7.py:117: in load_run
+    return run_class().model_validate(doc)
+           ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+__________ test_bundle_models_reject_unknown_and_secret_like_members ___________
+
+    def test_bundle_models_reject_unknown_and_secret_like_members() -> None:
+        """ADR 0007 Decision 3 and ADR 0016 Decision 6: both bundles are ``extra=forbid``; a member
+        named like a credential, a transport ``user_id`` or a caller identifier is an unknown member and
+        is rejected; and no property of either schema (nested ones included) is named like a secret."""
+        for extra in (
+            {"api_key": "x"},
+            {"hmac_key": "x"},
+            {"user_id": "u-1"},
+            {"caller_external_id": {"value": "x"}},
+            {"sealed_payloads": []},
+            {"purpose": "internal"},
+        ):
+            with pytest.raises(ValidationError):
+>               run_class().model_validate({**run_bundle_doc(tier="T0"), **extra})
+                ^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:313: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+_____________________ test_bundle_models_hide_their_input ______________________
+
+    def test_bundle_models_hide_their_input() -> None:
+        """ADR 0007 Decision 8 (b) and (e): both bundles embed models that hold personal data, so the
+        set closed under embedding makes them hide their input. A rejected bundle shows no text of its
+        records in ``str``, ``repr``, ``errors(include_input=False)`` or ``json(include_input=False)``,
+        through ``model_validate`` and ``model_validate_json``, whichever rule rejected it (a rule of
+        the bundle, a rule of an embedded record, an unknown member, a missing member)."""
+>       assert run_class().model_config.get("hide_input_in_errors") is True
+               ^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:329: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+__________ test_run_bundle_rejects_records_of_another_schema_version ___________
+
+    def test_run_bundle_rejects_records_of_another_schema_version() -> None:
+        """ADR 0008 Decision 3 (bundles are single-version) and Decision 2: a record of a newer schema
+        version raises ``SchemaVersionTooNew`` and one of an older version ``SchemaVersionMismatch``,
+        unwrapped, whichever record of the bundle carries it (an embedded record is checked by its own
+        model; the bundle adds no wrapping)."""
+        for where in (
+            lambda d: d["turns"][0],
+            lambda d: d["artifacts"][0],
+            lambda d: d["tool_calls"][0],
+            lambda d: d["run"],
+            lambda d: d["usage_records"][0],
+            lambda d: d["snapshot"],
+        ):
+            newer = run_bundle_doc(tier="T1")
+            where(newer)["schema_version"] = "0.0.2"
+>           assert_bundle_rejected(run_class(), newer, typed="SchemaVersionTooNew")
+                                   ^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:389: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+___________ test_run_bundle_rejects_same_record_id_different_content ___________
+
+    def test_run_bundle_rejects_same_record_id_different_content() -> None:
+        """ADR 0009 Decision 5 and ADR 0016 Decision 5 (I5a): a bundle with two contents under one
+        record-of-fact ID is rejected with ``ConflictingRecordError`` (a corrected record is a new
+        record with a new ID). Any kind of record: a turn, a usage record, a tool call, a result."""
+        for name, mutate in (
+            ("turns", lambda r: r.update(text="changed")),
+            ("usage_records", lambda r: r["quantities"][0].update(count=1)),
+            ("tool_calls", lambda r: r.update(name="another_tool")),
+            ("artifacts", lambda r: r.update(size=1)),
+        ):
+            doc = run_bundle_doc(tier="T1")
+            twin = copy.deepcopy(doc[name][0])
+            mutate(twin)
+            doc[name].append(twin)
+>           assert_bundle_rejected(run_class(), doc, typed="ConflictingRecordError")
+                                   ^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:415: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+________________ test_run_bundle_rejects_a_record_listed_twice _________________
+
+    def test_run_bundle_rejects_a_record_listed_twice() -> None:
+        """P (contract B2): a record that appears twice with identical content is rejected as
+        ``[duplicate]``. The seam accepts identical duplicates because it merges documents of many
+        sources, but a list of a bundle that repeats a usage record would count it twice in a cost
+        total, so a bundle holds each record once. Same for a versioned entity (same ``(id,
+        version)``); two versions of one catalog are fine."""
+        for name in ("turns", "usage_records", "tool_calls", "artifacts", "results", "spans"):
+            doc = run_bundle_doc(tier="T1")
+            doc[name].append(copy.deepcopy(doc[name][0]))
+>           _reject(doc, "duplicate")
+
+packages/evalschema/tests/test_bundle.py:434: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_bundle.py:115: in _reject
+    return assert_bundle_rejected(run_class(), doc, *tags)
+                                  ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+______________________ test_run_bundle_names_its_snapshot ______________________
+
+    def test_run_bundle_names_its_snapshot() -> None:
+        """N35 and ADR 0006 Decision 1: a run names its configuration only through
+        ``config_snapshot_id``, so the bundle's snapshot is the one the run names."""
+        doc = run_bundle_doc(tier="T0")
+        doc["run"]["config_snapshot_id"] = new_id("snap")
+>       error = _reject(doc, "snapshot")
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:460: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_bundle.py:115: in _reject
+    return assert_bundle_rejected(run_class(), doc, *tags)
+                                  ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+_______________________ test_usage_record_run_membership _______________________
+
+    def test_usage_record_run_membership() -> None:
+        """ADR 0001 (``UsageRecord.run_id`` is the one record of fact that names its run) and N22: every
+        usage record of a bundle belongs to the bundle's run; one that names another run is rejected
+        and the message names the usage record and both runs, not any value."""
+        doc = run_bundle_doc(tier="T1")
+        other = new_id("run")
+        doc["usage_records"][1]["run_id"] = other
+>       error = _reject(doc, "membership")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:471: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_bundle.py:115: in _reject
+    return assert_bundle_rejected(run_class(), doc, *tags)
+                                  ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+__ test_run_bundle_reference_by_id_must_resolve[turn.transcript_id-<lambda>] ___
+
+label = 'turn.transcript_id', mutate = <function <lambda> at 0x109a88680>
+
+                "evidence.turn",
+                lambda d: d["results"][0]["evidence_refs"][0].update(ref_id=new_id("turn")),
+            ),
+            (
+                "evidence.exchange",
+                lambda d: d["results"][0]["evidence_refs"][1].update(ref_id=new_id("exc")),
+            ),
+            (
+                "evidence.tool_call",
+                lambda d: d["results"][0]["evidence_refs"][2].update(ref_id=new_id("tcl")),
+            ),
+            (
+                "evidence.artifact_range",
+                lambda d: d["results"][0]["evidence_refs"][3].update(ref_id=new_id("art")),
+            ),
+            (
+                "evidence.span",
+                lambda d: d["results"][0]["evidence_refs"][4].update(ref_id=new_id("spn")),
+            ),
+            ("verdict.result_id", lambda d: d["verdict"]["checks"][0].update(result_id=new_id("res"))),
+            (
+                "cost.usage_record_ids",
+                lambda d: d["cost_records"][0].update(usage_record_ids=[new_id("use")]),
+            ),
+        ],
+    )
+    def test_run_bundle_reference_by_id_must_resolve(
+        label: str, mutate: Callable[[dict[str, Any]], None]
+    ) -> None:
+        """N22 (the bundle is the unit of a run, so a reference between its records resolves inside it):
+        a turn names a transcript of the bundle, an artifact's ``turn_ref`` a turn, a channel map an
+        artifact, an evidence reference one of the five evidence kinds, a verdict check a result, a
+        cost record its usage records. A dangling reference is ``[unresolved]`` and the message names
+        the dangling ID (never a value). ADR 0012 I6 is the bundle half of
+        ``test_evidence_ref_resolves_in_bundle``."""
+        doc = run_bundle_doc(tier="T1")
+        mutate(doc)
+        error = _reject(doc, "unresolved")
+        assert str(error).count("[unresolved]") >= 1, label
+    
+    
+    def test_evidence_ref_resolves_in_run_bundle() -> None:
+        """The bundle half of ``test_evidence_ref_resolves_in_bundle`` (ADR 0012 Decision 3, I6): every
+        kind of ``EvidenceRef`` of the fixture resolves inside the bundle, and the error of a dangling
+        one names its ``ref_id``. An ID of another kind in ``ref_id`` is rejected by ``EvidenceRef``
+        itself (a ValidationError, not a bundle rule)."""
+        doc = run_bundle_doc(tier="T1")
+>       kinds = [e["kind"] for e in doc["results"][0]["evidence_refs"]]
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:544: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_bundle.py:115: in _reject
+    return assert_bundle_rejected(run_class(), doc, *tags)
+                                  ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+___ test_run_bundle_reference_by_id_must_resolve[artifact.turn_ref-<lambda>] ___
+
+label = 'artifact.turn_ref', mutate = <function <lambda> at 0x109a88720>
+
+                "evidence.turn",
+                lambda d: d["results"][0]["evidence_refs"][0].update(ref_id=new_id("turn")),
+            ),
+            (
+                "evidence.exchange",
+                lambda d: d["results"][0]["evidence_refs"][1].update(ref_id=new_id("exc")),
+            ),
+            (
+                "evidence.tool_call",
+                lambda d: d["results"][0]["evidence_refs"][2].update(ref_id=new_id("tcl")),
+            ),
+            (
+                "evidence.artifact_range",
+                lambda d: d["results"][0]["evidence_refs"][3].update(ref_id=new_id("art")),
+            ),
+            (
+                "evidence.span",
+                lambda d: d["results"][0]["evidence_refs"][4].update(ref_id=new_id("spn")),
+            ),
+            ("verdict.result_id", lambda d: d["verdict"]["checks"][0].update(result_id=new_id("res"))),
+            (
+                "cost.usage_record_ids",
+                lambda d: d["cost_records"][0].update(usage_record_ids=[new_id("use")]),
+            ),
+        ],
+    )
+    def test_run_bundle_reference_by_id_must_resolve(
+        label: str, mutate: Callable[[dict[str, Any]], None]
+    ) -> None:
+        """N22 (the bundle is the unit of a run, so a reference between its records resolves inside it):
+        a turn names a transcript of the bundle, an artifact's ``turn_ref`` a turn, a channel map an
+        artifact, an evidence reference one of the five evidence kinds, a verdict check a result, a
+        cost record its usage records. A dangling reference is ``[unresolved]`` and the message names
+        the dangling ID (never a value). ADR 0012 I6 is the bundle half of
+        ``test_evidence_ref_resolves_in_bundle``."""
+        doc = run_bundle_doc(tier="T1")
+        mutate(doc)
+        error = _reject(doc, "unresolved")
+        assert str(error).count("[unresolved]") >= 1, label
+    
+    
+    def test_evidence_ref_resolves_in_run_bundle() -> None:
+        """The bundle half of ``test_evidence_ref_resolves_in_bundle`` (ADR 0012 Decision 3, I6): every
+        kind of ``EvidenceRef`` of the fixture resolves inside the bundle, and the error of a dangling
+        one names its ``ref_id``. An ID of another kind in ``ref_id`` is rejected by ``EvidenceRef``
+        itself (a ValidationError, not a bundle rule)."""
+        doc = run_bundle_doc(tier="T1")
+>       kinds = [e["kind"] for e in doc["results"][0]["evidence_refs"]]
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:544: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_bundle.py:115: in _reject
+    return assert_bundle_rejected(run_class(), doc, *tags)
+                                  ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+_ test_run_bundle_reference_by_id_must_resolve[channel_map.artifact_id-<lambda>] _
+
+label = 'channel_map.artifact_id', mutate = <function <lambda> at 0x109a887c0>
+
+                "evidence.turn",
+                lambda d: d["results"][0]["evidence_refs"][0].update(ref_id=new_id("turn")),
+            ),
+            (
+                "evidence.exchange",
+                lambda d: d["results"][0]["evidence_refs"][1].update(ref_id=new_id("exc")),
+            ),
+            (
+                "evidence.tool_call",
+                lambda d: d["results"][0]["evidence_refs"][2].update(ref_id=new_id("tcl")),
+            ),
+            (
+                "evidence.artifact_range",
+                lambda d: d["results"][0]["evidence_refs"][3].update(ref_id=new_id("art")),
+            ),
+            (
+                "evidence.span",
+                lambda d: d["results"][0]["evidence_refs"][4].update(ref_id=new_id("spn")),
+            ),
+            ("verdict.result_id", lambda d: d["verdict"]["checks"][0].update(result_id=new_id("res"))),
+            (
+                "cost.usage_record_ids",
+                lambda d: d["cost_records"][0].update(usage_record_ids=[new_id("use")]),
+            ),
+        ],
+    )
+    def test_run_bundle_reference_by_id_must_resolve(
+        label: str, mutate: Callable[[dict[str, Any]], None]
+    ) -> None:
+        """N22 (the bundle is the unit of a run, so a reference between its records resolves inside it):
+        a turn names a transcript of the bundle, an artifact's ``turn_ref`` a turn, a channel map an
+        artifact, an evidence reference one of the five evidence kinds, a verdict check a result, a
+        cost record its usage records. A dangling reference is ``[unresolved]`` and the message names
+        the dangling ID (never a value). ADR 0012 I6 is the bundle half of
+        ``test_evidence_ref_resolves_in_bundle``."""
+        doc = run_bundle_doc(tier="T1")
+        mutate(doc)
+        error = _reject(doc, "unresolved")
+        assert str(error).count("[unresolved]") >= 1, label
+    
+    
+    def test_evidence_ref_resolves_in_run_bundle() -> None:
+        """The bundle half of ``test_evidence_ref_resolves_in_bundle`` (ADR 0012 Decision 3, I6): every
+        kind of ``EvidenceRef`` of the fixture resolves inside the bundle, and the error of a dangling
+        one names its ``ref_id``. An ID of another kind in ``ref_id`` is rejected by ``EvidenceRef``
+        itself (a ValidationError, not a bundle rule)."""
+        doc = run_bundle_doc(tier="T1")
+>       kinds = [e["kind"] for e in doc["results"][0]["evidence_refs"]]
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:544: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_bundle.py:115: in _reject
+    return assert_bundle_rejected(run_class(), doc, *tags)
+                                  ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+_____ test_run_bundle_reference_by_id_must_resolve[evidence.turn-<lambda>] _____
+
+label = 'evidence.turn', mutate = <function <lambda> at 0x109a88860>
+
+                "evidence.turn",
+                lambda d: d["results"][0]["evidence_refs"][0].update(ref_id=new_id("turn")),
+            ),
+            (
+                "evidence.exchange",
+                lambda d: d["results"][0]["evidence_refs"][1].update(ref_id=new_id("exc")),
+            ),
+            (
+                "evidence.tool_call",
+                lambda d: d["results"][0]["evidence_refs"][2].update(ref_id=new_id("tcl")),
+            ),
+            (
+                "evidence.artifact_range",
+                lambda d: d["results"][0]["evidence_refs"][3].update(ref_id=new_id("art")),
+            ),
+            (
+                "evidence.span",
+                lambda d: d["results"][0]["evidence_refs"][4].update(ref_id=new_id("spn")),
+            ),
+            ("verdict.result_id", lambda d: d["verdict"]["checks"][0].update(result_id=new_id("res"))),
+            (
+                "cost.usage_record_ids",
+                lambda d: d["cost_records"][0].update(usage_record_ids=[new_id("use")]),
+            ),
+        ],
+    )
+    def test_run_bundle_reference_by_id_must_resolve(
+        label: str, mutate: Callable[[dict[str, Any]], None]
+    ) -> None:
+        """N22 (the bundle is the unit of a run, so a reference between its records resolves inside it):
+        a turn names a transcript of the bundle, an artifact's ``turn_ref`` a turn, a channel map an
+        artifact, an evidence reference one of the five evidence kinds, a verdict check a result, a
+        cost record its usage records. A dangling reference is ``[unresolved]`` and the message names
+        the dangling ID (never a value). ADR 0012 I6 is the bundle half of
+        ``test_evidence_ref_resolves_in_bundle``."""
+        doc = run_bundle_doc(tier="T1")
+        mutate(doc)
+        error = _reject(doc, "unresolved")
+        assert str(error).count("[unresolved]") >= 1, label
+    
+    
+    def test_evidence_ref_resolves_in_run_bundle() -> None:
+        """The bundle half of ``test_evidence_ref_resolves_in_bundle`` (ADR 0012 Decision 3, I6): every
+        kind of ``EvidenceRef`` of the fixture resolves inside the bundle, and the error of a dangling
+        one names its ``ref_id``. An ID of another kind in ``ref_id`` is rejected by ``EvidenceRef``
+        itself (a ValidationError, not a bundle rule)."""
+        doc = run_bundle_doc(tier="T1")
+>       kinds = [e["kind"] for e in doc["results"][0]["evidence_refs"]]
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:544: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_bundle.py:115: in _reject
+    return assert_bundle_rejected(run_class(), doc, *tags)
+                                  ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+___ test_run_bundle_reference_by_id_must_resolve[evidence.exchange-<lambda>] ___
+
+label = 'evidence.exchange', mutate = <function <lambda> at 0x109a88900>
+
+                "evidence.turn",
+                lambda d: d["results"][0]["evidence_refs"][0].update(ref_id=new_id("turn")),
+            ),
+            (
+                "evidence.exchange",
+                lambda d: d["results"][0]["evidence_refs"][1].update(ref_id=new_id("exc")),
+            ),
+            (
+                "evidence.tool_call",
+                lambda d: d["results"][0]["evidence_refs"][2].update(ref_id=new_id("tcl")),
+            ),
+            (
+                "evidence.artifact_range",
+                lambda d: d["results"][0]["evidence_refs"][3].update(ref_id=new_id("art")),
+            ),
+            (
+                "evidence.span",
+                lambda d: d["results"][0]["evidence_refs"][4].update(ref_id=new_id("spn")),
+            ),
+            ("verdict.result_id", lambda d: d["verdict"]["checks"][0].update(result_id=new_id("res"))),
+            (
+                "cost.usage_record_ids",
+                lambda d: d["cost_records"][0].update(usage_record_ids=[new_id("use")]),
+            ),
+        ],
+    )
+    def test_run_bundle_reference_by_id_must_resolve(
+        label: str, mutate: Callable[[dict[str, Any]], None]
+    ) -> None:
+        """N22 (the bundle is the unit of a run, so a reference between its records resolves inside it):
+        a turn names a transcript of the bundle, an artifact's ``turn_ref`` a turn, a channel map an
+        artifact, an evidence reference one of the five evidence kinds, a verdict check a result, a
+        cost record its usage records. A dangling reference is ``[unresolved]`` and the message names
+        the dangling ID (never a value). ADR 0012 I6 is the bundle half of
+        ``test_evidence_ref_resolves_in_bundle``."""
+        doc = run_bundle_doc(tier="T1")
+        mutate(doc)
+        error = _reject(doc, "unresolved")
+        assert str(error).count("[unresolved]") >= 1, label
+    
+    
+    def test_evidence_ref_resolves_in_run_bundle() -> None:
+        """The bundle half of ``test_evidence_ref_resolves_in_bundle`` (ADR 0012 Decision 3, I6): every
+        kind of ``EvidenceRef`` of the fixture resolves inside the bundle, and the error of a dangling
+        one names its ``ref_id``. An ID of another kind in ``ref_id`` is rejected by ``EvidenceRef``
+        itself (a ValidationError, not a bundle rule)."""
+        doc = run_bundle_doc(tier="T1")
+>       kinds = [e["kind"] for e in doc["results"][0]["evidence_refs"]]
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:544: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_bundle.py:115: in _reject
+    return assert_bundle_rejected(run_class(), doc, *tags)
+                                  ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+__ test_run_bundle_reference_by_id_must_resolve[evidence.tool_call-<lambda>] ___
+
+label = 'evidence.tool_call', mutate = <function <lambda> at 0x109a889a0>
+
+                "evidence.turn",
+                lambda d: d["results"][0]["evidence_refs"][0].update(ref_id=new_id("turn")),
+            ),
+            (
+                "evidence.exchange",
+                lambda d: d["results"][0]["evidence_refs"][1].update(ref_id=new_id("exc")),
+            ),
+            (
+                "evidence.tool_call",
+                lambda d: d["results"][0]["evidence_refs"][2].update(ref_id=new_id("tcl")),
+            ),
+            (
+                "evidence.artifact_range",
+                lambda d: d["results"][0]["evidence_refs"][3].update(ref_id=new_id("art")),
+            ),
+            (
+                "evidence.span",
+                lambda d: d["results"][0]["evidence_refs"][4].update(ref_id=new_id("spn")),
+            ),
+            ("verdict.result_id", lambda d: d["verdict"]["checks"][0].update(result_id=new_id("res"))),
+            (
+                "cost.usage_record_ids",
+                lambda d: d["cost_records"][0].update(usage_record_ids=[new_id("use")]),
+            ),
+        ],
+    )
+    def test_run_bundle_reference_by_id_must_resolve(
+        label: str, mutate: Callable[[dict[str, Any]], None]
+    ) -> None:
+        """N22 (the bundle is the unit of a run, so a reference between its records resolves inside it):
+        a turn names a transcript of the bundle, an artifact's ``turn_ref`` a turn, a channel map an
+        artifact, an evidence reference one of the five evidence kinds, a verdict check a result, a
+        cost record its usage records. A dangling reference is ``[unresolved]`` and the message names
+        the dangling ID (never a value). ADR 0012 I6 is the bundle half of
+        ``test_evidence_ref_resolves_in_bundle``."""
+        doc = run_bundle_doc(tier="T1")
+        mutate(doc)
+        error = _reject(doc, "unresolved")
+        assert str(error).count("[unresolved]") >= 1, label
+    
+    
+    def test_evidence_ref_resolves_in_run_bundle() -> None:
+        """The bundle half of ``test_evidence_ref_resolves_in_bundle`` (ADR 0012 Decision 3, I6): every
+        kind of ``EvidenceRef`` of the fixture resolves inside the bundle, and the error of a dangling
+        one names its ``ref_id``. An ID of another kind in ``ref_id`` is rejected by ``EvidenceRef``
+        itself (a ValidationError, not a bundle rule)."""
+        doc = run_bundle_doc(tier="T1")
+>       kinds = [e["kind"] for e in doc["results"][0]["evidence_refs"]]
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:544: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_bundle.py:115: in _reject
+    return assert_bundle_rejected(run_class(), doc, *tags)
+                                  ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+_ test_run_bundle_reference_by_id_must_resolve[evidence.artifact_range-<lambda>] _
+
+label = 'evidence.artifact_range', mutate = <function <lambda> at 0x109a88a40>
+
+                "evidence.turn",
+                lambda d: d["results"][0]["evidence_refs"][0].update(ref_id=new_id("turn")),
+            ),
+            (
+                "evidence.exchange",
+                lambda d: d["results"][0]["evidence_refs"][1].update(ref_id=new_id("exc")),
+            ),
+            (
+                "evidence.tool_call",
+                lambda d: d["results"][0]["evidence_refs"][2].update(ref_id=new_id("tcl")),
+            ),
+            (
+                "evidence.artifact_range",
+                lambda d: d["results"][0]["evidence_refs"][3].update(ref_id=new_id("art")),
+            ),
+            (
+                "evidence.span",
+                lambda d: d["results"][0]["evidence_refs"][4].update(ref_id=new_id("spn")),
+            ),
+            ("verdict.result_id", lambda d: d["verdict"]["checks"][0].update(result_id=new_id("res"))),
+            (
+                "cost.usage_record_ids",
+                lambda d: d["cost_records"][0].update(usage_record_ids=[new_id("use")]),
+            ),
+        ],
+    )
+    def test_run_bundle_reference_by_id_must_resolve(
+        label: str, mutate: Callable[[dict[str, Any]], None]
+    ) -> None:
+        """N22 (the bundle is the unit of a run, so a reference between its records resolves inside it):
+        a turn names a transcript of the bundle, an artifact's ``turn_ref`` a turn, a channel map an
+        artifact, an evidence reference one of the five evidence kinds, a verdict check a result, a
+        cost record its usage records. A dangling reference is ``[unresolved]`` and the message names
+        the dangling ID (never a value). ADR 0012 I6 is the bundle half of
+        ``test_evidence_ref_resolves_in_bundle``."""
+        doc = run_bundle_doc(tier="T1")
+        mutate(doc)
+        error = _reject(doc, "unresolved")
+        assert str(error).count("[unresolved]") >= 1, label
+    
+    
+    def test_evidence_ref_resolves_in_run_bundle() -> None:
+        """The bundle half of ``test_evidence_ref_resolves_in_bundle`` (ADR 0012 Decision 3, I6): every
+        kind of ``EvidenceRef`` of the fixture resolves inside the bundle, and the error of a dangling
+        one names its ``ref_id``. An ID of another kind in ``ref_id`` is rejected by ``EvidenceRef``
+        itself (a ValidationError, not a bundle rule)."""
+        doc = run_bundle_doc(tier="T1")
+>       kinds = [e["kind"] for e in doc["results"][0]["evidence_refs"]]
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:544: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_bundle.py:115: in _reject
+    return assert_bundle_rejected(run_class(), doc, *tags)
+                                  ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+_____ test_run_bundle_reference_by_id_must_resolve[evidence.span-<lambda>] _____
+
+label = 'evidence.span', mutate = <function <lambda> at 0x109a88ae0>
+
+                "evidence.turn",
+                lambda d: d["results"][0]["evidence_refs"][0].update(ref_id=new_id("turn")),
+            ),
+            (
+                "evidence.exchange",
+                lambda d: d["results"][0]["evidence_refs"][1].update(ref_id=new_id("exc")),
+            ),
+            (
+                "evidence.tool_call",
+                lambda d: d["results"][0]["evidence_refs"][2].update(ref_id=new_id("tcl")),
+            ),
+            (
+                "evidence.artifact_range",
+                lambda d: d["results"][0]["evidence_refs"][3].update(ref_id=new_id("art")),
+            ),
+            (
+                "evidence.span",
+                lambda d: d["results"][0]["evidence_refs"][4].update(ref_id=new_id("spn")),
+            ),
+            ("verdict.result_id", lambda d: d["verdict"]["checks"][0].update(result_id=new_id("res"))),
+            (
+                "cost.usage_record_ids",
+                lambda d: d["cost_records"][0].update(usage_record_ids=[new_id("use")]),
+            ),
+        ],
+    )
+    def test_run_bundle_reference_by_id_must_resolve(
+        label: str, mutate: Callable[[dict[str, Any]], None]
+    ) -> None:
+        """N22 (the bundle is the unit of a run, so a reference between its records resolves inside it):
+        a turn names a transcript of the bundle, an artifact's ``turn_ref`` a turn, a channel map an
+        artifact, an evidence reference one of the five evidence kinds, a verdict check a result, a
+        cost record its usage records. A dangling reference is ``[unresolved]`` and the message names
+        the dangling ID (never a value). ADR 0012 I6 is the bundle half of
+        ``test_evidence_ref_resolves_in_bundle``."""
+        doc = run_bundle_doc(tier="T1")
+        mutate(doc)
+        error = _reject(doc, "unresolved")
+        assert str(error).count("[unresolved]") >= 1, label
+    
+    
+    def test_evidence_ref_resolves_in_run_bundle() -> None:
+        """The bundle half of ``test_evidence_ref_resolves_in_bundle`` (ADR 0012 Decision 3, I6): every
+        kind of ``EvidenceRef`` of the fixture resolves inside the bundle, and the error of a dangling
+        one names its ``ref_id``. An ID of another kind in ``ref_id`` is rejected by ``EvidenceRef``
+        itself (a ValidationError, not a bundle rule)."""
+        doc = run_bundle_doc(tier="T1")
+>       kinds = [e["kind"] for e in doc["results"][0]["evidence_refs"]]
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:544: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_bundle.py:115: in _reject
+    return assert_bundle_rejected(run_class(), doc, *tags)
+                                  ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+___ test_run_bundle_reference_by_id_must_resolve[verdict.result_id-<lambda>] ___
+
+label = 'verdict.result_id', mutate = <function <lambda> at 0x109a88b80>
+
+                "evidence.turn",
+                lambda d: d["results"][0]["evidence_refs"][0].update(ref_id=new_id("turn")),
+            ),
+            (
+                "evidence.exchange",
+                lambda d: d["results"][0]["evidence_refs"][1].update(ref_id=new_id("exc")),
+            ),
+            (
+                "evidence.tool_call",
+                lambda d: d["results"][0]["evidence_refs"][2].update(ref_id=new_id("tcl")),
+            ),
+            (
+                "evidence.artifact_range",
+                lambda d: d["results"][0]["evidence_refs"][3].update(ref_id=new_id("art")),
+            ),
+            (
+                "evidence.span",
+                lambda d: d["results"][0]["evidence_refs"][4].update(ref_id=new_id("spn")),
+            ),
+            ("verdict.result_id", lambda d: d["verdict"]["checks"][0].update(result_id=new_id("res"))),
+            (
+                "cost.usage_record_ids",
+                lambda d: d["cost_records"][0].update(usage_record_ids=[new_id("use")]),
+            ),
+        ],
+    )
+    def test_run_bundle_reference_by_id_must_resolve(
+        label: str, mutate: Callable[[dict[str, Any]], None]
+    ) -> None:
+        """N22 (the bundle is the unit of a run, so a reference between its records resolves inside it):
+        a turn names a transcript of the bundle, an artifact's ``turn_ref`` a turn, a channel map an
+        artifact, an evidence reference one of the five evidence kinds, a verdict check a result, a
+        cost record its usage records. A dangling reference is ``[unresolved]`` and the message names
+        the dangling ID (never a value). ADR 0012 I6 is the bundle half of
+        ``test_evidence_ref_resolves_in_bundle``."""
+        doc = run_bundle_doc(tier="T1")
+        mutate(doc)
+        error = _reject(doc, "unresolved")
+        assert str(error).count("[unresolved]") >= 1, label
+    
+    
+    def test_evidence_ref_resolves_in_run_bundle() -> None:
+        """The bundle half of ``test_evidence_ref_resolves_in_bundle`` (ADR 0012 Decision 3, I6): every
+        kind of ``EvidenceRef`` of the fixture resolves inside the bundle, and the error of a dangling
+        one names its ``ref_id``. An ID of another kind in ``ref_id`` is rejected by ``EvidenceRef``
+        itself (a ValidationError, not a bundle rule)."""
+        doc = run_bundle_doc(tier="T1")
+>       kinds = [e["kind"] for e in doc["results"][0]["evidence_refs"]]
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:544: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_bundle.py:115: in _reject
+    return assert_bundle_rejected(run_class(), doc, *tags)
+                                  ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+_ test_run_bundle_reference_by_id_must_resolve[cost.usage_record_ids-<lambda>] _
+
+label = 'cost.usage_record_ids', mutate = <function <lambda> at 0x109a88c20>
+
+                "evidence.turn",
+                lambda d: d["results"][0]["evidence_refs"][0].update(ref_id=new_id("turn")),
+            ),
+            (
+                "evidence.exchange",
+                lambda d: d["results"][0]["evidence_refs"][1].update(ref_id=new_id("exc")),
+            ),
+            (
+                "evidence.tool_call",
+                lambda d: d["results"][0]["evidence_refs"][2].update(ref_id=new_id("tcl")),
+            ),
+            (
+                "evidence.artifact_range",
+                lambda d: d["results"][0]["evidence_refs"][3].update(ref_id=new_id("art")),
+            ),
+            (
+                "evidence.span",
+                lambda d: d["results"][0]["evidence_refs"][4].update(ref_id=new_id("spn")),
+            ),
+            ("verdict.result_id", lambda d: d["verdict"]["checks"][0].update(result_id=new_id("res"))),
+            (
+                "cost.usage_record_ids",
+                lambda d: d["cost_records"][0].update(usage_record_ids=[new_id("use")]),
+            ),
+        ],
+    )
+    def test_run_bundle_reference_by_id_must_resolve(
+        label: str, mutate: Callable[[dict[str, Any]], None]
+    ) -> None:
+        """N22 (the bundle is the unit of a run, so a reference between its records resolves inside it):
+        a turn names a transcript of the bundle, an artifact's ``turn_ref`` a turn, a channel map an
+        artifact, an evidence reference one of the five evidence kinds, a verdict check a result, a
+        cost record its usage records. A dangling reference is ``[unresolved]`` and the message names
+        the dangling ID (never a value). ADR 0012 I6 is the bundle half of
+        ``test_evidence_ref_resolves_in_bundle``."""
+        doc = run_bundle_doc(tier="T1")
+        mutate(doc)
+        error = _reject(doc, "unresolved")
+        assert str(error).count("[unresolved]") >= 1, label
+    
+    
+    def test_evidence_ref_resolves_in_run_bundle() -> None:
+        """The bundle half of ``test_evidence_ref_resolves_in_bundle`` (ADR 0012 Decision 3, I6): every
+        kind of ``EvidenceRef`` of the fixture resolves inside the bundle, and the error of a dangling
+        one names its ``ref_id``. An ID of another kind in ``ref_id`` is rejected by ``EvidenceRef``
+        itself (a ValidationError, not a bundle rule)."""
+        doc = run_bundle_doc(tier="T1")
+>       kinds = [e["kind"] for e in doc["results"][0]["evidence_refs"]]
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:544: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_bundle.py:115: in _reject
+    return assert_bundle_rejected(run_class(), doc, *tags)
+                                  ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+___________________ test_evidence_ref_resolves_in_run_bundle ___________________
+
+>   ???
+
+packages/evalschema/tests/test_bundle.py:556: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b7.py:117: in load_run
+    return run_class().model_validate(doc)
+           ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+_____________ test_bundle_declared_language_transcript_ids_resolve _____________
+
+    missing["results"][0]["declared_language_transcript_ids"] = [new_id("tsc")]
+    _reject(missing, "unresolved")
+    undeclared = copy.deepcopy(doc)
+    del undeclared["transcripts"][0]["declared_language"]
+    undeclared["transcripts"][0]["detected_language"] = "mr-IN"
+    undeclared["transcripts"][0]["detected_language_raw"] = "mr_IN"
+>   _reject(undeclared, "declared_language")
+             ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:574: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b7.py:117: in load_run
+    return run_class().model_validate(doc)
+           ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+___________ test_bundle_scorer_implementation_ref_equals_definition ____________
+
+        bad["results"][1]["scorer"]["implementation_ref"] = ref
+        if ref.endswith(" "):
+            with pytest.raises(ValidationError):  # not a MachineKey: the record model rejects it
+                run_class().model_validate(bad)
+            continue
+        error = _reject(bad, "result")
+        assert "implementation_ref" in str(error)
+        assert doc["results"][1]["id"] in str(error)
+    for version in ("1.4.2", "9.9.9-rc1", "2026-10-23", "v0", "a"):
+        ok = copy.deepcopy(doc)
+        ok["results"][1]["scorer"]["version"] = version
+        load_run(ok)
+    no_scorer = copy.deepcopy(doc)
+    del no_scorer["results"][1]["scorer"]
+    with pytest.raises(ValidationError):
+>       run_class().model_validate(no_scorer)  # scored deterministic results record their scorer
+                ^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:621: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_bundle.py:115: in _reject
+    return assert_bundle_rejected(run_class(), doc, *tags)
+                                  ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+___________ test_run_bundle_result_is_checked_against_its_definition ___________
+
+    bad_passed = copy.deepcopy(doc)
+    bad_passed["results"][1]["passed"] = False
+    _reject(bad_passed, "result")
+    bad_lang = copy.deepcopy(doc)
+    del bad_lang["results"][1]["language_source"]
+    _reject(bad_lang, "result")
+>   no_judge = copy.deepcopy(doc)
+    ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:646: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b7.py:117: in load_run
+    return run_class().model_validate(doc)
+           ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+_____ test_run_bundle_result_metric_must_resolve_to_a_snapshot_definition ______
+
+        lambda d: d["results"][0]["metric"].update(id=new_id("met")),
+        lambda d: d["results"][0]["metric"].update(version=7),
+        lambda d: d["results"][1]["metric"].update(version=2),
+    ):
+        bad = copy.deepcopy(doc)
+        mutate(bad)
+        error = _typed(bad, "UnresolvedReferenceError")
+        assert isinstance(error, api("errors").BundleError)
+>   wrong_digest = copy.deepcopy(doc)
+    ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:669: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b7.py:117: in load_run
+    return run_class().model_validate(doc)
+           ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+__________________ test_run_bundle_has_one_result_per_metric ___________________
+
+        _reject(doc, "rescoring")
+        other = run_bundle_doc(tier="T1")
+        bundle = load_run(other)
+        assert len({(r.metric.id, r.metric.version) for r in bundle.results}) == len(bundle.results)
+    
+    
+    def test_run_bundle_verdict_is_checked_against_rubric_and_results() -> None:
+        """ADR 0013 (verdict) as a bundle rule: ``check_verdict(verdict, rubric=, bindings=, results=)``
+        over the snapshot's rubric and bindings and the bundle's results. A check whose outcome
+        differs from its result, a missing required check and a stale weighted score are ``[verdict]``.
+>       A bundle without a verdict is valid (a run that was not scored)."""
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:716: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_bundle.py:115: in _reject
+    return assert_bundle_rejected(run_class(), doc, *tags)
+                                  ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+________ test_run_bundle_verdict_is_checked_against_rubric_and_results _________
+
+    missing = copy.deepcopy(doc)
+    missing["verdict"].update(
+        required_total=1,
+        passed=1,
+        checks=[doc["verdict"]["checks"][0]],
+        weighted_score=None,
+>       weight_coverage=None,
+    ^^^^^^^^^^^^^
+    )
+
+packages/evalschema/tests/test_bundle.py:728: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b7.py:117: in load_run
+    return run_class().model_validate(doc)
+           ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+_________ test_run_bundle_transcript_rules_run_over_the_bundles_turns __________
+
+    assert "seq" in str(error)
+    offsets = copy.deepcopy(doc)
+    offsets["turns"][0].update(start_ms=0, end_ms=500, timing_source="audio_alignment")
+    error = _reject(offsets, "transcript")
+    assert "timeline_origin" in str(error)
+    dangling = copy.deepcopy(doc)
+    dangling["turns"][0]["exchange_index"] = 7
+    error = _reject(dangling, "transcript")
+    assert "7" in str(error)
+>   twice = copy.deepcopy(doc)
+            ^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:770: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_bundle.py:115: in _reject
+    return assert_bundle_rejected(run_class(), doc, *tags)
+                                  ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+____________ test_run_bundle_tool_call_seq_is_unique_in_the_bundle _____________
+
+    
+    
+    def test_run_bundle_channel_map_is_checked_against_its_artifact() -> None:
+        """ADR 0012 Decision 5 (``check_channel_map``): a channel index beyond the artifact's channel
+        count is ``[channel_map]``, checked in the bundle where the artifact is known. A map for an
+>       artifact that is not in the bundle is ``[unresolved]`` (see the reference test)."""
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:806: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_bundle.py:115: in _reject
+    return assert_bundle_rejected(run_class(), doc, *tags)
+                                  ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+_________ test_run_bundle_channel_map_is_checked_against_its_artifact __________
+
+        _reject(doc, "channel_map")
+        mono = run_bundle_doc(tier="T1")
+        mono["artifacts"][0]["audio_format"]["channels"] = 1
+        _reject(mono, "channel_map")
+    
+    
+    # ===================================================================== pricing, usage and cost
+    
+    
+    def test_pricing_catalog_ref_digest_in_the_bundle_seam() -> None:
+>       """N26 and N52 (the bundle seam reads every catalog digest as ``content_digest``): the
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        snapshot's ``PricingCatalogRef`` and each ``CostRecord.pricing_snapshot`` (mapped to
+        ``{id: catalog_id, version, content_digest}``) are verified against the embedded catalog. A
+        different digest of the same scheme raises ``RefDigestMismatchError`` unwrapped. A catalog that
+        is not embedded, or only another version of it, leaves the reference unverified, not rejected.
+        A keyed digest on the reference cannot be compared and is neither a match nor a mismatch."""
+
+packages/evalschema/tests/test_bundle.py:823: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_bundle.py:115: in _reject
+    return assert_bundle_rejected(run_class(), doc, *tags)
+                                  ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+______________ test_pricing_catalog_ref_digest_in_the_bundle_seam ______________
+
+    snap_bad = copy.deepcopy(doc)
+    snap_bad["snapshot"]["pricing_catalog"]["content_digest"] = flipped
+    snap_bad["snapshot"] = resnap(snap_bad["snapshot"])
+    _typed(snap_bad, "RefDigestMismatchError")
+    cost_bad = copy.deepcopy(doc)
+    computed = [c for c in cost_bad["cost_records"] if c["basis"] == "computed"][0]
+    computed["pricing_snapshot"]["content_digest"] = flipped
+    _typed(cost_bad, "RefDigestMismatchError")
+>   not_embedded = copy.deepcopy(doc)
+    ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:840: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b7.py:117: in load_run
+    return run_class().model_validate(doc)
+           ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+___________ test_run_bundle_cost_record_names_entries_of_its_catalog ___________
+
+        without["pricing_catalogs"] = []
+        load_run(without)
+    
+    
+    def test_run_bundle_cost_summary_is_checked_against_the_bundles_records() -> None:
+        """ADR 0014 Decision 16a and 16b, N22 (``cost.check_cost_summary`` is a bundle-level check): a
+        total that is not the exact sum of the included amounts, a record the summary names that the
+        bundle does not hold, and a cost record that is neither included nor excluded are
+>       ``[summary]``. One summary per domain."""
+        ^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:880: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_bundle.py:115: in _reject
+    return assert_bundle_rejected(run_class(), doc, *tags)
+                                  ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+_____ test_run_bundle_cost_summary_is_checked_against_the_bundles_records ______
+
+    unknown = copy.deepcopy(doc)
+    unknown["cost_summaries"][0]["included"][0] = new_id("cst")
+    _reject(unknown, "summary")
+    unaccounted = copy.deepcopy(doc)
+    extra_usage = copy.deepcopy(unaccounted["usage_records"][0])
+    extra_usage["id"] = new_id("use")
+>   unaccounted["usage_records"].append(extra_usage)
+    ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:892: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b7.py:117: in load_run
+    return run_class().model_validate(doc)
+           ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+_______ test_run_bundle_verifies_the_digest_of_a_test_profile_reference ________
+
+    doc["test_profiles"] = [profile_doc]
+    load_run(doc)
+    bad = copy.deepcopy(doc)
+    bad["snapshot"]["evaluator"]["test_profile"]["content_digest"]["value"] = "0" * 64
+    _typed(bad, "RefDigestMismatchError")
+    keyed = world(tier="T0", with_profile=True, profile_digest="keyed")
+    keyed_doc = keyed.copy()
+    keyed_doc["test_profiles"] = [keyed.parts["profile"].model_dump(mode="json", by_alias=True)]
+    load_run(keyed_doc)
+    none = world(tier="T0", with_profile=True)
+    none_doc = none.copy()
+>   none_doc["test_profiles"] = [none.parts["profile"].model_dump(mode="json", by_alias=True)]
+    ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_bundle.py:932: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b7.py:117: in load_run
+    return run_class().model_validate(doc)
+           ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+_________ test_run_bundle_rejects_a_marker_looser_than_the_derivation __________
+
+>   ???
+
+packages/evalschema/tests/test_bundle.py:959: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_bundle.py:115: in _reject
+    return assert_bundle_rejected(run_class(), doc, *tags)
+                                  ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+_______________ test_bundle_seam_reference_resolution_is_opt_in ________________
+
+    assert issubclass(errors.UnresolvedReferenceError, errors.BundleError)
+    persona = {
+        "id": str(new_id("per")),
+        "version": 1,
+        "schema_version": CURRENT_SCHEMA_VERSION,
+        "content_digest": {"scheme": PLAIN, "value": "a" * 64},
+    }
+    other = {**persona, "id": str(new_id("per"))}
+    ref = {"id": persona["id"], "version": 1}
+    check([persona], [ref])
+>   check([persona], [ref], require_resolved=True)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'tracer_evalschema.errors' has no attribute 'UnresolvedReferenceError'
+
+packages/evalschema/tests/test_bundle.py:1008: AttributeError
+________________________ test_bundle_loader_size_limit _________________________
+
+    assert issubclass(errors.BundleSizeError, errors.BundleError)
+    default = loader.DEFAULT_MAX_BUNDLE_BYTES
+    assert type(default) is int
+    assert 64 * 2**20 <= default <= 2**30
+    doc = run_bundle_doc(tier="T0")
+    data = _size_of(doc)
+    text = data.decode("utf-8")
+    assert loader.load_bundle(run_class(), data) == load_run(doc)
+    assert loader.load_bundle(run_class(), text) == load_run(doc)
+    assert loader.load_bundle(run_class(), data, max_bytes=len(data)) == load_run(doc)
+>   with pytest.raises(errors.BundleSizeError) as caught:
+                      ^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'tracer_evalschema.errors' has no attribute 'BundleSizeError'. Did you mean: 'BundleError'?
+
+packages/evalschema/tests/test_bundle.py:1052: AttributeError
+________________ test_bundle_loader_keeps_the_strict_json_rules ________________
+
+    text = json.dumps(doc)
+    duplicate = text.replace('"seq": 0,', '"seq": 0, "seq": 1,', 1)
+    assert duplicate != text
+    with pytest.raises(errors.DuplicateKeyError):
+        loader.load_bundle(run_class(), duplicate)
+    with pytest.raises(errors.DepthLimitExceeded):
+        loader.load_bundle(run_class(), text, max_depth=3)
+    with pytest.raises(ValueError, match="NaN"):
+        loader.load_bundle(run_class(), text.replace('"size": 1234567', '"size": NaN', 1))
+    newer = copy.deepcopy(doc)
+    newer["turns"][0]["schema_version"] = "0.0.2"
+    with pytest.raises(errors.SchemaVersionTooNew):
+        loader.load_bundle(run_class(), json.dumps(newer))
+    broken = copy.deepcopy(doc)
+>   broken["usage_records"][0]["run_id"] = new_id("run")
+        ^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'tracer_evalschema.loader' has no attribute 'load_bundle'
+
+packages/evalschema/tests/test_bundle.py:1107: AttributeError
+______________ test_run_bundle_embeds_only_what_the_schema_lists _______________
+
+>   ???
+
+packages/evalschema/tests/test_bundle.py:1131: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def run_class() -> Any:
+>       return api("bundle").RunBundle
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.bundle' has no attribute 'RunBundle'
+
+packages/evalschema/tests/_support_b7.py:105: AttributeError
+_________ test_policy_documents_reported_cost_without_usage_limitation _________
+
+    def test_policy_documents_reported_cost_without_usage_limitation() -> None:
+        """P1-20a, N51 remainder (a) (api-surface 23.6 group R item 3; red until SCHEMA_POLICY.md
+        exists, like the two existing policy-document tests): SCHEMA_POLICY.md states that a reported
+        cost without usage records shares no usage in summaries, so a double count with a computed
+        record for the same call is not detected, and that importers must link usage whenever the
+        source identifies it. Gate-bound."""
+        candidates = [
+            PACKAGE_DIR / "SCHEMA_POLICY.md",
+            ROOT / "SCHEMA_POLICY.md",
+            ROOT / "docs" / "SCHEMA_POLICY.md",
+        ]
+        text = ""
+        for path in candidates:
+            if path.is_file():
+                text = path.read_text(encoding="utf-8")
+                break
+        else:
+>           pytest.fail(
+                "SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of "
+                + ", ".join(str(c) for c in candidates)
+            )
+E           Failed: SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of ~/tracer/packages/evalschema/SCHEMA_POLICY.md, ~/tracer/SCHEMA_POLICY.md, ~/tracer/docs/SCHEMA_POLICY.md
+
+packages/evalschema/tests/test_cost.py:824: Failed
+___________________ test_every_entity_has_registered_prefix ____________________
+
+    def test_every_entity_has_registered_prefix() -> None:
+        registry = api("registry")
+        ids = api("ids")
+        base = api("base")
+        entities = registry.entity_classes()
+>       assert len(ids.ID_PREFIXES) == len(entities) == 26  # `pce` withdrawn in revision 15 (N47)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: assert 26 == 24
+E        +  where 26 = len(mappingproxy({'prj': 'Project', 'agt': 'AgentTarget', 'per': 'Persona', 'tpf': 'TestProfile', 'evl': 'Evaluator', 'met...atalog', 'use': 'UsageRecord', 'cst': 'CostRecord', 'csum': 'CostSummary', 'rbnd': 'RunBundle', 'exp': 'ExportBundle'}))
+E        +    where mappingproxy({'prj': 'Project', 'agt': 'AgentTarget', 'per': 'Persona', 'tpf': 'TestProfile', 'evl': 'Evaluator', 'met...atalog', 'use': 'UsageRecord', 'cst': 'CostRecord', 'csum': 'CostSummary', 'rbnd': 'RunBundle', 'exp': 'ExportBundle'}) = <module 'tracer_evalschema.ids' from '~/tracer/packages/evalschema/src/tracer_evalschema/ids.py'>.ID_PREFIXES
+E        +  and   24 = len({'agt': <class 'tracer_evalschema.agent.AgentTarget'>, 'art': <class 'tracer_evalschema.artifact.Artifact'>, 'cst': <class 'tracer_evalschema.cost.CostRecord'>, 'csum': <class 'tracer_evalschema.cost.CostSummary'>, ...})
+
+packages/evalschema/tests/test_ids.py:818: AssertionError
+_____________ test_policy_documents_low_entropy_digest_limitation ______________
+
+    def test_policy_documents_low_entropy_digest_limitation() -> None:
+        """ADR 0006 Decision 6 / I12, A-26: SCHEMA_POLICY.md states that a plain digest of a
+        low-entropy profile in internal data can be brute-forced, and that shared exports never
+        carry such a plain digest (they drop or key it). Gate-bound: green when P1-20a writes the
+        file."""
+>       text = _policy_text().lower()
+               ^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_persona_profile.py:346: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _policy_text() -> str:
+        candidates = [
+            PACKAGE_DIR / "SCHEMA_POLICY.md",
+            ROOT / "SCHEMA_POLICY.md",
+            ROOT / "docs" / "SCHEMA_POLICY.md",
+        ]
+        for path in candidates:
+            if path.is_file():
+                return path.read_text(encoding="utf-8")
+>       pytest.fail(
+            "SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of "
+            + ", ".join(str(p.relative_to(ROOT)) for p in candidates)
+        )
+E       Failed: SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of packages/evalschema/SCHEMA_POLICY.md, SCHEMA_POLICY.md, docs/SCHEMA_POLICY.md
+
+packages/evalschema/tests/test_persona_profile.py:335: Failed
+_______________ test_policy_documents_free_text_lint_limitation ________________
+
+    def test_policy_documents_free_text_lint_limitation() -> None:
+        """P-16 (ADR 0006 Decision 9, I21): SCHEMA_POLICY.md states that the free-text lint can only
+        find
+        values of the profile it is given, that personal data typed into free text that is in no
+        profile cannot be detected and stays the author's responsibility, and (revision 8) that
+        another format of the same value or a part of a value is not found. Gate-bound: green when
+        P1-20a writes the file."""
+>       flat = re.sub(r"\s+", " ", _policy_text().lower())
+                                   ^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_snapshot.py:656: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _policy_text() -> str:
+        candidates = [
+            PACKAGE_DIR / "SCHEMA_POLICY.md",
+            ROOT / "SCHEMA_POLICY.md",
+            ROOT / "docs" / "SCHEMA_POLICY.md",
+        ]
+        for path in candidates:
+            if path.is_file():
+                return path.read_text(encoding="utf-8")
+>       pytest.fail(
+            "SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of "
+            + ", ".join(str(p.relative_to(ROOT)) for p in candidates)
+        )
+E       Failed: SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of packages/evalschema/SCHEMA_POLICY.md, SCHEMA_POLICY.md, docs/SCHEMA_POLICY.md
+
+packages/evalschema/tests/test_snapshot.py:643: Failed
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_bundle.py::test_run_and_export_bundle_are_registered_entities
+FAILED packages/evalschema/tests/test_bundle.py::test_bundle_value_objects_shape
+FAILED packages/evalschema/tests/test_bundle.py::test_bundle_closed_sets_are_exact_and_emit_enum
+FAILED packages/evalschema/tests/test_bundle.py::test_withheld_record_kind_matches_id_kind
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_of_a_consistent_run_is_accepted[T0-human]
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_of_a_consistent_run_is_accepted[T0-simulated]
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_of_a_consistent_run_is_accepted[T1-human]
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_of_a_consistent_run_is_accepted[T1-simulated]
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_of_a_consistent_run_is_accepted[T2-human]
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_of_a_consistent_run_is_accepted[T2-simulated]
+FAILED packages/evalschema/tests/test_bundle.py::test_bundle_roundtrip_model_json_schema_model
+FAILED packages/evalschema/tests/test_bundle.py::test_bundle_models_reject_unknown_and_secret_like_members
+FAILED packages/evalschema/tests/test_bundle.py::test_bundle_models_hide_their_input
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_rejects_records_of_another_schema_version
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_rejects_same_record_id_different_content
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_rejects_a_record_listed_twice
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_names_its_snapshot
+FAILED packages/evalschema/tests/test_bundle.py::test_usage_record_run_membership
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_reference_by_id_must_resolve[turn.transcript_id-<lambda>]
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_reference_by_id_must_resolve[artifact.turn_ref-<lambda>]
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_reference_by_id_must_resolve[channel_map.artifact_id-<lambda>]
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_reference_by_id_must_resolve[evidence.turn-<lambda>]
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_reference_by_id_must_resolve[evidence.exchange-<lambda>]
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_reference_by_id_must_resolve[evidence.tool_call-<lambda>]
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_reference_by_id_must_resolve[evidence.artifact_range-<lambda>]
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_reference_by_id_must_resolve[evidence.span-<lambda>]
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_reference_by_id_must_resolve[verdict.result_id-<lambda>]
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_reference_by_id_must_resolve[cost.usage_record_ids-<lambda>]
+FAILED packages/evalschema/tests/test_bundle.py::test_evidence_ref_resolves_in_run_bundle
+FAILED packages/evalschema/tests/test_bundle.py::test_bundle_declared_language_transcript_ids_resolve
+FAILED packages/evalschema/tests/test_bundle.py::test_bundle_scorer_implementation_ref_equals_definition
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_result_is_checked_against_its_definition
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_result_metric_must_resolve_to_a_snapshot_definition
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_has_one_result_per_metric
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_verdict_is_checked_against_rubric_and_results
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_transcript_rules_run_over_the_bundles_turns
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_tool_call_seq_is_unique_in_the_bundle
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_channel_map_is_checked_against_its_artifact
+FAILED packages/evalschema/tests/test_bundle.py::test_pricing_catalog_ref_digest_in_the_bundle_seam
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_cost_record_names_entries_of_its_catalog
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_cost_summary_is_checked_against_the_bundles_records
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_verifies_the_digest_of_a_test_profile_reference
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_rejects_a_marker_looser_than_the_derivation
+FAILED packages/evalschema/tests/test_bundle.py::test_bundle_seam_reference_resolution_is_opt_in
+FAILED packages/evalschema/tests/test_bundle.py::test_bundle_loader_size_limit
+FAILED packages/evalschema/tests/test_bundle.py::test_bundle_loader_keeps_the_strict_json_rules
+FAILED packages/evalschema/tests/test_bundle.py::test_run_bundle_embeds_only_what_the_schema_lists
+FAILED packages/evalschema/tests/test_cost.py::test_policy_documents_reported_cost_without_usage_limitation
+FAILED packages/evalschema/tests/test_ids.py::test_every_entity_has_registered_prefix
+FAILED packages/evalschema/tests/test_persona_profile.py::test_policy_documents_low_entropy_digest_limitation
+FAILED packages/evalschema/tests/test_snapshot.py::test_policy_documents_free_text_lint_limitation
+51 failed, 1938 passed in 59.74s

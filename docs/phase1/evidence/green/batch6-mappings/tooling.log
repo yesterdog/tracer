@@ -1,0 +1,101 @@
+# group: tooling   (batch 6 green run, dev, real-sample mapping converters)
+# date: 2026-10-23T14:51:44Z (UTC)
+# commands: uv run --locked {ruff check ., ruff format --check ., mypy, python scripts/check_headers.py, python scripts/guard_private_fixtures.py, python scripts/check_licenses.py}; then ruff, ruff format --check and mypy on packages/evalschema/tests/support/mappings only
+# interpreter: uv project env, Python 3.14.7
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# note: findings outside packages/evalschema/tests/support/mappings belong to other agents' work in progress (_support_b7.py and test_bundle.py), not edited here
+# ------------------------------------------------------------------------------
+$ ruff check . --output-format concise
+packages/evalschema/tests/_support_b7.py:24:1: I001 [*] Import block is un-sorted or un-formatted
+packages/evalschema/tests/_support_b7.py:54:101: E501 Line too long (108 > 100)
+packages/evalschema/tests/_support_b7.py:230:101: E501 Line too long (115 > 100)
+packages/evalschema/tests/_support_b7.py:280:101: E501 Line too long (103 > 100)
+packages/evalschema/tests/_support_b7.py:407:101: E501 Line too long (112 > 100)
+packages/evalschema/tests/_support_b7.py:432:101: E501 Line too long (102 > 100)
+packages/evalschema/tests/test_bundle.py:288:101: E501 Line too long (101 > 100)
+packages/evalschema/tests/test_bundle.py:569:101: E501 Line too long (101 > 100)
+packages/evalschema/tests/test_bundle.py:594:101: E501 Line too long (102 > 100)
+packages/evalschema/tests/test_bundle.py:641:101: E501 Line too long (101 > 100)
+packages/evalschema/tests/test_bundle.py:663:101: E501 Line too long (102 > 100)
+packages/evalschema/tests/test_bundle.py:844:16: RUF015 Prefer `next(...)` over single element slice
+packages/evalschema/tests/test_bundle.py:875:16: RUF015 Prefer `next(...)` over single element slice
+packages/evalschema/tests/test_bundle.py:921:101: E501 Line too long (101 > 100)
+packages/evalschema/tests/test_bundle.py:924:101: E501 Line too long (101 > 100)
+packages/evalschema/tests/test_bundle.py:983:101: E501 Line too long (110 > 100)
+packages/evalschema/tests/test_bundle.py:992:101: E501 Line too long (102 > 100)
+packages/evalschema/tests/test_bundle.py:1029:101: E501 Line too long (110 > 100)
+packages/evalschema/tests/test_bundle.py:1067:42: RUF043 Pattern passed to `match=` contains metacharacters but is neither escaped nor raw
+packages/evalschema/tests/test_bundle.py:1071:101: E501 Line too long (103 > 100)
+packages/evalschema/tests/test_bundle.py:1082:101: E501 Line too long (122 > 100)
+packages/evalschema/tests/test_bundle.py:1083:101: E501 Line too long (123 > 100)
+Found 22 errors.
+[*] 1 fixable with `--fix` (2 unsafe fixes available with `--fix --unsafe-fixes`).
+exit: 1
+$ ruff format --check .
+291  |         dumped = export.model_dump(mode="json", by_alias=True)
+--------------------------------------------------------------------------------
+984  |     # the transcript's marker alone is enough to reject
+     -     only_transcript = run_bundle_doc(tier="T0", origin="simulated", unknown_turn=True, marker=privacy_human())
+985  +     only_transcript = run_bundle_doc(
+986  +         tier="T0", origin="simulated", unknown_turn=True, marker=privacy_human()
+987  +     )
+988  |     only_transcript["transcripts"][0]["privacy"] = privacy_synthetic()
+--------------------------------------------------------------------------------
+1032 |         )
+     -     check([persona], [{**ref, "content_digest": {"scheme": PLAIN, "value": "a" * 64}}], require_resolved=True)
+1033 +     check(
+1034 +         [persona],
+1035 +         [{**ref, "content_digest": {"scheme": PLAIN, "value": "a" * 64}}],
+1036 +         require_resolved=True,
+1037 +     )
+1038 |     check([], [], require_resolved=True)
+--------------------------------------------------------------------------------
+1078 |     exp_data = _size_of(export)
+     -     assert loader.load_bundle(export_class(), exp_data, max_bytes=len(exp_data)) == load_export(export)
+1079 +     assert loader.load_bundle(export_class(), exp_data, max_bytes=len(exp_data)) == load_export(
+1080 +         export
+1081 +     )
+1082 |     with pytest.raises(errors.BundleSizeError):
+--------------------------------------------------------------------------------
+1091 |         loader.load_bundle(run_class(), wide_text, max_bytes=len(wide_text))
+     -     assert loader.load_bundle(run_class(), wide_text, max_bytes=len(wide_bytes)).turns[0].text == wide["turns"][0]["text"]
+     -     assert loader.load_bundle(run_class(), wide_bytes, max_bytes=len(wide_bytes)).turns[0].text == wide["turns"][0]["text"]
+1092 +     assert (
+1093 +         loader.load_bundle(run_class(), wide_text, max_bytes=len(wide_bytes)).turns[0].text
+1094 +         == wide["turns"][0]["text"]
+1095 +     )
+1096 +     assert (
+1097 +         loader.load_bundle(run_class(), wide_bytes, max_bytes=len(wide_bytes)).turns[0].text
+1098 +         == wide["turns"][0]["text"]
+1099 +     )
+1100 |     for bad in (-1, 1.5, True, None, "10"):
+     |
+
+2 files would be reformatted, 166 files already formatted
+exit: 1
+$ mypy
+packages/evalschema/tests/_support_b7.py:506: error: Returning Any from function declared to return "BaseException"  [no-any-return]
+packages/evalschema/tests/test_bundle.py:304: error: Need type annotation for "extra"  [var-annotated]
+packages/evalschema/tests/test_bundle.py:314: error: Incompatible types in assignment (expression has type "dict[str, str] | dict[str, dict[Never, Never]] | dict[str, list[Never]]", variable has type "dict[str, str] | dict[str, dict[str, str]] | dict[str, list[Any]]")  [assignment]
+packages/evalschema/tests/test_bundle.py:388: error: Call to untyped function (unknown) in typed context  [no-untyped-call]
+packages/evalschema/tests/test_bundle.py:391: error: Call to untyped function (unknown) in typed context  [no-untyped-call]
+packages/evalschema/tests/test_bundle.py:413: error: Call to untyped function (unknown) in typed context  [no-untyped-call]
+packages/evalschema/tests/test_bundle.py:673: error: Call to untyped function (unknown) in typed context  [no-untyped-call]
+packages/evalschema/tests/test_bundle.py:1019: error: Unsupported operand types for in ("object" and "str")  [operator]
+Found 8 errors in 2 files (checked 116 source files)
+exit: 1
+$ python scripts/check_headers.py
+exit: 0
+$ python scripts/guard_private_fixtures.py
+exit: 0
+$ python scripts/check_licenses.py
+42 ok, 0 failed
+exit: 0
+$ ruff check packages/evalschema/tests/support/mappings
+All checks passed!
+exit: 0
+$ ruff format --check packages/evalschema/tests/support/mappings
+8 files already formatted
+exit: 0
+$ mypy: number of error lines in support/mappings
+0
