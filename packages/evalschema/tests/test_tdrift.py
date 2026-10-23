@@ -102,8 +102,9 @@ SELF = "packages/evalschema/tests/test_tdrift.py"
 # (``test_tdrift_allowlist_matches_adr``).
 # Revision 27 text plus batch 19 (qa): the five clean-room UAX #9 modules (A36, bidi class code
 # names, not language tags); without the entries for the two modules whose binding test names no
-# longer match the strict pattern, without the synthetic fixture directory (no hit there) and
-# without the T-DRIFT test module (it builds its tokens from parts).
+# longer match the strict pattern and without the synthetic fixture directory (no hit there). The
+# T-DRIFT test module itself (SELF) is an entry, because its binding test name matches the pattern;
+# it builds every other token from parts.
 ALLOW_FILES: frozenset[str] = frozenset(
     {
         "docs/phase1/SCOPE.md",

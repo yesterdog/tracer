@@ -5,7 +5,7 @@
 - Schema file: `Persona.schema.json` (package data `tracer_evalschema/schemas/`)
 - `$id`: `urn:tracer:evalschema:0.0.1:Persona`
 - Schema version: `0.0.1`
-- SHA-256 of the schema file (as in `schema.lock`): `5b3553223a2fffcfbc97c7bb274b9e489f0e90fe4c753c8464b3972276ef351f`
+- SHA-256 of the schema file (as in `schema.lock`): `b2b8d99b559528c52635dfe2a48f0547a3bce8c54833b591c07f5577ad2c8fdb`
 - ID prefix: `per`
 - Versioned (has `version`): yes
 
@@ -22,7 +22,7 @@ The simulated caller (prefix ``per``): a configured language and an optional acc
 | `created_at` | yes | `string` (pattern of 129 characters (see the schema file); format `date-time`) |  |  |
 | `id` | yes | `string` (pattern `^per_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`) |  |  |
 | `language` | yes | `string` (pattern of 356 characters (see the schema file)) |  |  |
-| `metadata` | no | object with any JSON members |  |  |
+| `metadata` | no | object |  |  |
 | `metadata_flags` | no | array of [MetadataFlag](value-objects.md#metadataflag) |  |  |
 | `schema_version` | yes | one of `"0.0.1"` |  |  |
 | `version` | yes | `integer` (minimum 1) |  |  |

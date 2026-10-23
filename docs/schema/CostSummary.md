@@ -5,7 +5,7 @@
 - Schema file: `CostSummary.schema.json` (package data `tracer_evalschema/schemas/`)
 - `$id`: `urn:tracer:evalschema:0.0.1:CostSummary`
 - Schema version: `0.0.1`
-- SHA-256 of the schema file (as in `schema.lock`): `75a475cd52605bc3a67498239fa8b397b7e3fced9d4b4e932674d0e828a2084b`
+- SHA-256 of the schema file (as in `schema.lock`): `e2ef8d0ca54fb7c5c6c80c1476bc0df49c3bd770c4ca206f14724b5a40be1173`
 - ID prefix: `csum`
 - Versioned (has `version`): no
 
@@ -25,7 +25,7 @@ rules on the summary alone are checked here; the rules against its records are
 | `excluded` | yes | array of [CostExclusion](value-objects.md#costexclusion) |  |  |
 | `id` | yes | `string` (pattern `^csum_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`) |  |  |
 | `included` | yes | array of `string` (pattern `^cst_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`) (no repeated items (`uniqueItems`)) |  |  |
-| `metadata` | no | object with any JSON members |  |  |
+| `metadata` | no | object |  |  |
 | `metadata_flags` | no | array of [MetadataFlag](value-objects.md#metadataflag) |  |  |
 | `schema_version` | yes | one of `"0.0.1"` |  |  |
 | `total` | no | [Money](value-objects.md#money) or `null` | `null` |  |

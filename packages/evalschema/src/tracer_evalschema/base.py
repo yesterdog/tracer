@@ -33,6 +33,7 @@ from tracer_evalschema.errors import (
     SchemaVersionTooNew,
 )
 from tracer_evalschema.ids import TypedId, id_type
+from tracer_evalschema.ijson import IJsonObject
 from tracer_evalschema.primitives import UtcDatetime
 from tracer_evalschema.text import VerbatimText
 
@@ -135,9 +136,12 @@ class EntityBase(BaseModel):
     """Base of every entity (ADR 0001, 0007, 0008).
 
     A subclass sets ``id_prefix`` (a registered prefix); its ``id`` field then accepts only IDs of
-    that kind. ``schema_version`` is required and checked before any field. ``metadata`` is
-    user-owned JSON, preserved byte for byte; ``metadata_flags`` is computed from it when omitted,
-    must equal the computed list when supplied, and is always serialized.
+    that kind. ``schema_version`` is required and checked before any field. ``metadata`` is a
+    user-owned I-JSON object (RFC 7493, ``ijson.IJsonObject``), preserved byte for byte: NaN,
+    infinities, integers outside +-(2**53 - 1), lone surrogates and Python values that are not JSON
+    (tuples, sets, bytes, non-string keys) are rejected with the JSON Pointer of the member, never
+    its value. ``metadata_flags`` is computed from it when omitted, must equal the computed list
+    when supplied, and is always serialized.
     """
 
     model_config = ConfigDict(extra="forbid")
@@ -147,7 +151,7 @@ class EntityBase(BaseModel):
     id: TypedId
     schema_version: Annotated[str, ClosedSet((SCHEMA_VERSION,))]
     created_at: UtcDatetime
-    metadata: dict[str, Any] = Field(default_factory=dict)
+    metadata: IJsonObject = Field(default_factory=dict)
     metadata_flags: list[MetadataFlag] = Field(default_factory=list)
 
     def __init_subclass__(cls, **kwargs: Any) -> None:

@@ -328,7 +328,8 @@ def test_metadata_flag_rule_golden() -> None:
         "id": "run_0197b2a4-7c3e-7a1f-9b2d-3c4d5e6f7a8b",
         "uuid": "0197b2a4-7c3e-7a1f-9b2d-3c4d5e6f7a8b",
         "text": "hello world, this is a long sentence of ordinary words and Numbers 123 only",
-        "number": 12345678901234567890,
+        # out-of-range integers are rejected (I-JSON), covered by test_metadata_ijson.py
+        "number": 9007199254740991,
         "flag": True,
         "nothing": None,
         "ratio": 0.5,
@@ -446,7 +447,8 @@ def test_metadata_flag_scope_is_string_leaves_of_metadata_only() -> None:
     # keys are not examined, even when they look like secrets
     assert _only_flags({secret: "ordinary", "k": {secret: 1}}) == []
     # non-string leaves
-    assert _only_flags({"n": 10**30, "f": 1e300, "b": True, "z": None, "e": [], "o": {}}) == []
+    # out-of-range integers are rejected (I-JSON), covered by test_metadata_ijson.py
+    assert _only_flags({"n": 10**15, "f": 1e300, "b": True, "z": None, "e": [], "o": {}}) == []
     # depth: objects inside arrays inside objects
     deep: dict[str, Any] = {"l1": [{"l2": [{"l3": {"k": secret}}, secret]}]}
     assert _only_flags(deep) == [

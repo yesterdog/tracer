@@ -5,7 +5,7 @@
 - Schema file: `PricingCatalog.schema.json` (package data `tracer_evalschema/schemas/`)
 - `$id`: `urn:tracer:evalschema:0.0.1:PricingCatalog`
 - Schema version: `0.0.1`
-- SHA-256 of the schema file (as in `schema.lock`): `f4831eae87e0d3d9c17442a5a4f221ff58923a2015af50da17ee2e5039f90e08`
+- SHA-256 of the schema file (as in `schema.lock`): `f9b62d58db241aecd6097482bd6dfc02acefb7da41d7f0b10e582b9408aae066`
 - ID prefix: `pcat`
 - Versioned (has `version`): yes
 
@@ -28,7 +28,7 @@ every entry (D4).
 | `created_at` | yes | `string` (pattern of 129 characters (see the schema file); format `date-time`) |  |  |
 | `entries` | yes | array of [PriceEntry](value-objects.md#priceentry) (at least 1 items) |  |  |
 | `id` | yes | `string` (pattern `^pcat_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`) |  |  |
-| `metadata` | no | object with any JSON members |  |  |
+| `metadata` | no | object |  |  |
 | `metadata_flags` | no | array of [MetadataFlag](value-objects.md#metadataflag) |  |  |
 | `published_at` | yes | `string` (pattern of 129 characters (see the schema file); format `date-time`) |  |  |
 | `schema_version` | yes | one of `"0.0.1"` |  |  |

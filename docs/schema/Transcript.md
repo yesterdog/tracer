@@ -5,7 +5,7 @@
 - Schema file: `Transcript.schema.json` (package data `tracer_evalschema/schemas/`)
 - `$id`: `urn:tracer:evalschema:0.0.1:Transcript`
 - Schema version: `0.0.1`
-- SHA-256 of the schema file (as in `schema.lock`): `4dbad319941eefa53d7bc929ae252b6e8a816d4aafe91caaedb429498e6d8c9f`
+- SHA-256 of the schema file (as in `schema.lock`): `30be34f0cf71e2c07253e3e971629a2fffc284d4d70a194dfb28112f8bd417bc`
 - ID prefix: `tsc`
 - Versioned (has `version`): no
 
@@ -29,7 +29,7 @@ observed field. ``provider_call_ref`` is the provider's request identifier (N28)
 | `detected_language_raw` | no | `string` or `null` | `null` |  |
 | `id` | yes | `string` (pattern `^tsc_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`) |  |  |
 | `language_confidence` | no | `number` (minimum 0; maximum 1) or `null` | `null` |  |
-| `metadata` | no | object with any JSON members |  |  |
+| `metadata` | no | object |  |  |
 | `metadata_flags` | no | array of [MetadataFlag](value-objects.md#metadataflag) |  |  |
 | `model` | no | `string` (pattern `^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$`) or `null` | `null` |  |
 | `privacy` | yes | [PrivacyMarker](value-objects.md#privacymarker) |  |  |

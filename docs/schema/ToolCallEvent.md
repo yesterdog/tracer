@@ -5,7 +5,7 @@
 - Schema file: `ToolCallEvent.schema.json` (package data `tracer_evalschema/schemas/`)
 - `$id`: `urn:tracer:evalschema:0.0.1:ToolCallEvent`
 - Schema version: `0.0.1`
-- SHA-256 of the schema file (as in `schema.lock`): `da21e979e2545a544456791c541ed6d0c4407abe06d4203f492b82f2f805b522`
+- SHA-256 of the schema file (as in `schema.lock`): `03927a664f8e9ef8fe2e4bbcbaeeb9d8c5b7902e2837895284b85eeab8ba74b4`
 - ID prefix: `tcl`
 - Versioned (has `version`): no
 
@@ -29,7 +29,7 @@ event carries no privacy marker of its own (it takes its run's derived value).
 | `created_at` | yes | `string` (pattern of 129 characters (see the schema file); format `date-time`) |  |  |
 | `external_call_id` | no | `string` or `null` | `null` |  |
 | `id` | yes | `string` (pattern `^tcl_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`) |  |  |
-| `metadata` | no | object with any JSON members |  |  |
+| `metadata` | no | object |  |  |
 | `metadata_flags` | no | array of [MetadataFlag](value-objects.md#metadataflag) |  |  |
 | `name` | yes | `string` (pattern `^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$`) |  |  |
 | `offset_ms` | no | `integer` (minimum 0) or `null` | `null` |  |

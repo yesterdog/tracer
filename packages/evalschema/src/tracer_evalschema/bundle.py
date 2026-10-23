@@ -1152,14 +1152,36 @@ def _check_human_subject_payloads(
             )
 
 
-def check_export_bundle(bundle: ExportBundle) -> None:
-    """The rules of an ``ExportBundle`` (api-surface.md 25.4.2). Every purpose: the seam (typed
-    errors), ``[caller_external_id]``, ``[duplicate]``, ``[sealed]``, ``[redaction]``,
-    ``[unresolved]`` for dataset members and ``[provenance_redaction]``. ``internal``: the plain
-    profile digest (``[profile_digest]``). ``shared_export`` and ``benchmark``: ``[profile]``,
+def _check_expected_purpose(expected: object) -> None:
+    """Check the ``expected_purpose`` argument itself (a call error, never tagged): ``None``
+    passes; a value that is not a ``str`` (a ``bool``, ``bytes``, a list) is a ``TypeError``; a
+    ``str`` outside ``EXPORT_PURPOSES`` (case and white space matter) is a ``ValueError``."""
+    if expected is None:
+        return
+    if type(expected) is not str:
+        raise TypeError(f"expected_purpose must be a str or None, got {type(expected).__name__}")
+    if expected not in EXPORT_PURPOSES:
+        raise ValueError(f"expected_purpose must be one of {', '.join(EXPORT_PURPOSES)}")
+
+
+def check_export_bundle(bundle: ExportBundle, *, expected_purpose: str | None = None) -> None:
+    """The rules of an ``ExportBundle`` (api-surface.md 25.4.2).
+
+    ``expected_purpose`` (keyword-only): ``None`` (the default) accepts any purpose. The bundle's
+    own ``purpose`` label is self-declared by its producer, so a consumer that needs a purpose
+    passes it here: the argument is checked first (``TypeError`` if it is not a ``str``,
+    ``ValueError`` if it is not one of ``internal``, ``shared_export``, ``benchmark``), then a
+    bundle whose label differs is refused with ``[purpose]`` (naming both purposes, nothing of the
+    bundle's content) before any other rule. Every purpose: the seam (typed errors),
+    ``[caller_external_id]``, ``[duplicate]``, ``[sealed]``, ``[redaction]``, ``[unresolved]`` for
+    dataset members and ``[provenance_redaction]``. ``internal``: the plain profile digest
+    (``[profile_digest]``). ``shared_export`` and ``benchmark``: ``[profile]``,
     ``[profile_digest]``, ``[uri]``, ``[source_run]``, ``[unprotected]`` and, for a benchmark,
     ``[consent]``. Each embedded run bundle has passed ``check_run_bundle`` already. Pure and
-    idempotent; the model runs it on load."""
+    idempotent; the model runs it on load (with ``expected_purpose=None``)."""
+    _check_expected_purpose(expected_purpose)
+    if expected_purpose is not None and bundle.purpose != expected_purpose:
+        raise ValueError(f"[purpose] expected {expected_purpose}, the bundle says {bundle.purpose}")
     _export_seam(bundle)
     for run_bundle in bundle.run_bundles:
         if run_bundle.run.caller_external_id is not None:

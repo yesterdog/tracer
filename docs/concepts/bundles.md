@@ -28,6 +28,9 @@ reference: [RunBundle](../schema/RunBundle.md), [ExportBundle](../schema/ExportB
 
 - `purpose` is `internal`, `shared_export` or `benchmark`. It holds run bundles, datasets,
   dataset items, sealed payloads and redaction entries.
+- The `purpose` label is **self-declared** by the producer: an export labelled `internal` is not
+  held to the shared-export rules. A consumer that needs a purpose demands it with
+  `expected_purpose` (see Loading); without it any purpose is accepted.
 - An export is a **transformation** of internal data, not a copy: profile digests are dropped or
   keyed, caller identifiers are stripped, human-subject payloads are sealed or redacted, local
   `file:` and loopback URIs are refused outside `internal`, and unresolved `source_run_id` values
@@ -43,6 +46,12 @@ reference: [RunBundle](../schema/RunBundle.md), [ExportBundle](../schema/ExportB
 keys, a depth limit) and refuses input larger than `DEFAULT_MAX_BUNDLE_BYTES` (256 MiB) before
 parsing. A consumer that validates bundles with the JSON Schema files instead must apply its own
 byte limit and check repeated records itself (`SCHEMA_POLICY.md` section 2.4).
+
+`loader.load_bundle(ExportBundle, data, expected_purpose="shared_export")` (and
+`bundle.check_export_bundle(bundle, expected_purpose=...)`) refuses an export whose own label
+differs, with a `ValueError` tagged `[purpose]`; `None`, the default, accepts any purpose. A run
+bundle has no purpose, so passing one with `RunBundle` is a `TypeError`. Tests:
+`packages/evalschema/tests/test_export_purpose.py`.
 
 ## Tests
 

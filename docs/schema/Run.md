@@ -5,7 +5,7 @@
 - Schema file: `Run.schema.json` (package data `tracer_evalschema/schemas/`)
 - `$id`: `urn:tracer:evalschema:0.0.1:Run`
 - Schema version: `0.0.1`
-- SHA-256 of the schema file (as in `schema.lock`): `f91f2caaf697586f2f31bb6d8ed30e46ac705ff69bb1f21f18fe10de6a8845e4`
+- SHA-256 of the schema file (as in `schema.lock`): `0efe8c302e8d04f0550437d6f80e5aa37c9d07c86dc3a26f008c41cd765f88be`
 - ID prefix: `run`
 - Versioned (has `version`): no
 
@@ -39,7 +39,7 @@ observer (rule R1, O3a; ``detected_capabilities`` is not read for it).
 | `external_refs` | no | array of [ExternalRef](value-objects.md#externalref) |  |  |
 | `id` | yes | `string` (pattern `^run_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`) |  |  |
 | `ingest_warnings` | no | array of [IngestWarning](value-objects.md#ingestwarning) |  |  |
-| `metadata` | no | object with any JSON members |  |  |
+| `metadata` | no | object |  |  |
 | `metadata_flags` | no | array of [MetadataFlag](value-objects.md#metadataflag) |  |  |
 | `mode` | yes | one of `"simulated"`, `"recorded"` |  |  |
 | `observed_tier` | yes | one of `"T0"`, `"T1"`, `"T2"` |  |  |

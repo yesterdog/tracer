@@ -5,7 +5,7 @@
 - Schema file: `MetricResult.schema.json` (package data `tracer_evalschema/schemas/`)
 - `$id`: `urn:tracer:evalschema:0.0.1:MetricResult`
 - Schema version: `0.0.1`
-- SHA-256 of the schema file (as in `schema.lock`): `1072ee4caf79191f9a1a775847d41e2efdb96cbb681ed78cedff6ad0a18dcba5`
+- SHA-256 of the schema file (as in `schema.lock`): `07725be7c2d04c567e1217130f7fff9a87b8cdd670d800384b81e24e47391522`
 - ID prefix: `res`
 - Versioned (has `version`): no
 
@@ -38,7 +38,7 @@ Rules on the result alone (each reported at the field it is about):
 | `id` | yes | `string` (pattern `^res_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`) |  |  |
 | `judge` | no | [JudgeInfo](value-objects.md#judgeinfo) or `null` | `null` |  |
 | `language_source` | no | one of `"observed"`, `"declared"` or `null` | `null` |  |
-| `metadata` | no | object with any JSON members |  |  |
+| `metadata` | no | object |  |  |
 | `metadata_flags` | no | array of [MetadataFlag](value-objects.md#metadataflag) |  |  |
 | `metric` | yes | [MetricDefinitionRef](value-objects.md#metricdefinitionref) |  |  |
 | `missing_kinds` | no | array of one of `"audio"`, `"agent_audio"`, `"transcript"`, `"agent_transcript"`, `"turn_timing"`, `"tool_calls"`, `"tool_results"`, `"spans"`, `"usage"`, `"reference_text"`, `"expected_tool_calls"` (no repeated items (`uniqueItems`)) |  |  |

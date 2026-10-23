@@ -5,7 +5,7 @@
 - Schema file: `RunVerdict.schema.json` (package data `tracer_evalschema/schemas/`)
 - `$id`: `urn:tracer:evalschema:0.0.1:RunVerdict`
 - Schema version: `0.0.1`
-- SHA-256 of the schema file (as in `schema.lock`): `f306c8761afe665921a5be78b2a36aa0ddbc618d28086328acec7d8b41a003aa`
+- SHA-256 of the schema file (as in `schema.lock`): `9fe53523f4ca4dfa647855f5590b4b4e7be97802171936c6f4d9a03c4baf2580`
 - ID prefix: `vrd`
 - Versioned (has `version`): no
 
@@ -23,7 +23,7 @@ RunBundle is the unit of a run (N22).
 | `errored` | yes | `integer` (minimum 0; maximum 2**53 - 1) |  |  |
 | `failed` | yes | `integer` (minimum 0; maximum 2**53 - 1) |  |  |
 | `id` | yes | `string` (pattern `^vrd_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`) |  |  |
-| `metadata` | no | object with any JSON members |  |  |
+| `metadata` | no | object |  |  |
 | `metadata_flags` | no | array of [MetadataFlag](value-objects.md#metadataflag) |  |  |
 | `not_applicable` | yes | `integer` (minimum 0; maximum 2**53 - 1) |  |  |
 | `passed` | yes | `integer` (minimum 0; maximum 2**53 - 1) |  |  |

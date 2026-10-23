@@ -5,7 +5,7 @@
 - Schema file: `StageSpan.schema.json` (package data `tracer_evalschema/schemas/`)
 - `$id`: `urn:tracer:evalschema:0.0.1:StageSpan`
 - Schema version: `0.0.1`
-- SHA-256 of the schema file (as in `schema.lock`): `586c50b92c4eda3fc8af662cacecd0f6d11848e35806cf55804ed229b0c93dfb`
+- SHA-256 of the schema file (as in `schema.lock`): `4259f3f10354150fb09d60240ff9dd9bbb9b962fa8b940ee876421545c0d9225`
 - ID prefix: `spn`
 - Versioned (has `version`): no
 
@@ -25,7 +25,7 @@ raw span or trace (a foreign identifier, ADR 0012 Decision 6).
 | `duration_ms` | no | `integer` (minimum 0) or `null` | `null` |  |
 | `exchange_index` | no | `integer` (minimum 0; maximum 2**53 - 1) or `null` | `null` |  |
 | `id` | yes | `string` (pattern `^spn_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`) |  |  |
-| `metadata` | no | object with any JSON members |  |  |
+| `metadata` | no | object |  |  |
 | `metadata_flags` | no | array of [MetadataFlag](value-objects.md#metadataflag) |  |  |
 | `model` | no | `string` (pattern `^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$`) or `null` | `null` |  |
 | `provider` | no | `string` (pattern `^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$`) or `null` | `null` |  |

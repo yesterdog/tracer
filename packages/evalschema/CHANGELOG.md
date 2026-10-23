@@ -51,6 +51,16 @@ First version. Everything below is new, so there is no change class and no migra
   is not stated, `true` makes any tool call outside `expected_tool_calls` a failure (with an
   empty list: the agent must call nothing), `false` states that other calls are allowed. It is
   inside the Evaluator's content digest.
+- `metadata` on every entity is an I-JSON object (RFC 7493): NaN, infinities, integers outside
+  +-(2**53 - 1), lone surrogates and values that are not JSON are rejected (the error names the
+  member's JSON Pointer, never its value); finite floats are kept unchanged.
+- An export bundle's `purpose` is self-declared by its producer. A consumer that needs a purpose
+  passes the keyword-only `expected_purpose` to `bundle.check_export_bundle` or
+  `loader.load_bundle` (`None`, the default, accepts any purpose); a different label is a
+  `ValueError` tagged `[purpose]`.
+- Depth and size: the JSON-text loader limits nesting to 256 levels and bundles to 256 MiB;
+  Python objects passed to `model_validate` are not depth-limited (very deep input raises
+  `RecursionError`). No length limits on labels, lists or `metadata` in this release.
 - Money is USD only; reported costs in other currencies are kept raw and marked not available.
 - Nine configured languages, native script only; observed language tags are never rejected.
 - Shared and benchmark exports need sealed or redacted human-subject payloads; benchmarks also

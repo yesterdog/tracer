@@ -5,7 +5,7 @@
 - Schema file: `TestProfile.schema.json` (package data `tracer_evalschema/schemas/`)
 - `$id`: `urn:tracer:evalschema:0.0.1:TestProfile`
 - Schema version: `0.0.1`
-- SHA-256 of the schema file (as in `schema.lock`): `b0b8d79d183ef42c8cb6ccfecb188388a3b58b96e6ca76657c41d8d1b434423c`
+- SHA-256 of the schema file (as in `schema.lock`): `bcdc12b0a29038cdf120985e3526e923726a370907c56e3a0932a4d837c57ff1`
 - ID prefix: `tpf`
 - Versioned (has `version`): yes
 
@@ -22,7 +22,7 @@ The identity a simulated caller presents (prefix ``tpf``). Every data field is P
 | `created_at` | yes | `string` (pattern of 129 characters (see the schema file); format `date-time`) |  |  |
 | `dob` | yes | `string` (at least 1 characters) |  | personal data (`x-pii`) |
 | `id` | yes | `string` (pattern `^tpf_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`) |  |  |
-| `metadata` | no | object with any JSON members |  |  |
+| `metadata` | no | object |  |  |
 | `metadata_flags` | no | array of [MetadataFlag](value-objects.md#metadataflag) |  |  |
 | `name` | yes | `string` (at least 1 characters) |  | personal data (`x-pii`) |
 | `schema_version` | yes | one of `"0.0.1"` |  |  |

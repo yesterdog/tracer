@@ -74,7 +74,7 @@ Each family below is a set of documents the JSON Schema accepts and the models r
 | Register row | What the models reject that the schema accepts |
 | --- | --- |
 | `CO-INTEGRAL-FLOAT` | a float with a zero fraction (`1.0`) where an integer is required (section 2.6) |
-| `CO-IJSON-RANGE` | integers above 2**53 - 1 where no `maximum` is emitted (section 2.7) and inside digested entities |
+| `CO-IJSON-RANGE` | integers above 2**53 - 1 where no `maximum` is emitted (section 2.7), inside digested entities and inside `metadata` (section 11) |
 | `CO-LABEL-TEXT` | human labels with control, bidi or default-ignorable characters other than ZWJ and ZWNJ, or with surrounding white space |
 | `CO-KEYED-UNIQUENESS` | two list entries with the same key (record ID, `entry_key`, unit, primary language, binding, channel index, language tag compared by canonical case) |
 | `CO-LONG-LIST-UNIQUENESS` | an exact repeat in an array of objects (section 2.4) |
@@ -151,6 +151,23 @@ decision (finding A29, option (a)). Each description is self-contained: no descr
 a module docstring or other text that a reader of the schema file alone cannot see; the rules of
 a model are stated in its own docstring (A29). Descriptions are informative, never normative: a
 rule that a description states and no keyword expresses is enforced only by the models.
+
+### 2.9 Size, depth and length limits
+
+- **Size.** Bundles are bounded only by the loader: `loader.load_bundle` refuses input of more
+  than 256 MiB of UTF-8 (`DEFAULT_MAX_BUNDLE_BYTES`) before it is parsed.
+- **Depth of JSON text.** The strict loader (`loader.loads_strict`, used by `load_model` and
+  `load_bundle`) refuses JSON text nested deeper than 256 levels (`DEFAULT_MAX_DEPTH`,
+  `DepthLimitExceeded`).
+- **Depth of Python objects.** Only the JSON-text loader bounds depth. A caller that passes
+  Python objects to `model_validate` directly gets no depth limit from the models: a `metadata`
+  dict nested 5,000 levels deep raises Python's `RecursionError`, not a validation error. Code
+  that validates untrusted Python objects must bound their depth itself, or serialize them and
+  use the loader.
+- **No length limits in 0.0.1.** Labels, lists and `metadata` have no maximum length, item count
+  or member count in the models or the JSON Schema; the size limit of the loader is the only
+  bound. This is intended for 0.0.1 and is revisited together with the Phase 2 storage limits; no
+  number is fixed before then.
 
 ## 3. Versioning and compatibility (ADR 0008, ADR 0009)
 
@@ -318,6 +335,14 @@ extrapolate.
   mark true. A stored false where the derivation says true is rejected. A too-loose marker is
   corrected by a new record with a new ID, never by editing the old one.
 - **Export purposes.** `ExportBundle.purpose` is `internal`, `shared_export` or `benchmark`.
+  The label is **self-declared** by whoever wrote the bundle: a bundle can say `internal` (which
+  turns the shared-export rules off) while a consumer takes it for a shared one. A consumer that
+  needs a purpose demands it with the keyword-only `expected_purpose` of
+  `bundle.check_export_bundle` or `loader.load_bundle`: `None` (the default) accepts any purpose;
+  a different label is refused with a `ValueError` tagged `[purpose]` naming both purposes. A
+  value outside the three purposes is a call error (`TypeError` if not a `str`, `ValueError`
+  otherwise), and `load_bundle(RunBundle, ..., expected_purpose=...)` is a `TypeError` because a
+  run bundle has no purpose. The model itself (`ExportBundle.model_validate`) accepts all three.
   - `internal` may carry human-subject data in the clear and plain profile digests.
   - `shared_export` and `benchmark`: every audio, text, tool-argument and tool-result payload that
     is human-subject at export time must be sealed (section 9) or carry a `RedactionRecord`
@@ -419,7 +444,11 @@ extrapolate.
   credential patterns anywhere in the URL. Presigned URLs are runtime-only and never stored.
   Artifact URIs use only `http`, `https`, `s3`, `gs` and `file:///` with an absolute path, and no
   fragment.
-- **Metadata.** `metadata` is user-owned JSON. A string that looks like a credential is kept
+- **Metadata.** `metadata` is a user-owned I-JSON object (RFC 7493, `ijson.IJsonObject`): no
+  NaN or infinities, integers within +-(2**53 - 1) (finite floats such as `1e300` are accepted),
+  no lone surrogates in strings or keys, and no Python value that is not JSON (tuples, sets,
+  bytes, non-string keys). The error names the JSON Pointer of the member, never its value. The
+  JSON Schema states only `type: object` (`CO-IJSON-RANGE`). Values are kept unchanged. A string that looks like a credential is kept
   byte for byte and flagged in `metadata_flags` (`known_credential_prefix` or
   `high_entropy_token`), never dropped or altered; the flags are verified on load. Redaction of
   flagged metadata is not in 0.0.1 (known gap A-03), so **remove credentials from metadata before

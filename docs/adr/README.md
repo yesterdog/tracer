@@ -1,6 +1,14 @@
 # Architecture Decision Records: Phase 1 (`tracer-evalschema` 0.0.1)
 
-Revision 27, 2026-10-24. Authoritative scope: `docs/phase1/SCOPE.md`.
+Revision 28, 2026-10-24. Authoritative scope: `docs/phase1/SCOPE.md`.
+
+## Changes in revision 28
+- **Decided, auto-approved and logged** (decision log "AUTO-APPROVED decisions on adversarial findings" and the entry after "qa batch 20 DELIVERED"; SCOPE "Changes in revision 28"):
+  - **I-JSON metadata** (ADR 0007 Decision 5, revision 28 note): `EntityBase.metadata` is an I-JSON object (`ijson.IJsonObject`); NaN, infinities, integers outside +-(2**53 - 1), lone surrogates and non-JSON values are rejected, finite floats kept.
+  - **Self-declared export purpose** (ADR 0016 Decision 7, revision 28 note): keyword-only `expected_purpose` (default `None`, any purpose) on `bundle.check_export_bundle` and `loader.load_bundle`; a different label is `[purpose]`; `RunBundle` with a purpose is a `TypeError`.
+  - **Depth and length** (`SCHEMA_POLICY.md` section 2.9): Python-object depth is not bounded by the models (`RecursionError` on a 5,000-deep dict), only the JSON-text loader bounds depth (256); no length limits in 0.0.1 (the 256 MiB loader limit is the bound), revisited with the Phase 2 storage limits.
+  - **Adversarial numbering**: X-01 to X-14 are A-45 to A-58; P1-18 reads A-01..A-58.
+- **Implemented** by schema-architect (batch 20): `base.py`, `bundle.py`, `loader.py`; 26 schema files, `schema.lock` and the field docs regenerated (the `"additionalProperties": true` next to `metadata` is gone). No `schema_version` change (0.0.1 unreleased); no migration. No test edited by the architect.
 
 ## Changes in revision 27
 - **Decided, auto-approved and logged** (decision log "AUTO-APPROVED A29-A34", "F5-2 RESOLUTION", "AUTO-APPROVED T-DRIFT design"; SCOPE "Changes in revision 27"):

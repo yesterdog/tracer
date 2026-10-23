@@ -5,7 +5,7 @@
 - Schema file: `UsageRecord.schema.json` (package data `tracer_evalschema/schemas/`)
 - `$id`: `urn:tracer:evalschema:0.0.1:UsageRecord`
 - Schema version: `0.0.1`
-- SHA-256 of the schema file (as in `schema.lock`): `c869ff0275c53b03224a570592f133ef26f0be2c7ecff41a3d6ce83876755eac`
+- SHA-256 of the schema file (as in `schema.lock`): `9828060d4ba8e16059762ea53ee4ac30def2c0e10d0327698747e6fc1cba4de2`
 - ID prefix: `use`
 - Versioned (has `version`): no
 
@@ -30,7 +30,7 @@ record with a new ID.
 | `created_at` | yes | `string` (pattern of 129 characters (see the schema file); format `date-time`) |  |  |
 | `domain` | yes | one of `"evaluation"`, `"agent_under_test"` |  |  |
 | `id` | yes | `string` (pattern `^use_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`) |  |  |
-| `metadata` | no | object with any JSON members |  |  |
+| `metadata` | no | object |  |  |
 | `metadata_flags` | no | array of [MetadataFlag](value-objects.md#metadataflag) |  |  |
 | `model` | no | `string` (pattern `^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$`) or `null` | `null` |  |
 | `occurred_at` | no | `string` (pattern of 129 characters (see the schema file); format `date-time`) or `null` | `null` |  |

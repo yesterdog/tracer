@@ -5,7 +5,7 @@
 - Schema file: `Dataset.schema.json` (package data `tracer_evalschema/schemas/`)
 - `$id`: `urn:tracer:evalschema:0.0.1:Dataset`
 - Schema version: `0.0.1`
-- SHA-256 of the schema file (as in `schema.lock`): `c10932e64dc450fe3eabbc088c58ccbaad7431c83eef28eeaedc115fefb6c185`
+- SHA-256 of the schema file (as in `schema.lock`): `a2d38fffa85a27e9d1ed58d35920e1bf3670c73d241943172b98b69c6ad1e24b`
 - ID prefix: `dts`
 - Versioned (has `version`): yes
 
@@ -21,7 +21,7 @@ A versioned set of dataset items (prefix ``dts``; ADR 0009 Decision 5, N25).
 | `created_at` | yes | `string` (pattern of 129 characters (see the schema file); format `date-time`) |  |  |
 | `id` | yes | `string` (pattern `^dts_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`) |  |  |
 | `item_ids` | yes | array of `string` (pattern `^dti_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`) (no repeated items (`uniqueItems`)) |  |  |
-| `metadata` | no | object with any JSON members |  |  |
+| `metadata` | no | object |  |  |
 | `metadata_flags` | no | array of [MetadataFlag](value-objects.md#metadataflag) |  |  |
 | `name` | yes | `string` (at least 1 characters) |  |  |
 | `schema_version` | yes | one of `"0.0.1"` |  |  |

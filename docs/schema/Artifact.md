@@ -5,7 +5,7 @@
 - Schema file: `Artifact.schema.json` (package data `tracer_evalschema/schemas/`)
 - `$id`: `urn:tracer:evalschema:0.0.1:Artifact`
 - Schema version: `0.0.1`
-- SHA-256 of the schema file (as in `schema.lock`): `14fdfb699fccbfde2f67d30f832c9c702d27bd85177165b4fbe3863d894d24ad`
+- SHA-256 of the schema file (as in `schema.lock`): `033915711ed6bd2410225c4d8bb76298a589241432393929ced5c07c652a9b5f`
 - ID prefix: `art`
 - Versioned (has `version`): no
 
@@ -23,7 +23,7 @@ input in validation errors, and no message quotes a rejected value (ADR 0007 Dec
 | `audio_format` | no | [AudioFormat](value-objects.md#audioformat) or `null` | `null` |  |
 | `created_at` | yes | `string` (pattern of 129 characters (see the schema file); format `date-time`) |  |  |
 | `id` | yes | `string` (pattern `^art_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`) |  |  |
-| `metadata` | no | object with any JSON members |  |  |
+| `metadata` | no | object |  |  |
 | `metadata_flags` | no | array of [MetadataFlag](value-objects.md#metadataflag) |  |  |
 | `privacy` | yes | [PrivacyMarker](value-objects.md#privacymarker) |  |  |
 | `schema_version` | yes | one of `"0.0.1"` |  |  |

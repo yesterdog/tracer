@@ -5,7 +5,7 @@
 - Schema file: `DatasetItem.schema.json` (package data `tracer_evalschema/schemas/`)
 - `$id`: `urn:tracer:evalschema:0.0.1:DatasetItem`
 - Schema version: `0.0.1`
-- SHA-256 of the schema file (as in `schema.lock`): `81cf6c261de434dfd1ed3b637525db9b75a5adcd84557081a724233fc5b42d44`
+- SHA-256 of the schema file (as in `schema.lock`): `8ee3732357dd8a8d8a30fc5da110e5ab7507c9f6c5369a304f8f20960ff8ada1`
 - ID prefix: `dti`
 - Versioned (has `version`): no
 
@@ -30,7 +30,7 @@ exists (ADR 0005).
 | `created_at` | yes | `string` (pattern of 129 characters (see the schema file); format `date-time`) |  |  |
 | `id` | yes | `string` (pattern `^dti_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`) |  |  |
 | `language` | yes | `string` (pattern of 356 characters (see the schema file)) |  |  |
-| `metadata` | no | object with any JSON members |  |  |
+| `metadata` | no | object |  |  |
 | `metadata_flags` | no | array of [MetadataFlag](value-objects.md#metadataflag) |  |  |
 | `privacy` | no | [PrivacyMarker](value-objects.md#privacymarker) or `null` | `null` |  |
 | `schema_version` | yes | one of `"0.0.1"` |  |  |

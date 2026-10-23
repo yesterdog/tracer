@@ -5,7 +5,7 @@
 - Schema file: `MetricDefinition.schema.json` (package data `tracer_evalschema/schemas/`)
 - `$id`: `urn:tracer:evalschema:0.0.1:MetricDefinition`
 - Schema version: `0.0.1`
-- SHA-256 of the schema file (as in `schema.lock`): `5fd0577f2f3762f990f97255052c4b5278cd75758dd45e3299e38916154720d9`
+- SHA-256 of the schema file (as in `schema.lock`): `c8d7785bb9c39ffadfd1746f2548f58cc2849e5988947a017ec99a483dd79d23`
 - ID prefix: `met`
 - Versioned (has `version`): yes
 
@@ -32,7 +32,7 @@ type), its bounds lie in the value domain, and some value passes.
 | `key` | yes | `string` (pattern `^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$`) |  |  |
 | `kind` | yes | one of `"deterministic"`, `"llm_judge"`, `"audio"`, `"latency"` |  |  |
 | `languages` | yes | one of `"language_independent"` or array of `string` (pattern of 356 characters (see the schema file)) (at least 1 items; no repeated items (`uniqueItems`)) |  |  |
-| `metadata` | no | object with any JSON members |  |  |
+| `metadata` | no | object |  |  |
 | `metadata_flags` | no | array of [MetadataFlag](value-objects.md#metadataflag) |  |  |
 | `parameters` | no | array of [MetricParameter](value-objects.md#metricparameter) |  |  |
 | `pass_rule` | no | exactly one of: [RangeRule](value-objects.md#rangerule); [EqualsTrueRule](value-objects.md#equalstruerule); [OneOfRule](value-objects.md#oneofrule) or `null` | `null` |  |

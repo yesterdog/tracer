@@ -5,7 +5,7 @@
 - Schema file: `Turn.schema.json` (package data `tracer_evalschema/schemas/`)
 - `$id`: `urn:tracer:evalschema:0.0.1:Turn`
 - Schema version: `0.0.1`
-- SHA-256 of the schema file (as in `schema.lock`): `2a79c6db66f32a503e789d284e67916ecb8d4a8340a48dadf58ee75f759e1c1c`
+- SHA-256 of the schema file (as in `schema.lock`): `85210639843b98d0ffff2822f78402d24bafa07b3c37067539a11a1a1383c42c`
 - ID prefix: `turn`
 - Versioned (has `version`): no
 
@@ -32,7 +32,7 @@ segment's bounds lie inside the turn's. ``language`` is any well-formed observed
 | `interrupted` | no | `boolean` or `null` | `null` |  |
 | `language` | no | `string` (pattern of 961 characters (see the schema file)) or `null` | `null` |  |
 | `language_raw` | no | `string` or `null` | `null` |  |
-| `metadata` | no | object with any JSON members |  |  |
+| `metadata` | no | object |  |  |
 | `metadata_flags` | no | array of [MetadataFlag](value-objects.md#metadataflag) |  |  |
 | `role` | yes | one of `"caller"`, `"agent"`, `"unknown"` |  |  |
 | `schema_version` | yes | one of `"0.0.1"` |  |  |

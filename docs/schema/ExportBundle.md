@@ -5,7 +5,7 @@
 - Schema file: `ExportBundle.schema.json` (package data `tracer_evalschema/schemas/`)
 - `$id`: `urn:tracer:evalschema:0.0.1:ExportBundle`
 - Schema version: `0.0.1`
-- SHA-256 of the schema file (as in `schema.lock`): `4ab00c3fc28d9f50267507a6b0d99a78c527cedf41d065a089336407be5de768`
+- SHA-256 of the schema file (as in `schema.lock`): `4aaf792ae07bab9ecd97efcada9278caf788b5c0458b45e692a6adae42be87e9`
 - ID prefix: `exp`
 - Versioned (has `version`): no
 
@@ -24,7 +24,7 @@ fields (and after each embedded run bundle has passed ``check_run_bundle``).
 | `dataset_items` | no | array of [DatasetItem](DatasetItem.md) |  |  |
 | `datasets` | no | array of [Dataset](Dataset.md) |  |  |
 | `id` | yes | `string` (pattern `^exp_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`) |  |  |
-| `metadata` | no | object with any JSON members |  |  |
+| `metadata` | no | object |  |  |
 | `metadata_flags` | no | array of [MetadataFlag](value-objects.md#metadataflag) |  |  |
 | `payload_redactions` | no | array of [PayloadRedaction](value-objects.md#payloadredaction) |  |  |
 | `provenance_redactions` | no | array of [ProvenanceRedaction](value-objects.md#provenanceredaction) |  |  |

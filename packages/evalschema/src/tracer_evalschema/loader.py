@@ -107,8 +107,18 @@ def load_bundle(
     *,
     max_bytes: int = DEFAULT_MAX_BUNDLE_BYTES,
     max_depth: int = DEFAULT_MAX_DEPTH,
+    expected_purpose: str | None = None,
 ) -> ModelT:
     """Load a ``RunBundle`` or an ``ExportBundle`` from ``data`` with a size limit (S-N94).
+
+    ``expected_purpose`` (keyword-only): ``None`` (the default) accepts any purpose; an export
+    bundle's own ``purpose`` label is self-declared, so a consumer that needs a purpose passes it.
+    It is checked first, before ``model`` and ``data``: ``TypeError`` if it is not a ``str``,
+    ``ValueError`` if it is not one of ``internal``, ``shared_export``, ``benchmark``, and
+    ``TypeError`` if it is given with ``RunBundle`` (a run bundle has no purpose). After the model
+    has loaded, ``check_export_bundle(..., expected_purpose=...)`` refuses a bundle whose label
+    differs (``[purpose]``); a ``BundleSizeError`` and the parser's and model's own errors come
+    first.
 
     ``TypeError`` for any other ``model`` or for ``data`` that is not ``str`` or ``bytes``, before
     the data is read. ``max_bytes`` is an ``int`` (not a ``bool``) ``>= 0``. Input longer than
@@ -117,8 +127,18 @@ def load_bundle(
     own errors, unwrapped.
     """
     # Imported here: the bundle module imports most of the package, the loader only the errors.
-    from tracer_evalschema.bundle import ExportBundle, RunBundle
+    from tracer_evalschema.bundle import (
+        ExportBundle,
+        RunBundle,
+        _check_expected_purpose,
+        check_export_bundle,
+    )
 
+    _check_expected_purpose(expected_purpose)
+    if expected_purpose is not None and model is RunBundle:
+        raise TypeError(
+            "expected_purpose applies to an ExportBundle only; a RunBundle has no purpose"
+        )
     if model is not RunBundle and model is not ExportBundle:
         raise TypeError("load_bundle loads a RunBundle or an ExportBundle only")
     if not isinstance(data, (str, bytes)):
@@ -134,4 +154,7 @@ def load_bundle(
         raise BundleSizeError(
             f"the bundle is {size} bytes of UTF-8, over the limit of {max_bytes} bytes"
         )
-    return load_model(model, data, max_depth=max_depth)
+    loaded = load_model(model, data, max_depth=max_depth)
+    if expected_purpose is not None and isinstance(loaded, ExportBundle):
+        check_export_bundle(loaded, expected_purpose=expected_purpose)
+    return loaded

@@ -1,0 +1,19 @@
+Batch 20 (schema-architect, 2026-10-24): I-JSON metadata and expected_purpose. Paths scrubbed.
+
+Per Python version V in 3.11 3.12 3.13 3.14, own environment (UV_PROJECT_ENVIRONMENT=<scratch>/envV):
+  uv sync --locked --all-groups --python V
+  uv run --locked --python V pytest -q -p no:cacheprovider packages/evalschema/tests \
+    --ignore=packages/evalschema/tests/test_tier_degradation.py \
+    --ignore=packages/evalschema/tests/test_tier_degradation_cost.py \
+    --ignore=packages/evalschema/tests/test_tier_degradation_language.py \
+    --ignore=packages/evalschema/tests/test_mapping_f8.py            -> suite.pyV.log
+  python -m tracer_evalschema.schema_export --check; scripts/generate_field_docs.py --check;
+  scripts/build_golden_fixtures.py --check                            -> checks.pyV.log
+  ruff check; ruff format --check; mypy; mypy --strict packages/evalschema/src;
+  scripts/check_headers.py; scripts/guard_private_fixtures.py; scripts/check_licenses.py -> tools.pyV.log
+Default environment (Python 3.14.7): the same tool checks -> tools.default.log
+
+Ignored files: other agents' untracked work in progress (P1-19 tier degradation, P1-36 VoicEra F8
+mapping); their support modules _support_b13.py, _support_b14.py and the synthetic VoicEra twin
+fixtures are not test modules and were present.
+Result: 7330 passed, 1 deselected (the local-only plan-file check), 0 failed on each version; every check exit 0.

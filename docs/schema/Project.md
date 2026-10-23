@@ -5,7 +5,7 @@
 - Schema file: `Project.schema.json` (package data `tracer_evalschema/schemas/`)
 - `$id`: `urn:tracer:evalschema:0.0.1:Project`
 - Schema version: `0.0.1`
-- SHA-256 of the schema file (as in `schema.lock`): `a2ca4c7f5326913e964fb8f2eb2647237ccc2737c76f8bff17165b883398433e`
+- SHA-256 of the schema file (as in `schema.lock`): `3273af8944b33d91e4c13fe07ef65510944e51687356e1f37fb56cbaf196ee3a`
 - ID prefix: `prj`
 - Versioned (has `version`): no
 
@@ -19,7 +19,7 @@ A project (prefix ``prj``): a name and the provider configurations of its runs.
 | --- | --- | --- | --- | --- |
 | `created_at` | yes | `string` (pattern of 129 characters (see the schema file); format `date-time`) |  |  |
 | `id` | yes | `string` (pattern `^prj_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`) |  |  |
-| `metadata` | no | object with any JSON members |  |  |
+| `metadata` | no | object |  |  |
 | `metadata_flags` | no | array of [MetadataFlag](value-objects.md#metadataflag) |  |  |
 | `name` | yes | `string` (at least 1 characters) |  |  |
 | `provider_configs` | no | array of [ProviderConfigRef](value-objects.md#providerconfigref) |  |  |

@@ -5,7 +5,7 @@
 - Schema file: `Rubric.schema.json` (package data `tracer_evalschema/schemas/`)
 - `$id`: `urn:tracer:evalschema:0.0.1:Rubric`
 - Schema version: `0.0.1`
-- SHA-256 of the schema file (as in `schema.lock`): `cc065711e9e047e8cbfa7364d8b67d1976a8534ccda152f3341b882692207f54`
+- SHA-256 of the schema file (as in `schema.lock`): `7faadd7c1110dcd74825e3940fc92baa1915aa33772c9223a6b48a61a411613c`
 - ID prefix: `rub`
 - Versioned (has `version`): yes
 
@@ -21,7 +21,7 @@ The checks of a verdict (prefix ``rub``; ADR 0013 Decision 7).
 | `created_at` | yes | `string` (pattern of 129 characters (see the schema file); format `date-time`) |  |  |
 | `id` | yes | `string` (pattern `^rub_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`) |  |  |
 | `items` | yes | array of [RubricItem](value-objects.md#rubricitem) (at least 1 items) |  |  |
-| `metadata` | no | object with any JSON members |  |  |
+| `metadata` | no | object |  |  |
 | `metadata_flags` | no | array of [MetadataFlag](value-objects.md#metadataflag) |  |  |
 | `schema_version` | yes | one of `"0.0.1"` |  |  |
 | `version` | yes | `integer` (minimum 1) |  |  |

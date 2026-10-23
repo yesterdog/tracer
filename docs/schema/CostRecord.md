@@ -5,7 +5,7 @@
 - Schema file: `CostRecord.schema.json` (package data `tracer_evalschema/schemas/`)
 - `$id`: `urn:tracer:evalschema:0.0.1:CostRecord`
 - Schema version: `0.0.1`
-- SHA-256 of the schema file (as in `schema.lock`): `fe55b21994fc62211a9d44f4948e2a5c0b07be196fd3683ecc2a37d1accb7c23`
+- SHA-256 of the schema file (as in `schema.lock`): `36d59ea330b7ce4f34e6148b519397c142991ec0d20b7d0296fd66be3a5788df`
 - ID prefix: `cst`
 - Versioned (has `version`): no
 
@@ -37,7 +37,7 @@ and ``currency_conflict`` (N51). ``unpriced_units`` is non-empty exactly when th
 | `created_at` | yes | `string` (pattern of 129 characters (see the schema file); format `date-time`) |  |  |
 | `domain` | yes | one of `"evaluation"`, `"agent_under_test"` |  |  |
 | `id` | yes | `string` (pattern `^cst_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`) |  |  |
-| `metadata` | no | object with any JSON members |  |  |
+| `metadata` | no | object |  |  |
 | `metadata_flags` | no | array of [MetadataFlag](value-objects.md#metadataflag) |  |  |
 | `na_reason` | no | one of `"no_price_for_model"`, `"unit_unpriced"`, `"no_usage"`, `"ambiguous_price"`, `"billing_rules_missing"`, `"usage_not_reported"`, `"unsupported_currency"`, `"currency_not_reported"`, `"amount_unparseable"`, `"currency_conflict"` or `null` | `null` |  |
 | `pricing_snapshot` | no | [PricingSnapshot](value-objects.md#pricingsnapshot) or `null` | `null` |  |

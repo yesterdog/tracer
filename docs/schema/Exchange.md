@@ -5,7 +5,7 @@
 - Schema file: `Exchange.schema.json` (package data `tracer_evalschema/schemas/`)
 - `$id`: `urn:tracer:evalschema:0.0.1:Exchange`
 - Schema version: `0.0.1`
-- SHA-256 of the schema file (as in `schema.lock`): `4d54186068ff5d53f609fd171e8045dc290d7c0a80b01556d8aa7fbecd3c708b`
+- SHA-256 of the schema file (as in `schema.lock`): `8b1ef8c71b5452964844db4df1f8c81634ac8c325687de69ce1241394eba33bc`
 - ID prefix: `exc`
 - Versioned (has `version`): no
 
@@ -23,7 +23,7 @@ unknown (``None``).
 | `duration_ms` | no | `integer` (minimum 0) or `null` | `null` |  |
 | `id` | yes | `string` (pattern `^exc_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`) |  |  |
 | `index` | yes | `integer` (minimum 0; maximum 2**53 - 1) |  |  |
-| `metadata` | no | object with any JSON members |  |  |
+| `metadata` | no | object |  |  |
 | `metadata_flags` | no | array of [MetadataFlag](value-objects.md#metadataflag) |  |  |
 | `schema_version` | yes | one of `"0.0.1"` |  |  |
 | `source` | yes | one of `"audio_alignment"`, `"telemetry"`, `"observer"`, `"inferred_from_turns"` |  |  |

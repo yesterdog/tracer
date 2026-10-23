@@ -5,7 +5,7 @@
 - Schema file: `Evaluator.schema.json` (package data `tracer_evalschema/schemas/`)
 - `$id`: `urn:tracer:evalschema:0.0.1:Evaluator`
 - Schema version: `0.0.1`
-- SHA-256 of the schema file (as in `schema.lock`): `dbdb226f835a1b7b91849980f0fec0e597dc399ab418a983a6d06f214d06496a`
+- SHA-256 of the schema file (as in `schema.lock`): `f618ecdaa40be28890404df30e92311d52fe583392e594941496f5a5055cc050`
 - ID prefix: `evl`
 - Versioned (has `version`): yes
 
@@ -38,7 +38,7 @@ export leaves the evaluator's digest verifiable.
 | `instructions` | yes | `string` (at least 1 characters) |  |  |
 | `language` | yes | `string` (pattern of 356 characters (see the schema file)) |  |  |
 | `max_duration_ms` | yes | `integer` (minimum 0; greater than 0; maximum 14400000) |  |  |
-| `metadata` | no | object with any JSON members |  |  |
+| `metadata` | no | object |  |  |
 | `metadata_flags` | no | array of [MetadataFlag](value-objects.md#metadataflag) |  |  |
 | `metric_bindings` | yes | array of [MetricBindingRef](value-objects.md#metricbindingref) (at least 1 items) |  |  |
 | `name` | yes | `string` (at least 1 characters) |  |  |

@@ -5,7 +5,7 @@
 - Schema file: `MetricBinding.schema.json` (package data `tracer_evalschema/schemas/`)
 - `$id`: `urn:tracer:evalschema:0.0.1:MetricBinding`
 - Schema version: `0.0.1`
-- SHA-256 of the schema file (as in `schema.lock`): `386509ff088fcc0d60b79832bdd33444640f25423b17180bb23142419fab99ab`
+- SHA-256 of the schema file (as in `schema.lock`): `0c0ce900886f8a659c700a5390b4e810c20130f6401a06f1242f75bdd6b6d254`
 - ID prefix: `mbd`
 - Versioned (has `version`): yes
 
@@ -26,7 +26,7 @@ definition. A disabled binding is never run and may not be a rubric item.
 | `enabled` | yes | `boolean` |  |  |
 | `evaluator_id` | yes | `string` (pattern `^evl_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`) |  |  |
 | `id` | yes | `string` (pattern `^mbd_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`) |  |  |
-| `metadata` | no | object with any JSON members |  |  |
+| `metadata` | no | object |  |  |
 | `metadata_flags` | no | array of [MetadataFlag](value-objects.md#metadataflag) |  |  |
 | `metric` | yes | [MetricDefinitionRef](value-objects.md#metricdefinitionref) |  |  |
 | `params` | yes | object with keys matching `^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$` with values any JSON value |  |  |

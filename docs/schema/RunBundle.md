@@ -5,7 +5,7 @@
 - Schema file: `RunBundle.schema.json` (package data `tracer_evalschema/schemas/`)
 - `$id`: `urn:tracer:evalschema:0.0.1:RunBundle`
 - Schema version: `0.0.1`
-- SHA-256 of the schema file (as in `schema.lock`): `a1342fa37a7890c737094d65c381f508a228945192f618d8c34fabb3182dab01`
+- SHA-256 of the schema file (as in `schema.lock`): `1f78b0c2c7de786000a535d84683929dd50c8da889429cf9b6d271dfe46541e4`
 - ID prefix: `rbnd`
 - Versioned (has `version`): no
 
@@ -28,7 +28,7 @@ no redaction and no purpose: those belong to the ``ExportBundle`` (ADR 0015 Deci
 | `created_at` | yes | `string` (pattern of 129 characters (see the schema file); format `date-time`) |  |  |
 | `exchanges` | no | array of [Exchange](Exchange.md) |  |  |
 | `id` | yes | `string` (pattern `^rbnd_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`) |  |  |
-| `metadata` | no | object with any JSON members |  |  |
+| `metadata` | no | object |  |  |
 | `metadata_flags` | no | array of [MetadataFlag](value-objects.md#metadataflag) |  |  |
 | `pricing_catalogs` | no | array of [PricingCatalog](PricingCatalog.md) |  |  |
 | `results` | no | array of [MetricResult](MetricResult.md) |  |  |

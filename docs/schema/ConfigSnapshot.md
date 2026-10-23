@@ -5,7 +5,7 @@
 - Schema file: `ConfigSnapshot.schema.json` (package data `tracer_evalschema/schemas/`)
 - `$id`: `urn:tracer:evalschema:0.0.1:ConfigSnapshot`
 - Schema version: `0.0.1`
-- SHA-256 of the schema file (as in `schema.lock`): `89c946b78b9139a1b1ce1334f247c9e50e9aec82bec8ce56fa500b40db9897d5`
+- SHA-256 of the schema file (as in `schema.lock`): `a5f5f7d39e9b7daf493e98b6c5816c4d840cea42db81e77f74b0fb06db452a49`
 - ID prefix: `snap`
 - Versioned (has `version`): no
 
@@ -31,7 +31,7 @@ item.
 | `created_at` | yes | `string` (pattern of 129 characters (see the schema file); format `date-time`) |  |  |
 | `evaluator` | yes | [Evaluator](Evaluator.md) |  |  |
 | `id` | yes | `string` (pattern `^snap_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`) |  |  |
-| `metadata` | no | object with any JSON members |  |  |
+| `metadata` | no | object |  |  |
 | `metadata_flags` | no | array of [MetadataFlag](value-objects.md#metadataflag) |  |  |
 | `metric_bindings` | yes | array of [MetricBinding](MetricBinding.md) (at least 1 items) |  |  |
 | `metric_definitions` | yes | array of [MetricDefinition](MetricDefinition.md) (at least 1 items) |  |  |

@@ -5,6 +5,8 @@ Scope: tasks P1-04a, P1-04b, P1-04c, P1-04d, P1-05 (and the data/CI contracts of
 Status: the tests under `packages/evalschema/tests/` are written and red. Nothing in `src/` was written by qa.
 If a signature below is wrong for a good reason, escalate to staff-reviewer instead of changing a test.
 
+**Revision 28 (2026-10-24, schema-architect).** qa batch 20 (I-JSON metadata and the consumer's demanded export purpose) is implemented: `EntityBase.metadata` is typed `ijson.IJsonObject` (line 133 below and 25.14), and `check_export_bundle` and `load_bundle` take the keyword-only `expected_purpose` (25.2.3, 25.2.5, tag `[purpose]` in 25.3.1, the order in 25.4.2, details in 25.14). The 26 schema files, `schema.lock` and the field reference pages are regenerated (the `"additionalProperties": true` next to every `metadata` is gone).
+
 **Revision 23 (2026-10-23, schema-architect).** qa's JSON Schema export contract (`docs/phase1/api-surface-schema-export.md`) is merged as section 26 (that file now only points here); its readings A1 to A18 were auto-approved as recommended under the owner's standing rule and logged. P1-15 is implemented (26.13): `tracer_evalschema.schema_export` (`render_schemas`, `render_lock`, `export_json_schema`, `check_schema_directory`, `schema_directory`, `schema_id`, `main` and the command line `--write | --check [--dir]`), `digest.sha256_hex`, the committed package data `tracer_evalschema/schemas/` (26 entity schemas and `schema.lock`), `.gitattributes`, the CI drift step; A13 emits `uniqueItems` on every list whose model rejects an exact repeat and the `if`/`then` presence rules of `MetricResult`, `ToolCallEvent.result_complete` and `DatasetItem.privacy`. New findings A19 to A23 in 26.13.
 
 **Revision 22 (2026-10-23, schema-architect).** qa's bundle contract (`docs/phase1/api-surface-bundle.md`) is merged as section 25 (that file now only points here); its readings B1 to B21 were auto-approved on qa's recommendations under the owner's standing rule and logged, and each is marked Decided in 25.9. P1-14 and the export half of P1-27 are implemented (25.13): `bundle.RunBundle`, `ExportBundle`, `WithheldRecord`, `PayloadRedaction`, `ProvenanceRedaction`, `check_run_bundle`, `check_export_bundle`, `evidence_tier`, `check_observed_tier`, the seam keyword `require_resolved`, `privacy.export_human_subject`, `loader.load_bundle` (`DEFAULT_MAX_BUNDLE_BYTES` = 256 MiB), `errors.UnresolvedReferenceError` and `BundleSizeError`. Sections 2, 9 and 10 carry "(rev 22)" pointers. New findings B22 to B27 in 25.13.
@@ -130,7 +132,7 @@ Types (validate to the canonical-case `str`; JSON mode too):
 
 - `check_schema_version(value: object) -> None`: raises `SchemaVersionInvalid(found=value)` unless `value` is a `str` matching strict `MAJOR.MINOR.PATCH` (no leading zeros, no pre-release, no whitespace; `"1"`, `"v0.0.1"`, `"0.0"`, `"0.0.01"`, `1`, `None` are invalid); then compares as numbers (so `"0.0.10"` is newer than `"0.0.2"`): newer -> `SchemaVersionTooNew`, older -> `SchemaVersionMismatch`; `expected` is `SCHEMA_VERSION`. Also exposes `SCHEMA_VERSION`.
 - `MetadataFlag` (value object): exactly `path: str`, `reason: str`.
-- `EntityBase(BaseModel)`: class variable `id_prefix: ClassVar[str]` set by each subclass (a registered prefix). Fields: `id` (typed ID of that prefix, wire string in JSON), `schema_version: str` (required, no default; checked with `check_schema_version` before field validation, errors unwrapped), `created_at: UtcDatetime` (required), `metadata: dict[str, Any]` (optional, default `{}`), `metadata_flags: list[MetadataFlag]` (optional on input, always serialized). `extra="forbid"`. JSON Schema: `required` contains `id`, `schema_version`, `created_at`; the `id` property carries the subclass's prefix pattern (`^evl_...`).
+- `EntityBase(BaseModel)`: class variable `id_prefix: ClassVar[str]` set by each subclass (a registered prefix). Fields: `id` (typed ID of that prefix, wire string in JSON), `schema_version: str` (required, no default; checked with `check_schema_version` before field validation, errors unwrapped), `created_at: UtcDatetime` (required), `metadata: IJsonObject` (optional, default `{}`; (rev 28) an I-JSON object, RFC 7493: NaN and infinities, integers outside +-(2**53 - 1), lone surrogates in strings or keys, non-string keys and Python values that are not JSON (tuples, sets, bytes) are rejected with the JSON Pointer of the member and never its value; finite floats such as `1e300` are accepted; values are kept unchanged; JSON Schema `{"title": "Metadata", "type": "object"}`, the range is code-only `CO-IJSON-RANGE`), `metadata_flags: list[MetadataFlag]` (optional on input, always serialized). `extra="forbid"`. JSON Schema: `required` contains `id`, `schema_version`, `created_at`; the `id` property carries the subclass's prefix pattern (`^evl_...`).
   - `metadata_flags` are computed from `metadata` at validation (JSON-pointer-like paths such as `/metadata/note`, `/metadata/nested/token`; the test only requires the key name in the path). A value is flagged when it starts with a known credential prefix (the tests use `sk-...` and `AKIA...` shapes); a non-secret value is not flagged. The value itself is preserved byte for byte. If `metadata_flags` is supplied it must equal the computed list (missing, extra, or renamed entries are a `ValidationError`); if omitted it is computed. (rev 7, item 20) The exact rule is in ADR 0007 Decision 5a: RFC 6901 JSON Pointer paths from the document root; string leaves only; reasons `known_credential_prefix` and `high_entropy_token`; one flag per path; sorted by path in UTF-16 code-unit order; a supplied list that differs in content or order is rejected.
 - `VersionedEntity(EntityBase)`: adds `version: int` (strict, `>= 1`, JSON Schema `minimum: 1`) and `content_digest: ContentDigest` (required). After validation it calls `digest.verify_digest(self, self.content_digest)`; a mismatch raises `errors.DigestMismatch` unwrapped. A keyed `content_digest` raises `DigestKeyUnavailable` (no resolver at this layer). The digest covers the JSON-mode dump, so a document must contain every field the model serializes (the tests build full documents including `metadata: {}` and `metadata_flags: []`).
 - `VersionedRef(BaseModel)`: value object `{id, version: int >= 1, content_digest: ContentDigest | None}`; `id` is a typed ID of any registered prefix; `version` is required.
@@ -150,7 +152,7 @@ Types (validate to the canonical-case `str`; JSON mode too):
 
 - `loads_strict(data: str | bytes, *, max_depth: int = <your default, 10_000 must exceed it>) -> Any`: standard JSON value; duplicate object keys (also after unescaping, nested, inside lists) -> `DuplicateKeyError` naming the key; nesting deeper than `max_depth` (arrays and objects, also unterminated input) -> `DepthLimitExceeded`, never `RecursionError`; syntax errors stay plain `ValueError`s (not the two typed errors). `max_depth=5` accepts `[[[1]]]` and rejects six nested arrays; `max_depth=1` accepts `1`.
 - `load_model(model: type[BaseModel], data: str | bytes, *, max_depth: int = ...) -> BaseModel`: strict parse then `model_validate` (so a version error surfaces as its typed error).
-- (rev 22) `load_bundle(model, data, *, max_bytes=DEFAULT_MAX_BUNDLE_BYTES, max_depth=DEFAULT_MAX_DEPTH)` for `RunBundle` and `ExportBundle`, with a size limit checked before parsing (`BundleSizeError`; default 256 MiB): section 25.2.5.
+- (rev 22, rev 28) `load_bundle(model, data, *, max_bytes=DEFAULT_MAX_BUNDLE_BYTES, max_depth=DEFAULT_MAX_DEPTH, expected_purpose=None)` for `RunBundle` and `ExportBundle`, with a size limit checked before parsing (`BundleSizeError`; default 256 MiB): section 25.2.5.
 
 ## 11. `tracer_evalschema.registry` (walks over all models; gate-bound)
 
@@ -1548,6 +1550,13 @@ union of ID classes validated by one validator, like `EvidenceRef.ref_id`.
 
 #### 25.2.3 Functions of `tracer_evalschema.bundle`
 
+- (rev 28) `check_export_bundle(bundle: ExportBundle, *, expected_purpose: str | None = None) -> None`:
+  `expected_purpose` is keyword-only; `None` accepts any purpose (the behaviour before revision 28). The bundle's own
+  `purpose` label is self-declared by its producer, so a consumer that needs a purpose passes it. The argument is
+  checked first (`TypeError` if it is not a `str`, also a `bool` or `bytes`; `ValueError` if it is a `str` outside
+  `EXPORT_PURPOSES`, case and white space matter; neither is tagged), then a bundle whose `purpose` differs raises
+  `ValueError("[purpose] expected <expected>, the bundle says <found>")` before any other rule (25.4.2). The model
+  validator calls it with `expected_purpose=None`, so `ExportBundle.model_validate` accepts all three purposes.
 - `check_run_bundle(bundle: RunBundle) -> None` and `check_export_bundle(bundle: ExportBundle) -> None`: the rules
   of section 25.4. The models run them on load (a model validator, after the fields). They raise `ValueError` with a
   tagged message (section 25.3), or a typed error (section 25.3.2), and are pure and idempotent. Called on a bundle
@@ -1576,6 +1585,15 @@ parsing: more than `max_bytes` raises `BundleSizeError` (exactly `max_bytes` loa
 content, also for input that is not JSON. `max_bytes` must be an `int` that is not a `bool` and is `>= 0`
 (`ValueError` or `TypeError` otherwise). Everything else is `load_model`: strict parsing (`DuplicateKeyError`,
 `DepthLimitExceeded`, `NaN` is a `ValueError`) and the model's own errors, unwrapped. `load_model` keeps no limit.
+
+(rev 28) `load_bundle(model, data, *, max_bytes=DEFAULT_MAX_BUNDLE_BYTES, max_depth=DEFAULT_MAX_DEPTH,
+expected_purpose=None)`. `expected_purpose` is keyword-only and is checked first, before `model` and `data`: not a
+`str` (and not `None`) is a `TypeError`, a `str` outside `EXPORT_PURPOSES` a `ValueError` (so its error wins over
+the model and data type errors). Given with `RunBundle` it is a `TypeError` (a run bundle has no purpose; the
+argument is never silently ignored). Then the order is unchanged: argument errors, the size limit
+(`BundleSizeError` wins over a mismatch, which is only known after parsing), strict parsing and the model's own
+errors (including every rule of `check_export_bundle` at `None`), and last `check_export_bundle(loaded,
+expected_purpose=...)`, whose `[purpose]` `ValueError` propagates unwrapped. `None` accepts any purpose.
 
 ### 25.3 Message tags and typed errors
 
@@ -1616,6 +1634,7 @@ are named. The words after the tag are not pinned, except the ones listed in the
 | `[redaction]` | the subject of a payload redaction is not in the export | names the subject ID |
 | `[unprotected]` | a human-subject payload is neither sealed nor redacted in a shared or benchmark export | names the record |
 | `[consent]` | a human-subject payload in a benchmark lacks `consent.status=obtained` | names the record |
+| `[purpose]` | (rev 28) the consumer passed `expected_purpose` and the bundle's self-declared `purpose` differs (`check_export_bundle`, `load_bundle`); raised by the function, not by the model | names the expected and the found purpose (values of the closed set), nothing of the bundle's content |
 
 #### 25.3.2 Typed errors (unwrapped)
 
@@ -1662,6 +1681,11 @@ embed is not rejected (it is verified when present); the bundle does not recompu
 applicability (deferred, section 25.11).
 
 #### 25.4.2 `ExportBundle`
+
+(rev 28) First, only when the consumer demands a purpose (`expected_purpose` not `None`): the argument check
+(untagged `TypeError` or `ValueError`), then `[purpose]` if `bundle.purpose` differs. The label is self-declared, and
+every rule below depends on it, so this check runs before the seam. At `None` (the default and the model's own
+call) nothing is checked here and every purpose is accepted.
 
 For every purpose:
 
@@ -2022,6 +2046,36 @@ show; the 228 mutants test the tests, not the reading. The pinned readings are t
 - **B27. Value-object count.** B20 says ADR 0001 Decision 8 goes from 65 to 68; Decision 8 already named 67 classes after revision 19 (`DekWrap`, `SealedAadFields`; the SCOPE gate text still said 65), so it now names 70, which is exactly what the registry walk finds. Recommendation: use 70 in ADR 0001 and SCOPE gate item 1 (done in revision 22).
 
 **Still open, unchanged:** N19 (`declared_by` in shared exports); B11 (`verify_bundle_digests`, with the key-management work); B13 and B19 (the export builder); B15 (language steps at P1-19); the `SCHEMA_POLICY.md` wording for B3 (sealed artifact `uri`) and the internal profile digest (P1-20a); the code-only rules of this section for the JSON Schema export (N12/N38, P1-15).
+
+### 25.14 Revision 28: I-JSON metadata and `expected_purpose` implemented (schema-architect, 2026-10-24)
+
+Contract: qa batch 20, `packages/evalschema/tests/test_metadata_ijson.py` (1237 items over the 26 entities) and
+`packages/evalschema/tests/test_export_purpose.py` (169 items); decisions logged as auto-approved on the adversarial
+findings (1), (3) and qa's ambiguities 1 to 6.
+
+- **`EntityBase.metadata: IJsonObject`** (`tracer_evalschema.ijson`, unchanged). Every entity rejects NaN,
+  infinities, integers outside +-(2**53 - 1), lone surrogates in strings and keys, non-string keys, tuples, sets,
+  bytes and other non-JSON Python values inside `metadata`; finite floats stay valid (`1e300`, `2.0**60`). Before
+  this change NaN was accepted and dumped as `null`, which silently changed user data. Schema effect: the
+  `"additionalProperties": true` next to `metadata` disappears from all 26 files; the range rules stay code-only
+  (`CO-IJSON-RANGE`). The I-JSON message names the JSON Pointer and the rule, never the value; for entities that do
+  not hide their input the tests read the input-free rendering `errors(include_input=False)` (ADR 0007 Decision
+  8 (d)).
+- **`check_export_bundle(bundle, *, expected_purpose=None)`**: helper `bundle._check_expected_purpose` (shared with
+  the loader; `None` passes, `type(...) is not str` is a `TypeError`, a `str` outside `EXPORT_PURPOSES` a
+  `ValueError`, untagged); then `[purpose]`; then the existing rules from the seam on.
+- **`load_bundle(..., expected_purpose=None)`**: the argument check first (before `model` and `data`), then
+  `TypeError` for `RunBundle` (reading: a demanded purpose on a bundle without one is a call error and is never
+  silently ignored, qa ambiguity 2), then the unchanged order, and `check_export_bundle(loaded,
+  expected_purpose=...)` after `load_model`.
+- **Python-object depth** (adversarial finding 2): `model_validate` on a `metadata` dict 5,000 levels deep raises
+  `RecursionError`; only the JSON-text loader bounds depth (256). Documented in `SCHEMA_POLICY.md` section 2.9, no
+  model-level guard. **No length limits** on labels, lists or `metadata` in 0.0.1 (finding 4): the loader's 256 MiB
+  is the bound; revisited with the Phase 2 storage limits.
+- **Generated files.** `schema_export --write` (26 files and `schema.lock`), `generate_field_docs.py --write` (26
+  entity pages changed). The frozen 0.0.1 fixtures (`tests/fixtures/frozen/0.0.1/`) hold documents and
+  `digests.json` only, no schema lock (A10: released locks come with the release); their bytes are unchanged and
+  `build_golden_fixtures.py --check` reports no drift.
 
 ## 26. Batch 11 (P1-15): JSON Schema export, `schema.lock` and the register of rules JSON Schema cannot state; API assumed by the tests
 
