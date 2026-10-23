@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 The Tracer contributors
+# Synthetic scenario; every line is invented text. Caller speech is synthesized locally.
+id: en
+language: en
+notes: Turn 2 starts speaking over the bot (mode interrupt).
+bot:
+  stt_language: en
+  tts_language: en-us
+  tts_voice: af_heart
+  system_instruction: >-
+    You are a voice assistant for a fictional cafe called Blue Door Cafe.
+    Reply in one short plain sentence with no lists and no emoji.
+caller:
+  tts_language: en-us
+  tts_voice: am_adam
+  turns:
+    - text: "Hello, I would like to book a table for four on Friday evening."
+      mode: first
+    - text: "Sorry, make that six people please."
+      mode: interrupt
+    - text: "And what time do you close?"
+      mode: after_bot

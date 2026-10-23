@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 The Tracer contributors
+# Synthetic scenario; every line is invented text. Caller speech is synthesized locally.
+id: hi
+language: hi
+verified: needs_native_review  # never a WER/CER reference (ADR 0018 Decision 9)
+notes: Caller text is hand-written; STT and bot text are model output and contain errors.
+bot:
+  stt_language: hi
+  tts_language: hi
+  tts_voice: hf_alpha
+  system_instruction: >-
+    आप एक काल्पनिक कैफ़े के वॉइस सहायक हैं। हमेशा देवनागरी हिंदी में एक छोटे वाक्य में उत्तर दें।
+    सूची या इमोजी का प्रयोग न करें।
+caller:
+  tts_language: hi
+  tts_voice: hm_omega
+  turns:
+    - text: "नमस्ते, मुझे शुक्रवार शाम के लिए चार लोगों की मेज़ बुक करनी है।"
+      mode: first
+    - text: "आप रात को कितने बजे बंद होते हैं?"
+      mode: after_bot

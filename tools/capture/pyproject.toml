@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 The Tracer contributors
+[project]
+name = "tracer-capture"
+version = "0.0.0"
+description = "Capture harness for real Pipecat samples (not published, not a runtime dependency)."
+requires-python = ">=3.11,<3.14"
+license = "Apache-2.0"
+dependencies = [
+    "pipecat-ai[tracing,whisper,mlx-whisper,kokoro,evals]==1.13.0",
+    "mlx-lm==0.32.2",
+    "httpx>=0.28.1,<1",
+    "numpy",
+    "soundfile",
+]
+
+[tool.uv]
+package = false
+
+# Glue code against Pipecat's untyped event-handler decorators: strict, minus those two rules.
+[tool.mypy]
+strict = true
+python_version = "3.12"
+ignore_missing_imports = true
+disallow_untyped_decorators = false
+disallow_untyped_calls = false

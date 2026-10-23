@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 The Tracer contributors
+# Synthetic scenario; every line and the tool result are invented. The tool handler returns
+# a fixed result, so tool output is scripted by the harness, not produced by a real backend.
+id: en_tool
+language: en
+notes: The check_availability handler returns a fixed result defined in this file.
+bot:
+  stt_language: en
+  tts_language: en-us
+  tts_voice: af_heart
+  system_instruction: >-
+    You are a voice assistant for a fictional cafe called Blue Door Cafe. When the caller asks
+    whether a table is free, call check_availability. Reply in one short plain sentence with no
+    lists and no emoji.
+tools:
+  - name: check_availability
+    description: Check whether a table is free on a given day for a number of people.
+    properties:
+      day:
+        type: string
+        description: The day of the week.
+      party_size:
+        type: integer
+        description: The number of people.
+    required: [day, party_size]
+    result:
+      available: true
+      time: "19:00"
+caller:
+  tts_language: en-us
+  tts_voice: am_adam
+  turns:
+    - text: "Is a table free on Friday for four people?"
+      mode: first
+    - text: "Great, thank you."
+      mode: after_bot

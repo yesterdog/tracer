@@ -1,0 +1,444 @@
+{
+  "source": "Sarvam AI REST API (https://api.sarvam.ai), speech-to-text and text-to-speech",
+  "retrieval_date": "2026-10-23",
+  "method": "captured",
+  "doc_urls": {
+    "speech_to_text": "https://docs.sarvam.ai/api-reference/speech-to-text/transcribe",
+    "text_to_speech": "https://docs.sarvam.ai/api-reference/text-to-speech/convert"
+  },
+  "doc_retrieval_date": "2026-10-23",
+  "software": {
+    "python": "3.12.14",
+    "httpx": "0.28.1",
+    "soundfile": "0.13.1",
+    "numpy": "2.5.4",
+    "tracer_capture_module": "tracer_capture.sarvam_capture"
+  },
+  "api": {
+    "stt_endpoint": "POST https://api.sarvam.ai/speech-to-text",
+    "tts_endpoint": "POST https://api.sarvam.ai/text-to-speech",
+    "stt_default_model_per_docs": "saaras:v4",
+    "tts_model_used": "bulbul:v3",
+    "api_version": "none in URL; dated by retrieval_date"
+  },
+  "command": "cd tools/capture && uv run python -m tracer_capture.sarvam_capture --env-file ../../.env.local",
+  "license": "Apache-2.0 for the harness and the invented sentences. API response bodies are model output from Sarvam AI; the owner is the API customer. Audio is Sarvam TTS output and Kokoro (Apache-2.0) output for invented text.",
+  "pii_status": "synthetic_no_personal_data",
+  "indic_verified": "needs_native_review",
+  "total_api_calls_logged": 47,
+  "call_log": "tools/capture/sarvam_call_log.jsonl",
+  "secrets": "the API key is never written; request metadata records only form fields",
+  "files": {
+    "clips/kokoro_en.wav": {
+      "sha256": "bb8a2b0fd00cf3c8c842af29d01d8d58748b855a90a6691c36c99e073430a83c"
+    },
+    "clips/kokoro_en_tool.wav": {
+      "sha256": "bad34dc4707c070b354a23834fc4c297d1cfe6cbc3e996ecc8a1f806817d95e5"
+    },
+    "clips/kokoro_hi.wav": {
+      "sha256": "b3d0a04e858e5042706d503935b22114d8556e07293f07b5e776fbb62b34746b"
+    },
+    "clips/short_300ms.wav": {
+      "sha256": "22fdeee7a26cbd278b24482fb39e2662132ecdf1113d4847b8c923ebc72b07db"
+    },
+    "clips/silence_2s.wav": {
+      "sha256": "20eaebffe1816e0ffa6f7f854f5ef4ea80d5349faaf0ce1fec1b713e7fde58fa"
+    },
+    "clips/tts_en.tts_request.json": {
+      "sha256": "094944414178216e301c2fbd30bf613b8614c3a74131ec6a09c345eccde60557"
+    },
+    "clips/tts_en.wav": {
+      "sha256": "f4c17045bbfdcfcaa9f2100e3742a21aee54ac79f38a775feee8a4b4c9c73f1b"
+    },
+    "clips/tts_gu.tts_request.json": {
+      "sha256": "9efe09427a4df621267a5b4415c455239e1bd2b2afa970e98bf299edf5567ea6"
+    },
+    "clips/tts_gu.wav": {
+      "sha256": "d561a59a6c2b78e6ff7062471dec1f997f9fc62b91c44462d65d5392fa16498b"
+    },
+    "clips/tts_hi.tts_request.json": {
+      "sha256": "a27d377c34fb1590f185771b4a9c1bba8250ae6daf3992ff9c0b8856c2876157"
+    },
+    "clips/tts_hi.wav": {
+      "sha256": "2860bb55f0647cf81482afac2664aa3fe08a8687d5c81bd501bd343caf06c423"
+    },
+    "clips/tts_kn.tts_request.json": {
+      "sha256": "ca0186cd51c5b7a91ca0103367f3cc5bca88143d23ba1b24d3e7dffc31ea8513"
+    },
+    "clips/tts_kn.wav": {
+      "sha256": "a314df2eb49fc2ffbe5d8a0720a242121f87226787a3d2e66753664352b9bdef"
+    },
+    "clips/tts_ml.tts_request.json": {
+      "sha256": "67bb3e8b101cd8e9655f14dab871a09f5b3ed03807260211ed5766f55e7a6737"
+    },
+    "clips/tts_ml.wav": {
+      "sha256": "678aef1b1e0ed8dd58e61988582e3adc174f5a3292b4bafff8370c00c77b77a3"
+    },
+    "clips/tts_mr.tts_request.json": {
+      "sha256": "0504cb84a0dd99d48b7eed9c8b7176b765fdbaa794c1e4a2e823b35eead3c2f9"
+    },
+    "clips/tts_mr.wav": {
+      "sha256": "965153fbc92b1cfcb380f9eb545e903eff1b7fb7a96a8697ca16ed05d2c9e01f"
+    },
+    "clips/tts_pa.tts_request.json": {
+      "sha256": "24e03282afb11401e0c2cca59764a32d1a32d8aae4cb1a943e917e430d870045"
+    },
+    "clips/tts_pa.wav": {
+      "sha256": "dd6a3f1869b5862e18d21ec484ccad4f9f0700f21bba79a5bb3ea1d7b19739b3"
+    },
+    "clips/tts_ta.tts_request.json": {
+      "sha256": "e3ce2f7c4d44268477843a20dd2ff6342c9b6acc98cb6e5a67c1717f116dd89f"
+    },
+    "clips/tts_ta.wav": {
+      "sha256": "d924c3368bc4169232c236b28f4be1656e3c1e5c46f1befdccc946ff8f4b0e54"
+    },
+    "clips/tts_te.tts_request.json": {
+      "sha256": "359943fe503cb7eca64517ca4fd1bd690ef43066eaba22bb3cb80c92b3015d06"
+    },
+    "clips/tts_te.wav": {
+      "sha256": "c54f95348a4f37589f2307e389a0c9e2c1f1e31a14d88cc3d7553da352852898"
+    },
+    "err_bad_key/request.json": {
+      "sha256": "11f7499adeabbda705918a122d77cf4a80bd864eb659f72c7db5adb08f96bdb4"
+    },
+    "err_bad_key/response_body.json": {
+      "sha256": "1f9038ce42270daf3008f96f793dfbd13a8beae81a67ef8370bdcb132ae3b0b4"
+    },
+    "err_bad_key/response_meta.json": {
+      "sha256": "35945d4a15e808998b8e9e27bcae6a52bcc4761db726723644f223235d670ce2"
+    },
+    "err_bn_in_unrelated_clip/request.json": {
+      "sha256": "f8f1ec79ded956a0f6ce9a6b18efe63d5790e2826be1b3b81af3f75eaed445a4"
+    },
+    "err_bn_in_unrelated_clip/response_body.json": {
+      "sha256": "7427268be03f0ef7503be7e18cc3cfbc8ae357703162a8e7cc6023778df771ae"
+    },
+    "err_bn_in_unrelated_clip/response_meta.json": {
+      "sha256": "122ddb27602c7fb61c6109124331a79b2278bc065880b372e250543d069de0e7"
+    },
+    "err_empty_file/request.json": {
+      "sha256": "09139d814bba0857d5e150416521eda1267099be3868250409134d520866bd08"
+    },
+    "err_empty_file/response_body.json": {
+      "sha256": "9b3b5ceddf1c00bb2ede3686bb8e47d79386db4f209af09914894259f6b2f0d9"
+    },
+    "err_empty_file/response_meta.json": {
+      "sha256": "1a7ee7fc69dd7a9fa3d1c88e871095898ff765a7261abbb2acc7f09d65a0aff5"
+    },
+    "err_invalid_language_code/request.json": {
+      "sha256": "6776940591417d2cd9e3ad1fffb3468bf366c6fff2535358a8d6f5bf1ecd4703"
+    },
+    "err_invalid_language_code/response_body.json": {
+      "sha256": "46dcf6cb860df0dc82806e6f79ab388f8ea521dd114fc1f381d848b8afc7d278"
+    },
+    "err_invalid_language_code/response_meta.json": {
+      "sha256": "ccfa44f3e08c20875ed9a3b78b443022bd304719509a169bef435a686ce315b7"
+    },
+    "err_no_file/request.json": {
+      "sha256": "78583a9b1651849769540883a996350f417cedab12209ac62af66c615d46a6ff"
+    },
+    "err_no_file/response_body.json": {
+      "sha256": "17c6a2ed58d1336200d58e94bced31f3b2c3561a3a85134edff4ce9b0108108f"
+    },
+    "err_no_file/response_meta.json": {
+      "sha256": "650eb02d43bff4f438d593108c4822a2f1628692e49fad2d0bfaec1d221e30e5"
+    },
+    "err_not_audio/request.json": {
+      "sha256": "67efbfd89b27830b32cbb31225fa8e18c29c906373feaa053654d1048eac3cb6"
+    },
+    "err_not_audio/response_body.json": {
+      "sha256": "f78b2890896c24a2b6dc003f6912b50be0fcc1f21e997d6b15d054b79f646512"
+    },
+    "err_not_audio/response_meta.json": {
+      "sha256": "b1a7aa378101bd2d8a0b549c9d33a61e68beb35d318b253cc159ec82cb2ee028"
+    },
+    "err_underscore_language_code/request.json": {
+      "sha256": "46eb4eed966892b9a9b02a83660607f9d1b7ec3e1bb523a7734385d6fcce6d2c"
+    },
+    "err_underscore_language_code/response_body.json": {
+      "sha256": "a8bf079515413d04dc3f16eff30a864e852c806318d511bfa6f1867de8b6bc21"
+    },
+    "err_underscore_language_code/response_meta.json": {
+      "sha256": "58e2b7f983cea9d402c9c1817930a61ab601d30529669005db64942e7a68a8de"
+    },
+    "stt_en_clip_forced_hi/request.json": {
+      "sha256": "29f3ce253e2ff8282b5a35aeb7aeb24d1b03227ec2066c3620cbbb6e6d9c2db6"
+    },
+    "stt_en_clip_forced_hi/response_body.json": {
+      "sha256": "50a03471fafea0ff2ad98ad5cfacf5161da76479adb8ab948c9603d9ada9e9d7"
+    },
+    "stt_en_clip_forced_hi/response_meta.json": {
+      "sha256": "a1c101c9ea52c906a0bc90105f9eaeebc4a4420d812c460ab9f78d4e046b081e"
+    },
+    "stt_en_field_omitted/request.json": {
+      "sha256": "fe660f3f1184c40f59530271a40265acb1067981141985fe7edaf3df7b8ea4f7"
+    },
+    "stt_en_field_omitted/response_body.json": {
+      "sha256": "37a8a302fd1d1a519eea4e5f5d6083e7593c608aaff887817ac4594f78fb3e13"
+    },
+    "stt_en_field_omitted/response_meta.json": {
+      "sha256": "4e41e566c3c11fa65fca8ef395ddc41a51ae93844decc73d90acf8448e93f30d"
+    },
+    "stt_en_forced/request.json": {
+      "sha256": "197380fe9b9fe1603b70cb5804cef771dd1028ee29a61eadf7db998061f33f1a"
+    },
+    "stt_en_forced/response_body.json": {
+      "sha256": "970a8610eca52af535a2efe2ae7cd9ac5d43bf30f1ea38fb7e2c45cceb39263c"
+    },
+    "stt_en_forced/response_meta.json": {
+      "sha256": "e216d3da5ca3ebd066c4d80d9a01c1e4d5ba3c930184eb2c6acbee7b7295c25d"
+    },
+    "stt_en_timestamps/request.json": {
+      "sha256": "c6efe17451e9e4e0201eb786a04762adb59157568458cb612b5d88fb6b754bf3"
+    },
+    "stt_en_timestamps/response_body.json": {
+      "sha256": "e3c327f712380c13a8b7e863bfe471b6df3cee755e0d255706f0df51768a8217"
+    },
+    "stt_en_timestamps/response_meta.json": {
+      "sha256": "5eb36edaf135547fa24b8e4b5903521fcf6848b70eb6e4c4aa162e9bbc660938"
+    },
+    "stt_en_unknown/request.json": {
+      "sha256": "60f4b9fcc2b8aa9560ed5d0d0d576a842428c5e9332cbebf6ce92e0e40bfd4ad"
+    },
+    "stt_en_unknown/response_body.json": {
+      "sha256": "c5b92a6d7363bdd1a1b53540a71368c3edee4af96aa461ef38b2da291e704004"
+    },
+    "stt_en_unknown/response_meta.json": {
+      "sha256": "f1c851d3fc70056c34632918b02c1c3f690e595763a6d8c6e989323d0ff7c522"
+    },
+    "stt_gu_forced/request.json": {
+      "sha256": "f4c7fbb255a519ebbe5beb145af12b62be516e8e0df18eb467b4fc28ae95d056"
+    },
+    "stt_gu_forced/response_body.json": {
+      "sha256": "1bb6838f55aea89824d77a42e627966435fe274c65ac3a1b937b6f7e5a4af605"
+    },
+    "stt_gu_forced/response_meta.json": {
+      "sha256": "b273a7b53cdc8eb7cf44545c8751fd2c97a5816c2cc65e4832fe87ccb11c696d"
+    },
+    "stt_gu_unknown/request.json": {
+      "sha256": "8e571f9caf8cffa60f14ec98783f8b449b093ecdfa40a84fbd02691dd8a2d995"
+    },
+    "stt_gu_unknown/response_body.json": {
+      "sha256": "efd2513828f94e4af0e31cd2ef3fb9bbed874b31bcfeb1719234ef891777119a"
+    },
+    "stt_gu_unknown/response_meta.json": {
+      "sha256": "f61ec281c440b948affbede60b2ef615e46ccdfbaa90e57e3d34573d0083f7fc"
+    },
+    "stt_hi_clip_forced_ta/request.json": {
+      "sha256": "4eea76cbb6f6c3ee552d4078430a3c3fd49218b668445edfad86989552e92cd0"
+    },
+    "stt_hi_clip_forced_ta/response_body.json": {
+      "sha256": "2eede2ab072823e280764a3cd7cfdf48749ff83da4e30f86d313a711770b0db8"
+    },
+    "stt_hi_clip_forced_ta/response_meta.json": {
+      "sha256": "8560d85df577aaa2c94aa33d2dc593fb9204bdf8c426f91d8b9e81aa7f4302e8"
+    },
+    "stt_hi_forced/request.json": {
+      "sha256": "8393a2d1d9f60aab9ebabcf92481848454f6a51ca1b279b2aba676385bcd7e58"
+    },
+    "stt_hi_forced/response_body.json": {
+      "sha256": "8b30cb174490be4436b8af8a9b9e5d286b2956c5520923a10686f37552fd0456"
+    },
+    "stt_hi_forced/response_meta.json": {
+      "sha256": "2fb31a5b57804dc5ebd8036db66064e0ed39310af6b7fa78e160d5be44d3dfaf"
+    },
+    "stt_hi_mode_translate_v3/request.json": {
+      "sha256": "5e162982277e157bd6e50c03346730ae6765f0f52ee2f1b3a5fea23825f6b611"
+    },
+    "stt_hi_mode_translate_v3/response_body.json": {
+      "sha256": "ac777d77a917e9a05df5d83161df5ad458e43d327b4cc5819983024de155f5a8"
+    },
+    "stt_hi_mode_translate_v3/response_meta.json": {
+      "sha256": "921dab0617cd3ccc3ed8c9bde301c89a2d423e9f9ba5953917768e6cd6644c03"
+    },
+    "stt_hi_timestamps/request.json": {
+      "sha256": "003cade1a2e8c81e3fe3e736e09770c846c027d92804eac7f7714842917bc966"
+    },
+    "stt_hi_timestamps/response_body.json": {
+      "sha256": "e782dc0cc89e1dd1317caaf00ce4e0f7744eb2126ad4e9bcc3877152da5ffac0"
+    },
+    "stt_hi_timestamps/response_meta.json": {
+      "sha256": "8c31612be7e5f8263ac56189e8882f13c13eb1f85d626d4ad0e2ffa5dec5acc4"
+    },
+    "stt_hi_unknown/request.json": {
+      "sha256": "91f519a3243ed49f1b6a4e2e0aa55a7d2fef4c500d4754e25d7baa164bdc6ed7"
+    },
+    "stt_hi_unknown/response_body.json": {
+      "sha256": "553e87c316feac2209990d6c70114017beeb55952270ad534ec5e640b9230ad4"
+    },
+    "stt_hi_unknown/response_meta.json": {
+      "sha256": "54d4e1c31899a03004fcc10971fa505bccac05f35ee6430ab19fa0bd6d994d80"
+    },
+    "stt_kn_forced/request.json": {
+      "sha256": "494be3bcb6ebec5b4f8fb54bfce52ff51532564dc1d616a833b97e71f17ce6f6"
+    },
+    "stt_kn_forced/response_body.json": {
+      "sha256": "c6090bf4f4035afe2f3149d89ea3061cdf6a6684d666b248ddb8ef90cbde3847"
+    },
+    "stt_kn_forced/response_meta.json": {
+      "sha256": "c6d48f5b04673face5d3a7fdbf904d123a3ec8d871136d832b8f14a121b67dc6"
+    },
+    "stt_kn_unknown/request.json": {
+      "sha256": "2d7582a20152a4929cdbf6664ee6d13617224e9ae22d63b94a1409150049b16c"
+    },
+    "stt_kn_unknown/response_body.json": {
+      "sha256": "487d063041f98867c98286e5bdc6c32fdb35488768d0a295a27986062cee3af4"
+    },
+    "stt_kn_unknown/response_meta.json": {
+      "sha256": "5c9e558c7edc45c9a3d4bd41f483e685a2edeabe04e0b218efc6dc299da47e05"
+    },
+    "stt_kokoro_en_tool_forced/request.json": {
+      "sha256": "435462a7dcab2712da627792e2452785f1b5fd58a5676c40d3b50fac604a1d88"
+    },
+    "stt_kokoro_en_tool_forced/response_body.json": {
+      "sha256": "269407beea9999f2f5c825d115716906c84fedaff9b9dd6100ceb7a290fc6193"
+    },
+    "stt_kokoro_en_tool_forced/response_meta.json": {
+      "sha256": "90cc15396d2eb4be5d85c716a8aa4c2ddcdbfedfc19a7e094a3fd7d59325b276"
+    },
+    "stt_kokoro_en_unknown/request.json": {
+      "sha256": "bd12e2c3c9936c01f16d5aae55fba62c5716d69a1366c361110f4b9734b0af2a"
+    },
+    "stt_kokoro_en_unknown/response_body.json": {
+      "sha256": "341a3e8f8d97e7902dac520a654c649bfc930f61221c3e96f640eabfbdecb91e"
+    },
+    "stt_kokoro_en_unknown/response_meta.json": {
+      "sha256": "ddbbda9de39b3b4f83125e2f4bc4d6c9d48150e70a1a946917d60dda1d5ee57a"
+    },
+    "stt_kokoro_hi_unknown/request.json": {
+      "sha256": "41190fd85de18f77acf12f6df9e933c7a0a1eda1027aa478337e5c56ceced20c"
+    },
+    "stt_kokoro_hi_unknown/response_body.json": {
+      "sha256": "8f5fed8edc8f4254aad6f14a0771beab708616f158e4dc04f61b7fb230238b7c"
+    },
+    "stt_kokoro_hi_unknown/response_meta.json": {
+      "sha256": "40f9dbb752ec2562733a05deded5b8f56d76e2c3efae179212e1117214aa380c"
+    },
+    "stt_ml_forced/request.json": {
+      "sha256": "f00a3d83b81f94b38e1161110adfe0eae2555a27d1df4075dc2c97f62ae0fdf1"
+    },
+    "stt_ml_forced/response_body.json": {
+      "sha256": "30fd8bc3d0cb84b83869ccef9aa134dea3bc6c7b60d40bfc89f203a5fbc15846"
+    },
+    "stt_ml_forced/response_meta.json": {
+      "sha256": "de39444ab2c29faeba727523e2b7a4f59f727ae56dfe4bc5456ac5a3eb1d999f"
+    },
+    "stt_ml_unknown/request.json": {
+      "sha256": "7b006dbdae56ee65ffeb1325f3869dbab2321b70b0faed2c5c32e80e4f8ebb1e"
+    },
+    "stt_ml_unknown/response_body.json": {
+      "sha256": "84875cb2a57f9b8012d604b6b14c77281be79c2dccb2f3760a31c6610be3db93"
+    },
+    "stt_ml_unknown/response_meta.json": {
+      "sha256": "fe6bb17af641d6d26d10fe46d022106f4c3de1b13b52aec56cdc074a8f268660"
+    },
+    "stt_mr_forced/request.json": {
+      "sha256": "afd5d12327a23fea7e51c623907025cf4988b99b9bff970f673383acf40b2fa4"
+    },
+    "stt_mr_forced/response_body.json": {
+      "sha256": "04c320f06f5efd610024e4a24e82c16977053d8f9245be6f645a29f0eebd5d31"
+    },
+    "stt_mr_forced/response_meta.json": {
+      "sha256": "a3a6ffb4980d704182cceece55448a77e9fe3efc225103feec51f64e889c2611"
+    },
+    "stt_mr_unknown/request.json": {
+      "sha256": "877deea4f2ba9e28183a01d615072ed0a804aa01dde07fad510267e588316e1f"
+    },
+    "stt_mr_unknown/response_body.json": {
+      "sha256": "f79706b4ed4af117f45250bd986493e4f865ae0ccb4eff68464be382220fb1a3"
+    },
+    "stt_mr_unknown/response_meta.json": {
+      "sha256": "aff4abd7b8725f4498b1445af64a5bcad16767fbe782d9072cbf9adbc62c0b8b"
+    },
+    "stt_pa_forced/request.json": {
+      "sha256": "b3101186b650581b75b2b8a2684ecd647c0a5d003baa0c80e9057bcf3f361cd3"
+    },
+    "stt_pa_forced/response_body.json": {
+      "sha256": "20454f9afd26f78492a3356e906e985f4202df75703b16ead53b608ec8bfa7a3"
+    },
+    "stt_pa_forced/response_meta.json": {
+      "sha256": "75df50bbadd4a58aae180b2dd94a7dc446de6ece71a3a6f5c5dc49cd31f38246"
+    },
+    "stt_pa_unknown/request.json": {
+      "sha256": "b2ddb606ebd09927a0905e6e871eb71efcf9ee61946795709fc5cfc9b558b022"
+    },
+    "stt_pa_unknown/response_body.json": {
+      "sha256": "1f91adc9797cc641b248dc61577320b0ab25e4a6a048d3f05caaf6862eb7747c"
+    },
+    "stt_pa_unknown/response_meta.json": {
+      "sha256": "20b0aa95bdc71a724b970e3e40d8e6c905942e78d71d8add290eca620ba4f5a5"
+    },
+    "stt_short_300ms_unknown/request.json": {
+      "sha256": "d423f30c29d8828972e5c623354e8db4b8eb9a379bfe6053a97ea26bc1ed0240"
+    },
+    "stt_short_300ms_unknown/response_body.json": {
+      "sha256": "70a5b02e91da5464cbca71e8a87338a5330eb754ad1d3bbcf3f6b0dab707d998"
+    },
+    "stt_short_300ms_unknown/response_meta.json": {
+      "sha256": "ea387b9ce463c80af8734ced047e44a810af7fe96371d976fc3328e96aaaad40"
+    },
+    "stt_silence_forced_hi/request.json": {
+      "sha256": "7d8d36b235bd509d45c6c4def504c83e3a106c5553158169601762457ae32c2d"
+    },
+    "stt_silence_forced_hi/response_body.json": {
+      "sha256": "138924334763488949b68302bf972e229314009dbb9c2299536ef2405c3a4522"
+    },
+    "stt_silence_forced_hi/response_meta.json": {
+      "sha256": "ebb7d38003bf067e28e3f6b4ac67d901180b1158378c8771e0f57f8b1f9cf545"
+    },
+    "stt_silence_unknown/request.json": {
+      "sha256": "902179773ed44e1a28d66827ee7faf626af9669f5df12a19c4a5d66c0dd60f04"
+    },
+    "stt_silence_unknown/response_body.json": {
+      "sha256": "7eb8975812c2462890d0e25f2172e988da11486db471efa440ddf930db8afe4f"
+    },
+    "stt_silence_unknown/response_meta.json": {
+      "sha256": "f3c2963a73d05b7ccdf1122d572d92a229d2a8d0f02191009a27af3798e3ce18"
+    },
+    "stt_ta_forced/request.json": {
+      "sha256": "8fa579402847e8c310db5519972e433fcaef7dc792364587ba223ba5d58923df"
+    },
+    "stt_ta_forced/response_body.json": {
+      "sha256": "6ecbfb1cc67fdd6754f95cd990f678b1ac46ca4e88cea665910a86a619c9f86b"
+    },
+    "stt_ta_forced/response_meta.json": {
+      "sha256": "085e34cdb0776ccf6c11c20c5c40cecf097f13b55071c5ee1e97cc2a149aa8d1"
+    },
+    "stt_ta_timestamps_unknown/request.json": {
+      "sha256": "d09360f8c10edd7717549e0617b0efec619b1ec464baf015ef302f53d1989f0d"
+    },
+    "stt_ta_timestamps_unknown/response_body.json": {
+      "sha256": "4c442117adc08c4876b780c73a6bd7d2b878b8af3f2775a523ba48f70c1ca735"
+    },
+    "stt_ta_timestamps_unknown/response_meta.json": {
+      "sha256": "23acc7708c39b47960d84b48c3b06a886424b1dc6a658c9c35015e97be25f455"
+    },
+    "stt_ta_unknown/request.json": {
+      "sha256": "6f154c42126ae9d2f2451a81d62dbbac8cdf7ca597275b04452b6cc5190eab9b"
+    },
+    "stt_ta_unknown/response_body.json": {
+      "sha256": "efeb6513ad49a622f4f87ce5ff0786ba41a9cecd1838197156dfbc37c37ac07f"
+    },
+    "stt_ta_unknown/response_meta.json": {
+      "sha256": "ae0a45602dac11ded59f69f397508beac26e0d2c06463c2eb4c65c450ffe92f2"
+    },
+    "stt_te_forced/request.json": {
+      "sha256": "06337dfb3e26e53f0e8b7b1a115a88d44a020d9bc120fec360e8ef83f70e9b6e"
+    },
+    "stt_te_forced/response_body.json": {
+      "sha256": "d6872efc1689e7374f9b7e3550ee00e81e6d3a25dac645a99ba489c8a6b80ebb"
+    },
+    "stt_te_forced/response_meta.json": {
+      "sha256": "d20b1d7e46474e492d846187b47e0730eb6574c48f0d6829c72c5f344d830fd7"
+    },
+    "stt_te_unknown/request.json": {
+      "sha256": "ecc318246d241dce5222444e98b3577e804b88edc67a4198f7af1fd5760920b4"
+    },
+    "stt_te_unknown/response_body.json": {
+      "sha256": "9698c802627ad47692274dcaf16f1a6866fe4cddd413d7e2b3d6e2d91d319817"
+    },
+    "stt_te_unknown/response_meta.json": {
+      "sha256": "257ce2824af73b3ec8b76fb69099b418cf6b8431472e963bbeeb716222605449"
+    }
+  }
+}
