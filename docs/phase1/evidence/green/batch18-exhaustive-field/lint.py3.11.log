@@ -1,0 +1,25 @@
+== python 3.11
+$ uv run --locked ruff check
+All checks passed!
+exit=0
+$ uv run --locked ruff format --check
+243 files already formatted
+exit=0
+$ uv run --locked mypy
+Success: no issues found in 144 source files
+exit=0
+$ uv run --locked mypy --strict
+Success: no issues found in 144 source files
+exit=0
+$ uv run --locked python scripts/check_headers.py
+
+exit=0
+$ uv run --locked python scripts/guard_private_fixtures.py
+
+exit=0
+$ uv run --locked python -m tracer_evalschema.schema_export --check
+
+exit=0
+$ uv run --locked python scripts/generate_field_docs.py --check
+
+exit=0

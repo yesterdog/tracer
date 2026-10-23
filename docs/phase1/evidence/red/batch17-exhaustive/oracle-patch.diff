@@ -1,0 +1,100 @@
+--- packages/evalschema/src/tracer_evalschema/evaluator.py	2026-10-23 22:59:07
++++ oracle/packages/evalschema/src/tracer_evalschema/evaluator.py	2026-10-24 00:23:22
+@@ -225,6 +225,7 @@
+     expected_tool_calls: Annotated[list[ExpectedToolCall], AfterValidator(_contiguous_ranks)] = (
+         Field(default_factory=list)
+     )
++    expected_tool_calls_exhaustive: Annotated[bool, Strict()] | None = None
+     max_duration_ms: MaxDurationMs
+ 
+     def digest_subject(self) -> dict[str, Any]:
+--- packages/evalschema/tests/support/mappings/pipecat_evals.py	2026-10-23 23:41:43
++++ oracle/packages/evalschema/tests/support/mappings/pipecat_evals.py	2026-10-24 00:23:26
+@@ -75,6 +75,15 @@
+     statement=(
+         "simulation.py module documentation (pipecat-ai 1.13.0): the judge reads the whole "
+         "conversation and the bot's tool calls by name and arguments, not their results."
++    ),
++)
++EXHAUSTIVE_CITATION = Citation(
++    url=_SRC + "simulation.py",
++    retrieved_at=RETRIEVED,
++    statement=(
++        "simulation.py module documentation (pipecat-ai 1.13.0): function_calls: every listed call "
++        "must have happened and any call not listed fails it, so calls: [] says the bot must call "
++        "nothing."
+     ),
+ )
+ MEASURE_CITATION = Citation(
+@@ -439,6 +448,7 @@
+         self.metrics: list[_Metric] = []
+         self.keys: set[str] = set()
+         self.ranks = 0
++        self.exhaustive_ptr: str | None = None
+ 
+     # -- failure ---------------------------------------------------------------------------
+ 
+@@ -914,6 +924,8 @@
+             return
+         self.keys.add(name)
+         self.metrics.append(outcome[0])
++        if measure == "function_calls" and self.exhaustive_ptr is None:
++            self.exhaustive_ptr = f"{ptr}/calls"
+         if outcome[1]:
+             self._add_calls(outcome[1], ptr)
+ 
+@@ -1048,14 +1060,6 @@
+                 "metrics.calls",
+             )
+             return None
+-        if not raw:
+-            self.rec.warn(
+-                "empty_call_list",
+-                "calls: [] means the bot must call nothing, which an Evaluator cannot state",
+-                path=where,
+-            )
+-            self.rec.gap(_gap("metrics.calls", "an empty call list cannot be represented"))
+-            return None
+         entries: list[tuple[Any, str, Any, str | None, str]] = []
+         for c, call in enumerate(raw):
+             at = f"{where}/{c}"
+@@ -1226,6 +1230,8 @@
+             "expected_tool_calls": calls,
+             "max_duration_ms": duration[0],
+         }
++        if self.exhaustive_ptr is not None:
++            fields["expected_tool_calls_exhaustive"] = True
+         evaluator = _seal(ctx, Evaluator, self.evaluator_id, fields)
+         evaluator_legs = [
+             self.name_leg,
+@@ -1238,6 +1244,15 @@
+             *call_legs,
+             duration[1],
+         ]
++        if self.exhaustive_ptr is not None:
++            evaluator_legs.append(
++                Leg(
++                    "/expected_tool_calls_exhaustive",
++                    (self.exhaustive_ptr,),
++                    "documented_measure_table",
++                    EXHAUSTIVE_CITATION,
++                )
++            )
+         items = [
+             {"binding": _ref(binding.record), "required": metric.required}
+             for binding, metric in zip(bindings, self.metrics, strict=True)
+@@ -1429,6 +1444,14 @@
+         "one rank per expectation or metric, in file order (F5-M6)",
+     ),
+     _row(
++        "Evaluator.expected_tool_calls_exhaustive",
++        "derivation",
++        "metrics.calls",
++        "documented_measure_table",
++        "a function_calls metric fails on any call not listed, so True (F5-2)",
++        EXHAUSTIVE_CITATION,
++    ),
++    _row(
+         "Evaluator.expected_tool_calls.*.arguments.*",
+         "source",
+         _CALL_ARGS,

@@ -1,0 +1,1447 @@
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF............................. [ 27%]
+................................F....................................... [ 55%]
+........................................................................ [ 83%]
+...........................................                              [100%]
+=================================== FAILURES ===================================
+_________ test_exhaustive_flag_is_a_field_that_defaults_to_not_stated __________
+
+    def test_exhaustive_flag_is_a_field_that_defaults_to_not_stated() -> None:
+        """The model has the field; a document that omits it validates and gets ``None``; the JSON
+        dump always carries the key (a present ``null``), like the other optional Evaluator fields."""
+        model = entity_class("Evaluator")
+>       assert FIELD in model.model_fields
+E       AssertionError: assert 'expected_tool_calls_exhaustive' in {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...}
+E        +  where {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...} = <class 'tracer_evalschema.evaluator.Evaluator'>.model_fields
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:126: AssertionError
+__ test_exhaustive_flag_is_in_the_schemas_as_boolean_or_null_and_not_required __
+
+    def test_exhaustive_flag_is_in_the_schemas_as_boolean_or_null_and_not_required() -> None:
+        """The validation-mode, serialization-mode and exported schemas all state the property as
+        ``boolean`` or ``null``, with default ``null``, and it is not in ``required`` (so the schema
+        accepts a document without it, as the model does)."""
+        model = entity_class("Evaluator")
+        exported = _evaluator_node(rendered_schema("Evaluator"))
+        nodes = {
+            "validation": schema_of(model, "validation"),
+            "serialization": schema_of(model, "serialization"),
+            "exported": exported,
+        }
+        for label, schema in nodes.items():
+            properties = schema["properties"]
+>           assert FIELD in properties, label
+E           AssertionError: validation
+E           assert 'expected_tool_calls_exhaustive' in {'id': {'pattern': '^evl_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$', 'title': 'Id', 'type':...Created At', 'type': 'string'}, 'metadata': {'additionalProperties': True, 'title': 'Metadata', 'type': 'object'}, ...}
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:154: AssertionError
+_ test_exhaustive_flag_is_in_every_schema_that_embeds_an_evaluator[ConfigSnapshot] _
+
+entity = 'ConfigSnapshot'
+
+    @pytest.mark.parametrize("entity", ["ConfigSnapshot", "RunBundle", "ExportBundle"])
+    def test_exhaustive_flag_is_in_every_schema_that_embeds_an_evaluator(entity: str) -> None:
+        """Snapshot embedding: the exported files of the documents that embed an Evaluator describe
+        the new property in their ``Evaluator`` definition, optional and boolean or null."""
+        schema = rendered_schema(entity)
+        node = schema["$defs"]["Evaluator"]
+>       assert _types(node["properties"][FIELD]) == {"boolean", "null"}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'expected_tool_calls_exhaustive'
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:166: KeyError
+_ test_exhaustive_flag_is_in_every_schema_that_embeds_an_evaluator[RunBundle] __
+
+entity = 'RunBundle'
+
+    @pytest.mark.parametrize("entity", ["ConfigSnapshot", "RunBundle", "ExportBundle"])
+    def test_exhaustive_flag_is_in_every_schema_that_embeds_an_evaluator(entity: str) -> None:
+        """Snapshot embedding: the exported files of the documents that embed an Evaluator describe
+        the new property in their ``Evaluator`` definition, optional and boolean or null."""
+        schema = rendered_schema(entity)
+        node = schema["$defs"]["Evaluator"]
+>       assert _types(node["properties"][FIELD]) == {"boolean", "null"}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'expected_tool_calls_exhaustive'
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:166: KeyError
+_ test_exhaustive_flag_is_in_every_schema_that_embeds_an_evaluator[ExportBundle] _
+
+entity = 'ExportBundle'
+
+    @pytest.mark.parametrize("entity", ["ConfigSnapshot", "RunBundle", "ExportBundle"])
+    def test_exhaustive_flag_is_in_every_schema_that_embeds_an_evaluator(entity: str) -> None:
+        """Snapshot embedding: the exported files of the documents that embed an Evaluator describe
+        the new property in their ``Evaluator`` definition, optional and boolean or null."""
+        schema = rendered_schema(entity)
+        node = schema["$defs"]["Evaluator"]
+>       assert _types(node["properties"][FIELD]) == {"boolean", "null"}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'expected_tool_calls_exhaustive'
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:166: KeyError
+_________ test_exhaustive_flag_accepts_true_false_and_not_stated[None] _________
+
+value = None
+
+    @pytest.mark.parametrize("value", VALUES)
+    def test_exhaustive_flag_accepts_true_false_and_not_stated(value: bool | None) -> None:
+        """Model and exported schema accept ``True``, ``False`` and ``None``; the value is kept
+        exactly (``False`` is not turned into ``None``, ``True`` is a bool), through the Python and
+        the JSON paths."""
+>       evaluator = _evaluator(**{FIELD: value})
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:178: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_evaluator_exhaustive.py:85: in _evaluator
+    return make("Evaluator", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:373: in make
+    return entity_class(name).model_validate(build(name, **over))
+                                             ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:368: in build
+    return seal(model, doc) if name in VERSIONED_NAMES else doc
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model = <class 'tracer_evalschema.evaluator.Evaluator'>
+doc = {'id': 'evl_01a16a15-f7fb-718b-bed7-e564c01b49e6', 'schema_version': '0.0.1', 'created_at': '2026-10-22T10:00:00.000000Z', 'metadata': {}, ...}
+
+    def seal(model: Any, doc: Mapping[str, Any]) -> dict[str, Any]:
+        """The complete JSON-mode document of ``doc`` with a correct plain ``content_digest``.
+    
+        An Evaluator is sealed over its own domain (N20): the digest ignores
+        ``test_profile.content_digest``, every other entity is sealed over the generic domain."""
+        body = {k: v for k, v in doc.items() if k != "content_digest"}
+        with digest_check_off():
+>           built = model.model_validate({**body, "content_digest": PLACEHOLDER_DIGEST})
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           pydantic_core._pydantic_core.ValidationError: 1 validation error for Evaluator
+E           expected_tool_calls_exhaustive
+E             Extra inputs are not permitted [type=extra_forbidden]
+E               For further information visit https://errors.pydantic.dev/2.14/v/extra_forbidden
+
+packages/evalschema/tests/_support_b2.py:356: ValidationError
+_________ test_exhaustive_flag_accepts_true_false_and_not_stated[True] _________
+
+value = True
+
+    @pytest.mark.parametrize("value", VALUES)
+    def test_exhaustive_flag_accepts_true_false_and_not_stated(value: bool | None) -> None:
+        """Model and exported schema accept ``True``, ``False`` and ``None``; the value is kept
+        exactly (``False`` is not turned into ``None``, ``True`` is a bool), through the Python and
+        the JSON paths."""
+>       evaluator = _evaluator(**{FIELD: value})
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:178: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_evaluator_exhaustive.py:85: in _evaluator
+    return make("Evaluator", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:373: in make
+    return entity_class(name).model_validate(build(name, **over))
+                                             ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:368: in build
+    return seal(model, doc) if name in VERSIONED_NAMES else doc
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model = <class 'tracer_evalschema.evaluator.Evaluator'>
+doc = {'id': 'evl_01a16a15-f805-73b1-a1b8-b1b064d2c297', 'schema_version': '0.0.1', 'created_at': '2026-10-22T10:00:00.000000Z', 'metadata': {}, ...}
+
+    def seal(model: Any, doc: Mapping[str, Any]) -> dict[str, Any]:
+        """The complete JSON-mode document of ``doc`` with a correct plain ``content_digest``.
+    
+        An Evaluator is sealed over its own domain (N20): the digest ignores
+        ``test_profile.content_digest``, every other entity is sealed over the generic domain."""
+        body = {k: v for k, v in doc.items() if k != "content_digest"}
+        with digest_check_off():
+>           built = model.model_validate({**body, "content_digest": PLACEHOLDER_DIGEST})
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           pydantic_core._pydantic_core.ValidationError: 1 validation error for Evaluator
+E           expected_tool_calls_exhaustive
+E             Extra inputs are not permitted [type=extra_forbidden]
+E               For further information visit https://errors.pydantic.dev/2.14/v/extra_forbidden
+
+packages/evalschema/tests/_support_b2.py:356: ValidationError
+________ test_exhaustive_flag_accepts_true_false_and_not_stated[False] _________
+
+value = False
+
+    @pytest.mark.parametrize("value", VALUES)
+    def test_exhaustive_flag_accepts_true_false_and_not_stated(value: bool | None) -> None:
+        """Model and exported schema accept ``True``, ``False`` and ``None``; the value is kept
+        exactly (``False`` is not turned into ``None``, ``True`` is a bool), through the Python and
+        the JSON paths."""
+>       evaluator = _evaluator(**{FIELD: value})
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:178: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_evaluator_exhaustive.py:85: in _evaluator
+    return make("Evaluator", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:373: in make
+    return entity_class(name).model_validate(build(name, **over))
+                                             ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:368: in build
+    return seal(model, doc) if name in VERSIONED_NAMES else doc
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model = <class 'tracer_evalschema.evaluator.Evaluator'>
+doc = {'id': 'evl_01a16a15-f80f-76fb-a04d-f6bafce7f4a1', 'schema_version': '0.0.1', 'created_at': '2026-10-22T10:00:00.000000Z', 'metadata': {}, ...}
+
+    def seal(model: Any, doc: Mapping[str, Any]) -> dict[str, Any]:
+        """The complete JSON-mode document of ``doc`` with a correct plain ``content_digest``.
+    
+        An Evaluator is sealed over its own domain (N20): the digest ignores
+        ``test_profile.content_digest``, every other entity is sealed over the generic domain."""
+        body = {k: v for k, v in doc.items() if k != "content_digest"}
+        with digest_check_off():
+>           built = model.model_validate({**body, "content_digest": PLACEHOLDER_DIGEST})
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           pydantic_core._pydantic_core.ValidationError: 1 validation error for Evaluator
+E           expected_tool_calls_exhaustive
+E             Extra inputs are not permitted [type=extra_forbidden]
+E               For further information visit https://errors.pydantic.dev/2.14/v/extra_forbidden
+
+packages/evalschema/tests/_support_b2.py:356: ValidationError
+____ test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean['true'] ____
+
+bad = 'true'
+
+    @pytest.mark.parametrize("bad", NOT_BOOLEAN, ids=[repr(b) for b in NOT_BOOLEAN])
+    def test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean(bad: Any) -> None:
+        """Strings, integers (also 0 and 1), floats, lists and objects are rejected by the model,
+        located at the field, and by the exported schema (a JSON ``0`` or ``1`` is not a boolean)."""
+>       _known_field_control()
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:191: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _known_field_control() -> None:
+        """Positive control for every rejection test: the field exists and takes ``True``. Without it
+        a rejection could be the unknown-field error (``extra_forbidden``) and the test would pass
+        before the field is built, for the wrong reason."""
+>       assert FIELD in entity_class("Evaluator").model_fields
+E       AssertionError: assert 'expected_tool_calls_exhaustive' in {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...}
+E        +  where {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...} = <class 'tracer_evalschema.evaluator.Evaluator'>.model_fields
+E        +    where <class 'tracer_evalschema.evaluator.Evaluator'> = entity_class('Evaluator')
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:92: AssertionError
+___ test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean['false'] ____
+
+bad = 'false'
+
+    @pytest.mark.parametrize("bad", NOT_BOOLEAN, ids=[repr(b) for b in NOT_BOOLEAN])
+    def test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean(bad: Any) -> None:
+        """Strings, integers (also 0 and 1), floats, lists and objects are rejected by the model,
+        located at the field, and by the exported schema (a JSON ``0`` or ``1`` is not a boolean)."""
+>       _known_field_control()
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:191: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _known_field_control() -> None:
+        """Positive control for every rejection test: the field exists and takes ``True``. Without it
+        a rejection could be the unknown-field error (``extra_forbidden``) and the test would pass
+        before the field is built, for the wrong reason."""
+>       assert FIELD in entity_class("Evaluator").model_fields
+E       AssertionError: assert 'expected_tool_calls_exhaustive' in {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...}
+E        +  where {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...} = <class 'tracer_evalschema.evaluator.Evaluator'>.model_fields
+E        +    where <class 'tracer_evalschema.evaluator.Evaluator'> = entity_class('Evaluator')
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:92: AssertionError
+____ test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean['True'] ____
+
+bad = 'True'
+
+    @pytest.mark.parametrize("bad", NOT_BOOLEAN, ids=[repr(b) for b in NOT_BOOLEAN])
+    def test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean(bad: Any) -> None:
+        """Strings, integers (also 0 and 1), floats, lists and objects are rejected by the model,
+        located at the field, and by the exported schema (a JSON ``0`` or ``1`` is not a boolean)."""
+>       _known_field_control()
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:191: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _known_field_control() -> None:
+        """Positive control for every rejection test: the field exists and takes ``True``. Without it
+        a rejection could be the unknown-field error (``extra_forbidden``) and the test would pass
+        before the field is built, for the wrong reason."""
+>       assert FIELD in entity_class("Evaluator").model_fields
+E       AssertionError: assert 'expected_tool_calls_exhaustive' in {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...}
+E        +  where {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...} = <class 'tracer_evalschema.evaluator.Evaluator'>.model_fields
+E        +    where <class 'tracer_evalschema.evaluator.Evaluator'> = entity_class('Evaluator')
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:92: AssertionError
+____ test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean['yes'] _____
+
+bad = 'yes'
+
+    @pytest.mark.parametrize("bad", NOT_BOOLEAN, ids=[repr(b) for b in NOT_BOOLEAN])
+    def test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean(bad: Any) -> None:
+        """Strings, integers (also 0 and 1), floats, lists and objects are rejected by the model,
+        located at the field, and by the exported schema (a JSON ``0`` or ``1`` is not a boolean)."""
+>       _known_field_control()
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:191: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _known_field_control() -> None:
+        """Positive control for every rejection test: the field exists and takes ``True``. Without it
+        a rejection could be the unknown-field error (``extra_forbidden``) and the test would pass
+        before the field is built, for the wrong reason."""
+>       assert FIELD in entity_class("Evaluator").model_fields
+E       AssertionError: assert 'expected_tool_calls_exhaustive' in {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...}
+E        +  where {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...} = <class 'tracer_evalschema.evaluator.Evaluator'>.model_fields
+E        +    where <class 'tracer_evalschema.evaluator.Evaluator'> = entity_class('Evaluator')
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:92: AssertionError
+______ test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean[''] ______
+
+bad = ''
+
+    @pytest.mark.parametrize("bad", NOT_BOOLEAN, ids=[repr(b) for b in NOT_BOOLEAN])
+    def test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean(bad: Any) -> None:
+        """Strings, integers (also 0 and 1), floats, lists and objects are rejected by the model,
+        located at the field, and by the exported schema (a JSON ``0`` or ``1`` is not a boolean)."""
+>       _known_field_control()
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:191: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _known_field_control() -> None:
+        """Positive control for every rejection test: the field exists and takes ``True``. Without it
+        a rejection could be the unknown-field error (``extra_forbidden``) and the test would pass
+        before the field is built, for the wrong reason."""
+>       assert FIELD in entity_class("Evaluator").model_fields
+E       AssertionError: assert 'expected_tool_calls_exhaustive' in {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...}
+E        +  where {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...} = <class 'tracer_evalschema.evaluator.Evaluator'>.model_fields
+E        +    where <class 'tracer_evalschema.evaluator.Evaluator'> = entity_class('Evaluator')
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:92: AssertionError
+______ test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean[0] _______
+
+bad = 0
+
+    @pytest.mark.parametrize("bad", NOT_BOOLEAN, ids=[repr(b) for b in NOT_BOOLEAN])
+    def test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean(bad: Any) -> None:
+        """Strings, integers (also 0 and 1), floats, lists and objects are rejected by the model,
+        located at the field, and by the exported schema (a JSON ``0`` or ``1`` is not a boolean)."""
+>       _known_field_control()
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:191: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _known_field_control() -> None:
+        """Positive control for every rejection test: the field exists and takes ``True``. Without it
+        a rejection could be the unknown-field error (``extra_forbidden``) and the test would pass
+        before the field is built, for the wrong reason."""
+>       assert FIELD in entity_class("Evaluator").model_fields
+E       AssertionError: assert 'expected_tool_calls_exhaustive' in {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...}
+E        +  where {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...} = <class 'tracer_evalschema.evaluator.Evaluator'>.model_fields
+E        +    where <class 'tracer_evalschema.evaluator.Evaluator'> = entity_class('Evaluator')
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:92: AssertionError
+______ test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean[1] _______
+
+bad = 1
+
+    @pytest.mark.parametrize("bad", NOT_BOOLEAN, ids=[repr(b) for b in NOT_BOOLEAN])
+    def test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean(bad: Any) -> None:
+        """Strings, integers (also 0 and 1), floats, lists and objects are rejected by the model,
+        located at the field, and by the exported schema (a JSON ``0`` or ``1`` is not a boolean)."""
+>       _known_field_control()
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:191: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _known_field_control() -> None:
+        """Positive control for every rejection test: the field exists and takes ``True``. Without it
+        a rejection could be the unknown-field error (``extra_forbidden``) and the test would pass
+        before the field is built, for the wrong reason."""
+>       assert FIELD in entity_class("Evaluator").model_fields
+E       AssertionError: assert 'expected_tool_calls_exhaustive' in {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...}
+E        +  where {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...} = <class 'tracer_evalschema.evaluator.Evaluator'>.model_fields
+E        +    where <class 'tracer_evalschema.evaluator.Evaluator'> = entity_class('Evaluator')
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:92: AssertionError
+______ test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean[2] _______
+
+bad = 2
+
+    @pytest.mark.parametrize("bad", NOT_BOOLEAN, ids=[repr(b) for b in NOT_BOOLEAN])
+    def test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean(bad: Any) -> None:
+        """Strings, integers (also 0 and 1), floats, lists and objects are rejected by the model,
+        located at the field, and by the exported schema (a JSON ``0`` or ``1`` is not a boolean)."""
+>       _known_field_control()
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:191: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _known_field_control() -> None:
+        """Positive control for every rejection test: the field exists and takes ``True``. Without it
+        a rejection could be the unknown-field error (``extra_forbidden``) and the test would pass
+        before the field is built, for the wrong reason."""
+>       assert FIELD in entity_class("Evaluator").model_fields
+E       AssertionError: assert 'expected_tool_calls_exhaustive' in {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...}
+E        +  where {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...} = <class 'tracer_evalschema.evaluator.Evaluator'>.model_fields
+E        +    where <class 'tracer_evalschema.evaluator.Evaluator'> = entity_class('Evaluator')
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:92: AssertionError
+______ test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean[-1] ______
+
+bad = -1
+
+    @pytest.mark.parametrize("bad", NOT_BOOLEAN, ids=[repr(b) for b in NOT_BOOLEAN])
+    def test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean(bad: Any) -> None:
+        """Strings, integers (also 0 and 1), floats, lists and objects are rejected by the model,
+        located at the field, and by the exported schema (a JSON ``0`` or ``1`` is not a boolean)."""
+>       _known_field_control()
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:191: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _known_field_control() -> None:
+        """Positive control for every rejection test: the field exists and takes ``True``. Without it
+        a rejection could be the unknown-field error (``extra_forbidden``) and the test would pass
+        before the field is built, for the wrong reason."""
+>       assert FIELD in entity_class("Evaluator").model_fields
+E       AssertionError: assert 'expected_tool_calls_exhaustive' in {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...}
+E        +  where {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...} = <class 'tracer_evalschema.evaluator.Evaluator'>.model_fields
+E        +    where <class 'tracer_evalschema.evaluator.Evaluator'> = entity_class('Evaluator')
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:92: AssertionError
+_____ test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean[1.0] ______
+
+bad = 1.0
+
+    @pytest.mark.parametrize("bad", NOT_BOOLEAN, ids=[repr(b) for b in NOT_BOOLEAN])
+    def test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean(bad: Any) -> None:
+        """Strings, integers (also 0 and 1), floats, lists and objects are rejected by the model,
+        located at the field, and by the exported schema (a JSON ``0`` or ``1`` is not a boolean)."""
+>       _known_field_control()
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:191: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _known_field_control() -> None:
+        """Positive control for every rejection test: the field exists and takes ``True``. Without it
+        a rejection could be the unknown-field error (``extra_forbidden``) and the test would pass
+        before the field is built, for the wrong reason."""
+>       assert FIELD in entity_class("Evaluator").model_fields
+E       AssertionError: assert 'expected_tool_calls_exhaustive' in {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...}
+E        +  where {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...} = <class 'tracer_evalschema.evaluator.Evaluator'>.model_fields
+E        +    where <class 'tracer_evalschema.evaluator.Evaluator'> = entity_class('Evaluator')
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:92: AssertionError
+_____ test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean[0.0] ______
+
+bad = 0.0
+
+    @pytest.mark.parametrize("bad", NOT_BOOLEAN, ids=[repr(b) for b in NOT_BOOLEAN])
+    def test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean(bad: Any) -> None:
+        """Strings, integers (also 0 and 1), floats, lists and objects are rejected by the model,
+        located at the field, and by the exported schema (a JSON ``0`` or ``1`` is not a boolean)."""
+>       _known_field_control()
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:191: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _known_field_control() -> None:
+        """Positive control for every rejection test: the field exists and takes ``True``. Without it
+        a rejection could be the unknown-field error (``extra_forbidden``) and the test would pass
+        before the field is built, for the wrong reason."""
+>       assert FIELD in entity_class("Evaluator").model_fields
+E       AssertionError: assert 'expected_tool_calls_exhaustive' in {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...}
+E        +  where {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...} = <class 'tracer_evalschema.evaluator.Evaluator'>.model_fields
+E        +    where <class 'tracer_evalschema.evaluator.Evaluator'> = entity_class('Evaluator')
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:92: AssertionError
+______ test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean[[]] ______
+
+bad = []
+
+    @pytest.mark.parametrize("bad", NOT_BOOLEAN, ids=[repr(b) for b in NOT_BOOLEAN])
+    def test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean(bad: Any) -> None:
+        """Strings, integers (also 0 and 1), floats, lists and objects are rejected by the model,
+        located at the field, and by the exported schema (a JSON ``0`` or ``1`` is not a boolean)."""
+>       _known_field_control()
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:191: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _known_field_control() -> None:
+        """Positive control for every rejection test: the field exists and takes ``True``. Without it
+        a rejection could be the unknown-field error (``extra_forbidden``) and the test would pass
+        before the field is built, for the wrong reason."""
+>       assert FIELD in entity_class("Evaluator").model_fields
+E       AssertionError: assert 'expected_tool_calls_exhaustive' in {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...}
+E        +  where {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...} = <class 'tracer_evalschema.evaluator.Evaluator'>.model_fields
+E        +    where <class 'tracer_evalschema.evaluator.Evaluator'> = entity_class('Evaluator')
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:92: AssertionError
+____ test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean[[True]] ____
+
+bad = [True]
+
+    @pytest.mark.parametrize("bad", NOT_BOOLEAN, ids=[repr(b) for b in NOT_BOOLEAN])
+    def test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean(bad: Any) -> None:
+        """Strings, integers (also 0 and 1), floats, lists and objects are rejected by the model,
+        located at the field, and by the exported schema (a JSON ``0`` or ``1`` is not a boolean)."""
+>       _known_field_control()
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:191: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _known_field_control() -> None:
+        """Positive control for every rejection test: the field exists and takes ``True``. Without it
+        a rejection could be the unknown-field error (``extra_forbidden``) and the test would pass
+        before the field is built, for the wrong reason."""
+>       assert FIELD in entity_class("Evaluator").model_fields
+E       AssertionError: assert 'expected_tool_calls_exhaustive' in {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...}
+E        +  where {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...} = <class 'tracer_evalschema.evaluator.Evaluator'>.model_fields
+E        +    where <class 'tracer_evalschema.evaluator.Evaluator'> = entity_class('Evaluator')
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:92: AssertionError
+______ test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean[{}] ______
+
+bad = {}
+
+    @pytest.mark.parametrize("bad", NOT_BOOLEAN, ids=[repr(b) for b in NOT_BOOLEAN])
+    def test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean(bad: Any) -> None:
+        """Strings, integers (also 0 and 1), floats, lists and objects are rejected by the model,
+        located at the field, and by the exported schema (a JSON ``0`` or ``1`` is not a boolean)."""
+>       _known_field_control()
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:191: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _known_field_control() -> None:
+        """Positive control for every rejection test: the field exists and takes ``True``. Without it
+        a rejection could be the unknown-field error (``extra_forbidden``) and the test would pass
+        before the field is built, for the wrong reason."""
+>       assert FIELD in entity_class("Evaluator").model_fields
+E       AssertionError: assert 'expected_tool_calls_exhaustive' in {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...}
+E        +  where {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...} = <class 'tracer_evalschema.evaluator.Evaluator'>.model_fields
+E        +    where <class 'tracer_evalschema.evaluator.Evaluator'> = entity_class('Evaluator')
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:92: AssertionError
+_ test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean[{'value': True}] _
+
+bad = {'value': True}
+
+    @pytest.mark.parametrize("bad", NOT_BOOLEAN, ids=[repr(b) for b in NOT_BOOLEAN])
+    def test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean(bad: Any) -> None:
+        """Strings, integers (also 0 and 1), floats, lists and objects are rejected by the model,
+        located at the field, and by the exported schema (a JSON ``0`` or ``1`` is not a boolean)."""
+>       _known_field_control()
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:191: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _known_field_control() -> None:
+        """Positive control for every rejection test: the field exists and takes ``True``. Without it
+        a rejection could be the unknown-field error (``extra_forbidden``) and the test would pass
+        before the field is built, for the wrong reason."""
+>       assert FIELD in entity_class("Evaluator").model_fields
+E       AssertionError: assert 'expected_tool_calls_exhaustive' in {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...}
+E        +  where {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...} = <class 'tracer_evalschema.evaluator.Evaluator'>.model_fields
+E        +    where <class 'tracer_evalschema.evaluator.Evaluator'> = entity_class('Evaluator')
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:92: AssertionError
+___________ test_exhaustive_flag_rejects_a_boolean_in_json_text_form ___________
+
+    def test_exhaustive_flag_rejects_a_boolean_in_json_text_form() -> None:
+        """The JSON path is as strict as the Python path: ``"true"`` and ``1`` in JSON text."""
+>       _known_field_control()
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:200: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _known_field_control() -> None:
+        """Positive control for every rejection test: the field exists and takes ``True``. Without it
+        a rejection could be the unknown-field error (``extra_forbidden``) and the test would pass
+        before the field is built, for the wrong reason."""
+>       assert FIELD in entity_class("Evaluator").model_fields
+E       AssertionError: assert 'expected_tool_calls_exhaustive' in {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...}
+E        +  where {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...} = <class 'tracer_evalschema.evaluator.Evaluator'>.model_fields
+E        +    where <class 'tracer_evalschema.evaluator.Evaluator'> = entity_class('Evaluator')
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:92: AssertionError
+___ test_exhaustive_true_with_an_empty_list_is_valid_and_means_call_nothing ____
+
+    def test_exhaustive_true_with_an_empty_list_is_valid_and_means_call_nothing() -> None:
+        """``expected_tool_calls == []`` with ``True``: the bot must call nothing. The list stays
+        empty (no call is invented) and the flag is what carries the statement."""
+>       evaluator = _evaluator(expected_tool_calls=[], **{FIELD: True})
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:216: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_evaluator_exhaustive.py:85: in _evaluator
+    return make("Evaluator", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:373: in make
+    return entity_class(name).model_validate(build(name, **over))
+                                             ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:368: in build
+    return seal(model, doc) if name in VERSIONED_NAMES else doc
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model = <class 'tracer_evalschema.evaluator.Evaluator'>
+doc = {'id': 'evl_01a16a15-f872-76b0-9219-8380cf195114', 'schema_version': '0.0.1', 'created_at': '2026-10-22T10:00:00.000000Z', 'metadata': {}, ...}
+
+    def seal(model: Any, doc: Mapping[str, Any]) -> dict[str, Any]:
+        """The complete JSON-mode document of ``doc`` with a correct plain ``content_digest``.
+    
+        An Evaluator is sealed over its own domain (N20): the digest ignores
+        ``test_profile.content_digest``, every other entity is sealed over the generic domain."""
+        body = {k: v for k, v in doc.items() if k != "content_digest"}
+        with digest_check_off():
+>           built = model.model_validate({**body, "content_digest": PLACEHOLDER_DIGEST})
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           pydantic_core._pydantic_core.ValidationError: 1 validation error for Evaluator
+E           expected_tool_calls_exhaustive
+E             Extra inputs are not permitted [type=extra_forbidden]
+E               For further information visit https://errors.pydantic.dev/2.14/v/extra_forbidden
+
+packages/evalschema/tests/_support_b2.py:356: ValidationError
+_______________ test_exhaustive_true_with_listed_calls_is_valid ________________
+
+    def test_exhaustive_true_with_listed_calls_is_valid() -> None:
+        """``True`` with a non-empty list: the listed calls are expected and no other call is allowed.
+        Both the list and the flag survive."""
+>       evaluator = _evaluator(
+            expected_tool_calls=[_call("refund_order"), {**_call("send_sms"), "order_index": 1}],
+            **{FIELD: True},
+        )
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:229: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_evaluator_exhaustive.py:85: in _evaluator
+    return make("Evaluator", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:373: in make
+    return entity_class(name).model_validate(build(name, **over))
+                                             ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:368: in build
+    return seal(model, doc) if name in VERSIONED_NAMES else doc
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model = <class 'tracer_evalschema.evaluator.Evaluator'>
+doc = {'id': 'evl_01a16a15-f87c-7405-a38c-752bb2e2e930', 'schema_version': '0.0.1', 'created_at': '2026-10-22T10:00:00.000000Z', 'metadata': {}, ...}
+
+    def seal(model: Any, doc: Mapping[str, Any]) -> dict[str, Any]:
+        """The complete JSON-mode document of ``doc`` with a correct plain ``content_digest``.
+    
+        An Evaluator is sealed over its own domain (N20): the digest ignores
+        ``test_profile.content_digest``, every other entity is sealed over the generic domain."""
+        body = {k: v for k, v in doc.items() if k != "content_digest"}
+        with digest_check_off():
+>           built = model.model_validate({**body, "content_digest": PLACEHOLDER_DIGEST})
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           pydantic_core._pydantic_core.ValidationError: 1 validation error for Evaluator
+E           expected_tool_calls_exhaustive
+E             Extra inputs are not permitted [type=extra_forbidden]
+E               For further information visit https://errors.pydantic.dev/2.14/v/extra_forbidden
+
+packages/evalschema/tests/_support_b2.py:356: ValidationError
+_ test_exhaustive_false_or_not_stated_with_an_empty_list_means_no_expectation[None] _
+
+value = None
+
+    @pytest.mark.parametrize("value", [None, False])
+    def test_exhaustive_false_or_not_stated_with_an_empty_list_means_no_expectation(
+        value: bool | None,
+    ) -> None:
+        """``[]`` with ``False`` or ``None`` is valid (no expectation about tool calls), and the two
+        stay distinguishable from ``True`` in the dump (the model does not normalise)."""
+>       evaluator = _evaluator(expected_tool_calls=[], **{FIELD: value})
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:243: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_evaluator_exhaustive.py:85: in _evaluator
+    return make("Evaluator", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:373: in make
+    return entity_class(name).model_validate(build(name, **over))
+                                             ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:368: in build
+    return seal(model, doc) if name in VERSIONED_NAMES else doc
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model = <class 'tracer_evalschema.evaluator.Evaluator'>
+doc = {'id': 'evl_01a16a15-f886-76c2-9887-8288ab97fe44', 'schema_version': '0.0.1', 'created_at': '2026-10-22T10:00:00.000000Z', 'metadata': {}, ...}
+
+    def seal(model: Any, doc: Mapping[str, Any]) -> dict[str, Any]:
+        """The complete JSON-mode document of ``doc`` with a correct plain ``content_digest``.
+    
+        An Evaluator is sealed over its own domain (N20): the digest ignores
+        ``test_profile.content_digest``, every other entity is sealed over the generic domain."""
+        body = {k: v for k, v in doc.items() if k != "content_digest"}
+        with digest_check_off():
+>           built = model.model_validate({**body, "content_digest": PLACEHOLDER_DIGEST})
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           pydantic_core._pydantic_core.ValidationError: 1 validation error for Evaluator
+E           expected_tool_calls_exhaustive
+E             Extra inputs are not permitted [type=extra_forbidden]
+E               For further information visit https://errors.pydantic.dev/2.14/v/extra_forbidden
+
+packages/evalschema/tests/_support_b2.py:356: ValidationError
+_ test_exhaustive_false_or_not_stated_with_an_empty_list_means_no_expectation[False] _
+
+value = False
+
+    @pytest.mark.parametrize("value", [None, False])
+    def test_exhaustive_false_or_not_stated_with_an_empty_list_means_no_expectation(
+        value: bool | None,
+    ) -> None:
+        """``[]`` with ``False`` or ``None`` is valid (no expectation about tool calls), and the two
+        stay distinguishable from ``True`` in the dump (the model does not normalise)."""
+>       evaluator = _evaluator(expected_tool_calls=[], **{FIELD: value})
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:243: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_evaluator_exhaustive.py:85: in _evaluator
+    return make("Evaluator", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:373: in make
+    return entity_class(name).model_validate(build(name, **over))
+                                             ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:368: in build
+    return seal(model, doc) if name in VERSIONED_NAMES else doc
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model = <class 'tracer_evalschema.evaluator.Evaluator'>
+doc = {'id': 'evl_01a16a15-f890-777e-b74b-546ba0f0fb70', 'schema_version': '0.0.1', 'created_at': '2026-10-22T10:00:00.000000Z', 'metadata': {}, ...}
+
+    def seal(model: Any, doc: Mapping[str, Any]) -> dict[str, Any]:
+        """The complete JSON-mode document of ``doc`` with a correct plain ``content_digest``.
+    
+        An Evaluator is sealed over its own domain (N20): the digest ignores
+        ``test_profile.content_digest``, every other entity is sealed over the generic domain."""
+        body = {k: v for k, v in doc.items() if k != "content_digest"}
+        with digest_check_off():
+>           built = model.model_validate({**body, "content_digest": PLACEHOLDER_DIGEST})
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           pydantic_core._pydantic_core.ValidationError: 1 validation error for Evaluator
+E           expected_tool_calls_exhaustive
+E             Extra inputs are not permitted [type=extra_forbidden]
+E               For further information visit https://errors.pydantic.dev/2.14/v/extra_forbidden
+
+packages/evalschema/tests/_support_b2.py:356: ValidationError
+_______________ test_exhaustive_false_with_listed_calls_is_valid _______________
+
+    def test_exhaustive_false_with_listed_calls_is_valid() -> None:
+>       evaluator = _evaluator(expected_tool_calls=[_call()], **{FIELD: False})
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:250: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_evaluator_exhaustive.py:85: in _evaluator
+    return make("Evaluator", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:373: in make
+    return entity_class(name).model_validate(build(name, **over))
+                                             ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:368: in build
+    return seal(model, doc) if name in VERSIONED_NAMES else doc
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model = <class 'tracer_evalschema.evaluator.Evaluator'>
+doc = {'id': 'evl_01a16a15-f89a-753c-85a9-702bd04077f9', 'schema_version': '0.0.1', 'created_at': '2026-10-22T10:00:00.000000Z', 'metadata': {}, ...}
+
+    def seal(model: Any, doc: Mapping[str, Any]) -> dict[str, Any]:
+        """The complete JSON-mode document of ``doc`` with a correct plain ``content_digest``.
+    
+        An Evaluator is sealed over its own domain (N20): the digest ignores
+        ``test_profile.content_digest``, every other entity is sealed over the generic domain."""
+        body = {k: v for k, v in doc.items() if k != "content_digest"}
+        with digest_check_off():
+>           built = model.model_validate({**body, "content_digest": PLACEHOLDER_DIGEST})
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           pydantic_core._pydantic_core.ValidationError: 1 validation error for Evaluator
+E           expected_tool_calls_exhaustive
+E             Extra inputs are not permitted [type=extra_forbidden]
+E               For further information visit https://errors.pydantic.dev/2.14/v/extra_forbidden
+
+packages/evalschema/tests/_support_b2.py:356: ValidationError
+______________ test_exhaustive_flag_is_part_of_the_content_digest ______________
+
+    def test_exhaustive_flag_is_part_of_the_content_digest() -> None:
+        """Changing the flag changes ``content_digest``: ``None``, ``True`` and ``False`` give three
+        different digests over otherwise identical content (so a verdict that depends on the flag
+        cannot be replayed against an evaluator that says something else). Each sealed document
+        verifies on load."""
+        base = raw_document("Evaluator", expected_tool_calls=[])
+        model = entity_class("Evaluator")
+        digests: dict[bool | None, str] = {}
+        for value in VALUES:
+>           sealed = seal(model, {**base, FIELD: value})
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:267: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model = <class 'tracer_evalschema.evaluator.Evaluator'>
+doc = {'id': 'evl_01a16a15-f8a4-72bb-9668-5a3172a02fa9', 'schema_version': '0.0.1', 'created_at': '2026-10-22T10:00:00.000000Z', 'metadata': {}, ...}
+
+    def seal(model: Any, doc: Mapping[str, Any]) -> dict[str, Any]:
+        """The complete JSON-mode document of ``doc`` with a correct plain ``content_digest``.
+    
+        An Evaluator is sealed over its own domain (N20): the digest ignores
+        ``test_profile.content_digest``, every other entity is sealed over the generic domain."""
+        body = {k: v for k, v in doc.items() if k != "content_digest"}
+        with digest_check_off():
+>           built = model.model_validate({**body, "content_digest": PLACEHOLDER_DIGEST})
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           pydantic_core._pydantic_core.ValidationError: 1 validation error for Evaluator
+E           expected_tool_calls_exhaustive
+E             Extra inputs are not permitted [type=extra_forbidden]
+E               For further information visit https://errors.pydantic.dev/2.14/v/extra_forbidden
+
+packages/evalschema/tests/_support_b2.py:356: ValidationError
+_____________ test_exhaustive_flag_cannot_be_changed_after_sealing _____________
+
+    def test_exhaustive_flag_cannot_be_changed_after_sealing() -> None:
+        """A sealed Evaluator whose flag is flipped, set or removed without resealing fails digest
+        verification with ``DigestMismatch``. The sealed documents themselves load first (so the
+        mismatch is about the flag and not about the field being unknown)."""
+        errors = api("errors")
+        model = entity_class("Evaluator")
+        base = raw_document("Evaluator", expected_tool_calls=[])
+        for sealed_value, other in ((None, True), (None, False), (True, False), (False, True)):
+>           sealed = seal(model, {**base, FIELD: sealed_value})
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:282: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model = <class 'tracer_evalschema.evaluator.Evaluator'>
+doc = {'id': 'evl_01a16a15-f8ab-7228-98df-d8dd01427ed3', 'schema_version': '0.0.1', 'created_at': '2026-10-22T10:00:00.000000Z', 'metadata': {}, ...}
+
+    def seal(model: Any, doc: Mapping[str, Any]) -> dict[str, Any]:
+        """The complete JSON-mode document of ``doc`` with a correct plain ``content_digest``.
+    
+        An Evaluator is sealed over its own domain (N20): the digest ignores
+        ``test_profile.content_digest``, every other entity is sealed over the generic domain."""
+        body = {k: v for k, v in doc.items() if k != "content_digest"}
+        with digest_check_off():
+>           built = model.model_validate({**body, "content_digest": PLACEHOLDER_DIGEST})
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           pydantic_core._pydantic_core.ValidationError: 1 validation error for Evaluator
+E           expected_tool_calls_exhaustive
+E             Extra inputs are not permitted [type=extra_forbidden]
+E               For further information visit https://errors.pydantic.dev/2.14/v/extra_forbidden
+
+packages/evalschema/tests/_support_b2.py:356: ValidationError
+_____ test_exhaustive_flag_survives_a_json_round_trip_with_the_same_digest _____
+
+    def test_exhaustive_flag_survives_a_json_round_trip_with_the_same_digest() -> None:
+        """``model_dump_json`` then ``model_validate_json`` gives an equal Evaluator with the same
+        value and the same digest, for every value (the digest verifies on the second load)."""
+        model = entity_class("Evaluator")
+        for value in VALUES:
+>           evaluator = _evaluator(expected_tool_calls=[], **{FIELD: value})
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:298: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_evaluator_exhaustive.py:85: in _evaluator
+    return make("Evaluator", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:373: in make
+    return entity_class(name).model_validate(build(name, **over))
+                                             ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:368: in build
+    return seal(model, doc) if name in VERSIONED_NAMES else doc
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model = <class 'tracer_evalschema.evaluator.Evaluator'>
+doc = {'id': 'evl_01a16a15-f8b1-767d-845e-59877df554d2', 'schema_version': '0.0.1', 'created_at': '2026-10-22T10:00:00.000000Z', 'metadata': {}, ...}
+
+    def seal(model: Any, doc: Mapping[str, Any]) -> dict[str, Any]:
+        """The complete JSON-mode document of ``doc`` with a correct plain ``content_digest``.
+    
+        An Evaluator is sealed over its own domain (N20): the digest ignores
+        ``test_profile.content_digest``, every other entity is sealed over the generic domain."""
+        body = {k: v for k, v in doc.items() if k != "content_digest"}
+        with digest_check_off():
+>           built = model.model_validate({**body, "content_digest": PLACEHOLDER_DIGEST})
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           pydantic_core._pydantic_core.ValidationError: 1 validation error for Evaluator
+E           expected_tool_calls_exhaustive
+E             Extra inputs are not permitted [type=extra_forbidden]
+E               For further information visit https://errors.pydantic.dev/2.14/v/extra_forbidden
+
+packages/evalschema/tests/_support_b2.py:356: ValidationError
+________________ test_exhaustive_flag_errors_do_not_echo_input _________________
+
+    def test_exhaustive_flag_errors_do_not_echo_input() -> None:
+        """Hiding of input is unchanged (ADR 0007 Decision 8): a rejected flag value that is a marker
+        string, and an unknown field next to a valid flag, show the marker in none of ``str``,
+        ``repr``, ``errors(include_input=False)`` or ``json(include_input=False)``, through
+        ``model_validate`` and ``model_validate_json``, and the error is located at the field."""
+>       _known_field_control()
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:316: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _known_field_control() -> None:
+        """Positive control for every rejection test: the field exists and takes ``True``. Without it
+        a rejection could be the unknown-field error (``extra_forbidden``) and the test would pass
+        before the field is built, for the wrong reason."""
+>       assert FIELD in entity_class("Evaluator").model_fields
+E       AssertionError: assert 'expected_tool_calls_exhaustive' in {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...}
+E        +  where {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...} = <class 'tracer_evalschema.evaluator.Evaluator'>.model_fields
+E        +    where <class 'tracer_evalschema.evaluator.Evaluator'> = entity_class('Evaluator')
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:92: AssertionError
+______ test_exhaustive_flag_does_not_change_the_profile_placeholder_rules ______
+
+    def test_exhaustive_flag_does_not_change_the_profile_placeholder_rules() -> None:
+        """The unknown-placeholder rule still gives the field path and the rule only, with the flag
+        set (nothing about the new field leaks into, or silences, the existing checks)."""
+>       _known_field_control()
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:347: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _known_field_control() -> None:
+        """Positive control for every rejection test: the field exists and takes ``True``. Without it
+        a rejection could be the unknown-field error (``extra_forbidden``) and the test would pass
+        before the field is built, for the wrong reason."""
+>       assert FIELD in entity_class("Evaluator").model_fields
+E       AssertionError: assert 'expected_tool_calls_exhaustive' in {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...}
+E        +  where {'id': FieldInfo(annotation=EvaluatorId, required=True), 'schema_version': FieldInfo(annotation=str, required=True, me... object at 0x10ba7a270>]), 'metadata': FieldInfo(annotation=dict[str, Any], required=False, default_factory=dict), ...} = <class 'tracer_evalschema.evaluator.Evaluator'>.model_fields
+E        +    where <class 'tracer_evalschema.evaluator.Evaluator'> = entity_class('Evaluator')
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:92: AssertionError
+_______________ test_snapshot_embeds_an_evaluator_with_the_flag ________________
+
+    def test_snapshot_embeds_an_evaluator_with_the_flag() -> None:
+        """A ConfigSnapshot whose evaluator says ``True`` (empty list) validates, round-trips through
+        JSON with the flag kept, and its digest verifies."""
+        snapshot = entity_class3("ConfigSnapshot")
+>       parts = snapshot_parts(evaluator_over={"expected_tool_calls": [], FIELD: True})
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:363: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:477: in snapshot_parts
+    evaluator = make(
+packages/evalschema/tests/_support_b2.py:373: in make
+    return entity_class(name).model_validate(build(name, **over))
+                                             ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:368: in build
+    return seal(model, doc) if name in VERSIONED_NAMES else doc
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model = <class 'tracer_evalschema.evaluator.Evaluator'>
+doc = {'id': 'evl_01a16a15-f8c6-724a-9661-ceb4e4614f1b', 'schema_version': '0.0.1', 'created_at': '2026-10-22T10:00:00.000000Z', 'metadata': {}, ...}
+
+    def seal(model: Any, doc: Mapping[str, Any]) -> dict[str, Any]:
+        """The complete JSON-mode document of ``doc`` with a correct plain ``content_digest``.
+    
+        An Evaluator is sealed over its own domain (N20): the digest ignores
+        ``test_profile.content_digest``, every other entity is sealed over the generic domain."""
+        body = {k: v for k, v in doc.items() if k != "content_digest"}
+        with digest_check_off():
+>           built = model.model_validate({**body, "content_digest": PLACEHOLDER_DIGEST})
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           pydantic_core._pydantic_core.ValidationError: 1 validation error for Evaluator
+E           expected_tool_calls_exhaustive
+E             Extra inputs are not permitted [type=extra_forbidden]
+E               For further information visit https://errors.pydantic.dev/2.14/v/extra_forbidden
+
+packages/evalschema/tests/_support_b2.py:356: ValidationError
+_________ test_snapshot_digest_pins_the_flag_of_the_embedded_evaluator _________
+
+    def test_snapshot_digest_pins_the_flag_of_the_embedded_evaluator() -> None:
+        """An embedded evaluator replaced by another valid evaluator that differs only in the flag is
+        a different record (its own digest differs), so the snapshot's digest no longer matches:
+        ``DigestMismatch``. The snapshot of the original loads."""
+        errors = api("errors")
+        snapshot = entity_class3("ConfigSnapshot")
+>       parts = snapshot_parts(evaluator_over={"expected_tool_calls": [], FIELD: None})
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:379: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:477: in snapshot_parts
+    evaluator = make(
+packages/evalschema/tests/_support_b2.py:373: in make
+    return entity_class(name).model_validate(build(name, **over))
+                                             ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:368: in build
+    return seal(model, doc) if name in VERSIONED_NAMES else doc
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model = <class 'tracer_evalschema.evaluator.Evaluator'>
+doc = {'id': 'evl_01a16a15-f8d3-7072-b817-933ef27aab06', 'schema_version': '0.0.1', 'created_at': '2026-10-22T10:00:00.000000Z', 'metadata': {}, ...}
+
+    def seal(model: Any, doc: Mapping[str, Any]) -> dict[str, Any]:
+        """The complete JSON-mode document of ``doc`` with a correct plain ``content_digest``.
+    
+        An Evaluator is sealed over its own domain (N20): the digest ignores
+        ``test_profile.content_digest``, every other entity is sealed over the generic domain."""
+        body = {k: v for k, v in doc.items() if k != "content_digest"}
+        with digest_check_off():
+>           built = model.model_validate({**body, "content_digest": PLACEHOLDER_DIGEST})
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           pydantic_core._pydantic_core.ValidationError: 1 validation error for Evaluator
+E           expected_tool_calls_exhaustive
+E             Extra inputs are not permitted [type=extra_forbidden]
+E               For further information visit https://errors.pydantic.dev/2.14/v/extra_forbidden
+
+packages/evalschema/tests/_support_b2.py:356: ValidationError
+_________ test_reference_digest_verification_still_works_with_the_flag _________
+
+    def test_reference_digest_verification_still_works_with_the_flag() -> None:
+        """The digest of a ``test_profile`` reference stays outside the evaluator's digest domain
+        (N20): the same evaluator content with a plain digest, another plain digest or none on its
+        profile reference has one evaluator digest, with the flag set too; and the snapshot digest
+        check still applies to an evaluator that carries the flag."""
+        model = entity_class("Evaluator")
+        profile = build("TestProfile")
+        base = raw_document(
+            "Evaluator",
+            expected_tool_calls=[],
+            instructions="Greet {{profile.name}} and ask for a refund.",
+            **{FIELD: True},
+        )
+        reference = {"id": profile["id"], "version": profile["version"]}
+>       with_digest = seal(
+            model, {**base, "test_profile": {**reference, "content_digest": profile["content_digest"]}}
+        )
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:417: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model = <class 'tracer_evalschema.evaluator.Evaluator'>
+doc = {'id': 'evl_01a16a15-f8e0-7636-9c8e-89f69874528d', 'schema_version': '0.0.1', 'created_at': '2026-10-22T10:00:00.000000Z', 'metadata': {}, ...}
+
+    def seal(model: Any, doc: Mapping[str, Any]) -> dict[str, Any]:
+        """The complete JSON-mode document of ``doc`` with a correct plain ``content_digest``.
+    
+        An Evaluator is sealed over its own domain (N20): the digest ignores
+        ``test_profile.content_digest``, every other entity is sealed over the generic domain."""
+        body = {k: v for k, v in doc.items() if k != "content_digest"}
+        with digest_check_off():
+>           built = model.model_validate({**body, "content_digest": PLACEHOLDER_DIGEST})
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           pydantic_core._pydantic_core.ValidationError: 1 validation error for Evaluator
+E           expected_tool_calls_exhaustive
+E             Extra inputs are not permitted [type=extra_forbidden]
+E               For further information visit https://errors.pydantic.dev/2.14/v/extra_forbidden
+
+packages/evalschema/tests/_support_b2.py:356: ValidationError
+____ test_f5_function_calls_metric_maps_to_an_exhaustive_expectation[empty] ____
+
+calls = []
+
+    @pytest.mark.parametrize(
+        "calls",
+        [[], ["book_table"], ["a", {"name": "b", "args": {"k": "v"}}]],
+        ids=["empty", "one", "two"],
+    )
+    def test_f5_function_calls_metric_maps_to_an_exhaustive_expectation(calls: list[Any]) -> None:
+        """Pipecat's ``function_calls`` fails on any call that is not listed, so every such metric,
+        with an empty list or a listed one, gives ``expected_tool_calls_exhaustive = True``. The list
+        keeps the listed calls (an empty list stays empty: no call is made up). The trace entry of the
+        flag points at the ``calls`` key (not at the metric or the scenario), carries the derivation
+        ``documented_measure_table`` and a complete citation of Pipecat's text (url, retrieval date,
+        and the statement that a call not listed fails the check)."""
+        result = run_f5(
+            _sim({"name": "none", "measure": "function_calls", "calls": calls}), declarations()
+        )
+        (evaluator,) = _evaluators(result)
+>       assert getattr(evaluator, FIELD) is True
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:486: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = Evaluator(id=EvaluatorId('evl_01a16a15-f8eb-7610-a246-1fe9e90bef9d'), schema_version='0.0.1', created_at=datetime.date...3eac9cdb0dcc93045cfff6dcbdfa704cb', key_ref=None))], scripted_turns=[], expected_tool_calls=[], max_duration_ms=300000)
+item = 'expected_tool_calls_exhaustive'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'Evaluator' object has no attribute 'expected_tool_calls_exhaustive'
+
+<scratch>/qa17-venv3.14/lib/python3.14/site-packages/pydantic/main.py:1105: AttributeError
+_____ test_f5_function_calls_metric_maps_to_an_exhaustive_expectation[one] _____
+
+calls = ['book_table']
+
+    @pytest.mark.parametrize(
+        "calls",
+        [[], ["book_table"], ["a", {"name": "b", "args": {"k": "v"}}]],
+        ids=["empty", "one", "two"],
+    )
+    def test_f5_function_calls_metric_maps_to_an_exhaustive_expectation(calls: list[Any]) -> None:
+        """Pipecat's ``function_calls`` fails on any call that is not listed, so every such metric,
+        with an empty list or a listed one, gives ``expected_tool_calls_exhaustive = True``. The list
+        keeps the listed calls (an empty list stays empty: no call is made up). The trace entry of the
+        flag points at the ``calls`` key (not at the metric or the scenario), carries the derivation
+        ``documented_measure_table`` and a complete citation of Pipecat's text (url, retrieval date,
+        and the statement that a call not listed fails the check)."""
+        result = run_f5(
+            _sim({"name": "none", "measure": "function_calls", "calls": calls}), declarations()
+        )
+        (evaluator,) = _evaluators(result)
+>       assert getattr(evaluator, FIELD) is True
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:486: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = Evaluator(id=EvaluatorId('evl_01a16a15-f8f8-746d-b5e4-8bf6bbab098b'), schema_version='0.0.1', created_at=datetime.date..._calls=[ExpectedToolCall(name='book_table', match='name_only', arguments=None, order_index=0)], max_duration_ms=300000)
+item = 'expected_tool_calls_exhaustive'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'Evaluator' object has no attribute 'expected_tool_calls_exhaustive'
+
+<scratch>/qa17-venv3.14/lib/python3.14/site-packages/pydantic/main.py:1105: AttributeError
+_____ test_f5_function_calls_metric_maps_to_an_exhaustive_expectation[two] _____
+
+calls = ['a', {'name': 'b', 'args': {'k': 'v'}}]
+
+    @pytest.mark.parametrize(
+        "calls",
+        [[], ["book_table"], ["a", {"name": "b", "args": {"k": "v"}}]],
+        ids=["empty", "one", "two"],
+    )
+    def test_f5_function_calls_metric_maps_to_an_exhaustive_expectation(calls: list[Any]) -> None:
+        """Pipecat's ``function_calls`` fails on any call that is not listed, so every such metric,
+        with an empty list or a listed one, gives ``expected_tool_calls_exhaustive = True``. The list
+        keeps the listed calls (an empty list stays empty: no call is made up). The trace entry of the
+        flag points at the ``calls`` key (not at the metric or the scenario), carries the derivation
+        ``documented_measure_table`` and a complete citation of Pipecat's text (url, retrieval date,
+        and the statement that a call not listed fails the check)."""
+        result = run_f5(
+            _sim({"name": "none", "measure": "function_calls", "calls": calls}), declarations()
+        )
+        (evaluator,) = _evaluators(result)
+>       assert getattr(evaluator, FIELD) is True
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:486: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = Evaluator(id=EvaluatorId('evl_01a16a15-f904-74ec-ae39-bcda8f85c93b'), schema_version='0.0.1', created_at=datetime.date...0), ExpectedToolCall(name='b', match='arguments_subset', arguments={'k': 'v'}, order_index=0)], max_duration_ms=300000)
+item = 'expected_tool_calls_exhaustive'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'Evaluator' object has no attribute 'expected_tool_calls_exhaustive'
+
+<scratch>/qa17-venv3.14/lib/python3.14/site-packages/pydantic/main.py:1105: AttributeError
+___ test_f5_scenarios_without_a_function_calls_metric_do_not_state_the_flag ____
+
+    def test_f5_scenarios_without_a_function_calls_metric_do_not_state_the_flag() -> None:
+        """A simulated scenario with no ``function_calls`` metric and every scripted scenario say
+        nothing about extra calls: the flag stays ``None`` (not stated), never ``False`` and never
+        ``True``, and no trace entry exists for it."""
+        plain = run_f5(_sim({"name": "t", "measure": "turns", "max_value": 3}), declarations())
+        (evaluator,) = _evaluators(plain)
+>       assert getattr(evaluator, FIELD) is None
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:509: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = Evaluator(id=EvaluatorId('evl_01a16a15-f910-71b6-9b27-352aaf5b8ab1'), schema_version='0.0.1', created_at=datetime.date...dac62f9f593775685641b62af94a652b0', key_ref=None))], scripted_turns=[], expected_tool_calls=[], max_duration_ms=300000)
+item = 'expected_tool_calls_exhaustive'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'Evaluator' object has no attribute 'expected_tool_calls_exhaustive'
+
+<scratch>/qa17-venv3.14/lib/python3.14/site-packages/pydantic/main.py:1105: AttributeError
+___________ test_f5_fixture_flags_follow_the_function_calls_metrics ____________
+
+    def test_f5_fixture_flags_follow_the_function_calls_metrics() -> None:
+        """In ``simulated_en.yaml`` only the scenario that has a ``function_calls`` metric
+        (``book_table/available``) is exhaustive; the others stay ``None``."""
+        result = run_f5(load_scenario_yaml(EVALS / "simulated_en.yaml"), declarations())
+>       flags = {e.name: getattr(e, FIELD) for e in _evaluators(result)}
+                         ^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:529: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = Evaluator(id=EvaluatorId('evl_01a16a15-f9e0-763a-849b-89f8faea5341'), schema_version='0.0.1', created_at=datetime.date...e='send_confirmation', match='arguments_subset', arguments={'channel': 'sms'}, order_index=0)], max_duration_ms=120000)
+item = 'expected_tool_calls_exhaustive'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'Evaluator' object has no attribute 'expected_tool_calls_exhaustive'
+
+<scratch>/qa17-venv3.14/lib/python3.14/site-packages/pydantic/main.py:1105: AttributeError
+_______________ test_f5_mapped_evaluators_validate_with_the_flag _______________
+
+    def test_f5_mapped_evaluators_validate_with_the_flag() -> None:
+        """The evaluator built for ``calls: []`` is a valid, sealed Evaluator: it validates from its
+        own JSON dump, with the flag and an empty list, and the digest verifies."""
+        result = run_f5(
+            _sim({"name": "none", "measure": "function_calls", "calls": []}), declarations()
+        )
+        (evaluator,) = _evaluators(result)
+        again = entity_class("Evaluator").model_validate(evaluator.model_dump(mode="json"))
+        assert again == evaluator
+        assert again.expected_tool_calls == []
+>       assert getattr(again, FIELD) is True
+               ^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator_exhaustive.py:546: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = Evaluator(id=EvaluatorId('evl_01a16a15-f9ee-7078-8c3c-9b09901582ec'), schema_version='0.0.1', created_at=datetime.date...8730ae78059de93004f770bf089af18c6', key_ref=None))], scripted_turns=[], expected_tool_calls=[], max_duration_ms=300000)
+item = 'expected_tool_calls_exhaustive'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'Evaluator' object has no attribute 'expected_tool_calls_exhaustive'
+
+<scratch>/qa17-venv3.14/lib/python3.14/site-packages/pydantic/main.py:1105: AttributeError
+____________ test_f5_empty_call_list_is_refused_with_a_blocking_gap ____________
+
+    def test_f5_empty_call_list_is_refused_with_a_blocking_gap() -> None:
+        """SPEC CHANGE (batch 17, F5-2 resolution; the name is kept because it is bound by SCOPE).
+        ``calls: []`` is Pipecat's check that the bot must call nothing ("the check for a caller who
+        should be turned down"). Before: ``Evaluator.expected_tool_calls == []`` meant no expectation,
+        so the statement could not be represented and the metric was refused (no definition, binding
+        or rubric item, an ``empty_call_list`` warning at the list, a blocking gap row
+        ``F5:metrics.calls``). Now: ``Evaluator.expected_tool_calls_exhaustive`` exists, so the metric
+        is built like any other ``function_calls`` metric (definition, enabled binding, required
+        rubric item), the evaluator has ``expected_tool_calls == []`` and
+        ``expected_tool_calls_exhaustive is True``, there is no warning and no gap row, and the trace
+        entry of the flag points at the ``calls`` key with the documented derivation and the citation
+        of Pipecat's text (docs/phase1/api-surface-mappings-2.md section 3.3)."""
+        doc = sim({"name": "none", "measure": "function_calls", "calls": []})
+        result = run_f5(doc, declarations())
+>       assert list(only_parts(result)) == ["expected_outcome", "none"]
+E       AssertionError: assert ['expected_outcome'] == ['expected_outcome', 'none']
+E         
+E         Right contains one more item: 'none'
+E         Use -v to get more diff
+
+packages/evalschema/tests/test_mapping_f5.py:603: AssertionError
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_flag_is_a_field_that_defaults_to_not_stated
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_flag_is_in_the_schemas_as_boolean_or_null_and_not_required
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_flag_is_in_every_schema_that_embeds_an_evaluator[ConfigSnapshot]
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_flag_is_in_every_schema_that_embeds_an_evaluator[RunBundle]
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_flag_is_in_every_schema_that_embeds_an_evaluator[ExportBundle]
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_flag_accepts_true_false_and_not_stated[None]
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_flag_accepts_true_false_and_not_stated[True]
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_flag_accepts_true_false_and_not_stated[False]
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean['true']
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean['false']
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean['True']
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean['yes']
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean['']
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean[0]
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean[1]
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean[2]
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean[-1]
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean[1.0]
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean[0.0]
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean[[]]
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean[[True]]
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean[{}]
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_flag_rejects_every_value_that_is_not_a_boolean[{'value': True}]
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_flag_rejects_a_boolean_in_json_text_form
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_true_with_an_empty_list_is_valid_and_means_call_nothing
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_true_with_listed_calls_is_valid
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_false_or_not_stated_with_an_empty_list_means_no_expectation[None]
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_false_or_not_stated_with_an_empty_list_means_no_expectation[False]
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_false_with_listed_calls_is_valid
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_flag_is_part_of_the_content_digest
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_flag_cannot_be_changed_after_sealing
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_flag_survives_a_json_round_trip_with_the_same_digest
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_flag_errors_do_not_echo_input
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_exhaustive_flag_does_not_change_the_profile_placeholder_rules
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_snapshot_embeds_an_evaluator_with_the_flag
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_snapshot_digest_pins_the_flag_of_the_embedded_evaluator
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_reference_digest_verification_still_works_with_the_flag
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_f5_function_calls_metric_maps_to_an_exhaustive_expectation[empty]
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_f5_function_calls_metric_maps_to_an_exhaustive_expectation[one]
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_f5_function_calls_metric_maps_to_an_exhaustive_expectation[two]
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_f5_scenarios_without_a_function_calls_metric_do_not_state_the_flag
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_f5_fixture_flags_follow_the_function_calls_metrics
+FAILED packages/evalschema/tests/test_evaluator_exhaustive.py::test_f5_mapped_evaluators_validate_with_the_flag
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_empty_call_list_is_refused_with_a_blocking_gap
+44 failed, 215 passed in 51.80s

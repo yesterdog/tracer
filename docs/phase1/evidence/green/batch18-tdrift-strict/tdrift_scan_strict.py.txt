@@ -1,0 +1,151 @@
+"""Scratch T-DRIFT scan with the strict matcher of ADR 0005 Decision 10 (revision 27 text, T-DRIFT design).
+
+Usage: uv run python tdrift_scan_strict.py <repo-root> [--all] [--only PATH ...]
+Walks git-tracked plus untracked, non-ignored files (git ls-files -co --exclude-standard) inside the
+Decision 10 scope only: packages/evalschema/ (package source, tests, fixtures), docs/ and
+.claude/agents/*.md. tools/, scripts/ and the repository root files are out of scope. Never reads
+anything under packages/evalschema/tests/fixtures/private/ and never .env* files. Binary files (NUL
+byte or not UTF-8) are skipped and counted. Prints hits outside the allowlist (or all hits with
+--all) as path:line:matched-text only, never the line itself. With --only, scans just the listed
+paths (still inside the scope and the never-read rules).
+
+Same file walk and allowlist structure as
+docs/phase1/evidence/green/batch18-exhaustive-field/tdrift_scan.py.txt; the matcher differs:
+- the excluded primary subtags in tag syntax are matched case-sensitively, and only when the
+  second subtag has the shape of a region or a script: [A-Z]{2}, \\d{3} or [A-Z][a-z]{3};
+- a separate case-insensitive check matches an excluded primary subtag that is a whole quoted
+  string on its own ("xx" or 'xx', any case), as in the batch 18 reference script;
+- the excluded language names, the mixed-language words (with a hyphen, an underscore, a space or
+  nothing between the two halves), the Hindi-English alias and the excluded Punjabi script tag are
+  matched case-insensitively.
+The tokens are assembled from parts, so this file holds none of them.
+"""
+
+from __future__ import annotations
+
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+
+def _join(*parts: str) -> str:
+    return "".join(parts)
+
+
+_EXCLUDED_SUBTAGS = _join("(?:b", "n|u", "r|o", "r|a", "s)")
+_BANNED_NAMES = "|".join(
+    (
+        _join("ben", "gali"),
+        _join("u", "rdu"),
+        _join("od", "ia"),
+        _join("ori", "ya"),
+        _join("assam", "ese"),
+        _join("shah", "mukhi"),
+        _join("hing", "lish"),
+    )
+)
+_MIXED_WORDS = _join("code", "[-_ ]?", "mix")
+_MIXED_ALIAS = _join(r"\bhi", "[-_]", "en", r"\b")
+_EXCLUDED_SCRIPT_TAG = _join(r"\bpa", "[-_]", "Ar", r"ab\b")
+
+INSENSITIVE = re.compile(
+    "|".join(
+        (
+            _BANNED_NAMES,
+            _MIXED_WORDS,
+            _MIXED_ALIAS,
+            _EXCLUDED_SCRIPT_TAG,
+            _join("[\"']", _EXCLUDED_SUBTAGS, "[\"']"),
+        )
+    ),
+    re.IGNORECASE,
+)
+STRICT_TAG = re.compile(
+    _join(r"\b", _EXCLUDED_SUBTAGS, "[-_]", r"(?:[A-Z]{2}|\d{3}|[A-Z][a-z]{3})\b")
+)
+
+SCOPE_DIRS = ("packages/evalschema/", "docs/")
+SCOPE_AGENTS = re.compile(r"^\.claude/agents/[^/]+\.md$")
+
+ALLOW_FILES = {
+    "docs/phase1/SCOPE.md",
+    "docs/adr/0004-requires-and-not-applicable.md",
+    "docs/adr/0005-language.md",
+    "docs/adr/0018-real-sample-mapping-policy.md",
+    "packages/evalschema/tests/fixtures/languages/negatives/negatives.json",
+    "packages/evalschema/tests/fixtures/languages/negatives/README.md",
+    "packages/evalschema/tests/test_language.py",
+    "packages/evalschema/tests/test_data_files.py",
+    "packages/evalschema/src/tracer_evalschema/language.py",
+    "docs/phase1/api-surface.md",
+    "packages/evalschema/tests/test_persona_profile.py",
+    "packages/evalschema/tests/test_results_language.py",
+    "packages/evalschema/tests/test_dataset.py",
+    "packages/evalschema/tests/test_mapping_f3.py",
+}
+ALLOW_DIRS = (
+    "docs/phase1/evidence/",
+    "packages/evalschema/tests/fixtures/real/",
+    "packages/evalschema/tests/fixtures/synthetic/",
+    "packages/evalschema/tests/support/uax9/data/",
+)
+NEVER = ("packages/evalschema/tests/fixtures/private/",)
+
+
+def in_scope(path: str) -> bool:
+    return path.startswith(SCOPE_DIRS) or bool(SCOPE_AGENTS.match(path))
+
+
+def allowed(path: str) -> bool:
+    return path in ALLOW_FILES or path.startswith(ALLOW_DIRS) or bool(SCOPE_AGENTS.match(path))
+
+
+def main() -> int:
+    args = sys.argv[1:]
+    root = Path(args[0]).resolve()
+    show_all = "--all" in args
+    only = set(args[args.index("--only") + 1 :]) if "--only" in args else None
+    listed = subprocess.run(
+        ["git", "ls-files", "-co", "--exclude-standard", "-z"],
+        cwd=root,
+        capture_output=True,
+        check=True,
+    ).stdout.decode()
+    paths = sorted({p for p in listed.split("\0") if p})
+    scanned = binary = hits = 0
+    files_hit: set[str] = set()
+    for rel in paths:
+        if only is not None and rel not in only:
+            continue
+        if not in_scope(rel) or rel.startswith(NEVER) or Path(rel).name.startswith(".env"):
+            continue
+        full = root / rel
+        if not full.is_file():
+            continue
+        data = full.read_bytes()
+        if b"\0" in data:
+            binary += 1
+            continue
+        try:
+            text = data.decode("utf-8")
+        except UnicodeDecodeError:
+            binary += 1
+            continue
+        scanned += 1
+        if not show_all and allowed(rel):
+            continue
+        for number, line in enumerate(text.splitlines(), 1):
+            found = [m.group(0) for m in INSENSITIVE.finditer(line)]
+            found += [m.group(0) for m in STRICT_TAG.finditer(line)]
+            for token in found:
+                hits += 1
+                files_hit.add(rel)
+                tag = " [allowlisted]" if allowed(rel) else ""
+                print(f"{rel}:{number}: {token!r}{tag}")
+    print(f"scanned {scanned} text files, skipped {binary} binary; {hits} hits in {len(files_hit)} files")
+    return 1 if hits else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

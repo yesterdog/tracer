@@ -1,0 +1,569 @@
+........................................................................ [  1%]
+........................................................................ [  2%]
+........................................................................ [  3%]
+........................................................................ [  4%]
+........................................................................ [  6%]
+........................................................................ [  7%]
+........................................................................ [  8%]
+........................................................................ [  9%]
+........................................................................ [ 11%]
+........................................................................ [ 12%]
+........................................................................ [ 13%]
+........................................................................ [ 14%]
+........................................................................ [ 16%]
+........................................................................ [ 17%]
+........................................................................ [ 18%]
+................................................................FFF..... [ 19%]
+.....................FFF.....FFF........................................ [ 20%]
+....FF.............................................F....F..........F.... [ 22%]
+........................................................................ [ 23%]
+........................................................................ [ 24%]
+........................................................................ [ 25%]
+........................................................................ [ 27%]
+........................................................................ [ 28%]
+........................................................................ [ 29%]
+..............F.F..........F..................FF........................ [ 30%]
+........................................................................ [ 32%]
+........................................................................ [ 33%]
+........................................................................ [ 34%]
+........................................................................ [ 35%]
+........................................................................ [ 37%]
+........................................................................ [ 38%]
+........................................................................ [ 39%]
+........................................................................ [ 40%]
+........................................................................ [ 41%]
+........................................................................ [ 43%]
+........................................................................ [ 44%]
+........................................................................ [ 45%]
+........................................................................ [ 46%]
+........................................................................ [ 48%]
+........................................................................ [ 49%]
+........................................................................ [ 50%]
+........................................................................ [ 51%]
+........................................................................ [ 53%]
+........................................................................ [ 54%]
+........................................................................ [ 55%]
+........................................................................ [ 56%]
+........................................................................ [ 58%]
+........................................................................ [ 59%]
+........................................................................ [ 60%]
+........................................................................ [ 61%]
+........................................................................ [ 62%]
+........................................................................ [ 64%]
+........................................................................ [ 65%]
+........................................................................ [ 66%]
+........................................................................ [ 67%]
+........................................................................ [ 69%]
+........................................................................ [ 70%]
+........................................................................ [ 71%]
+........................................................................ [ 72%]
+........................................................................ [ 74%]
+........................................................................ [ 75%]
+........................................................................ [ 76%]
+........................................................................ [ 77%]
+........................................................................ [ 78%]
+........................................................................ [ 80%]
+........................................................................ [ 81%]
+........................................................................ [ 82%]
+........................................................................ [ 83%]
+........................................................................ [ 85%]
+........................................................................ [ 86%]
+........................................................................ [ 87%]
+........................................................................ [ 88%]
+........................................................................ [ 90%]
+........................................................................ [ 91%]
+........................................................................ [ 92%]
+........................................................................ [ 93%]
+........................................................................ [ 95%]
+........................................................................ [ 96%]
+........................................................................ [ 97%]
+........................................................................ [ 98%]
+........................................................................ [ 99%]
+.                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_golden_valid_fixtures_round_trip_byte_for_byte[ConfigSnapshot/maximal-keyed-catalog] _
+
+entity = 'ConfigSnapshot'
+path = PosixPath('<repo>/packages/evalschema/tests/fixtures/golden/ConfigSnapshot/valid/maximal-keyed-catalog.json')
+
+    @pytest.mark.parametrize(("entity", "path"), VALID_CASES)
+    def test_golden_valid_fixtures_round_trip_byte_for_byte(entity: str, path: Path) -> None:
+        """File -> strict loader -> model (digests verified for real) -> canonical dump -> the same
+        bytes; the JCS bytes of the dump equal those of the file; model -> JSON text -> model is the
+        identity (ADR 0008 I14)."""
+        model = entity_models()[entity]
+        data = path.read_bytes()
+        loaded = api("loader").load_model(model, data)
+        dumped = loaded.model_dump(mode="json", by_alias=True)
+>       assert pretty(dumped) == data
+E       assert b'{\n  "id": ...  }\n  }\n}\n' == b'{\n  "id": ...  }\n  }\n}\n'
+E         
+E         At index 1621 diff: b'e' != b'm'
+E         Use -v to get more diff
+
+packages/evalschema/tests/test_golden_fixtures.py:232: AssertionError
+_ test_golden_valid_fixtures_round_trip_byte_for_byte[ConfigSnapshot/maximal] __
+
+entity = 'ConfigSnapshot'
+path = PosixPath('<repo>/packages/evalschema/tests/fixtures/golden/ConfigSnapshot/valid/maximal.json')
+
+    @pytest.mark.parametrize(("entity", "path"), VALID_CASES)
+    def test_golden_valid_fixtures_round_trip_byte_for_byte(entity: str, path: Path) -> None:
+        """File -> strict loader -> model (digests verified for real) -> canonical dump -> the same
+        bytes; the JCS bytes of the dump equal those of the file; model -> JSON text -> model is the
+        identity (ADR 0008 I14)."""
+        model = entity_models()[entity]
+        data = path.read_bytes()
+        loaded = api("loader").load_model(model, data)
+        dumped = loaded.model_dump(mode="json", by_alias=True)
+>       assert pretty(dumped) == data
+E       assert b'{\n  "id": ...  }\n  }\n}\n' == b'{\n  "id": ...  }\n  }\n}\n'
+E         
+E         At index 1621 diff: b'e' != b'm'
+E         Use -v to get more diff
+
+packages/evalschema/tests/test_golden_fixtures.py:232: AssertionError
+_ test_golden_valid_fixtures_round_trip_byte_for_byte[ConfigSnapshot/minimal] __
+
+entity = 'ConfigSnapshot'
+path = PosixPath('<repo>/packages/evalschema/tests/fixtures/golden/ConfigSnapshot/valid/minimal.json')
+
+    @pytest.mark.parametrize(("entity", "path"), VALID_CASES)
+    def test_golden_valid_fixtures_round_trip_byte_for_byte(entity: str, path: Path) -> None:
+        """File -> strict loader -> model (digests verified for real) -> canonical dump -> the same
+        bytes; the JCS bytes of the dump equal those of the file; model -> JSON text -> model is the
+        identity (ADR 0008 I14)."""
+        model = entity_models()[entity]
+        data = path.read_bytes()
+        loaded = api("loader").load_model(model, data)
+        dumped = loaded.model_dump(mode="json", by_alias=True)
+>       assert pretty(dumped) == data
+E       assert b'{\n  "id": ...g": null\n}\n' == b'{\n  "id": ...g": null\n}\n'
+E         
+E         At index 1433 diff: b'e' != b'm'
+E         Use -v to get more diff
+
+packages/evalschema/tests/test_golden_fixtures.py:232: AssertionError
+_ test_golden_valid_fixtures_round_trip_byte_for_byte[Evaluator/maximal-keyed-profile] _
+
+entity = 'Evaluator'
+path = PosixPath('<repo>/packages/evalschema/tests/fixtures/golden/Evaluator/valid/maximal-keyed-profile.json')
+
+    @pytest.mark.parametrize(("entity", "path"), VALID_CASES)
+    def test_golden_valid_fixtures_round_trip_byte_for_byte(entity: str, path: Path) -> None:
+        """File -> strict loader -> model (digests verified for real) -> canonical dump -> the same
+        bytes; the JCS bytes of the dump equal those of the file; model -> JSON text -> model is the
+        identity (ADR 0008 I14)."""
+        model = entity_models()[entity]
+        data = path.read_bytes()
+        loaded = api("loader").load_model(model, data)
+        dumped = loaded.model_dump(mode="json", by_alias=True)
+>       assert pretty(dumped) == data
+E       assert b'{\n  "id": ...: 900000\n}\n' == b'{\n  "id": ...: 900000\n}\n'
+E         
+E         At index 3275 diff: b'e' != b'm'
+E         Use -v to get more diff
+
+packages/evalschema/tests/test_golden_fixtures.py:232: AssertionError
+____ test_golden_valid_fixtures_round_trip_byte_for_byte[Evaluator/maximal] ____
+
+entity = 'Evaluator'
+path = PosixPath('<repo>/packages/evalschema/tests/fixtures/golden/Evaluator/valid/maximal.json')
+
+    @pytest.mark.parametrize(("entity", "path"), VALID_CASES)
+    def test_golden_valid_fixtures_round_trip_byte_for_byte(entity: str, path: Path) -> None:
+        """File -> strict loader -> model (digests verified for real) -> canonical dump -> the same
+        bytes; the JCS bytes of the dump equal those of the file; model -> JSON text -> model is the
+        identity (ADR 0008 I14)."""
+        model = entity_models()[entity]
+        data = path.read_bytes()
+        loaded = api("loader").load_model(model, data)
+        dumped = loaded.model_dump(mode="json", by_alias=True)
+>       assert pretty(dumped) == data
+E       assert b'{\n  "id": ...: 900000\n}\n' == b'{\n  "id": ...: 900000\n}\n'
+E         
+E         At index 3053 diff: b'e' != b'm'
+E         Use -v to get more diff
+
+packages/evalschema/tests/test_golden_fixtures.py:232: AssertionError
+____ test_golden_valid_fixtures_round_trip_byte_for_byte[Evaluator/minimal] ____
+
+entity = 'Evaluator'
+path = PosixPath('<repo>/packages/evalschema/tests/fixtures/golden/Evaluator/valid/minimal.json')
+
+    @pytest.mark.parametrize(("entity", "path"), VALID_CASES)
+    def test_golden_valid_fixtures_round_trip_byte_for_byte(entity: str, path: Path) -> None:
+        """File -> strict loader -> model (digests verified for real) -> canonical dump -> the same
+        bytes; the JCS bytes of the dump equal those of the file; model -> JSON text -> model is the
+        identity (ADR 0008 I14)."""
+        model = entity_models()[entity]
+        data = path.read_bytes()
+        loaded = api("loader").load_model(model, data)
+        dumped = loaded.model_dump(mode="json", by_alias=True)
+>       assert pretty(dumped) == data
+E       assert b'{\n  "id": ...: 300000\n}\n' == b'{\n  "id": ...: 300000\n}\n'
+E         
+E         At index 851 diff: b'e' != b'm'
+E         Use -v to get more diff
+
+packages/evalschema/tests/test_golden_fixtures.py:232: AssertionError
+_ test_golden_valid_fixtures_round_trip_byte_for_byte[ExportBundle/maximal-benchmark] _
+
+entity = 'ExportBundle'
+path = PosixPath('<repo>/packages/evalschema/tests/fixtures/golden/ExportBundle/valid/maximal-benchmark.json')
+
+    @pytest.mark.parametrize(("entity", "path"), VALID_CASES)
+    def test_golden_valid_fixtures_round_trip_byte_for_byte(entity: str, path: Path) -> None:
+        """File -> strict loader -> model (digests verified for real) -> canonical dump -> the same
+        bytes; the JCS bytes of the dump equal those of the file; model -> JSON text -> model is the
+        identity (ADR 0008 I14)."""
+        model = entity_models()[entity]
+        data = path.read_bytes()
+        loaded = api("loader").load_model(model, data)
+        dumped = loaded.model_dump(mode="json", by_alias=True)
+>       assert pretty(dumped) == data
+E       assert b'{\n  "id": ...ons": []\n}\n' == b'{\n  "id": ...ons": []\n}\n'
+E         
+E         At index 3634 diff: b'e' != b'm'
+E         Use -v to get more diff
+
+packages/evalschema/tests/test_golden_fixtures.py:232: AssertionError
+_ test_golden_valid_fixtures_round_trip_byte_for_byte[ExportBundle/maximal-shared-export] _
+
+entity = 'ExportBundle'
+path = PosixPath('<repo>/packages/evalschema/tests/fixtures/golden/ExportBundle/valid/maximal-shared-export.json')
+
+    @pytest.mark.parametrize(("entity", "path"), VALID_CASES)
+    def test_golden_valid_fixtures_round_trip_byte_for_byte(entity: str, path: Path) -> None:
+        """File -> strict loader -> model (digests verified for real) -> canonical dump -> the same
+        bytes; the JCS bytes of the dump equal those of the file; model -> JSON text -> model is the
+        identity (ADR 0008 I14)."""
+        model = entity_models()[entity]
+        data = path.read_bytes()
+        loaded = api("loader").load_model(model, data)
+        dumped = loaded.model_dump(mode="json", by_alias=True)
+>       assert pretty(dumped) == data
+E       assert b'{\n  "id": ...ons": []\n}\n' == b'{\n  "id": ...ons": []\n}\n'
+E         
+E         At index 3672 diff: b'e' != b'm'
+E         Use -v to get more diff
+
+packages/evalschema/tests/test_golden_fixtures.py:232: AssertionError
+__ test_golden_valid_fixtures_round_trip_byte_for_byte[ExportBundle/maximal] ___
+
+entity = 'ExportBundle'
+path = PosixPath('<repo>/packages/evalschema/tests/fixtures/golden/ExportBundle/valid/maximal.json')
+
+    @pytest.mark.parametrize(("entity", "path"), VALID_CASES)
+    def test_golden_valid_fixtures_round_trip_byte_for_byte(entity: str, path: Path) -> None:
+        """File -> strict loader -> model (digests verified for real) -> canonical dump -> the same
+        bytes; the JCS bytes of the dump equal those of the file; model -> JSON text -> model is the
+        identity (ADR 0008 I14)."""
+        model = entity_models()[entity]
+        data = path.read_bytes()
+        loaded = api("loader").load_model(model, data)
+        dumped = loaded.model_dump(mode="json", by_alias=True)
+>       assert pretty(dumped) == data
+E       assert b'{\n  "id": ...  }\n  ]\n}\n' == b'{\n  "id": ...  }\n  ]\n}\n'
+E         
+E         At index 4125 diff: b'e' != b'm'
+E         Use -v to get more diff
+
+packages/evalschema/tests/test_golden_fixtures.py:232: AssertionError
+____ test_golden_valid_fixtures_round_trip_byte_for_byte[RunBundle/maximal] ____
+
+entity = 'RunBundle'
+path = PosixPath('<repo>/packages/evalschema/tests/fixtures/golden/RunBundle/valid/maximal.json')
+
+    @pytest.mark.parametrize(("entity", "path"), VALID_CASES)
+    def test_golden_valid_fixtures_round_trip_byte_for_byte(entity: str, path: Path) -> None:
+        """File -> strict loader -> model (digests verified for real) -> canonical dump -> the same
+        bytes; the JCS bytes of the dump equal those of the file; model -> JSON text -> model is the
+        identity (ADR 0008 I14)."""
+        model = entity_models()[entity]
+        data = path.read_bytes()
+        loaded = api("loader").load_model(model, data)
+        dumped = loaded.model_dump(mode="json", by_alias=True)
+>       assert pretty(dumped) == data
+E       assert b'{\n  "id": ...  }\n  ]\n}\n' == b'{\n  "id": ...  }\n  ]\n}\n'
+E         
+E         At index 3346 diff: b'e' != b'm'
+E         Use -v to get more diff
+
+packages/evalschema/tests/test_golden_fixtures.py:232: AssertionError
+____ test_golden_valid_fixtures_round_trip_byte_for_byte[RunBundle/minimal] ____
+
+entity = 'RunBundle'
+path = PosixPath('<repo>/packages/evalschema/tests/fixtures/golden/RunBundle/valid/minimal.json')
+
+    @pytest.mark.parametrize(("entity", "path"), VALID_CASES)
+    def test_golden_valid_fixtures_round_trip_byte_for_byte(entity: str, path: Path) -> None:
+        """File -> strict loader -> model (digests verified for real) -> canonical dump -> the same
+        bytes; the JCS bytes of the dump equal those of the file; model -> JSON text -> model is the
+        identity (ADR 0008 I14)."""
+        model = entity_models()[entity]
+        data = path.read_bytes()
+        loaded = api("loader").load_model(model, data)
+        dumped = loaded.model_dump(mode="json", by_alias=True)
+>       assert pretty(dumped) == data
+E       assert b'{\n  "id": ...eld": []\n}\n' == b'{\n  "id": ...eld": []\n}\n'
+E         
+E         At index 2455 diff: b'e' != b'm'
+E         Use -v to get more diff
+
+packages/evalschema/tests/test_golden_fixtures.py:232: AssertionError
+__ test_golden_minimal_fixture_loads_without_its_null_members[ConfigSnapshot] __
+
+entity = 'ConfigSnapshot'
+
+    @pytest.mark.parametrize("entity", ENTITY_NAMES)
+    def test_golden_minimal_fixture_loads_without_its_null_members(entity: str) -> None:
+        """The minimal document is minimal for real: take the explicit nulls away and the model loads
+        the rest and dumps the same document (the nulls are the model's own dump of an unset member)."""
+        path = GOLDEN / entity / "valid" / "minimal.json"
+        document = read_json(path)
+    
+        def bare(value: Any) -> Any:
+            if isinstance(value, dict):
+                return {k: bare(v) for k, v in value.items() if v is not None}
+            if isinstance(value, list):
+                return [bare(v) for v in value]
+            return value
+    
+        model = entity_models()[entity]
+        dumped = model.model_validate(bare(document)).model_dump(mode="json", by_alias=True)
+>       assert dumped == document
+E       AssertionError: assert {'id': 'snap_...ata': {}, ...} == {'id': 'snap_...ata': {}, ...}
+E         
+E         Omitting 11 identical items, use -vv to show
+E         Differing items:
+E         {'evaluator': {'id': 'evl_01a168a1-da01-726c-a8e6-7954350006a7', 'schema_version': '0.0.1', 'created_at': '2026-10-22T10:00:00.000000Z', 'metadata': {}, ...}} != {'evaluator': {'id': 'evl_01a168a1-da01-726c-a8e6-7954350006a7', 'schema_version': '0.0.1', 'created_at': '2026-10-22T10:00:00.000000Z', 'metadata': {}, ...}}
+E         Use -v to get more diff
+
+packages/evalschema/tests/test_golden_fixtures.py:257: AssertionError
+____ test_golden_minimal_fixture_loads_without_its_null_members[Evaluator] _____
+
+entity = 'Evaluator'
+
+    @pytest.mark.parametrize("entity", ENTITY_NAMES)
+    def test_golden_minimal_fixture_loads_without_its_null_members(entity: str) -> None:
+        """The minimal document is minimal for real: take the explicit nulls away and the model loads
+        the rest and dumps the same document (the nulls are the model's own dump of an unset member)."""
+        path = GOLDEN / entity / "valid" / "minimal.json"
+        document = read_json(path)
+    
+        def bare(value: Any) -> Any:
+            if isinstance(value, dict):
+                return {k: bare(v) for k, v in value.items() if v is not None}
+            if isinstance(value, list):
+                return [bare(v) for v in value]
+            return value
+    
+        model = entity_models()[entity]
+        dumped = model.model_validate(bare(document)).model_dump(mode="json", by_alias=True)
+>       assert dumped == document
+E       AssertionError: assert {'id': 'evl_0...ata': {}, ...} == {'id': 'evl_0...ata': {}, ...}
+E         
+E         Omitting 17 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'expected_tool_calls_exhaustive': None}
+E         Use -v to get more diff
+
+packages/evalschema/tests/test_golden_fixtures.py:257: AssertionError
+____ test_golden_minimal_fixture_loads_without_its_null_members[RunBundle] _____
+
+entity = 'RunBundle'
+
+    @pytest.mark.parametrize("entity", ENTITY_NAMES)
+    def test_golden_minimal_fixture_loads_without_its_null_members(entity: str) -> None:
+        """The minimal document is minimal for real: take the explicit nulls away and the model loads
+        the rest and dumps the same document (the nulls are the model's own dump of an unset member)."""
+        path = GOLDEN / entity / "valid" / "minimal.json"
+        document = read_json(path)
+    
+        def bare(value: Any) -> Any:
+            if isinstance(value, dict):
+                return {k: bare(v) for k, v in value.items() if v is not None}
+            if isinstance(value, list):
+                return [bare(v) for v in value]
+            return value
+    
+        model = entity_models()[entity]
+        dumped = model.model_validate(bare(document)).model_dump(mode="json", by_alias=True)
+>       assert dumped == document
+E       AssertionError: assert {'id': 'rbnd_...ata': {}, ...} == {'id': 'rbnd_...ata': {}, ...}
+E         
+E         Omitting 20 identical items, use -vv to show
+E         Differing items:
+E         {'snapshot': {'id': 'snap_01a168a1-da0f-76a2-9da5-aa75c64aebb6', 'schema_version': '0.0.1', 'created_at': '2026-10-22T10:00:00.000000Z', 'metadata': {}, ...}} != {'snapshot': {'id': 'snap_01a168a1-da0f-76a2-9da5-aa75c64aebb6', 'schema_version': '0.0.1', 'created_at': '2026-10-22T10:00:00.000000Z', 'metadata': {}, ...}}
+E         Use -v to get more diff
+
+packages/evalschema/tests/test_golden_fixtures.py:257: AssertionError
+___________________ test_golden_files_equal_generator_output ___________________
+
+    def test_golden_files_equal_generator_output() -> None:
+        """The committed fixtures are exactly what ``scripts/build_golden_fixtures.py`` writes (no
+        missing, changed or stale file), so a change of a model or a helper shows up as a diff."""
+        problems = _script("build_golden_fixtures").compare(FIXTURES, _generated())
+>       assert problems == []
+E       AssertionError: assert ['[changed] f...al.json', ...] == []
+E         
+E         Left contains 45 more items, first extra item: '[changed] frozen/0.0.1/ConfigSnapshot.maximal.json'
+E         Use -v to get more diff
+
+packages/evalschema/tests/test_golden_fixtures.py:348: AssertionError
+_________ test_the_build_script_check_passes_on_the_committed_fixtures _________
+
+tmp_path = PosixPath('<tmp>')
+
+    def test_the_build_script_check_passes_on_the_committed_fixtures(tmp_path: Path) -> None:
+        """The documented command line works as a script: ``--check`` exits 0 and says so; with a
+        changed copy of the tree it would exit 1 (the module function it calls is tested below)."""
+        result = subprocess.run(  # noqa: S603 - fixed arguments, the interpreter of this run
+            [sys.executable, str(SCRIPTS / "build_golden_fixtures.py"), "--check"],
+            cwd=tmp_path,
+            capture_output=True,
+            text=True,
+            timeout=300,
+            check=False,
+        )
+>       assert result.returncode == 0, result.stderr[-2000:]
+E       AssertionError: son
+E         [changed] golden/ConfigSnapshot/valid/maximal.json
+E         [changed] golden/ConfigSnapshot/valid/minimal.json
+E         [changed] golden/Evaluator/invalid/content-digest-mismatch.json
+E         [changed] golden/Evaluator/invalid/duration-over-four-hours.json
+E         [changed] golden/Evaluator/invalid/name-only-call-with-arguments.json
+E         [changed] golden/Evaluator/invalid/no-metric-binding.json
+E         [changed] golden/Evaluator/invalid/placeholder-without-test-profile.json
+E         [changed] golden/Evaluator/invalid/scripted-turn-index-gap.json
+E         [changed] golden/Evaluator/invalid/unknown-profile-placeholder.json
+E         [changed] golden/Evaluator/valid/maximal-keyed-profile.json
+E         [changed] golden/Evaluator/valid/maximal.json
+E         [changed] golden/Evaluator/valid/minimal.json
+E         [changed] golden/ExportBundle/invalid/benchmark-without-consent.json
+E         [changed] golden/ExportBundle/invalid/dataset-item-twice.json
+E         [changed] golden/ExportBundle/invalid/file-uri-in-a-shared-export.json
+E         [changed] golden/ExportBundle/invalid/omission-entry-for-an-item-that-keeps-its-run.json
+E         [changed] golden/ExportBundle/invalid/sealed-payload-of-a-record-not-exported.json
+E         [changed] golden/ExportBundle/invalid/shared-export-with-clear-payloads.json
+E         [changed] golden/ExportBundle/valid/maximal-benchmark.json
+E         [changed] golden/ExportBundle/valid/maximal-shared-export.json
+E         [changed] golden/ExportBundle/valid/maximal.json
+E         [changed] golden/RunBundle/invalid/evidence-points-to-a-missing-turn.json
+E         [changed] golden/RunBundle/invalid/extra-member.json
+E         [changed] golden/RunBundle/invalid/record-twice.json
+E         [changed] golden/RunBundle/invalid/same-record-id-with-another-content.json
+E         [changed] golden/RunBundle/invalid/snapshot-is-another-one.json
+E         [changed] golden/RunBundle/invalid/tier-below-the-evidence.json
+E         [changed] golden/RunBundle/invalid/usage-of-another-run.json
+E         [changed] golden/RunBundle/invalid/withheld-record-is-held.json
+E         [changed] golden/RunBundle/valid/maximal.json
+E         [changed] golden/RunBundle/valid/minimal.json
+E         45 problems; run with --write after reviewing the change
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['<tmp> golden/RunBundle/valid/minimal.json\n45 problems; run with --write after reviewing the change\n').returncode
+
+packages/evalschema/tests/test_golden_fixtures.py:381: AssertionError
+___________ test_every_property_covered_by_valid_fixture[Evaluator] ____________
+
+entity = 'Evaluator'
+
+    @pytest.mark.parametrize("entity", ENTITY_NAMES)
+    def test_every_property_covered_by_valid_fixture(entity: str) -> None:
+        """Gate item 4, ADR 0008 I15, api-surface-schema-export A17: every property, every union
+        alternative, every enum member and both values of every boolean of the entity's schema are
+        held by some valid fixture (``scripts/property_coverage.py``; the walk stops at embedded
+        entities, which have their own fixtures)."""
+        module = _coverage_module()
+        result = module.report(GOLDEN, entity)[0]
+        assert result.points, f"{entity}: no schema points were found"
+>       assert result.missing == [], f"{entity}: {result.percent:.2f}% -> {result.missing[:12]}"
+E       AssertionError: Evaluator: 95.77% -> [('bool', 'Evaluator.expected_tool_calls_exhaustive=false'), ('bool', 'Evaluator.expected_tool_calls_exhaustive=true'), ('prop', 'Evaluator.expected_tool_calls_exhaustive')]
+E       assert [('bool', 'Ev..._exhaustive')] == []
+E         
+E         Left contains 3 more items, first extra item: ('bool', 'Evaluator.expected_tool_calls_exhaustive=false')
+E         Use -v to get more diff
+
+packages/evalschema/tests/test_golden_fixtures.py:478: AssertionError
+_________ test_property_coverage_of_all_valid_fixtures_is_100_percent __________
+
+    def test_property_coverage_of_all_valid_fixtures_is_100_percent() -> None:
+        module = _coverage_module()
+        results = module.report(GOLDEN)
+        assert [r.entity for r in results] == ENTITY_NAMES
+        assert sum(len(r.points) for r in results) >= 1000
+>       assert all(r.percent == 100.0 for r in results)
+E       assert False
+E        +  where False = all(<generator object test_property_coverage_of_all_valid_fixtures_is_100_percent.<locals>.<genexpr> at 0x1116ba400>)
+
+packages/evalschema/tests/test_golden_fixtures.py:486: AssertionError
+________ test_property_coverage_runs_as_a_script_and_prints_100_percent ________
+
+tmp_path = PosixPath('<tmp>')
+
+    def test_property_coverage_runs_as_a_script_and_prints_100_percent(tmp_path: Path) -> None:
+        result = subprocess.run(  # noqa: S603 - fixed arguments, the interpreter of this run
+            [sys.executable, str(SCRIPTS / "property_coverage.py")],
+            cwd=tmp_path,
+            capture_output=True,
+            text=True,
+            timeout=300,
+            check=False,
+        )
+>       assert result.returncode == 0, result.stdout[-2000:] + result.stderr[-2000:]
+E       AssertionError: y         36/36    100.00%  (5 excluded)
+E         Dataset             14/14    100.00%  (10 excluded)
+E         DatasetItem         31/31    100.00%  (5 excluded)
+E         Evaluator           68/71     95.77%  (10 excluded)
+E         Exchange            17/17    100.00%  (5 excluded)
+E         ExportBundle        65/65    100.00%  (6 excluded)
+E         MetricBinding       29/29    100.00%  (10 excluded)
+E         MetricDefinition   102/102   100.00%  (10 excluded)
+E         MetricResult       100/100   100.00%  (5 excluded)
+E         Persona             13/13    100.00%  (10 excluded)
+E         PricingCatalog      66/66    100.00%  (10 excluded)
+E         Project             12/12    100.00%  (5 excluded)
+E         Rubric              29/29    100.00%  (10 excluded)
+E         Run                107/107   100.00%  (5 excluded)
+E         RunBundle           46/46    100.00%  (5 excluded)
+E         RunVerdict          44/44    100.00%  (5 excluded)
+E         StageSpan           26/26    100.00%  (5 excluded)
+E         TestProfile         14/14    100.00%  (10 excluded)
+E         ToolCallEvent       43/43    100.00%  (5 excluded)
+E         Transcript          60/60    100.00%  (5 excluded)
+E         Turn                58/58    100.00%  (5 excluded)
+E         UsageRecord         46/46    100.00%  (5 excluded)
+E         excluded points matching ^\w+\.content_digest\.key_ref: an entity's own content_digest is verified on load and a keyed digest cannot be (DigestKeyUnavailable); keyed digests and key references occur in references
+E         excluded points matching ^\w+\.content_digest\.scheme="hmac-sha256-jcs/v1"$: an entity's own content_digest is verified on load and a keyed digest cannot be (DigestKeyUnavailable); keyed digests and key references occur in references
+E         excluded points matching \.plaintext_digest\.scheme="sha256-jcs/v1"$: a sealed payload's plaintext_digest is absent or keyed (P-42): a plain digest of the plaintext is rejected
+E         excluded points matching \.metadata_flags\[\]: a metadata flag exists only when a metadata string looks like a credential, and no fixture may hold a credential-shaped value (the flags are tested in test_entity_base.py)
+E         TOTAL             1210/1213   99.75%
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['<tmp> value (the flags are tested in test_entity_base.py)\nTOTAL             1210/1213   99.75%\n', stderr='').returncode
+
+packages/evalschema/tests/test_golden_fixtures.py:499: AssertionError
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_golden_fixtures.py::test_golden_valid_fixtures_round_trip_byte_for_byte[ConfigSnapshot/maximal-keyed-catalog]
+FAILED packages/evalschema/tests/test_golden_fixtures.py::test_golden_valid_fixtures_round_trip_byte_for_byte[ConfigSnapshot/maximal]
+FAILED packages/evalschema/tests/test_golden_fixtures.py::test_golden_valid_fixtures_round_trip_byte_for_byte[ConfigSnapshot/minimal]
+FAILED packages/evalschema/tests/test_golden_fixtures.py::test_golden_valid_fixtures_round_trip_byte_for_byte[Evaluator/maximal-keyed-profile]
+FAILED packages/evalschema/tests/test_golden_fixtures.py::test_golden_valid_fixtures_round_trip_byte_for_byte[Evaluator/maximal]
+FAILED packages/evalschema/tests/test_golden_fixtures.py::test_golden_valid_fixtures_round_trip_byte_for_byte[Evaluator/minimal]
+FAILED packages/evalschema/tests/test_golden_fixtures.py::test_golden_valid_fixtures_round_trip_byte_for_byte[ExportBundle/maximal-benchmark]
+FAILED packages/evalschema/tests/test_golden_fixtures.py::test_golden_valid_fixtures_round_trip_byte_for_byte[ExportBundle/maximal-shared-export]
+FAILED packages/evalschema/tests/test_golden_fixtures.py::test_golden_valid_fixtures_round_trip_byte_for_byte[ExportBundle/maximal]
+FAILED packages/evalschema/tests/test_golden_fixtures.py::test_golden_valid_fixtures_round_trip_byte_for_byte[RunBundle/maximal]
+FAILED packages/evalschema/tests/test_golden_fixtures.py::test_golden_valid_fixtures_round_trip_byte_for_byte[RunBundle/minimal]
+FAILED packages/evalschema/tests/test_golden_fixtures.py::test_golden_minimal_fixture_loads_without_its_null_members[ConfigSnapshot]
+FAILED packages/evalschema/tests/test_golden_fixtures.py::test_golden_minimal_fixture_loads_without_its_null_members[Evaluator]
+FAILED packages/evalschema/tests/test_golden_fixtures.py::test_golden_minimal_fixture_loads_without_its_null_members[RunBundle]
+FAILED packages/evalschema/tests/test_golden_fixtures.py::test_golden_files_equal_generator_output
+FAILED packages/evalschema/tests/test_golden_fixtures.py::test_the_build_script_check_passes_on_the_committed_fixtures
+FAILED packages/evalschema/tests/test_golden_fixtures.py::test_every_property_covered_by_valid_fixture[Evaluator]
+FAILED packages/evalschema/tests/test_golden_fixtures.py::test_property_coverage_of_all_valid_fixtures_is_100_percent
+FAILED packages/evalschema/tests/test_golden_fixtures.py::test_property_coverage_runs_as_a_script_and_prints_100_percent
+19 failed, 5814 passed in 279.98s (0:04:39)
+exit=1

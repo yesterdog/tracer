@@ -301,7 +301,7 @@ Documents are JSON-mode dicts. `E` = `EntityBase` fields (`id`, `schema_version`
 | `metrics` | `check_bindings_unique(bindings)` | function (Proposed) | `ValueError` naming the metric ID when two bindings (listed twice, other version, disabled or not) of one evaluator name one definition |
 | `rubric` | `Rubric` (`rub`) | `V` | `items: list[{binding: {id: MetricBindingId, version}, required: bool, weight: DecimalString | None}]` (P) |
 | `rubric` | `validate_rubric(rubric, *, bindings, definitions) -> None` | function (Proposed) | resolves item -> binding -> definition; `ValueError` naming the binding (or definition) ID |
-| `evaluator` | `Evaluator` (`evl`) | `V` | `name: HumanLabel` (P), `language: SupportedLanguage`, `instructions` (placeholder-checked text), `expected_outcome: VerbatimText` (required, non-empty), `persona: {id: PersonaId, version}`, `test_profile: TestProfileRef | None`, `metric_bindings: list[{id: MetricBindingId, version}]` (unique ids), `scripted_turns: list[ScriptedTurn]` (default `[]`), `expected_tool_calls: list[ExpectedToolCall]` (default `[]`), `max_duration_ms` (required) |
+| `evaluator` | `Evaluator` (`evl`) | `V` | `name: HumanLabel` (P), `language: SupportedLanguage`, `instructions` (placeholder-checked text), `expected_outcome: VerbatimText` (required, non-empty), `persona: {id: PersonaId, version}`, `test_profile: TestProfileRef | None`, `metric_bindings: list[{id: MetricBindingId, version}]` (unique ids), `scripted_turns: list[ScriptedTurn]` (default `[]`), `expected_tool_calls: list[ExpectedToolCall]` (default `[]`), `expected_tool_calls_exhaustive: bool | None` (strict, default `None`; batch 17, F5-2), `max_duration_ms` (required) |
 | `evaluator` | `ScriptedTurn` | value object | `index >= 0` (contiguous 0, 1, 2, ... in list order), `text` (placeholder-checked), `language: SupportedLanguage` |
 | `evaluator` | `ExpectedToolCall` | value object | `name: MachineKey`, `match` (closed enum, at least two lowercase snake_case members; the tests read the members from the schema), `order_index >= 0` |
 
@@ -418,6 +418,7 @@ Every item below is **Resolved**, and the architect decided it. "Tests to change
   - `persona: PersonaRef`, `test_profile: TestProfileRef?`.
   - `metric_bindings: list[MetricBindingRef]` (non-empty, because item 7 needs at least one check; unique by binding `id` at any version).
   - `scripted_turns: list[ScriptedTurn]` (default `[]`), `expected_tool_calls: list[ExpectedToolCall]` (default `[]`).
+  - `expected_tool_calls_exhaustive: Annotated[bool, Strict()] | None = None` (batch 17, F5-2, owner decision; ADR 0010 Decision 8): `None` not stated; `True` a call outside `expected_tool_calls` is a failure (with an empty list: must call nothing); `False` explicitly not exhaustive. Strict boolean or `null`, optional, default `null`, part of the content digest. Tests: `test_evaluator_exhaustive.py` (43).
   - `max_duration_ms` (item 6).
   - Rule: any profile placeholder anywhere in the evaluator requires `test_profile` (N8).
 

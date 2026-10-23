@@ -1,0 +1,123 @@
+"""Scratch T-DRIFT scan (ADR 0005 Decision 10), replicating tests/_support_b10.TDRIFT_PATTERN.
+
+Usage: uv run python tdrift_scan.py <repo-root> [--all]
+Scans every git-tracked file plus every untracked, non-ignored file (git ls-files -co
+--exclude-standard), never anything under packages/evalschema/tests/fixtures/private/ and never
+.env* files. Binary files (NUL byte or not UTF-8) are skipped and counted. Prints hits outside the
+ADR allowlist (or all hits with --all), as path:line:matched-text only (never the line itself).
+"""
+
+from __future__ import annotations
+
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+
+def _join(*parts: str) -> str:
+    return "".join(parts)
+
+
+# Same construction as tests/_support_b10.py (assembled from parts, so this file stays clean).
+_EXCLUDED_SUBTAGS = _join("(?:b", "n|u", "r|o", "r|a", "s)")
+_BANNED_NAMES = "|".join(
+    (
+        _join("ben", "gali"),
+        _join("u", "rdu"),
+        _join("od", "ia"),
+        _join("ori", "ya"),
+        _join("assam", "ese"),
+        _join("shah", "mukhi"),
+        _join("hing", "lish"),
+    )
+)
+_MIXED_WORDS = _join("code", "[-_ ]?", "mix")
+_MIXED_ALIAS = _join("hi", "[-_]", "en", r"\b")
+_SUBTAG_IN_TAG_SYNTAX = _join(r"\b", _EXCLUDED_SUBTAGS, r"[-_][A-Za-z0-9]{2,8}\b")
+_SUBTAG_QUOTED = _join("[\"']", _EXCLUDED_SUBTAGS, "[\"']")
+_EXCLUDED_SCRIPT_TAG = _join(r"\bpa", "[-_]", "Ar", r"ab\b")
+
+PATTERN = re.compile(
+    "|".join(
+        (
+            _BANNED_NAMES,
+            _MIXED_WORDS,
+            _MIXED_ALIAS,
+            _SUBTAG_IN_TAG_SYNTAX,
+            _SUBTAG_QUOTED,
+            _EXCLUDED_SCRIPT_TAG,
+        )
+    ),
+    re.IGNORECASE,
+)
+
+# ADR 0005 Decision 10 as amended in batch 18 (A31: no entry for docs/concepts/language.md).
+ALLOW_FILES = {
+    "docs/phase1/SCOPE.md",
+    "docs/adr/0004-requires-and-not-applicable.md",
+    "docs/adr/0005-language.md",
+    "docs/adr/0018-real-sample-mapping-policy.md",
+    "packages/evalschema/tests/fixtures/languages/negatives/negatives.json",
+    "packages/evalschema/tests/fixtures/languages/negatives/README.md",
+    "packages/evalschema/tests/test_language.py",
+    "packages/evalschema/tests/test_data_files.py",
+    "packages/evalschema/src/tracer_evalschema/language.py",
+    "docs/phase1/api-surface.md",
+    "packages/evalschema/tests/test_persona_profile.py",
+    "packages/evalschema/tests/test_results_language.py",
+    "packages/evalschema/tests/test_dataset.py",
+    "packages/evalschema/tests/test_mapping_f3.py",
+}
+ALLOW_DIRS = ("docs/phase1/evidence/",)
+ALLOW_GLOB = re.compile(r"^\.claude/agents/[^/]+\.md$")
+NEVER = ("packages/evalschema/tests/fixtures/private/",)
+
+
+def allowed(path: str) -> bool:
+    return path in ALLOW_FILES or path.startswith(ALLOW_DIRS) or bool(ALLOW_GLOB.match(path))
+
+
+def main() -> int:
+    root = Path(sys.argv[1]).resolve()
+    show_all = "--all" in sys.argv
+    listed = subprocess.run(
+        ["git", "ls-files", "-co", "--exclude-standard", "-z"],
+        cwd=root,
+        capture_output=True,
+        check=True,
+    ).stdout.decode()
+    paths = sorted({p for p in listed.split("\0") if p})
+    scanned = binary = 0
+    hits = 0
+    files_hit: set[str] = set()
+    for rel in paths:
+        if rel.startswith(NEVER) or Path(rel).name.startswith(".env"):
+            continue
+        full = root / rel
+        if not full.is_file():
+            continue
+        data = full.read_bytes()
+        if b"\0" in data:
+            binary += 1
+            continue
+        try:
+            text = data.decode("utf-8")
+        except UnicodeDecodeError:
+            binary += 1
+            continue
+        scanned += 1
+        if not show_all and allowed(rel):
+            continue
+        for number, line in enumerate(text.splitlines(), 1):
+            for match in PATTERN.finditer(line):
+                hits += 1
+                files_hit.add(rel)
+                tag = " [allowlisted]" if allowed(rel) else ""
+                print(f"{rel}:{number}: {match.group(0)!r}{tag}")
+    print(f"scanned {scanned} text files, skipped {binary} binary; {hits} hits in {len(files_hit)} files")
+    return 1 if hits else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,74 @@
+# group: mutant-fixture-doc-deleted (batch 18 adversarial registry, qa)
+# date: 2026-10-23T19:30:06Z
+# command: uv run --locked --python 3.12 pytest -p no:cacheprovider -q -ra --no-header packages/evalschema/tests/test_adversarial_registry.py packages/evalschema/tests/test_adversarial_cases.py
+# interpreter:    Building tracer-evalschema @ file://<scratchpad>/qa18/oracle/m/packages/evalschema
+      Built tracer-evalschema @ file://<scratchpad>/qa18/oracle/m/packages/evalschema
+Uninstalled 1 package in 0.54ms
+Installed 1 package in 0.85ms
+Python 3.12.14
+# versions: <string>:1: DeprecationWarning: Accessing jsonschema.__version__ is deprecated and will be removed in a future release. Use importlib.metadata directly to query for jsonschema's version.
+pydantic 2.14.1 pytest 9.1.1 jsonschema 4.26.0
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git: nothing staged, no commits made by qa
+# ------------------------------------------------------------------------------
+........................................................................ [ 23%]
+........................................................................ [ 47%]
+........................................................................ [ 71%]
+..............................................FF........................ [ 95%]
+..............                                                           [100%]
+=================================== FAILURES ===================================
+_________________ test_fixture_expected_files_are_well_formed __________________
+
+    def test_fixture_expected_files_are_well_formed() -> None:
+        """Every fixture has an ``expected.json`` with exactly the documented members, in a known
+        case directory, for a registered entity; every threat is a sentence; a rejected case names
+        its error and a kept case does not; a kept document is accepted by the JSON Schema; nothing
+        is left over without its pair."""
+        members = {
+            "case",
+            "entity",
+            "base",
+            "expectation",
+            "error_path",
+            "error_kind",
+            "schema",
+            "canonical",
+            "no_echo",
+            "why",
+            "threat",
+        }
+        entities = b9.entity_models()
+        documents = [p for d in b12.case_directories() for p in b12.fixture_documents(d.name)]
+>       assert len(documents) == len(b12.SPECS) >= 100
+E       assert 136 == 137
+E        +  where 136 = len([PosixPath('<scratchpad>/qa18/ora...e/m/packages/evalschema/tests/fixtures/adversarial/X-01/negative-exponent-overflow-in-a-segment-confidence.json'), ...])
+E        +  and   137 = len((Spec(case='X-01', name='nan-literal-in-a-segment-confidence', entity='Turn', expect='rejected', why='NaN is not a JSO...nt": 1e999,'),), kind='ijson', path=('arguments',), canonical={}, no_echo=(), schema_applies=False, minify=False), ...))
+E        +    where (Spec(case='X-01', name='nan-literal-in-a-segment-confidence', entity='Turn', expect='rejected', why='NaN is not a JSO...nt": 1e999,'),), kind='ijson', path=('arguments',), canonical={}, no_echo=(), schema_applies=False, minify=False), ...) = b12.SPECS
+
+packages/evalschema/tests/test_adversarial_cases.py:97: AssertionError
+___________________ test_fixtures_equal_the_generator_output ___________________
+
+    def test_fixtures_equal_the_generator_output() -> None:
+        """The committed files are exactly what ``_support_b12.render()`` produces, and the tree holds
+        nothing else but the registry and the README (no scratch file)."""
+        rendered = b12.render()
+        on_disk = {
+            str(p.relative_to(b12.ADVERSARIAL)): p.read_bytes()
+            for p in b12.ADVERSARIAL.rglob("*")
+            if p.is_file()
+        }
+        assert on_disk.pop("registry.json") is not None
+        assert on_disk.pop("README.md") is not None
+>       assert sorted(on_disk) == sorted(rendered)
+E       AssertionError: assert ['X-01/expone...ce.json', ...] == ['X-01/expone...ce.json', ...]
+E         
+E         At index 125 diff: 'X-07/lowercase-t.expected.json' != 'X-07/leap-second.json'
+E         Right contains one more item: 'X-14/lone-surrogate-in-a-tool-argument-key.json'
+E         Use -v to get more diff
+
+packages/evalschema/tests/test_adversarial_cases.py:137: AssertionError
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_adversarial_cases.py::test_fixture_expected_files_are_well_formed
+FAILED packages/evalschema/tests/test_adversarial_cases.py::test_fixtures_equal_the_generator_output
+2 failed, 300 passed in 12.92s
+# exit status: 1

@@ -1,0 +1,37 @@
+# group: mutant-drop-entry-A-17 (batch 18 adversarial registry, qa)
+# date: 2026-10-23T19:28:30Z
+# command: uv run --locked --python 3.12 pytest -p no:cacheprovider -q -ra --no-header packages/evalschema/tests/test_adversarial_registry.py packages/evalschema/tests/test_adversarial_cases.py
+# interpreter:    Building tracer-evalschema @ file://<scratchpad>/qa18/oracle/m/packages/evalschema
+      Built tracer-evalschema @ file://<scratchpad>/qa18/oracle/m/packages/evalschema
+Uninstalled 1 package in 0.91ms
+Installed 1 package in 1ms
+Python 3.12.14
+# versions: <string>:1: DeprecationWarning: Accessing jsonschema.__version__ is deprecated and will be removed in a future release. Use importlib.metadata directly to query for jsonschema's version.
+pydantic 2.14.1 pytest 9.1.1 jsonschema 4.26.0
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git: nothing staged, no commits made by qa
+# ------------------------------------------------------------------------------
+.F...................................................................... [ 23%]
+........................................................................ [ 47%]
+........................................................................ [ 71%]
+........................................................................ [ 95%]
+.............                                                            [100%]
+=================================== FAILURES ===================================
+____________________ test_every_numbered_case_has_an_entry _____________________
+
+    def test_every_numbered_case_has_an_entry() -> None:
+        """A-01 to A-44 each have exactly one entry and are defined in SCOPE; nothing else is numbered
+        A; the extra cases are X-01 and up without a gap. The architect gives the X cases A-numbers
+        when SCOPE is next revised."""
+        scope = SCOPE.read_text(encoding="utf-8")
+>       assert b12.numbering_problems(_registry(), scope) == []
+E       AssertionError: assert ['A-17: no registry entry'] == []
+E         
+E         Left contains one more item: 'A-17: no registry entry'
+E         Use -v to get more diff
+
+packages/evalschema/tests/test_adversarial_registry.py:101: AssertionError
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_adversarial_registry.py::test_every_numbered_case_has_an_entry
+1 failed, 300 passed in 21.37s
+# exit status: 1

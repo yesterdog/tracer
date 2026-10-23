@@ -1,0 +1,10 @@
+$ uv run --locked --all-groups python scripts/check_licenses.py
+42 ok, 0 failed
+exit=0
+$ uv build --package tracer-evalschema --out-dir <dist>
+Building wheel from source distribution...
+Successfully built <scratch>/dist/tracer_evalschema-0.0.1.tar.gz
+Successfully built <scratch>/dist/tracer_evalschema-0.0.1-py3-none-any.whl
+$ uv run --locked --all-groups python scripts/check_licenses.py --wheel <dist> --artifacts-only
+2 ok, 0 failed
+exit=0

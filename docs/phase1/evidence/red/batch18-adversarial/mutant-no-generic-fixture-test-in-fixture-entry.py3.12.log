@@ -1,0 +1,63 @@
+# group: mutant-no-generic-fixture-test-in-fixture-entry (batch 18 adversarial registry, qa)
+# date: 2026-10-23T19:30:47Z
+# command: uv run --locked --python 3.12 pytest -p no:cacheprovider -q -ra --no-header packages/evalschema/tests/test_adversarial_registry.py packages/evalschema/tests/test_adversarial_cases.py
+# interpreter:    Building tracer-evalschema @ file://<scratchpad>/qa18/oracle/m/packages/evalschema
+      Built tracer-evalschema @ file://<scratchpad>/qa18/oracle/m/packages/evalschema
+Uninstalled 1 package in 0.58ms
+Installed 1 package in 0.95ms
+Python 3.12.14
+# versions: <string>:1: DeprecationWarning: Accessing jsonschema.__version__ is deprecated and will be removed in a future release. Use importlib.metadata directly to query for jsonschema's version.
+pydantic 2.14.1 pytest 9.1.1 jsonschema 4.26.0
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git: nothing staged, no commits made by qa
+# ------------------------------------------------------------------------------
+........................................................................ [ 23%]
+......................................F.............F................... [ 47%]
+........................................................................ [ 71%]
+........................................................................ [ 95%]
+...............                                                          [100%]
+=================================== FAILURES ===================================
+____________________ test_covering_tests_run_and_pass[X-06] ____________________
+
+entry = {'id': 'X-06', 'title': 'Identifier confusion: wrong prefix, case, whitespace, other scripts and forms', 'source': 'test (P1-18); extends A-16 and A-17', 'expectation': 'rejected', ...}
+results = RunResult(passed={'packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[...erywhere[content_digest]', 'packages/evalschema/tests/test_ids.py::test_id_rejects_wrong_kind'}, failed={}, skipped={})
+
+    @pytest.mark.parametrize("entry", _entries())
+    def test_covering_tests_run_and_pass(entry: dict[str, Any], results: b12.RunResult) -> None:
+        """For each case: every collected test the covering list names (all parametrizations of a
+        function) ran in the child pytest process and passed; none was skipped; a case with a fixture
+        directory passed once for each of its documents."""
+        collected = set(results.passed) | set(results.failed) | set(results.skipped)
+        problems = b12.node_problems(entry, collected=collected, skips={}, results=results)
+>       assert problems == []
+E       AssertionError: assert ['X-06: a cas...hes_expected'] == []
+E         
+E         Left contains one more item: 'X-06: a case with a fixture lists packages/evalschema/tests/test_adversarial_cases.py::test_fixture_outcome_matches_expected'
+E         Use -v to get more diff
+
+packages/evalschema/tests/test_adversarial_registry.py:136: AssertionError
+_____________________ test_mutant_a_lost_fixture_is_found ______________________
+
+collected = {'packages/evalschema/tests/test_adversarial_cases.py::test_a26_a_plain_digest_of_a_low_entropy_profile_can_be_recompu.../test_adversarial_cases.py::test_fixture_outcome_matches_expected[X-01/infinity-literal-in-a-segment-confidence]', ...}
+
+    def test_mutant_a_lost_fixture_is_found(collected: set[str]) -> None:
+        """A case whose fixture document did not pass, one without the generic fixture test in its
+        list, and a directory without an entry are found."""
+        entry = next(e for e in _registry()["cases"] if e["id"] == "X-06")
+        green = _all_green(collected)
+        node = b12.COVERING_CASES_TEST
+        documents = b12.fixture_documents("X-06")
+        for path in documents:
+            green.passed.add(f"{node}[X-06/{path.stem}]")
+>       assert b12.node_problems(entry, collected=collected, skips={}, results=green) == []
+E       AssertionError: assert ['X-06: a cas...hes_expected'] == []
+E         
+E         Left contains one more item: 'X-06: a case with a fixture lists packages/evalschema/tests/test_adversarial_cases.py::test_fixture_outcome_matches_expected'
+E         Use -v to get more diff
+
+packages/evalschema/tests/test_adversarial_registry.py:268: AssertionError
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_adversarial_registry.py::test_covering_tests_run_and_pass[X-06]
+FAILED packages/evalschema/tests/test_adversarial_registry.py::test_mutant_a_lost_fixture_is_found
+2 failed, 301 passed in 12.58s
+# exit status: 1
