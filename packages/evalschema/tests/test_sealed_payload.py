@@ -1216,6 +1216,12 @@ def test_redaction_covers_each_payload_kind_separately() -> None:
     with pytest.raises(ValidationError):
         record.model_validate(redaction_doc(covers=["tool_result", "tool_result"]))
     assert enum == kinds | {"tool_result"}
+    assert sorted(property_enum(record, "covers")) == [
+        "audio",
+        "text",
+        "tool_arguments",
+        "tool_result",
+    ]
     assert not contains_key(schema_of(record), "const")
 
 

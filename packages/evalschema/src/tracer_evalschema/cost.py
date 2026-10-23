@@ -716,7 +716,7 @@ def resolve_price(
     catalog: PricingCatalog,
     *,
     provider: str,
-    model: str,
+    model: str | None,
     unit: str,
     occurred_at: datetime | None = None,
     run_started_at: datetime | None = None,
@@ -724,6 +724,8 @@ def resolve_price(
 ) -> PriceResolution:
     """The entry of ``catalog`` that prices one quantity (ADR 0014 Decision 15).
 
+    ``model`` ``None`` (the source reported no model, M3) matches no entry: the answer is
+    ``no_price_for_model`` whatever the catalog holds, never a price of 0 and never a guess.
     Candidates: same ``provider``, ``model`` equal to the entry's model or one of its aliases,
     same ``unit``, all compared exactly. No candidate: ``no_price_for_model`` (before any date,
     N48). The price date is ``occurred_at``, else ``run_started_at``; neither: ``ambiguous_price``
@@ -734,6 +736,8 @@ def resolve_price(
     _check_facts(facts)
     _check_instant("occurred_at", occurred_at)
     _check_instant("run_started_at", run_started_at)
+    if model is None:  # not reported: nothing to match (M3)
+        return PriceResolution(None, "no_price_for_model")
     candidates = [
         entry
         for entry in catalog.entries
@@ -872,7 +876,9 @@ def compute_cost(
     not_available with the first reason of Decision 13a: no usage (``usage_not_reported`` for the
     agent, ``no_usage`` for the evaluation), ``no_price_for_model`` (no quantity priced),
     ``billing_rules_missing``, ``unit_unpriced`` (with ``unpriced_units``), ``ambiguous_price``.
-    A partial sum is never reported. The amount is exact, rounded once half-even at scale 18
+    A usage without a model (M3) is never priced: alone it gives ``no_price_for_model``; mixed
+    with priced usage it is an unpriced part (``unit_unpriced``). A partial sum is never
+    reported. The amount is exact, rounded once half-even at scale 18
     with ``rounding`` recorded iff that changed it; ``pricing_snapshot`` names the catalog and the
     distinct entries used, zero quantities included (N63), in first-use order.
     """

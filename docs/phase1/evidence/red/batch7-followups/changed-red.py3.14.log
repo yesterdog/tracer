@@ -1,0 +1,191 @@
+# group: changed   (batch 7 follow-ups: M3 optional UsageRecord.model, S-N91 digest no-echo, covered_by uniqueItems, closed-enum owners; mode red; qa)
+# date: 2026-10-23T14:41:26Z (UTC)
+# command: <scratchpad>/venv3.14/bin/python -m pytest -p no:cacheprovider -v tests/test_usage.py::test_usage_record_shape_and_required_fields tests/test_usage.py::test_usage_record_model_optional_not_reported tests/test_cost_compute.py::test_usage_without_model_is_not_available_never_zero tests/test_cost_compute.py::test_mixed_model_and_modelless_usage_is_never_a_partial_sum tests/test_digest.py::test_digest_key_unavailable_never_echoes_what_a_resolver_says tests/test_cost_summary.py::test_covered_by_json_schema_pins_unique_items tests/test_metric_definition.py::test_all_closed_enums_exact   (cwd ~/tracer; PYTHONPATH=<code under test>/src)
+# interpreter: <scratchpad>/venv3.14/bin/python
+# versions: python 3.14.7; pydantic 2.14.1; pytest 9.1.1; jsonschema 4.26.0; hypothesis 6.170.5
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# code under test: snapshot of the repository src taken 2026-10-23 before the M3/S-N91 changes (UsageRecord.model required; digest message uses repr(exc)), outside the working tree
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.14.7, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>/venv3.14/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 7 items
+
+packages/evalschema/tests/test_usage.py::test_usage_record_shape_and_required_fields FAILED [ 14%]
+packages/evalschema/tests/test_usage.py::test_usage_record_model_optional_not_reported FAILED [ 28%]
+packages/evalschema/tests/test_cost_compute.py::test_usage_without_model_is_not_available_never_zero FAILED [ 42%]
+packages/evalschema/tests/test_cost_compute.py::test_mixed_model_and_modelless_usage_is_never_a_partial_sum FAILED [ 57%]
+packages/evalschema/tests/test_digest.py::test_digest_key_unavailable_never_echoes_what_a_resolver_says FAILED [ 71%]
+packages/evalschema/tests/test_cost_summary.py::test_covered_by_json_schema_pins_unique_items PASSED [ 85%]
+packages/evalschema/tests/test_metric_definition.py::test_all_closed_enums_exact PASSED [100%]
+
+=================================== FAILURES ===================================
+_________________ test_usage_record_shape_and_required_fields __________________
+
+    def test_usage_record_shape_and_required_fields() -> None:
+        """Proposed name (ADR 0014 Decision 8, ADR 0001 table, ADR 0012 Decision 6): a usage record is
+        an entity (``use``) with exactly the entity fields plus ``run_id``, ``domain``, ``stage``,
+        ``provider``, ``model``, ``provider_call_ref``, ``occurred_at``, ``quantities``, ``source`` and
+        ``raw``; ``run_id``, ``domain``, ``stage``, ``provider``, ``quantities`` and ``source`` are
+        required (``model`` is optional since M3 and ``occurred_at`` since N43). ``run_id`` is a
+        ``run_`` ID (the only record of fact that names its run, N22), ``provider`` and a given
+        ``model`` are machine keys (a model name such as ``saaras:v4`` is fine), ``provider_call_ref``
+        is an ``ExternalRef`` object, and ``quantities`` is a non-empty list with one quantity per
+        unit (the units are disjoint buckets; decided by the owner, N44)."""
+        model = _record()
+        entity_fields = {"id", "schema_version", "created_at", "metadata", "metadata_flags"}
+        assert set(model.model_fields) == entity_fields | {
+            "run_id",
+            "domain",
+            "stage",
+            "provider",
+            "model",
+            "provider_call_ref",
+            "occurred_at",
+            "quantities",
+            "source",
+            "raw",
+        }
+        required = {"run_id", "domain", "stage", "provider", "quantities", "source"}
+        assert required <= set(schema_of(model)["required"])
+>       assert not (
+            {"model", "provider_call_ref", "occurred_at", "raw"} & set(schema_of(model)["required"])
+        )
+E       AssertionError: assert not ({'model', 'occurred_at', 'provider_call_ref', 'raw'} & {'created_at', 'domain', 'id', 'model', 'provider', 'quantities', ...})
+E        +  where {'created_at', 'domain', 'id', 'model', 'provider', 'quantities', ...} = set(['id', 'schema_version', 'created_at', 'run_id', 'domain', 'stage', ...])
+
+packages/evalschema/tests/test_usage.py:287: AssertionError
+________________ test_usage_record_model_optional_not_reported _________________
+
+    def test_usage_record_model_optional_not_reported() -> None:
+        """M3 (owner, auto-approved; ADR 0014 Decision 8): ``model`` is optional, ``None`` meaning "the
+        source did not report a model". A record without ``model`` (key absent, or explicit ``None``)
+        validates, has ``model`` None, dumps ``"model": null``, survives a JSON round trip unchanged and
+        is accepted by the JSON Schema; the JSON Schema does not list ``model`` as required and allows
+        null for it. A model given is stored exactly; a malformed one is still rejected (an empty text
+        is not "not reported")."""
+        model = _record()
+        assert "model" in model.model_fields
+>       assert "model" not in schema_of(model)["required"]
+E       AssertionError: assert 'model' not in ['id', 'schema_version', 'created_at', 'run_id', 'domain', 'stage', ...]
+
+packages/evalschema/tests/test_usage.py:330: AssertionError
+_____________ test_usage_without_model_is_not_available_never_zero _____________
+
+    def test_usage_without_model_is_not_available_never_zero() -> None:
+        """M3 (owner, auto-approved; ADR 0014 Decisions 13 and 15): a usage record whose source reported
+        no model (``model`` None) cannot be matched to any price entry, so the cost is not_available
+        with ``no_price_for_model``: never an amount of 0, no basis, no snapshot, the usage record still
+        listed. This holds whatever the catalog holds (an entry for every model of the provider, an
+        entry for the same unit, a price of 0), for a call dated by ``occurred_at`` or by the run start,
+        for several units and several records, in both domains. The same usage with a model named still
+        prices, so the reason is the missing model and nothing else; and the result is a valid record
+        that survives a JSON round trip."""
+        rich = catalog_of(
+            {"model": "gpt-4.1", "price": usd("0")},
+            {"model": "gpt-4.1-mini"},
+            {"unit": "output_tokens", "model": "gpt-4.1"},
+            {"provider": "kokoro", "model": "k-1", "unit": "input_characters"},
+        )
+        for catalog in (make_catalog(), rich, catalog_of({"price": usd("0")})):
+>           usage = make_usage(model=None, quantities=[qty("input_tokens", TOKENS)])
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_cost_compute.py:557: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+occurred_at = None
+over = {'model': None, 'quantities': [{'unit': 'input_tokens', 'count': 1000000}]}
+
+    def make_usage(occurred_at: Any = None, **over: Any) -> Any:
+>       return usage_class("UsageRecord").model_validate(usage_doc(occurred_at, **over))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for UsageRecord
+E       model
+E         Input should be a valid string [type=string_type]
+E           For further information visit https://errors.pydantic.dev/2.14/v/string_type
+
+packages/evalschema/tests/_support_b4.py:191: ValidationError
+_________ test_mixed_model_and_modelless_usage_is_never_a_partial_sum __________
+
+    def test_mixed_model_and_modelless_usage_is_never_a_partial_sum() -> None:
+        """M3: one record of a cost has a usage with a model (priced) and one without (cannot be
+        priced). The cost is not_available with no amount; the priced part is never reported as a
+        partial sum (the rule of I15). The exact reason of a mixed set is not pinned here (see the
+        ambiguity list of the follow-up report): it is one of the two documented reasons for an
+        unpriced part, and the amount stays absent."""
+        priced = make_usage(model="gpt-4.1", quantities=[qty("input_tokens", TOKENS)])
+>       unpriced = make_usage(model=None, quantities=[qty("input_tokens", TOKENS)])
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_cost_compute.py:603: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+occurred_at = None
+over = {'model': None, 'quantities': [{'unit': 'input_tokens', 'count': 1000000}]}
+
+    def make_usage(occurred_at: Any = None, **over: Any) -> Any:
+>       return usage_class("UsageRecord").model_validate(usage_doc(occurred_at, **over))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for UsageRecord
+E       model
+E         Input should be a valid string [type=string_type]
+E           For further information visit https://errors.pydantic.dev/2.14/v/string_type
+
+packages/evalschema/tests/_support_b4.py:191: ValidationError
+________ test_digest_key_unavailable_never_echoes_what_a_resolver_says _________
+
+    def test_digest_key_unavailable_never_echoes_what_a_resolver_says() -> None:
+        """S-N91 (owner, auto-approved): ``DigestKeyUnavailable`` names the rule and the ``key_id`` and
+        nothing else. A hostile key resolver whose exception text, arguments or returned value hold
+        secret text (a made-up marker) must not see that text in the typed error: not in ``str``, not
+        in ``repr``, not in ``args``, not in the exception report, not in the ``errors()`` of a
+        pydantic ``ValidationError`` that a caller builds from it (``include_input=False``), and not
+        through the class name of the resolver's exception. The original exception is chained
+        (``__cause__`` is the very exception raised, so an operator can still find the reason) and the
+        chain, not the message, is where the text lives. A resolver that returns the wrong type, or
+        text instead of bytes, is not echoed either."""
+        digest = _digest()
+        errors = _errors()
+        key_ref = digest.KeyRef(key_id="vault-key-1")
+        keyed = digest.compute_digest(GOLDEN_OBJ, scheme=KEYED, key=GOLDEN_HMAC_KEY, key_ref=key_ref)
+    
+        class VaultDown(Exception):
+            pass
+    
+        hostile: list[Exception] = [
+            RuntimeError(f"vault token {HOSTILE_MARKER} rejected"),
+            KeyError(HOSTILE_MARKER),
+            VaultDown(HOSTILE_MARKER, {"password": HOSTILE_MARKER}),
+            OSError(13, HOSTILE_MARKER),
+            ValueError(HOSTILE_MARKER.encode()),
+        ]
+        for original in hostile:
+    
+            def failing(ref: Any, original: Exception = original) -> bytes:
+                raise original
+    
+            with pytest.raises(errors.DigestKeyUnavailable) as caught:
+                digest.verify_digest(GOLDEN_OBJ, keyed, key_resolver=failing)
+            error = caught.value
+            for text in _every_text_of(error):
+>               assert HOSTILE_MARKER not in text, (type(original).__name__, text)
+E               AssertionError: ('RuntimeError', "key resolver failed for key 'vault-key-1': RuntimeError('vault token QA-FAKE-SECRET-7f3a91c2-not-a-real-key rejected')")
+E               assert 'QA-FAKE-SEC...t-a-real-key' not in "key resolve...y rejected')"
+E                 
+E                 'QA-FAKE-SECRET-7f3a91c2-not-a-real-key' is contained here:
+E                   key resolver failed for key 'vault-key-1': RuntimeError('vault token QA-FAKE-SECRET-7f3a91c2-not-a-real-key rejected')
+E                 ?                                                                      ++++++++++++++++++++++++++++++++++++++
+
+packages/evalschema/tests/test_digest.py:623: AssertionError
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_usage.py::test_usage_record_shape_and_required_fields
+FAILED packages/evalschema/tests/test_usage.py::test_usage_record_model_optional_not_reported
+FAILED packages/evalschema/tests/test_cost_compute.py::test_usage_without_model_is_not_available_never_zero
+FAILED packages/evalschema/tests/test_cost_compute.py::test_mixed_model_and_modelless_usage_is_never_a_partial_sum
+FAILED packages/evalschema/tests/test_digest.py::test_digest_key_unavailable_never_echoes_what_a_resolver_says
+========================= 5 failed, 2 passed in 0.43s ==========================
+# exit status: 1

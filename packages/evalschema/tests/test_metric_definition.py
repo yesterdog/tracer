@@ -380,6 +380,8 @@ def test_all_closed_enums_exact() -> None:
         "MetricParameter",
         "DeclaredStackEntry",
         "ExpectedToolCall",
+        "SealedPayload",
+        "RedactionRecord",
     ):
         assert name in models, f"{name} is not implemented yet"
     checked = 0

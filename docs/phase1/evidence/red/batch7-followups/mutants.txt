@@ -1,0 +1,56 @@
+# Batch 7 follow-ups mutants (qa, 2026-10-23). Throwaway oracle16 outside the repo (snapshot of src plus the M3 and S-N91 changes); one change per mutant; run on Python 3.13 with -x over test_digest, test_usage, test_cost_compute, test_cost_summary, test_metric_definition. 17 mutants, 17 caught, 0 survived, 0 broken.
+# An 18th trial (removing the model-None branch from compute_cost) is an equivalent mutant: resolve_price(model=None) falls out as no_price_for_model by itself, so it was dropped.
+# The oracle patch (diff against the snapshot, python files only):
+#   --- red/src/tracer_evalschema/usage.py	2026-10-23 20:04:59
+#   +++ oracle/src/tracer_evalschema/usage.py	2026-10-23 20:04:59
+#   @@ -181,7 +181,7 @@
+#        domain: Annotated[str, ClosedSet(DOMAINS)]
+#        stage: Annotated[str, ClosedSet(USAGE_STAGES)]
+#        provider: MachineKey
+#   -    model: MachineKey
+#   +    model: MachineKey | None = None
+#        provider_call_ref: ExternalRef | None = None
+#        occurred_at: UtcDatetime | None = None
+#        quantities: Quantities
+#   --- red/src/tracer_evalschema/cost.py	2026-10-23 20:04:59
+#   +++ oracle/src/tracer_evalschema/cost.py	2026-10-23 20:04:59
+#   @@ -899,6 +899,11 @@
+#        resolutions: list[tuple[str, Decimal, PriceResolution]] = []
+#        for usage in usage_list:
+#            for quantity in usage.quantities:
+#   +            if usage.model is None:
+#   +                resolutions.append(
+#   +                    (quantity.unit, Decimal(quantity.count), PriceResolution(None, "no_price_for_model"))
+#   +                )
+#   +                continue
+#                resolution = resolve_price(
+#                    catalog,
+#                    provider=usage.provider,
+#   --- red/src/tracer_evalschema/digest.py	2026-10-23 20:04:59
+#   +++ oracle/src/tracer_evalschema/digest.py	2026-10-23 20:04:59
+#   @@ -211,7 +211,7 @@
+#            key = key_resolver(digest.key_ref)
+#        except Exception as exc:  # any resolver failure means "no key", never success
+#            raise DigestKeyUnavailable(
+#   -            f"key resolver failed for key {digest.key_ref.key_id!r}: {exc!r}"
+#   +            f"key resolver failed for key {digest.key_ref.key_id!r}"
+#            ) from exc
+#        if not isinstance(key, bytes):
+#            raise DigestKeyUnavailable(f"no key available for key {digest.key_ref.key_id!r}")
+S91-repr | CAUGHT | FAILED packages/evalschema/tests/test_digest.py::test_digest_key_unavailable_never_echoes_what_a_resolver_says
+S91-str | CAUGHT | FAILED packages/evalschema/tests/test_digest.py::test_digest_key_unavailable_never_echoes_what_a_resolver_says
+S91-classname | CAUGHT | FAILED packages/evalschema/tests/test_digest.py::test_digest_key_unavailable_never_echoes_what_a_resolver_says
+S91-from-none | CAUGHT | FAILED packages/evalschema/tests/test_digest.py::test_digest_key_unavailable_never_echoes_what_a_resolver_says
+S91-no-keyid | CAUGHT | FAILED packages/evalschema/tests/test_digest.py::test_digest_key_unavailable_never_echoes_what_a_resolver_says
+S91-bad-return-echo | CAUGHT | FAILED packages/evalschema/tests/test_digest.py::test_digest_key_unavailable_never_echoes_what_a_resolver_says
+S91-args-cause | CAUGHT | FAILED packages/evalschema/tests/test_digest.py::test_digest_key_unavailable_never_echoes_what_a_resolver_says
+M3-required | CAUGHT | FAILED packages/evalschema/tests/test_usage.py::test_usage_record_shape_and_required_fields
+M3-default-unknown | CAUGHT | FAILED packages/evalschema/tests/test_usage.py::test_usage_record_shape_and_required_fields
+M3-required-no-default | CAUGHT | FAILED packages/evalschema/tests/test_usage.py::test_usage_record_shape_and_required_fields
+M3-free-text | CAUGHT | FAILED packages/evalschema/tests/test_usage.py::test_usage_record_shape_and_required_fields
+M3-price-first-entry | CAUGHT | FAILED packages/evalschema/tests/test_cost_compute.py::test_usage_without_model_is_not_available_never_zero
+M3-ambiguous-reason | CAUGHT | FAILED packages/evalschema/tests/test_cost_compute.py::test_usage_without_model_is_not_available_never_zero
+M3-skip-unpriced | CAUGHT | FAILED packages/evalschema/tests/test_cost_compute.py::test_mixed_model_and_modelless_usage_is_never_a_partial_sum
+U-covered-no-unique | CAUGHT | FAILED packages/evalschema/tests/test_cost_summary.py::test_covered_by_json_schema_pins_unique_items
+M3-reason-unit-unpriced | CAUGHT | FAILED packages/evalschema/tests/test_cost_compute.py::test_price_resolution_uses_usage_time
+M3-unpriced-units-listed | CAUGHT | FAILED packages/evalschema/tests/test_cost_compute.py::test_price_resolution_uses_usage_time

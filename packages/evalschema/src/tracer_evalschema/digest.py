@@ -210,8 +210,11 @@ def _resolve_key(
     try:
         key = key_resolver(digest.key_ref)
     except Exception as exc:  # any resolver failure means "no key", never success
+        # S-N91: the message names the rule and the key_id only; the resolver's error (text,
+        # arguments, class) is never quoted and stays reachable as the chained cause
         raise DigestKeyUnavailable(
-            f"key resolver failed for key {digest.key_ref.key_id!r}: {exc!r}"
+            f"no key available for key {digest.key_ref.key_id!r}: the key resolver failed (the "
+            "cause is chained, never quoted in this message)"
         ) from exc
     if not isinstance(key, bytes):
         raise DigestKeyUnavailable(f"no key available for key {digest.key_ref.key_id!r}")

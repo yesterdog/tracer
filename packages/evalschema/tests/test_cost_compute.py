@@ -538,6 +538,86 @@ def test_no_price_not_available_never_zero() -> None:
     assert direct.na_reason == "no_price_for_model"
 
 
+def test_usage_without_model_is_not_available_never_zero() -> None:
+    """M3 (owner, auto-approved; ADR 0014 Decisions 13 and 15): a usage record whose source reported
+    no model (``model`` None) cannot be matched to any price entry, so the cost is not_available
+    with ``no_price_for_model``: never an amount of 0, no basis, no snapshot, the usage record still
+    listed. This holds whatever the catalog holds (an entry for every model of the provider, an
+    entry for the same unit, a price of 0), for a call dated by ``occurred_at`` or by the run start,
+    for several units and several records, in both domains. The same usage with a model named still
+    prices, so the reason is the missing model and nothing else; and the result is a valid record
+    that survives a JSON round trip."""
+    rich = catalog_of(
+        {"model": "gpt-4.1", "price": usd("0")},
+        {"model": "gpt-4.1-mini"},
+        {"unit": "output_tokens", "model": "gpt-4.1"},
+        {"provider": "kokoro", "model": "k-1", "unit": "input_characters"},
+    )
+    for catalog in (make_catalog(), rich, catalog_of({"price": usd("0")})):
+        usage = make_usage(model=None, quantities=[qty("input_tokens", TOKENS)])
+        assert usage.model is None
+        record = compute([usage], catalog)
+        _assert_no_cost(record, "no_price_for_model")
+        assert record.usage_record_ids == [usage.id]
+        assert record.unpriced_units == []
+        assert record.model_dump(mode="json")["amount"] is None
+        assert type(record).model_validate(record.model_dump(mode="json")) == record
+        assert schema_accepts(type(record), record.model_dump(mode="json"))
+    undated = make_usage(model=None, occurred_at="2026-02-01T00:00:00Z")
+    _assert_no_cost(compute([undated], make_catalog()), "no_price_for_model")
+    _assert_no_cost(compute([undated], make_catalog(), run_started_at=None), "no_price_for_model")
+    many = make_usage(
+        model=None,
+        quantities=[qty("input_tokens", TOKENS), qty("output_tokens", 1000), qty("requests", 1)],
+    )
+    _assert_no_cost(compute([many], make_catalog()), "no_price_for_model")
+    twice = compute(
+        [make_usage(model=None), make_usage(model=None, provider="anthropic")], make_catalog()
+    )
+    _assert_no_cost(twice, "no_price_for_model")
+    assert len(twice.usage_record_ids) == 2
+    agent = make_usage(
+        model=None,
+        domain="agent_under_test",
+        source="telemetry",
+        stage="tts",
+        quantities=[qty("input_characters", 11)],
+    )
+    _assert_no_cost(
+        compute([agent], catalog_of({"unit": "input_characters"}), domain="agent_under_test"),
+        "no_price_for_model",
+    )
+    named = make_usage(model="gpt-4.1", quantities=[qty("input_tokens", TOKENS)])
+    _assert_amount(compute([named], make_catalog()), "0.15")
+    unnamed = make_usage(model=None, quantities=[qty("input_tokens", TOKENS)])
+    assert unnamed.model_dump(mode="json")["model"] is None
+
+
+def test_mixed_model_and_modelless_usage_is_never_a_partial_sum() -> None:
+    """M3: one record of a cost has a usage with a model (priced) and one without (cannot be
+    priced). The cost is not_available with no amount; the priced part is never reported as a
+    partial sum (the rule of I15). The reason of a mixed set is ``unit_unpriced`` with
+    ``unpriced_units == ["input_tokens"]`` (A1/AMB-1, auto-approved): the units that have at
+    least one unpriced quantity; the amount stays absent."""
+    priced = make_usage(model="gpt-4.1", quantities=[qty("input_tokens", TOKENS)])
+    unpriced = make_usage(model=None, quantities=[qty("input_tokens", TOKENS)])
+    for order in ([priced, unpriced], [unpriced, priced]):
+        record = compute(order, make_catalog())
+        assert record.status == "not_available"
+        assert record.na_reason in {"no_price_for_model", "unit_unpriced"}
+        # A1/AMB-1 (pinned): the mixed set follows the partial-units rule, and unpriced_units
+        # names the units with at least one unpriced quantity.
+        assert record.na_reason == "unit_unpriced"
+        assert record.unpriced_units == ["input_tokens"]
+        assert record.amount is None
+        assert record.model_dump(mode="json")["amount"] is None
+        assert record.basis is None
+        assert record.pricing_snapshot is None
+        assert sorted(map(str, record.usage_record_ids)) == sorted(
+            map(str, [priced.id, unpriced.id])
+        )
+
+
 def test_partial_units_not_available() -> None:
     """ADR 0014 Decision 13, I15: if any unit of the usage is unpriced the whole record is
     not_available with ``unit_unpriced`` and lists ``unpriced_units``; the priced part is never

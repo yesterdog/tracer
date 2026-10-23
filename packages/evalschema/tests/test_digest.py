@@ -568,6 +568,117 @@ def test_verify_digest_returns_none_or_raises() -> None:
     assert hints.get("return") in (None, "None", type(None))
 
 
+# a made-up marker, not a key: it stands for secret text that a key store puts in its own errors
+HOSTILE_MARKER = "QA-FAKE-SECRET-7f3a91c2-not-a-real-key"
+
+
+def _every_text_of(error: BaseException) -> list[str]:
+    """Each way an error shows its message: str, repr, args, the one-line exception report and the
+    full report without the chained causes."""
+    import traceback
+
+    return [
+        str(error),
+        repr(error),
+        " ".join(str(a) for a in error.args),
+        "".join(traceback.format_exception_only(type(error), error)),
+        "".join(traceback.format_exception(type(error), error, error.__traceback__, chain=False)),
+    ]
+
+
+def test_digest_key_unavailable_never_echoes_what_a_resolver_says() -> None:
+    """S-N91 (owner, auto-approved): ``DigestKeyUnavailable`` names the rule and the ``key_id`` and
+    nothing else. A hostile key resolver whose exception text, arguments or returned value hold
+    secret text (a made-up marker) must not see that text in the typed error: not in ``str``, not
+    in ``repr``, not in ``args``, not in the exception report, not in the ``errors()`` of a
+    pydantic ``ValidationError`` that a caller builds from it (``include_input=False``), and not
+    through the class name of the resolver's exception. The original exception is chained
+    (``__cause__`` is the very exception raised, so an operator can still find the reason) and the
+    chain, not the message, is where the text lives. A resolver that returns the wrong type, or
+    text instead of bytes, is not echoed either."""
+    digest = _digest()
+    errors = _errors()
+    key_ref = digest.KeyRef(key_id="vault-key-1")
+    keyed = digest.compute_digest(GOLDEN_OBJ, scheme=KEYED, key=GOLDEN_HMAC_KEY, key_ref=key_ref)
+
+    class VaultDown(Exception):
+        pass
+
+    hostile: list[Exception] = [
+        RuntimeError(f"vault token {HOSTILE_MARKER} rejected"),
+        KeyError(HOSTILE_MARKER),
+        VaultDown(HOSTILE_MARKER, {"password": HOSTILE_MARKER}),
+        OSError(13, HOSTILE_MARKER),
+        ValueError(HOSTILE_MARKER.encode()),
+    ]
+    for original in hostile:
+
+        def failing(ref: Any, original: Exception = original) -> bytes:
+            raise original
+
+        with pytest.raises(errors.DigestKeyUnavailable) as caught:
+            digest.verify_digest(GOLDEN_OBJ, keyed, key_resolver=failing)
+        error = caught.value
+        for text in _every_text_of(error):
+            assert HOSTILE_MARKER not in text, (type(original).__name__, text)
+            assert type(original).__name__ not in text, (type(original).__name__, text)
+        assert "vault-key-1" in str(error), "the message names the key_id"
+        assert error.__cause__ is original, "the original exception is chained (raise ... from)"
+        assert HOSTILE_MARKER in str(original) or HOSTILE_MARKER.encode() in original.args
+        for arg in error.args:
+            assert not isinstance(arg, BaseException)
+        assert isinstance(error, errors.TracerSchemaError)
+
+        # a caller that turns the typed error into a validation error (the usual wrapping) keeps
+        # the message clean in errors(), with and without the input
+        from pydantic import BaseModel, field_validator
+
+        class Wrapper(BaseModel):
+            value: int
+
+            @field_validator("value")
+            @classmethod
+            def _check(cls, value: int) -> int:
+                try:
+                    digest.verify_digest(GOLDEN_OBJ, keyed, key_resolver=failing)
+                except errors.DigestKeyUnavailable as exc:
+                    raise ValueError(str(exc)) from exc
+                return value
+
+        with pytest.raises(ValidationError) as wrapped:
+            Wrapper.model_validate({"value": 1})
+        for report in (
+            str(wrapped.value.errors(include_input=False, include_context=False)),
+            str(wrapped.value.errors(include_input=False)),
+            str(wrapped.value.errors()),
+            str(wrapped.value),
+            repr(wrapped.value),
+            wrapped.value.json(include_input=False),
+        ):
+            assert HOSTILE_MARKER not in report, report
+            assert "vault-key-1" in report
+
+    for bad_return in (HOSTILE_MARKER, HOSTILE_MARKER.encode().decode(), 0, [HOSTILE_MARKER]):
+        with pytest.raises(errors.DigestKeyUnavailable) as caught:
+            digest.verify_digest(GOLDEN_OBJ, keyed, key_resolver=lambda ref, v=bad_return: v)
+        for text in _every_text_of(caught.value):
+            assert HOSTILE_MARKER not in text, text
+        assert "vault-key-1" in str(caught.value)
+    # no resolver at all: still names the rule, never a key
+    with pytest.raises(errors.DigestKeyUnavailable) as caught:
+        digest.verify_digest(GOLDEN_OBJ, keyed)
+    for text in _every_text_of(caught.value):
+        assert HOSTILE_MARKER not in text
+    # the real key bytes are not echoed by a wrong key either
+    with pytest.raises(errors.DigestMismatch) as mismatch:
+        digest.verify_digest(
+            GOLDEN_OBJ, keyed, key_resolver=lambda ref: b"another-key-0000000000000000000"
+        )
+    for text in (str(mismatch.value), repr(mismatch.value)):
+        assert "another-key" not in text
+        assert GOLDEN_HMAC_KEY.decode() not in text
+
+
 def test_verify_digest_settles_the_key_and_the_scheme_before_hashing_the_content() -> None:
     """Proposed name. Content that cannot be digested (NaN) is reported as NonIJsonValueError only
     when the digest could otherwise be checked: an unavailable key or an unknown scheme is

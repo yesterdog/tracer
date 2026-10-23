@@ -1,0 +1,147 @@
+# group: suite-without-wip   (batch 7 follow-ups green run, schema-architect, SCOPE revision 21: M3 optional UsageRecord.model, A1-A5, S-N91)
+# date: 2026-10-23T15:03:25Z (UTC)  local: 2026-10-23T20:33:25+0530
+# command: python -m pytest -p no:cacheprovider -q -rf packages/evalschema/tests --ignore-glob='*/test_bundle*.py' --ignore=<each untracked test module listed below>   (cwd ~/tracer; pyproject addopts apply)
+# ignored (untracked test modules when this version's run started, plus the test_bundle*.py glob): test_bundle_adversarial.py test_bundle_tier.py test_bundle.py test_export_rules.py
+# why: qa is writing the batch 7 bundle tests concurrently (untracked test_bundle*.py, test_export_rules.py with _support_b7.py; expected red, files were added during the run), so every untracked test module is excluded. The mapping tests (test_mapping_*.py) and converters were committed during this work (HEAD 8723984) and ARE included.
+# expected failures: test_ids.py::test_every_entity_has_registered_prefix and the three policy-document tests (SCHEMA_POLICY.md not written yet)
+# interpreter: <scratchpad>/b7-env3.14/bin/python   (env built with: UV_PROJECT_ENVIRONMENT=<env> uv sync --locked --all-groups --python 3.14)
+# versions: python 3.14.7; pydantic 2.14.1, pydantic-core 2.50.1, pytest 9.1.1, jsonschema 4.26.0, rfc8785 0.1.4, hypothesis 6.170.5, cryptography 50.0.2
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git: 7 commits (HEAD 8723984); 0 staged paths
+# ------------------------------------------------------------------------------
+........................................................................ [  3%]
+........................................................................ [  7%]
+..............................F......................................... [ 11%]
+........................................................................ [ 14%]
+........................................................................ [ 18%]
+........................................................................ [ 22%]
+.........F.............................................................. [ 25%]
+........................................................................ [ 29%]
+........................................................................ [ 33%]
+........................................................................ [ 37%]
+........................................................................ [ 40%]
+........................................................................ [ 44%]
+........................................................................ [ 48%]
+........................................................................ [ 51%]
+.......................................................................F [ 55%]
+........................................................................ [ 59%]
+........................................................................ [ 63%]
+........................................................................ [ 66%]
+........................................................................ [ 70%]
+........................................................................ [ 74%]
+........................................................................ [ 77%]
+........................................................................ [ 81%]
+........................................................................ [ 85%]
+........................................................................ [ 88%]
+.............F.......................................................... [ 92%]
+........................................................................ [ 96%]
+......................................................................   [100%]
+=================================== FAILURES ===================================
+_________ test_policy_documents_reported_cost_without_usage_limitation _________
+
+    def test_policy_documents_reported_cost_without_usage_limitation() -> None:
+        """P1-20a, N51 remainder (a) (api-surface 23.6 group R item 3; red until SCHEMA_POLICY.md
+        exists, like the two existing policy-document tests): SCHEMA_POLICY.md states that a reported
+        cost without usage records shares no usage in summaries, so a double count with a computed
+        record for the same call is not detected, and that importers must link usage whenever the
+        source identifies it. Gate-bound."""
+        candidates = [
+            PACKAGE_DIR / "SCHEMA_POLICY.md",
+            ROOT / "SCHEMA_POLICY.md",
+            ROOT / "docs" / "SCHEMA_POLICY.md",
+        ]
+        text = ""
+        for path in candidates:
+            if path.is_file():
+                text = path.read_text(encoding="utf-8")
+                break
+        else:
+>           pytest.fail(
+                "SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of "
+                + ", ".join(str(c) for c in candidates)
+            )
+E           Failed: SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of ~/tracer/packages/evalschema/SCHEMA_POLICY.md, ~/tracer/SCHEMA_POLICY.md, ~/tracer/docs/SCHEMA_POLICY.md
+
+packages/evalschema/tests/test_cost.py:824: Failed
+___________________ test_every_entity_has_registered_prefix ____________________
+
+    def test_every_entity_has_registered_prefix() -> None:
+        registry = api("registry")
+        ids = api("ids")
+        base = api("base")
+        entities = registry.entity_classes()
+>       assert len(ids.ID_PREFIXES) == len(entities) == 26  # `pce` withdrawn in revision 15 (N47)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: assert 26 == 24
+E        +  where 26 = len(mappingproxy({'prj': 'Project', 'agt': 'AgentTarget', 'per': 'Persona', 'tpf': 'TestProfile', 'evl': 'Evaluator', 'met...atalog', 'use': 'UsageRecord', 'cst': 'CostRecord', 'csum': 'CostSummary', 'rbnd': 'RunBundle', 'exp': 'ExportBundle'}))
+E        +    where mappingproxy({'prj': 'Project', 'agt': 'AgentTarget', 'per': 'Persona', 'tpf': 'TestProfile', 'evl': 'Evaluator', 'met...atalog', 'use': 'UsageRecord', 'cst': 'CostRecord', 'csum': 'CostSummary', 'rbnd': 'RunBundle', 'exp': 'ExportBundle'}) = <module 'tracer_evalschema.ids' from '~/tracer/packages/evalschema/src/tracer_evalschema/ids.py'>.ID_PREFIXES
+E        +  and   24 = len({'agt': <class 'tracer_evalschema.agent.AgentTarget'>, 'art': <class 'tracer_evalschema.artifact.Artifact'>, 'cst': <class 'tracer_evalschema.cost.CostRecord'>, 'csum': <class 'tracer_evalschema.cost.CostSummary'>, ...})
+
+packages/evalschema/tests/test_ids.py:818: AssertionError
+_____________ test_policy_documents_low_entropy_digest_limitation ______________
+
+    def test_policy_documents_low_entropy_digest_limitation() -> None:
+        """ADR 0006 Decision 6 / I12, A-26: SCHEMA_POLICY.md states that a plain digest of a
+        low-entropy profile in internal data can be brute-forced, and that shared exports never
+        carry such a plain digest (they drop or key it). Gate-bound: green when P1-20a writes the
+        file."""
+>       text = _policy_text().lower()
+               ^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_persona_profile.py:346: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _policy_text() -> str:
+        candidates = [
+            PACKAGE_DIR / "SCHEMA_POLICY.md",
+            ROOT / "SCHEMA_POLICY.md",
+            ROOT / "docs" / "SCHEMA_POLICY.md",
+        ]
+        for path in candidates:
+            if path.is_file():
+                return path.read_text(encoding="utf-8")
+>       pytest.fail(
+            "SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of "
+            + ", ".join(str(p.relative_to(ROOT)) for p in candidates)
+        )
+E       Failed: SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of packages/evalschema/SCHEMA_POLICY.md, SCHEMA_POLICY.md, docs/SCHEMA_POLICY.md
+
+packages/evalschema/tests/test_persona_profile.py:335: Failed
+_______________ test_policy_documents_free_text_lint_limitation ________________
+
+    def test_policy_documents_free_text_lint_limitation() -> None:
+        """P-16 (ADR 0006 Decision 9, I21): SCHEMA_POLICY.md states that the free-text lint can only
+        find
+        values of the profile it is given, that personal data typed into free text that is in no
+        profile cannot be detected and stays the author's responsibility, and (revision 8) that
+        another format of the same value or a part of a value is not found. Gate-bound: green when
+        P1-20a writes the file."""
+>       flat = re.sub(r"\s+", " ", _policy_text().lower())
+                                   ^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_snapshot.py:656: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _policy_text() -> str:
+        candidates = [
+            PACKAGE_DIR / "SCHEMA_POLICY.md",
+            ROOT / "SCHEMA_POLICY.md",
+            ROOT / "docs" / "SCHEMA_POLICY.md",
+        ]
+        for path in candidates:
+            if path.is_file():
+                return path.read_text(encoding="utf-8")
+>       pytest.fail(
+            "SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of "
+            + ", ".join(str(p.relative_to(ROOT)) for p in candidates)
+        )
+E       Failed: SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of packages/evalschema/SCHEMA_POLICY.md, SCHEMA_POLICY.md, docs/SCHEMA_POLICY.md
+
+packages/evalschema/tests/test_snapshot.py:643: Failed
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_cost.py::test_policy_documents_reported_cost_without_usage_limitation
+FAILED packages/evalschema/tests/test_ids.py::test_every_entity_has_registered_prefix
+FAILED packages/evalschema/tests/test_persona_profile.py::test_policy_documents_low_entropy_digest_limitation
+FAILED packages/evalschema/tests/test_snapshot.py::test_policy_documents_free_text_lint_limitation
+4 failed, 1938 passed in 44.42s
+# exit status: 1

@@ -4,7 +4,8 @@
 
 Assumed public API (docs/phase1/api-surface.md section 23), ``tracer_evalschema.usage``: the entity
 ``UsageRecord`` (``use``, a record of fact) with ``run_id``, ``domain``, ``stage``, ``provider``,
-``model``, ``provider_call_ref?``, ``occurred_at?`` (revision 15, N43), ``quantities`` (a list of
+``model?`` (M3: absent or None when the source does not report a model), ``provider_call_ref?``,
+``occurred_at?`` (revision 15, N43), ``quantities`` (a list of
 ``UsageQuantity``), ``source`` and ``raw?``; the value object ``UsageQuantity{unit, count}``.
 ``count`` is a strict integer >= 0 for the token, character and request units and a canonical
 decimal string for the two audio-seconds units.
@@ -261,12 +262,12 @@ def test_usage_record_shape_and_required_fields() -> None:
     """Proposed name (ADR 0014 Decision 8, ADR 0001 table, ADR 0012 Decision 6): a usage record is
     an entity (``use``) with exactly the entity fields plus ``run_id``, ``domain``, ``stage``,
     ``provider``, ``model``, ``provider_call_ref``, ``occurred_at``, ``quantities``, ``source`` and
-    ``raw``; the first five, ``quantities`` and ``source`` are required (``occurred_at`` is
-    optional, N43). ``run_id`` is a ``run_`` ID (the only
-    record of fact that names its run, N22), ``provider`` and ``model`` are machine keys (a model
-    name such as ``saaras:v4`` is fine), ``provider_call_ref`` is an ``ExternalRef`` object, and
-    ``quantities`` is a non-empty list with one quantity per unit (the units are disjoint
-    buckets; decided by the owner, N44)."""
+    ``raw``; ``run_id``, ``domain``, ``stage``, ``provider``, ``quantities`` and ``source`` are
+    required (``model`` is optional since M3 and ``occurred_at`` since N43). ``run_id`` is a
+    ``run_`` ID (the only record of fact that names its run, N22), ``provider`` and a given
+    ``model`` are machine keys (a model name such as ``saaras:v4`` is fine), ``provider_call_ref``
+    is an ``ExternalRef`` object, and ``quantities`` is a non-empty list with one quantity per
+    unit (the units are disjoint buckets; decided by the owner, N44)."""
     model = _record()
     entity_fields = {"id", "schema_version", "created_at", "metadata", "metadata_flags"}
     assert set(model.model_fields) == entity_fields | {
@@ -281,9 +282,11 @@ def test_usage_record_shape_and_required_fields() -> None:
         "source",
         "raw",
     }
-    required = {"run_id", "domain", "stage", "provider", "model", "quantities", "source"}
+    required = {"run_id", "domain", "stage", "provider", "quantities", "source"}
     assert required <= set(schema_of(model)["required"])
-    assert not ({"provider_call_ref", "occurred_at", "raw"} & set(schema_of(model)["required"]))
+    assert not (
+        {"model", "provider_call_ref", "occurred_at", "raw"} & set(schema_of(model)["required"])
+    )
     for name in sorted(required):
         doc = usage_doc()
         del doc[name]
@@ -292,9 +295,10 @@ def test_usage_record_shape_and_required_fields() -> None:
     for bad_run in (str(ids.EvaluatorId.new()), str(ids.RunId.new().uuid), "", None):
         assert_rejected(model, usage_doc(run_id=bad_run), field="run_id")
     assert make_usage(model="saaras:v4").model == "saaras:v4"
-    for field in ("provider", "model"):
-        for bad in ("", "bad key", " openai", None, 3):
-            assert_rejected(model, usage_doc(**{field: bad}), field=field)
+    for bad in ("", "bad key", " openai", None, 3):
+        assert_rejected(model, usage_doc(provider=bad), field="provider")
+    for bad in ("", "bad key", " gpt-4.1", 3):  # None is a valid model since M3
+        assert_rejected(model, usage_doc(model=bad), field="model")
     ref = {"system": "openai", "kind": "request_id", "value": "req_8f3a2c"}
     assert make_usage(provider_call_ref=ref).provider_call_ref is not None
     assert make_usage().provider_call_ref is None
@@ -312,6 +316,55 @@ def test_usage_record_shape_and_required_fields() -> None:
     assert [q.unit for q in loaded.quantities] == list(ALL_UNITS)
     assert_rejected(model, usage_doc(cost=usd_zero()))
     assert_rejected(model, usage_doc(api_key="x"))
+
+
+def test_usage_record_model_optional_not_reported() -> None:
+    """M3 (owner, auto-approved; ADR 0014 Decision 8): ``model`` is optional, ``None`` meaning "the
+    source did not report a model". A record without ``model`` (key absent, or explicit ``None``)
+    validates, has ``model`` None, dumps ``"model": null``, survives a JSON round trip unchanged and
+    is accepted by the JSON Schema; the JSON Schema does not list ``model`` as required and allows
+    null for it. A model given is stored exactly; a malformed one is still rejected (an empty text
+    is not "not reported")."""
+    model = _record()
+    assert "model" in model.model_fields
+    assert "model" not in schema_of(model)["required"]
+    absent = usage_doc()
+    del absent["model"]
+    for doc in (absent, usage_doc(model=None)):
+        loaded = model.model_validate(doc)
+        assert loaded.model is None
+        dumped = loaded.model_dump(mode="json")
+        assert dumped["model"] is None
+        assert schema_accepts(model, doc)
+        assert schema_accepts(model, dumped)
+        again = model.model_validate_json(loaded.model_dump_json())
+        assert again == loaded
+        assert again.model is None
+        assert json.loads(loaded.model_dump_json())["model"] is None
+    assert make_usage(model=None).model is None
+    del_doc = usage_doc()
+    del del_doc["model"]
+    assert model.model_validate_json(json.dumps(del_doc)).model is None
+    assert make_usage(model="saaras:v4").model == "saaras:v4"
+    assert make_usage().model == "gpt-4.1"
+    named = usage_doc(model="gpt-4.1")
+    assert model.model_validate_json(json.dumps(named)).model == "gpt-4.1"
+    prop = schema_of(model)["properties"]["model"]
+    assert "null" in json.dumps(prop), prop  # the Schema allows null for model
+    assert not schema_accepts(model, usage_doc(model=""))
+    assert not schema_accepts(model, usage_doc(model=3))
+    assert not schema_accepts(model, usage_doc(model="bad key"))
+    bad: Any
+    for bad in ("", "bad key", " x", 3, [], {}):
+        assert_rejected(model, usage_doc(model=bad), field="model")
+        with pytest.raises(Exception, match="model"):
+            model.model_validate_json(json.dumps(usage_doc(model=bad)))
+    # the other required fields stay required
+    for name in ("run_id", "domain", "stage", "provider", "quantities", "source"):
+        doc = usage_doc()
+        del doc[name]
+        assert_rejected(model, doc, field=name)
+        assert not schema_accepts(model, doc), name
 
 
 def test_usage_record_occurred_at_optional_utc() -> None:

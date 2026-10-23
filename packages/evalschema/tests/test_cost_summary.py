@@ -25,7 +25,14 @@ from typing import Any
 import pytest
 
 from ._support import api
-from ._support_b2 import assert_rejected, new_id, property_enum, registered_class, schema_of
+from ._support_b2 import (
+    assert_rejected,
+    new_id,
+    property_enum,
+    registered_class,
+    schema_accepts,
+    schema_of,
+)
 from ._support_b4 import (
     EXCLUSION_REASONS,
     cost_class,
@@ -189,6 +196,30 @@ def test_covered_by_repeated_ids_rejected() -> None:
         ),
         field="excluded",
     )
+
+
+def test_covered_by_json_schema_pins_unique_items() -> None:
+    """N78 (owner auto-approved), JSON Schema side: ``covered_by`` is an array with
+    ``uniqueItems: true`` on ``CostExclusion`` and in the ``CostExclusion`` definition embedded in
+    ``CostSummary``, so a consumer of the published Schema rejects a repeated ID without our code.
+    The schema accepts distinct IDs, one ID and the empty list in the order given, and rejects a
+    repeat (adjacent or not) for every reason; the model and the Schema agree."""
+    model = registered_class("CostExclusion")
+    prop = schema_of(model)["properties"]["covered_by"]
+    assert prop["type"] == "array"
+    assert prop["uniqueItems"] is True
+    embedded = schema_of(cost_class("CostSummary"))["$defs"]["CostExclusion"]
+    assert embedded["properties"]["covered_by"]["uniqueItems"] is True
+    ref, a, b, c = (new_id("cst") for _ in range(4))
+    for reason in EXCLUSION_REASONS:
+        for repeated in ([a, a], [a, b, a], [a, b, c, b]):
+            doc = {"ref": ref, "reason": reason, "covered_by": repeated}
+            assert not schema_accepts(model, doc), (reason, repeated)
+            assert_rejected(model, doc, field="covered_by")
+    for ok in ([], [a], [a, b], [b, a, c]):
+        assert schema_accepts(
+            model, {"ref": ref, "reason": "unsupported_currency", "covered_by": ok}
+        ), ok
 
 
 def test_cost_summary_shape_and_enums() -> None:

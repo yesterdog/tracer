@@ -8,7 +8,9 @@
   rejected, so seconds are never a float). Zero is known usage of nothing (N45 (b)); no quantity
   is negative (N45 (a)).
 - ``UsageRecord`` (``use``, a record of fact): ``run_id`` (the only record of fact that names its
-  run, N22), ``domain``, ``stage``, ``provider``, ``model``, ``provider_call_ref?``,
+  run, N22), ``domain``, ``stage``, ``provider``, ``model?`` (absent or ``None``: the source did
+  not report a model; a placeholder such as ``"unknown"`` is never stored as a model, and a
+  usage without a model is never priced, M3), ``provider_call_ref?``,
   ``occurred_at?`` (the instant of the billable event as the source states it, never filled with
   the ingest time, the run start or now; N43), ``quantities`` (non-empty, one quantity per unit,
   N44), ``source`` and ``raw?`` (the source payload, an I-JSON object kept verbatim and never
@@ -181,7 +183,7 @@ class UsageRecord(HidingModel, EntityBase):
     domain: Annotated[str, ClosedSet(DOMAINS)]
     stage: Annotated[str, ClosedSet(USAGE_STAGES)]
     provider: MachineKey
-    model: MachineKey
+    model: MachineKey | None = None
     provider_call_ref: ExternalRef | None = None
     occurred_at: UtcDatetime | None = None
     quantities: Quantities
