@@ -77,6 +77,15 @@ JUDGE_INPUTS_CITATION = Citation(
         "conversation and the bot's tool calls by name and arguments, not their results."
     ),
 )
+EXHAUSTIVE_CITATION = Citation(
+    url=_SRC + "simulation.py",
+    retrieved_at=RETRIEVED,
+    statement=(
+        'simulation.py module documentation (pipecat-ai 1.13.0): function_calls: "Every listed '
+        "call must have happened and any call not listed fails it, so `calls: []` says the bot "
+        'must call nothing", so an Evaluator for it states that a call not listed is a failure.'
+    ),
+)
 MEASURE_CITATION = Citation(
     url=_SRC + "simulation.py",
     retrieved_at=RETRIEVED,
@@ -439,6 +448,7 @@ class _Plan:
         self.metrics: list[_Metric] = []
         self.keys: set[str] = set()
         self.ranks = 0
+        self.exhaustive_ptr: str | None = None
 
     # -- failure ---------------------------------------------------------------------------
 
@@ -863,7 +873,29 @@ class _Plan:
         if not isinstance(value, list):
             self.refuse("malformed_entry", "metrics must be a list", where, "metrics")
             return
+        listing = [
+            m
+            for m, item in enumerate(value)
+            if isinstance(item, dict) and item.get("measure") == "function_calls"
+        ]
+        many = len(listing) > 1
+        if many:
+            self.rec.gap(
+                _gap(
+                    "metrics.calls.@multiple",
+                    "several function_calls metrics in one scenario cannot be held by one list "
+                    "of expected calls",
+                )
+            )
         for m, item in enumerate(value):
+            if many and m in listing:
+                self.rec.warn(
+                    "malformed_entry",
+                    "a scenario with two or more function_calls metrics is not mapped: "
+                    "each judges its own list, an Evaluator holds one",
+                    path=f"{where}/{m}",
+                )
+                continue
             self._metric(item, f"{where}/{m}", judge)
 
     def _metric(self, item: Any, ptr: str, judge: _Judge) -> None:
@@ -914,6 +946,8 @@ class _Plan:
             return
         self.keys.add(name)
         self.metrics.append(outcome[0])
+        if measure == "function_calls":
+            self.exhaustive_ptr = f"{ptr}/calls"
         if outcome[1]:
             self._add_calls(outcome[1], ptr)
 
@@ -1047,14 +1081,6 @@ class _Plan:
                 where if "calls" in item else ptr,
                 "metrics.calls",
             )
-            return None
-        if not raw:
-            self.rec.warn(
-                "empty_call_list",
-                "calls: [] means the bot must call nothing, which an Evaluator cannot state",
-                path=where,
-            )
-            self.rec.gap(_gap("metrics.calls", "an empty call list cannot be represented"))
             return None
         entries: list[tuple[Any, str, Any, str | None, str]] = []
         for c, call in enumerate(raw):
@@ -1226,6 +1252,8 @@ class _Plan:
             "expected_tool_calls": calls,
             "max_duration_ms": duration[0],
         }
+        if self.exhaustive_ptr is not None:
+            fields["expected_tool_calls_exhaustive"] = True
         evaluator = _seal(ctx, Evaluator, self.evaluator_id, fields)
         evaluator_legs = [
             self.name_leg,
@@ -1238,6 +1266,15 @@ class _Plan:
             *call_legs,
             duration[1],
         ]
+        if self.exhaustive_ptr is not None:
+            evaluator_legs.append(
+                Leg(
+                    "/expected_tool_calls_exhaustive",
+                    (self.exhaustive_ptr,),
+                    "documented_measure_table",
+                    EXHAUSTIVE_CITATION,
+                )
+            )
         items = [
             {"binding": _ref(binding.record), "required": metric.required}
             for binding, metric in zip(bindings, self.metrics, strict=True)
@@ -1427,6 +1464,14 @@ PROVENANCE_TABLE: tuple[TableRow, ...] = (
         "metrics.calls, turns.expect.calls",
         "order_index",
         "one rank per expectation or metric, in file order (F5-M6)",
+    ),
+    _row(
+        "Evaluator.expected_tool_calls_exhaustive",
+        "derivation",
+        "metrics.calls",
+        "documented_measure_table",
+        "a function_calls metric fails on any call not listed, so True (F5-2)",
+        EXHAUSTIVE_CITATION,
     ),
     _row(
         "Evaluator.expected_tool_calls.*.arguments.*",

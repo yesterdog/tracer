@@ -1,0 +1,900 @@
+{
+  "cases": [
+    {
+      "id": "A-01",
+      "title": "Prompt injection in turn text is stored verbatim",
+      "source": "SCOPE; ADR 0010 Decision 6 I10",
+      "expectation": "preserved",
+      "where": "Turn.text, Segment.text, ToolCallEvent arguments and result, MetricResult error message",
+      "covering_tests": [
+        "packages/evalschema/tests/test_results.py::test_prompt_injection_text_is_data",
+        "packages/evalschema/tests/test_bundle_adversarial.py::test_prompt_injection_in_transcripts_is_stored_verbatim_and_decides_nothing",
+        "packages/evalschema/tests/test_mapping_f1.py::test_f1_prompt_injection_in_text_is_stored_not_followed",
+        "packages/evalschema/tests/test_mapping_f2.py::test_f2_hostile_text_is_data",
+        "packages/evalschema/tests/test_mapping_f3.py::test_f3_prompt_injection_in_the_transcript_is_data",
+        "packages/evalschema/tests/test_mapping_f4_f7.py::test_f4_prompt_injection_and_large_conversation",
+        "packages/evalschema/tests/test_mapping_f4_f7.py::test_f7_prompt_injection_in_the_message_is_data"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "Hostile call text imitates instructions to steer an LLM judge or an export tool, so it must stay inert data that decides no verdict, redaction or consent."
+    },
+    {
+      "id": "A-02",
+      "title": "Template placeholder in observed data is stored verbatim and never resolved",
+      "source": "SCOPE; ADR 0006 Decision 9; ADR 0010 Decision 6 I10",
+      "expectation": "preserved",
+      "where": "Turn.text, tool arguments and results, VerbatimText (observed data); only authored Evaluator text holds placeholders",
+      "covering_tests": [
+        "packages/evalschema/tests/test_results.py::test_prompt_injection_text_is_data",
+        "packages/evalschema/tests/test_text_types.py::test_verbatim_text_is_stored_unchanged",
+        "packages/evalschema/tests/test_bundle_adversarial.py::test_prompt_injection_in_transcripts_is_stored_verbatim_and_decides_nothing"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "A placeholder such as a profile field inside observed text, if resolved, would pull personal data of a test profile into a prompt, a log or an export."
+    },
+    {
+      "id": "A-03",
+      "title": "Secret-looking metadata value is preserved and flagged in metadata_flags",
+      "source": "SCOPE; ADR 0007 Decision 5",
+      "expectation": "flagged",
+      "where": "EntityBase.metadata and EntityBase.metadata_flags (redaction is a Phase 3 task)",
+      "covering_tests": [
+        "packages/evalschema/tests/test_project_agent.py::test_metadata_secret_value_preserved_but_flagged",
+        "packages/evalschema/tests/test_entity_base.py::test_metadata_flag_rule_golden",
+        "packages/evalschema/tests/test_entity_base.py::test_metadata_flags_verified_on_load"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "A key pasted into free-form metadata travels with every export; it is flagged, never silently altered, so a recipient and a later redaction can find it."
+    },
+    {
+      "id": "A-04",
+      "title": "Extra api_key member on a provider reference is rejected",
+      "source": "SCOPE; ADR 0007 Decision 2 I3",
+      "expectation": "rejected",
+      "where": "ProviderConfigRef (extra=forbid on every model)",
+      "covering_tests": [
+        "packages/evalschema/tests/test_project_agent.py::test_provider_ref_extra_api_key_rejected"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "If unknown members were ignored a key placed in a field the model does not define would be stored and exported."
+    },
+    {
+      "id": "A-05",
+      "title": "4 h / 50,000-turn transcript validates in under 2 s (calibrated)",
+      "source": "SCOPE; ADR 0011 Decision 6 I9",
+      "expectation": "preserved",
+      "where": "Transcript with 50,000 Turn records; RunBundle with 4,000 records",
+      "covering_tests": [
+        "packages/evalschema/tests/test_transcript.py::test_long_transcript_50k_turns_under_2s",
+        "packages/evalschema/tests/test_bundle_adversarial.py::test_huge_call_bundle_validates_in_calibrated_time",
+        "packages/evalschema/tests/test_schema_export.py::test_validating_a_4000_record_bundle_costs_no_more_than_without_the_keyword"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "A very long call that makes validation super-linear ties up a worker (denial of service)."
+    },
+    {
+      "id": "A-06",
+      "title": "Depth 10,000 raises a typed error, not RecursionError",
+      "source": "SCOPE; ADR 0008 I9",
+      "expectation": "rejected",
+      "where": "tracer_evalschema.loader.loads_strict, load_model, load_bundle (DepthLimitExceeded)",
+      "covering_tests": [
+        "packages/evalschema/tests/test_loader.py::test_strict_loader_depth_10k_no_recursionerror",
+        "packages/evalschema/tests/test_adversarial_cases.py::test_x03_the_depth_limit_is_exact_and_counts_structure_not_text"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "A deeply nested document exhausts the stack of a recursive reader and crashes the process that validates it."
+    },
+    {
+      "id": "A-07",
+      "title": "Bidi controls rejected in identifier fields, flagged in text",
+      "source": "SCOPE; ADR 0017 I4 and I11",
+      "expectation": "rejected",
+      "where": "MachineKey and HumanLabel fields (rejected); Turn.text, Segment.text and BidiFlaggedText (flag computed, forgery rejected)",
+      "covering_tests": [
+        "packages/evalschema/tests/test_text_types.py::test_bidi_flag_computed",
+        "packages/evalschema/tests/test_text_types.py::test_bidi_flag_forgery_rejected",
+        "packages/evalschema/tests/test_text_types.py::test_human_label_rejects",
+        "packages/evalschema/tests/test_text_types.py::test_machine_key_ascii_only",
+        "packages/evalschema/tests/test_transcript.py::test_turn_and_segment_bidi_flag_computed_and_verified",
+        "packages/evalschema/tests/test_adversarial_cases.py::test_fixture_outcome_matches_expected"
+      ],
+      "fixture": "packages/evalschema/tests/fixtures/adversarial/X-05",
+      "security_relevant": true,
+      "threat": "A right-to-left override or isolate in a name or in call text reorders what a person reads on screen (an amount, a tool name) so the wrong thing is trusted."
+    },
+    {
+      "id": "A-08",
+      "title": "Duplicate JSON keys are rejected",
+      "source": "SCOPE; ADR 0008 I8",
+      "expectation": "rejected",
+      "where": "tracer_evalschema.loader.loads_strict and load_model (DuplicateKeyError)",
+      "covering_tests": [
+        "packages/evalschema/tests/test_loader.py::test_strict_loader_duplicate_keys",
+        "packages/evalschema/tests/test_loader.py::test_strict_loader_models_reject_duplicate_keys",
+        "packages/evalschema/tests/test_sealing_adversarial.py::test_duplicate_keys_in_a_sealed_document_are_rejected_by_the_loader",
+        "packages/evalschema/tests/test_adversarial_cases.py::test_x02_a_duplicate_is_found_after_decoding_and_at_every_depth"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "Readers that keep the first or the last of two equal keys see two different documents (for example two schema versions or two consent states)."
+    },
+    {
+      "id": "A-09",
+      "title": "Forged snapshot digest is rejected",
+      "source": "SCOPE; ADR 0006 I4",
+      "expectation": "rejected",
+      "where": "ConfigSnapshot.content_digest (DigestMismatch)",
+      "covering_tests": [
+        "packages/evalschema/tests/test_snapshot.py::test_snapshot_forged_digest_rejected",
+        "packages/evalschema/tests/test_adversarial_cases.py::test_fixture_outcome_matches_expected"
+      ],
+      "fixture": "packages/evalschema/tests/fixtures/adversarial/X-08",
+      "security_relevant": true,
+      "threat": "A snapshot edited after the run but left with its old digest would pass as the configuration that produced the results."
+    },
+    {
+      "id": "A-10",
+      "title": "schema_version 99.0.0 is rejected as too new",
+      "source": "SCOPE; ADR 0008 I3",
+      "expectation": "rejected",
+      "where": "EntityBase.schema_version (SchemaVersionTooNew)",
+      "covering_tests": [
+        "packages/evalschema/tests/test_entity_base.py::test_schema_version_too_new"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "A reader that accepts a newer file silently drops fields it does not know, including privacy and consent members."
+    },
+    {
+      "id": "A-11",
+      "title": "Float money amount is rejected",
+      "source": "SCOPE; ADR 0014 I1",
+      "expectation": "rejected",
+      "where": "DecimalString and Money.amount (Python float and JSON number)",
+      "covering_tests": [
+        "packages/evalschema/tests/test_primitives.py::test_decimal_rejects_python_float",
+        "packages/evalschema/tests/test_primitives.py::test_decimal_rejects_json_number",
+        "packages/evalschema/tests/test_cost_contract.py::test_no_float_in_cost_path"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "Binary floats make money sums differ between readers, which hides or invents cost."
+    },
+    {
+      "id": "A-12",
+      "title": "Non-USD or malformed currency is rejected in Money and prices; reported non-USD becomes not_available",
+      "source": "SCOPE; ADR 0014 I4",
+      "expectation": "rejected",
+      "where": "Money.currency, PricingCatalog entries; CostRecord (unsupported_currency keeps amount and currency verbatim, nothing converted)",
+      "covering_tests": [
+        "packages/evalschema/tests/test_primitives.py::test_money_rejects_non_usd",
+        "packages/evalschema/tests/test_primitives.py::test_money_rejects_every_non_usd_iso_code",
+        "packages/evalschema/tests/test_pricing.py::test_price_entry_rejects_non_usd",
+        "packages/evalschema/tests/test_pricing.py::test_every_non_usd_iso_code_rejected_in_prices",
+        "packages/evalschema/tests/test_cost.py::test_reported_non_usd_cost_not_available_raw_preserved"
+      ],
+      "fixture": null,
+      "security_relevant": false,
+      "threat": null
+    },
+    {
+      "id": "A-13",
+      "title": "Exponent, NaN, Infinity, -0 and other non-canonical decimals are rejected",
+      "source": "SCOPE; ADR 0014 I2",
+      "expectation": "rejected",
+      "where": "DecimalString",
+      "covering_tests": [
+        "packages/evalschema/tests/test_primitives.py::test_decimal_rejects",
+        "packages/evalschema/tests/test_primitives.py::test_decimal_rejects_other_malformed_strings",
+        "packages/evalschema/tests/test_primitives.py::test_decimal_canonical"
+      ],
+      "fixture": null,
+      "security_relevant": false,
+      "threat": null
+    },
+    {
+      "id": "A-14",
+      "title": "A not_available cost never carries an amount, not even 0",
+      "source": "SCOPE; ADR 0014 I13",
+      "expectation": "rejected",
+      "where": "CostRecord (status, basis, amount); compute_cost",
+      "covering_tests": [
+        "packages/evalschema/tests/test_cost.py::test_not_available_cost_has_no_basis",
+        "packages/evalschema/tests/test_cost_compute.py::test_no_price_not_available_never_zero",
+        "packages/evalschema/tests/test_cost_compute.py::test_usage_without_model_is_not_available_never_zero",
+        "packages/evalschema/tests/test_cost_summary.py::test_cost_summary_total_absent_when_none_included"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "A missing cost shown as zero hides spend and lets an operator conclude a call was free."
+    },
+    {
+      "id": "A-15",
+      "title": "Inconsistent verdict is rejected",
+      "source": "SCOPE; ADR 0013 I3",
+      "expectation": "rejected",
+      "where": "RunVerdict (counts, tally, status)",
+      "covering_tests": [
+        "packages/evalschema/tests/test_verdict.py::test_inconsistent_status_rejected"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "A stored verdict that says pass while checks failed misleads a release gate."
+    },
+    {
+      "id": "A-16",
+      "title": "Wrong-kind ID is rejected",
+      "source": "SCOPE; ADR 0001 I2",
+      "expectation": "rejected",
+      "where": "TypedId and every reference field (pydantic and JSON Schema)",
+      "covering_tests": [
+        "packages/evalschema/tests/test_ids.py::test_id_rejects_wrong_kind",
+        "packages/evalschema/tests/test_ids.py::test_jsonschema_pattern_rejects_wrong_kind",
+        "packages/evalschema/tests/test_sealed_payload.py::test_aad_subject_id_must_be_a_typed_id",
+        "packages/evalschema/tests/test_adversarial_cases.py::test_fixture_outcome_matches_expected"
+      ],
+      "fixture": "packages/evalschema/tests/fixtures/adversarial/X-06",
+      "security_relevant": true,
+      "threat": "A reference to the wrong kind of record (a run where a transcript is named) attaches data, consent or cost to the wrong subject."
+    },
+    {
+      "id": "A-17",
+      "title": "Uppercase or UUID-v4 ID is rejected",
+      "source": "SCOPE; ADR 0001 I3 and I4",
+      "expectation": "rejected",
+      "where": "TypedId",
+      "covering_tests": [
+        "packages/evalschema/tests/test_ids.py::test_id_rejects_uppercase",
+        "packages/evalschema/tests/test_ids.py::test_id_rejects_uuid_v4_with_prefix",
+        "packages/evalschema/tests/test_ids.py::test_id_rejects_bare_uuid_on_wire",
+        "packages/evalschema/tests/test_ids.py::test_id_rejects_trailing_newline_and_whitespace",
+        "packages/evalschema/tests/test_adversarial_cases.py::test_fixture_outcome_matches_expected"
+      ],
+      "fixture": "packages/evalschema/tests/fixtures/adversarial/X-06",
+      "security_relevant": true,
+      "threat": "Two spellings of one identifier defeat equality, allow-lists and unique constraints."
+    },
+    {
+      "id": "A-18",
+      "title": "PDI breakout attempt is neutralized by display_safe",
+      "source": "SCOPE; ADR 0017 I6",
+      "expectation": "flagged",
+      "where": "tracer_evalschema.text.display_safe (the stored text is unchanged and carries the bidi flag)",
+      "covering_tests": [
+        "packages/evalschema/tests/test_display_safe.py::test_display_safe_pdi_breakout"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "A pop-directional-isolate inside text closes the isolate that display_safe opened, so the text reorders the surrounding screen."
+    },
+    {
+      "id": "A-19",
+      "title": "Sealed payload AAD swap fails",
+      "source": "SCOPE; ADR 0015 I8",
+      "expectation": "rejected",
+      "where": "SealedPayload AAD fields (subject, version, payload type, schema version)",
+      "covering_tests": [
+        "packages/evalschema/tests/test_sealed_payload.py::test_aad_swap_to_other_profile_fails",
+        "packages/evalschema/tests/test_sealing_adversarial.py::test_aad_swap_variants_fail",
+        "packages/evalschema/tests/test_sealing_adversarial.py::test_whole_aad_of_another_payload_is_not_accepted",
+        "packages/evalschema/tests/test_sealing_adversarial.py::test_ciphertext_moved_under_another_payloads_key_material_fails",
+        "packages/evalschema/tests/test_sealing_adversarial.py::test_aad_representation_does_not_matter_but_content_does"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "An attacker moves a sealed profile or recording onto another record so a legitimate holder of the key decrypts the wrong person's data."
+    },
+    {
+      "id": "A-20",
+      "title": "Human-subject payload unsealed and unredacted in a shared or benchmark export is rejected",
+      "source": "SCOPE; ADR 0016 I8 and I9",
+      "expectation": "rejected",
+      "where": "ExportBundle (purpose shared_export and benchmark): audio, text, tool arguments, tool results of a human caller, an unknown-role turn, or a run with no role evidence",
+      "covering_tests": [
+        "packages/evalschema/tests/test_bundle_adversarial.py::test_a20_human_subject_payload_unsealed_and_unredacted",
+        "packages/evalschema/tests/test_export_rules.py::test_shared_export_human_requires_seal_or_redaction",
+        "packages/evalschema/tests/test_export_rules.py::test_benchmark_purpose_human_requires_seal_or_redaction",
+        "packages/evalschema/tests/test_export_rules.py::test_shared_export_simulated_run_with_unknown_role_requires_seal_or_redaction",
+        "packages/evalschema/tests/test_privacy.py::test_simulated_run_with_unknown_role_turn_is_human_subject"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "Personal data of a real caller is shared or published in the clear without consent."
+    },
+    {
+      "id": "A-21",
+      "title": "Two agent channels, or an inferred channel map without method, is rejected",
+      "source": "SCOPE; ADR 0012 I9 and I10",
+      "expectation": "rejected",
+      "where": "ChannelMap",
+      "covering_tests": [
+        "packages/evalschema/tests/test_artifact.py::test_channel_map_inferred_requires_method_confidence",
+        "packages/evalschema/tests/test_artifact.py::test_channel_map_single_agent_channel"
+      ],
+      "fixture": null,
+      "security_relevant": false,
+      "threat": null
+    },
+    {
+      "id": "A-22",
+      "title": "Excluded language in a Persona is rejected",
+      "source": "SCOPE; ADR 0005 I2",
+      "expectation": "rejected",
+      "where": "SupportedLanguage, Persona.language",
+      "covering_tests": [
+        "packages/evalschema/tests/test_language.py::test_supported_rejects",
+        "packages/evalschema/tests/test_data_files.py::test_excluded_languages_absent",
+        "packages/evalschema/tests/test_persona_profile.py::test_persona_language_supported_only"
+      ],
+      "fixture": null,
+      "security_relevant": false,
+      "threat": null
+    },
+    {
+      "id": "A-23",
+      "title": "An observed tag of an unconfigured language is accepted; metrics give unsupported_language",
+      "source": "SCOPE; ADR 0005 I10; ADR 0004 I14",
+      "expectation": "preserved",
+      "where": "ObservedLanguageTag; MetricResult (unsupported_language)",
+      "covering_tests": [
+        "packages/evalschema/tests/test_language.py::test_observed_accepts_bn_IN",
+        "packages/evalschema/tests/test_results_language.py::test_unsupported_language_na_for_observed_bn_IN"
+      ],
+      "fixture": null,
+      "security_relevant": false,
+      "threat": null
+    },
+    {
+      "id": "A-24",
+      "title": "ZWSP in a label is rejected; ZWJ and ZWNJ are kept",
+      "source": "SCOPE; ADR 0017 I11 and I12",
+      "expectation": "rejected",
+      "where": "HumanLabel fields",
+      "covering_tests": [
+        "packages/evalschema/tests/test_text_types.py::test_human_label_rejects",
+        "packages/evalschema/tests/test_text_types.py::test_human_label_rejects_c1",
+        "packages/evalschema/tests/test_text_types.py::test_human_label_accepts_zwj_zwnj",
+        "packages/evalschema/tests/test_adversarial_cases.py::test_fixture_outcome_matches_expected"
+      ],
+      "fixture": "packages/evalschema/tests/fixtures/adversarial/X-05",
+      "security_relevant": true,
+      "threat": "An invisible character makes two different names look identical, so a person trusts the wrong record."
+    },
+    {
+      "id": "A-25",
+      "title": "Overlapping price ranges are rejected",
+      "source": "SCOPE; ADR 0014 Decision 4 I9",
+      "expectation": "rejected",
+      "where": "PricingCatalog entries under one (provider, model, unit, applies_when) key",
+      "covering_tests": [
+        "packages/evalschema/tests/test_pricing.py::test_overlapping_ranges_rejected",
+        "packages/evalschema/tests/test_pricing.py::test_overlapping_ranges_only_within_one_key"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "Two prices valid at the same moment let a cost be computed with either one, so a bill can be reduced by choosing the entry."
+    },
+    {
+      "id": "A-26",
+      "title": "Plain digest of a low-entropy profile can be brute-forced (documented known limitation)",
+      "source": "SCOPE; ADR 0006 I12",
+      "expectation": "flagged",
+      "where": "TestProfileRef.content_digest in internal snapshots; SCHEMA_POLICY.md states the limitation",
+      "covering_tests": [
+        "packages/evalschema/tests/test_persona_profile.py::test_policy_documents_low_entropy_digest_limitation",
+        "packages/evalschema/tests/test_adversarial_cases.py::test_a26_a_plain_digest_of_a_low_entropy_profile_can_be_recomputed_by_guessing"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "Anyone holding an internal snapshot and a list of candidate names or account numbers can recover a test profile's values from its plain digest."
+    },
+    {
+      "id": "A-27",
+      "title": "user_id never appears in a snapshot or export",
+      "source": "SCOPE; ADR 0016 I7; ADR 0006 I13",
+      "expectation": "rejected",
+      "where": "ConfigSnapshot, ExportBundle (no caller identifier)",
+      "covering_tests": [
+        "packages/evalschema/tests/test_privacy.py::test_user_id_not_in_snapshot_or_export",
+        "packages/evalschema/tests/test_export_rules.py::test_export_bundle_holds_no_caller_identifier",
+        "packages/evalschema/tests/test_mapping_f2.py::test_f2_user_id_is_never_copied"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "A caller or end-user identifier in a shared artifact links recordings to a real person."
+    },
+    {
+      "id": "A-28",
+      "title": "Fractional token counts are rejected",
+      "source": "SCOPE; ADR 0014 I8",
+      "expectation": "rejected",
+      "where": "UsageQuantity.count (token, character and request units)",
+      "covering_tests": [
+        "packages/evalschema/tests/test_usage.py::test_fractional_tokens_rejected",
+        "packages/evalschema/tests/test_adversarial_cases.py::test_fixture_outcome_matches_expected"
+      ],
+      "fixture": "packages/evalschema/tests/fixtures/adversarial/X-10",
+      "security_relevant": true,
+      "threat": "A rounded or fractional count prices a call at a wrong cost without any error."
+    },
+    {
+      "id": "A-29",
+      "title": "Truncated tool arguments are not treated as complete",
+      "source": "SCOPE; ADR 0012 I1",
+      "expectation": "flagged",
+      "where": "ToolCallEvent.arguments_complete, arguments",
+      "covering_tests": [
+        "packages/evalschema/tests/test_events.py::test_truncated_args_not_complete_not_parsed",
+        "packages/evalschema/tests/test_mapping_f1.py::test_f1_truncated_tool_args_flagged"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "A cut-off argument list read as complete makes a tool-use metric pass or fail on arguments the agent never sent."
+    },
+    {
+      "id": "A-30",
+      "title": "Plain TestProfileRef digest in a shared export is rejected",
+      "source": "SCOPE; ADR 0006 I17",
+      "expectation": "rejected",
+      "where": "ExportBundle (shared_export, benchmark): TestProfileRef.content_digest",
+      "covering_tests": [
+        "packages/evalschema/tests/test_bundle_adversarial.py::test_a30_plain_digest_of_the_test_profile_in_a_shared_export",
+        "packages/evalschema/tests/test_export_rules.py::test_shared_export_drops_or_keys_profile_digest"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "A plain digest of a low-entropy profile in a shared export lets a recipient guess the profile's personal values."
+    },
+    {
+      "id": "A-31",
+      "title": "human_subject=false on a run with an unknown-role turn is rejected",
+      "source": "SCOPE; ADR 0016 I5",
+      "expectation": "rejected",
+      "where": "PrivacyMarker against derive_human_subject; RunBundle",
+      "covering_tests": [
+        "packages/evalschema/tests/test_bundle_adversarial.py::test_a31_human_subject_false_on_a_run_with_an_unknown_role",
+        "packages/evalschema/tests/test_bundle.py::test_run_bundle_rejects_a_marker_looser_than_the_derivation",
+        "packages/evalschema/tests/test_privacy.py::test_human_subject_looser_marker_rejected",
+        "packages/evalschema/tests/test_privacy.py::test_simulated_run_with_unknown_role_turn_is_human_subject"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "Marking a human-subject run as not human removes the export protections that exist for it."
+    },
+    {
+      "id": "A-32",
+      "title": "Sealed profile with a plain plaintext_digest is rejected",
+      "source": "SCOPE; ADR 0015 I11",
+      "expectation": "rejected",
+      "where": "SealedPayload.plaintext_digest",
+      "covering_tests": [
+        "packages/evalschema/tests/test_sealed_payload.py::test_sealed_profile_plain_digest_rejected",
+        "packages/evalschema/tests/test_sealed_payload.py::test_sealed_profile_plaintext_digest_absent_or_keyed",
+        "packages/evalschema/tests/test_sealing_adversarial.py::test_plain_digest_forms_all_rejected",
+        "packages/evalschema/tests/test_sealing_adversarial.py::test_plain_digest_of_guessable_answer_cannot_be_stored"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "A plain digest next to the ciphertext lets anyone confirm a guess of the sealed plaintext without the key."
+    },
+    {
+      "id": "A-33",
+      "title": "Keyed digest disguised with a plain hash value fails",
+      "source": "SCOPE (S-03); ADR 0015",
+      "expectation": "rejected",
+      "where": "SealedPayload.plaintext_digest (keyed scheme) on unseal",
+      "covering_tests": [
+        "packages/evalschema/tests/test_sealing_adversarial.py::test_keyed_digest_disguised_with_a_plain_hash_value_fails_on_unseal",
+        "packages/evalschema/tests/test_sealing_adversarial.py::test_digest_over_a_different_but_equal_looking_profile_fails"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "An attacker who knows the plain hash of a guess labels it keyed so a reader trusts it as proof of the plaintext."
+    },
+    {
+      "id": "A-34",
+      "title": "Hostile plaintext stays opaque bytes",
+      "source": "SCOPE (S-04); ADR 0015",
+      "expectation": "preserved",
+      "where": "SealedPayload plaintext (prompt injection, placeholders, bidi, ZWJ/ZWNJ, NUL, a forged sealed document)",
+      "covering_tests": [
+        "packages/evalschema/tests/test_sealing_adversarial.py::test_hostile_plaintext_text_stays_opaque_bytes",
+        "packages/evalschema/tests/test_sealing_adversarial.py::test_plaintext_that_is_a_sealed_payload_is_just_bytes",
+        "packages/evalschema/tests/test_bundle_adversarial.py::test_indic_and_special_text_survives_a_bundle_byte_for_byte"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "Plaintext that looks like instructions or like another sealed document must not be interpreted by the code that seals or opens it."
+    },
+    {
+      "id": "A-35",
+      "title": "Empty and 4 MiB plaintexts seal and open",
+      "source": "SCOPE (S-05); ADR 0015",
+      "expectation": "preserved",
+      "where": "SealedPayload with empty and 4 MiB plaintexts",
+      "covering_tests": [
+        "packages/evalschema/tests/test_sealing_adversarial.py::test_empty_plaintext_seals_to_a_bare_tag",
+        "packages/evalschema/tests/test_sealing_adversarial.py::test_huge_plaintext_roundtrips_and_validates",
+        "packages/evalschema/tests/test_sealing_adversarial.py::test_huge_plaintext_tamper_at_the_far_end_still_detected",
+        "packages/evalschema/tests/test_bundle_adversarial.py::test_empty_sealed_plaintext_in_an_export",
+        "packages/evalschema/tests/test_bundle_adversarial.py::test_an_oversized_bundle_is_refused_before_it_is_parsed"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "Edge sizes (an empty call, a very large recording) must not turn into a crash, a truncation or an unauthenticated accept."
+    },
+    {
+      "id": "A-36",
+      "title": "Duplicate keys and hostile JSON shapes in a sealed document are rejected",
+      "source": "SCOPE (S-06); ADR 0015",
+      "expectation": "rejected",
+      "where": "SealedPayload documents (loader and models)",
+      "covering_tests": [
+        "packages/evalschema/tests/test_sealing_adversarial.py::test_duplicate_keys_in_a_sealed_document_are_rejected_by_the_loader",
+        "packages/evalschema/tests/test_sealing_adversarial.py::test_hostile_json_shapes_are_validation_errors",
+        "packages/evalschema/tests/test_bundle.py::test_bundle_loader_keeps_the_strict_json_rules",
+        "packages/evalschema/tests/test_bundle_adversarial.py::test_hostile_json_shapes_in_a_bundle_document"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "A parser differential or a malformed shape in a sealed document makes two readers open different plaintexts or crash."
+    },
+    {
+      "id": "A-37",
+      "title": "No algorithm downgrade path",
+      "source": "SCOPE (S-07); ADR 0015",
+      "expectation": "rejected",
+      "where": "SealedPayload.alg, dek_wrap.alg",
+      "covering_tests": [
+        "packages/evalschema/tests/test_sealing_adversarial.py::test_no_algorithm_downgrade_path"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "Accepting a weaker, unwrapped or unauthenticated algorithm lets an attacker strip the protection from a sealed payload."
+    },
+    {
+      "id": "A-38",
+      "title": "No key or plaintext in documents, errors, logs or output",
+      "source": "SCOPE (S-08); ADR 0007 Decision 8; ADR 0015",
+      "expectation": "rejected",
+      "where": "SealedPayload, KeyRef, unseal failures, logging, bundle errors",
+      "covering_tests": [
+        "packages/evalschema/tests/test_sealing_adversarial.py::test_sealed_document_and_model_hold_no_key_or_plaintext",
+        "packages/evalschema/tests/test_sealing_adversarial.py::test_unseal_failures_never_expose_keys_or_plaintext",
+        "packages/evalschema/tests/test_sealing_adversarial.py::test_validation_errors_of_sealed_documents_show_no_stored_values",
+        "packages/evalschema/tests/test_sealing_adversarial.py::test_nothing_is_logged_or_printed",
+        "packages/evalschema/tests/test_sealing_adversarial.py::test_keyed_digest_names_its_key_and_never_holds_it",
+        "packages/evalschema/tests/test_bundle_adversarial.py::test_bundle_errors_never_echo_secrets_or_text",
+        "packages/evalschema/tests/test_bundle_adversarial.py::test_bundle_work_logs_and_prints_nothing"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "A key, a plaintext or a secret copied into an error message or a log line is stored and shipped by the tools that collect them."
+    },
+    {
+      "id": "A-39",
+      "title": "Non-canonical base64url twin is rejected",
+      "source": "SCOPE (S-09); ADR 0015",
+      "expectation": "rejected",
+      "where": "SealedPayload ciphertext, nonce, wrapped_dek encodings",
+      "covering_tests": [
+        "packages/evalschema/tests/test_sealing_adversarial.py::test_noncanonical_twin_of_a_real_payload_is_rejected",
+        "packages/evalschema/tests/test_bundle_adversarial.py::test_noncanonical_sealed_encodings_are_rejected_inside_an_export"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "Two spellings of one ciphertext defeat comparison, deduplication and signatures over the document."
+    },
+    {
+      "id": "A-40",
+      "title": "Key ids are compared verbatim (NFC and NFD differ)",
+      "source": "SCOPE (S-10); ADR 0001 I12",
+      "expectation": "preserved",
+      "where": "KeyRef.key_id",
+      "covering_tests": [
+        "packages/evalschema/tests/test_sealing_adversarial.py::test_key_ids_are_compared_verbatim_nfc_and_nfd_differ"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "Normalizing a key id would let one key name stand for another, so a payload could be opened with the wrong key."
+    },
+    {
+      "id": "A-41",
+      "title": "Hostile key resolvers never verify a digest; authentication comes before the digest",
+      "source": "SCOPE (S-11); ADR 0006 Decision 4",
+      "expectation": "rejected",
+      "where": "verify_digest key resolver; unseal",
+      "covering_tests": [
+        "packages/evalschema/tests/test_sealing_adversarial.py::test_hostile_key_resolvers_never_verify_a_digest",
+        "packages/evalschema/tests/test_sealing_adversarial.py::test_authentication_comes_before_the_digest"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "A resolver that raises, returns nothing or returns the wrong key must fail closed, never report a digest as verified."
+    },
+    {
+      "id": "A-42",
+      "title": "Ciphertext relabelled as another payload type does not open",
+      "source": "SCOPE (S-12); ADR 0015",
+      "expectation": "rejected",
+      "where": "SealedPayload payload type in the AAD",
+      "covering_tests": [
+        "packages/evalschema/tests/test_sealing_adversarial.py::test_ciphertext_of_one_payload_type_does_not_open_as_another"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "An audio ciphertext relabelled as a transcript (or a tool argument as a result) would be opened and interpreted as the wrong kind of data."
+    },
+    {
+      "id": "A-43",
+      "title": "Digest-like and key-like members smuggled into any object are rejected",
+      "source": "SCOPE (S-13); ADR 0015",
+      "expectation": "rejected",
+      "where": "Every object of a sealed payload (extra=forbid)",
+      "covering_tests": [
+        "packages/evalschema/tests/test_sealing_adversarial.py::test_digest_and_key_like_members_are_rejected_everywhere"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "A hidden digest or key member would carry a guessable hash or key material through a model that does not define it."
+    },
+    {
+      "id": "A-44",
+      "title": "Sealed payloads share no state",
+      "source": "SCOPE (S-14); ADR 0015",
+      "expectation": "preserved",
+      "where": "Sealing and validation (DEK, nonce, caches, threads)",
+      "covering_tests": [
+        "packages/evalschema/tests/test_sealing_adversarial.py::test_sealed_payloads_share_no_state",
+        "packages/evalschema/tests/test_bundle_adversarial.py::test_bundle_validation_shares_no_state_between_threads"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "A reused data key or nonce, or state shared between concurrent validations, breaks the confidentiality of one payload through another."
+    },
+    {
+      "id": "X-01",
+      "title": "Non-JSON constants and number overflow in JSON text",
+      "source": "test (P1-18)",
+      "expectation": "rejected",
+      "where": "loads_strict and load_model; Segment.confidence, ToolCallEvent.arguments",
+      "covering_tests": [
+        "packages/evalschema/tests/test_adversarial_cases.py::test_fixture_outcome_matches_expected",
+        "packages/evalschema/tests/test_adversarial_cases.py::test_x01_non_json_constants_are_refused_by_the_loader_at_any_depth",
+        "packages/evalschema/tests/test_adversarial_cases.py::test_x01_number_overflow_is_not_a_constant_but_never_reaches_a_number_field",
+        "packages/evalschema/tests/test_bundle.py::test_bundle_loader_keeps_the_strict_json_rules"
+      ],
+      "fixture": "packages/evalschema/tests/fixtures/adversarial/X-01",
+      "security_relevant": true,
+      "threat": "NaN, Infinity and numbers beyond the double range decode differently in each language and become null, a string or an infinity in a stored record."
+    },
+    {
+      "id": "X-02",
+      "title": "Duplicate keys in every spelling and at every depth; what is not a duplicate",
+      "source": "test (P1-18); extends A-08",
+      "expectation": "rejected",
+      "where": "loads_strict and load_model",
+      "covering_tests": [
+        "packages/evalschema/tests/test_adversarial_cases.py::test_fixture_outcome_matches_expected",
+        "packages/evalschema/tests/test_adversarial_cases.py::test_x02_a_duplicate_is_found_after_decoding_and_at_every_depth",
+        "packages/evalschema/tests/test_loader.py::test_strict_loader_duplicate_keys"
+      ],
+      "fixture": "packages/evalschema/tests/fixtures/adversarial/X-02",
+      "security_relevant": true,
+      "threat": "A parser differential: a reader that keeps the first of two equal keys and one that keeps the last see two different documents."
+    },
+    {
+      "id": "X-03",
+      "title": "Depth limit exact to the level and counting structure, not text",
+      "source": "test (P1-18); extends A-06",
+      "expectation": "rejected",
+      "where": "loads_strict, load_model, load_bundle (DEFAULT_MAX_DEPTH 256)",
+      "covering_tests": [
+        "packages/evalschema/tests/test_adversarial_cases.py::test_fixture_outcome_matches_expected",
+        "packages/evalschema/tests/test_adversarial_cases.py::test_x03_the_depth_limit_is_exact_and_counts_structure_not_text",
+        "packages/evalschema/tests/test_loader.py::test_strict_loader_depth_10k_no_recursionerror"
+      ],
+      "fixture": "packages/evalschema/tests/fixtures/adversarial/X-03",
+      "security_relevant": true,
+      "threat": "A depth scanner that misreads string boundaries can be made to skip real nesting and let a stack-exhausting document through."
+    },
+    {
+      "id": "X-04",
+      "title": "Empty, hostile and oversized top-level documents are refused, not crashes",
+      "source": "test (P1-18)",
+      "expectation": "rejected",
+      "where": "Every one of the 26 entities (load_model); MachineKey length 256; bundle size limit",
+      "covering_tests": [
+        "packages/evalschema/tests/test_adversarial_cases.py::test_x04_empty_and_hostile_top_level_documents_are_refused_not_crashes",
+        "packages/evalschema/tests/test_adversarial_cases.py::test_x04_hostile_bytes_are_value_errors_not_crashes",
+        "packages/evalschema/tests/test_adversarial_cases.py::test_x04_the_machine_key_length_limit_is_exact",
+        "packages/evalschema/tests/test_bundle_adversarial.py::test_empty_call_bundle_and_its_tier",
+        "packages/evalschema/tests/test_bundle_adversarial.py::test_huge_call_bundle_validates_in_calibrated_time",
+        "packages/evalschema/tests/test_bundle_adversarial.py::test_an_oversized_bundle_is_refused_before_it_is_parsed",
+        "packages/evalschema/tests/test_bundle_adversarial.py::test_malformed_documents_are_validation_errors"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "A malformed, empty or oversized upload crashes the validating process or exhausts its memory."
+    },
+    {
+      "id": "X-05",
+      "title": "Bidi, invisible and look-alike characters in identifiers and labels",
+      "source": "test (P1-18); extends A-07 and A-24",
+      "expectation": "rejected",
+      "where": "Project.name, ToolCallEvent.name, ProviderConfigRef.config_ref, Turn.text (flag)",
+      "covering_tests": [
+        "packages/evalschema/tests/test_adversarial_cases.py::test_fixture_outcome_matches_expected",
+        "packages/evalschema/tests/test_text_types.py::test_human_label_rejects",
+        "packages/evalschema/tests/test_text_types.py::test_human_label_rejects_default_ignorables",
+        "packages/evalschema/tests/test_text_types.py::test_human_label_accepts_zwj_zwnj",
+        "packages/evalschema/tests/test_text_types.py::test_machine_key_ascii_only",
+        "packages/evalschema/tests/test_text_types.py::test_bidi_flag_forgery_rejected"
+      ],
+      "fixture": "packages/evalschema/tests/fixtures/adversarial/X-05",
+      "security_relevant": true,
+      "threat": "An invisible or direction-changing character in a name makes a different string look identical on screen, so a person or a log reader trusts the wrong record."
+    },
+    {
+      "id": "X-06",
+      "title": "Identifier confusion: wrong prefix, case, whitespace, other scripts and forms",
+      "source": "test (P1-18); extends A-16 and A-17",
+      "expectation": "rejected",
+      "where": "TypedId in Project.id and in reference fields",
+      "covering_tests": [
+        "packages/evalschema/tests/test_adversarial_cases.py::test_fixture_outcome_matches_expected",
+        "packages/evalschema/tests/test_ids.py::test_id_rejects_wrong_kind",
+        "packages/evalschema/tests/test_ids.py::test_id_rejects_uppercase",
+        "packages/evalschema/tests/test_ids.py::test_id_rejects_uuid_v4_with_prefix",
+        "packages/evalschema/tests/test_ids.py::test_id_rejects_bare_uuid_on_wire",
+        "packages/evalschema/tests/test_ids.py::test_id_rejects_trailing_newline_and_whitespace",
+        "packages/evalschema/tests/test_ids.py::test_jsonschema_pattern_rejects_wrong_kind"
+      ],
+      "fixture": "packages/evalschema/tests/fixtures/adversarial/X-06",
+      "security_relevant": true,
+      "threat": "A look-alike identifier is mistaken for another record or slips past an allow-list that compares text."
+    },
+    {
+      "id": "X-07",
+      "title": "Timestamp edge cases: leap seconds, sub-microsecond digits, naive and offset forms",
+      "source": "test (P1-18)",
+      "expectation": "rejected",
+      "where": "UtcDatetime fields (Project.created_at)",
+      "covering_tests": [
+        "packages/evalschema/tests/test_adversarial_cases.py::test_fixture_outcome_matches_expected",
+        "packages/evalschema/tests/test_primitives.py::test_utc_rejects_leap_second",
+        "packages/evalschema/tests/test_primitives.py::test_utc_rejects_excess_precision_numbers_and_dates",
+        "packages/evalschema/tests/test_primitives.py::test_utc_rejects_naive",
+        "packages/evalschema/tests/test_primitives.py::test_utc_normalizes_offset_to_Z",
+        "packages/evalschema/tests/test_primitives.py::test_utc_serialization_canonical_six_digits"
+      ],
+      "fixture": "packages/evalschema/tests/fixtures/adversarial/X-07",
+      "security_relevant": true,
+      "threat": "Two spellings of one instant, or an instant only some parsers accept, order events differently in two readers and break the timeline and any digest over it."
+    },
+    {
+      "id": "X-08",
+      "title": "Digest tampering and downgrade of an entity's own content digest",
+      "source": "test (P1-18); extends A-09 and A-37",
+      "expectation": "rejected",
+      "where": "AgentTarget.content_digest (every digested entity shares the rule)",
+      "covering_tests": [
+        "packages/evalschema/tests/test_adversarial_cases.py::test_fixture_outcome_matches_expected",
+        "packages/evalschema/tests/test_digest.py::test_unknown_digest_scheme_rejected",
+        "packages/evalschema/tests/test_digest.py::test_hmac_digest_requires_key_ref",
+        "packages/evalschema/tests/test_digest.py::test_digest_key_ref_must_be_absent_for_v1",
+        "packages/evalschema/tests/test_digest.py::test_keyed_digest_unverifiable_without_key_raises",
+        "packages/evalschema/tests/test_snapshot.py::test_snapshot_forged_digest_rejected"
+      ],
+      "fixture": "packages/evalschema/tests/fixtures/adversarial/X-08",
+      "security_relevant": true,
+      "threat": "A document edited after sealing, or relabelled with a weaker or unverifiable digest scheme, is accepted as the original."
+    },
+    {
+      "id": "X-09",
+      "title": "Credentials in URLs and references are rejected and never echoed; observed text is kept",
+      "source": "test (P1-18); extends ADR 0007 Decisions 1 and 6",
+      "expectation": "rejected",
+      "where": "Artifact.uri, ProviderConfigRef.config_ref (rejected); Turn.text and ToolCallEvent.arguments (observed data, preserved)",
+      "covering_tests": [
+        "packages/evalschema/tests/test_adversarial_cases.py::test_fixture_outcome_matches_expected",
+        "packages/evalschema/tests/test_adversarial_cases.py::test_x09_observed_text_that_holds_a_key_is_kept_and_is_not_metadata",
+        "packages/evalschema/tests/test_artifact.py::test_artifact_errors_do_not_echo_uri_credentials",
+        "packages/evalschema/tests/test_project_agent.py::test_rejected_credentials_are_not_echoed_in_error_text"
+      ],
+      "fixture": "packages/evalschema/tests/fixtures/adversarial/X-09",
+      "security_relevant": true,
+      "threat": "A credential stored in a URL or reference travels with every export and log line that shows it."
+    },
+    {
+      "id": "X-10",
+      "title": "Mixed units and counts of the wrong type or scale in usage",
+      "source": "test (P1-18); extends A-28",
+      "expectation": "rejected",
+      "where": "UsageRecord.quantities (unit closed set, count type per unit family, one bucket per unit)",
+      "covering_tests": [
+        "packages/evalschema/tests/test_adversarial_cases.py::test_fixture_outcome_matches_expected",
+        "packages/evalschema/tests/test_usage.py::test_fractional_tokens_rejected"
+      ],
+      "fixture": "packages/evalschema/tests/fixtures/adversarial/X-10",
+      "security_relevant": true,
+      "threat": "A quantity in another unit, spelling or number type is read at the wrong scale and prices a call wrongly without any error."
+    },
+    {
+      "id": "X-11",
+      "title": "Export purpose spelling bypasses; consent and human-subject export rules (A-20, A-30, A-31)",
+      "source": "test (P1-18)",
+      "expectation": "rejected",
+      "where": "ExportBundle.purpose (closed set); the export rules of A-20, A-30 and A-31 are in the bundle tests",
+      "covering_tests": [
+        "packages/evalschema/tests/test_adversarial_cases.py::test_fixture_outcome_matches_expected",
+        "packages/evalschema/tests/test_bundle_adversarial.py::test_a20_human_subject_payload_unsealed_and_unredacted",
+        "packages/evalschema/tests/test_bundle_adversarial.py::test_a30_plain_digest_of_the_test_profile_in_a_shared_export",
+        "packages/evalschema/tests/test_bundle_adversarial.py::test_a31_human_subject_false_on_a_run_with_an_unknown_role",
+        "packages/evalschema/tests/test_bundle_adversarial.py::test_withheld_declaration_cannot_hide_an_unprotected_payload",
+        "packages/evalschema/tests/test_export_rules.py::test_benchmark_rejects_not_obtained_consent",
+        "packages/evalschema/tests/test_export_rules.py::test_benchmark_rejects_unknown_consent"
+      ],
+      "fixture": "packages/evalschema/tests/fixtures/adversarial/X-11",
+      "security_relevant": true,
+      "threat": "A purpose spelled in a way the closed set does not know could bypass the rules that belong to a shared or benchmark export."
+    },
+    {
+      "id": "X-12",
+      "title": "Cost double counting: a record included twice, included and excluded, or covered twice",
+      "source": "test (P1-18)",
+      "expectation": "rejected",
+      "where": "CostSummary (included, excluded, covered_by, total); RunBundle cost checks",
+      "covering_tests": [
+        "packages/evalschema/tests/test_adversarial_cases.py::test_fixture_outcome_matches_expected",
+        "packages/evalschema/tests/test_cost_summary.py::test_usage_record_in_at_most_one_included_cost",
+        "packages/evalschema/tests/test_cost_summary.py::test_reported_non_usd_and_computed_usd_same_usage_counted_once",
+        "packages/evalschema/tests/test_cost_summary.py::test_cost_exclusion_covered_by_names_included_records_only",
+        "packages/evalschema/tests/test_bundle.py::test_run_bundle_cost_summary_is_checked_against_the_bundles_records"
+      ],
+      "fixture": "packages/evalschema/tests/fixtures/adversarial/X-12",
+      "security_relevant": true,
+      "threat": "A cost record counted twice doubles a total that an operator is billed or budgets on."
+    },
+    {
+      "id": "X-13",
+      "title": "Credential-shaped values in metadata are kept and flagged at every depth",
+      "source": "test (P1-18); extends A-03",
+      "expectation": "flagged",
+      "where": "EntityBase.metadata, EntityBase.metadata_flags",
+      "covering_tests": [
+        "packages/evalschema/tests/test_entity_base.py::test_metadata_flag_rule_golden",
+        "packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns",
+        "packages/evalschema/tests/test_entity_base.py::test_metadata_flag_high_entropy_boundaries",
+        "packages/evalschema/tests/test_entity_base.py::test_metadata_flag_scope_is_string_leaves_of_metadata_only",
+        "packages/evalschema/tests/test_entity_base.py::test_metadata_flag_pointer_escaping_and_utf16_order",
+        "packages/evalschema/tests/test_entity_base.py::test_metadata_flags_supplied_list_must_equal_the_computed_list"
+      ],
+      "fixture": null,
+      "security_relevant": true,
+      "threat": "A key pasted into free-form metadata at any depth travels with every export; a forged empty flag list would hide it."
+    },
+    {
+      "id": "X-14",
+      "title": "Lone surrogates in JSON text are refused where text or I-JSON is stored",
+      "source": "test (P1-18)",
+      "expectation": "rejected",
+      "where": "Segment.text, ToolCallEvent.arguments (values and keys); a valid escaped pair is kept",
+      "covering_tests": [
+        "packages/evalschema/tests/test_adversarial_cases.py::test_fixture_outcome_matches_expected",
+        "packages/evalschema/tests/test_adversarial_cases.py::test_x14_a_valid_surrogate_pair_and_a_lone_one_are_told_apart_by_the_loader",
+        "packages/evalschema/tests/test_text_types.py::test_rejects_lone_surrogate"
+      ],
+      "fixture": "packages/evalschema/tests/fixtures/adversarial/X-14",
+      "security_relevant": true,
+      "threat": "A lone surrogate cannot be written as UTF-8, so a record that holds one fails later at export or digest time instead of at the door."
+    }
+  ]
+}

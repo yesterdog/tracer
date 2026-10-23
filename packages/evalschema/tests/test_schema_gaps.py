@@ -32,10 +32,17 @@ import re
 from typing import Any
 
 import pytest
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from ._support import ROOT, api
-from ._support_b2 import JUDGE_TEMPLATE, error_texts, jsonschema_module, judge_definition
+from ._support_b2 import (
+    JUDGE_TEMPLATE,
+    error_texts,
+    jsonschema_module,
+    judge_definition,
+    latency_definition,
+    make,
+)
 from ._support_b3 import (
     QUOTE_MARK,
     assert_input_hidden,
@@ -338,6 +345,98 @@ def test_config_snapshot_rejects_the_same_definition_or_binding_twice(
         assert repeated_digest not in text, text
         assert QUOTE_MARK not in text, text
     assert_input_hidden(snapshot, doc, QUOTE_MARK, field=field, label=f"{field}[{index}]")
+
+
+def _snapshot_with_keyed_repeat(field: str, index: int, insert_at: int) -> dict[str, Any]:
+    """A valid snapshot whose ``field`` list holds, at position ``insert_at``, a second record
+    with the ``id`` and ``version`` of element ``index`` but DIFFERENT content (so a different,
+    correct ``content_digest``). The snapshot digest is recomputed, so only the keyed repeat can
+    be the reason to reject. The second record, and only it, carries ``QUOTE_MARK``."""
+    parts = snapshot_parts()
+    doc = snapshot_doc(parts)
+    if field == "metric_definitions":
+        original = parts["definitions"][index]
+        if index == 0:
+            changed = judge_definition(prompt_template=JUDGE_TEMPLATE + " " + QUOTE_MARK)
+        else:
+            changed = latency_definition(
+                languages=["en"], implementation_ref="builtin:p95_latency_2"
+            )
+        other = make("MetricDefinition", **{**changed, "id": str(original.id), "version": 1})
+    else:
+        original = parts["bindings"][index]
+        other = make(
+            "MetricBinding",
+            id=str(original.id),
+            evaluator_id=str(original.evaluator_id),
+            metric={"id": str(original.metric.id), "version": original.metric.version},
+            enabled=original.enabled,
+            params={"note": QUOTE_MARK},
+        )
+    assert (other.id, other.version) == (original.id, original.version)
+    assert other.content_digest != original.content_digest
+    record = other.model_dump(mode="json", by_alias=True)
+    doc[field].insert(insert_at, record)
+    return _reseal_snapshot(doc)
+
+
+@pytest.mark.parametrize("field", ["metric_definitions", "metric_bindings"])
+@pytest.mark.parametrize(("index", "insert_at"), [(0, 1), (0, 2), (1, 2)])
+def test_config_snapshot_rejects_two_different_records_under_one_id_and_version(
+    field: str, index: int, insert_at: int
+) -> None:
+    """A28 (second A21 test; the keyed half): two entries of ``metric_definitions`` or
+    ``metric_bindings`` that share ``(id, version)`` but differ in content (each with its own
+    valid ``content_digest``) are rejected, through ``model_validate`` (digest check on) and
+    ``model_validate_json``, with an error of type ``duplicate`` located at ``(field, position of
+    the repeat)``, the later of the two (the first occurrence is never reported). The message does
+    not show the record: neither the marker held by the second record, nor either digest value.
+    This is the keyed rule (references resolve by ``(id, version)``); the exact-repeat test above
+    is the other half."""
+    snapshot = entity_class3("ConfigSnapshot")
+    doc = _snapshot_with_keyed_repeat(field, index, insert_at)
+    digests = {e["content_digest"]["value"] for e in doc[field]}
+    paths = ((snapshot.model_validate, doc), (snapshot.model_validate_json, json.dumps(doc)))
+    for load, payload in paths:
+        with pytest.raises(ValidationError) as caught:
+            load(payload)
+        error = caught.value
+        found = [(e["type"], tuple(e["loc"])) for e in error.errors()]
+        assert ("duplicate", (field, insert_at)) in found, found
+        assert [loc for kind, loc in found if kind == "duplicate"] == [(field, insert_at)], found
+        for text in error_texts(error):
+            assert "duplicate" in text.lower(), text
+            assert QUOTE_MARK not in text, text
+            for digest in digests:
+                assert digest not in text, text
+    assert_input_hidden(snapshot, doc, QUOTE_MARK, field=field, label=f"{field}[{insert_at}]")
+
+
+def test_keyed_repeat_in_a_snapshot_is_a_model_rule_the_schema_cannot_state() -> None:
+    """A28 decision: a keyed repeat inside a ConfigSnapshot list is accepted by the exported
+    schema (it has neither ``uniqueItems`` there, A21/A24, nor a keyword for uniqueness by ``id``
+    and ``version``) and rejected by the model, so it is the register's
+    ``CO-KEYED-UNIQUENESS`` territory. The register's mutation claims cannot list it (no mutation
+    produces two different records under one key, the row has no claims), so this test is its
+    witness for the ConfigSnapshot lists: the exported ``ConfigSnapshot`` schema accepts the
+    document of each list and the model rejects it. If the schema ever starts rejecting one, the
+    rule is emitted and the ADR 0008 Decision 8 sentence must change."""
+    row = next(r for r in CODE_ONLY_RULES if r.rule_id == "CO-KEYED-UNIQUENESS")
+    assert row.emittable is False
+    assert row.nature == "mutation"
+    validator = schema_validator(rendered_schema("ConfigSnapshot"))
+    snapshot = entity_class3("ConfigSnapshot")
+    control = snapshot_doc(snapshot_parts())
+    assert validator.is_valid(control)
+    snapshot.model_validate(control)
+    for field in ("metric_definitions", "metric_bindings"):
+        doc = _snapshot_with_keyed_repeat(field, 0, 1)
+        assert validator.is_valid(doc), field
+        with pytest.raises(ValidationError):
+            snapshot.model_validate(doc)
+        schema_field = rendered_schema("ConfigSnapshot")["properties"][field]
+        assert "uniqueItems" not in schema_field, field
+        assert "maxItems" not in schema_field, field
 
 
 # ----------------------------------------------------------- self-tests of the engine (green)

@@ -288,7 +288,6 @@ WARNING_CODES_F5: frozenset[str] = frozenset(
         "judge_model_unknown",
         "unknown_key",
         "unknown_enum_value",
-        "empty_call_list",
         "max_duration_out_of_range",
         "non_json_value",
         "malformed_entry",

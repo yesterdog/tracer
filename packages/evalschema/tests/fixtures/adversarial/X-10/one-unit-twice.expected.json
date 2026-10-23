@@ -1,0 +1,15 @@
+{
+  "case": "X-10",
+  "entity": "UsageRecord",
+  "base": "UsageRecord/maximal",
+  "expectation": "rejected",
+  "error_path": [
+    "quantities"
+  ],
+  "error_kind": "value_error",
+  "schema": "code_only",
+  "canonical": {},
+  "no_echo": [],
+  "why": "the units are disjoint buckets: one unit twice would be summed or overwritten depending on the reader",
+  "threat": "A quantity in another unit, another spelling or another number type is read at the wrong scale and prices a call at a wrong cost without any error."
+}

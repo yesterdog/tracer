@@ -1,0 +1,17 @@
+{
+  "case": "X-14",
+  "entity": "Turn",
+  "base": "Turn/maximal",
+  "expectation": "rejected",
+  "error_path": [
+    "segments",
+    0,
+    "text"
+  ],
+  "error_kind": "lone_surrogate",
+  "schema": "not_applicable",
+  "canonical": {},
+  "no_echo": [],
+  "why": "an escaped lone high surrogate is refused where text is stored",
+  "threat": "A lone surrogate cannot be written as UTF-8: a record that holds one fails later, at export or digest time, instead of at the door."
+}

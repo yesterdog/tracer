@@ -1,0 +1,16 @@
+{
+  "case": "X-12",
+  "entity": "CostSummary",
+  "base": "CostSummary/maximal",
+  "expectation": "rejected",
+  "error_path": [
+    "total",
+    "amount"
+  ],
+  "error_kind": "decimal_not_canonical",
+  "schema": "rejects",
+  "canonical": {},
+  "no_echo": [],
+  "why": "one amount, one spelling",
+  "threat": "A cost record counted twice (or both counted and excluded) doubles a total that an operator will be billed or budgeted on."
+}

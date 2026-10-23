@@ -1,0 +1,17 @@
+{
+  "case": "X-01",
+  "entity": "Turn",
+  "base": "Turn/maximal",
+  "expectation": "rejected",
+  "error_path": [
+    "segments",
+    0,
+    "confidence"
+  ],
+  "error_kind": "finite_number",
+  "schema": "not_applicable",
+  "canonical": {},
+  "no_echo": [],
+  "why": "1e999 is valid JSON text that decodes to infinity; the field refuses it",
+  "threat": "A non-JSON number literal or a number beyond the double range decodes differently in each language and turns into null, a string or an infinity in a stored record."
+}

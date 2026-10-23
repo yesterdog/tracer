@@ -651,6 +651,85 @@ def test_sdist_ships_27_schema_files_byte_identical_to_the_repository(
     assert shipped == committed
 
 
+SDIST_ROOT_FILES = (
+    "README.md",
+    "LICENSE",
+    "NOTICE",
+    "SCHEMA_POLICY.md",
+    "CHANGELOG.md",
+    "pyproject.toml",
+    "PKG-INFO",
+    ".gitignore",
+)
+SDIST_JUNK = {"__pycache__", ".DS_Store"}
+
+
+def _package_source_files() -> list[str]:
+    """Every file below ``src/tracer_evalschema`` in the checkout, relative to the package
+    directory, without bytecode caches and editor litter."""
+    base = PACKAGE_DIR / "src" / "tracer_evalschema"
+    return sorted(
+        path.relative_to(PACKAGE_DIR).as_posix()
+        for path in base.rglob("*")
+        if path.is_file()
+        and not SDIST_JUNK & set(path.parts)
+        and path.suffix not in {".pyc", ".pyo"}
+    )
+
+
+def test_sdist_members_are_exactly_the_package_and_the_documents(
+    built: tuple[Path, Path],
+) -> None:
+    """A26 (with A30): the sdist holds exactly these files and nothing else: every file below
+    ``src/tracer_evalschema/`` (the modules, ``py.typed``, the data files and the 27 schema
+    files), ``README.md``, ``LICENSE``, ``NOTICE``, ``SCHEMA_POLICY.md``, ``CHANGELOG.md``,
+    ``pyproject.toml`` and the two files hatchling adds, ``PKG-INFO`` and ``.gitignore``. No
+    tests, no fixtures, no scripts, no docs, no directory entries and no link members. All
+    members sit below one top directory ``<name>-<version>/``, and the member list has no
+    duplicates."""
+    _wheel, sdist = built
+    members = _sdist_members(sdist)
+    names = [m.name for m in members]
+    assert len(names) == len(set(names)), "duplicate members"
+    assert all(m.isfile() for m in members), [m.name for m in members if not m.isfile()]
+    tops = {n.split("/", 1)[0] for n in names}
+    assert len(tops) == 1, tops
+    (top,) = tops
+    assert top == "tracer_evalschema-0.0.1", top
+    relative = sorted(n.removeprefix(top + "/") for n in names)
+    expected = sorted([*_package_source_files(), *SDIST_ROOT_FILES])
+    assert relative == expected, {
+        "unexpected": sorted(set(relative) - set(expected)),
+        "missing": sorted(set(expected) - set(relative)),
+    }
+    schemas = [n for n in relative if n.startswith("src/tracer_evalschema/schemas/")]
+    assert len(schemas) == 27, schemas
+    assert sum(n.endswith(".schema.json") for n in schemas) == 26
+    assert "src/tracer_evalschema/schemas/schema.lock" in schemas
+    tests = [
+        n
+        for n in relative
+        if any(
+            part in {"tests", "test", "conftest.py"} or part.startswith("test_")
+            for part in n.split("/")
+        )
+    ]
+    assert tests == [], tests
+
+
+def test_sdist_members_exactness_check_catches_extras_and_gaps() -> None:
+    """Not vacuous: the comparison used above reports a planted extra file and a planted gap, and
+    the package listing excludes bytecode caches."""
+    listing = _package_source_files()
+    assert "src/tracer_evalschema/__init__.py" in listing
+    assert "src/tracer_evalschema/py.typed" in listing
+    assert not [n for n in listing if "__pycache__" in n or n.endswith(".pyc")]
+    expected = sorted([*listing, *SDIST_ROOT_FILES])
+    with_extra = sorted([*expected, "tests/test_x.py"])
+    assert with_extra != expected
+    assert sorted(set(expected) - {"NOTICE"}) != expected
+
+
 def test_wheel_built_from_the_unpacked_sdist_passes_the_drift_check(
     built: tuple[Path, Path], tmp_path: Path
 ) -> None:

@@ -1,0 +1,15 @@
+{
+  "case": "X-07",
+  "entity": "Project",
+  "base": "Project/maximal",
+  "expectation": "rejected",
+  "error_path": [
+    "created_at"
+  ],
+  "error_kind": "utc_datetime",
+  "schema": "rejects",
+  "canonical": {},
+  "no_echo": [],
+  "why": "RFC 3339 form: Z in capitals",
+  "threat": "Two spellings of one instant, or an instant that only some parsers accept, order events differently in two readers and break the timeline and any digest over it."
+}

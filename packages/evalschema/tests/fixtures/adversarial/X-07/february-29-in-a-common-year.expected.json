@@ -1,0 +1,15 @@
+{
+  "case": "X-07",
+  "entity": "Project",
+  "base": "Project/maximal",
+  "expectation": "rejected",
+  "error_path": [
+    "created_at"
+  ],
+  "error_kind": "utc_datetime",
+  "schema": "code_only",
+  "canonical": {},
+  "no_echo": [],
+  "why": "2026 is not a leap year",
+  "threat": "Two spellings of one instant, or an instant that only some parsers accept, order events differently in two readers and break the timeline and any digest over it."
+}

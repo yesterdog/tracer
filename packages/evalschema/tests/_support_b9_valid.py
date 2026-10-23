@@ -595,7 +595,7 @@ def _evaluator_minimal() -> Doc:
     )
 
 
-def _evaluator_maximal(profile_scheme: str) -> Doc:
+def _evaluator_maximal(profile_scheme: str, exhaustive: bool = True) -> Doc:
     return sealed(
         "Evaluator",
         full_head(
@@ -636,6 +636,7 @@ def _evaluator_maximal(profile_scheme: str) -> Doc:
                     "order_index": 2,
                 },
             ],
+            expected_tool_calls_exhaustive=exhaustive,
             max_duration_ms=900_000,
         ),
     )
@@ -649,6 +650,13 @@ def _evaluator_maximal_plain() -> Doc:
 @valid("Evaluator", "maximal-keyed-profile")
 def _evaluator_maximal_keyed() -> Doc:
     return _evaluator_maximal("keyed")
+
+
+@valid("Evaluator", "maximal-not-exhaustive")
+def _evaluator_maximal_not_exhaustive() -> Doc:
+    # expected_tool_calls_exhaustive=False: calls outside the list are allowed (F5-2); the
+    # maximal document holds True, the minimal one null.
+    return _evaluator_maximal("plain", exhaustive=False)
 
 
 # ------------------------------------------------------------------------------- privacy

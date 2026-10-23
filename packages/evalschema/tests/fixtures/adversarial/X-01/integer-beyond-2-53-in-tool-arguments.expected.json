@@ -1,0 +1,15 @@
+{
+  "case": "X-01",
+  "entity": "ToolCallEvent",
+  "base": "ToolCallEvent/maximal",
+  "expectation": "rejected",
+  "error_path": [
+    "arguments"
+  ],
+  "error_kind": "ijson",
+  "schema": "not_applicable",
+  "canonical": {},
+  "no_echo": [],
+  "why": "tool arguments are I-JSON; an integer beyond 2**53 - 1 is read as a float by some readers",
+  "threat": "A non-JSON number literal or a number beyond the double range decodes differently in each language and turns into null, a string or an infinity in a stored record."
+}

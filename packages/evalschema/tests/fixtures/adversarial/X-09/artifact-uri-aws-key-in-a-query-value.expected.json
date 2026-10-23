@@ -1,0 +1,17 @@
+{
+  "case": "X-09",
+  "entity": "Artifact",
+  "base": "Artifact/maximal",
+  "expectation": "rejected",
+  "error_path": [
+    "uri"
+  ],
+  "error_kind": "url_credential_pattern",
+  "schema": "code_only",
+  "canonical": {},
+  "no_echo": [
+    "@@AWS_KEY@@"
+  ],
+  "why": "a known credential pattern in an artifact URI is refused and never repeated in the error",
+  "threat": "A credential stored in a URL travels with every export and log line that shows the URL."
+}

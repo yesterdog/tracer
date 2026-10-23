@@ -1,0 +1,19 @@
+{
+  "case": "X-09",
+  "entity": "Project",
+  "base": "Project/maximal",
+  "expectation": "rejected",
+  "error_path": [
+    "provider_configs",
+    0,
+    "config_ref"
+  ],
+  "error_kind": "config_ref",
+  "schema": "rejects",
+  "canonical": {},
+  "no_echo": [
+    "@@PEM_HEADER@@"
+  ],
+  "why": "a config_ref is a reference, never a key; the value is refused and never repeated in the error",
+  "threat": "A pasted key hidden in a field that is meant for a reference is stored and exported."
+}

@@ -587,21 +587,149 @@ def test_f5_function_calls_measure_to_expected_tool_calls() -> None:
 
 
 def test_f5_empty_call_list_is_refused_with_a_blocking_gap() -> None:
-    """``calls: []`` is Pipecat's check that the bot must call nothing ("the check for a caller who
-    should be turned down"). ``Evaluator.expected_tool_calls == []`` means no expectation, so the
-    statement cannot be represented (finding F5-2). The metric is refused: no definition, binding
-    or rubric item, no expected call, a ``empty_call_list`` warning at the list, and a blocking
-    gap row that is resolved by a schema change, not by a guess (ADR 0018 Decision 4)."""
+    """SPEC CHANGE (batch 17, F5-2 resolution; the name is kept because it is bound by SCOPE).
+    ``calls: []`` is Pipecat's check that the bot must call nothing ("the check for a caller who
+    should be turned down"). Before: ``Evaluator.expected_tool_calls == []`` meant no expectation,
+    so the statement could not be represented and the metric was refused (no definition, binding
+    or rubric item, an ``empty_call_list`` warning at the list, a blocking gap row
+    ``F5:metrics.calls``). Now: ``Evaluator.expected_tool_calls_exhaustive`` exists, so the metric
+    is built like any other ``function_calls`` metric (definition, enabled binding, required
+    rubric item), the evaluator has ``expected_tool_calls == []`` and
+    ``expected_tool_calls_exhaustive is True``, there is no warning and no gap row, and the trace
+    entry of the flag points at the ``calls`` key with the documented derivation and the citation
+    of Pipecat's text (docs/phase1/api-surface-mappings-2.md section 3.3)."""
     doc = sim({"name": "none", "measure": "function_calls", "calls": []})
     result = run_f5(doc, declarations())
+    assert list(only_parts(result)) == ["expected_outcome", "none"]
+    evaluator = of(result, "Evaluator")[0]
+    assert evaluator.expected_tool_calls == []
+    assert evaluator.expected_tool_calls_exhaustive is True
+    built = only_parts(result)["none"]
+    assert built["definition"].implementation_ref == "pipecat_evals:function_calls"
+    assert built["binding"].enabled is True
+    assert built["item"].required is True
+    assert [w for w in result.warnings if w.code == "empty_call_list"] == []
+    assert blocking(result) == []
+    entry = next(
+        e
+        for e in result.trace
+        if e.record == str(evaluator.id) and e.field == "/expected_tool_calls_exhaustive"
+    )
+    assert entry.sources == ("/document/scenarios/0/metrics/0/calls",)
+    assert entry.derivation == "documented_measure_table"
+    assert entry.citation is not None
+    assert entry.citation.url is not None
+    assert entry.citation.url.startswith("https://")
+    assert entry.citation.retrieved_at == RETRIEVED
+    assert "not listed" in entry.citation.statement
+
+
+MULTIPLE_CALLS_KEY = "F5:metrics.calls.@multiple"
+
+
+@pytest.mark.parametrize(
+    "metrics",
+    [
+        [
+            {"name": "first", "measure": "function_calls", "calls": ["a"]},
+            {"name": "second", "measure": "function_calls", "calls": ["b"]},
+        ],
+        [
+            {"name": "first", "measure": "function_calls", "calls": []},
+            {"name": "second", "measure": "function_calls", "calls": ["b"]},
+        ],
+        [
+            {"name": "first", "measure": "function_calls", "calls": []},
+            {"name": "second", "measure": "function_calls", "calls": []},
+        ],
+        [
+            {"name": "first", "measure": "function_calls", "calls": ["a"]},
+            {"name": "second", "measure": "function_calls", "calls": ["a"]},
+            {"name": "third", "measure": "function_calls", "calls": [{"name": "c", "args": {}}]},
+        ],
+    ],
+    ids=["two-lists", "empty-and-list", "two-empty", "three-lists"],
+)
+def test_f5_two_or_more_function_calls_metrics_are_all_refused(
+    metrics: list[dict[str, Any]],
+) -> None:
+    """F5-M12 (auto-approved, stricter than the first recommendation): Pipecat judges each
+    ``function_calls`` metric on its own list, but one Evaluator holds ONE list of expected calls
+    and ONE exhaustive flag, so two or more such metrics in one scenario cannot be merged
+    faithfully. ALL of them are refused (never merged, never "keep the first"): no definition, no
+    binding and no rubric item for any of them, a ``malformed_entry`` warning located at each
+    refused metric, a blocking dynamic gap ``F5:metrics.calls.@multiple`` owned by a known
+    owner, ``expected_tool_calls == []`` and ``expected_tool_calls_exhaustive is None`` (nothing is
+    stated, so no expectation is invented). The evaluator and its expected-outcome check are still
+    built. The warnings quote their source."""
+    doc = sim(*metrics)
+    result = run_f5(doc, declarations())
     assert list(only_parts(result)) == ["expected_outcome"]
-    assert of(result, "Evaluator")[0].expected_tool_calls == []
-    flagged = [w for w in result.warnings if w.code == "empty_call_list"]
-    assert [w.path for w in flagged] == ["/document/scenarios/0/metrics/0/calls"]
-    rows = blocking(result)
-    assert [r.source_key for r in rows] == ["F5:metrics.calls"]
-    assert rows[0].fixture == "F5"
-    assert rows[0].owner in OWNERS
+    evaluator_ = of(result, "Evaluator")[0]
+    assert evaluator_.expected_tool_calls == []
+    assert evaluator_.expected_tool_calls_exhaustive is None
+    for index in range(len(metrics)):
+        prefix = f"/document/scenarios/0/metrics/{index}"
+        assert any(
+            w.code == "malformed_entry" and w.path is not None and w.path.startswith(prefix)
+            for w in result.warnings
+        ), (index, [(w.code, w.path) for w in result.warnings])
+    assert {w.code for w in result.warnings} <= WARNING_CODES_F5
+    assert codes(result).count("malformed_entry") == len(metrics)
+    gaps = blocking(result)
+    assert [g.source_key for g in gaps] == [MULTIPLE_CALLS_KEY]
+    assert all(g.fixture == "F5" and g.owner in OWNERS for g in gaps)
+    check_warnings_quote_sources_b11(
+        result, {"document": doc, "declared": declared_root(declarations())}
+    )
+    assert not any(e.field == "/expected_tool_calls_exhaustive" for e in result.trace)
+
+
+def test_f5_a_refused_function_calls_metric_does_not_reserve_its_name() -> None:
+    """F5-M12 (dev, pinned by the lead): the refused metrics are not built, so a later judged
+    metric may use the name of a refused one: it is built, with no duplicate-name warning."""
+    doc = sim(
+        {"name": "m", "measure": "function_calls", "calls": ["a"]},
+        {"name": "n", "measure": "function_calls", "calls": ["b"]},
+        {"name": "m", "criterion": "The agent greeted the caller."},
+    )
+    result = run_f5(doc, declarations())
+    assert sorted(only_parts(result)) == ["expected_outcome", "m"]
+    assert only_parts(result)["m"]["definition"].prompt_template == "The agent greeted the caller."
+    assert codes(result).count("malformed_entry") == 2
+    assert [g.source_key for g in blocking(result)] == [MULTIPLE_CALLS_KEY]
+
+
+def test_f5_function_calls_refusal_spares_the_other_metrics_and_other_scenarios() -> None:
+    """F5-M12: the refusal is per scenario and per measure. A judged metric and a bound metric in
+    the same scenario are still built, and a scenario with exactly one ``function_calls`` metric
+    next to a scenario with two keeps its own list and its flag (``True``) while the other
+    scenario's evaluator states nothing (``None``)."""
+    doc = sim(
+        {"name": "one", "measure": "function_calls", "calls": ["a"]},
+        {"name": "two", "measure": "function_calls", "calls": ["b"]},
+        {"name": "said", "criterion": "The agent greeted the caller."},
+        {"name": "short", "measure": "turns", "max_value": 9},
+    )
+    scenarios = doc["scenarios"]
+    solo = {
+        "name": "solo",
+        "persona": "Pat, a caller.",
+        "goal": "Ask one thing.",
+        "success": "the bot answered",
+        "metrics": [{"name": "only", "measure": "function_calls", "calls": ["z"]}],
+    }
+    doc["scenarios"] = [*scenarios, solo]
+    result = run_f5(doc, declarations())
+    refused = evaluator(result, "f/s")
+    kept = evaluator(result, "f/solo")
+    assert sorted(parts(result, refused)) == ["expected_outcome", "said", "short"]
+    assert refused.expected_tool_calls == []
+    assert refused.expected_tool_calls_exhaustive is None
+    assert [c.name for c in kept.expected_tool_calls] == ["z"]
+    assert kept.expected_tool_calls_exhaustive is True
+    assert sorted(parts(result, kept)) == ["expected_outcome", "only"]
+    assert {g.source_key for g in blocking(result)} == {MULTIPLE_CALLS_KEY}
 
 
 @pytest.mark.parametrize(
@@ -1258,14 +1386,15 @@ def test_f5_scenario_keys_mapped_or_gapped(key: str) -> None:
 
 
 def test_f5_static_gap_rows_for_what_the_schema_cannot_hold() -> None:
-    """The losses that are not a key of the file but a meaning of a key are named rows too: the
-    calls a ``function_call`` expectation leaves without a name, and the rule that a
-    ``function_calls`` metric fails on any call that is not listed (carried only by the scorer
-    ``pipecat_evals:function_calls``). Both are lossy, non-blocking (no MVP-1 metric imports
-    Pipecat's event assertions or its exclusivity rule; staff-reviewer confirms at the gate,
-    F5-M9)."""
+    """The loss that is not a key of the file but a meaning of a key is a named row too: the
+    calls a ``function_call`` expectation leaves without a name. It is lossy, non-blocking (no
+    MVP-1 metric imports Pipecat's event assertions; staff-reviewer confirms at the gate, F5-M9).
+    SPEC CHANGE (batch 19): the entry ``F5:metrics.calls.@exclusive`` is removed from this test
+    (before: both keys; after: the anonymous-call key only), because
+    ``Evaluator.expected_tool_calls_exhaustive`` now carries the exclusivity rule (F5-2). Its row
+    in ``gap_register.py`` is dev's to delete."""
     register = mapping("gap_register").GAP_REGISTER
-    for key in ("F5:turns.expect.calls.@anonymous", "F5:metrics.calls.@exclusive"):
+    for key in ("F5:turns.expect.calls.@anonymous",):
         rows = [r for r in register if r.source_key == key]
         assert len(rows) == 1, key
         assert rows[0].kind == "lossy"

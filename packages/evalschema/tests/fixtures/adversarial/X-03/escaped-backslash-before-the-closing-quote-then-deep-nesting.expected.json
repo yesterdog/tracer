@@ -1,0 +1,13 @@
+{
+  "case": "X-03",
+  "entity": "Project",
+  "base": "Project/maximal",
+  "expectation": "rejected",
+  "error_path": [],
+  "error_kind": "DepthLimitExceeded",
+  "schema": "not_applicable",
+  "canonical": {},
+  "no_echo": [],
+  "why": "a string ending in an escaped backslash does end there: the nesting after it is counted and is too deep",
+  "threat": "A depth scanner that treats the quote after a backslash pair as escaped would read the nesting as text and let a stack-exhausting document through."
+}

@@ -1,0 +1,15 @@
+{
+  "case": "X-14",
+  "entity": "ToolCallEvent",
+  "base": "ToolCallEvent/maximal",
+  "expectation": "rejected",
+  "error_path": [
+    "arguments"
+  ],
+  "error_kind": "ijson",
+  "schema": "not_applicable",
+  "canonical": {},
+  "no_echo": [],
+  "why": "tool arguments are I-JSON; a lone surrogate in a key is refused",
+  "threat": "A lone surrogate cannot be written as UTF-8: a record that holds one fails later, at export or digest time, instead of at the door."
+}

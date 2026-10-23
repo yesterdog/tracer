@@ -529,6 +529,16 @@ bad(
 )
 bad(
     "Evaluator",
+    "exhaustive-flag-is-a-string",
+    "maximal",
+    [Set("expected_tool_calls_exhaustive", to="true")],
+    ["expected_tool_calls_exhaustive"],
+    "bool_type",
+    "expected_tool_calls_exhaustive is a strict boolean or null, never a string",
+    seal=True,
+)
+bad(
+    "Evaluator",
     "no-metric-binding",
     "minimal",
     [Set("metric_bindings", to=[])],

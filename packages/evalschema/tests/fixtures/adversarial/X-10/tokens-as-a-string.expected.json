@@ -1,0 +1,17 @@
+{
+  "case": "X-10",
+  "entity": "UsageRecord",
+  "base": "UsageRecord/maximal",
+  "expectation": "rejected",
+  "error_path": [
+    "quantities",
+    0,
+    "count"
+  ],
+  "error_kind": "usage_count",
+  "schema": "rejects",
+  "canonical": {},
+  "no_echo": [],
+  "why": "a token count is an integer, never text",
+  "threat": "A quantity in another unit, another spelling or another number type is read at the wrong scale and prices a call at a wrong cost without any error."
+}

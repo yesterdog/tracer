@@ -885,6 +885,39 @@ def _repeat_first_at(entity: str, label: str, path: tuple[Any, ...]) -> Witness:
     return build
 
 
+def _snapshot_keyed_repeat(field: str) -> Witness:
+    """A witness: a valid ConfigSnapshot whose ``field`` list holds, after element 0, a second
+    record with the ``id`` and ``version`` of element 0 but different content (its own valid
+    ``content_digest``). The snapshot digest is recomputed, so only the keyed repeat is the reason
+    for the model to reject it (A21, A28; same document as
+    ``test_schema_gaps._snapshot_with_keyed_repeat(field, 0, 1)``)."""
+
+    def build() -> tuple[str, dict[str, Any], bool]:
+        parts = b3.snapshot_parts()
+        doc = b3.snapshot_doc(parts)
+        if field == "metric_definitions":
+            original = parts["definitions"][0]
+            changed = b2.judge_definition(prompt_template=b2.JUDGE_TEMPLATE + " repeat")
+            other = b2.make("MetricDefinition", **{**changed, "id": str(original.id), "version": 1})
+        else:
+            original = parts["bindings"][0]
+            other = b2.make(
+                "MetricBinding",
+                id=str(original.id),
+                evaluator_id=str(original.evaluator_id),
+                metric={"id": str(original.metric.id), "version": original.metric.version},
+                enabled=original.enabled,
+                params={"note": "repeat"},
+            )
+        doc[field].insert(1, other.model_dump(mode="json", by_alias=True))
+        body = {k: v for k, v in doc.items() if k != "content_digest"}
+        digest = api("snapshot").compute_snapshot_digest(body)
+        sealed = {**body, "content_digest": digest.model_dump(mode="json", exclude_none=True)}
+        return "ConfigSnapshot", sealed, True
+
+    return build
+
+
 def _unset_at(entity: str, label: str, path: tuple[Any, ...]) -> Witness:
     def build() -> tuple[str, dict[str, Any], bool]:
         doc = copy.deepcopy(sample_document(entity, label))
@@ -1025,6 +1058,12 @@ CODE_ONLY_RULES: tuple[CodeOnlyRule, ...] = (
         ),
         (),
         _set_at("AgentTarget", "base", ("languages",), ["hi-IN", "hi-in"]),
+        more_witnesses=(
+            # A28 / F5-M12 follow-up: the keyed repeats inside a ConfigSnapshot (same id and
+            # version, other content), which no mutation can produce.
+            _snapshot_keyed_repeat("metric_definitions"),
+            _snapshot_keyed_repeat("metric_bindings"),
+        ),
     ),
     CodeOnlyRule(
         "CO-LONG-LIST-UNIQUENESS",

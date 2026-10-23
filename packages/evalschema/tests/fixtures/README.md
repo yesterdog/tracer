@@ -94,3 +94,22 @@ for each frozen file, the SHA-256 of its bytes and the plain `sha256-jcs/v1` dig
 or a recorded hash changes, `test_frozen_fixtures_still_parse` when a document no longer loads. Once
 0.0.1 is released, `schema.lock` is added here (ADR 0008 Decision 7) and the directory is not
 changed again; a schema change then bumps the version and adds the next directory.
+
+## Regeneration while 0.0.1 is unreleased
+
+`frozen/0.0.1/` is immutable once 0.0.1 is released (a tag exists and `schema.lock` is added). Until
+then the schema itself is unreleased and the directory is a generated copy like `golden/`, so it may
+change, and only because of that. Every such regeneration is made with
+`uv run python scripts/build_golden_fixtures.py --write` and reviewed as a diff.
+
+Regeneration log:
+
+* 2026-10-24 (batch 19): `Evaluator.expected_tool_calls_exhaustive` (`true`, `false` or `null`) was
+  added to the schema (ADR 0010 Decision 8). Every Evaluator document gains the member, so the
+  Evaluator digests change, and so does every document that embeds an Evaluator (ConfigSnapshot,
+  RunBundle, ExportBundle) and the file hashes and entity digests in `frozen/0.0.1/digests.json`.
+  `Evaluator/valid/minimal.json` holds `null`, `maximal.json` and `maximal-keyed-profile.json` hold
+  `true`, the new `maximal-not-exhaustive.json` holds `false`, and the new invalid file
+  `Evaluator/invalid/exhaustive-flag-is-a-string.json` holds the string `"true"` (rejected: the member
+  is a strict boolean). After the release of 0.0.1 a change like this needs a new schema version and
+  a new frozen directory instead.

@@ -1,0 +1,16 @@
+{
+  "case": "X-12",
+  "entity": "CostSummary",
+  "base": "CostSummary/maximal",
+  "expectation": "rejected",
+  "error_path": [
+    "total",
+    "currency"
+  ],
+  "error_kind": "currency_not_supported",
+  "schema": "rejects",
+  "canonical": {},
+  "no_echo": [],
+  "why": "a total never mixes currencies; only USD is supported in 0.0.1",
+  "threat": "A cost record counted twice (or both counted and excluded) doubles a total that an operator will be billed or budgeted on."
+}

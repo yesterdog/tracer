@@ -1,0 +1,15 @@
+{
+  "case": "X-05",
+  "entity": "Turn",
+  "base": "Turn/maximal",
+  "expectation": "rejected",
+  "error_path": [
+    "contains_bidi_controls"
+  ],
+  "error_kind": "bidi_flag",
+  "schema": "code_only",
+  "canonical": {},
+  "no_echo": [],
+  "why": "the stored flag must equal the computed one: a document cannot hide a bidi control by claiming there is none",
+  "threat": "A forged flag lets a reader that trusts it skip the display-safe wrapping and show reordered text such as an amount."
+}

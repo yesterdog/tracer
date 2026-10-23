@@ -633,13 +633,6 @@ _F5_ROWS: dict[str, tuple[str, str, str]] = {
         "alone) asserts that some call happened; ExpectedToolCall needs a name, so it is "
         "skipped with a warning (F5-3)",
     ),
-    "metrics.calls.@exclusive": (
-        "lossy",
-        "staff-reviewer",
-        "a function_calls metric fails on any call that is not listed; the Evaluator's expected "
-        "calls cannot say so, and the rule is carried only by the scorer name "
-        "pipecat_evals:function_calls (F5-4)",
-    ),
 }
 
 GAP_REGISTER: tuple[GapRow, ...] = (
