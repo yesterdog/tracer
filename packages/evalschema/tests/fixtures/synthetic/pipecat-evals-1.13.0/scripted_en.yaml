@@ -1,0 +1,92 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 The Tracer contributors
+# Synthetic scripted scenarios written from the Pipecat 1.13.0 scenario format (made-up content).
+name: travel_basics
+judge: !include judge_text.yaml
+context:
+  - role: system
+    content: "You are a travel assistant."
+stop_on_failure: false
+
+scenarios:
+  - name: short_answer
+    turns:
+      - user: "Japan."
+        expect:
+          - event: user_started_speaking
+          - event: user_transcription
+            text_contains: "Japan"
+            within_ms: 5000
+          - event: llm_started
+          - event: response
+            eval: "engages with the user's answer about Japan"
+            text_excludes: "I cannot"
+            within_ms: 30000
+
+  - name: tools_and_dtmf
+    context:
+      - role: system
+        content: "You are a travel assistant."
+      - role: assistant
+        content: "Where would you go?"
+    turns:
+      - user: "What is the weather in Tokyo?"
+        expect:
+          - event: function_call
+            calls:
+              - name: get_current_weather
+                args: {location: Tokyo}
+              - get_forecast
+            check_from: turn_start
+          - event: function_call_stopped
+            calls:
+              - name: get_current_weather
+                args: {cancelled: false}
+          - event: response
+            eval: "gives the weather for Tokyo"
+      - dtmf: "123#"
+        expect:
+          - event: user_transcription
+            text_contains: "DTMF: 123#"
+      - user: "Thanks. Now book a flight."
+        send_after: {event: llm_started, delay_ms: 500}
+        expect:
+          - event: function_call
+            name: book_flight
+            args: {destination: Tokyo, passengers: 2}
+            eval: "a flight to Tokyo for two passengers"
+          - event: bot_started_speaking
+            within_ms: 8000
+          - event: llm_marker
+            marker: complete
+            marker_first: true
+            markers: 1
+            text_after: true
+          - event: response
+            absent: true
+            within_ms: 3000
+      - dtmf: 4
+        send_after: {delay_ms: 250}
+        expect:
+          - event: bot_stopped_speaking
+
+  - name: audio_turns
+    user:
+      modality: audio
+      speech:
+        service: kokoro
+        voice: af_heart
+    turns:
+      - user:
+          - "So last week I went to"
+          - pause_ms: 1500
+          - "Spain with my family."
+        expect:
+          - event: response
+            eval: "asks about the trip to Spain"
+      - user: "What is the capital of Germany?"
+        audio: ../assets/capital_question.wav
+        image: ../assets/map.png
+        expect:
+          - event: response
+            text_contains: Berlin

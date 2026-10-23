@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 The Tracer contributors
+# Synthetic Hindi simulated scenario (made-up content, needs native review, never a WER reference).
+name: bijli_bill
+judge:
+  modality: text
+  eval:
+    service: ollama
+    model: gemma4:12b
+
+scenarios:
+  - name: bill_inquiry
+    persona: "रमेश, एक किसान, अपने बिजली के बिल के बारे में पूछ रहा है। विनम्र है और एक बार में एक ही बात पूछता है।"
+    goal: "इस महीने के बिल की राशि जानना, फिर कॉल खत्म करना।"
+    success: "बॉट ने कॉल करने वाले को इस महीने के बिल की राशि बताई"
+    metrics:
+      - name: politeness
+        criterion: "जवाब विनम्र है, कभी रूखा नहीं"
+        min_score: 0.8

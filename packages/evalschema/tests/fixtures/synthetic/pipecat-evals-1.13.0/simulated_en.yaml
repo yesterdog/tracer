@@ -1,0 +1,92 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 The Tracer contributors
+# Synthetic simulated scenarios written from the Pipecat 1.13.0 scenario format (made-up content).
+name: book_table
+judge: !include judge_text.yaml
+simulator:
+  service: ollama
+  model: gemma4:12b
+  endpoint: http://localhost:11434/v1
+  extra:
+    reasoning_effort: none
+user:
+  modality: text
+max_turns: 12
+max_silence_s: 20
+
+scenarios:
+  - name: available
+    persona: |
+      Jamie, booking dinner for two tonight. Polite, answers one question at a time.
+    goal: "Book a table for two at 6 PM, then end the call."
+    success: "the bot confirmed a reservation for two at 6 PM (a booking tool was called)"
+    metrics:
+      - name: politeness
+        criterion: "the reply is courteous, never curt or dismissive"
+        min_score: 1
+      - name: short_replies
+        criterion: "the reply stays under three sentences"
+      - name: turn_budget
+        measure: turns
+        max_value: 12
+      - measure: duration
+        min_value: 0.5
+        max_value: 120
+      - measure: words
+        max_value: 60
+      - measure: latency
+        max_value: 2.5
+      - name: booking_calls
+        measure: function_calls
+        calls:
+          - book_table
+          - name: send_confirmation
+            args: {channel: sms}
+    max_duration_s: 120
+    runs: 3
+
+  - name: unavailable
+    persona: "Casey, calling to book a table. Can only make 7 PM or 8 PM."
+    goal: "Book a table for two at 7 PM or 8 PM; if neither is free, end the call without a booking."
+    success: "the bot told the caller that neither time was free and booked nothing"
+    judge:
+      modality: text
+      eval:
+        service: ollama
+        model: qwen3:8b
+        explainer: false
+        explain_below: 0.5
+        allow_continue: false
+    metrics:
+      - name: honesty
+        criterion: "the reply never claims a table is booked when it is not"
+        min_score: 0.8
+
+  - name: spoken
+    persona: "Robin, asking about opening hours. Speaks slowly."
+    goal: "Find out when the restaurant closes on Sunday, then say goodbye."
+    success: "the bot told the caller the Sunday closing time"
+    simulator:
+      factory: my_evals.persona
+      model: gpt-4o-mini
+    user:
+      modality: audio
+      speech:
+        factory: my_evals.voice
+        voice: af_heart
+        model: kokoro
+        language: en
+        speed: 1.0
+        sample_rate: 16000
+        api_key: not-a-real-key
+    judge:
+      modality: audio
+      eval:
+        service: ollama
+        model: gemma4:12b
+      transcription:
+        service: moonshine
+        model: small-streaming
+        language: en
+        padding_secs: 0
+    trigger_disconnect: false

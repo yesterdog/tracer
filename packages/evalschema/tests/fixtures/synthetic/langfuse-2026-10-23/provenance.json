@@ -1,0 +1,70 @@
+{
+  "source": "Langfuse public documentation (OTLP endpoint and attribute mapping); no Langfuse instance was available or contacted",
+  "retrieval_date": "2026-10-23",
+  "method": "synthetic_from_docs",
+  "scenario": {
+    "id": "voice_call, generic_otel",
+    "language": "en"
+  },
+  "indic_verified": null,
+  "software": {
+    "langfuse": "none run; attribute names and semantics read from the documentation pages in doc_urls (cloud docs as served on the retrieval date; no version string is published on those pages)",
+    "opentelemetry_semconv": "GenAI attribute registry as served on the retrieval date",
+    "python": "none: the OTLP/JSON documents are plain JSON written with a throwaway generator that is not committed"
+  },
+  "doc_urls": {
+    "otlp_attribute_mapping": "https://langfuse.com/integrations/native/opentelemetry",
+    "token_and_cost_tracking": "https://langfuse.com/docs/observability/features/token-and-cost-tracking",
+    "observation_types": "https://langfuse.com/docs/observability/features/observation-types",
+    "data_model": "https://langfuse.com/docs/observability/data-model",
+    "otel_genai_attribute_registry": "https://opentelemetry.io/docs/specs/semconv/registry/attributes/gen-ai/"
+  },
+  "doc_retrieval_date": "2026-10-23",
+  "doc_page_sha256": {
+    "https://langfuse.com/integrations/native/opentelemetry": "63f5f2605346085a8b9b7f4bf767e91c3d6798aaabc1c320c778be04630c8784",
+    "https://langfuse.com/docs/observability/features/token-and-cost-tracking": "bf2cfec7dfe35f8ff8e1ed037c2c967f0e691cf4283ebefc8ace0a69099c8fa5",
+    "https://langfuse.com/docs/observability/features/observation-types": "f36de709d1492896f87b1a858b9af2d820b626c6df49f2d61be12910c27492cc",
+    "https://langfuse.com/docs/observability/data-model": "7746ee7d2534c27e706b5b9df4ebbb3b1f0f39524609f2381d05e8c8f6d5a7a4",
+    "https://opentelemetry.io/docs/specs/semconv/registry/attributes/gen-ai/": "9980004cdc556450ca29077c7ff446df7199bda37c73570f140c43627a91b03f"
+  },
+  "currency_statements": [
+    {
+      "url": "https://langfuse.com/integrations/native/opentelemetry#observation-level-attributes",
+      "quote": "cost | The calculated cost in USD. Generation only. | langfuse.observation.cost_details: JSON string; gen_ai.usage.cost (set as total key)",
+      "applies_to": "langfuse.observation.cost_details, gen_ai.usage.cost"
+    },
+    {
+      "url": "https://langfuse.com/docs/observability/features/token-and-cost-tracking#how-it-works",
+      "quote": "Cost details: USD cost per usage type",
+      "applies_to": "langfuse.observation.cost_details"
+    },
+    {
+      "url": "https://langfuse.com/docs/observability/features/token-and-cost-tracking#ingest",
+      "quote": "Optionally, also ingest USD cost. Alternatively, infer it via a model definition in Langfuse.",
+      "applies_to": "cost_details ingested by the caller"
+    }
+  ],
+  "usage_semantics_statements": [
+    {
+      "url": "https://langfuse.com/docs/observability/features/token-and-cost-tracking#usage-details-normalization",
+      "quote": "OpenTelemetry gen_ai.usage.* or llm.token_count.* | Cache reads and writes are subtracted from input"
+    },
+    {
+      "url": "https://langfuse.com/docs/observability/features/token-and-cost-tracking#usage-details-contract",
+      "quote": "Flat usage_details / usageDetails, including langfuse.observation.usage_details | Stored unchanged; values must already be exclusive"
+    }
+  ],
+  "command": "none (hand-written from the documentation)",
+  "license": "Apache-2.0 for the hand-written fixture. The attribute names follow the Langfuse documentation and the OpenTelemetry semantic conventions; no documentation text is copied beyond the short quotes above.",
+  "pii_status": "synthetic_no_personal_data",
+  "files": {
+    "voice_call/f2_spans.otlp.json": {
+      "description": "F2 Langfuse-attributed OTLP/JSON spans (hand-written, synthetic_from_docs)",
+      "sha256": "dcb38a00648193f29e8eb44710aafab3453a08a699270ab20cbb2318e1efac99"
+    },
+    "generic_otel/f2_spans.otlp.json": {
+      "description": "F2 Langfuse-attributed OTLP/JSON spans (hand-written, synthetic_from_docs)",
+      "sha256": "4527cdf3e6b3cd41528d8357f2cd497b849f314891b319c01a04c9db457acb51"
+    }
+  }
+}
