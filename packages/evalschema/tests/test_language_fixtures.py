@@ -747,8 +747,11 @@ def test_fixtures_hold_no_personal_data_shapes() -> None:
 
 
 def test_fixtures_are_not_in_the_private_directory() -> None:
-    assert "private" not in LANGUAGES_DIR.parts
-    assert "private" not in NEGATIVES_DIR.parts
+    # Judge the path inside the tests directory, not the absolute path: a checkout may itself
+    # live under a directory called "private" (for example /private/tmp on macOS).
+    tests_dir = Path(__file__).resolve().parent
+    assert "private" not in LANGUAGES_DIR.resolve().relative_to(tests_dir).parts
+    assert "private" not in NEGATIVES_DIR.resolve().relative_to(tests_dir).parts
 
 
 def test_readmes_state_the_review_status_and_list_every_file() -> None:
