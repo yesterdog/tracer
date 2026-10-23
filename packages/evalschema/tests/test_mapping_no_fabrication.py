@@ -22,6 +22,7 @@ import copy
 import hashlib
 import json
 import re
+import wave
 from collections.abc import Callable
 from pathlib import Path
 from types import SimpleNamespace
@@ -637,12 +638,36 @@ def test_provenance_json_schema_all_fixtures(path: Path) -> None:
     for name, entry in data["files"].items():
         actual = hashlib.sha256((folder / name).read_bytes()).hexdigest()
         assert entry["sha256"] == actual, f"{name} changed after capture"
+    # Named spec change SC-B26-1: audio that is not distributed (Sarvam TTS output, Terms of
+    # Service v2.0 section 10.2) is listed under ``files_not_distributed`` with the hash of the
+    # bytes the capture used; those files must be absent from the folder, marked as such, and
+    # carry the same hash and size as the manifest.
+    not_distributed = data.get("files_not_distributed", {})
+    if folder.name == "sarvam-2026-10-23":
+        manifest = json.loads((folder / "clips-manifest.json").read_bytes())["clips"]
+        assert set(not_distributed) == {f"clips/{n}" for n in manifest}
+        assert len(not_distributed) == 10
+    for name, entry in not_distributed.items():
+        assert not (folder / name).exists(), f"{name} is listed as not distributed but is present"
+        assert name not in data["files"], f"{name} is in both files and files_not_distributed"
+        assert entry["distribution"] == "not distributed"
+        assert re.fullmatch(r"[0-9a-f]{64}", entry["sha256"])
+        listed = manifest[name.split("/", 1)[1]]
+        assert entry["sha256"] == listed["sha256"]
+        assert entry["bytes"] == listed["bytes"]
 
 
 def test_sarvam_requests_reference_the_hashed_clips() -> None:
     """Each request that names a clip records the clip's sha256, and it is the one in the
-    provenance file (the data the call used is the data that is committed)."""
+    provenance file (distributed clips) or in the clips manifest (clips that are not distributed:
+    the manifest is what is compared, the audio file is not opened). Named spec change SC-B26-2."""
     provenance = json.loads((SARVAM / "provenance.json").read_bytes())["files"]
+    manifest = json.loads((SARVAM / "clips-manifest.json").read_bytes())["clips"]
+    manifest_hashes = {f"clips/{n}": e["sha256"] for n, e in manifest.items()}
+    for key, digest in manifest_hashes.items():
+        assert re.fullmatch(r"[0-9a-f]{64}", digest), key
+        assert key not in provenance, f"{key} is in files but the manifest says not distributed"
+    seen_by_clip: dict[str, set[str]] = {}
     checked = 0
     no_file = []
     no_clip = []
@@ -658,10 +683,55 @@ def test_sarvam_requests_reference_the_hashed_clips() -> None:
             assert len(file["sha256"]) == 64
             continue
         clip = (SARVAM / name / file["clip"]).resolve().relative_to(SARVAM.resolve())
-        assert provenance[clip.as_posix()]["sha256"] == file["sha256"]
+        key = clip.as_posix()
+        assert re.fullmatch(r"[0-9a-f]{64}", file["sha256"]), name
+        if key in manifest_hashes:
+            assert manifest_hashes[key] == file["sha256"], f"{name}: differs from the manifest"
+            seen_by_clip.setdefault(key, set()).add(file["sha256"])
+        else:
+            assert provenance[key]["sha256"] == file["sha256"]
         checked += 1
+    # Every manifest clip is used by at least one request, and every request that names it
+    # records the manifest hash (the set of recorded hashes is exactly the manifest hash).
+    assert seen_by_clip == {k: {v} for k, v in manifest_hashes.items()}
+    assert len(manifest_hashes) == 10
     assert no_file == ["err_no_file"], "only the missing-file error case sends no file"
     assert checked >= 30
+
+
+@pytest.mark.private_fixtures
+def test_local_sarvam_clips_match_the_manifest() -> None:
+    """Local-only (run with ``-m private_fixtures``; deselected in CI). When the git-ignored
+    directory ``tests/fixtures/private/sarvam-clips/`` exists, every clip in the manifest must be
+    there with the manifest sha256 and size, and no other ``*.wav`` may be there. A mismatch
+    or a missing file fails; only a missing directory skips (the clips are not distributed)."""
+    local = TESTS_DIR / "fixtures" / "private" / "sarvam-clips"
+    if not local.is_dir():
+        pytest.skip(
+            "no tests/fixtures/private/sarvam-clips/ on this machine (clips not distributed)"
+        )
+    manifest = json.loads((SARVAM / "clips-manifest.json").read_bytes())["clips"]
+    problems: list[str] = []
+    for name, entry in manifest.items():
+        path = local / name
+        if not path.is_file():
+            problems.append(f"{name}: missing")
+            continue
+        data = path.read_bytes()
+        if len(data) != entry["bytes"]:
+            problems.append(f"{name}: {len(data)} bytes, manifest says {entry['bytes']}")
+        if hashlib.sha256(data).hexdigest() != entry["sha256"]:
+            problems.append(f"{name}: sha256 differs from the manifest")
+    extra = sorted(p.name for p in local.glob("*.wav") if p.name not in manifest)
+    problems.extend(f"{n}: not in the manifest" for n in extra)
+    short, parent = local / "short_300ms.wav", local / "tts_hi.wav"
+    if short.is_file() and parent.is_file():
+        # The derived clip is the first 4800 samples (0.3 s at 16 kHz) of the parent's PCM data.
+        with wave.open(str(short)) as cut, wave.open(str(parent)) as whole:
+            frames = int(0.3 * whole.getframerate())
+            if cut.readframes(cut.getnframes()) != whole.readframes(frames):
+                problems.append("short_300ms.wav: is not the first 0.3 s of tts_hi.wav")
+    assert not problems, "; ".join(problems)
 
 
 def test_no_secret_in_the_captured_fixtures() -> None:

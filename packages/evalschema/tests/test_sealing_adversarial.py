@@ -680,9 +680,22 @@ def test_hostile_key_resolvers_never_verify_a_digest() -> None:
         result = unseal(doc, key_resolver=resolver)
         assert result.plaintext == plaintext
         assert result.digest_verified is False
-    for wrong in (b"\x00", KEK, b"x" * 64, DIGEST_KEY[:-1]):
+    for wrong in (KEK, b"x" * 64, b"\x01" * 32):
         with pytest.raises(errors.DigestMismatch):
             unseal(doc, key_resolver=functools.partial(_always, wrong))
+    # a key shorter than 32 bytes is refused with WeakDigestKeyError (a ValueError and a
+    # DigestKeyUnavailable); through unseal() (which treats an unavailable key as "unverified")
+    # that is digest_verified=False, and verify_digest itself raises the typed error
+    digest_api = api("digest")
+    digest_record = digest_api.ContentDigest.model_validate(doc["plaintext_digest"])
+    for weak in (b"\x00", DIGEST_KEY[:-1]):
+        assert unseal(doc, key_resolver=functools.partial(_always, weak)).digest_verified is False
+        with pytest.raises(errors.WeakDigestKeyError) as weak_caught:
+            digest_api.verify_digest(
+                json.loads(plaintext), digest_record, key_resolver=functools.partial(_always, weak)
+            )
+        assert isinstance(weak_caught.value, ValueError)
+        assert isinstance(weak_caught.value, errors.DigestKeyUnavailable)
     assert unseal(doc, key_resolver=resolver_for({"hmac-test-1": DIGEST_KEY})).digest_verified
 
 

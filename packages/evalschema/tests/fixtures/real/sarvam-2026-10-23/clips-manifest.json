@@ -1,0 +1,220 @@
+{
+  "description": "Manifest of the Sarvam text-to-speech clips (9 direct outputs and the 0.3 s cut derived from tts_hi) captured 2026-10-23. The audio files are NOT distributed in this repository (Sarvam Terms of Service v2.0 section 10.2 bars distributing audio Output as isolated files; see docs/security/P1-02-licenses.md section 8). They are kept in the git-ignored local directory packages/evalschema/tests/fixtures/private/sarvam-clips/. Hashes below are the identity of the bytes each captured STT request used.",
+  "retrieval_date": "2026-10-23",
+  "distribution_status": "not distributed",
+  "regeneration": "cd tools/capture && uv run python -m tracer_capture.sarvam_capture --env-file ../../.env.local --out <dir>. Needs the owner's Sarvam API key. Regeneration calls the TTS API again and the new audio will NOT have these hashes (captures are not bit-reproducible); the requests recorded in the case folders name these hashes, so a regenerated set is a new capture, not a restore. short_300ms.wav is rebuilt locally from tts_hi.wav by make_local_clips, so it is reproducible bit for bit from the original tts_hi.wav.",
+  "clips": {
+    "short_300ms.wav": {
+      "file": "short_300ms.wav",
+      "sha256": "22fdeee7a26cbd278b24482fb39e2662132ecdf1113d4847b8c923ebc72b07db",
+      "bytes": 9644,
+      "duration_seconds": 0.3,
+      "sample_rate_hz": 16000,
+      "channels": 1,
+      "bits_per_sample": 16,
+      "derived_from": "tts_hi.wav",
+      "derivation": "first int(0.3 * sample_rate) = 4800 samples of the first channel of tts_hi.wav, written as 16-bit PCM WAV at the same rate (make_local_clips in tools/capture/tracer_capture/sarvam_capture.py)",
+      "tts": {
+        "model": "bulbul:v3",
+        "speaker": "not sent (API default)",
+        "language_code": "hi-IN",
+        "speech_sample_rate": 16000,
+        "output_audio_codec": "wav"
+      },
+      "sentence_id": "hi",
+      "sentence_ref": "tools/capture/tracer_capture/sarvam_capture.py: SENTENCES[\"hi\"] (text is in that tracked file and is not repeated here)",
+      "request_record": "clips/tts_hi.tts_request.json (parent clip)",
+      "distribution": "not distributed",
+      "local_path": "packages/evalschema/tests/fixtures/private/sarvam-clips/short_300ms.wav"
+    },
+    "tts_en.wav": {
+      "file": "tts_en.wav",
+      "sha256": "f4c17045bbfdcfcaa9f2100e3742a21aee54ac79f38a775feee8a4b4c9c73f1b",
+      "bytes": 101078,
+      "duration_seconds": 3.157,
+      "sample_rate_hz": 16000,
+      "channels": 1,
+      "bits_per_sample": 16,
+      "tts": {
+        "model": "bulbul:v3",
+        "speaker": "not sent (API default)",
+        "language_code": "en-IN",
+        "speech_sample_rate": 16000,
+        "output_audio_codec": "wav"
+      },
+      "sentence_id": "en",
+      "sentence_ref": "tools/capture/tracer_capture/sarvam_capture.py: SENTENCES[\"en\"] (text is in that tracked file and is not repeated here)",
+      "request_record": "clips/tts_en.tts_request.json",
+      "distribution": "not distributed",
+      "local_path": "packages/evalschema/tests/fixtures/private/sarvam-clips/tts_en.wav"
+    },
+    "tts_gu.wav": {
+      "file": "tts_gu.wav",
+      "sha256": "d561a59a6c2b78e6ff7062471dec1f997f9fc62b91c44462d65d5392fa16498b",
+      "bytes": 166614,
+      "duration_seconds": 5.205,
+      "sample_rate_hz": 16000,
+      "channels": 1,
+      "bits_per_sample": 16,
+      "tts": {
+        "model": "bulbul:v3",
+        "speaker": "not sent (API default)",
+        "language_code": "gu-IN",
+        "speech_sample_rate": 16000,
+        "output_audio_codec": "wav"
+      },
+      "sentence_id": "gu",
+      "sentence_ref": "tools/capture/tracer_capture/sarvam_capture.py: SENTENCES[\"gu\"] (text is in that tracked file and is not repeated here)",
+      "request_record": "clips/tts_gu.tts_request.json",
+      "distribution": "not distributed",
+      "local_path": "packages/evalschema/tests/fixtures/private/sarvam-clips/tts_gu.wav"
+    },
+    "tts_hi.wav": {
+      "file": "tts_hi.wav",
+      "sha256": "2860bb55f0647cf81482afac2664aa3fe08a8687d5c81bd501bd343caf06c423",
+      "bytes": 106540,
+      "duration_seconds": 3.328,
+      "sample_rate_hz": 16000,
+      "channels": 1,
+      "bits_per_sample": 16,
+      "tts": {
+        "model": "bulbul:v3",
+        "speaker": "not sent (API default)",
+        "language_code": "hi-IN",
+        "speech_sample_rate": 16000,
+        "output_audio_codec": "wav"
+      },
+      "sentence_id": "hi",
+      "sentence_ref": "tools/capture/tracer_capture/sarvam_capture.py: SENTENCES[\"hi\"] (text is in that tracked file and is not repeated here)",
+      "request_record": "clips/tts_hi.tts_request.json",
+      "distribution": "not distributed",
+      "local_path": "packages/evalschema/tests/fixtures/private/sarvam-clips/tts_hi.wav"
+    },
+    "tts_kn.wav": {
+      "file": "tts_kn.wav",
+      "sha256": "a314df2eb49fc2ffbe5d8a0720a242121f87226787a3d2e66753664352b9bdef",
+      "bytes": 147500,
+      "duration_seconds": 4.608,
+      "sample_rate_hz": 16000,
+      "channels": 1,
+      "bits_per_sample": 16,
+      "tts": {
+        "model": "bulbul:v3",
+        "speaker": "not sent (API default)",
+        "language_code": "kn-IN",
+        "speech_sample_rate": 16000,
+        "output_audio_codec": "wav"
+      },
+      "sentence_id": "kn",
+      "sentence_ref": "tools/capture/tracer_capture/sarvam_capture.py: SENTENCES[\"kn\"] (text is in that tracked file and is not repeated here)",
+      "request_record": "clips/tts_kn.tts_request.json",
+      "distribution": "not distributed",
+      "local_path": "packages/evalschema/tests/fixtures/private/sarvam-clips/tts_kn.wav"
+    },
+    "tts_ml.wav": {
+      "file": "tts_ml.wav",
+      "sha256": "678aef1b1e0ed8dd58e61988582e3adc174f5a3292b4bafff8370c00c77b77a3",
+      "bytes": 147500,
+      "duration_seconds": 4.608,
+      "sample_rate_hz": 16000,
+      "channels": 1,
+      "bits_per_sample": 16,
+      "tts": {
+        "model": "bulbul:v3",
+        "speaker": "not sent (API default)",
+        "language_code": "ml-IN",
+        "speech_sample_rate": 16000,
+        "output_audio_codec": "wav"
+      },
+      "sentence_id": "ml",
+      "sentence_ref": "tools/capture/tracer_capture/sarvam_capture.py: SENTENCES[\"ml\"] (text is in that tracked file and is not repeated here)",
+      "request_record": "clips/tts_ml.tts_request.json",
+      "distribution": "not distributed",
+      "local_path": "packages/evalschema/tests/fixtures/private/sarvam-clips/tts_ml.wav"
+    },
+    "tts_mr.wav": {
+      "file": "tts_mr.wav",
+      "sha256": "965153fbc92b1cfcb380f9eb545e903eff1b7fb7a96a8697ca16ed05d2c9e01f",
+      "bytes": 158422,
+      "duration_seconds": 4.949,
+      "sample_rate_hz": 16000,
+      "channels": 1,
+      "bits_per_sample": 16,
+      "tts": {
+        "model": "bulbul:v3",
+        "speaker": "not sent (API default)",
+        "language_code": "mr-IN",
+        "speech_sample_rate": 16000,
+        "output_audio_codec": "wav"
+      },
+      "sentence_id": "mr",
+      "sentence_ref": "tools/capture/tracer_capture/sarvam_capture.py: SENTENCES[\"mr\"] (text is in that tracked file and is not repeated here)",
+      "request_record": "clips/tts_mr.tts_request.json",
+      "distribution": "not distributed",
+      "local_path": "packages/evalschema/tests/fixtures/private/sarvam-clips/tts_mr.wav"
+    },
+    "tts_pa.wav": {
+      "file": "tts_pa.wav",
+      "sha256": "dd6a3f1869b5862e18d21ec484ccad4f9f0700f21bba79a5bb3ea1d7b19739b3",
+      "bytes": 139308,
+      "duration_seconds": 4.352,
+      "sample_rate_hz": 16000,
+      "channels": 1,
+      "bits_per_sample": 16,
+      "tts": {
+        "model": "bulbul:v3",
+        "speaker": "not sent (API default)",
+        "language_code": "pa-IN",
+        "speech_sample_rate": 16000,
+        "output_audio_codec": "wav"
+      },
+      "sentence_id": "pa",
+      "sentence_ref": "tools/capture/tracer_capture/sarvam_capture.py: SENTENCES[\"pa\"] (text is in that tracked file and is not repeated here)",
+      "request_record": "clips/tts_pa.tts_request.json",
+      "distribution": "not distributed",
+      "local_path": "packages/evalschema/tests/fixtures/private/sarvam-clips/tts_pa.wav"
+    },
+    "tts_ta.wav": {
+      "file": "tts_ta.wav",
+      "sha256": "d924c3368bc4169232c236b28f4be1656e3c1e5c46f1befdccc946ff8f4b0e54",
+      "bytes": 144770,
+      "duration_seconds": 4.523,
+      "sample_rate_hz": 16000,
+      "channels": 1,
+      "bits_per_sample": 16,
+      "tts": {
+        "model": "bulbul:v3",
+        "speaker": "not sent (API default)",
+        "language_code": "ta-IN",
+        "speech_sample_rate": 16000,
+        "output_audio_codec": "wav"
+      },
+      "sentence_id": "ta",
+      "sentence_ref": "tools/capture/tracer_capture/sarvam_capture.py: SENTENCES[\"ta\"] (text is in that tracked file and is not repeated here)",
+      "request_record": "clips/tts_ta.tts_request.json",
+      "distribution": "not distributed",
+      "local_path": "packages/evalschema/tests/fixtures/private/sarvam-clips/tts_ta.wav"
+    },
+    "tts_te.wav": {
+      "file": "tts_te.wav",
+      "sha256": "c54f95348a4f37589f2307e389a0c9e2c1f1e31a14d88cc3d7553da352852898",
+      "bytes": 193922,
+      "duration_seconds": 6.059,
+      "sample_rate_hz": 16000,
+      "channels": 1,
+      "bits_per_sample": 16,
+      "tts": {
+        "model": "bulbul:v3",
+        "speaker": "not sent (API default)",
+        "language_code": "te-IN",
+        "speech_sample_rate": 16000,
+        "output_audio_codec": "wav"
+      },
+      "sentence_id": "te",
+      "sentence_ref": "tools/capture/tracer_capture/sarvam_capture.py: SENTENCES[\"te\"] (text is in that tracked file and is not repeated here)",
+      "request_record": "clips/tts_te.tts_request.json",
+      "distribution": "not distributed",
+      "local_path": "packages/evalschema/tests/fixtures/private/sarvam-clips/tts_te.wav"
+    }
+  }
+}

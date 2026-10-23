@@ -858,6 +858,23 @@ def _set_at(
     return build
 
 
+def _keyed_digest_credential_key_id() -> Witness:
+    """A witness: an AgentTarget whose keyed ``content_digest`` names its key with a
+    credential-shaped ``key_id``. The KeyRef rule rejects it (before any digest check); the
+    exported schema only sees a string."""
+
+    def build() -> tuple[str, dict[str, Any], bool]:
+        doc = copy.deepcopy(sample_document("AgentTarget", "base"))
+        doc["content_digest"] = {
+            "scheme": "hmac-sha256-jcs/v1",
+            "value": "0" * 64,
+            "key_ref": {"key_id": "sk-proj-abcdefghijklmnopqrstuvwxyz0123456789"},
+        }
+        return "AgentTarget", doc, True
+
+    return build
+
+
 def _claims(kinds: Sequence[str], entity: str, *paths: str) -> tuple[Claim, ...]:
     return tuple((kind, entity, path) for kind in kinds for path in paths)
 
@@ -966,6 +983,7 @@ UNIQUE_ITEMS_PROPERTIES = frozenset(
         "options",  # EnumScale and OneOfRule: distinct option strings (new)
         "prompt_variables",  # MetricDefinition: distinct variable names (new)
         "requires",  # MetricDefinition: closed-set kinds
+        "transcript_ids",  # MetricResult: transcript ids a result read (batch 23)
         "unpriced_units",  # CostRecord: closed-set units
         "usage_record_ids",  # CostRecord: record ids
     }
@@ -1262,6 +1280,22 @@ CODE_ONLY_RULES: tuple[CodeOnlyRule, ...] = (
         ),
     ),
     CodeOnlyRule(
+        "CO-KEY-REF-CREDENTIALS",
+        "security-licensing",
+        "mutation",
+        "`KeyRef.key_id` and `key_version` name a key, never hold one: a credential-shaped value "
+        "is a content check (error type `key_ref_credential`, nothing quoted), wherever a KeyRef "
+        "sits (`ContentDigest.key_ref`, `DekWrap.kek_ref`, both references of a SealedPayload).",
+        (
+            (
+                "docs/phase1/api-surface-hardening.md",
+                "the rules are code-only and `hide_input_in_errors` does not change JSON Schema",
+            ),
+        ),
+        (),
+        _keyed_digest_credential_key_id(),
+    ),
+    CodeOnlyRule(
         "CO-PROFILE-PLACEHOLDERS",
         "schema-architect",
         "mutation",
@@ -1338,6 +1372,8 @@ CODE_ONLY_RULES: tuple[CodeOnlyRule, ...] = (
         "`available_inputs` and tier promise must be present (artifacts, transcripts, turns, "
         "exchanges, tool calls, spans, results, usage and cost records, channel maps), a result's "
         "value, judge, scorer, language source and pass-rule consistency against its definition, "
+        "the applicability re-run of every result against the run (`[applicability]`, over the "
+        "transcripts the result read: `MetricResult.transcript_ids`), "
         "verdict weights against rubric weights, price entry keys against the catalog, and "
         "amounts against the usage; the export's own lists (ADR 0008 Decision 3, ADR 0016). "
         "Section 25 of api-surface.md puts everything beyond field types and closed sets here.",
@@ -1381,6 +1417,8 @@ CODE_ONLY_RULES: tuple[CodeOnlyRule, ...] = (
                 *_deep("results.*.value"),
             ),
             *_claims(("list_empty",), "*Bundle", *_deep("verdict.checks")),
+            *_claims(("remove", "list_empty"), "*Bundle", *_deep("run.available_inputs")),
+            *_claims(("remove", "to_null"), "*Bundle", *_deep("transcripts.*.detected_language")),
             *_claims(
                 ("near_swapcase", "near_truncated", "near_extended"),
                 "*Bundle",

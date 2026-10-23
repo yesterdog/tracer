@@ -1258,7 +1258,7 @@ def _scored(**over: Any) -> Doc:
 
 @valid("MetricResult", "maximal")
 def _result_maximal() -> Doc:
-    return _scored()
+    return _scored(transcript_ids=[b2.new_id("tsc")])
 
 
 @valid("MetricResult", "maximal-boolean-false")

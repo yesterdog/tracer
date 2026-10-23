@@ -826,6 +826,8 @@ def test_hide_input_set_closed_under_embedding() -> None:
         # revision 18, S-N88: a rejected value can be a damaged ciphertext or wrapped DEK, the
         # nonce, or the id of the person's record whose data is sealed
         "SealedPayload",
+        "KeyRef",
+        "ContentDigest",
         *sealed_nested,
     )
     for name in seeds:

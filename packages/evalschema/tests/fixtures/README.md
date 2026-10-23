@@ -113,3 +113,10 @@ Regeneration log:
   `Evaluator/invalid/exhaustive-flag-is-a-string.json` holds the string `"true"` (rejected: the member
   is a strict boolean). After the release of 0.0.1 a change like this needs a new schema version and
   a new frozen directory instead.
+* 2026-10-24 (batch 27, SCR-1..SCR-8): `MetricResult.transcript_ids` and the `[applicability]` bundle
+  rule landed (ADR 0004 Decision 9). Every MetricResult document gains `transcript_ids` (`null`
+  unless set), so the MetricResult, RunBundle and ExportBundle files, their entity digests and the
+  file hashes in `frozen/0.0.1/digests.json` change. The `maximal` MetricResult holds one transcript
+  id, the RunBundle worlds declare `hi-IN` (turn_timing available, transcript tagged `hi-IN`), and
+  the new invalid files `MetricResult/invalid/transcript-ids-twice.json` and
+  `transcript-ids-empty.json` are rejected (duplicate id; empty list).

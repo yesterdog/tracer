@@ -858,6 +858,31 @@ bad(
     MR,
     "declared transcripts are listed if and only if language_source is declared",
 )
+
+
+def _one_transcript_twice() -> list[Any]:
+    tsc = b2.new_id("tsc")
+    return [tsc, tsc]
+
+
+bad(
+    "MetricResult",
+    "transcript-ids-twice",
+    "maximal",
+    [Set("transcript_ids", to=_one_transcript_twice)],
+    ["transcript_ids"],
+    VALUE_ERROR,
+    "transcript_ids names each transcript once",
+)
+bad(
+    "MetricResult",
+    "transcript-ids-empty",
+    "maximal",
+    [Set("transcript_ids", to=[])],
+    ["transcript_ids"],
+    TOO_SHORT,
+    "transcript_ids has at least one element when present",
+)
 bad(
     "MetricResult",
     "share-contradicts-counts",

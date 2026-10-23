@@ -698,9 +698,13 @@ def test_digest_errors_propagate_unwrapped_through_every_entry_point() -> None:
         with pytest.raises(errors.UnknownDigestScheme) as caught:
             validate(unknown)
         assert type(caught.value) is errors.UnknownDigestScheme, name
-        assert "md5-jcs/v1" in str(caught.value)
         with pytest.raises(ValidationError):
             validate({**plain, "key_ref": {"key_id": "k1"}})
+    # ContentDigest hides its input, so the scheme name is asserted on the verify path only
+    forged = digest.ContentDigest.model_construct(scheme="md5-jcs/v1", value="0" * 64, key_ref=None)
+    with pytest.raises(errors.UnknownDigestScheme) as verify_caught:
+        digest.verify_digest({"a": 1}, forged)
+    assert "md5-jcs/v1" in str(verify_caught.value)
     # DigestMismatch from a versioned entity, directly and nested in a list
     doc = versioned_doc()
     tampered = {**doc, "name": "tampered"}

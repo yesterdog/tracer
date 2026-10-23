@@ -107,9 +107,15 @@ def test_unknown_digest_scheme_rejected() -> None:
         "",
         "hmac-sha256-jcs/v1 ",
     ):
-        with pytest.raises(errors.UnknownDigestScheme) as caught:
+        with pytest.raises(errors.UnknownDigestScheme):
             digest.ContentDigest(scheme=scheme, value=HEX64)
-        assert scheme in str(caught.value) or scheme == ""
+        # ContentDigest hides its input, so the scheme name is asserted on the verify path only
+        forged_scheme = digest.ContentDigest.model_construct(
+            scheme=scheme, value=HEX64, key_ref=None
+        )
+        with pytest.raises(errors.UnknownDigestScheme) as verify_caught:
+            digest.verify_digest({"a": 1}, forged_scheme)
+        assert scheme in str(verify_caught.value) or scheme == ""
     # a record that bypasses validation still cannot be "verified": it raises, never succeeds
     forged = digest.ContentDigest.model_construct(scheme="none", value=HEX64, key_ref=None)
     with pytest.raises(errors.UnknownDigestScheme):
@@ -168,7 +174,7 @@ def test_hmac_digest_golden() -> None:
     # a different key is a mismatch, not a success
     with pytest.raises(errors.DigestMismatch):
         digest.verify_digest(
-            GOLDEN_OBJ, result, key_resolver=lambda ref: b"another-key-0000000000000000000"
+            GOLDEN_OBJ, result, key_resolver=lambda ref: b"another-key-00000000000000000000"
         )
     with pytest.raises(errors.DigestMismatch):
         digest.verify_digest({**GOLDEN_OBJ, "n": 2}, result, key_resolver=resolver)
@@ -622,7 +628,8 @@ def test_digest_key_unavailable_never_echoes_what_a_resolver_says() -> None:
         for text in _every_text_of(error):
             assert HOSTILE_MARKER not in text, (type(original).__name__, text)
             assert type(original).__name__ not in text, (type(original).__name__, text)
-        assert "vault-key-1" in str(error), "the message names the key_id"
+        assert "vault-key-1" not in str(error), "the message names the rule only, never the key_id"
+        assert "vault-key-1" not in repr(error)
         assert error.__cause__ is original, "the original exception is chained (raise ... from)"
         assert HOSTILE_MARKER in str(original) or HOSTILE_MARKER.encode() in original.args
         for arg in error.args:
@@ -656,14 +663,14 @@ def test_digest_key_unavailable_never_echoes_what_a_resolver_says() -> None:
             wrapped.value.json(include_input=False),
         ):
             assert HOSTILE_MARKER not in report, report
-            assert "vault-key-1" in report
+            assert "vault-key-1" not in report, "the report names the rule only"
 
     for bad_return in (HOSTILE_MARKER, HOSTILE_MARKER.encode().decode(), 0, [HOSTILE_MARKER]):
         with pytest.raises(errors.DigestKeyUnavailable) as caught:
             digest.verify_digest(GOLDEN_OBJ, keyed, key_resolver=lambda ref, v=bad_return: v)
         for text in _every_text_of(caught.value):
             assert HOSTILE_MARKER not in text, text
-        assert "vault-key-1" in str(caught.value)
+        assert "vault-key-1" not in str(caught.value), "the message names the rule only"
     # no resolver at all: still names the rule, never a key
     with pytest.raises(errors.DigestKeyUnavailable) as caught:
         digest.verify_digest(GOLDEN_OBJ, keyed)
@@ -672,7 +679,7 @@ def test_digest_key_unavailable_never_echoes_what_a_resolver_says() -> None:
     # the real key bytes are not echoed by a wrong key either
     with pytest.raises(errors.DigestMismatch) as mismatch:
         digest.verify_digest(
-            GOLDEN_OBJ, keyed, key_resolver=lambda ref: b"another-key-0000000000000000000"
+            GOLDEN_OBJ, keyed, key_resolver=lambda ref: b"another-key-00000000000000000000"
         )
     for text in (str(mismatch.value), repr(mismatch.value)):
         assert "another-key" not in text

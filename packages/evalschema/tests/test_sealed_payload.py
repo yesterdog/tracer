@@ -1066,15 +1066,15 @@ def test_unregistered_digest_scheme_is_a_typed_error_not_unverifiable() -> None:
 def test_digest_key_ref_differs_from_kek_ref() -> None:
     """Proposed name (N85). Key separation: the key that computes ``plaintext_digest`` must not be
     the key-encryption key, because a recipient entrusted with the digest key (to check the link)
-    would then be able to unwrap every DEK. A ``key_ref`` equal to ``dek_wrap.kek_ref`` (same
-    ``key_id`` and ``key_version``) is rejected at ``plaintext_digest``; another ``key_version`` or
-    another ``key_id`` is accepted."""
+    would then be able to unwrap every DEK. Key separation compares ``key_id`` only: a ``key_ref``
+    with the same ``key_id`` as ``dek_wrap.kek_ref`` is rejected at ``plaintext_digest`` whatever
+    its ``key_version``; another ``key_id`` is accepted."""
     same = _keyed_digest_doc(key_ref=dict(KEK_REF))
     _rejected(payload_doc(plaintext_digest=same), "plaintext_digest")
     only_id = _keyed_digest_doc(key_ref={"key_id": KEK_REF["key_id"]})
-    _validates(payload_doc(plaintext_digest=only_id))
+    _rejected(payload_doc(plaintext_digest=only_id), "plaintext_digest")
     other_version = _keyed_digest_doc(key_ref={"key_id": KEK_REF["key_id"], "key_version": "2"})
-    _validates(payload_doc(plaintext_digest=other_version))
+    _rejected(payload_doc(plaintext_digest=other_version), "plaintext_digest")
     _validates(payload_doc(plaintext_digest=_keyed_digest_doc()))
 
 

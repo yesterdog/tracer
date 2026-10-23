@@ -755,7 +755,13 @@ def test_benchmark_consent_of_tool_calls_comes_from_the_run_markers() -> None:
     only_text = run_bundle_doc(tier="T0")
     only_text["artifacts"] = []
     only_text["run"]["channel_maps"] = []
-    only_text["run"]["available_inputs"] = ["transcript", "tool_calls", "tool_results", "usage"]
+    only_text["run"]["available_inputs"] = [
+        "transcript",
+        "turn_timing",
+        "tool_calls",
+        "tool_results",
+        "usage",
+    ]
     only_text["results"][0]["evidence_refs"] = [
         e for e in only_text["results"][0]["evidence_refs"] if e["kind"] != "artifact_range"
     ]
@@ -765,9 +771,7 @@ def test_benchmark_consent_of_tool_calls_comes_from_the_run_markers() -> None:
     )
     only_audio = run_bundle_doc(tier="T0")
     only_audio["transcripts"], only_audio["turns"] = [], []
-    only_audio["results"][0]["evidence_refs"] = [
-        e for e in only_audio["results"][0]["evidence_refs"] if e["kind"] != "turn"
-    ]
+    only_audio["results"], only_audio["verdict"] = [], None  # no transcript: no judged result
     for exchange_holder in only_audio["exchanges"]:
         exchange_holder["source"] = "inferred_from_turns"
     load_run(only_audio)
@@ -1324,6 +1328,8 @@ def _with_second_records(rb: dict[str, Any]) -> dict[str, Any]:
     call = copy.deepcopy(out["tool_calls"][0])
     call.update(id=new_id("tcl"), seq=9)
     out["tool_calls"].append(call)
+    for result in out["results"]:
+        result["transcript_ids"] = [out["transcripts"][0]["id"]]
     return out
 
 

@@ -22,8 +22,9 @@
     "api_version": "none in URL; dated by retrieval_date"
   },
   "command": "cd tools/capture && uv run python -m tracer_capture.sarvam_capture --env-file ../../.env.local",
-  "license": "Apache-2.0 for the harness and the invented sentences. API response bodies are model output from Sarvam AI; the owner is the API customer. Audio is Sarvam TTS output and Kokoro (Apache-2.0) output for invented text.",
+  "license": "Apache-2.0 for the harness and the invented sentences. API response bodies are model output from Sarvam AI; the owner is the API customer. Audio is Sarvam TTS output and Kokoro (Apache-2.0) output for invented text. The 9 Sarvam TTS clips and clips/short_300ms.wav (a 0.3 s cut of tts_hi) are not distributed (see terms and clips-manifest.json).",
   "pii_status": "synthetic_no_personal_data",
+  "terms": "Checked 2026-10-24 against https://www.sarvam.ai/terms-of-service (Version 2.0, effective 2026-07-29). Section 17.4 assigns Sarvam rights in the Output to the customer, to the extent possible. Section 10.2 bars distributing any audio Output on a standalone basis, as isolated files, unless Product-Specific Terms allow it; the 9 clips/tts_*.wav files are such audio and the Product-Specific Terms were not found. Section 10.5(a) bars using Output to test an AI system. Redistribution status: unclear, tracked in docs/security/P1-02-licenses.md release checklist. Update 2026-10-24: the 9 clips/tts_*.wav files and clips/short_300ms.wav (a cut of tts_hi) were moved out of the distributed fixtures to the git-ignored packages/evalschema/tests/fixtures/private/sarvam-clips/; their sha256 and sizes are in clips-manifest.json and under files_not_distributed here (they are not in files, because files lists only the bytes that are distributed). The files stay in the public git history until the owner decides otherwise.",
   "indic_verified": "needs_native_review",
   "total_api_calls_logged": 47,
   "call_log": "tools/capture/sarvam_call_log.jsonl",
@@ -38,65 +39,35 @@
     "clips/kokoro_hi.wav": {
       "sha256": "b3d0a04e858e5042706d503935b22114d8556e07293f07b5e776fbb62b34746b"
     },
-    "clips/short_300ms.wav": {
-      "sha256": "22fdeee7a26cbd278b24482fb39e2662132ecdf1113d4847b8c923ebc72b07db"
-    },
     "clips/silence_2s.wav": {
       "sha256": "20eaebffe1816e0ffa6f7f854f5ef4ea80d5349faaf0ce1fec1b713e7fde58fa"
     },
     "clips/tts_en.tts_request.json": {
       "sha256": "094944414178216e301c2fbd30bf613b8614c3a74131ec6a09c345eccde60557"
     },
-    "clips/tts_en.wav": {
-      "sha256": "f4c17045bbfdcfcaa9f2100e3742a21aee54ac79f38a775feee8a4b4c9c73f1b"
-    },
     "clips/tts_gu.tts_request.json": {
       "sha256": "9efe09427a4df621267a5b4415c455239e1bd2b2afa970e98bf299edf5567ea6"
-    },
-    "clips/tts_gu.wav": {
-      "sha256": "d561a59a6c2b78e6ff7062471dec1f997f9fc62b91c44462d65d5392fa16498b"
     },
     "clips/tts_hi.tts_request.json": {
       "sha256": "a27d377c34fb1590f185771b4a9c1bba8250ae6daf3992ff9c0b8856c2876157"
     },
-    "clips/tts_hi.wav": {
-      "sha256": "2860bb55f0647cf81482afac2664aa3fe08a8687d5c81bd501bd343caf06c423"
-    },
     "clips/tts_kn.tts_request.json": {
       "sha256": "ca0186cd51c5b7a91ca0103367f3cc5bca88143d23ba1b24d3e7dffc31ea8513"
-    },
-    "clips/tts_kn.wav": {
-      "sha256": "a314df2eb49fc2ffbe5d8a0720a242121f87226787a3d2e66753664352b9bdef"
     },
     "clips/tts_ml.tts_request.json": {
       "sha256": "67bb3e8b101cd8e9655f14dab871a09f5b3ed03807260211ed5766f55e7a6737"
     },
-    "clips/tts_ml.wav": {
-      "sha256": "678aef1b1e0ed8dd58e61988582e3adc174f5a3292b4bafff8370c00c77b77a3"
-    },
     "clips/tts_mr.tts_request.json": {
       "sha256": "0504cb84a0dd99d48b7eed9c8b7176b765fdbaa794c1e4a2e823b35eead3c2f9"
-    },
-    "clips/tts_mr.wav": {
-      "sha256": "965153fbc92b1cfcb380f9eb545e903eff1b7fb7a96a8697ca16ed05d2c9e01f"
     },
     "clips/tts_pa.tts_request.json": {
       "sha256": "24e03282afb11401e0c2cca59764a32d1a32d8aae4cb1a943e917e430d870045"
     },
-    "clips/tts_pa.wav": {
-      "sha256": "dd6a3f1869b5862e18d21ec484ccad4f9f0700f21bba79a5bb3ea1d7b19739b3"
-    },
     "clips/tts_ta.tts_request.json": {
       "sha256": "e3ce2f7c4d44268477843a20dd2ff6342c9b6acc98cb6e5a67c1717f116dd89f"
     },
-    "clips/tts_ta.wav": {
-      "sha256": "d924c3368bc4169232c236b28f4be1656e3c1e5c46f1befdccc946ff8f4b0e54"
-    },
     "clips/tts_te.tts_request.json": {
       "sha256": "359943fe503cb7eca64517ca4fd1bd690ef43066eaba22bb3cb80c92b3015d06"
-    },
-    "clips/tts_te.wav": {
-      "sha256": "c54f95348a4f37589f2307e389a0c9e2c1f1e31a14d88cc3d7553da352852898"
     },
     "err_bad_key/request.json": {
       "sha256": "11f7499adeabbda705918a122d77cf4a80bd864eb659f72c7db5adb08f96bdb4"
@@ -439,6 +410,69 @@
     },
     "stt_te_unknown/response_meta.json": {
       "sha256": "257ce2824af73b3ec8b76fb69099b418cf6b8431472e963bbeeb716222605449"
+    }
+  },
+  "files_not_distributed": {
+    "clips/short_300ms.wav": {
+      "sha256": "22fdeee7a26cbd278b24482fb39e2662132ecdf1113d4847b8c923ebc72b07db",
+      "bytes": 9644,
+      "distribution": "not distributed",
+      "manifest": "clips-manifest.json",
+      "derived_from": "clips/tts_hi.wav"
+    },
+    "clips/tts_en.wav": {
+      "sha256": "f4c17045bbfdcfcaa9f2100e3742a21aee54ac79f38a775feee8a4b4c9c73f1b",
+      "bytes": 101078,
+      "distribution": "not distributed",
+      "manifest": "clips-manifest.json"
+    },
+    "clips/tts_gu.wav": {
+      "sha256": "d561a59a6c2b78e6ff7062471dec1f997f9fc62b91c44462d65d5392fa16498b",
+      "bytes": 166614,
+      "distribution": "not distributed",
+      "manifest": "clips-manifest.json"
+    },
+    "clips/tts_hi.wav": {
+      "sha256": "2860bb55f0647cf81482afac2664aa3fe08a8687d5c81bd501bd343caf06c423",
+      "bytes": 106540,
+      "distribution": "not distributed",
+      "manifest": "clips-manifest.json"
+    },
+    "clips/tts_kn.wav": {
+      "sha256": "a314df2eb49fc2ffbe5d8a0720a242121f87226787a3d2e66753664352b9bdef",
+      "bytes": 147500,
+      "distribution": "not distributed",
+      "manifest": "clips-manifest.json"
+    },
+    "clips/tts_ml.wav": {
+      "sha256": "678aef1b1e0ed8dd58e61988582e3adc174f5a3292b4bafff8370c00c77b77a3",
+      "bytes": 147500,
+      "distribution": "not distributed",
+      "manifest": "clips-manifest.json"
+    },
+    "clips/tts_mr.wav": {
+      "sha256": "965153fbc92b1cfcb380f9eb545e903eff1b7fb7a96a8697ca16ed05d2c9e01f",
+      "bytes": 158422,
+      "distribution": "not distributed",
+      "manifest": "clips-manifest.json"
+    },
+    "clips/tts_pa.wav": {
+      "sha256": "dd6a3f1869b5862e18d21ec484ccad4f9f0700f21bba79a5bb3ea1d7b19739b3",
+      "bytes": 139308,
+      "distribution": "not distributed",
+      "manifest": "clips-manifest.json"
+    },
+    "clips/tts_ta.wav": {
+      "sha256": "d924c3368bc4169232c236b28f4be1656e3c1e5c46f1befdccc946ff8f4b0e54",
+      "bytes": 144770,
+      "distribution": "not distributed",
+      "manifest": "clips-manifest.json"
+    },
+    "clips/tts_te.wav": {
+      "sha256": "c54f95348a4f37589f2307e389a0c9e2c1f1e31a14d88cc3d7553da352852898",
+      "bytes": 193922,
+      "distribution": "not distributed",
+      "manifest": "clips-manifest.json"
     }
   }
 }

@@ -78,7 +78,11 @@ def _instant(stamp: str) -> tuple[str | None, str | None]:
             micro,
             tzinfo=timezone(offset),
         )
-        text = moment.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+        utc = moment.astimezone(UTC)
+        text = (
+            f"{utc.year:04d}-{utc.month:02d}-{utc.day:02d}T"
+            f"{utc.hour:02d}:{utc.minute:02d}:{utc.second:02d}.{utc.microsecond:06d}Z"
+        )
     except (ValueError, OverflowError):
         return None, "timestamp_not_parseable"
     return text, ("time_precision_reduced" if len(fraction) > 6 else None)

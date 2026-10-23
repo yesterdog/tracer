@@ -177,6 +177,7 @@ def test_metric_result_shape_and_enums() -> None:
         "judge",
         "language_source",
         "declared_language_transcript_ids",
+        "transcript_ids",
         "evidence_refs",
     }
     assert set(property_enum(model, "status")) == {"scored", "not_applicable", "error"}

@@ -226,6 +226,7 @@ def world(
             "audio",
             "agent_audio",
             "transcript",
+            "turn_timing",
             "tool_calls",
             "tool_results",
             "usage",
@@ -239,10 +240,12 @@ def world(
         "observer" if tier == "T2" else ("agent_export" if tier == "T0" or declared else "our_stt")
     )
     transcript = transcript_doc(id=tsc_id, source=transcript_source, privacy=mark)
+    if not declared:
+        transcript["detected_language"] = "hi-IN"
     if declared:
         transcript["source"] = "agent_export"
         transcript["declared_language"] = {
-            "language": "mr-IN",
+            "language": "hi-IN",
             "source": "user_declared",
             "declared_by": "cli",
             "declared_at": "2026-10-23T08:00:00.000000Z",
@@ -304,7 +307,8 @@ def world(
         "value": 420,
         "passed": True,
         "scorer": scorer_info(),
-        "language_source": "observed",
+        "language_source": "declared" if declared else "observed",
+        "declared_language_transcript_ids": [tsc_id] if declared else [],
     }
     verdict_api = api("verdict")
     weighted = verdict_api.compute_weighted_score([(bindings[1].id, "5", "passed")])
