@@ -1,0 +1,108 @@
+# T-DEG batch 21 (P1-19), my three files; 2026-10-23T20:16Z
+# command: UV_PROJECT_ENVIRONMENT=<scratch>/py3.12 uv run --locked pytest -q -rf packages/evalschema/tests/test_tier_degradation.py packages/evalschema/tests/test_tier_degradation_cost.py packages/evalschema/tests/test_tier_degradation_language.py
+# python 3.12.14 pydantic 2.14.1
+.....................FFFF                                                [100%]
+=================================== FAILURES ===================================
+_________ test_deg_bundle_rejects_a_scored_result_for_a_missing_input __________
+
+    def test_deg_bundle_rejects_a_scored_result_for_a_missing_input() -> None:
+        """RED BY DESIGN (finding B15, deferred "to the T-DEG work"). ADR 0004 Decision 3: if
+        ``requires - available_inputs`` is not empty the metric's result is not_applicable. A T0
+        bundle whose run lacks tool_calls and tool_results but stores a scored tool_call_success
+        (value true, passed true) contradicts its own run, and every consumer would read "the agent
+        called the right tools" from a run that has no tool calls. The bundle must reject it.
+        Today the RunBundle loads it: DID NOT RAISE."""
+        world = cached_world("T0")
+        doc = world.copy()
+        _forge_scored(_result_of(doc, world, "tool_call_success"), "builtin:tool_call_success")
+        rebuild_verdict(world, doc)  # keep the verdict consistent: the only fault is the result
+>       with pytest.raises(ValidationError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValidationError
+
+packages/evalschema/tests/test_tier_degradation_language.py:471: Failed
+_______ test_deg_bundle_rejects_not_applicable_for_an_input_the_run_has ________
+
+    def test_deg_bundle_rejects_not_applicable_for_an_input_the_run_has() -> None:
+        """RED BY DESIGN (B15). The converse: a T1 bundle whose run holds a transcript but stores
+        goal_completion as not_applicable / missing_input [transcript] says the run lacks what it has,
+        which would hide a metric that could run (and turn a pass into inconclusive). The bundle must
+        reject it. Today it loads: DID NOT RAISE."""
+        world = cached_world("T1")
+        doc = world.copy()
+        result = _result_of(doc, world, "goal_completion")
+        result.update(
+            {
+                "status": "not_applicable",
+                "value": None,
+                "passed": None,
+                "na_reason": "missing_input",
+                "missing_kinds": ["transcript"],
+                "language_source": None,
+                "declared_language_transcript_ids": [],
+                "judge": None,
+            }
+        )
+        rebuild_verdict(world, doc)
+>       with pytest.raises(ValidationError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValidationError
+
+packages/evalschema/tests/test_tier_degradation_language.py:496: Failed
+____________ test_deg_bundle_rejects_a_wrong_not_applicable_reason _____________
+
+    def test_deg_bundle_rejects_a_wrong_not_applicable_reason() -> None:
+        """RED BY DESIGN (B15). ADR 0004 Decision 4 (precedence) and 5a: at T0 agent_politeness lacks
+        agent_transcript, so its reason is missing_input with that kind. A stored reason of
+        language_not_observed names a later step that never ran. The bundle must reject a reason that
+        the run's inputs contradict. Today it loads: DID NOT RAISE."""
+        world = cached_world("T0")
+        doc = world.copy()
+        result = _result_of(doc, world, "agent_politeness")
+        assert result["na_reason"] == "missing_input"
+        result["na_reason"] = "language_not_observed"
+        result["missing_kinds"] = []
+>       with pytest.raises(ValidationError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValidationError
+
+packages/evalschema/tests/test_tier_degradation_language.py:511: Failed
+______ test_deg_bundle_rejects_a_scored_result_on_an_untagged_transcript _______
+
+    def test_deg_bundle_rejects_a_scored_result_on_an_untagged_transcript() -> None:
+        """RED BY DESIGN (B15, N29 a). ADR 0004 Decision 6e: on an untagged import a
+        language-dependent metric is not_applicable / language_not_observed. A bundle that stores
+        goal_completion as scored with language_source observed, over a transcript and turns that carry
+        no tag, claims an observation nobody made. The bundle must reject it. Today it loads: DID NOT
+        RAISE."""
+        world = cached_world("T1", language="untagged")
+        doc = world.copy()
+        result = _result_of(doc, world, "goal_completion")
+        assert result["na_reason"] == "language_not_observed"
+        result.update(
+            {
+                "status": "scored",
+                "value": True,
+                "passed": True,
+                "na_reason": None,
+                "language_source": "observed",
+                "judge": {
+                    "model_ref": {"provider": "openai", "model": "gpt-4.1"},
+                    "prompt_sha256": "cd" * 32,
+                    "params": {"temperature": 0},
+                    "per_turn": [],
+                },
+            }
+        )
+        rebuild_verdict(world, doc)
+>       with pytest.raises(ValidationError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValidationError
+
+packages/evalschema/tests/test_tier_degradation_language.py:541: Failed
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_tier_degradation_language.py::test_deg_bundle_rejects_a_scored_result_for_a_missing_input
+FAILED packages/evalschema/tests/test_tier_degradation_language.py::test_deg_bundle_rejects_not_applicable_for_an_input_the_run_has
+FAILED packages/evalschema/tests/test_tier_degradation_language.py::test_deg_bundle_rejects_a_wrong_not_applicable_reason
+FAILED packages/evalschema/tests/test_tier_degradation_language.py::test_deg_bundle_rejects_a_scored_result_on_an_untagged_transcript
+4 failed, 165 passed in 6.86s

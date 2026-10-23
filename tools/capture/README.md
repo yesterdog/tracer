@@ -29,4 +29,19 @@ file into memory only) with synthetic clips and stores raw responses under
 `sarvam_call_log.jsonl` (no key); the cap is 60 calls in total. Findings:
 `SARVAM_OBSERVATIONS.md`.
 
+The Sarvam text-to-speech clips (`clips/tts_*.wav`) and `clips/short_300ms.wav` (a cut of `tts_hi`) are not committed: Sarvam Terms of Service v2.0
+section 10.2 bars distributing audio Output as isolated files. They live in the git-ignored
+`packages/evalschema/tests/fixtures/private/sarvam-clips/`; `clips-manifest.json` in the fixture
+folder holds each clip's sha256, size, duration and TTS parameters, and the local test
+`test_local_sarvam_clips_match_the_manifest` (`pytest -m private_fixtures`) checks them. The tool
+reuses a clip only if `<out>/clips/<id>.wav` exists; to regenerate, run it with the owner's key (it
+calls the TTS API again, and new audio will not have the recorded hashes).
+
     cd tools/capture && uv run python -m tracer_capture.sarvam_capture --env-file ../../.env.local
+
+## Security note
+
+This tool must not process untrusted images: the pinned `pillow` in its lock has known advisories
+(`pip-audit` reports them), and the lock is not covered by the CI dependency audit, which checks
+the main lock only. The tool is unpublished and only handles its own generated and public inputs.
+Bump the pins when convenient.

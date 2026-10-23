@@ -1,6 +1,25 @@
 # Architecture Decision Records: Phase 1 (`tracer-evalschema` 0.0.1)
 
-Revision 28, 2026-10-24. Authoritative scope: `docs/phase1/SCOPE.md`.
+Revision 30, 2026-10-24. Authoritative scope: `docs/phase1/SCOPE.md`.
+
+## Changes in revision 30
+- **Decided, auto-approved and logged** (decision log "P1-21 SECURITY AUDIT DELIVERED", "AUTO-APPROVED audit decisions", "AUTO-APPROVED A1-A10"; SCOPE "Changes in revision 30"; contract `docs/phase1/api-surface-hardening.md`):
+  - **No key id in `DigestKeyUnavailable`** (ADR 0006 Decision 4 and I24, ADR 0015 I14; C3a; reverses the S-N91 key-id reading).
+  - **Credential-shaped key names rejected** (ADR 0007 Decision 4, ADR 0015 I15; C3b, A1, A2, A5, A8; closes S-N83): `KeyRef.key_id` and `key_version`, error type `key_ref_credential`, nothing quoted.
+  - **The hiding set closed over `KeyRef`, `ContentDigest` and `DekWrap`** (ADR 0007 Decision 8 (a2); C3b, A9, A10): 16 models made hiding.
+  - **Keyed digest keys of at least 32 bytes** (ADR 0006 Decision 4, I25; m1, A4): `errors.WeakDigestKeyError`.
+  - **Key separation by `key_id` only** (ADR 0015 Decision 6b; m2).
+  - **Echoes cut at 64 code points plus `...`** (ADR 0007 Decision 8 (c2); m4, A3, A7).
+  - **The high-entropy rule on every `config_ref` name part** (ADR 0007 Decision 1; m6, A6).
+- **Implemented** by schema-architect (batch 25): code-only rules; no schema file, lock, golden fixture or field document changed; no `schema_version` change; no migration. No test edited by the architect; the named spec changes of SCOPE revision 30 item 8 are qa's.
+
+## Changes in revision 29
+- **Decided, auto-approved and logged** (decision log "AUTO-APPROVED T-DEG decisions", "qa batch 23 APPLICABILITY tests DELIVERED", "AUTO-APPROVED T-B1..T-B16"; SCOPE "Changes in revision 29"):
+  - **The bundle re-runs applicability** (ADR 0004 Decision 9, D1; closes B15): the last rule of `check_run_bundle`, `[applicability]`, compares every stored result with `results.applicability` re-run over the run and the transcripts and turns it read (status class, `na_reason`, `missing_kinds`, `language_source`, `declared_language_transcript_ids`); error results, withheld records and per-turn metrics as stated there.
+  - **`MetricResult.transcript_ids`** (ADR 0004 Decision 9, T-A3): optional, non-empty, no repeats, order kept; required when a bundle holds several transcripts and the metric reads transcripts or is language dependent. Additive within the unreleased 0.0.1 (ADR 0008 Decision 7, revision 29 sentence).
+  - **`agent_transcript` implies an agent turn** (ADR 0004 Decision 9, T-A4).
+  - **What `usage` means** (ADR 0004 Decision 2, T-A1) and **no interruptions input kind yet** (ADR 0004 Decision 2, T-A2, a stated limitation).
+- **Implemented** by schema-architect (batch 23): `results.py`, `bundle.py`; the `MetricResult`, `RunBundle` and `ExportBundle` schema files, `schema.lock` and field docs regenerated. No `schema_version` change; no migration. No test edited by the architect.
 
 ## Changes in revision 28
 - **Decided, auto-approved and logged** (decision log "AUTO-APPROVED decisions on adversarial findings" and the entry after "qa batch 20 DELIVERED"; SCOPE "Changes in revision 28"):
@@ -90,7 +109,7 @@ Revision 28, 2026-10-24. Authoritative scope: `docs/phase1/SCOPE.md`.
   - **S-N79** (ADR 0015 Decision 4b): `aad_fields.schema_version` is validated for its form only.
   - **S-N80, S-N84** (ADR 0015 Decision 4 table): five payload types `test_profile`, `audio`, `transcript_text`, `tool_arguments`, `tool_result` with subject kinds `tpf`, `art`, `tsc`, `tcl`, `tcl`; `subject_version` only for the versioned `test_profile`.
   - **S-N81, S-N82** (ADR 0015 Decision 5): wrapped DEK exactly 40 bytes; ciphertext at least 16 bytes with the GCM tag appended (tag layout stated).
-  - **S-N83** (ADR 0015 Known gaps): no pasted-credential check on `KeyRef.key_id` in 0.0.1; known gap, owner security-licensing, revisit at the P1-21 audit.
+  - **S-N83** (ADR 0015 Known gaps): no pasted-credential check on `KeyRef.key_id` in 0.0.1; known gap, owner security-licensing, revisit at the P1-21 audit. (Closed in revision 30, C3b.)
   - **S-N85** (ADR 0015 Decision 6b): the digest `key_ref` must differ from `dek_wrap.kek_ref`.
   - **S-N86, S-N87, S-N89** (ADR 0016 I10, ADR 0001 Decisions 4 and 8): `RedactionRecord{method, tool_ref, performed_at, covers[]}`, four fields, no id, attached by position (P1-14); `method`/`tool_ref` non-empty text; `covers` gains `tool_result`. The ADR 0001 table no longer lists `RedactionRecord` under `art` and `tsc`.
   - **S-N88** (ADR 0015 Decision 1, ADR 0007 Decision 8): `SealedPayload`, `DekWrap` and `SealedAadFields` hide their input.
@@ -342,8 +361,8 @@ Status meanings:
 | [0003](0003-enum-extensibility.md) | Enum extensibility (closed vs open sets) | Accepted | none (O2, O3 decided, rev 12; N53, N59 members added, rev 15; `currency_conflict` added and `PriceProvenance.kind` open, rev 16) |
 | [0004](0004-requires-and-not-applicable.md) | `requires[]`, `not_applicable`, `unsupported_script`, `language_not_observed`, declared languages | Accepted | none (P-59 decided, rev 9; N14 decided, rev 10; O3 decided, rev 12; O3a decided, rev 13) |
 | [0005](0005-language.md) | Language tags (Supported vs Observed, raw labels, regions, T-DRIFT allowlist) | Accepted | none |
-| [0006](0006-snapshot-pii-and-content-digest.md) | Config snapshot, PII, digest schemes, dropping or keying digests in exports, profile placeholders | Accepted | none (N47 applied, rev 15) |
-| [0007](0007-secrets.md) | Secrets and provider credentials | Accepted | N50, N60 decided (rev 15); N62 and the N50 remainder decided (rev 16); N66 decided (rev 17, auto-approved); N70, N71 decided (rev 18, auto-approved) (N42 and the loopback spellings decided, rev 14; P-60 decided, rev 9; N15 decided, rev 10; O4, O5 decided, rev 12; O8, N41 decided, rev 13) |
+| [0006](0006-snapshot-pii-and-content-digest.md) | Config snapshot, PII, digest schemes, dropping or keying digests in exports, profile placeholders | Accepted | none (N47 applied, rev 15; C3a and m1 applied, rev 30) |
+| [0007](0007-secrets.md) | Secrets and provider credentials | Accepted | N50, N60 decided (rev 15); N62 and the N50 remainder decided (rev 16); N66 decided (rev 17, auto-approved); N70, N71 decided (rev 18, auto-approved) (N42 and the loopback spellings decided, rev 14; P-60 decided, rev 9; N15 decided, rev 10; O4, O5 decided, rev 12; O8, N41 decided, rev 13) (C3b, m4, m6 applied, rev 30) |
 | [0008](0008-schema-versioning-and-compatibility.md) | Schema versioning, frozen fixtures, upgrade path | Accepted | none |
 | [0009](0009-entity-versioning.md) | Entity versioning `(id, version)` | Accepted | none (N47 applied, rev 15; N61 and the N47 remainder decided, rev 16; N65 decided, rev 17, auto-approved; N72 decided, rev 18, auto-approved) |
 | [0010](0010-metric-value-model.md) | Metric value model and pass rules | Accepted | none (P-61 decided, rev 10; P-62 decided by the owner, recorded rev 11) |
@@ -351,7 +370,7 @@ Status meanings:
 | [0012](0012-other-entities.md) | Tool calls, spans, evidence, artifacts, channel map | Accepted | none (O2, O5 decided, rev 12; O8 decided, rev 13; N69 decided, rev 17, auto-approved) |
 | [0013](0013-verdict.md) | Run verdict, weighted score and coverage | Accepted | none |
 | [0014](0014-money-usage-cost-pricing.md) | Money, usage, cost, pricing | Accepted | none (O6 decided, rev 12; N43, N46 to N60 decided, rev 15; N44, N45, N61, N62 and the six remainders decided, rev 16; N63 to N69 decided, rev 17, auto-approved; N70 to N76 and the qa findings 1 to 9 decided, rev 18, auto-approved) |
-| [0015](0015-sealed-payload.md) | SealedPayload | Accepted | none (S-N77 to S-N90 applied, rev 19; known gap S-N83, owner security-licensing) |
+| [0015](0015-sealed-payload.md) | SealedPayload | Accepted | none (S-N77 to S-N90 applied, rev 19; S-N83 closed and m2 applied, rev 30) |
 | [0016](0016-roles-caller-origin-privacy.md) | Roles, caller origin, human-subject marker, export and consent rules | Accepted | none (O1, O7 decided, rev 12; O9 decided, rev 13; S-N87 applied, rev 19: `covers` gains `tool_result`) |
 | [0017](0017-bidi-and-display-safe.md) | Text, bidi controls, `display_safe()`, UBA reference and license exceptions | Accepted | none |
 | [0018](0018-real-sample-mapping-policy.md) | Real-sample mapping policy, blocking gaps | Accepted | none (N64 decided, rev 17, auto-approved; N76 decided, rev 18, auto-approved) |

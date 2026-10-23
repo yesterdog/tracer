@@ -1,0 +1,40 @@
+== ruff check
+E501 Line too long (102 > 100)
+   --> packages/evalschema/tests/test_mapping_no_fabrication.py:709:101
+    |
+707 |     local = TESTS_DIR / "fixtures" / "private" / "sarvam-clips"
+708 |     if not local.is_dir():
+709 |         pytest.skip("no tests/fixtures/private/sarvam-clips/ on this machine (clips not distributed)")
+    |                                                                                                     ^^
+710 |     manifest = json.loads((SARVAM / "clips-manifest.json").read_bytes())["clips"]
+711 |     problems: list[str] = []
+    |
+
+Found 1 error.
+== ruff format --check
+unformatted: File would be reformatted
+   --> packages/evalschema/tests/test_mapping_no_fabrication.py:709:21
+    |
+708 |     if not local.is_dir():
+    -         pytest.skip("no tests/fixtures/private/sarvam-clips/ on this machine (clips not distributed)")
+709 +         pytest.skip(
+710 +             "no tests/fixtures/private/sarvam-clips/ on this machine (clips not distributed)"
+711 +         )
+712 |     manifest = json.loads((SARVAM / "clips-manifest.json").read_bytes())["clips"]
+    |
+
+1 file would be reformatted
+== mypy --strict
+Success: no issues found in 1 source file
+== check_headers
+rc=0
+== guard_private_fixtures
+rc=0
+== check_licenses
+42 ok, 0 failed
+rc=0
+All checks passed!
+1 file already formatted
+Success: no issues found in 1 source file
+205 passed, 1 deselected in 0.34s
+1 passed, 205 deselected in 0.10s

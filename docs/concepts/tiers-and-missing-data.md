@@ -27,6 +27,8 @@ unless records were deliberately withheld and declared in `RunBundle.withheld`.
 What a metric can use is decided per **input kind** (`audio`, `agent_audio`, `transcript`,
 `turn_timing`, `tool_calls`, `spans`, `usage` and others) from `Run.available_inputs`, which is
 derived from the evidence, not from the tier.
+`usage` means usage of the agent under test; our own evaluation usage (the judge, our STT) is
+never an input of an agent metric.
 
 ## `not_applicable`: a metric that could not run
 
@@ -45,6 +47,12 @@ When several apply, the first in this order is reported. A not-applicable result
 as 0 or as a failure, and a required check that is not applicable makes the verdict
 `inconclusive`. `error` is different: the inputs existed but scoring failed.
 
+A run bundle does not take a stored result on trust: its last check re-runs the applicability
+steps for every result, over the run and the transcripts and turns that result read
+(`MetricResult.transcript_ids`, required when the bundle holds several transcripts), and rejects
+a result whose status class, reason, missing kinds or language provenance differs (`[applicability]`).
+A score for an input the run does not have, or `not_applicable` for an input it has, does not load.
+
 ## `not_available`: a cost that cannot be known
 
 A `CostRecord` is `available` only when it is **reported** (by the provider or a telemetry
@@ -61,4 +69,6 @@ estimated from the recording.
 `test_agent_channel_unknown_only_when_agent_audio_alone_is_missing`, `test_check_observed_tier_function`,
 `test_run_rule_r1_and_bundle_rule_r2_agree`, `test_an_under_claim_is_never_excused`,
 `test_no_price_not_available_never_zero`, `test_not_available_cost_has_no_basis`,
-`test_per_turn_share_not_applicable_when_no_turn_applies`.
+`test_per_turn_share_not_applicable_when_no_turn_applies`,
+`test_applic_a_result_stored_for_another_run_is_rejected_unless_it_agrees`,
+`test_deg_bundle_rejects_a_scored_result_for_a_missing_input`.

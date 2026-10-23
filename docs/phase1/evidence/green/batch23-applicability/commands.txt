@@ -1,0 +1,28 @@
+Batch 23 (schema-architect, 2026-10-24): the bundle [applicability] rule and MetricResult.transcript_ids
+(ADR 0004 Decision 9; contract docs/phase1/api-surface-applicability.md). Paths scrubbed: <repo> is
+the checkout, <scratchpad> the agent scratch area.
+
+Regenerated (never edited by hand):
+  uv run --locked python -m tracer_evalschema.schema_export --write     (MetricResult, RunBundle, ExportBundle, schema.lock)
+  uv run --locked python scripts/generate_field_docs.py --write         (docs/schema/MetricResult.md, RunBundle.md, ExportBundle.md)
+NOT regenerated (qa does it after SCR-1..SCR-8): scripts/build_golden_fixtures.py --write.
+
+Per Python version V in 3.11 3.12 3.13 3.14, own environment (UV_PROJECT_ENVIRONMENT=<scratchpad>/venvV):
+  uv sync --locked --all-groups --python V
+  uv run --locked --python V pytest -q -p no:cacheprovider \
+    packages/evalschema/tests/test_bundle_applicability.py packages/evalschema/tests/test_tier_degradation*.py
+                                                                         -> target.pyV.log
+  uv run --locked --python V pytest -q -p no:cacheprovider packages/evalschema/tests \
+    --ignore=packages/evalschema/tests/test_security_hardening.py -rf --tb=no
+                                                                         -> full-suite.pyV.log
+  schema_export --check; generate_field_docs.py --check; build_golden_fixtures.py --check;
+  ruff check packages scripts; ruff format --check packages scripts; mypy; mypy --strict packages/evalschema/src;
+  check_headers.py; guard_private_fixtures.py; check_licenses.py         -> gates.pyV.log
+Ignored: test_security_hardening.py (untracked, a concurrent qa agent's red hardening tests; it does
+not depend on this change: 99 failed / 24 passed with and without it, no [applicability] in any failure).
+
+Classification of every full-suite failure: expected-failures.txt (from the JUnit XML of each run).
+
+Simulation of the post-SCR tree (a scratch copy of the repository without .env*, .venv and
+tests/fixtures/private/; qa's suggested-existing-edits.patch (SCR-1..SCR-7) applied there only, then
+build_golden_fixtures.py --write there; Python 3.14.7)                  -> simulated-post-scr.py3.14.log

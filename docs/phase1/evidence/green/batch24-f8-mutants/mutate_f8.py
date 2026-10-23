@@ -1,0 +1,127 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 The Tracer contributors
+# Mutation harness: usage mutate.py <scratch repo> <test file rel> [names...]
+import subprocess, sys, os, shutil, re
+repo, testrel = sys.argv[1], sys.argv[2]
+only = set(sys.argv[3:])
+conv = os.path.join(repo, "packages/evalschema/tests/support/mappings/voicera_transcript.py")
+orig = open(conv, encoding="utf-8").read()
+MSG_Q = '"the first line is not a call_id header",'
+M = []
+def m(name, *pairs): M.append((name, pairs))
+
+m("role-swap", ('_ROLE = {"assistant": "agent", "user": "caller"}', '_ROLE = {"assistant": "caller", "user": "agent"}'))
+m("meaning-start", ('{"at": instant, "meaning": "unknown"}', '{"at": instant, "meaning": "start"}'))
+m("meaning-start-constant", ('Leg("/wall_time/meaning", stamp_at, "constant:unknown")', 'Leg("/wall_time/meaning", stamp_at, "constant:start")'))
+m("source-agent-stt", ('turn.set("source", "agent_log", Leg("/source", by_speaker, "constant:agent_log"))', 'turn.set("source", "agent_stt", Leg("/source", by_speaker, "constant:agent_log"))'))
+m("language-tag-added", ('    stamp = message["ts"]\n', '    turn.set("language", "mr-IN")\n    stamp = message["ts"]\n'))
+m("interrupted-false", ('    stamp = message["ts"]\n', '    turn.set("interrupted", False)\n    stamp = message["ts"]\n'))
+m("strip-text", ('rec.text(message["text"] or "", f"{where}/text")', 'rec.text((message["text"] or "").strip(), f"{where}/text")'))
+m("nfc-text", ('rec.text(message["text"] or "", f"{where}/text")', 'rec.text(__import__("unicodedata").normalize("NFC", message["text"] or ""), f"{where}/text")'))
+m("naive-as-utc", ('    if zone is None:\n        return None, "naive_timestamp"\n', '    if zone is None:\n        zone = "Z"\n'))
+m("no-precision-warning", ('("time_precision_reduced" if len(fraction) > 6 else None)', 'None'))
+m("unknown-speaker-kept", ('role = _ROLE.get(speaker)\n    if role is None:', 'role = _ROLE.get(speaker, "unknown")\n    if False:'))
+m("seq-counts-lines", ('if _message(rec, transcript_id, where, message, turns):', 'if _message(rec, transcript_id, where, message, index):'))
+m("call-id-lower", ('_header(rec, head, found["value"])', '_header(rec, head, found["value"].lower())'))
+m("no-call-ref", ('    head.set(\n        "provider_call_ref"', '    return\n    head.set(\n        "provider_call_ref"'))
+m("no-external-ref", ('    if not rec.external_ref("voicera", "call_id", value, source):\n        return\n', '    pass\n'))
+m("declared-into-detected", ('        head.set("declared_language", declared_language)\n', '        head.set("declared_language", declared_language)\n        head.set("detected_language", declared_language["language"])\n'))
+m("declaration-ignored", ('        head.set("declared_language", declared_language)\n', '        pass\n'))
+m("declaration-not-validated", ('    Transcript(**arguments)\n', '    pass\n'))
+m("print-content", ('        number = index + 1\n', '        number = index + 1\n        print(line)\n'))
+m("content-in-message", ('"the first line is not a call_id header",', 'f"the first line is not a call_id header {line}",'), ('"the line is not a message line"', 'f"the line is not a message line {line}"'))
+m("unparsed-appended", ('rec.warn("unparsed_line", "the line is not a message line", path=where, raw=line)', 'rec.warn("unparsed_line", "the line is not a message line", path=where, raw=line)\n                m2 = _MESSAGE.fullmatch("[2026-10-24T11:01:07.000+00:00] assistant: " + line)\n                if m2 and _message(rec, transcript_id, where, m2, turns):\n                    turns += 1'))
+m("splitlines", ('pieces = text.split("\\n")', 'pieces = text.splitlines()'))
+m("bom-not-tolerated", ('    if out and out[0].startswith(_BOM):\n        out[0] = out[0][1:]\n', ''))
+m("cr-kept", ('piece[:-1] if piece.endswith("\\r") else piece', 'piece'))
+m("delimiter-not-consumed", ('                rec.consume(where)\n', ''))
+m("empty-text-dropped", ('    speaker = message["speaker"]\n', '    if not message["text"]:\n        return False\n    speaker = message["speaker"]\n'))
+m("dedupe", ('        if line.strip() == "":\n            continue\n        message =', '        if line.strip() == "":\n            continue\n        if number > 2 and line in _SEEN:\n            continue\n        _SEEN.add(line)\n        message ='), ('    header_ok = False\n', '    header_ok = False\n    _SEEN: set[str] = set()\n'))
+m("sort-by-ts", ('    lines = _lines(text)\n', '    lines = _lines(text)\n    lines = lines[:2] + sorted(lines[2:], key=lambda s: s.split("]")[0])\n'))
+m("truncate-concatenated", ('rec.text(message["text"] or "", f"{where}/text")', 'rec.text((message["text"] or "")[: max(1, len(message["text"] or "") // 2)], f"{where}/text")'))
+m("raises-on-content", ('    rec = Recorder("F8", created_at, privacy)\n', '    if "\\x00" in text:\n        raise ValueError("nul")\n    rec = Recorder("F8", created_at, privacy)\n'))
+m("accepts-bytes", ('    if not isinstance(text, str):\n', '    if isinstance(text, bytes):\n        text = text.decode("utf-8")\n    if not isinstance(text, str):\n'))
+m("empty-input-no-warning", ('        rec.warn("empty_input", "the export has no line with content")\n', '        pass\n'))
+m("header-missing-no-warning", ('            rec.warn(\n                "header_not_recognized",', '            (lambda *a, **k: None)(\n                "header_not_recognized",'))
+m("call-id-uuid-no-warning", ('    if not _UUID.fullmatch(value):\n', '    if False:\n'))
+m("accept-basic-format", ('r"(?P<y>[0-9]{4})-(?P<mo>[0-9]{2})-(?P<d>[0-9]{2})[T ](?P<h>[0-9]{2}):(?P<mi>[0-9]{2})"\n    r":(?P<s>[0-9]{2})', 'r"(?P<y>[0-9]{4})-?(?P<mo>[0-9]{2})-?(?P<d>[0-9]{2})[T ](?P<h>[0-9]{2}):?(?P<mi>[0-9]{2})"\n    r":?(?P<s>[0-9]{2})'))
+m("accept-basic-format-full", ('r"(?P<y>[0-9]{4})-(?P<mo>[0-9]{2})-(?P<d>[0-9]{2})[T ](?P<h>[0-9]{2}):(?P<mi>[0-9]{2})"\n    r":(?P<s>[0-9]{2})(?:\.(?P<frac>[0-9]+))?(?P<zone>Z|[+-][0-9]{2}:[0-9]{2})?"', 'r"(?P<y>[0-9]{4})-?(?P<mo>[0-9]{2})-?(?P<d>[0-9]{2})[T ](?P<h>[0-9]{2}):?(?P<mi>[0-9]{2})"\n    r":?(?P<s>[0-9]{2})(?:\\.(?P<frac>[0-9]+))?(?P<zone>Z|[+-][0-9]{2}:?[0-9]{2})?"'), ('hours, minutes = int(zone[1:3]), int(zone[4:6])','hours, minutes = int(zone[1:3]), int(zone[-2:])'))
+m("surrogate-not-replaced", ('rec.text(message["text"] or "", f"{where}/text")', '(message["text"] or "", None)'))
+m("no-seq-derivation-trace", ('turn.set("seq", seq, Leg("/seq", by_speaker, "order_index"))', 'turn.set("seq", seq)'))
+m("table-missing-row", ('    _row(\n        "Transcript.declared_language",\n        "user_declared",\n        None,\n        None,\n        "the caller\'s declaration (N14), stored as supplied and never read as observed",\n    ),\n', ''))
+m("table-absent-row-bogus-a", ('    _absent("Turn.exchange_index", "no Exchange is built from per-line stamps"),\n', '    _absent("Turn.exchange_index", "no Exchange is built from per-line stamps"),\n    _absent("Turn.bogus_field", "x"),\n'))
+m("table-absent-row-bogus-b", ('    _absent("Turn.exchange_index", "no Exchange is built from per-line stamps"),\n', '    _absent("Turn.exchange_index", "no Exchange is built from per-line stamps"),\n    _absent("Turn.text", "x"),\n'))
+m("exchange-built", ('    return rec.commit(turn, where=where) is not None', '    ex = Draft(Exchange)\n    ex.set("index", seq)\n    ex.set("source", "inferred_from_turns")\n    rec.commit(ex)\n    return rec.commit(turn, where=where) is not None'), ('from tracer_evalschema.transcript import Transcript, Turn', 'from tracer_evalschema.transcript import Exchange, Transcript, Turn'))
+m("filename-time", ('        text = moment.astimezone(UTC)', '        moment = moment + timedelta(hours=5, minutes=30)\n        text = moment.astimezone(UTC)'))
+m("declared-traced", ('        head.set("declared_language", declared_language)\n', '        head.set("declared_language", declared_language, Leg("/declared_language", ("f8:1",)))\n'))
+m("runtime-logging", ('import re\n', 'import logging\nimport re\n'), ('    rec = Recorder("F8", created_at, privacy)\n', '    logging.getLogger("x").warning("n=%d", len(text))\n    rec = Recorder("F8", created_at, privacy)\n'))
+m("fd-write", ('import re\n', 'import os\nimport re\n'), ('    rec = Recorder("F8", created_at, privacy)\n', '    os.write(2, b"x")\n    rec = Recorder("F8", created_at, privacy)\n'))
+m("py-warning", ('import re\n', 'import re\nimport warnings\n'), ('    rec = Recorder("F8", created_at, privacy)\n', '    warnings.warn("x")\n    rec = Recorder("F8", created_at, privacy)\n'))
+m("message-quotes-speaker-line", ('"the speaker label is not assistant or user, so the line is not mapped",', 'f"the speaker label is not assistant or user, so the line is not mapped {message.string}",'))
+m("bidi-flag-stripped", ('rec.text(message["text"] or "", f"{where}/text")', 'rec.text(re.sub("[\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069]", "", message["text"] or ""), f"{where}/text")'))
+
+
+m("x-nonascii-digits", ('(?P<y>[0-9]{4})-(?P<mo>[0-9]{2})-(?P<d>[0-9]{2})[T ](?P<h>[0-9]{2}):(?P<mi>[0-9]{2})', r'(?P<y>\d{4})-(?P<mo>\d{2})-(?P<d>\d{2})[T ](?P<h>\d{2}):(?P<mi>\d{2})'))
+m("x-nonascii-digits-fraction", ('(?:\\.(?P<frac>[0-9]+))?', r'(?:\.(?P<frac>\d+))?'))
+m("x-nonascii-digits-offset", ('[+-][0-9]{2}:[0-9]{2})?"', r'[+-]\d{2}:\d{2})?"'))
+m("x-nonascii-uuid", ('_UUID = re.compile(r"[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}")', '_UUID = re.compile(r"\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}")'))
+m("x-overflow-uncaught", ('except (ValueError, OverflowError):', 'except ValueError:'))
+m("x-blank-first-skipped", ('        number = index + 1\n', '        number = index + 1\n        if line.strip() == "":\n            continue\n'))
+m("x-eof-delim-warning", ('    if turns or header_ok:\n', '    if len(lines) == 1 and header_ok:\n        rec.warn("delimiter_not_found", "x", path="f8:2")\n    if turns or header_ok:\n'))
+m("x-surrogate-id-stored", ('    if not rec.external_ref("voicera", "call_id", value, source):\n        return\n', '    rec.external_ref("voicera", "call_id", value, source)\n'))
+m("x-line2-unparsed", ('            if number > 2:\n', '            if number > 1:\n'))
+m("x-declaration-after-empty", ('    Transcript(**arguments)\n', ''), ('        return rec.result()\n\n    transcript_id', '        return rec.result()\n    Transcript(**arguments)\n\n    transcript_id'))
+m("x-privacy-after-empty", ('    Transcript(**arguments)\n', '    Transcript(**{**arguments, "privacy": {"human_subject": False}} if not text.strip() else arguments)\n'))
+m("x-sign-ignored", ('            if zone[0] == "-":\n                offset = -offset\n', ''))
+m("x-minutes-unchecked", ('if hours > 23 or minutes > 59:', 'if hours > 23:'))
+m("x-hours-unchecked", ('if hours > 23 or minutes > 59:', 'if minutes > 59:'))
+m("x-ljust-rjust", ('.ljust(6, "0")', '.rjust(6, "0")'))
+m("x-round", ('micro = int(fraction[:6].ljust(6, "0"))', 'micro = min(999999, round(int(fraction[:7].ljust(7, "0")) / 10))'))
+m("x-precision-gte6", ('len(fraction) > 6', 'len(fraction) >= 6'))
+m("x-precision-gt7", ('len(fraction) > 6', 'len(fraction) > 7'))
+m("x-timestamp-match", ('_INSTANT.fullmatch(stamp)', '_INSTANT.match(stamp)'))
+m("x-timestamp-search", ('_INSTANT.fullmatch(stamp)', '_INSTANT.search(stamp)'))
+m("x-date-dash-optional", ('(?P<y>[0-9]{4})-(?P<mo>[0-9]{2})-(?P<d>[0-9]{2})', '(?P<y>[0-9]{4})-?(?P<mo>[0-9]{2})-?(?P<d>[0-9]{2})'))
+m("x-time-colon-optional", ('[T ](?P<h>[0-9]{2}):(?P<mi>[0-9]{2})"\n    r":(?P<s>[0-9]{2})', '[T ](?P<h>[0-9]{2}):?(?P<mi>[0-9]{2})"\n    r":?(?P<s>[0-9]{2})'))
+m("x-offset-colon-optional", ('[+-][0-9]{2}:[0-9]{2})?"', '[+-][0-9]{2}:?[0-9]{2})?"'), ('int(zone[4:6])', 'int(zone[-2:])'))
+m("x-offset-hours-only", ('[+-][0-9]{2}:[0-9]{2})?"', '[+-][0-9]{2}(?::[0-9]{2})?)?"'), ('int(zone[4:6])', 'int(zone[4:6] or 0)'))
+m("x-seconds-optional", ('r":(?P<s>[0-9]{2})(?:', 'r"(?::(?P<s>[0-9]{2}))?(?:'), ('int(found["s"]),', 'int(found["s"] or 0),'))
+m("x-header-strip", ('_header(rec, head, found["value"])', '_header(rec, head, found["value"].strip())'))
+m("x-empty-input-nonblank", ('if all(line.strip() == "" for line in lines):', 'if all(line == "" for line in lines):'))
+m("x-timestamp-z-lower", ('(?P<zone>Z|', '(?P<zone>Z|z|'), ('if zone == "Z":', 'if zone in "Zz":'))
+m("x-sep-t-lower", ('[T ](?P<h>', '[Tt ](?P<h>'))
+m("x-line2-unparsed2", ("            if _MESSAGE.fullmatch(line) is None:\n                continue\n", ""), ("            if number > 2:\n", "            if number > 1:\n"))
+m("x-hour24", ('int(found["h"]),', 'int(found["h"]) % 24,'))
+m("y-ts-greedy", (r'\[(?P<ts>[^\]]*)\]', r'\[(?P<ts>.*)\]'))
+m("y-spaces-after-bracket", (r'\] (?P<speaker>', r'\] +(?P<speaker>'))
+m("y-spaces-after-colon", (r':(?: (?P<text>.*))?")', r':(?: +(?P<text>.*))?")'))
+m("y-seq-from-1", ('turn.set("seq", seq, Leg', 'turn.set("seq", seq + 1, Leg'))
+m("y-text-dot-nonewline", ('(?P<text>.*))?")', '(?P<text>[^\u2028\u2029]*))?")'))
+m("y-delim-prefix", ('if line == "---":', 'if line.startswith("---"):'))
+m("y-header-prefix-ci", ('_HEADER = re.compile(r"call_id=(?P<value>.+)")', '_HEADER = re.compile(r"call_id=(?P<value>.+)", re.I)'))
+m("y-header-lines-any", ('        if number == 1:\n', '        if number == 1 or (number > 2 and _HEADER.fullmatch(line)):\n'))
+env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
+pyc = os.path.join(os.path.dirname(conv), "__pycache__")
+res = []
+for name, pairs in M:
+    if only and name not in only: continue
+    src = orig
+    ok = True
+    for old, new in pairs:
+        if src.count(old) != 1:
+            print(f"{name}: PATTERN-COUNT {src.count(old)} for {old[:50]!r}"); ok = False; break
+        src = src.replace(old, new)
+    if not ok:
+        res.append((name, "NOT-APPLIED", "")); continue
+    shutil.rmtree(pyc, ignore_errors=True)
+    open(conv, "w", encoding="utf-8").write(src)
+    p = subprocess.run(["uv","run","--locked","--python","3.12","pytest","-q","-x","-p","no:cacheprovider"]+testrel.split(",")+os.environ.get("EXTRA","").split(),cwd=repo,env=env,capture_output=True,text=True)
+    out = p.stdout + p.stderr
+    fails = re.findall(r"^FAILED (\S+)", out, re.M)
+    errs = re.findall(r"^ERROR (\S+)", out, re.M)
+    tail = out.strip().splitlines()[-1] if out.strip() else ""
+    if p.returncode == 0: status, first = "SURVIVED", tail
+    else: status, first = "KILLED", (fails or errs or [tail])[0].split("::",1)[-1][:110]
+    print(f"{name}: {status} {first}", flush=True)
+    res.append((name, status, first))
+open(conv, "w", encoding="utf-8").write(orig)

@@ -1,0 +1,167 @@
+--- a/packages/evalschema/src/tracer_evalschema/bundle.py
++++ b/packages/evalschema/src/tracer_evalschema/bundle.py
+@@ -677,6 +677,8 @@
+             need(evidence.ref_id, result.id, "an evidence reference")
+         for transcript_id in result.declared_language_transcript_ids:
+             need(transcript_id, result.id, "declared_language_transcript_ids")
++        for transcript_id in result.transcript_ids or ():
++            need(transcript_id, result.id, "transcript_ids")
+     if bundle.verdict is not None:
+         for check in bundle.verdict.checks:
+             need(check.result_id, bundle.verdict.id, "a check's result_id")
+@@ -771,8 +773,116 @@
+         )
+     except ValueError as exc:
+         raise _tagged("verdict", exc) from None
++
++
++_RUN_LEVEL = ("missing_input", "agent_channel_unknown")
+ 
+ 
++def _read_turns(definition: Any, turns: list[Turn]) -> list[Turn]:
++    requires = list(definition.requires)
++    if "agent_transcript" in requires:
++        return [t for t in turns if t.role == "agent"]
++    if "transcript" in requires:
++        return list(turns)
++    return []
++
++
++def _expected(definition: Any, run: Any, turns: list[Turn], transcripts: list[Transcript]) -> Any:
++    from tracer_evalschema import results as res
++
++    if definition.aggregation.kind != "per_turn_share":
++        return res.applicability(
++            definition, run, turns=_read_turns(definition, turns), transcripts=transcripts
++        )
++    read = _read_turns(definition, turns)
++    apps = [res.applicability(definition, run, turns=[t], transcripts=transcripts) for t in read]
++    if not apps:
++        apps = [res.applicability(definition, run, turns=[], transcripts=transcripts)]
++    for app in apps:
++        if app.na_reason in _RUN_LEVEL:
++            return app
++    declared = sorted({i for a in apps for i in a.declared_language_transcript_ids}, key=str)
++    sources = [a.language_source for a in apps if a.language_source is not None]
++    source = "declared" if declared else ("observed" if sources else None)
++    reasons = [a.na_reason for a in apps]
++    reason = None if None in reasons else res.strongest_na_reason(reasons)
++    return res.Applicability(reason, [], source, declared)
++
++
++def _bad(position: int, result: Any, field: str) -> ValueError:
++    return ValueError(
++        f"[applicability] result {result.id} (results[{position}]): {field} differs from the "
++        "re-run of applicability over the bundle"
++    )
++
++
++def _check_applicability(bundle: RunBundle, withheld_kinds: set[str]) -> None:
++    from tracer_evalschema import results as res
++    from tracer_evalschema.metrics import LANGUAGE_INDEPENDENT
++
++    run = bundle.run
++    if (
++        "agent_transcript" in run.available_inputs
++        and bundle.turns
++        and "turn" not in withheld_kinds
++        and not any(t.role == "agent" for t in bundle.turns)
++    ):
++        raise ValueError(
++            f"[applicability] run {run.id} lists agent_transcript, but no turn of the bundle has "
++            "the role agent"
++        )
++    definitions = {(d.id, d.version): d for d in bundle.snapshot.metric_definitions}
++    held = {t.id: t for t in bundle.transcripts}
++    skip_language = bool(withheld_kinds & {"transcript", "turn"})
++    for position, result in enumerate(bundle.results):
++        definition = definitions[(result.metric.id, result.metric.version)]
++        reads = bool(set(definition.requires) & {"transcript", "agent_transcript"}) or (
++            definition.languages != LANGUAGE_INDEPENDENT
++        )
++        if result.transcript_ids is None:
++            if len(held) > 1 and reads:
++                raise ValueError(
++                    f"[applicability] result {result.id} (results[{position}]): transcript_ids "
++                    "required when the bundle holds several transcripts"
++                )
++            chosen = list(held.values()) if len(held) == 1 else []
++        else:
++            chosen = [held[i] for i in result.transcript_ids if i in held]
++        chosen_ids = {t.id for t in chosen}
++        turns = [t for t in bundle.turns if t.transcript_id in chosen_ids]
++        if skip_language:
++            exp = res.applicability(definition, run, turns=[], transcripts=[])
++            if exp.na_reason in _RUN_LEVEL:
++                ok = (
++                    result.status == "not_applicable"
++                    and result.na_reason == exp.na_reason
++                    and list(result.missing_kinds) == list(exp.missing_kinds)
++                )
++                if not ok:
++                    raise _bad(position, result, "status")
++            elif result.na_reason in _RUN_LEVEL:
++                raise _bad(position, result, "na_reason")
++            continue
++        exp = _expected(definition, run, turns, chosen)
++        stored_na = result.status == "not_applicable"
++        if result.status == "error":
++            if exp.na_reason in _RUN_LEVEL:
++                raise _bad(position, result, "status")
++        else:
++            if stored_na != (exp.na_reason is not None):
++                raise _bad(position, result, "status")
++            if result.na_reason != exp.na_reason:
++                raise _bad(position, result, "na_reason")
++            if list(result.missing_kinds) != list(exp.missing_kinds):
++                raise _bad(position, result, "missing_kinds")
++        if result.language_source != exp.language_source:
++            raise _bad(position, result, "language_source")
++        if list(result.declared_language_transcript_ids) != list(
++            exp.declared_language_transcript_ids
++        ):
++            raise _bad(position, result, "declared_language_transcript_ids")
++
++
+ def _check_costs(bundle: RunBundle, withheld: set[TypedId]) -> None:
+     """``[cost]`` and ``[summary]`` (step 6)."""
+     catalogs = {(c.id, c.version): c for c in bundle.pricing_catalogs}
+@@ -868,6 +978,7 @@
+     _check_markers(bundle)
+     _check_declaration(bundle, present)
+     check_observed_tier(run, records, withheld=bundle.withheld)
++    _check_applicability(bundle, withheld_kinds)
+ 
+ 
+ # ================================================================================ export bundle
+--- a/packages/evalschema/src/tracer_evalschema/results.py
++++ b/packages/evalschema/src/tracer_evalschema/results.py
+@@ -269,6 +269,13 @@
+     return ids
+ 
+ 
++def _unique_read_ids(ids: list[TranscriptId]) -> list[TranscriptId]:
++    texts = [str(i) for i in ids]
++    if len(set(texts)) != len(texts):
++        raise ValueError("transcript_ids lists one transcript twice")
++    return ids
++
++
+ def _unique_kinds(kinds: list[str]) -> list[str]:
+     if len(set(kinds)) != len(kinds):
+         raise ValueError("missing_kinds lists one input kind twice")
+@@ -451,6 +458,14 @@
+         Field(json_schema_extra={"uniqueItems": True}),
+     ] = Field(default_factory=list)
+     evidence_refs: list[EvidenceRef] = Field(default_factory=list)
++    transcript_ids: (
++        Annotated[
++            list[TranscriptId],
++            AfterValidator(_unique_read_ids),
++            Field(min_length=1, json_schema_extra={"uniqueItems": True}),
++        ]
++        | None
++    ) = None
+ 
+     @model_validator(mode="after")
+     def _status_rules(self) -> MetricResult:

@@ -1,0 +1,45 @@
+# batch23-applicability gates; schema-architect; date: 2026-10-23T22:07:11Z (UTC)
+# paths: <repo> is the checkout, <scratchpad> the agent scratch area
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+## interpreter
+Python 3.12.14
+## python -m tracer_evalschema.schema_export --check
+rc=0
+## python scripts/generate_field_docs.py --check
+rc=0
+## python scripts/build_golden_fixtures.py --check
+  File "<repo>/scripts/build_golden_fixtures.py", line 109, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "<repo>/scripts/build_golden_fixtures.py", line 86, in main
+    files = render()
+            ^^^^^^^^
+  File "<repo>/scripts/build_golden_fixtures.py", line 39, in render
+    rendered: dict[str, bytes] = dict(support.render_all().files)
+                                      ^^^^^^^^^^^^^^^^^^^^
+  File "<repo>/packages/evalschema/tests/_support_b9.py", line 293, in render_all
+    raise RuntimeError(f"valid fixture {entity}/{name}: {error}") from error
+RuntimeError: valid fixture ExportBundle/maximal: 1 validation error for ExportBundle
+run_bundles.0
+  Value error, [applicability] result res_01a168a1-da24-7941-bf57-b593539d14a7 (results[0]): status differs from the re-run of applicability over the run and the transcripts and turns the result read [type=value_error]
+    For further information visit https://errors.pydantic.dev/2.14/v/value_error
+rc=1
+## ruff check packages scripts
+All checks passed!
+rc=0
+## ruff format --check packages scripts
+168 files already formatted
+rc=0
+## mypy
+Success: no issues found in 161 source files
+rc=0
+## mypy --strict packages/evalschema/src
+Success: no issues found in 40 source files
+rc=0
+## python scripts/check_headers.py
+rc=0
+## python scripts/guard_private_fixtures.py
+rc=0
+## python scripts/check_licenses.py
+42 ok, 0 failed
+rc=0

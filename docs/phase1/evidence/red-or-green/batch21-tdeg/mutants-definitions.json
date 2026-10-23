@@ -1,0 +1,233 @@
+[
+ {
+  "id": "N1",
+  "file": "results.py",
+  "old": "    return [kind for kind in definition.requires if kind not in available]",
+  "new": "    return [kind for kind in definition.requires if kind not in available][:1]",
+  "desc": "not_applicable rule: missing_kinds lists only the first missing kind"
+ },
+ {
+  "id": "N2",
+  "file": "results.py",
+  "old": "        if (\n            missing == [\"agent_audio\"]\n            and \"audio\" in run.available_inputs\n            and not agent_audio_available(run.channel_maps)\n        ):",
+  "new": "        if (\n            missing == [\"agent_audio\"]\n            and not agent_audio_available(run.channel_maps)\n        ):",
+  "desc": "not_applicable rule: agent_channel_unknown without requiring a recording"
+ },
+ {
+  "id": "N3",
+  "file": "results.py",
+  "old": "            missing == [\"agent_audio\"]\n            and \"audio\" in run.available_inputs",
+  "new": "            \"agent_audio\" in missing\n            and \"audio\" in run.available_inputs",
+  "desc": "not_applicable rule: agent_channel_unknown when agent_audio is one of several missing kinds"
+ },
+ {
+  "id": "N4",
+  "file": "results.py",
+  "old": "    if missing:\n        if (",
+  "new": "    if False:\n        if (",
+  "desc": "not_applicable rule: missing inputs ignored (metric proceeds to language steps)"
+ },
+ {
+  "id": "P1",
+  "file": "results.py",
+  "old": "NA_REASON_PRECEDENCE: Final = (\n    \"missing_input\",\n    \"agent_channel_unknown\",\n    \"language_not_observed\",",
+  "new": "NA_REASON_PRECEDENCE: Final = (\n    \"agent_channel_unknown\",\n    \"missing_input\",\n    \"language_not_observed\",",
+  "desc": "reason precedence: agent_channel_unknown before missing_input"
+ },
+ {
+  "id": "P2",
+  "file": "results.py",
+  "old": "    if not found or len(effective) < len(found):\n        reason = \"language_not_observed\"\n    elif any(primary_language(e.language) not in covered for e in effective):\n        reason = \"unsupported_language\"",
+  "new": "    if any(primary_language(e.language) not in covered for e in effective):\n        reason = \"unsupported_language\"\n    elif not found or len(effective) < len(found):\n        reason = \"language_not_observed\"",
+  "desc": "reason precedence: unsupported_language before language_not_observed"
+ },
+ {
+  "id": "P3",
+  "file": "results.py",
+  "old": "    elif definition.script_sensitive and any(\n        e.source == \"observed\" and _unsupported_script(e.language) for e in effective\n    ):",
+  "new": "    elif any(\n        e.source == \"observed\" and _unsupported_script(e.language) for e in effective\n    ):",
+  "desc": "script rule: unsupported_script applied to non-script-sensitive metrics"
+ },
+ {
+  "id": "P4",
+  "file": "results.py",
+  "old": "    if declaration is not None and not definition.script_sensitive:",
+  "new": "    if declaration is not None:",
+  "desc": "declared language used by a script-sensitive metric"
+ },
+ {
+  "id": "P5",
+  "file": "results.py",
+  "old": "    if definition.languages == LANGUAGE_INDEPENDENT:\n        return LanguageCheck(None, None, [])",
+  "new": "    if False:\n        return LanguageCheck(None, None, [])",
+  "desc": "language-independent metric gets language steps"
+ },
+ {
+  "id": "V1",
+  "file": "verdict.py",
+  "old": "    return \"pass\" if passed == total else \"inconclusive\"",
+  "new": "    return \"pass\"",
+  "desc": "verdict status: not_applicable counted as pass"
+ },
+ {
+  "id": "V2",
+  "file": "verdict.py",
+  "old": "    return f\"{verdict.passed}/{verdict.required_total} required checks passed\"",
+  "new": "    return f\"{verdict.passed}/{verdict.passed + verdict.failed} required checks passed\"",
+  "desc": "verdict count: headline denominator = checks that ran"
+ },
+ {
+  "id": "V3",
+  "file": "verdict.py",
+  "old": "        if outcome in EXCLUDED_OUTCOMES:\n            excluded.append(WeightedExclusion(binding_id=binding_id, outcome=outcome))\n            continue",
+  "new": "        if outcome in EXCLUDED_OUTCOMES:\n            excluded.append(WeightedExclusion(binding_id=binding_id, outcome=outcome))\n            scored += weight\n            continue",
+  "desc": "weighted score: not_applicable weight counted as scored (as a 0)"
+ },
+ {
+  "id": "V4",
+  "file": "verdict.py",
+  "old": "    if failed > 0:\n        return \"fail\"",
+  "new": "    if failed > 0 and total - passed - failed == 0:\n        return \"fail\"",
+  "desc": "verdict status: a failed check no longer wins over not applicable ones"
+ },
+ {
+  "id": "V5",
+  "file": "verdict.py",
+  "old": "    return WeightedScore(_rounded(earned / scored), _rounded(scored / total), excluded)",
+  "new": "    return WeightedScore(_rounded(earned / scored), _rounded(Fraction(1)), excluded)",
+  "desc": "weighted coverage always 1"
+ },
+ {
+  "id": "C1",
+  "file": "cost.py",
+  "old": "        nothing = \"usage_not_reported\" if domain == \"agent_under_test\" else \"no_usage\"",
+  "new": "        nothing = \"no_usage\"",
+  "desc": "cost-domain rule: agent no-usage reason is no_usage"
+ },
+ {
+  "id": "C2",
+  "file": "cost.py",
+  "old": "        if not shared:\n            continue\n        if shared == _usage(record):",
+  "new": "        if True:\n            continue\n        if shared == _usage(record):",
+  "desc": "cost: duplicate of reported never set aside (double counting)"
+ },
+ {
+  "id": "C3",
+  "file": "cost.py",
+  "old": "        if record.domain != domain:\n            raise ValueError(\n                f\"cost record {record.id} is of domain",
+  "new": "        if False:\n            raise ValueError(\n                f\"cost record {record.id} is of domain",
+  "desc": "cost-domain rule: summary accepts a record of another domain"
+ },
+ {
+  "id": "C4",
+  "file": "cost.py",
+  "old": "_NOT_AVAILABLE_ABSENT: Final = (\"amount\", \"basis\", \"reported_by\", \"pricing_snapshot\", \"rounding\")",
+  "new": "_NOT_AVAILABLE_ABSENT: Final = (\"basis\", \"reported_by\", \"pricing_snapshot\", \"rounding\")",
+  "desc": "not_available cost may carry an amount"
+ },
+ {
+  "id": "C5",
+  "file": "cost.py",
+  "old": "    if expected_total != summary.total:\n        raise ValueError(\"the summary total is not the exact sum of the included amounts\")",
+  "new": "    if False:\n        raise ValueError(\"the summary total is not the exact sum of the included amounts\")",
+  "desc": "summary total not checked against included amounts"
+ },
+ {
+  "id": "C6",
+  "file": "usage.py",
+  "old": "        if self.domain == \"agent_under_test\" and self.source == \"measured\":",
+  "new": "        if False:",
+  "desc": "agent usage may be measured (estimated from recording)"
+ },
+ {
+  "id": "C7",
+  "file": "cost.py",
+  "old": "    if any(not exclusion.covered_by for exclusion in excluded):\n        return \"partial\"",
+  "new": "    if False:\n        return \"partial\"",
+  "desc": "summary completeness never partial"
+ },
+ {
+  "id": "T1",
+  "file": "bundle.py",
+  "old": "    if stored > computed and not any(entry.kind in PROVENANCE_KINDS for entry in withheld):",
+  "new": "    if False:",
+  "desc": "R2: over-claim accepted"
+ },
+ {
+  "id": "T2",
+  "file": "bundle.py",
+  "old": "    if stored < computed:",
+  "new": "    if False:",
+  "desc": "R2: under-claim accepted"
+ },
+ {
+  "id": "T3",
+  "file": "run.py",
+  "old": "        if \"spans\" in self.available_inputs and self.observed_tier == \"T0\":",
+  "new": "        if False:",
+  "desc": "R1: spans with T0 accepted"
+ },
+ {
+  "id": "T4",
+  "file": "bundle.py",
+  "old": "_T1_TRANSCRIPT_SOURCES: Final = frozenset({\"agent_telemetry\"})",
+  "new": "_T1_TRANSCRIPT_SOURCES: Final = frozenset()",
+  "desc": "evidence tier: telemetry transcript is not T1 evidence"
+ },
+ {
+  "id": "T5",
+  "file": "results.py",
+  "old": "    available = set(run.available_inputs)\n    return [kind",
+  "new": "    available = set(run.available_inputs) | ({\"tool_calls\", \"tool_results\"} if run.observed_tier != \"T0\" else set())\n    return [kind",
+  "desc": "applicability reads observed_tier (display field)"
+ },
+ {
+  "id": "N5",
+  "file": "results.py",
+  "old": "            if self.value is not None:\n                problem(\"value\", f\"a {status} result has no value (never 0, false or empty)\")",
+  "new": "            if False:\n                problem(\"value\", f\"a {status} result has no value (never 0, false or empty)\")",
+  "desc": "not_applicable result may carry a value"
+ },
+ {
+  "id": "N6",
+  "file": "results.py",
+  "old": "            if self.passed is not None:\n                problem(\"passed\", f\"a {status} result has no passed\")",
+  "new": "            if False:\n                problem(\"passed\", f\"a {status} result has no passed\")",
+  "desc": "not_applicable result may carry passed=false"
+ },
+ {
+  "id": "N7",
+  "file": "artifact.py",
+  "old": "        sum(1 for channel in channel_map.channels if channel.role == \"agent\") == 1",
+  "new": "        sum(1 for channel in channel_map.channels if channel.role != \"caller\") >= 1",
+  "desc": "a mixed or unknown channel identifies the agent"
+ },
+ {
+  "id": "V6",
+  "file": "verdict.py",
+  "old": "    if result.status == \"not_applicable\":\n        return \"not_applicable\"",
+  "new": "    if result.status == \"not_applicable\":\n        return \"failed\"",
+  "desc": "verdict outcome: not_applicable counted as failed"
+ },
+ {
+  "id": "V7",
+  "file": "verdict.py",
+  "old": "    return f\"weighted score {_two_decimals(score)} (weight coverage {_two_decimals(coverage)})\"",
+  "new": "    return f\"weighted score {_two_decimals(score)}\"",
+  "desc": "weighted score rendered without its coverage"
+ },
+ {
+  "id": "C8",
+  "file": "cost.py",
+  "old": "    if not usage_list:\n        nothing =",
+  "new": "    if not usage_list and False:\n        nothing =",
+  "desc": "cost: no usage priced as a 0 sum instead of not_available"
+ },
+ {
+  "id": "C9",
+  "file": "cost.py",
+  "old": "    if reason is not None:\n        unpriced: list[str] = []",
+  "new": "    if reason is not None and reason != \"no_price_for_model\":\n        unpriced: list[str] = []",
+  "desc": "cost: usage with no price is silently skipped (partial sum)"
+ }
+]

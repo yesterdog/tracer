@@ -1,0 +1,34 @@
+baseline failing: 4
+N1 KILLED 6 new failures; not_applicable rule: missing_kinds lists only the first missing kind
+N2 KILLED 1 new failures; not_applicable rule: agent_channel_unknown without requiring a recording
+N3 KILLED 2 new failures; not_applicable rule: agent_channel_unknown when agent_audio is one of several missing kinds
+N4 KILLED 75 new failures; not_applicable rule: missing inputs ignored (metric proceeds to language steps)
+P1 KILLED 1 new failures; reason precedence: agent_channel_unknown before missing_input
+P2 KILLED 1 new failures; reason precedence: unsupported_language before language_not_observed
+P3 KILLED 2 new failures; script rule: unsupported_script applied to non-script-sensitive metrics
+P4 KILLED 2 new failures; declared language used by a script-sensitive metric
+P5 KILLED 151 new failures; language-independent metric gets language steps
+V1 KILLED 91 new failures; verdict status: not_applicable counted as pass
+V2 KILLED 3 new failures; verdict count: headline denominator = checks that ran
+V3 KILLED 5 new failures; weighted score: not_applicable weight counted as scored (as a 0)
+V4 KILLED 1 new failures; verdict status: a failed check no longer wins over not applicable ones
+V5 KILLED 4 new failures; weighted coverage always 1
+C1 KILLED 5 new failures; cost-domain rule: agent no-usage reason is no_usage
+C2 KILLED 151 new failures; cost: duplicate of reported never set aside (double counting)
+C3 KILLED 1 new failures; cost-domain rule: summary accepts a record of another domain
+C4 KILLED 1 new failures; not_available cost may carry an amount
+C5 KILLED 1 new failures; summary total not checked against included amounts
+C6 KILLED 1 new failures; agent usage may be measured (estimated from recording)
+C7 KILLED 1 new failures; summary completeness never partial
+T1 KILLED 4 new failures; R2: over-claim accepted
+T2 KILLED 3 new failures; R2: under-claim accepted
+T3 KILLED 1 new failures; R1: spans with T0 accepted
+T4 KILLED 1 new failures; evidence tier: telemetry transcript is not T1 evidence
+T5 KILLED 1 new failures; applicability reads observed_tier (display field)
+N5 KILLED 3 new failures; not_applicable result may carry a value
+N6 KILLED 2 new failures; not_applicable result may carry passed=false
+N7 KILLED 2 new failures; a mixed or unknown channel identifies the agent
+V6 KILLED 16 new failures; verdict outcome: not_applicable counted as failed
+V7 KILLED 5 new failures; weighted score rendered without its coverage
+C8 KILLED 90 new failures; cost: no usage priced as a 0 sum instead of not_available
+C9 KILLED 52 new failures; cost: usage with no price is silently skipped (partial sum)

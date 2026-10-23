@@ -5,7 +5,10 @@
 Captured 2026-10-23 with `tracer_capture.sarvam_capture`. Fixtures:
 `packages/evalschema/tests/fixtures/real/sarvam-2026-10-23/` (one folder per case with
 `request.json`, `response_body.json` (raw bytes as received), `response_meta.json`; shared clips in
-`clips/`; `provenance.json`). Call log: `tools/capture/sarvam_call_log.jsonl` (47 calls of the 60 cap).
+`clips/`; `provenance.json`). The 9 Sarvam TTS clips (`tts_*.wav`) and `short_300ms.wav` (a 0.3 s cut of `tts_hi`) are not distributed (Sarvam Terms
+of Service v2.0 section 10.2; `docs/security/P1-02-licenses.md` section 8): they are kept in the
+git-ignored `packages/evalschema/tests/fixtures/private/sarvam-clips/`, and `clips-manifest.json`
+records their sha256, size, duration and TTS parameters. The Kokoro clips and `silence_2s.wav` (generated silence) remain in `clips/`. Call log: `tools/capture/sarvam_call_log.jsonl` (47 calls of the 60 cap).
 
 Docs read (retrieved 2026-10-23, markdown form):
 - https://docs.sarvam.ai/api-reference/speech-to-text/transcribe

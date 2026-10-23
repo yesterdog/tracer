@@ -1,0 +1,111 @@
+--- a/packages/evalschema/tests/_support_b7.py
++++ b/packages/evalschema/tests/_support_b7.py
+@@ -226,6 +226,7 @@
+             "audio",
+             "agent_audio",
+             "transcript",
++            "turn_timing",
+             "tool_calls",
+             "tool_results",
+             "usage",
+@@ -239,10 +240,12 @@
+         "observer" if tier == "T2" else ("agent_export" if tier == "T0" or declared else "our_stt")
+     )
+     transcript = transcript_doc(id=tsc_id, source=transcript_source, privacy=mark)
++    if not declared:
++        transcript["detected_language"] = "hi-IN"
+     if declared:
+         transcript["source"] = "agent_export"
+         transcript["declared_language"] = {
+-            "language": "mr-IN",
++            "language": "hi-IN",
+             "source": "user_declared",
+             "declared_by": "cli",
+             "declared_at": "2026-10-23T08:00:00.000000Z",
+@@ -304,7 +307,8 @@
+         "value": 420,
+         "passed": True,
+         "scorer": scorer_info(),
+-        "language_source": "observed",
++        "language_source": "declared" if declared else "observed",
++        "declared_language_transcript_ids": [tsc_id] if declared else [],
+     }
+     verdict_api = api("verdict")
+     weighted = verdict_api.compute_weighted_score([(bindings[1].id, "5", "passed")])
+--- a/packages/evalschema/tests/_support_b8.py
++++ b/packages/evalschema/tests/_support_b8.py
+@@ -966,6 +966,7 @@
+         "options",  # EnumScale and OneOfRule: distinct option strings (new)
+         "prompt_variables",  # MetricDefinition: distinct variable names (new)
+         "requires",  # MetricDefinition: closed-set kinds
++        "transcript_ids",  # MetricResult: transcript ids a result read (batch 23)
+         "unpriced_units",  # CostRecord: closed-set units
+         "usage_record_ids",  # CostRecord: record ids
+     }
+@@ -1381,6 +1382,8 @@
+                 *_deep("results.*.value"),
+             ),
+             *_claims(("list_empty",), "*Bundle", *_deep("verdict.checks")),
++            *_claims(("remove", "list_empty"), "*Bundle", *_deep("run.available_inputs")),
++            *_claims(("remove", "to_null"), "*Bundle", *_deep("transcripts.*.detected_language")),
+             *_claims(
+                 ("near_swapcase", "near_truncated", "near_extended"),
+                 "*Bundle",
+--- a/packages/evalschema/tests/_support_b9_valid.py
++++ b/packages/evalschema/tests/_support_b9_valid.py
+@@ -1258,7 +1258,7 @@
+ 
+ @valid("MetricResult", "maximal")
+ def _result_maximal() -> Doc:
+-    return _scored()
++    return _scored(transcript_ids=[b2.new_id("tsc")])
+ 
+ 
+ @valid("MetricResult", "maximal-boolean-false")
+--- a/packages/evalschema/tests/test_export_rules.py
++++ b/packages/evalschema/tests/test_export_rules.py
+@@ -755,7 +755,13 @@
+     only_text = run_bundle_doc(tier="T0")
+     only_text["artifacts"] = []
+     only_text["run"]["channel_maps"] = []
+-    only_text["run"]["available_inputs"] = ["transcript", "tool_calls", "tool_results", "usage"]
++    only_text["run"]["available_inputs"] = [
++        "transcript",
++        "turn_timing",
++        "tool_calls",
++        "tool_results",
++        "usage",
++    ]
+     only_text["results"][0]["evidence_refs"] = [
+         e for e in only_text["results"][0]["evidence_refs"] if e["kind"] != "artifact_range"
+     ]
+@@ -765,9 +771,7 @@
+     )
+     only_audio = run_bundle_doc(tier="T0")
+     only_audio["transcripts"], only_audio["turns"] = [], []
+-    only_audio["results"][0]["evidence_refs"] = [
+-        e for e in only_audio["results"][0]["evidence_refs"] if e["kind"] != "turn"
+-    ]
++    only_audio["results"], only_audio["verdict"] = [], None  # no transcript: no judged result
+     for exchange_holder in only_audio["exchanges"]:
+         exchange_holder["source"] = "inferred_from_turns"
+     load_run(only_audio)
+@@ -1324,6 +1328,8 @@
+     call = copy.deepcopy(out["tool_calls"][0])
+     call.update(id=new_id("tcl"), seq=9)
+     out["tool_calls"].append(call)
++    for result in out["results"]:
++        result["transcript_ids"] = [out["transcripts"][0]["id"]]
+     return out
+ 
+ 
+--- a/packages/evalschema/tests/test_results.py
++++ b/packages/evalschema/tests/test_results.py
+@@ -177,6 +177,7 @@
+         "judge",
+         "language_source",
+         "declared_language_transcript_ids",
++        "transcript_ids",
+         "evidence_refs",
+     }
+     assert set(property_enum(model, "status")) == {"scored", "not_applicable", "error"}

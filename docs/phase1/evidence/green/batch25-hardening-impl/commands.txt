@@ -1,0 +1,14 @@
+Batch 25 hardening implementation (schema-architect, 2026-10-24). Each Python version in its own
+UV_PROJECT_ENVIRONMENT (<scratch>/venv-<version>), from the repository root:
+
+uv sync --locked --all-groups --python <version>
+uv run --locked --all-groups --python <version> pytest -q -p no:cacheprovider packages/evalschema/tests/test_security_hardening.py   > target.py<version>.log
+uv run --locked --all-groups --python <version> pytest -q -p no:cacheprovider packages/evalschema/tests                               > full-suite.py<version>.log
+gates (gates.py<version>.log): ruff check packages scripts; ruff format --check packages/evalschema/src scripts; mypy --strict;
+  scripts/check_headers.py; scripts/guard_private_fixtures.py; scripts/check_licenses.py;
+  python -m tracer_evalschema.schema_export --check; scripts/generate_field_docs.py --check;
+  scripts/build_golden_fixtures.py --check
+
+Versions: 3.11.16, 3.12.14, 3.13.15, 3.14.7. Paths in the logs are replaced by <repo>, <home> and <scratch>.
+Results: target 123 passed on every version; full suite 8 failed, 8366 passed, 6 deselected on every
+version (the 8 are listed in expected-failures.txt); every gate exits 0 on every version.

@@ -201,3 +201,41 @@ Other recommendations: R5 pin the build backend; R6 list rfc8785 (Apache-2.0) an
 ## 7. Gate recommendation
 
 NON-BLOCKER for the current lock (28 locked third-party packages: 0 GPL/AGPL/LGPL; runtime set is permissive; the two MPL-2.0 test/dev packages need the listed exception); BLOCKER for adding `python-bidi`, and a pending lead decision on the bidi reference before P1-04d starts.
+
+## 8. Third-party data terms (P1-21 C2, i4)
+
+Retrieved 2026-10-24 with curl from the official pages. This section records facts and short quotes only. It is not legal advice. "Allowed" means the terms we found permit what we do; "unclear" means we found no clear grant.
+
+| Item | Source page (retrieved 2026-10-24) | Quote that matters | Conclusion |
+|---|---|---|---|
+| (a) `iso4217_active.json` | https://www.six-group.com/en/products-services/financial-information/data-standards.html | "make them available online and free of charge" | UNCLEAR |
+| (a) | https://www.six-group.com/en/services/legal/terms-and-conditions/terms-of-use.html (SIX website terms) | "may not be reproduced or reused in any way or used for commercial purposes" | UNCLEAR (this is about website content; the XML file itself carries no licence text) |
+| (b) `iana_subtag_registry_subset.json` | https://www.iana.org/help/licensing-terms (revised 2021-11-10) | "dedicate any applicable copyright rights that they may own in the Protocol Registries to the public domain" and "subject to the Creative Commons CC0 1.0 dedication" | ALLOWED, no attribution required (we still credit IANA). The Language Subtag Registry is linked from https://www.iana.org/protocols. |
+| (c) Sarvam outputs in `tests/fixtures/real/sarvam-2026-10-23/` | https://www.sarvam.ai/terms-of-service (Version 2.0, effective 2026-07-29) | 17.4: "we assign to you our rights in the Output generated for you" (to the extent possible) | Text and JSON outputs: ALLOWED WITH CAVEAT (the assignment is "to the extent possible"; other users may get similar output) |
+| (c) audio | same, section 10.2 | "distribute or otherwise commercially exploit any audio Output" "on a standalone basis (for example, as isolated files" "except as expressly permitted by the applicable Product-Specific Terms" | UNCLEAR for audio Output in a public repo. Resolved by not distributing it: the 10 Sarvam clips (the 9 `tts_*.wav` direct outputs and `short_300ms.wav`, a 0.3 s cut of `tts_hi.wav`) are removed from the working tree (the deletion lands with the pending clips commit); `clips-manifest.json` records their sha256, size, duration and how they were made, and the files stay local under the git-ignored `tests/fixtures/private/sarvam-clips/`. They remain in public git history (commit 9223d98); rewriting it is the owner's release-checklist decision. Product-Specific Terms were not found at any linked URL (https://www.sarvam.ai/api-terms returned 404; https://docs.sarvam.ai/ links no terms page). |
+| (c) testing | same, section 10.5(a) | "develop, train, test, fine-tune or otherwise improve any machine learning algorithm or artificial intelligence system" | UNCLEAR. The fixtures test Tracer's parsers and mappers, not an AI system, but a later phase that scores STT or other models with these clips should be checked against this clause. |
+| (d) Langfuse docs quotes (F2 fixture provenance) | https://raw.githubusercontent.com/langfuse/langfuse-docs/main/LICENSE | "MIT License" "Copyright (c) 2022-2025 Langfuse GmbH" | ALLOWED WITH ATTRIBUTION (MIT: keep the copyright and permission notice; NOTICE names it). The licence file is for the docs repository; the page on langfuse.com is assumed to be the same content, which we did not verify. |
+| (d) Pipecat docs quotes (F5 fixture provenance) | https://raw.githubusercontent.com/pipecat-ai/docs/main/LICENSE | "BSD 2-Clause License" "Copyright (c) 2024-2025, Daily" | ALLOWED WITH ATTRIBUTION (BSD-2: keep the copyright notice and conditions; the F5 provenance says no Pipecat text is copied). |
+
+Notes per item:
+
+- (a) The SIX list page also states "SIX is the official Maintenance Agency" for ISO 4217 and the XML (Pblshd 2026-09-17) has no header comment or licence field. The data are factual codes, but we found no written reuse grant. We shipped codes, numeric codes, minor units and English names, de-duplicated across countries.
+- (b) The registry file we hashed has File-Date 2026-09-17.
+- (c) Kokoro clips (`kokoro_*.wav`) and the generated `silence_2s.wav` are not Sarvam output and stay in the tree. `short_300ms.wav` is derived from the Sarvam clip `tts_hi.wav` (its first 0.3 s), so it is treated as Sarvam audio Output and is one of the 10 clips that are not distributed (manifest `clips-manifest.json` beside the case folders). The Sarvam STT request and response JSON are the transcripts and metadata for invented sentences. The provenance says the fixtures contain no personal data.
+- (d) The F2 provenance quotes are one-line attribute table rows and sentences. The OpenTelemetry semantic-conventions registry cited in the same provenance was not checked here.
+
+Edits made for this section: `_meta.sources[0].license_note` in both data files (strings only), a `terms` note in the Sarvam `provenance.json`, and a third-party data notice in the root and package `NOTICE`.
+
+### 8.1 Proposed replacement for the ISO 4217 data (not implemented)
+
+If the owner prefers a source with a written licence: Unicode CLDR `common/supplemental/supplementalData.xml` carries `<currencyCodes type="AED" numeric="784"/>` (183 entries seen) and the fraction digits, and CLDR English names live in `common/main/en.xml`. The repository https://github.com/unicode-org/cldr says "All other content in this repo is released under UNICODE LICENSE V3" (checked 2026-10-24; the data files, not the LDML specification text). Unicode License v3 requires keeping the copyright and permission notice, so the NOTICE would gain one entry.
+
+What would change: regenerate `iso4217_active.json` from CLDR via `scripts/generate_package_data.py`; `scripts/verify_language_data.py` would compare against CLDR instead of the SIX XML; `_meta.sources` and NOTICE change. Risks: CLDR names differ from SIX names, CLDR may lag the SIX list by months, and it has no fund flag or the `is_x_code` field, so those would need a rule or a second source. Values in the data file would change, which affects the golden and pricing tests. This needs a design decision.
+
+### 8.2 Release checklist (open items)
+
+1. SIX ISO 4217: no reuse licence found. Ask SIX (the contact link on the list page) for written confirmation, or adopt the CLDR replacement in 8.1, before the first public release.
+2. Sarvam audio: done for the working tree. The 10 Sarvam clips (9 `tts_*.wav` and `short_300ms.wav`) are not distributed; `tests/fixtures/real/sarvam-2026-10-23/clips-manifest.json` replaces them (sha256, bytes, duration, generation) and the real files are kept locally under the git-ignored `tests/fixtures/private/sarvam-clips/`. Open: the files remain in public git history (commit 9223d98); removing them from history needs a force-push and is the owner's decision. Asking Sarvam for Product-Specific Terms that permit distribution remains optional.
+3. Sarvam section 10.5(a): confirm that testing parsers on Output is outside the "test ... any AI system" bar, and re-check before any phase that benchmarks models with these clips.
+4. Langfuse: confirm the langfuse.com pages carry the same MIT terms as the docs repository.
+5. Legal review of the above is a one-line reminder only, per the owner.

@@ -1,0 +1,23 @@
+$ uv run --locked --all-groups --python 3.14 ruff check packages scripts
+All checks passed!
+exit=0
+$ uv run --locked --all-groups --python 3.14 ruff format --check packages/evalschema/src scripts
+48 files already formatted
+exit=0
+$ uv run --locked --all-groups --python 3.14 mypy --strict
+Success: no issues found in 161 source files
+exit=0
+$ uv run --locked --all-groups --python 3.14 python scripts/check_headers.py
+exit=0
+$ uv run --locked --all-groups --python 3.14 python scripts/guard_private_fixtures.py
+exit=0
+$ uv run --locked --all-groups --python 3.14 python scripts/check_licenses.py
+42 ok, 0 failed
+exit=0
+$ uv run --locked --all-groups --python 3.14 python -m tracer_evalschema.schema_export --check
+exit=0
+$ uv run --locked --all-groups --python 3.14 python scripts/generate_field_docs.py --check
+exit=0
+$ uv run --locked --all-groups --python 3.14 python scripts/build_golden_fixtures.py --check
+502 files equal the generator output
+exit=0

@@ -1,0 +1,24 @@
+The 8 failing items of the full suite (identical on 3.11 to 3.14). Each asserts the behaviour the
+P1-21 decisions reverse; each is a named spec change approved in the decision log and applied by
+qa (SCOPE revision 30 item 8). None was edited by the architect.
+
+test_digest.py::test_digest_key_unavailable_never_echoes_what_a_resolver_says
+  asserts "vault-key-1" in the message ("the message names the key_id"); C3a removes the key id.
+test_digest.py::test_hmac_digest_golden
+  its "different key" is 31 bytes; m1 rejects it with WeakDigestKeyError (needs a 32-byte key).
+test_digest.py::test_unknown_digest_scheme_rejected
+  asserts the scheme name after ContentDigest(scheme=...); ContentDigest now hides its input (A9).
+test_entity_base.py::test_digest_errors_propagate_unwrapped_through_every_entry_point
+  asserts "md5-jcs/v1" in the message through a validated model; same cause as the previous item.
+test_sealed_payload.py::test_digest_key_ref_differs_from_kek_ref
+  expects "same key_id, another key_version" to be accepted; m2 rejects it (key_separation).
+test_sealing_adversarial.py::test_hostile_key_resolvers_never_verify_a_digest
+  expects DigestMismatch for the wrong keys b"\x00" and DIGEST_KEY[:-1]; m1 raises WeakDigestKeyError.
+test_adversarial_registry.py::test_covering_tests_run_and_pass[A-41]
+  red only through test_hostile_key_resolvers_never_verify_a_digest.
+test_adversarial_registry.py::test_covering_tests_run_and_pass[X-08]
+  red only through test_unknown_digest_scheme_rejected.
+
+Not failing yet but part of the same request: the seeds KeyRef and ContentDigest of
+test_project_agent.py::test_hide_input_set_closed_under_embedding (the closure walk with them is
+already green through test_security_hardening.py).

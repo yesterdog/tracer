@@ -1,0 +1,365 @@
+........................................................................ [  0%]
+........................................................................ [  1%]
+........................................................................ [  2%]
+..............................................................F......... [  3%]
+.F...................................................................... [  4%]
+........................................................................ [  5%]
+........................................................................ [  6%]
+........................................................................ [  6%]
+........................................................................ [  7%]
+........................................................................ [  8%]
+........................................................................ [  9%]
+........................................................................ [ 10%]
+........................................................................ [ 11%]
+........................................................................ [ 12%]
+........................................................................ [ 12%]
+........................................................................ [ 13%]
+........................................................................ [ 14%]
+........................................................................ [ 15%]
+.........................................................F.F............ [ 16%]
+..F..................................................................... [ 17%]
+.F...................................................................... [ 18%]
+........................................................................ [ 18%]
+........................................................................ [ 19%]
+........................................................................ [ 20%]
+........................................................................ [ 21%]
+........................................................................ [ 22%]
+........................................................................ [ 23%]
+........................................................................ [ 24%]
+........................................................................ [ 24%]
+........................................................................ [ 25%]
+........................................................................ [ 26%]
+........................................................................ [ 27%]
+........................................................................ [ 28%]
+........................................................................ [ 29%]
+........................................................................ [ 30%]
+........................................................................ [ 30%]
+........................................................................ [ 31%]
+........................................................................ [ 32%]
+........................................................................ [ 33%]
+........................................................................ [ 34%]
+........................................................................ [ 35%]
+........................................................................ [ 36%]
+........................................................................ [ 36%]
+........................................................................ [ 37%]
+........................................................................ [ 38%]
+........................................................................ [ 39%]
+........................................................................ [ 40%]
+........................................................................ [ 41%]
+........................................................................ [ 42%]
+........................................................................ [ 42%]
+........................................................................ [ 43%]
+........................................................................ [ 44%]
+........................................................................ [ 45%]
+........................................................................ [ 46%]
+........................................................................ [ 47%]
+........................................................................ [ 48%]
+........................................................................ [ 49%]
+........................................................................ [ 49%]
+........................................................................ [ 50%]
+........................................................................ [ 51%]
+........................................................................ [ 52%]
+........................................................................ [ 53%]
+........................................................................ [ 54%]
+........................................................................ [ 55%]
+........................................................................ [ 55%]
+........................................................................ [ 56%]
+........................................................................ [ 57%]
+........................................................................ [ 58%]
+........................................................................ [ 59%]
+........................................................................ [ 60%]
+........................................................................ [ 61%]
+........................................................................ [ 61%]
+........................................................................ [ 62%]
+........................................................................ [ 63%]
+........................................................................ [ 64%]
+........................................................................ [ 65%]
+........................................................................ [ 66%]
+........................................................................ [ 67%]
+........................................................................ [ 67%]
+........................................................................ [ 68%]
+........................................................................ [ 69%]
+........................................................................ [ 70%]
+........................................................................ [ 71%]
+........................................................................ [ 72%]
+........................................................................ [ 73%]
+........................................................................ [ 73%]
+........................................................................ [ 74%]
+........................................................................ [ 75%]
+........................................................................ [ 76%]
+........................................................................ [ 77%]
+........................................................................ [ 78%]
+........................................................................ [ 79%]
+........................................................................ [ 79%]
+........................................................................ [ 80%]
+........................................................................ [ 81%]
+........................................................................ [ 82%]
+........................................................................ [ 83%]
+........................................................................ [ 84%]
+........................................................................ [ 85%]
+........................................................................ [ 85%]
+........................................................................ [ 86%]
+........................................................................ [ 87%]
+........................................................................ [ 88%]
+........................................................................ [ 89%]
+........................................................................ [ 90%]
+........................................................................ [ 91%]
+........................................................................ [ 91%]
+.............................F.......................................... [ 92%]
+..................F..................................................... [ 93%]
+........................................................................ [ 94%]
+........................................................................ [ 95%]
+........................................................................ [ 96%]
+........................................................................ [ 97%]
+........................................................................ [ 98%]
+........................................................................ [ 98%]
+........................................................................ [ 99%]
+......................                                                   [100%]
+=================================== FAILURES ===================================
+____________________ test_covering_tests_run_and_pass[A-41] ____________________
+
+entry = {'id': 'A-41', 'title': 'Hostile key resolvers never verify a digest; authentication comes before the digest', 'source': 'SCOPE (S-11); ADR 0006 Decision 4', 'expectation': 'rejected', ...}
+results = RunResult(passed={'packages/evalschema/tests/test_adversarial_cases.py::test_fixture_outcome_matches_expected[X-06/tra...adversarial.py::test_hostile_key_resolvers_never_verify_a_digest': 'Failed: DID NOT RAISE DigestMismatch'}, skipped={})
+
+    @pytest.mark.parametrize("entry", _entries())
+    def test_covering_tests_run_and_pass(entry: dict[str, Any], results: b12.RunResult) -> None:
+        """For each case: every collected test the covering list names (all parametrizations of a
+        function) ran in the child pytest process and passed; none was skipped; a case with a fixture
+        directory passed once for each of its documents."""
+        collected = set(results.passed) | set(results.failed) | set(results.skipped)
+        problems = b12.node_problems(entry, collected=collected, skips={}, results=results)
+>       assert problems == []
+E       AssertionError: assert ['A-41: packa...gestMismatch'] == []
+E         
+E         Left contains one more item: 'A-41: packages/evalschema/tests/test_sealing_adversarial.py::test_hostile_key_resolvers_never_verify_a_digest failed: Failed: DID NOT RAISE DigestMismatch'
+E         Use -v to get more diff
+
+packages/evalschema/tests/test_adversarial_registry.py:136: AssertionError
+____________________ test_covering_tests_run_and_pass[X-08] ____________________
+
+entry = {'id': 'X-08', 'title': "Digest tampering and downgrade of an entity's own content digest", 'source': 'test (P1-18); extends A-09 and A-37', 'expectation': 'rejected', ...}
+results = RunResult(passed={'packages/evalschema/tests/test_adversarial_cases.py::test_fixture_outcome_matches_expected[X-06/tra...adversarial.py::test_hostile_key_resolvers_never_verify_a_digest': 'Failed: DID NOT RAISE DigestMismatch'}, skipped={})
+
+    @pytest.mark.parametrize("entry", _entries())
+    def test_covering_tests_run_and_pass(entry: dict[str, Any], results: b12.RunResult) -> None:
+        """For each case: every collected test the covering list names (all parametrizations of a
+        function) ran in the child pytest process and passed; none was skipped; a case with a fixture
+        directory passed once for each of its documents."""
+        collected = set(results.passed) | set(results.failed) | set(results.skipped)
+        problems = b12.node_problems(entry, collected=collected, skips={}, results=results)
+>       assert problems == []
+E       assert ['X-08: packa...a256-jcs/v1)'] == []
+E         
+E         Left contains one more item: "X-08: packages/evalschema/tests/test_digest.py::test_unknown_digest_scheme_rejected failed: AssertionError: assert ('... hmac-sha256-jcs/v1)' = str(UnknownDigestScheme('unknown digest scheme (registered: sha256-jcs/v1, hmac-sha256-jcs/v1)"
+E         Use -v to get more diff
+
+packages/evalschema/tests/test_adversarial_registry.py:136: AssertionError
+_____________________ test_unknown_digest_scheme_rejected ______________________
+
+    def test_unknown_digest_scheme_rejected() -> None:
+        digest = _digest()
+        errors = _errors()
+        for scheme in (
+            "none",
+            "sha256",
+            "md5-jcs/v1",
+            "sha256-jcs/v2",
+            "SHA256-JCS/V1",
+            "",
+            "hmac-sha256-jcs/v1 ",
+        ):
+            with pytest.raises(errors.UnknownDigestScheme) as caught:
+                digest.ContentDigest(scheme=scheme, value=HEX64)
+>           assert scheme in str(caught.value) or scheme == ""
+E           AssertionError: assert ('none' in 'unknown digest scheme (registered: sha256-jcs/v1, hmac-sha256-jcs/v1)' or 'none' == ''
+E            +  where 'unknown digest scheme (registered: sha256-jcs/v1, hmac-sha256-jcs/v1)' = str(UnknownDigestScheme('unknown digest scheme (registered: sha256-jcs/v1, hmac-sha256-jcs/v1)'))
+E            +    where UnknownDigestScheme('unknown digest scheme (registered: sha256-jcs/v1, hmac-sha256-jcs/v1)') = <ExceptionInfo UnknownDigestScheme('unknown digest scheme (registered: sha256-jcs/v1, hmac-sha256-jcs/v1)') tblen=5>.value
+E             
+E             + none)
+
+packages/evalschema/tests/test_digest.py:112: AssertionError
+___________________________ test_hmac_digest_golden ____________________________
+
+    def test_hmac_digest_golden() -> None:
+        digest = _digest()
+        errors = _errors()
+        assert hmac.new(
+            GOLDEN_HMAC_KEY, GOLDEN_CANONICAL.encode("utf-8"), hashlib.sha256
+        ).hexdigest() == (GOLDEN_HMAC)
+        key_ref = digest.KeyRef(key_id="test-key-1")
+        result = digest.compute_digest(GOLDEN_OBJ, scheme=KEYED, key=GOLDEN_HMAC_KEY, key_ref=key_ref)
+        assert result.scheme == KEYED
+        assert result.value == GOLDEN_HMAC
+        assert result.key_ref == key_ref
+        assert result.value != GOLDEN_SHA256, "keyed and plain digests of one value differ"
+        seen: list[Any] = []
+    
+        def resolver(ref: Any) -> bytes | None:
+            seen.append(ref)
+            return GOLDEN_HMAC_KEY if ref.key_id == "test-key-1" else None
+    
+        assert digest.verify_digest(GOLDEN_OBJ, result, key_resolver=resolver) is None
+        assert seen == [key_ref], "the resolver gets the KeyRef, never key material from the digest"
+        # a different key is a mismatch, not a success
+        with pytest.raises(errors.DigestMismatch):
+>           digest.verify_digest(
+                GOLDEN_OBJ, result, key_resolver=lambda ref: b"another-key-0000000000000000000"
+            )
+
+packages/evalschema/tests/test_digest.py:170: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/src/tracer_evalschema/digest.py:312: in verify_digest
+    key = _resolve_key(digest, key_resolver) if DIGEST_SCHEMES[digest.scheme].keyed else None
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/src/tracer_evalschema/digest.py:290: in _resolve_key
+    _check_key_length(digest.scheme, key)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+scheme = 'hmac-sha256-jcs/v1', key = b'another-key-0000000000000000000'
+
+    def _check_key_length(scheme: str, key: bytes) -> None:
+        """m1: a keyed scheme's key has at least ``MIN_KEYED_DIGEST_KEY_BYTES`` bytes. The message
+        names the rule and the scheme only (no length, bytes or text of the key)."""
+        if len(key) < MIN_KEYED_DIGEST_KEY_BYTES:
+>           raise WeakDigestKeyError(
+                f"the key of scheme {scheme} must be at least {MIN_KEYED_DIGEST_KEY_BYTES} bytes"
+            )
+E           tracer_evalschema.errors.WeakDigestKeyError: the key of scheme hmac-sha256-jcs/v1 must be at least 32 bytes
+
+packages/evalschema/src/tracer_evalschema/digest.py:238: WeakDigestKeyError
+________ test_digest_key_unavailable_never_echoes_what_a_resolver_says _________
+
+    def test_digest_key_unavailable_never_echoes_what_a_resolver_says() -> None:
+        """S-N91 (owner, auto-approved): ``DigestKeyUnavailable`` names the rule and the ``key_id`` and
+        nothing else. A hostile key resolver whose exception text, arguments or returned value hold
+        secret text (a made-up marker) must not see that text in the typed error: not in ``str``, not
+        in ``repr``, not in ``args``, not in the exception report, not in the ``errors()`` of a
+        pydantic ``ValidationError`` that a caller builds from it (``include_input=False``), and not
+        through the class name of the resolver's exception. The original exception is chained
+        (``__cause__`` is the very exception raised, so an operator can still find the reason) and the
+        chain, not the message, is where the text lives. A resolver that returns the wrong type, or
+        text instead of bytes, is not echoed either."""
+        digest = _digest()
+        errors = _errors()
+        key_ref = digest.KeyRef(key_id="vault-key-1")
+        keyed = digest.compute_digest(GOLDEN_OBJ, scheme=KEYED, key=GOLDEN_HMAC_KEY, key_ref=key_ref)
+    
+        class VaultDown(Exception):
+            pass
+    
+        hostile: list[Exception] = [
+            RuntimeError(f"vault token {HOSTILE_MARKER} rejected"),
+            KeyError(HOSTILE_MARKER),
+            VaultDown(HOSTILE_MARKER, {"password": HOSTILE_MARKER}),
+            OSError(13, HOSTILE_MARKER),
+            ValueError(HOSTILE_MARKER.encode()),
+        ]
+        for original in hostile:
+    
+            def failing(ref: Any, original: Exception = original) -> bytes:
+                raise original
+    
+            with pytest.raises(errors.DigestKeyUnavailable) as caught:
+                digest.verify_digest(GOLDEN_OBJ, keyed, key_resolver=failing)
+            error = caught.value
+            for text in _every_text_of(error):
+                assert HOSTILE_MARKER not in text, (type(original).__name__, text)
+                assert type(original).__name__ not in text, (type(original).__name__, text)
+>           assert "vault-key-1" in str(error), "the message names the key_id"
+E           AssertionError: the message names the key_id
+E           assert 'vault-key-1' in 'no key available: the key resolver failed (the cause is chained, never quoted in this message)'
+E            +  where 'no key available: the key resolver failed (the cause is chained, never quoted in this message)' = str(DigestKeyUnavailable('no key available: the key resolver failed (the cause is chained, never quoted in this message)'))
+
+packages/evalschema/tests/test_digest.py:625: AssertionError
+_______ test_digest_errors_propagate_unwrapped_through_every_entry_point _______
+
+    def test_digest_errors_propagate_unwrapped_through_every_entry_point() -> None:
+        """Proposed name. UnknownDigestScheme out of ContentDigest and DigestMismatch out of a
+        VersionedEntity come out as themselves, also from nested positions; a ValidationError (a
+        key_ref on a plain digest) stays a ValidationError."""
+        errors = api("errors")
+        digest = api("digest")
+        versioned = widget_classes().VersionedWidget
+        content_digest: Any = digest.ContentDigest
+        holder = create_model(
+            "DigestHolder", one=(content_digest, ...), many=(LIST[content_digest], ...)
+        )
+        plain = {"scheme": "sha256-jcs/v1", "value": "0" * 64}
+        unknown = {"scheme": "md5-jcs/v1", "value": "0" * 64}
+        adapter = TypeAdapter(digest.ContentDigest)
+        attempts: dict[str, Callable[[dict[str, Any]], Any]] = {
+            "model_validate": digest.ContentDigest.model_validate,
+            "model_validate_json": lambda d: digest.ContentDigest.model_validate_json(json.dumps(d)),
+            "TypeAdapter.validate_python": adapter.validate_python,
+            "TypeAdapter.validate_json": lambda d: adapter.validate_json(json.dumps(d)),
+            "nested": lambda d: holder.model_validate({"one": plain, "many": [d]}),
+            "nested json": lambda d: holder.model_validate_json(json.dumps({"one": d, "many": []})),
+        }
+        for name, validate in attempts.items():
+            with pytest.raises(errors.UnknownDigestScheme) as caught:
+                validate(unknown)
+            assert type(caught.value) is errors.UnknownDigestScheme, name
+>           assert "md5-jcs/v1" in str(caught.value)
+E           AssertionError: assert 'md5-jcs/v1' in 'unknown digest scheme (registered: sha256-jcs/v1, hmac-sha256-jcs/v1)'
+E            +  where 'unknown digest scheme (registered: sha256-jcs/v1, hmac-sha256-jcs/v1)' = str(UnknownDigestScheme('unknown digest scheme (registered: sha256-jcs/v1, hmac-sha256-jcs/v1)'))
+E            +    where UnknownDigestScheme('unknown digest scheme (registered: sha256-jcs/v1, hmac-sha256-jcs/v1)') = <ExceptionInfo UnknownDigestScheme('unknown digest scheme (registered: sha256-jcs/v1, hmac-sha256-jcs/v1)') tblen=5>.value
+
+packages/evalschema/tests/test_entity_base.py:701: AssertionError
+___________________ test_digest_key_ref_differs_from_kek_ref ___________________
+
+    def test_digest_key_ref_differs_from_kek_ref() -> None:
+        """Proposed name (N85). Key separation: the key that computes ``plaintext_digest`` must not be
+        the key-encryption key, because a recipient entrusted with the digest key (to check the link)
+        would then be able to unwrap every DEK. A ``key_ref`` equal to ``dek_wrap.kek_ref`` (same
+        ``key_id`` and ``key_version``) is rejected at ``plaintext_digest``; another ``key_version`` or
+        another ``key_id`` is accepted."""
+        same = _keyed_digest_doc(key_ref=dict(KEK_REF))
+        _rejected(payload_doc(plaintext_digest=same), "plaintext_digest")
+        only_id = _keyed_digest_doc(key_ref={"key_id": KEK_REF["key_id"]})
+>       _validates(payload_doc(plaintext_digest=only_id))
+
+packages/evalschema/tests/test_sealed_payload.py:1075: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+doc = {'format': 'tracer.sealed.v1', 'alg': 'A256GCM', 'dek_wrap': {'alg': 'A256KW', 'kek_ref': {'key_id': 'kek-test-1', 'ke...ion': '1'}, 'wrapped_dek': '3Nh_NfI9o7f_LphJZzKXWZONwjWjf41OJUDcNShQFVuI3_fLj08leQ'}, 'nonce': '5BpW4-9inonGW3rF', ...}
+
+    def _validates(doc: dict[str, Any]) -> Any:
+>       return sealed_class().model_validate(doc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for SealedPayload
+E       plaintext_digest.key_ref
+E         the digest key must not be the key-encryption key named by dek_wrap.kek_ref (the same key_id names the same key, whatever key_version says) [type=key_separation]
+
+packages/evalschema/tests/test_sealed_payload.py:161: ValidationError
+_______________ test_hostile_key_resolvers_never_verify_a_digest _______________
+
+    def test_hostile_key_resolvers_never_verify_a_digest() -> None:
+        """S-11: a resolver that raises, returns ``None``, returns an empty key or returns the KEK for
+        the digest key does not produce ``digest_verified=True``. A resolver that raises or has no key
+        leaves the payload authenticated but unverified; a wrong key is a ``DigestMismatch``."""
+        errors = api("errors")
+        plaintext = json.dumps({"answer": "yes"}).encode()
+        doc = seal(plaintext, payload_type="tool_result", digest_key=DIGEST_KEY)
+    
+        def raises(_ref: Any) -> bytes | None:
+            raise RuntimeError("key service down")
+    
+        for resolver in (raises, lambda _ref: None):
+            result = unseal(doc, key_resolver=resolver)
+            assert result.plaintext == plaintext
+            assert result.digest_verified is False
+        for wrong in (b"\x00", KEK, b"x" * 64, DIGEST_KEY[:-1]):
+>           with pytest.raises(errors.DigestMismatch):
+E           Failed: DID NOT RAISE DigestMismatch
+
+packages/evalschema/tests/test_sealing_adversarial.py:684: Failed
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_adversarial_registry.py::test_covering_tests_run_and_pass[A-41]
+FAILED packages/evalschema/tests/test_adversarial_registry.py::test_covering_tests_run_and_pass[X-08]
+FAILED packages/evalschema/tests/test_digest.py::test_unknown_digest_scheme_rejected
+FAILED packages/evalschema/tests/test_digest.py::test_hmac_digest_golden - tr...
+FAILED packages/evalschema/tests/test_digest.py::test_digest_key_unavailable_never_echoes_what_a_resolver_says
+FAILED packages/evalschema/tests/test_entity_base.py::test_digest_errors_propagate_unwrapped_through_every_entry_point
+FAILED packages/evalschema/tests/test_sealed_payload.py::test_digest_key_ref_differs_from_kek_ref
+FAILED packages/evalschema/tests/test_sealing_adversarial.py::test_hostile_key_resolvers_never_verify_a_digest
+8 failed, 8366 passed, 6 deselected in 285.74s (0:04:45)

@@ -1,0 +1,24 @@
+# group: batch23-applicability; mode fallout (oracle, schemas/lock/field docs/golden regenerated, SCR-1 only); qa
+# date: 2026-10-23T21:34:25Z (UTC)
+# command: <scratchpad>/b23/repo-partial: PYTHONPATH=.../src pytest -q -p no:cacheprovider packages/evalschema/tests --ignore=.../test_mapping_f8.py -rf --tb=line   (Python 3.14)
+# interpreter: 3.14.7 pydantic 2.14.1
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# note: 13 existing tests still fail (SCR-2 to SCR-7 of api-surface-applicability.md section 9.3) and 2 test_tdrift tests that fail only because the scratch copy lacks docs/phase1/evidence/
+# paths scrubbed: <repo> is the checkout, <scratchpad> the agent scratch area
+# ------------------------------------------------------------------------------
+FAILED packages/evalschema/tests/test_export_rules.py::test_benchmark_consent_of_tool_calls_comes_from_the_run_markers
+FAILED packages/evalschema/tests/test_export_rules.py::test_every_record_of_a_kind_is_checked_not_only_the_first[shared_export]
+FAILED packages/evalschema/tests/test_export_rules.py::test_every_record_of_a_kind_is_checked_not_only_the_first[benchmark]
+FAILED packages/evalschema/tests/test_golden_fixtures.py::test_every_property_covered_by_valid_fixture[MetricResult]
+FAILED packages/evalschema/tests/test_golden_fixtures.py::test_property_coverage_of_all_valid_fixtures_is_100_percent
+FAILED packages/evalschema/tests/test_golden_fixtures.py::test_property_coverage_runs_as_a_script_and_prints_100_percent
+FAILED packages/evalschema/tests/test_results.py::test_metric_result_shape_and_enums
+FAILED packages/evalschema/tests/test_schema_agreement.py::test_invalid_rejected_by_both[ExportBundle-internal]
+FAILED packages/evalschema/tests/test_schema_agreement.py::test_invalid_rejected_by_both[ExportBundle-shared]
+FAILED packages/evalschema/tests/test_schema_agreement.py::test_invalid_rejected_by_both[RunBundle-t1_human]
+FAILED packages/evalschema/tests/test_schema_agreement.py::test_invalid_rejected_by_both[RunBundle-t0_simulated]
+FAILED packages/evalschema/tests/test_schema_export.py::test_unique_items_is_only_for_arrays_of_scalars
+FAILED packages/evalschema/tests/test_schema_gaps.py::test_every_difference_between_a_model_and_its_schema_is_claimed_by_a_rule
+FAILED packages/evalschema/tests/test_tdrift.py::test_tdrift_allowlist_has_only_repo_paths
+FAILED packages/evalschema/tests/test_tdrift.py::test_tdrift_allowlist_has_no_unneeded_entry
+15 failed, 7934 passed, 1 deselected in 198.99s (0:03:18)

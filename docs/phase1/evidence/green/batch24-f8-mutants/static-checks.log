@@ -1,0 +1,21 @@
+# static checks on packages/evalschema/tests/test_mapping_f8_extra.py, python 3.12, 2026-10-23T21:29:32Z
+$ ruff check
+All checks passed!
+exit 0
+$ ruff format --check
+1 file already formatted
+exit 0
+$ mypy --strict
+Success: no issues found in 1 source file
+exit 0
+$ python scripts/check_headers.py
+(first run flagged the evidence script mutate_f8.py for a missing header; fixed, rerun below)
+exit 1
+$ python scripts/check_headers.py (rerun)
+exit 0
+$ python scripts/guard_private_fixtures.py
+exit 0
+$ python scripts/check_licenses.py
+42 ok, 0 failed
+exit 0
+non-ASCII bytes in file: 0

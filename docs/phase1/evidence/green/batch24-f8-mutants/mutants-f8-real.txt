@@ -1,0 +1,95 @@
+# batch24-f8-mutants: mutation check of the REAL F8 converter (packages/evalschema/tests/support/mappings/voicera_transcript.py), python 3.12, pytest -x, default markers, in a scratch copy of the repository (the repository itself is never mutated)
+# columns: mutant | existing test_mapping_f8.py (135) | both files (135 + 163) | note
+# first block: the 47 mutants of batch22-f8/mutants-f8.txt re-expressed on the real converter (two of them have a partial and a full form: accept-basic-format, table-absent-row-bogus-a/b; the partial forms survived the existing tests and are test gaps)
+# second block (x-*, y-*): 41 further boundary mutants added by qa for this check; KILLED/SURVIVED are shown for the existing file alone and for both files
+# date: 2026-10-24
+## original
+role-swap | existing: KILLED test_f8_roles_map | both: KILLED test_f8_roles_map
+meaning-start | existing: KILLED test_f8_single_timestamp_is_wall_time_timing_none | both: KILLED test_f8_single_timestamp_is_wall_time_timing_none
+meaning-start-constant | existing: KILLED test_f8_declaration_is_recorded_never_observed | both: KILLED test_f8_declaration_is_recorded_never_observed
+source-agent-stt | existing: KILLED test_f8_turn_source_agent_log | both: KILLED test_f8_turn_source_agent_log
+language-tag-added | existing: KILLED test_f8_mixed_script_turn_ok | both: KILLED test_f8_mixed_script_turn_ok
+interrupted-false | existing: KILLED test_f8_no_end_reason_is_none | both: KILLED test_f8_no_end_reason_is_none
+strip-text | existing: KILLED test_f8_text_is_split_at_the_first_colon_and_kept_verbatim | both: KILLED test_f8_text_is_split_at_the_first_colon_and_kept_verbatim
+nfc-text | existing: KILLED test_f8_text_is_not_normalised | both: KILLED test_f8_text_is_not_normalised
+naive-as-utc | existing: KILLED test_f8_timestamp_forms[naive] | both: KILLED test_f8_timestamp_forms[naive]
+no-precision-warning | existing: KILLED test_f8_timestamp_forms[nanoseconds-truncated] | both: KILLED test_f8_timestamp_forms[nanoseconds-truncated]
+unknown-speaker-kept | existing: KILLED test_f8_seq_is_zero_based_in_file_order_and_counts_turns_only | both: KILLED test_f8_seq_is_zero_based_in_file_order_and_counts_turns_only
+seq-counts-lines | existing: KILLED test_f8_mixed_script_turn_ok | both: KILLED test_f8_mixed_script_turn_ok
+call-id-lower | existing: KILLED test_f8_call_id_external_ref | both: KILLED test_f8_call_id_external_ref
+no-call-ref | existing: KILLED test_f8_call_id_external_ref | both: KILLED test_f8_call_id_external_ref
+no-external-ref | existing: KILLED test_f8_call_id_external_ref | both: KILLED test_f8_call_id_external_ref
+declared-into-detected | existing: KILLED test_f8_declared_language_reasons | both: KILLED test_f8_declared_language_reasons
+declaration-ignored | existing: KILLED test_f8_declared_language_reasons | both: KILLED test_f8_declared_language_reasons
+declaration-not-validated | existing: KILLED test_f8_bad_declaration_is_a_caller_error[script-subtag] | both: KILLED test_f8_bad_declaration_is_a_caller_error[script-subtag]
+print-content | existing: KILLED test_f8_converter_module_is_hygienic | both: KILLED test_f8_converter_module_is_hygienic
+content-in-message | existing: KILLED test_f8_deviations_become_warnings_and_nothing_is_guessed[header-missing-first-line-is-a-message] | both: KILLED test_f8_deviations_become_warnings_and_nothing_is_guessed[header-missing-first-line-is-a-message]
+unparsed-appended | existing: KILLED test_f8_seq_is_zero_based_in_file_order_and_counts_turns_only | both: KILLED test_f8_seq_is_zero_based_in_file_order_and_counts_turns_only
+splitlines | existing: KILLED test_f8_unicode_line_separators_inside_a_message_are_text[\u2028] | both: KILLED test_f8_unicode_line_separators_inside_a_message_are_text[\u2028]
+bom-not-tolerated | existing: KILLED test_f8_crlf_bom_and_missing_final_newline_are_tolerated | both: KILLED test_f8_crlf_bom_and_missing_final_newline_are_tolerated
+cr-kept | existing: KILLED test_f8_crlf_bom_and_missing_final_newline_are_tolerated | both: KILLED test_f8_crlf_bom_and_missing_final_newline_are_tolerated
+delimiter-not-consumed | existing: KILLED test_f8_every_source_key_mapped_or_gapped | both: KILLED test_f8_every_source_key_mapped_or_gapped
+empty-text-dropped | existing: KILLED test_f8_empty_text_is_a_turn_with_empty_text[bare-colon] | both: KILLED test_f8_empty_text_is_a_turn_with_empty_text[bare-colon]
+dedupe | existing: KILLED test_f8_identical_lines_are_two_turns | both: KILLED test_f8_identical_lines_are_two_turns
+sort-by-ts | existing: KILLED test_f8_seq_is_zero_based_in_file_order_and_counts_turns_only | both: KILLED test_f8_seq_is_zero_based_in_file_order_and_counts_turns_only
+truncate-concatenated | existing: KILLED test_f8_mixed_script_turn_ok | both: KILLED test_f8_mixed_script_turn_ok
+raises-on-content | existing: KILLED test_f8_never_raises_on_content[nul] | both: KILLED test_f8_never_raises_on_content[nul]
+accepts-bytes | existing: KILLED test_f8_input_must_be_text[call_id=x] | both: KILLED test_f8_input_must_be_text[call_id=x]
+empty-input-no-warning | existing: KILLED test_f8_deviations_become_warnings_and_nothing_is_guessed[empty-file] | both: KILLED test_f8_deviations_become_warnings_and_nothing_is_guessed[empty-file]
+header-missing-no-warning | existing: KILLED test_f8_deviations_become_warnings_and_nothing_is_guessed[header-missing-first-line-is-a-message] | both: KILLED test_f8_deviations_become_warnings_and_nothing_is_guessed[header-missing-first-line-is-a-message]
+call-id-uuid-no-warning | existing: KILLED test_f8_deviations_become_warnings_and_nothing_is_guessed[call-id-not-a-uuid] | both: KILLED test_f8_deviations_become_warnings_and_nothing_is_guessed[call-id-not-a-uuid]
+accept-basic-format | existing: SURVIVED  | both: KILLED test_f8_a_stamp_that_is_not_the_extended_iso_form_in_every_part_is_not_an_instant[basic-date]
+accept-basic-format-full | existing: KILLED test_f8_timestamp_forms[basic-format] | both: KILLED test_f8_timestamp_forms[basic-format]
+surrogate-not-replaced | existing: KILLED test_f8_lone_surrogate_in_text_is_replaced_and_recorded | both: KILLED test_f8_lone_surrogate_in_text_is_replaced_and_recorded
+no-seq-derivation-trace | existing: KILLED test_f8_declaration_is_recorded_never_observed | both: KILLED test_f8_declaration_is_recorded_never_observed
+table-missing-row | existing: KILLED test_f8_provenance_table_well_formed | both: KILLED test_f8_provenance_table_well_formed
+table-absent-row-bogus-a | existing: KILLED test_f8_provenance_table_well_formed | both: KILLED test_f8_provenance_table_well_formed
+table-absent-row-bogus-b | existing: SURVIVED  | both: KILLED test_f8_absent_provenance_rows_name_only_fields_the_converter_leaves_empty
+exchange-built | existing: KILLED test_f8_validates | both: KILLED test_f8_validates
+filename-time | existing: KILLED test_f8_single_timestamp_is_wall_time_timing_none | both: KILLED test_f8_single_timestamp_is_wall_time_timing_none
+declared-traced | existing: KILLED test_f8_declaration_is_recorded_never_observed | both: KILLED test_f8_declaration_is_recorded_never_observed
+runtime-logging | existing: KILLED test_f8_converter_module_is_hygienic | both: KILLED test_f8_converter_module_is_hygienic
+fd-write | existing: KILLED test_f8_converter_module_is_hygienic | both: KILLED test_f8_converter_module_is_hygienic
+py-warning | existing: KILLED test_f8_converter_module_is_hygienic | both: KILLED test_f8_converter_module_is_hygienic
+message-quotes-speaker-line | existing: KILLED test_f8_deviations_become_warnings_and_nothing_is_guessed[unknown-speaker-no-turn] | both: KILLED test_f8_deviations_become_warnings_and_nothing_is_guessed[unknown-speaker-no-turn]
+bidi-flag-stripped | existing: KILLED test_f8_bidi_and_zero_width_controls_are_kept | both: KILLED test_f8_bidi_and_zero_width_controls_are_kept
+## extra
+x-nonascii-digits | existing: SURVIVED  | both: KILLED test_f8_n5_non_ascii_digits_are_not_an_instant[devanagari-year-only]
+x-nonascii-digits-fraction | existing: SURVIVED  | both: KILLED test_f8_n5_non_ascii_digits_are_not_an_instant[fullwidth-fraction-only]
+x-nonascii-digits-offset | existing: SURVIVED  | both: KILLED test_f8_n5_non_ascii_digits_are_not_an_instant[fullwidth-offset-only]
+x-nonascii-uuid | existing: SURVIVED  | both: KILLED test_f8_n5_a_call_id_with_non_ascii_digits_is_not_uuid_shaped
+x-overflow-uncaught | existing: SURVIVED  | both: KILLED test_f8_n5_an_instant_outside_the_utc_range_is_not_parseable[before-year-1]
+x-blank-first-skipped | existing: SURVIVED  | both: KILLED test_f8_n1_blank_line_1_is_a_missing_header['']
+x-eof-delim-warning | existing: SURVIVED  | both: KILLED test_f8_n2_file_that_ends_after_the_header_has_no_warning[header-no-newline]
+x-surrogate-id-stored | existing: SURVIVED  | both: KILLED test_f8_n3_call_id_with_a_lone_surrogate_is_not_stored[alone]
+x-line2-unparsed | existing: SURVIVED  | both: SURVIVED  | equivalent: a line 2 that is not a message `continue`s before the number>2 test, so the comparison is never evaluated for line 2; for line 1 it is False either way
+x-declaration-after-empty | existing: SURVIVED  | both: KILLED test_f8_n6_a_bad_caller_argument_raises_whatever_the_text[empty-declaration-script-subtag]
+x-privacy-after-empty | existing: SURVIVED  | both: KILLED test_f8_n6_a_bad_caller_argument_raises_whatever_the_text[empty-privacy-incomplete]
+x-sign-ignored | existing: SURVIVED  | both: KILLED test_f8_n5_an_instant_outside_the_utc_range_is_not_parseable[after-year-9999]
+x-minutes-unchecked | existing: SURVIVED  | both: KILLED test_f8_an_offset_out_of_range_is_not_an_instant[+05:60]
+x-hours-unchecked | existing: SURVIVED  | both: SURVIVED  | equivalent: datetime.timezone() itself rejects an offset of 24 h or more (ValueError, caught), so the hours test is redundant
+x-ljust-rjust | existing: KILLED test_f8_single_timestamp_is_wall_time_timing_none | both: KILLED test_f8_single_timestamp_is_wall_time_timing_none
+x-round | existing: KILLED test_f8_timestamp_forms[nanoseconds-truncated] | both: KILLED test_f8_timestamp_forms[nanoseconds-truncated]
+x-precision-gte6 | existing: KILLED test_f8_timestamp_forms[six-digits] | both: KILLED test_f8_timestamp_forms[six-digits]
+x-precision-gt7 | existing: SURVIVED  | both: KILLED test_f8_fraction_digits_are_padded_on_the_right_and_cut_never_rounded[seven-digits-cut-not-rounded]
+x-timestamp-match | existing: SURVIVED  | both: KILLED test_f8_n5_non_ascii_digits_are_not_an_instant[fullwidth-fraction-only]
+x-timestamp-search | existing: SURVIVED  | both: KILLED test_f8_n5_non_ascii_digits_are_not_an_instant[fullwidth-fraction-only]
+x-date-dash-optional | existing: SURVIVED  | both: KILLED test_f8_a_stamp_that_is_not_the_extended_iso_form_in_every_part_is_not_an_instant[basic-date]
+x-time-colon-optional | existing: SURVIVED  | both: KILLED test_f8_a_stamp_that_is_not_the_extended_iso_form_in_every_part_is_not_an_instant[basic-time]
+x-offset-colon-optional | existing: SURVIVED  | both: KILLED test_f8_a_stamp_that_is_not_the_extended_iso_form_in_every_part_is_not_an_instant[offset-without-col
+x-offset-hours-only | existing: SURVIVED  | both: KILLED test_f8_a_stamp_that_is_not_the_extended_iso_form_in_every_part_is_not_an_instant[offset-hours-only]
+x-seconds-optional | existing: SURVIVED  | both: KILLED test_f8_a_stamp_that_is_not_the_extended_iso_form_in_every_part_is_not_an_instant[no-seconds]
+x-header-strip | existing: SURVIVED  | both: KILLED test_f8_call_id_is_taken_to_the_end_of_the_line_without_trimming[leading-spaces]
+x-empty-input-nonblank | existing: KILLED test_f8_deviations_become_warnings_and_nothing_is_guessed[blank-only] | both: KILLED test_f8_deviations_become_warnings_and_nothing_is_guessed[blank-only]
+x-timestamp-z-lower | existing: SURVIVED  | both: SURVIVED  | unpinned reading: the contract says `Z` and `T`, silent on lower case (RFC 3339 allows it); needs a reviewer decision, no test added
+x-sep-t-lower | existing: SURVIVED  | both: SURVIVED  | unpinned reading: see x-timestamp-z-lower
+x-line2-unparsed2 | existing: KILLED test_f8_deviations_become_warnings_and_nothing_is_guessed[delimiter-wrong] | both: KILLED test_f8_deviations_become_warnings_and_nothing_is_guessed[delimiter-wrong]
+x-hour24 | existing: SURVIVED  | both: KILLED test_f8_a_stamp_that_is_not_the_extended_iso_form_in_every_part_is_not_an_instant[hour-24]
+y-ts-greedy | existing: KILLED test_f8_text_is_split_at_the_first_colon_and_kept_verbatim | both: KILLED test_f8_text_is_split_at_the_first_colon_and_kept_verbatim
+y-spaces-after-bracket | existing: SURVIVED  | both: KILLED test_f8_a_message_line_needs_exactly_one_space_after_the_bracket_and_a_bare_label[two-spaces-after-b
+y-spaces-after-colon | existing: KILLED test_f8_text_is_split_at_the_first_colon_and_kept_verbatim | both: KILLED test_f8_text_is_split_at_the_first_colon_and_kept_verbatim
+y-seq-from-1 | existing: KILLED test_f8_mixed_script_turn_ok | both: KILLED test_f8_mixed_script_turn_ok
+y-text-dot-nonewline | existing: KILLED test_f8_unicode_line_separators_inside_a_message_are_text[\u2028] | both: KILLED test_f8_unicode_line_separators_inside_a_message_are_text[\u2028]
+y-delim-prefix | existing: KILLED test_f8_deviations_become_warnings_and_nothing_is_guessed[delimiter-with-trailing-space-is-not-the-d | both: KILLED test_f8_deviations_become_warnings_and_nothing_is_guessed[delimiter-with-trailing-space-is-not-the-d
+y-header-prefix-ci | existing: SURVIVED  | both: KILLED test_f8_the_header_key_is_exactly_call_id[Call_Id]
+y-header-lines-any | existing: SURVIVED  | both: KILLED test_f8_a_header_shaped_line_after_line_1_is_an_unparsed_line

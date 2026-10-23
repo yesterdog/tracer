@@ -119,7 +119,7 @@ Types (validate to the canonical-case `str`; JSON mode too):
 ## 7. `tracer_evalschema.digest` (P1-05)
 
 - `DIGEST_SCHEMES: Mapping[str, Any]`: read-only; keys exactly `"sha256-jcs/v1"` and `"hmac-sha256-jcs/v1"`.
-- `KeyRef` (value object): `key_id` (required), optional `key_version`, `provider_hint`; `extra="forbid"` (a `key`, `secret`, `password`, ... field is rejected). Lives here for now; P1-26 may re-export it. (rev 19) P1-26 does not re-export it: `KeyRef` keeps its one home here. `SealedPayload` is the first model that embeds `KeyRef` outside `ContentDigest` (`dek_wrap.kek_ref`, section 24). No value-level credential rule on `key_id` in 0.0.1 (S-N83, known gap).
+- `KeyRef` (value object): `key_id` (required), optional `key_version`, `provider_hint`; `extra="forbid"` (a `key`, `secret`, `password`, ... field is rejected). Lives here for now; P1-26 may re-export it. (rev 19) P1-26 does not re-export it: `KeyRef` keeps its one home here. `SealedPayload` is the first model that embeds `KeyRef` outside `ContentDigest` (`dek_wrap.kek_ref`, section 24). No value-level credential rule on `key_id` in 0.0.1 (S-N83, known gap). (rev 30) S-N83 closed: `key_id` and `key_version` reject credential-shaped values (`key_ref_credential`) and `KeyRef` hides its input (section 27).
 - (rev 19) `jcs_bytes(document) -> bytes`: RFC 8785 bytes of a JSON-mode value exactly as given (no digest-domain rule); `NonIJsonValueError` outside I-JSON. `canonical_bytes` calls it, and `sealed.aad_bytes` uses it, so `rfc8785` stays imported in this module only.
 - `ContentDigest` (value object): fields exactly `scheme`, `value`, `key_ref` (no `salt_ref`). `value` is 64 lowercase hex characters. An unregistered scheme raises `errors.UnknownDigestScheme` (unwrapped), including case or whitespace variants. `sha256-jcs/v1` forbids `key_ref` (`ValidationError`); `hmac-sha256-jcs/v1` requires a `KeyRef` (`ValidationError`).
 - `digest_domain(obj: BaseModel | Mapping) -> dict`: the dict that is hashed. A model is dumped with `model_dump(mode="json", by_alias=True)`. Removes the **top-level** `content_digest` and `schema_version`, then removes every key whose value is `None` at any dict depth. Lists and empty lists/dicts are kept. (rev 7, item 18) This is the generic rule, and it is defined on JSON alone so that a verifier in another language needs no model. Nulls are removed at every object depth, including inside user `metadata`; `null` elements of lists are kept. Entity-specific exclusions are declared by the entity and listed in ADR 0006 Decision 5: the P-17 profile digest, and the `schema_version` of entities embedded in a ConfigSnapshot (P1-12). `pydantic`'s `exclude_none` is not a substitute, because it keeps nulls inside dict values (verified with pydantic 2.14.1).
@@ -649,7 +649,7 @@ No-echo (revision 11, N31 resolved for these models): `Transcript`, `Turn`, `Seg
 | `JudgeTurnVerdict` | value object (P, name) | `turn_seq` (int >= 0), `verdict` (yes, no, undetermined), `p_yes?` (strict float in [0,1]), `reported_model?: VerbatimText` (non-empty; P-62, decided by the owner: accepted) |
 | `JudgeInfo` | value object | `model_ref: ModelRef`, `prompt_sha256` (64 lowercase hex), `params` (I-JSON object, required), `per_turn: list[JudgeTurnVerdict]` (default `[]`), `confidence?` (strict float in [0,1]), `reported_model?: VerbatimText` (non-empty, never filled from `model_ref`; P-62, decided by the owner: accepted; a plain `VerbatimText` without a stored flag, N32) |
 | `PerTurnSummary` | value object | `share?: DecimalString`, `counts: PerTurnCounts`, `counted_turns`, `total_turns` (>= 1). Checked on load: `counted_turns = passed + failed`, `total_turns` = sum of the four counts, `share` equals `metrics.per_turn_share(counts)`; a missing share while turns were counted is rejected |
-| `MetricResult` (`res`) | entity | `metric: MetricDefinitionRef` (P, N33), `status` (scored, not_applicable, error), `value` (bool, int, finite float or text, or None; integers within +-(2**53 - 1)), `passed?: bool`, `na_reason?` (the five), `missing_kinds: list[InputKind]` (default `[]`), `error?: ResultError`, `per_turn?: PerTurnSummary`, `scorer?: ScorerInfo`, `judge?: JudgeInfo`, `language_source?` (observed, declared), `declared_language_transcript_ids: list[TranscriptId]` (default `[]`), `evidence_refs: list[EvidenceRef]` (default `[]`). No `run_id`, no `binding_id` (N22, N33). Rules on the result alone (errors at the named field): scored has no `na_reason`, `error` or `missing_kinds`, and exactly one of `value` and `per_turn` (a scored `per_turn` has a counted turn); only a scored result has `value` or `passed`; not_applicable needs `na_reason`, has no `error`, `scorer` or `judge`, `missing_kinds` non-empty iff `na_reason=missing_input`, and `per_turn` only for the every-turn-not-applicable case (counted 0, undetermined 0); error needs `error`, has no `na_reason` or `missing_kinds`, and `per_turn` only with counted 0, undetermined > 0 and `error.code=judge_undetermined`; `declared_language_transcript_ids` non-empty iff `language_source=declared`, unique and sorted by string form; `language_source` is None when `na_reason` is `missing_input` or `agent_channel_unknown` |
+| `MetricResult` (`res`) | entity | `metric: MetricDefinitionRef` (P, N33), `status` (scored, not_applicable, error), `value` (bool, int, finite float or text, or None; integers within +-(2**53 - 1)), `passed?: bool`, `na_reason?` (the five), `missing_kinds: list[InputKind]` (default `[]`), `error?: ResultError`, `per_turn?: PerTurnSummary`, `scorer?: ScorerInfo`, `judge?: JudgeInfo`, `language_source?` (observed, declared), `declared_language_transcript_ids: list[TranscriptId]` (default `[]`), `evidence_refs: list[EvidenceRef]` (default `[]`), (rev 29, batch 23, T-A3) `transcript_ids?: list[TranscriptId]` (default `None`; when present at least one element, no element twice, order kept as written; the transcripts the result read, ADR 0004 Decisions 6d and 9; no rule of the result alone reads it, the bundle resolves it and requires it with several transcripts, 25.4.1 step 9). No `run_id`, no `binding_id` (N22, N33). Rules on the result alone (errors at the named field): scored has no `na_reason`, `error` or `missing_kinds`, and exactly one of `value` and `per_turn` (a scored `per_turn` has a counted turn); only a scored result has `value` or `passed`; not_applicable needs `na_reason`, has no `error`, `scorer` or `judge`, `missing_kinds` non-empty iff `na_reason=missing_input`, and `per_turn` only for the every-turn-not-applicable case (counted 0, undetermined 0); error needs `error`, has no `na_reason` or `missing_kinds`, and `per_turn` only with counted 0, undetermined > 0 and `error.code=judge_undetermined`; `declared_language_transcript_ids` non-empty iff `language_source=declared`, unique and sorted by string form; `language_source` is None when `na_reason` is `missing_input` or `agent_channel_unknown` |
 | `NA_REASON_PRECEDENCE` | tuple | the five reasons in the order of ADR 0004 Decision 4 |
 | `strongest_na_reason(reasons) -> str` | function | the first of the precedence present in `reasons`; `ValueError` for none or an unknown reason |
 | `missing_inputs(definition, run) -> list[str]` | function | `definition.requires` minus `run.available_inputs`, in the order of `requires`. Reads nothing else (not the tier, not `detected_capabilities`); pure; parameters named `definition`, `run` |
@@ -1344,7 +1344,7 @@ Classes are found by name through `registry.model_classes()`; the tests do not i
 | `DekWrap` (rev 19 name; not pinned by tests) | value object, hides its input | Exactly `alg` (closed set `{"A256KW"}`, an `enum`), `kek_ref: KeyRef`, `wrapped_dek`. All required |
 | `SealedAadFields` (rev 19 name; not pinned by tests) | value object, hides its input | Exactly `payload_type`, `subject_id`, `subject_version`, `schema_version`; `subject_version` is the only optional field (default `None`, `null` equals absent). `payload_type` is the closed set of 24.1.1 (S-N80); `subject_id` is a typed ID of the kind that the payload type seals (union of `TestProfileId`, `ArtifactId`, `TranscriptId`, `ToolCallEventId`); `subject_version` is a strict integer >= 1; `schema_version` is the form `MAJOR.MINOR.PATCH` without leading zeros, suffix or white space and is not compared with the current version (S-N79) |
 | `RedactionRecord` | value object | Exactly `method`, `tool_ref`, `performed_at`, `covers`, all required. `method` and `tool_ref`: non-empty `VerbatimText` (S-N86). `performed_at: UtcDatetime`. `covers`: non-empty list of distinct members of the closed set `{audio, text, tool_arguments, tool_result}` (S-N87, rev 19: `tool_result` is a member); the JSON Schema states it as an `enum` with `uniqueItems`. The bundle rule that demands a seal or a redaction is P1-14 |
-| `KeyRef` | value object (exists, `digest.py`) | Unchanged: fields a subset of `{key_id, key_version, provider_hint}`, `key_id` required; every credential-like or key-material member name is an unknown field. No value-level credential rule (S-N83, a known gap, 24.4) |
+| `KeyRef` | value object (exists, `digest.py`) | Unchanged: fields a subset of `{key_id, key_version, provider_hint}`, `key_id` required; every credential-like or key-material member name is an unknown field. No value-level credential rule (S-N83, a known gap, 24.4). (rev 30) Closed: credential-shaped `key_id`/`key_version` rejected, `KeyRef` hides its input (section 27) |
 
 #### 24.1.1 Payload types, subject kinds and versions (S-N80, S-N84)
 
@@ -1367,7 +1367,7 @@ A `subject_id` of another kind (every other registered prefix is tried), a bare 
 
 #### 24.1.3 The digest rule (ADR 0015 Decision 6, I11, I11a, P-42, A-32)
 
-`plaintext_digest` is absent, `null`, or a `ContentDigest` of scheme `hmac-sha256-jcs/v1` with its `key_ref`, for every one of the five payload types. A plain `sha256-jcs/v1` digest is a `ValidationError` located at `plaintext_digest`, whether given as a document, as a validated `ContentDigest` instance or as the result of `compute_digest()`; the message names the rule and neither the digest value nor the scheme. An unregistered scheme raises `UnknownDigestScheme` unwrapped (ADR 0006 Decision 3), never "unverifiable". The key named by the digest's `key_ref` must not be the key-encryption key: a `key_ref` equal to `dek_wrap.kek_ref` (same `key_id` and `key_version`) is rejected at `plaintext_digest` (S-N85). (rev 19) The error of the key-separation rule is located at `("plaintext_digest", "key_ref")`. The JSON Schema states "absent, `null` or a keyed scheme with `key_ref`"; key separation compares two objects and is code-only.
+`plaintext_digest` is absent, `null`, or a `ContentDigest` of scheme `hmac-sha256-jcs/v1` with its `key_ref`, for every one of the five payload types. A plain `sha256-jcs/v1` digest is a `ValidationError` located at `plaintext_digest`, whether given as a document, as a validated `ContentDigest` instance or as the result of `compute_digest()`; the message names the rule and neither the digest value nor the scheme. An unregistered scheme raises `UnknownDigestScheme` unwrapped (ADR 0006 Decision 3), never "unverifiable". The key named by the digest's `key_ref` must not be the key-encryption key: a `key_ref` equal to `dek_wrap.kek_ref` (same `key_id` and `key_version`) is rejected at `plaintext_digest` (S-N85). (rev 30, P1-21 m2) The comparison is on `key_id` only, whatever the versions (section 27). (rev 19) The error of the key-separation rule is located at `("plaintext_digest", "key_ref")`. The JSON Schema states "absent, `null` or a keyed scheme with `key_ref`"; key separation compares two objects and is code-only.
 
 #### 24.1.4 AAD and authentication (ADR 0015 Decision 4, I7 to I10)
 
@@ -1418,7 +1418,7 @@ All fourteen were auto-approved on the recommended reading under the owner's sta
 - **S-N80. The closed set of payload types and the subject-kind union.** Pinned (P): five types, table 24.1.1. `transcript_text` seals a whole Transcript's text, not a Turn. Recommendation: accept; adding a type later is an additive change with an ADR amendment. Sealing `UsageRecord.raw` would be a sixth type and is out of this scope. **Decided (rev 19): accepted.** ADR 0015 Decision 4.
 - **S-N81. The wrapped key length.** Pinned (P): exactly 40 bytes, 54 characters, last character in `AQgw`. Recommendation: accept. **Decided (rev 19): accepted.** ADR 0015 Decision 5.
 - **S-N82. A ciphertext shorter than the tag.** Pinned (P): at least 16 bytes, the tag appended after the ciphertext (the layout of `cryptography`'s `AESGCM.encrypt`, also of Java, Go and the Web Crypto API). Recommendation: accept, and state the layout in ADR 0015 Decision 5. **Decided (rev 19): accepted; the layout is in ADR 0015 Decision 5.**
-- **S-N83. A pasted credential in `KeyRef.key_id`.** The structural half is pinned (no key-like field name). A value rule (reject `sk-...`, `AKIA...`, JWTs, PEM headers, `=` in `key_id` and `key_version`) would make `KeyRef` hide its input, and a hiding `KeyRef` forces every model that embeds it through `ContentDigest` to hide too (about 15 more models). Recommendation: do not add it in 0.0.1; file it as a known gap with an owner. **Decided (rev 19): not added in 0.0.1; KNOWN GAP, owner security-licensing, revisit at the P1-21 audit** (risk: a user pastes a key as `key_id`; it would then be stored and exported in clear). ADR 0015 "Known gaps".
+- **S-N83. A pasted credential in `KeyRef.key_id`.** The structural half is pinned (no key-like field name). A value rule (reject `sk-...`, `AKIA...`, JWTs, PEM headers, `=` in `key_id` and `key_version`) would make `KeyRef` hide its input, and a hiding `KeyRef` forces every model that embeds it through `ContentDigest` to hide too (about 15 more models). Recommendation: do not add it in 0.0.1; file it as a known gap with an owner. **Decided (rev 19): not added in 0.0.1; KNOWN GAP, owner security-licensing, revisit at the P1-21 audit** (risk: a user pastes a key as `key_id`; it would then be stored and exported in clear). ADR 0015 "Known gaps". **Closed (rev 30, P1-21 finding C3b, auto-approved):** the value rule is added and `KeyRef`, `ContentDigest` and every model that embeds them or `DekWrap` hide their input (section 27).
 - **S-N84. `subject_version` presence.** Pinned (P): present iff the subject kind is versioned (a TestProfile), table 24.1.1. **Decided (rev 19): accepted.** ADR 0015 Decision 4.
 - **S-N85. Key separation between the digest key and the KEK.** Pinned (P): a digest `key_ref` equal to `dek_wrap.kek_ref` is rejected at `plaintext_digest`; a different `key_id` or a different `key_version` is accepted. The rule cannot detect two names for one key; it catches the direct mistake. **Decided (rev 19): accepted.** ADR 0015 Decision 6b.
 - **S-N86. `RedactionRecord.method` and `tool_ref` types.** Pinned (P, loosely): non-empty `VerbatimText`. P1-14 may narrow them (a narrowing needs staff-reviewer because it changes `test_redaction_record_fields`). **Decided (rev 19): accepted.**
@@ -1469,7 +1469,7 @@ A throwaway oracle outside the repository passed all 327 collected tests on Pyth
 - **S-N94. Decided (revision 21, auto-approved as recommended: no schema maximum; loader limit with a test at P1-14/P1-15). No size bound on `ciphertext`.** The model accepts any length (4 MiB is tested); a hostile document can hold a very large string, bounded today only by the loader's input size. Recommendation: no schema maximum (recordings are long); P1-14/P1-15 set per-bundle limits at the loader, with a test.
 
 ### 24.9 Revision 21: S-N91 implemented (schema-architect, 2026-10-23)
-- **S-N91, option A (A4, A5).** `digest._resolve_key` raises `DigestKeyUnavailable("no key available for key '<key_id>': the key resolver failed (the cause is chained, never quoted in this message)") from exc`. The message holds the rule and the `key_id` only: no `repr(exc)`, no text or arguments of the resolver's exception, and not its class name (A4, the strict assertion is kept). `__cause__` is the very exception the resolver raised, so an operator who logs tracebacks with their chain still finds the reason. The other two messages (no resolver; the resolver returned something other than `bytes`) already named only the rule and the scheme or `key_id`. A caller that converts the error into a pydantic `ValueError` (A5) gets a clean `errors()` because the message is clean.
+- **S-N91, option A (A4, A5).** `digest._resolve_key` raises `DigestKeyUnavailable("no key available for key '<key_id>': the key resolver failed (the cause is chained, never quoted in this message)") from exc`. (rev 30, P1-21 C3a: the message no longer names the `key_id`; it reads `no key available: the key resolver failed (...)`, section 27.) The message holds the rule and the `key_id` only: no `repr(exc)`, no text or arguments of the resolver's exception, and not its class name (A4, the strict assertion is kept). `__cause__` is the very exception the resolver raised, so an operator who logs tracebacks with their chain still finds the reason. The other two messages (no resolver; the resolver returned something other than `bytes`) already named only the rule and the scheme or `key_id`. A caller that converts the error into a pydantic `ValueError` (A5) gets a clean `errors()` because the message is clean.
 - **Test.** `test_digest.py::test_digest_key_unavailable_never_echoes_what_a_resolver_says` (qa). No test was edited by the architect.
 
 ## 25. Batch 7 (P1-14): RunBundle, ExportBundle and the export rules; the export half of P1-27; API assumed by the tests
@@ -1610,7 +1610,7 @@ are named. The words after the tag are not pinned, except the ones listed in the
 | `[snapshot]` | `run.config_snapshot_id` is not the bundle's snapshot ID | names the run's snapshot ID |
 | `[duplicate]` | a record ID appears twice (identical content) in a bundle or across the run bundles of an export; a versioned entity `(id, version)` twice; two sealed payloads of one type for one subject; two dataset items with one ID | |
 | `[membership]` | a usage record's `run_id` is not the bundle's run | names the usage record and the run |
-| `[unresolved]` | a reference by ID resolves to nothing in the bundle and is not declared withheld (turn -> transcript, artifact `turn_ref`, channel map -> artifact, evidence `ref_id`, verdict check `result_id`, cost `usage_record_ids`, result `declared_language_transcript_ids`); a dataset `item_ids` member not in the export | names the dangling ID |
+| `[unresolved]` | a reference by ID resolves to nothing in the bundle and is not declared withheld (turn -> transcript, artifact `turn_ref`, channel map -> artifact, evidence `ref_id`, verdict check `result_id`, cost `usage_record_ids`, result `declared_language_transcript_ids`, (rev 29) result `transcript_ids`, checked against the records of the same run bundle only); a dataset `item_ids` member not in the export | names the dangling ID |
 | `[transcript]` | `check_transcript` failed over the transcript's turns in the bundle | names `seq`, `timeline_origin` or the exchange index as the underlying message does |
 | `[exchange]` | an exchange index used twice | |
 | `[tool_call_seq]` | `check_tool_call_seqs` failed | names the `seq` |
@@ -1624,6 +1624,7 @@ are named. The words after the tag are not pinned, except the ones listed in the
 | `[marker]` | an artifact's or transcript's stored marker is looser than the derivation, or stricter without a reason (`check_human_subject_marker`, P-47, A-31) | names the record ID |
 | `[tier]` | R2 (25.6.2) | the stored and the computed tier; for an under-claim also the ID of one evidence record |
 | `[withheld]` | a declared record is in the bundle, or declared twice | names the ID |
+| `[applicability]` | (rev 29, B15, ADR 0004 Decision 9) a stored result differs from `results.applicability` re-run over the bundle (step 9) in the status class, `na_reason`, `missing_kinds`, `language_source` or `declared_language_transcript_ids`; a result without `transcript_ids` in a bundle that holds several transcripts, for a metric that reads transcripts or is language dependent; a run that lists `agent_transcript`, holds turns, declares no turn withheld and has no agent turn (T-A4) | the result ID, `results[<index>]` (0-based) and exactly one of the five field names (the first that differs); for the missing ids, verbatim `transcript_ids required when the bundle holds several transcripts` with the result ID and `results[<index>]`; for T-A4 the run ID and `agent_transcript`. No text, tag value or reason value |
 | `[caller_external_id]` | an embedded run carries `caller_external_id` | names the run ID |
 | `[profile_digest]` | a `TestProfileRef.content_digest` that the purpose does not allow (25.4.2) | names the profile ID |
 | `[profile]` | a `TestProfile` in the clear in a shared or benchmark export | |
@@ -1675,10 +1676,34 @@ before tagged rules"):
 6. Cost: `[cost]` (entry keys, only when the catalog `(catalog_id, version)` is embedded); `[summary]`.
 7. `[marker]` for every artifact and transcript, with the bundle's turns as the evidence.
 8. `[withheld]`; then R2: `check_observed_tier(run, every record, withheld=bundle.withheld)` -> `[tier]`.
+9. (rev 29, B15, ADR 0004 Decision 9; contract `api-surface-applicability.md` section 3) `[applicability]`, the
+   last rule. First T-A4: a run whose `available_inputs` lists `agent_transcript`, in a bundle that holds at least one
+   turn and declares no `turn` withheld, needs a turn with `role=agent`. Then, for every result in the order of
+   `RunBundle.results`, with the definition `(id, version)` the snapshot embeds:
+   - **transcripts read**: the held transcripts its `transcript_ids` names, in that order (a withheld one is not held
+     and is not read); without ids, the only transcript or none; with several held transcripts and no ids, the ids
+     are required when the definition's `requires` has `transcript` or `agent_transcript` or its `languages` is a
+     list (decided on the definition, not on the stored outcome);
+   - **turns read**: the turns of those transcripts, only the agent turns for `agent_transcript`, all of them for
+     `transcript`, none otherwise (ADR 0004 Decision 6d);
+   - **expected**: a run-level answer of `applicability(definition, run)` (`missing_input`, `agent_channel_unknown`)
+     whatever else holds; otherwise `applicability(definition, run, turns=..., transcripts=...)` for a
+     per-conversation metric, and for a `per_turn_share` metric one call per read turn aggregated as in ADR 0010
+     Decision 3 (scored if any turn applies, else the strongest reason by `NA_REASON_PRECEDENCE`; `declared` if any
+     turn used a declaration, else `observed` if any turn had an effective language; the declared IDs are the sorted
+     union; the counts in `per_turn` are not compared);
+   - **compared**, the first difference reported: the status class (`not_applicable` or not), `na_reason`,
+     `missing_kinds` (in the order of `requires`), `language_source`, `declared_language_transcript_ids`. An `error`
+     result is exempt from the status class (and has no reason or kinds) except that a run-level answer rejects it;
+     its language provenance is compared;
+   - **only the run-level answer is judged** (it must be stored exactly; any other answer must not carry a run-level
+     reason; the language outcome is accepted as stored) when the bundle declares a `transcript` or `turn` withheld
+     (B22: the language steps cannot be re-run), and for a `per_turn_share` metric that reads no turn (T-B4). Other
+     withheld kinds take nothing away; a withheld result is not there to check.
 
 Not rules of the bundle: a reference to a catalog, test profile, agent target or project that the bundle does not
-embed is not rejected (it is verified when present); the bundle does not recompute costs, language steps or
-applicability (deferred, section 25.11).
+embed is not rejected (it is verified when present); the bundle does not recompute costs (deferred, section 25.11)
+or the per-turn counts of a `per_turn_share` result (T-B16).
 
 #### 25.4.2 `ExportBundle`
 
@@ -1933,6 +1958,11 @@ Numbered B1 to B21 (the batch 7 series; not the N-series of the architect).
 - **B15. Decided (revision 22, auto-approved as recommended). Language steps are not re-run in the bundle (deferred).** N29 (a) suggested that the bundle re-runs
   `check_language` over its turns to verify `language_source`. Not pinned: only the declared-language IDs resolve
   and carry a declaration. Recommendation: defer with applicability to the T-DEG work (P1-19).
+  **(rev 29) Decided and implemented in batch 23:** the T-DEG work found the gap (D1, `api-surface-tdeg.md`
+  section 9), the owner's auto-approval rule decided D1, T-A3 and T-A4, and `check_run_bundle` now re-runs
+  `results.applicability` per result (step 9 of 25.4.1, tag `[applicability]`, ADR 0004 Decision 9), with the new
+  optional `MetricResult.transcript_ids` (22.1). The readings T-B1 to T-B16 are in `api-surface-applicability.md`
+  section 8.
 - **B16. Decided (revision 22, auto-approved as recommended). Where the test profile lives (P).** `RunBundle.test_profiles` holds `TestProfile` entities for internal use
   (so that the profile reference digest can be verified); shared and benchmark exports reject them (`[profile]`)
   and carry a profile only as a sealed `test_profile` payload whose subject is a reference of a snapshot of the
@@ -1987,7 +2017,10 @@ docstring update for qa.
   tested.
 - Verification of keyed digests with a key resolver at bundle level (`verify_bundle_digests`, B11); the seam never
   reports a non-comparable digest as verified.
-- Re-running `check_language`, `applicability` and the cost computation over a bundle (B15); the F8/T-DEG bundles
+- Re-running the cost computation over a bundle ((rev 29) `check_language` and `applicability` are re-run since
+  batch 23, step 9 of 25.4.1 (B15); still not re-run: the per-turn counts against the turns (T-B16), the language of
+  a per-turn metric that reads no turn (T-B4), an `agent_transcript` metric that names a transcript without agent
+  turns (T-B13)); the F8/T-DEG bundles
   (P1-19); the golden bundle fixtures and the frozen fixtures (P1-16, P1-17); the JSON Schema export and
   `schema.lock` (P1-15), where the code-only rules of this file (everything in section 25.4 beyond the field types
   and the closed sets) are `KNOWN_SCHEMA_GAPS`-style entries (N12, N38); `SCHEMA_POLICY.md` wording for the
@@ -2669,3 +2702,38 @@ The packaging tests (`test_wheel_ships_the_generated_schemas_byte_for_byte`, `te
 - **A26. Nothing pins "the sdist ships no tests".** `test_uax9_packaging.py` only forbids the UAX #9 files and `test_schema_lock.py` only compares the schema files, so a later `only-include` edit could ship `tests/` again unnoticed. Recommendation: qa adds a packaging test that the sdist's members are exactly `src/tracer_evalschema/**`, `README.md`, `LICENSE`, `NOTICE`, `pyproject.toml`, `PKG-INFO` and `.gitignore`, and that a wheel built from the unpacked sdist has the same members and bytes as the checkout's wheel.
 - **A27. The sdist carries the repository's `.gitignore`.** Hatchling always adds the ignore file it applies, here the repository root's (it names `packages/evalschema/tests/fixtures/private/` and `.env.*`, no secret). Options: (a) accept it (recommended: it is hatchling's documented behaviour, holds only patterns, and a wheel built from the sdist needs it to skip `__pycache__`); (b) add a package-local `packages/evalschema/.gitignore`, which hatchling would then use instead of the root one, at the cost of a second ignore file that must repeat the Python patterns.
 - **A28. Keyed repeats inside a `ConfigSnapshot`.** The model rejects two entries under one `(id, version)` even when their content differs (with valid digests the second entry has another `content_digest`), with the same `duplicate` error. The JSON Schema cannot state this keyed rule (it is `CO-KEYED-UNIQUENESS` territory), but the register's `CO-KEYED-UNIQUENESS` claims do not list `ConfigSnapshot` lists, because no mutation produces two different records under one key. Recommendation: qa adds a witness or a doc anchor for it under `CO-KEYED-UNIQUENESS`, or records that it is covered by the A21 test only (the test repeats identical entries; a second test with differing content under one key would pin the keyed half).
+
+## 27. Batch 25 (P1-21 security audit): hardening implemented (schema-architect, revision 30, 2026-10-24)
+
+**Merge note.** The contract of this batch stays in `docs/phase1/api-surface-hardening.md` (readings P1 to P12,
+ambiguities A1 to A10, named requests; owner qa); this section records what was built against it and does not
+restate it. Decisions: decision log "P1-21 SECURITY AUDIT DELIVERED", "AUTO-APPROVED audit decisions" and
+"AUTO-APPROVED A1-A10". Tests: `packages/evalschema/tests/test_security_hardening.py` (123 items).
+
+- **C3a.** `digest._resolve_key` raises `DigestKeyUnavailable("no key available: the key resolver failed (the
+  cause is chained, never quoted in this message)") from exc` when the resolver raises, and
+  `DigestKeyUnavailable("no key available: the key resolver returned no key bytes")` when it returns something that
+  is not `bytes`. Neither names a field of the `KeyRef`. Reverses the S-N91 reading of section 24.9.
+- **C3b.** `credentials.key_ref_looks_like_credential(text)` (new, public): a `CREDENTIAL_PATTERNS` match at a
+  boundary anywhere, any `=`, or a high-entropy run (`credentials.is_high_entropy_text`, new) in a segment of the
+  text split at `/` and `:` (`KEY_REF_SEGMENT_SEPARATORS`). `digest.KeyName` (the annotated type of `key_id` and
+  `key_version`) runs it after `min_length=1` and raises `PydanticCustomError("key_ref_credential", ...)` with one
+  constant message and no context. `KeyRef` and `ContentDigest` derive from `HidingModel`; so do `VersionedRef`
+  (and its six subclasses), `PricingSnapshot`, `RubricItem`, `VerdictCheck`, `RunVerdict`, `MetricResult` and
+  `Dataset`; `VersionedEntity` sets `hide_input_in_errors=True` only (A10).
+- **m1.** `digest.MIN_KEYED_DIGEST_KEY_BYTES = 32`; `errors.WeakDigestKeyError(DigestKeyUnavailable, ValueError)`
+  (new) with the message `the key of scheme hmac-sha256-jcs/v1 must be at least 32 bytes`. `compute_digest` checks
+  after the "needs both key and key_ref" and `TypeError` checks; `verify_digest` checks the resolved key before
+  hashing.
+- **m2.** `sealed._same_key` compares `key_id` only; the `key_separation` message ends "(the same key_id names the
+  same key, whatever key_version says)".
+- **m4.** `_constraints.echoed(value)` and `_constraints.echoed_text(text)` (`ECHO_LIMIT = 64`, `ECHO_ELLIPSIS =
+  "..."`): the one helper of every echo site (`FullMatch`, `ClosedSet`, typed IDs in `ids` and `bundle`, evidence
+  IDs, language tags, UTC instants, decimal strings and their canonical spelling, the currency code, the duplicate
+  messages of `agent`, `metrics` and `run`, profile placeholder fields, rubric keys, provider pairs, price entry
+  keys, the cost currency label, `check_bundle_consistency` identities and versions, the unknown digest scheme, the
+  loader's duplicate key, `SchemaVersionError`).
+- **m6.** `provider._no_credential_pattern` adds `credentials.is_high_entropy_text` on the name part after the
+  first `:`; one message for both rules.
+- **Generated files.** None changed: `schema_export --check`, `generate_field_docs.py --check` and
+  `build_golden_fixtures.py --check` report no drift (model docstrings, and so schema descriptions, are unchanged).

@@ -1,0 +1,875 @@
+diff --color -ru -x _ packages/evalschema/src/tracer_evalschema/_constraints.py b/packages/evalschema/src/tracer_evalschema/_constraints.py
+--- a/packages/evalschema/src/tracer_evalschema/_constraints.py	2026-10-23 15:59:22
++++ b/packages/evalschema/src/tracer_evalschema/_constraints.py	2026-10-24 03:21:20
+@@ -32,6 +32,16 @@
+ from tracer_evalschema._hiding import values_hidden
+ 
+ 
++ECHO_LIMIT = 64
++
++
++def echoed(value: object) -> str:
++    """``repr(value)``, cut to ECHO_LIMIT characters plus an ellipsis for a long text."""
++    if isinstance(value, str) and len(value) > ECHO_LIMIT:
++        return repr(value[:ECHO_LIMIT]) + "..."
++    return repr(value)
++
++
+ def _anchored_body(pattern: str) -> str:
+     if not (pattern.startswith("^") and pattern.endswith("$")):
+         raise ValueError(f"a JSON Schema pattern here must be anchored with ^ and $: {pattern!r}")
+@@ -77,7 +87,7 @@
+             context: dict[str, object] = {"pattern": self.pattern}
+             message = self.quiet_message
+             if self.echo_value and not values_hidden():
+-                context["value"] = repr(value)
++                context["value"] = echoed(value)
+                 message = self.message
+             raise PydanticCustomError(self.error_type, message, context)
+         return value
+@@ -104,7 +114,7 @@
+             "closed_set", "the value is not one of {allowed}", {"allowed": values}
+         )
+     raise PydanticCustomError(
+-        "closed_set", "{value} is not one of {allowed}", {"value": repr(value), "allowed": values}
++        "closed_set", "{value} is not one of {allowed}", {"value": echoed(value), "allowed": values}
+     )
+ 
+ 
+diff --color -ru -x _ packages/evalschema/src/tracer_evalschema/base.py b/packages/evalschema/src/tracer_evalschema/base.py
+--- a/packages/evalschema/src/tracer_evalschema/base.py	2026-10-24 01:40:25
++++ b/packages/evalschema/src/tracer_evalschema/base.py	2026-10-24 03:10:56
+@@ -19,6 +19,7 @@
+ 
+ from pydantic import BaseModel, ConfigDict, Field, Strict, model_validator
+ 
++from tracer_evalschema._hiding import HidingModel
+ from tracer_evalschema import SCHEMA_VERSION
+ from tracer_evalschema._constraints import ClosedSet
+ from tracer_evalschema.credentials import (
+@@ -207,6 +208,7 @@
+ 
+     version: Version
+     content_digest: ContentDigest
++    model_config = ConfigDict(hide_input_in_errors=True)
+ 
+     def digest_subject(self) -> BaseModel | Mapping[str, Any]:
+         """What ``content_digest`` is computed over: the model itself (the generic domain)."""
+@@ -218,7 +220,7 @@
+         return self
+ 
+ 
+-class VersionedRef(BaseModel):
++class VersionedRef(HidingModel):
+     """A reference to one version of a versioned entity (ADR 0009 Decision 4).
+ 
+     ``id`` is the typed ID of the referenced entity (any registered kind) and ``version`` is
+diff --color -ru -x _ packages/evalschema/src/tracer_evalschema/bundle.py b/packages/evalschema/src/tracer_evalschema/bundle.py
+--- a/packages/evalschema/src/tracer_evalschema/bundle.py	2026-10-24 03:21:01
++++ b/packages/evalschema/src/tracer_evalschema/bundle.py	2026-10-24 03:10:33
+@@ -47,18 +47,6 @@
+ an under-claim is always rejected, an over-claim only excused by a declared record of a kind that
+ carries provenance fields (D3, ``PROVENANCE_KINDS``); a declaration never raises the computed tier.
+ 
+-The applicability re-run
+-------------------------
+-The last rule of ``check_run_bundle`` (``[applicability]``, ADR 0004 Decision 9, B15) re-runs
+-``results.applicability`` for every stored result, with the definition the bundle's snapshot
+-embeds, over the transcripts the result read (``MetricResult.transcript_ids``; derived when the
+-bundle holds one transcript or none, required when it holds several and the metric reads
+-transcripts or is language dependent) and their turns limited by role (ADR 0004 Decision 6d). It
+-rejects any difference in the status class, ``na_reason``, ``missing_kinds``, ``language_source``
+-or ``declared_language_transcript_ids``, naming the result's ID, its position ``results[<i>]`` and
+-the first field that differs. A run that lists ``agent_transcript`` and holds turns has an agent
+-turn (T-A4). A withheld transcript or turn leaves only the run-level reasons to judge (B22).
+-
+ The functions hold no module-level mutable state; the rules read their arguments only.
+ """
+ 
+@@ -80,6 +68,7 @@
+ from pydantic.json_schema import JsonSchemaValue
+ from pydantic_core import CoreSchema, PydanticCustomError, core_schema
+ 
++from tracer_evalschema._constraints import echoed
+ from tracer_evalschema._constraints import ClosedSet
+ from tracer_evalschema._hiding import HidingModel, values_hidden
+ from tracer_evalschema._validation import Problem, raise_problems
+@@ -111,7 +100,6 @@
+     UsageRecordId,
+     wire_pattern,
+ )
+-from tracer_evalschema.metrics import LANGUAGE_INDEPENDENT, MetricDefinition
+ from tracer_evalschema.pricing import PricingCatalog
+ from tracer_evalschema.privacy import (
+     REDACTION_COVERS,
+@@ -122,13 +110,7 @@
+     export_human_subject,
+ )
+ from tracer_evalschema.profile import TestProfile
+-from tracer_evalschema.results import (
+-    Applicability,
+-    MetricResult,
+-    applicability,
+-    check_result_against_definition,
+-    strongest_na_reason,
+-)
++from tracer_evalschema.results import MetricResult, check_result_against_definition
+ from tracer_evalschema.run import Run
+ from tracer_evalschema.sealed import SealedPayload
+ from tracer_evalschema.snapshot import ConfigSnapshot, check_internal_snapshot
+@@ -324,7 +306,7 @@
+         raise PydanticCustomError(
+             "typed_id",
+             "{value} is not the ID of {what} ({pattern})",
+-            {"value": repr(value), "what": self.what, "pattern": self.pattern},
++            {"value": echoed(value), "what": self.what, "pattern": self.pattern},
+         )
+ 
+     def __get_pydantic_core_schema__(
+@@ -696,8 +678,6 @@
+             need(evidence.ref_id, result.id, "an evidence reference")
+         for transcript_id in result.declared_language_transcript_ids:
+             need(transcript_id, result.id, "declared_language_transcript_ids")
+-        for transcript_id in result.transcript_ids or ():
+-            need(transcript_id, result.id, "transcript_ids")
+     if bundle.verdict is not None:
+         for check in bundle.verdict.checks:
+             need(check.result_id, bundle.verdict.id, "a check's result_id")
+@@ -857,189 +837,12 @@
+             )
+ 
+ 
+-_RUN_LEVEL_REASONS: Final = ("missing_input", "agent_channel_unknown")
+-"""The not-applicable reasons decided from the run alone, before any language step (ADR 0004
+-Decisions 3 to 5)."""
+-_TRANSCRIPT_KINDS: Final = ("transcript", "agent_transcript")
+-_LANGUAGE_RECORD_KINDS: Final = frozenset({"transcript", "turn"})
+-"""Withheld kinds that take away what the language steps read, so those steps cannot be re-run."""
+-
+-
+-def _applicability_error(position: int, result: MetricResult, field: str) -> ValueError:
+-    """The ``[applicability]`` error: the result's ID and position and the one field that differs,
+-    never a value."""
+-    return ValueError(
+-        f"[applicability] result {result.id} (results[{position}]): {field} differs from the "
+-        "re-run of applicability over the run and the transcripts and turns the result read"
+-    )
+-
+-
+-def _needs_transcript_ids(definition: MetricDefinition) -> bool:
+-    """T-A3: the metric reads transcripts (``requires`` names a transcript kind) or depends on a
+-    language (its language may come from a transcript, ADR 0004 Decision 6d). Decided on the
+-    definition, never on the stored outcome."""
+-    return (
+-        any(kind in _TRANSCRIPT_KINDS for kind in definition.requires)
+-        or definition.languages != LANGUAGE_INDEPENDENT
+-    )
+-
+-
+-def _transcripts_read(
+-    position: int,
+-    result: MetricResult,
+-    definition: MetricDefinition,
+-    held: Mapping[TypedId, Transcript],
+-) -> list[Transcript]:
+-    """The transcripts ``result`` read (api-surface-applicability.md 3.2): the held transcripts
+-    its ``transcript_ids`` name, in that order (a withheld one is not held and so not read);
+-    without ids, the only transcript, or none. With several and no ids the ids are required for
+-    a metric that needs transcripts."""
+-    if result.transcript_ids is not None:
+-        return [held[i] for i in result.transcript_ids if i in held]
+-    if len(held) <= 1:
+-        return list(held.values())
+-    if _needs_transcript_ids(definition):
+-        raise ValueError(
+-            f"[applicability] result {result.id} (results[{position}]): transcript_ids required "
+-            "when the bundle holds several transcripts"
+-        )
+-    return []
+-
+-
+-def _turns_read(
+-    definition: MetricDefinition, turns: Sequence[Turn], transcripts: Sequence[Transcript]
+-) -> list[Turn]:
+-    """The turns of ``transcripts`` limited to the role the input kind names (ADR 0004 Decision
+-    6d): the agent turns for ``agent_transcript``, every turn for ``transcript``, none for a
+-    metric that reads no transcript input. Bundle order."""
+-    names = {transcript.id for transcript in transcripts}
+-    if "agent_transcript" in definition.requires:
+-        return [t for t in turns if t.transcript_id in names and t.role == "agent"]
+-    if "transcript" in definition.requires:
+-        return [t for t in turns if t.transcript_id in names]
+-    return []
+-
+-
+-def _run_level_answer(definition: MetricDefinition, run: Run) -> Applicability | None:
+-    """The answer of ``applicability`` when it is decided from the run alone (``missing_input``
+-    or ``agent_channel_unknown``), else ``None``."""
+-    answer = applicability(definition, run)
+-    return answer if answer.na_reason in _RUN_LEVEL_REASONS else None
+-
+-
+-def _per_turn_answer(
+-    definition: MetricDefinition, run: Run, turns: Sequence[Turn], transcripts: Sequence[Transcript]
+-) -> Applicability:
+-    """A ``per_turn_share`` metric with no run-level reason and at least one read turn: the
+-    language steps on each turn on its own (ADR 0004 Decision 6e, ADR 0010 Decision 3). Scored
+-    when any turn applies, else the strongest of the turns' reasons. ``declared`` if any turn used
+-    a declaration, else ``observed`` if any turn had an effective language (also a turn that was
+-    then not applicable); the declared transcripts are the sorted union."""
+-    answers = [
+-        applicability(definition, run, turns=[turn], transcripts=transcripts) for turn in turns
+-    ]
+-    reasons = [answer.na_reason for answer in answers]
+-    reason = None
+-    if None not in reasons:
+-        reason = strongest_na_reason(r for r in reasons if r is not None)
+-    declared = sorted({i for a in answers for i in a.declared_language_transcript_ids}, key=str)
+-    source = None
+-    if declared:
+-        source = "declared"
+-    elif any(answer.language_source is not None for answer in answers):
+-        source = "observed"
+-    return Applicability(reason, [], source, declared)
+-
+-
+-def _same_ids(left: Iterable[TypedId], right: Iterable[TypedId]) -> bool:
+-    return [str(i) for i in left] == [str(i) for i in right]
+-
+-
+-def _compare_applicability(position: int, result: MetricResult, expected: Applicability) -> None:
+-    """The stored result against the re-run, the first difference reported, in the order status
+-    class, ``na_reason``, ``missing_kinds`` (order of ``requires``), ``language_source``,
+-    ``declared_language_transcript_ids``. An ``error`` result is exempt from the status class and
+-    has no reason or kinds, except that a run-level reason forbids it (ADR 0004 I3: an error is
+-    for a metric whose inputs existed); its language provenance is compared."""
+-    if result.status == "error":
+-        if expected.na_reason in _RUN_LEVEL_REASONS:
+-            raise _applicability_error(position, result, "status")
+-    else:
+-        if (result.status == "not_applicable") != (expected.na_reason is not None):
+-            raise _applicability_error(position, result, "status")
+-        if result.na_reason != expected.na_reason:
+-            raise _applicability_error(position, result, "na_reason")
+-        if list(result.missing_kinds) != list(expected.missing_kinds):
+-            raise _applicability_error(position, result, "missing_kinds")
+-    if result.language_source != expected.language_source:
+-        raise _applicability_error(position, result, "language_source")
+-    if not _same_ids(
+-        result.declared_language_transcript_ids, expected.declared_language_transcript_ids
+-    ):
+-        raise _applicability_error(position, result, "declared_language_transcript_ids")
+-
+-
+-def _check_agent_turn(bundle: RunBundle, withheld_kinds: set[str]) -> None:
+-    """T-A4: a run that lists ``agent_transcript`` has an agent turn, judged only when the bundle
+-    holds turns and declares no turn withheld (a withheld turn may be the agent turn)."""
+-    run = bundle.run
+-    if (
+-        "agent_transcript" not in run.available_inputs
+-        or not bundle.turns
+-        or "turn" in withheld_kinds
+-        or any(turn.role == "agent" for turn in bundle.turns)
+-    ):
+-        return
+-    raise ValueError(
+-        f"[applicability] run {run.id} lists agent_transcript in available_inputs, but no turn of "
+-        "the bundle has the role agent"
+-    )
+-
+-
+-def _check_applicability(bundle: RunBundle, withheld_kinds: set[str]) -> None:
+-    """``[applicability]`` (step 9, the last rule; ADR 0004 Decision 9, B15): every stored result
+-    against ``results.applicability`` re-run over the bundle, with the definition the snapshot
+-    embeds, the run, and the transcripts and turns the result read.
+-
+-    What cannot be re-run is skipped and nothing else (B22): with a ``transcript`` or ``turn``
+-    declared withheld, and for a per-turn metric that reads no turn (T-B4), only the run-level
+-    reasons are judged (a run-level answer must be stored exactly; any other answer must not
+-    carry a run-level reason) and the language outcome is accepted as stored. A withheld result
+-    is not there to check. The per-turn counts are not compared (T-B16).
+-    """
+-    _check_agent_turn(bundle, withheld_kinds)
+-    run = bundle.run
+-    definitions = {(d.id, d.version): d for d in bundle.snapshot.metric_definitions}
+-    held = {transcript.id: transcript for transcript in bundle.transcripts}
+-    language_known = not (withheld_kinds & _LANGUAGE_RECORD_KINDS)
+-    for position, result in enumerate(bundle.results):
+-        definition = definitions.get((result.metric.id, result.metric.version))
+-        if definition is None:  # pragma: no cover - the seam resolved every metric reference
+-            raise UnresolvedReferenceError(
+-                f"result {result.id} names metric {result.metric.id} version "
+-                f"{result.metric.version}, which the snapshot does not embed"
+-            )
+-        transcripts = _transcripts_read(position, result, definition, held)
+-        expected = _run_level_answer(definition, run)
+-        if expected is None and language_known:
+-            turns = _turns_read(definition, bundle.turns, transcripts)
+-            if definition.aggregation.kind != "per_turn_share":
+-                expected = applicability(definition, run, turns=turns, transcripts=transcripts)
+-            elif turns:
+-                expected = _per_turn_answer(definition, run, turns, transcripts)
+-        if expected is not None:
+-            _compare_applicability(position, result, expected)
+-        elif result.na_reason in _RUN_LEVEL_REASONS:
+-            raise _applicability_error(position, result, "na_reason")
+-
+-
+ def check_run_bundle(bundle: RunBundle) -> None:
+     """The rules of a ``RunBundle`` (api-surface.md 25.4.1), in this order: the seam (typed
+     errors), ``[duplicate]``, ``[snapshot]``, ``[membership]``, references by ID
+     (``[unresolved]``, ``[channel_map]``, ``[declared_language]``), ``[exchange]``,
+     ``[transcript]``, ``[tool_call_seq]``, ``[rescoring]``, ``[result]``, ``[verdict]``,
+-    ``[cost]``, ``[summary]``, ``[marker]``, ``[withheld]``, R2 (``[tier]``) and last
+-    ``[applicability]`` (the re-run of ``results.applicability`` per result). Pure and
++    ``[cost]``, ``[summary]``, ``[marker]``, ``[withheld]`` and R2 (``[tier]``). Pure and
+     idempotent; the models run it on load."""
+     _run_bundle_seam(bundle)
+     _check_unique_records(bundle)
+@@ -1066,7 +869,6 @@
+     _check_markers(bundle)
+     _check_declaration(bundle, present)
+     check_observed_tier(run, records, withheld=bundle.withheld)
+-    _check_applicability(bundle, withheld_kinds)
+ 
+ 
+ # ================================================================================ export bundle
+diff --color -ru -x _ packages/evalschema/src/tracer_evalschema/cost.py b/packages/evalschema/src/tracer_evalschema/cost.py
+--- a/packages/evalschema/src/tracer_evalschema/cost.py	2026-10-24 00:28:21
++++ b/packages/evalschema/src/tracer_evalschema/cost.py	2026-10-24 03:10:56
+@@ -190,7 +190,7 @@
+ ]
+ 
+ 
+-class PricingSnapshot(BaseModel):
++class PricingSnapshot(HidingModel):
+     """The catalog version and the entries a computed cost used (ADR 0014 Decision 12, O6, N61):
+     ``(catalog_id, version, content_digest)`` names one catalog version and ``entry_keys`` the
+     entries used, by their catalog-scoped ``entry_key`` (non-empty, distinct)."""
+diff --color -ru -x _ packages/evalschema/src/tracer_evalschema/dataset.py b/packages/evalschema/src/tracer_evalschema/dataset.py
+--- a/packages/evalschema/src/tracer_evalschema/dataset.py	2026-10-24 00:28:40
++++ b/packages/evalschema/src/tracer_evalschema/dataset.py	2026-10-24 03:10:56
+@@ -15,6 +15,7 @@
+ 
+ from pydantic import AfterValidator, ConfigDict, Field, model_validator
+ 
++from tracer_evalschema._hiding import HidingModel
+ from tracer_evalschema._hiding import values_hidden
+ from tracer_evalschema._validation import Problem, raise_problems
+ from tracer_evalschema.base import EntityBase, VersionedEntity
+@@ -37,7 +38,7 @@
+     return ids
+ 
+ 
+-class Dataset(VersionedEntity):
++class Dataset(HidingModel, VersionedEntity):
+     """A versioned set of dataset items (prefix ``dts``; ADR 0009 Decision 5, N25)."""
+ 
+     id_prefix: ClassVar[str] = "dts"
+diff --color -ru -x _ packages/evalschema/src/tracer_evalschema/digest.py b/packages/evalschema/src/tracer_evalschema/digest.py
+--- a/packages/evalschema/src/tracer_evalschema/digest.py	2026-10-23 22:20:03
++++ b/packages/evalschema/src/tracer_evalschema/digest.py	2026-10-24 03:21:43
+@@ -22,16 +22,19 @@
+ 
+ import hashlib
+ import hmac
++import re
+ from collections.abc import Callable, Mapping
+ from dataclasses import dataclass
+ from types import MappingProxyType
+ from typing import Annotated, Any, NoReturn
+ 
+ import rfc8785
+-from pydantic import BaseModel, ConfigDict, Field, model_validator
++from pydantic import AfterValidator, BaseModel, ConfigDict, Field, model_validator
++from pydantic_core import PydanticCustomError
+ 
+-from tracer_evalschema._constraints import ClosedSet, FullMatch
+-from tracer_evalschema._hiding import values_hidden
++from tracer_evalschema._constraints import ClosedSet, FullMatch, echoed
++from tracer_evalschema._hiding import HidingModel, values_hidden
++from tracer_evalschema.credentials import contains_credential_pattern, credential_reason
+ from tracer_evalschema.errors import (
+     DigestKeyUnavailable,
+     DigestMismatch,
+@@ -81,7 +84,7 @@
+     if values_hidden():  # inside a model that hides its input: the rule, not the value
+         raise UnknownDigestScheme(f"unknown digest scheme (registered: {', '.join(registered)})")
+     raise UnknownDigestScheme(
+-        f"unknown digest scheme {value!r} (registered: {', '.join(registered)})"
++        f"unknown digest scheme {echoed(value)} (registered: {', '.join(registered)})"
+     )
+ 
+ 
+@@ -92,25 +95,44 @@
+ ]
+ 
+ 
+-class KeyRef(BaseModel):
++MIN_HMAC_KEY_BYTES = 32
++
++
++_SEGMENT_SPLIT = re.compile(r"[/:]")
++
++
++def _no_credential(value: str) -> str:
++    if (
++        contains_credential_pattern(value)
++        or "=" in value
++        or any(credential_reason(seg) is not None for seg in _SEGMENT_SPLIT.split(value))
++    ):
++        raise PydanticCustomError(
++            "key_ref_credential",
++            "the key reference looks like a credential: store the name of the key, never the key",
++        )
++    return value
++
++
++class KeyRef(HidingModel):
+     """Names a key held by a key manager; never carries key material (ADR 0007 Decision 4).
+ 
+     ``key_id`` is the key manager's own name for the key, an opaque string stored as given
+     (ADR 0001 I12), not one of our typed IDs.
+     """
+ 
+-    model_config = ConfigDict(extra="forbid", frozen=True)
++    model_config = ConfigDict(extra="forbid", frozen=True, hide_input_in_errors=True)
+ 
+-    key_id: Annotated[VerbatimText, Field(min_length=1)]
+-    key_version: Annotated[VerbatimText, Field(min_length=1)] | None = None
++    key_id: Annotated[VerbatimText, Field(min_length=1), AfterValidator(_no_credential)]
++    key_version: Annotated[VerbatimText, Field(min_length=1), AfterValidator(_no_credential)] | None = None
+     provider_hint: MachineKey | None = None
+ 
+ 
+-class ContentDigest(BaseModel):
++class ContentDigest(HidingModel):
+     """``{scheme, value, key_ref?}`` (ADR 0006 Decision 3). An unregistered scheme raises
+     ``UnknownDigestScheme`` (not wrapped by pydantic): it is never "unverifiable, accept"."""
+ 
+-    model_config = ConfigDict(extra="forbid", frozen=True)
++    model_config = ConfigDict(extra="forbid", frozen=True, hide_input_in_errors=True)
+ 
+     scheme: Annotated[str, ClosedSet(tuple(DIGEST_SCHEMES), _unknown_scheme)]
+     value: HexDigest
+@@ -190,6 +212,15 @@
+     return hashlib.sha256(payload).hexdigest()
+ 
+ 
++class WeakKeyError(DigestKeyUnavailable, ValueError):
++    """A digest key shorter than 32 bytes."""
++
++
++def _check_key_length(scheme: str, key: bytes) -> None:
++    if len(key) < MIN_HMAC_KEY_BYTES:
++        raise WeakKeyError(f"the key of {scheme} must be at least {MIN_HMAC_KEY_BYTES} bytes")
++
++
+ def compute_digest(
+     obj: BaseModel | Mapping[str, Any],
+     *,
+@@ -209,6 +240,7 @@
+             raise ValueError(f"scheme {scheme} needs both key and key_ref")
+         if not isinstance(key, bytes):
+             raise TypeError("key must be bytes")
++        _check_key_length(scheme, key)
+     elif key is not None or key_ref is not None:
+         raise ValueError(f"scheme {scheme} takes no key and no key_ref")
+     value = _hex_digest(scheme, canonical_bytes(obj), key)
+@@ -228,11 +260,12 @@
+         # S-N91: the message names the rule and the key_id only; the resolver's error (text,
+         # arguments, class) is never quoted and stays reachable as the chained cause
+         raise DigestKeyUnavailable(
+-            f"no key available for key {digest.key_ref.key_id!r}: the key resolver failed (the "
+-            "cause is chained, never quoted in this message)"
++            "no key available: the key resolver failed (the cause is chained, never quoted in "
++            "this message)"
+         ) from exc
+     if not isinstance(key, bytes):
+-        raise DigestKeyUnavailable(f"no key available for key {digest.key_ref.key_id!r}")
++        raise DigestKeyUnavailable("no key available: the key resolver returned no key bytes")
++    _check_key_length(digest.scheme, key)
+     return key
+ 
+ 
+diff --color -ru -x _ packages/evalschema/src/tracer_evalschema/events.py b/packages/evalschema/src/tracer_evalschema/events.py
+--- a/packages/evalschema/src/tracer_evalschema/events.py	2026-10-23 22:26:31
++++ b/packages/evalschema/src/tracer_evalschema/events.py	2026-10-24 03:10:33
+@@ -40,6 +40,7 @@
+ from pydantic.json_schema import JsonSchemaValue
+ from pydantic_core import CoreSchema, PydanticCustomError, core_schema
+ 
++from tracer_evalschema._constraints import echoed
+ from tracer_evalschema._constraints import ClosedSet
+ from tracer_evalschema._hiding import HidingModel, values_hidden
+ from tracer_evalschema._validation import Problem, raise_problems
+@@ -284,7 +285,7 @@
+     raise PydanticCustomError(
+         "evidence_id",
+         "{value} is not the ID of a turn, exchange, tool call, span or artifact ({pattern})",
+-        {"value": repr(value), "pattern": EVIDENCE_ID_PATTERN},
++        {"value": echoed(value), "pattern": EVIDENCE_ID_PATTERN},
+     )
+ 
+ 
+diff --color -ru -x _ packages/evalschema/src/tracer_evalschema/ids.py b/packages/evalschema/src/tracer_evalschema/ids.py
+--- a/packages/evalschema/src/tracer_evalschema/ids.py	2026-10-23 18:21:10
++++ b/packages/evalschema/src/tracer_evalschema/ids.py	2026-10-24 03:21:23
+@@ -24,6 +24,7 @@
+ from pydantic.json_schema import JsonSchemaValue
+ from pydantic_core import CoreSchema, PydanticCustomError, core_schema
+ 
++from tracer_evalschema._constraints import echoed
+ from tracer_evalschema._hiding import values_hidden
+ from tracer_evalschema.errors import ConfusablePrefixError
+ from tracer_evalschema.text import VerbatimText
+@@ -232,7 +233,7 @@
+             raise PydanticCustomError(
+                 "typed_id",
+                 "{value} is not a valid ID of this kind (expected {pattern})",
+-                {"value": repr(wire), "pattern": cls._schema_pattern()},
++                {"value": echoed(wire), "pattern": cls._schema_pattern()},
+             )
+         return kind(uuid.UUID(wire.partition("_")[2]))
+ 
+diff --color -ru -x _ packages/evalschema/src/tracer_evalschema/language.py b/packages/evalschema/src/tracer_evalschema/language.py
+--- a/packages/evalschema/src/tracer_evalschema/language.py	2026-10-23 16:12:28
++++ b/packages/evalschema/src/tracer_evalschema/language.py	2026-10-24 03:10:33
+@@ -39,6 +39,7 @@
+ from pydantic_core import CoreSchema, PydanticCustomError, core_schema
+ 
+ from tracer_evalschema import SCHEMA_VERSION
++from tracer_evalschema._constraints import echoed
+ from tracer_evalschema._constraints import ClosedSet
+ from tracer_evalschema._hiding import values_hidden
+ from tracer_evalschema.data_loader import package_data
+@@ -192,7 +193,7 @@
+         "language_tag",
+         "{value} is not a well-formed BCP-47 language tag (RFC 5646; primary subtag of 2-3 "
+         "letters; grandfathered tags are not accepted)",
+-        {"value": repr(value)},
++        {"value": echoed(value)},
+     )
+ 
+ 
+diff --color -ru -x _ packages/evalschema/src/tracer_evalschema/primitives.py b/packages/evalschema/src/tracer_evalschema/primitives.py
+--- a/packages/evalschema/src/tracer_evalschema/primitives.py	2026-10-23 18:21:04
++++ b/packages/evalschema/src/tracer_evalschema/primitives.py	2026-10-24 03:10:33
+@@ -36,6 +36,7 @@
+ from pydantic_core import CoreSchema, PydanticCustomError, core_schema
+ 
+ from tracer_evalschema import SCHEMA_VERSION
++from tracer_evalschema._constraints import echoed
+ from tracer_evalschema._constraints import ClosedSet
+ from tracer_evalschema._hiding import values_hidden
+ from tracer_evalschema.data_loader import package_data, read_json_file
+@@ -73,7 +74,7 @@
+     if values_hidden():
+         return PydanticCustomError("utc_datetime", "not a UTC instant: {why}", {"why": why})
+     return PydanticCustomError(
+-        "utc_datetime", "{value} is not a UTC instant: {why}", {"value": repr(value), "why": why}
++        "utc_datetime", "{value} is not a UTC instant: {why}", {"value": echoed(value), "why": why}
+     )
+ 
+ 
+@@ -203,7 +204,7 @@
+     raise PydanticCustomError(
+         "decimal_string",
+         "{value} is not a decimal string (canonical form {pattern})",
+-        {"value": repr(text), "pattern": DECIMAL_PATTERN},
++        {"value": echoed(text), "pattern": DECIMAL_PATTERN},
+     )
+ 
+ 
+diff --color -ru -x _ packages/evalschema/src/tracer_evalschema/provider.py b/packages/evalschema/src/tracer_evalschema/provider.py
+--- a/packages/evalschema/src/tracer_evalschema/provider.py	2026-10-23 16:01:52
++++ b/packages/evalschema/src/tracer_evalschema/provider.py	2026-10-24 03:21:44
+@@ -23,7 +23,7 @@
+ 
+ from tracer_evalschema._constraints import FullMatch
+ from tracer_evalschema._hiding import HidingModel
+-from tracer_evalschema.credentials import contains_credential_pattern
++from tracer_evalschema.credentials import contains_credential_pattern, credential_reason
+ from tracer_evalschema.text import MACHINE_KEY_PATTERN, MachineKey
+ 
+ __all__ = ["CONFIG_REF_PATTERN", "ConfigRef", "ModelRef", "ProviderConfigRef"]
+@@ -47,7 +47,8 @@
+ 
+ 
+ def _no_credential_pattern(value: str) -> str:
+-    if contains_credential_pattern(value):
++    name = value.partition(":")[2]
++    if contains_credential_pattern(value) or (name and credential_reason(name) is not None):
+         raise PydanticCustomError(
+             "config_ref_credential",
+             "config_ref matches a known credential pattern (ADR 0007 Decision 5a): store a "
+diff --color -ru -x _ packages/evalschema/src/tracer_evalschema/results.py b/packages/evalschema/src/tracer_evalschema/results.py
+--- a/packages/evalschema/src/tracer_evalschema/results.py	2026-10-24 03:19:45
++++ b/packages/evalschema/src/tracer_evalschema/results.py	2026-10-24 03:10:56
+@@ -7,8 +7,7 @@
+   (``metric``, a ``MetricDefinitionRef``; no ``run_id`` and no binding, N22, N33). ``status`` is
+   ``scored``, ``not_applicable`` (with ``na_reason``) or ``error`` (with ``error``); a missing
+   input is never 0 or false (ADR 0004). A ``per_turn_share`` metric scores through ``per_turn``
+-  (``PerTurnSummary``, P-58) and has no ``value``. ``transcript_ids`` (optional) names the
+-  transcripts the result read, for a bundle that holds several (ADR 0004 Decision 9).
++  (``PerTurnSummary``, P-58) and has no ``value``.
+ - ``ResultError``, ``ScorerInfo`` (P-61), ``JudgeTurnVerdict`` and ``JudgeInfo`` (P-62),
+   ``PerTurnSummary``: value objects.
+ - ``missing_inputs``, ``strongest_na_reason``, ``effective_language``, ``check_language`` and
+@@ -40,6 +39,7 @@
+ from pydantic.json_schema import JsonSchemaValue
+ from pydantic_core import CoreSchema, PydanticCustomError, core_schema
+ 
++from tracer_evalschema._hiding import HidingModel
+ from tracer_evalschema._constraints import ClosedSet, FullMatch
+ from tracer_evalschema._validation import Problem, raise_problems
+ from tracer_evalschema.artifact import Confidence, agent_audio_available
+@@ -270,14 +270,6 @@
+     return ids
+ 
+ 
+-def _unique_read_ids(ids: list[TranscriptId]) -> list[TranscriptId]:
+-    """``transcript_ids`` names each transcript once; the order is the producer's and is kept."""
+-    texts = [str(i) for i in ids]
+-    if len(set(texts)) != len(texts):
+-        raise ValueError("transcript_ids lists one transcript twice")
+-    return ids
+-
+-
+ def _unique_kinds(kinds: list[str]) -> list[str]:
+     if len(set(kinds)) != len(kinds):
+         raise ValueError("missing_kinds lists one input kind twice")
+@@ -417,7 +409,7 @@
+     schema["allOf"] = copy.deepcopy(rules)  # no node is shared between rules or calls
+ 
+ 
+-class MetricResult(EntityBase):
++class MetricResult(HidingModel, EntityBase):
+     """The result of one metric on one run (prefix ``res``; ADR 0004, ADR 0010 Decision 5).
+ 
+     Rules on the result alone (each reported at the field it is about):
+@@ -433,13 +425,6 @@
+     - ``declared_language_transcript_ids`` non-empty if and only if ``language_source=declared``;
+     - ``language_source`` is absent when the language steps did not run (``missing_input``,
+       ``agent_channel_unknown``).
+-
+-    ``transcript_ids`` (optional, additive in 0.0.1) names the transcripts the result read (ADR
+-    0004 Decision 6d): ``None`` (absent and ``null`` are the same) lets a bundle derive them; a
+-    list has at least one element, names each transcript once and keeps the producer's order. No
+-    rule of the result alone reads it; ``check_run_bundle`` resolves it (``[unresolved]``), requires
+-    it when the bundle holds several transcripts and the metric reads transcripts or is language
+-    dependent, and re-runs ``applicability`` over the transcripts it names (``[applicability]``).
+     """
+ 
+     model_config = ConfigDict(json_schema_extra=_result_conditions)
+@@ -467,14 +452,6 @@
+         Field(json_schema_extra={"uniqueItems": True}),
+     ] = Field(default_factory=list)
+     evidence_refs: list[EvidenceRef] = Field(default_factory=list)
+-    transcript_ids: (
+-        Annotated[
+-            list[TranscriptId],
+-            AfterValidator(_unique_read_ids),
+-            Field(min_length=1, json_schema_extra={"uniqueItems": True}),
+-        ]
+-        | None
+-    ) = None
+ 
+     @model_validator(mode="after")
+     def _status_rules(self) -> MetricResult:
+diff --color -ru -x _ packages/evalschema/src/tracer_evalschema/rubric.py b/packages/evalschema/src/tracer_evalschema/rubric.py
+--- a/packages/evalschema/src/tracer_evalschema/rubric.py	2026-10-23 22:59:07
++++ b/packages/evalschema/src/tracer_evalschema/rubric.py	2026-10-24 03:10:56
+@@ -68,7 +68,7 @@
+ """A canonical decimal string strictly greater than 0."""
+ 
+ 
+-class RubricItem(BaseModel):
++class RubricItem(HidingModel):
+     """One check of a rubric: a binding, whether it is required, and an optional weight."""
+ 
+     model_config = ConfigDict(extra="forbid", frozen=True)
+diff --color -ru -x _ packages/evalschema/src/tracer_evalschema/schemas/ExportBundle.schema.json b/packages/evalschema/src/tracer_evalschema/schemas/ExportBundle.schema.json
+--- a/packages/evalschema/src/tracer_evalschema/schemas/ExportBundle.schema.json	2026-10-24 03:21:07
++++ b/packages/evalschema/src/tracer_evalschema/schemas/ExportBundle.schema.json	2026-10-24 01:41:04
+@@ -3344,7 +3344,7 @@
+           }
+         }
+       ],
+-      "description": "The result of one metric on one run (prefix ``res``; ADR 0004, ADR 0010 Decision 5).\n\nRules on the result alone (each reported at the field it is about):\n\n- ``scored``: no ``na_reason``, ``error`` or ``missing_kinds``; exactly one of ``value`` and\n  ``per_turn``, and a scored ``per_turn`` has a counted turn;\n- only a scored result has a ``value`` or ``passed``;\n- ``not_applicable``: ``na_reason`` required; no ``error``, ``scorer`` or ``judge``;\n  ``missing_kinds`` non-empty if and only if ``na_reason=missing_input``; ``per_turn`` only\n  when every turn was not applicable (counted 0, undetermined 0);\n- ``error``: ``error`` required; no ``na_reason`` or ``missing_kinds``; ``per_turn`` only with\n  no counted turn, an undetermined turn and ``error.code=judge_undetermined`` (P-56);\n- ``declared_language_transcript_ids`` non-empty if and only if ``language_source=declared``;\n- ``language_source`` is absent when the language steps did not run (``missing_input``,\n  ``agent_channel_unknown``).\n\n``transcript_ids`` (optional, additive in 0.0.1) names the transcripts the result read (ADR\n0004 Decision 6d): ``None`` (absent and ``null`` are the same) lets a bundle derive them; a\nlist has at least one element, names each transcript once and keeps the producer's order. No\nrule of the result alone reads it; ``check_run_bundle`` resolves it (``[unresolved]``), requires\nit when the bundle holds several transcripts and the metric reads transcripts or is language\ndependent, and re-runs ``applicability`` over the transcripts it names (``[applicability]``).",
++      "description": "The result of one metric on one run (prefix ``res``; ADR 0004, ADR 0010 Decision 5).\n\nRules on the result alone (each reported at the field it is about):\n\n- ``scored``: no ``na_reason``, ``error`` or ``missing_kinds``; exactly one of ``value`` and\n  ``per_turn``, and a scored ``per_turn`` has a counted turn;\n- only a scored result has a ``value`` or ``passed``;\n- ``not_applicable``: ``na_reason`` required; no ``error``, ``scorer`` or ``judge``;\n  ``missing_kinds`` non-empty if and only if ``na_reason=missing_input``; ``per_turn`` only\n  when every turn was not applicable (counted 0, undetermined 0);\n- ``error``: ``error`` required; no ``na_reason`` or ``missing_kinds``; ``per_turn`` only with\n  no counted turn, an undetermined turn and ``error.code=judge_undetermined`` (P-56);\n- ``declared_language_transcript_ids`` non-empty if and only if ``language_source=declared``;\n- ``language_source`` is absent when the language steps did not run (``missing_input``,\n  ``agent_channel_unknown``).",
+       "properties": {
+         "created_at": {
+           "format": "date-time",
+@@ -3514,24 +3514,6 @@
+           ],
+           "title": "Status",
+           "type": "string"
+-        },
+-        "transcript_ids": {
+-          "anyOf": [
+-            {
+-              "items": {
+-                "pattern": "^tsc_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+-                "type": "string"
+-              },
+-              "minItems": 1,
+-              "type": "array",
+-              "uniqueItems": true
+-            },
+-            {
+-              "type": "null"
+-            }
+-          ],
+-          "default": null,
+-          "title": "Transcript Ids"
+         },
+         "value": {
+           "anyOf": [
+diff --color -ru -x _ packages/evalschema/src/tracer_evalschema/schemas/MetricResult.schema.json b/packages/evalschema/src/tracer_evalschema/schemas/MetricResult.schema.json
+--- a/packages/evalschema/src/tracer_evalschema/schemas/MetricResult.schema.json	2026-10-24 03:21:07
++++ b/packages/evalschema/src/tracer_evalschema/schemas/MetricResult.schema.json	2026-10-24 01:41:04
+@@ -743,7 +743,7 @@
+       }
+     }
+   ],
+-  "description": "The result of one metric on one run (prefix ``res``; ADR 0004, ADR 0010 Decision 5).\n\nRules on the result alone (each reported at the field it is about):\n\n- ``scored``: no ``na_reason``, ``error`` or ``missing_kinds``; exactly one of ``value`` and\n  ``per_turn``, and a scored ``per_turn`` has a counted turn;\n- only a scored result has a ``value`` or ``passed``;\n- ``not_applicable``: ``na_reason`` required; no ``error``, ``scorer`` or ``judge``;\n  ``missing_kinds`` non-empty if and only if ``na_reason=missing_input``; ``per_turn`` only\n  when every turn was not applicable (counted 0, undetermined 0);\n- ``error``: ``error`` required; no ``na_reason`` or ``missing_kinds``; ``per_turn`` only with\n  no counted turn, an undetermined turn and ``error.code=judge_undetermined`` (P-56);\n- ``declared_language_transcript_ids`` non-empty if and only if ``language_source=declared``;\n- ``language_source`` is absent when the language steps did not run (``missing_input``,\n  ``agent_channel_unknown``).\n\n``transcript_ids`` (optional, additive in 0.0.1) names the transcripts the result read (ADR\n0004 Decision 6d): ``None`` (absent and ``null`` are the same) lets a bundle derive them; a\nlist has at least one element, names each transcript once and keeps the producer's order. No\nrule of the result alone reads it; ``check_run_bundle`` resolves it (``[unresolved]``), requires\nit when the bundle holds several transcripts and the metric reads transcripts or is language\ndependent, and re-runs ``applicability`` over the transcripts it names (``[applicability]``).",
++  "description": "The result of one metric on one run (prefix ``res``; ADR 0004, ADR 0010 Decision 5).\n\nRules on the result alone (each reported at the field it is about):\n\n- ``scored``: no ``na_reason``, ``error`` or ``missing_kinds``; exactly one of ``value`` and\n  ``per_turn``, and a scored ``per_turn`` has a counted turn;\n- only a scored result has a ``value`` or ``passed``;\n- ``not_applicable``: ``na_reason`` required; no ``error``, ``scorer`` or ``judge``;\n  ``missing_kinds`` non-empty if and only if ``na_reason=missing_input``; ``per_turn`` only\n  when every turn was not applicable (counted 0, undetermined 0);\n- ``error``: ``error`` required; no ``na_reason`` or ``missing_kinds``; ``per_turn`` only with\n  no counted turn, an undetermined turn and ``error.code=judge_undetermined`` (P-56);\n- ``declared_language_transcript_ids`` non-empty if and only if ``language_source=declared``;\n- ``language_source`` is absent when the language steps did not run (``missing_input``,\n  ``agent_channel_unknown``).",
+   "properties": {
+     "created_at": {
+       "format": "date-time",
+@@ -913,24 +913,6 @@
+       ],
+       "title": "Status",
+       "type": "string"
+-    },
+-    "transcript_ids": {
+-      "anyOf": [
+-        {
+-          "items": {
+-            "pattern": "^tsc_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+-            "type": "string"
+-          },
+-          "minItems": 1,
+-          "type": "array",
+-          "uniqueItems": true
+-        },
+-        {
+-          "type": "null"
+-        }
+-      ],
+-      "default": null,
+-      "title": "Transcript Ids"
+     },
+     "value": {
+       "anyOf": [
+diff --color -ru -x _ packages/evalschema/src/tracer_evalschema/schemas/RunBundle.schema.json b/packages/evalschema/src/tracer_evalschema/schemas/RunBundle.schema.json
+--- a/packages/evalschema/src/tracer_evalschema/schemas/RunBundle.schema.json	2026-10-24 03:21:07
++++ b/packages/evalschema/src/tracer_evalschema/schemas/RunBundle.schema.json	2026-10-24 01:41:04
+@@ -3048,7 +3048,7 @@
+           }
+         }
+       ],
+-      "description": "The result of one metric on one run (prefix ``res``; ADR 0004, ADR 0010 Decision 5).\n\nRules on the result alone (each reported at the field it is about):\n\n- ``scored``: no ``na_reason``, ``error`` or ``missing_kinds``; exactly one of ``value`` and\n  ``per_turn``, and a scored ``per_turn`` has a counted turn;\n- only a scored result has a ``value`` or ``passed``;\n- ``not_applicable``: ``na_reason`` required; no ``error``, ``scorer`` or ``judge``;\n  ``missing_kinds`` non-empty if and only if ``na_reason=missing_input``; ``per_turn`` only\n  when every turn was not applicable (counted 0, undetermined 0);\n- ``error``: ``error`` required; no ``na_reason`` or ``missing_kinds``; ``per_turn`` only with\n  no counted turn, an undetermined turn and ``error.code=judge_undetermined`` (P-56);\n- ``declared_language_transcript_ids`` non-empty if and only if ``language_source=declared``;\n- ``language_source`` is absent when the language steps did not run (``missing_input``,\n  ``agent_channel_unknown``).\n\n``transcript_ids`` (optional, additive in 0.0.1) names the transcripts the result read (ADR\n0004 Decision 6d): ``None`` (absent and ``null`` are the same) lets a bundle derive them; a\nlist has at least one element, names each transcript once and keeps the producer's order. No\nrule of the result alone reads it; ``check_run_bundle`` resolves it (``[unresolved]``), requires\nit when the bundle holds several transcripts and the metric reads transcripts or is language\ndependent, and re-runs ``applicability`` over the transcripts it names (``[applicability]``).",
++      "description": "The result of one metric on one run (prefix ``res``; ADR 0004, ADR 0010 Decision 5).\n\nRules on the result alone (each reported at the field it is about):\n\n- ``scored``: no ``na_reason``, ``error`` or ``missing_kinds``; exactly one of ``value`` and\n  ``per_turn``, and a scored ``per_turn`` has a counted turn;\n- only a scored result has a ``value`` or ``passed``;\n- ``not_applicable``: ``na_reason`` required; no ``error``, ``scorer`` or ``judge``;\n  ``missing_kinds`` non-empty if and only if ``na_reason=missing_input``; ``per_turn`` only\n  when every turn was not applicable (counted 0, undetermined 0);\n- ``error``: ``error`` required; no ``na_reason`` or ``missing_kinds``; ``per_turn`` only with\n  no counted turn, an undetermined turn and ``error.code=judge_undetermined`` (P-56);\n- ``declared_language_transcript_ids`` non-empty if and only if ``language_source=declared``;\n- ``language_source`` is absent when the language steps did not run (``missing_input``,\n  ``agent_channel_unknown``).",
+       "properties": {
+         "created_at": {
+           "format": "date-time",
+@@ -3218,24 +3218,6 @@
+           ],
+           "title": "Status",
+           "type": "string"
+-        },
+-        "transcript_ids": {
+-          "anyOf": [
+-            {
+-              "items": {
+-                "pattern": "^tsc_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+-                "type": "string"
+-              },
+-              "minItems": 1,
+-              "type": "array",
+-              "uniqueItems": true
+-            },
+-            {
+-              "type": "null"
+-            }
+-          ],
+-          "default": null,
+-          "title": "Transcript Ids"
+         },
+         "value": {
+           "anyOf": [
+diff --color -ru -x _ packages/evalschema/src/tracer_evalschema/schemas/schema.lock b/packages/evalschema/src/tracer_evalschema/schemas/schema.lock
+--- a/packages/evalschema/src/tracer_evalschema/schemas/schema.lock	2026-10-24 03:21:07
++++ b/packages/evalschema/src/tracer_evalschema/schemas/schema.lock	2026-10-24 01:41:04
+@@ -10,16 +10,16 @@
+     "DatasetItem.schema.json": "8ee3732357dd8a8d8a30fc5da110e5ab7507c9f6c5369a304f8f20960ff8ada1",
+     "Evaluator.schema.json": "f618ecdaa40be28890404df30e92311d52fe583392e594941496f5a5055cc050",
+     "Exchange.schema.json": "8b1ef8c71b5452964844db4df1f8c81634ac8c325687de69ce1241394eba33bc",
+-    "ExportBundle.schema.json": "68059caf8fd1ecd2826d9d8427c7f3da412ee5045d325190030f2c15955c3b70",
++    "ExportBundle.schema.json": "4aaf792ae07bab9ecd97efcada9278caf788b5c0458b45e692a6adae42be87e9",
+     "MetricBinding.schema.json": "0c0ce900886f8a659c700a5390b4e810c20130f6401a06f1242f75bdd6b6d254",
+     "MetricDefinition.schema.json": "c8d7785bb9c39ffadfd1746f2548f58cc2849e5988947a017ec99a483dd79d23",
+-    "MetricResult.schema.json": "8a741b7c7b37a7aa7800ce481ccdd405f0a4cc4b8b3a0b438c6906ff184abc7d",
++    "MetricResult.schema.json": "07725be7c2d04c567e1217130f7fff9a87b8cdd670d800384b81e24e47391522",
+     "Persona.schema.json": "b2b8d99b559528c52635dfe2a48f0547a3bce8c54833b591c07f5577ad2c8fdb",
+     "PricingCatalog.schema.json": "f9b62d58db241aecd6097482bd6dfc02acefb7da41d7f0b10e582b9408aae066",
+     "Project.schema.json": "3273af8944b33d91e4c13fe07ef65510944e51687356e1f37fb56cbaf196ee3a",
+     "Rubric.schema.json": "7faadd7c1110dcd74825e3940fc92baa1915aa33772c9223a6b48a61a411613c",
+     "Run.schema.json": "0efe8c302e8d04f0550437d6f80e5aa37c9d07c86dc3a26f008c41cd765f88be",
+-    "RunBundle.schema.json": "ce38ee12524988406bca3d603da4b76deac3fb32d8e3ee05ee6c880b1ed821d9",
++    "RunBundle.schema.json": "1f78b0c2c7de786000a535d84683929dd50c8da889429cf9b6d271dfe46541e4",
+     "RunVerdict.schema.json": "9fe53523f4ca4dfa647855f5590b4b4e7be97802171936c6f4d9a03c4baf2580",
+     "StageSpan.schema.json": "4259f3f10354150fb09d60240ff9dd9bbb9b962fa8b940ee876421545c0d9225",
+     "TestProfile.schema.json": "bcdc12b0a29038cdf120985e3526e923726a370907c56e3a0932a4d837c57ff1",
+diff --color -ru -x _ packages/evalschema/src/tracer_evalschema/sealed.py b/packages/evalschema/src/tracer_evalschema/sealed.py
+--- a/packages/evalschema/src/tracer_evalschema/sealed.py	2026-10-23 19:16:10
++++ b/packages/evalschema/src/tracer_evalschema/sealed.py	2026-10-24 03:21:16
+@@ -432,7 +432,7 @@
+                     ("plaintext_digest", "key_ref"),
+                     "key_separation",
+                     "the digest key must not be the key-encryption key named by dek_wrap.kek_ref "
+-                    "(same key_id and key_version)",
++                    "(the same key_id; key_version is not compared)",
+                 )
+             )
+         raise_problems(type(self).__name__, problems)
+@@ -440,7 +440,7 @@
+ 
+ 
+ def _same_key(left: KeyRef, right: KeyRef) -> bool:
+-    return left.key_id == right.key_id and left.key_version == right.key_version
++    return left.key_id == right.key_id
+ 
+ 
+ # ---------------------------------------------------------------------------------- the AAD
+diff --color -ru -x _ packages/evalschema/src/tracer_evalschema/verdict.py b/packages/evalschema/src/tracer_evalschema/verdict.py
+--- a/packages/evalschema/src/tracer_evalschema/verdict.py	2026-10-23 22:59:07
++++ b/packages/evalschema/src/tracer_evalschema/verdict.py	2026-10-24 03:10:56
+@@ -27,6 +27,7 @@
+ 
+ from pydantic import BaseModel, ConfigDict, Field, Strict, model_validator
+ 
++from tracer_evalschema._hiding import HidingModel
+ from tracer_evalschema._constraints import ClosedSet
+ from tracer_evalschema._validation import Problem, raise_problems
+ from tracer_evalschema.base import EntityBase
+@@ -60,7 +61,7 @@
+ Count = Annotated[int, Strict(), Field(ge=0, le=MAX_SAFE_INTEGER)]
+ 
+ 
+-class VerdictCheck(BaseModel):
++class VerdictCheck(HidingModel):
+     """One required rubric binding and the outcome of its result (ADR 0013 Decisions 2 and 3).
+     ``metric_ref`` is the binding's ``metric`` reference, never text."""
+ 
+@@ -87,7 +88,7 @@
+     return "pass" if passed == total else "inconclusive"
+ 
+ 
+-class RunVerdict(EntityBase):
++class RunVerdict(HidingModel, EntityBase):
+     """The verdict of a run (prefix ``vrd``; ADR 0013). A record of fact without ``run_id``: the
+     RunBundle is the unit of a run (N22)."""
+ 

@@ -1,0 +1,420 @@
+# batch23-applicability: every full-suite failure, classified (schema-architect, 2026-10-24)
+# source: JUnit XML of the full-suite runs on Python 3.11.16, 3.12.14, 3.13.15, 3.14.7
+# identical failure set on all four versions: True; count per version: 3.11=389, 3.12=389, 3.13=389, 3.14=389
+# each group fails until qa applies the named change (api-surface-applicability.md 9.3) and regenerates the golden fixtures;
+# the simulated post-SCR tree (simulated-post-scr.py3.14.log) shows them all green except the one 'NOT CAUSED' test
+
+## 339  SCR-1: _support_b7.world() stores results its run contradicts (latency without turn_timing, a language judge on an untagged transcript) -> [applicability] status
+  test_bundle.py::test_bundle_declared_language_transcript_ids_resolve
+  test_bundle.py::test_bundle_loader_size_limit
+  test_bundle.py::test_bundle_roundtrip_model_json_schema_model
+  test_bundle.py::test_bundle_scorer_implementation_ref_equals_definition
+  test_bundle.py::test_every_record_of_a_kind_is_checked_in_the_run_bundle
+  test_bundle.py::test_evidence_ref_resolves_in_run_bundle
+  test_bundle.py::test_pricing_catalog_ref_digest_in_the_bundle_seam
+  test_bundle.py::test_run_bundle_cost_record_names_entries_of_its_catalog
+  test_bundle.py::test_run_bundle_cost_summaries_are_checked_per_domain
+  test_bundle.py::test_run_bundle_cost_summary_is_checked_against_the_bundles_records
+  test_bundle.py::test_run_bundle_has_one_result_per_metric
+  test_bundle.py::test_run_bundle_of_a_consistent_run_is_accepted[T0-human]
+  test_bundle.py::test_run_bundle_of_a_consistent_run_is_accepted[T0-simulated]
+  test_bundle.py::test_run_bundle_of_a_consistent_run_is_accepted[T1-human]
+  test_bundle.py::test_run_bundle_of_a_consistent_run_is_accepted[T1-simulated]
+  test_bundle.py::test_run_bundle_of_a_consistent_run_is_accepted[T2-human]
+  test_bundle.py::test_run_bundle_of_a_consistent_run_is_accepted[T2-simulated]
+  test_bundle.py::test_run_bundle_rejects_a_marker_looser_than_the_derivation
+  test_bundle.py::test_run_bundle_rejects_same_record_id_different_content
+  test_bundle.py::test_run_bundle_result_is_checked_against_its_definition
+  test_bundle.py::test_run_bundle_result_metric_must_resolve_to_a_snapshot_definition
+  test_bundle.py::test_run_bundle_tool_call_seq_is_unique_in_the_bundle
+  test_bundle.py::test_run_bundle_transcript_rules_run_over_the_bundles_turns
+  test_bundle.py::test_run_bundle_verdict_is_checked_against_rubric_and_results
+  test_bundle.py::test_run_bundle_verifies_the_digest_of_a_test_profile_reference
+  test_bundle.py::test_usage_record_run_membership
+  test_bundle_adversarial.py::test_a20_human_subject_payload_unsealed_and_unredacted[benchmark-human_caller-audio]
+  test_bundle_adversarial.py::test_a20_human_subject_payload_unsealed_and_unredacted[benchmark-human_caller-text]
+  test_bundle_adversarial.py::test_a20_human_subject_payload_unsealed_and_unredacted[benchmark-human_caller-tool_arguments]
+  test_bundle_adversarial.py::test_a20_human_subject_payload_unsealed_and_unredacted[benchmark-human_caller-tool_result]
+  test_bundle_adversarial.py::test_a20_human_subject_payload_unsealed_and_unredacted[benchmark-unknown_role-audio]
+  test_bundle_adversarial.py::test_a20_human_subject_payload_unsealed_and_unredacted[benchmark-unknown_role-text]
+  test_bundle_adversarial.py::test_a20_human_subject_payload_unsealed_and_unredacted[benchmark-unknown_role-tool_arguments]
+  test_bundle_adversarial.py::test_a20_human_subject_payload_unsealed_and_unredacted[benchmark-unknown_role-tool_result]
+  test_bundle_adversarial.py::test_a20_human_subject_payload_unsealed_and_unredacted[shared_export-human_caller-audio]
+  test_bundle_adversarial.py::test_a20_human_subject_payload_unsealed_and_unredacted[shared_export-human_caller-text]
+  test_bundle_adversarial.py::test_a20_human_subject_payload_unsealed_and_unredacted[shared_export-human_caller-tool_arguments]
+  test_bundle_adversarial.py::test_a20_human_subject_payload_unsealed_and_unredacted[shared_export-human_caller-tool_result]
+  test_bundle_adversarial.py::test_a20_human_subject_payload_unsealed_and_unredacted[shared_export-unknown_role-audio]
+  test_bundle_adversarial.py::test_a20_human_subject_payload_unsealed_and_unredacted[shared_export-unknown_role-text]
+  test_bundle_adversarial.py::test_a20_human_subject_payload_unsealed_and_unredacted[shared_export-unknown_role-tool_arguments]
+  test_bundle_adversarial.py::test_a20_human_subject_payload_unsealed_and_unredacted[shared_export-unknown_role-tool_result]
+  test_bundle_adversarial.py::test_a30_plain_digest_of_the_test_profile_in_a_shared_export[benchmark]
+  test_bundle_adversarial.py::test_a30_plain_digest_of_the_test_profile_in_a_shared_export[shared_export]
+  test_bundle_adversarial.py::test_a31_human_subject_false_on_a_run_with_an_unknown_role
+  test_bundle_adversarial.py::test_an_oversized_bundle_is_refused_before_it_is_parsed
+  test_bundle_adversarial.py::test_bundle_validation_does_not_mutate_its_input_and_is_deterministic
+  test_bundle_adversarial.py::test_bundle_validation_shares_no_state_between_threads
+  test_bundle_adversarial.py::test_bundle_work_logs_and_prints_nothing
+  test_bundle_adversarial.py::test_empty_sealed_plaintext_in_an_export
+  test_bundle_adversarial.py::test_huge_call_bundle_validates_in_calibrated_time
+  test_bundle_adversarial.py::test_indic_and_special_text_survives_a_bundle_byte_for_byte
+  test_bundle_adversarial.py::test_prompt_injection_in_transcripts_is_stored_verbatim_and_decides_nothing
+  test_bundle_adversarial.py::test_withheld_declaration_cannot_hide_an_unprotected_payload
+  test_bundle_tier.py::test_an_under_claim_is_never_excused[exchange]
+  test_bundle_tier.py::test_an_under_claim_is_never_excused[span]
+  test_bundle_tier.py::test_an_under_claim_is_never_excused[tool_call]
+  test_bundle_tier.py::test_an_under_claim_is_never_excused[transcript]
+  test_bundle_tier.py::test_an_under_claim_is_never_excused[turn]
+  test_bundle_tier.py::test_an_under_claim_is_never_excused[usage_record]
+  test_bundle_tier.py::test_bundle_observed_tier_equals_evidence_tier[T0-T0]
+  test_bundle_tier.py::test_bundle_observed_tier_equals_evidence_tier[T1-T1]
+  test_bundle_tier.py::test_bundle_observed_tier_equals_evidence_tier[T2-T2]
+  test_bundle_tier.py::test_declaration_of_a_provenance_kind_excuses_an_over_claim[exchange]
+  test_bundle_tier.py::test_declaration_of_a_provenance_kind_excuses_an_over_claim[span]
+  test_bundle_tier.py::test_declaration_of_a_provenance_kind_excuses_an_over_claim[tool_call]
+  test_bundle_tier.py::test_declaration_of_a_provenance_kind_excuses_an_over_claim[transcript]
+  test_bundle_tier.py::test_declaration_of_a_provenance_kind_excuses_an_over_claim[turn]
+  test_bundle_tier.py::test_declaration_of_a_provenance_kind_excuses_an_over_claim[usage_record]
+  test_bundle_tier.py::test_declaration_of_an_observer_capable_kind_excuses_a_t2_over_claim[exchange]
+  test_bundle_tier.py::test_declaration_of_an_observer_capable_kind_excuses_a_t2_over_claim[tool_call]
+  test_bundle_tier.py::test_declaration_of_an_observer_capable_kind_excuses_a_t2_over_claim[transcript]
+  test_bundle_tier.py::test_declaration_of_an_observer_capable_kind_excuses_a_t2_over_claim[turn]
+  test_bundle_tier.py::test_declaration_of_another_kind_does_not_excuse_an_over_claim[artifact]
+  test_bundle_tier.py::test_declaration_of_another_kind_does_not_excuse_an_over_claim[cost_record]
+  test_bundle_tier.py::test_declaration_of_another_kind_does_not_excuse_an_over_claim[result]
+  test_bundle_tier.py::test_each_kind_of_record_carries_the_tier_in_a_bundle[agent_usage]
+  test_bundle_tier.py::test_each_kind_of_record_carries_the_tier_in_a_bundle[exchange_observer]
+  test_bundle_tier.py::test_each_kind_of_record_carries_the_tier_in_a_bundle[exchange_telemetry]
+  test_bundle_tier.py::test_each_kind_of_record_carries_the_tier_in_a_bundle[span]
+  test_bundle_tier.py::test_each_kind_of_record_carries_the_tier_in_a_bundle[tool_call_observer]
+  test_bundle_tier.py::test_each_kind_of_record_carries_the_tier_in_a_bundle[tool_call_telemetry]
+  test_bundle_tier.py::test_each_kind_of_record_carries_the_tier_in_a_bundle[transcript_observer]
+  test_bundle_tier.py::test_each_kind_of_record_carries_the_tier_in_a_bundle[transcript_telemetry]
+  test_bundle_tier.py::test_each_kind_of_record_carries_the_tier_in_a_bundle[turn_observer]
+  test_bundle_tier.py::test_each_kind_of_record_carries_the_tier_in_a_bundle[turn_telemetry]
+  test_bundle_tier.py::test_export_declared_withheld_records_and_observed_tier
+  test_bundle_tier.py::test_run_rule_r1_and_bundle_rule_r2_agree
+  test_bundle_tier.py::test_sealed_and_redacted_records_count_for_the_tier
+  test_bundle_tier.py::test_withheld_declaration_must_be_true_and_unique
+  test_bundle_tier.py::test_withheld_records_excuse_references_to_them[artifact-channel_map]
+  test_bundle_tier.py::test_withheld_records_excuse_references_to_them[artifact-evidence]
+  test_bundle_tier.py::test_withheld_records_excuse_references_to_them[exchange-evidence]
+  test_bundle_tier.py::test_withheld_records_excuse_references_to_them[span-evidence]
+  test_bundle_tier.py::test_withheld_records_excuse_references_to_them[tool_call-evidence]
+  test_bundle_tier.py::test_withheld_records_excuse_references_to_them[transcript-declared_language]
+  test_bundle_tier.py::test_withheld_records_excuse_references_to_them[transcript-turn_transcript]
+  test_bundle_tier.py::test_withheld_records_excuse_references_to_them[turn-artifact_turn_ref]
+  test_bundle_tier.py::test_withheld_records_excuse_references_to_them[turn-evidence]
+  test_bundle_tier.py::test_withheld_records_excuse_references_to_them[usage_record-cost_usage]
+  test_export_purpose.py::test_a_different_purpose_is_refused_with_the_purpose_tag[benchmark-internal]
+  test_export_purpose.py::test_a_different_purpose_is_refused_with_the_purpose_tag[benchmark-shared_export]
+  test_export_purpose.py::test_a_different_purpose_is_refused_with_the_purpose_tag[internal-benchmark]
+  test_export_purpose.py::test_a_different_purpose_is_refused_with_the_purpose_tag[internal-shared_export]
+  test_export_purpose.py::test_a_different_purpose_is_refused_with_the_purpose_tag[shared_export-benchmark]
+  test_export_purpose.py::test_a_different_purpose_is_refused_with_the_purpose_tag[shared_export-internal]
+  test_export_purpose.py::test_a_forged_internal_label_is_refused_when_a_shared_export_is_demanded
+  test_export_purpose.py::test_a_shared_export_is_not_mislabelled_as_internal
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[bool2-benchmark]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[bool2-internal]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[bool2-shared_export]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[bool3-benchmark]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[bool3-internal]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[bool3-shared_export]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[bytearray6-benchmark]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[bytearray6-internal]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[bytearray6-shared_export]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[bytes5-benchmark]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[bytes5-internal]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[bytes5-shared_export]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[dict10-benchmark]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[dict10-internal]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[dict10-shared_export]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[float4-benchmark]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[float4-internal]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[float4-shared_export]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[int0-benchmark]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[int0-internal]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[int0-shared_export]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[int1-benchmark]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[int1-internal]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[int1-shared_export]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[list7-benchmark]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[list7-internal]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[list7-shared_export]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[object11-benchmark]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[object11-internal]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[object11-shared_export]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[set9-benchmark]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[set9-internal]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[set9-shared_export]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[tuple8-benchmark]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[tuple8-internal]
+  test_export_purpose.py::test_an_expected_purpose_of_another_type_is_a_type_error[tuple8-shared_export]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch[' '-benchmark]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch[' '-internal]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch[' '-shared_export]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch[' internal'-benchmark]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch[' internal'-internal]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch[' internal'-shared_export]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch[''-benchmark]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch[''-internal]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch[''-shared_export]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['*'-benchmark]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['*'-internal]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['*'-shared_export]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['INTERNAL'-benchmark]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['INTERNAL'-internal]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['INTERNAL'-shared_export]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['Internal'-benchmark]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['Internal'-internal]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['Internal'-shared_export]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['None'-benchmark]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['None'-internal]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['None'-shared_export]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['SHARED_EXPORT'-benchmark]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['SHARED_EXPORT'-internal]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['SHARED_EXPORT'-shared_export]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['any'-benchmark]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['any'-internal]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['any'-shared_export]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['bench'-benchmark]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['bench'-internal]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['bench'-shared_export]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['benchmarks'-benchmark]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['benchmarks'-internal]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['benchmarks'-shared_export]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['export'-benchmark]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['export'-internal]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['export'-shared_export]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['internal '-benchmark]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['internal '-internal]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['internal '-shared_export]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['internal\\n'-benchmark]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['internal\\n'-internal]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['internal\\n'-shared_export]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['none'-benchmark]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['none'-internal]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['none'-shared_export]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['null'-benchmark]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['null'-internal]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['null'-shared_export]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['shared export'-benchmark]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['shared export'-internal]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['shared export'-shared_export]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['shared'-benchmark]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['shared'-internal]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['shared'-shared_export]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['shared-export'-benchmark]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['shared-export'-internal]
+  test_export_purpose.py::test_an_unknown_expected_purpose_is_a_value_error_not_a_mismatch['shared-export'-shared_export]
+  test_export_purpose.py::test_expected_purpose_cannot_be_passed_by_position
+  test_export_purpose.py::test_load_bundle_does_not_demand_a_purpose_by_default
+  test_export_purpose.py::test_load_bundle_expected_purpose_of_another_type_is_a_type_error_before_reading[bool2]
+  test_export_purpose.py::test_load_bundle_expected_purpose_of_another_type_is_a_type_error_before_reading[bool3]
+  test_export_purpose.py::test_load_bundle_expected_purpose_of_another_type_is_a_type_error_before_reading[bytearray6]
+  test_export_purpose.py::test_load_bundle_expected_purpose_of_another_type_is_a_type_error_before_reading[bytes5]
+  test_export_purpose.py::test_load_bundle_expected_purpose_of_another_type_is_a_type_error_before_reading[dict10]
+  test_export_purpose.py::test_load_bundle_expected_purpose_of_another_type_is_a_type_error_before_reading[float4]
+  test_export_purpose.py::test_load_bundle_expected_purpose_of_another_type_is_a_type_error_before_reading[int0]
+  test_export_purpose.py::test_load_bundle_expected_purpose_of_another_type_is_a_type_error_before_reading[int1]
+  test_export_purpose.py::test_load_bundle_expected_purpose_of_another_type_is_a_type_error_before_reading[list7]
+  test_export_purpose.py::test_load_bundle_expected_purpose_of_another_type_is_a_type_error_before_reading[object11]
+  test_export_purpose.py::test_load_bundle_expected_purpose_of_another_type_is_a_type_error_before_reading[set9]
+  test_export_purpose.py::test_load_bundle_expected_purpose_of_another_type_is_a_type_error_before_reading[tuple8]
+  test_export_purpose.py::test_load_bundle_none_and_the_own_purpose_load_the_same_bundle[bytes-benchmark]
+  test_export_purpose.py::test_load_bundle_none_and_the_own_purpose_load_the_same_bundle[bytes-internal]
+  test_export_purpose.py::test_load_bundle_none_and_the_own_purpose_load_the_same_bundle[bytes-shared_export]
+  test_export_purpose.py::test_load_bundle_none_and_the_own_purpose_load_the_same_bundle[str-benchmark]
+  test_export_purpose.py::test_load_bundle_none_and_the_own_purpose_load_the_same_bundle[str-internal]
+  test_export_purpose.py::test_load_bundle_none_and_the_own_purpose_load_the_same_bundle[str-shared_export]
+  test_export_purpose.py::test_load_bundle_refuses_a_different_purpose[bytes-benchmark-internal]
+  test_export_purpose.py::test_load_bundle_refuses_a_different_purpose[bytes-benchmark-shared_export]
+  test_export_purpose.py::test_load_bundle_refuses_a_different_purpose[bytes-internal-benchmark]
+  test_export_purpose.py::test_load_bundle_refuses_a_different_purpose[bytes-internal-shared_export]
+  test_export_purpose.py::test_load_bundle_refuses_a_different_purpose[bytes-shared_export-benchmark]
+  test_export_purpose.py::test_load_bundle_refuses_a_different_purpose[bytes-shared_export-internal]
+  test_export_purpose.py::test_load_bundle_refuses_a_different_purpose[str-benchmark-internal]
+  test_export_purpose.py::test_load_bundle_refuses_a_different_purpose[str-benchmark-shared_export]
+  test_export_purpose.py::test_load_bundle_refuses_a_different_purpose[str-internal-benchmark]
+  test_export_purpose.py::test_load_bundle_refuses_a_different_purpose[str-internal-shared_export]
+  test_export_purpose.py::test_load_bundle_refuses_a_different_purpose[str-shared_export-benchmark]
+  test_export_purpose.py::test_load_bundle_refuses_a_different_purpose[str-shared_export-internal]
+  test_export_purpose.py::test_load_bundle_run_bundle_has_no_purpose_to_demand
+  test_export_purpose.py::test_load_bundle_still_loads_only_bundles
+  test_export_purpose.py::test_load_bundle_unknown_expected_purpose_is_a_value_error_before_reading[' ']
+  test_export_purpose.py::test_load_bundle_unknown_expected_purpose_is_a_value_error_before_reading[' internal']
+  test_export_purpose.py::test_load_bundle_unknown_expected_purpose_is_a_value_error_before_reading['']
+  test_export_purpose.py::test_load_bundle_unknown_expected_purpose_is_a_value_error_before_reading['*']
+  test_export_purpose.py::test_load_bundle_unknown_expected_purpose_is_a_value_error_before_reading['INTERNAL']
+  test_export_purpose.py::test_load_bundle_unknown_expected_purpose_is_a_value_error_before_reading['Internal']
+  test_export_purpose.py::test_load_bundle_unknown_expected_purpose_is_a_value_error_before_reading['None']
+  test_export_purpose.py::test_load_bundle_unknown_expected_purpose_is_a_value_error_before_reading['SHARED_EXPORT']
+  test_export_purpose.py::test_load_bundle_unknown_expected_purpose_is_a_value_error_before_reading['any']
+  test_export_purpose.py::test_load_bundle_unknown_expected_purpose_is_a_value_error_before_reading['bench']
+  test_export_purpose.py::test_load_bundle_unknown_expected_purpose_is_a_value_error_before_reading['benchmarks']
+  test_export_purpose.py::test_load_bundle_unknown_expected_purpose_is_a_value_error_before_reading['export']
+  test_export_purpose.py::test_load_bundle_unknown_expected_purpose_is_a_value_error_before_reading['internal ']
+  test_export_purpose.py::test_load_bundle_unknown_expected_purpose_is_a_value_error_before_reading['internal\\n']
+  test_export_purpose.py::test_load_bundle_unknown_expected_purpose_is_a_value_error_before_reading['none']
+  test_export_purpose.py::test_load_bundle_unknown_expected_purpose_is_a_value_error_before_reading['null']
+  test_export_purpose.py::test_load_bundle_unknown_expected_purpose_is_a_value_error_before_reading['shared export']
+  test_export_purpose.py::test_load_bundle_unknown_expected_purpose_is_a_value_error_before_reading['shared']
+  test_export_purpose.py::test_load_bundle_unknown_expected_purpose_is_a_value_error_before_reading['shared-export']
+  test_export_purpose.py::test_none_keeps_every_current_behaviour[benchmark]
+  test_export_purpose.py::test_none_keeps_every_current_behaviour[internal]
+  test_export_purpose.py::test_none_keeps_every_current_behaviour[shared_export]
+  test_export_purpose.py::test_the_model_still_accepts_every_purpose_without_a_demand
+  test_export_purpose.py::test_the_own_purpose_is_accepted[benchmark]
+  test_export_purpose.py::test_the_own_purpose_is_accepted[internal]
+  test_export_purpose.py::test_the_own_purpose_is_accepted[shared_export]
+  test_export_purpose.py::test_the_purpose_check_comes_before_the_rules_of_the_label
+  test_export_rules.py::test_benchmark_purpose_human_requires_seal_or_redaction
+  test_export_rules.py::test_benchmark_rejects_not_obtained_consent[not_obtained]
+  test_export_rules.py::test_benchmark_rejects_not_obtained_consent[unknown]
+  test_export_rules.py::test_benchmark_rejects_unknown_consent
+  test_export_rules.py::test_dataset_item_payload_is_protected_when_the_item_is_human_subject
+  test_export_rules.py::test_export_bundle_holds_no_caller_identifier
+  test_export_rules.py::test_export_bundle_holds_run_bundles_once
+  test_export_rules.py::test_export_bundle_is_checked_through_the_bundle_functions
+  test_export_rules.py::test_export_dataset_ids_resolve_inside_the_export
+  test_export_rules.py::test_export_dataset_item_source_run_id_is_unresolved_provenance
+  test_export_rules.py::test_export_has_no_digest_key_material
+  test_export_rules.py::test_export_rederivation_leaves_stored_marker_unchanged
+  test_export_rules.py::test_export_source_run_id_kept_only_where_policy_allows
+  test_export_rules.py::test_internal_bundle_human_allowed[T0]
+  test_export_rules.py::test_internal_bundle_human_allowed[T1]
+  test_export_rules.py::test_internal_bundle_human_allowed[T2]
+  test_export_rules.py::test_internal_export_keeps_a_plain_profile_digest
+  test_export_rules.py::test_later_items_run_bundles_and_entries_are_checked_too
+  test_export_rules.py::test_manual_marker_always_honoured_at_export[benchmark-manual]
+  test_export_rules.py::test_manual_marker_always_honoured_at_export[benchmark-real_person_likeness]
+  test_export_rules.py::test_manual_marker_always_honoured_at_export[shared_export-manual]
+  test_export_rules.py::test_manual_marker_always_honoured_at_export[shared_export-real_person_likeness]
+  test_export_rules.py::test_precautionary_marker_on_human_caller_run_stays_human[benchmark]
+  test_export_rules.py::test_precautionary_marker_on_human_caller_run_stays_human[shared_export]
+  test_export_rules.py::test_precautionary_marker_uses_derivation_at_export[benchmark]
+  test_export_rules.py::test_precautionary_marker_uses_derivation_at_export[shared_export]
+  test_export_rules.py::test_provenance_redaction_entries_are_checked[benchmark]
+  test_export_rules.py::test_provenance_redaction_entries_are_checked[internal]
+  test_export_rules.py::test_provenance_redaction_entries_are_checked[shared_export]
+  test_export_rules.py::test_provenance_redaction_never_satisfies_seal_or_redaction[benchmark]
+  test_export_rules.py::test_provenance_redaction_never_satisfies_seal_or_redaction[shared_export]
+  test_export_rules.py::test_redaction_covers_all_payload_kinds[benchmark]
+  test_export_rules.py::test_redaction_covers_all_payload_kinds[shared_export]
+  test_export_rules.py::test_sealed_audio_protects_the_recording
+  test_export_rules.py::test_sealed_payload_accepted_in_export_bundle_and_refused_elsewhere
+  test_export_rules.py::test_sealed_payload_subject_must_be_in_the_export
+  test_export_rules.py::test_sealed_text_replaces_the_turns_of_its_transcript
+  test_export_rules.py::test_sealed_tool_payloads_replace_the_clear_fields
+  test_export_rules.py::test_shared_and_benchmark_exports_reject_file_uris[benchmark]
+  test_export_rules.py::test_shared_and_benchmark_exports_reject_file_uris[shared_export]
+  test_export_rules.py::test_shared_and_benchmark_exports_reject_loopback_uris[benchmark]
+  test_export_rules.py::test_shared_and_benchmark_exports_reject_loopback_uris[shared_export]
+  test_export_rules.py::test_shared_export_allows_not_obtained_consent_when_sealed_or_redacted[not_obtained]
+  test_export_rules.py::test_shared_export_allows_not_obtained_consent_when_sealed_or_redacted[obtained]
+  test_export_rules.py::test_shared_export_allows_not_obtained_consent_when_sealed_or_redacted[unknown]
+  test_export_rules.py::test_shared_export_drops_or_keys_profile_digest[benchmark]
+  test_export_rules.py::test_shared_export_drops_or_keys_profile_digest[shared_export]
+  test_export_rules.py::test_shared_export_human_requires_seal_or_redaction
+  test_export_rules.py::test_shared_export_simulated_run_with_unknown_role_requires_seal_or_redaction[benchmark]
+  test_export_rules.py::test_shared_export_simulated_run_with_unknown_role_requires_seal_or_redaction[shared_export]
+  test_export_rules.py::test_shared_export_snapshot_digest_verifies_after_profile_digest_dropped
+  test_export_rules.py::test_simulated_precautionary_payload_with_unknown_consent_enters_benchmark
+  test_golden_fixtures.py::test_frozen_digests_record_the_file_hash_and_the_entity_digest
+  test_golden_fixtures.py::test_frozen_fixtures_still_parse
+  test_golden_fixtures.py::test_golden_files_equal_generator_output
+  test_golden_fixtures.py::test_golden_generator_check_reports_drift_and_write_repairs_it
+  test_golden_fixtures.py::test_golden_generator_is_deterministic_across_processes
+  test_golden_fixtures.py::test_golden_invalid_fixtures_are_rejected_with_the_expected_error[ExportBundle/benchmark-without-consent]
+  test_golden_fixtures.py::test_golden_invalid_fixtures_are_rejected_with_the_expected_error[ExportBundle/dataset-item-twice]
+  test_golden_fixtures.py::test_golden_invalid_fixtures_are_rejected_with_the_expected_error[ExportBundle/file-uri-in-a-shared-export]
+  test_golden_fixtures.py::test_golden_invalid_fixtures_are_rejected_with_the_expected_error[ExportBundle/omission-entry-for-an-item-that-keeps-its-run]
+  test_golden_fixtures.py::test_golden_invalid_fixtures_are_rejected_with_the_expected_error[ExportBundle/sealed-payload-of-a-record-not-exported]
+  test_golden_fixtures.py::test_golden_invalid_fixtures_are_rejected_with_the_expected_error[ExportBundle/shared-export-with-clear-payloads]
+  test_golden_fixtures.py::test_the_build_script_check_passes_on_the_committed_fixtures
+  test_golden_fixtures.py::test_the_generator_refuses_an_expectation_the_model_does_not_meet
+  test_schema_agreement.py::test_roundtrip_valid[ExportBundle-internal]
+  test_schema_agreement.py::test_roundtrip_valid[ExportBundle-shared]
+  test_schema_agreement.py::test_roundtrip_valid[RunBundle-t0_simulated]
+  test_schema_agreement.py::test_roundtrip_valid[RunBundle-t1_human]
+  test_schema_agreement.py::test_sample_documents_are_valid_for_the_model[ExportBundle-internal]
+  test_schema_agreement.py::test_sample_documents_are_valid_for_the_model[ExportBundle-shared]
+  test_schema_agreement.py::test_sample_documents_are_valid_for_the_model[RunBundle-t0_simulated]
+  test_schema_agreement.py::test_sample_documents_are_valid_for_the_model[RunBundle-t1_human]
+  test_schema_agreement.py::test_serialization_schema_accepts_the_dump_as_well[ExportBundle-internal]
+  test_schema_agreement.py::test_serialization_schema_accepts_the_dump_as_well[ExportBundle-shared]
+  test_schema_agreement.py::test_serialization_schema_accepts_the_dump_as_well[RunBundle-t0_simulated]
+  test_schema_agreement.py::test_serialization_schema_accepts_the_dump_as_well[RunBundle-t1_human]
+
+## 19  golden regeneration: MetricResult golden files predate the field (the dump now writes transcript_ids: null)
+  test_golden_fixtures.py::test_golden_minimal_fixture_loads_without_its_null_members[MetricResult]
+  test_golden_fixtures.py::test_golden_valid_fixtures_round_trip_byte_for_byte[ExportBundle/maximal-benchmark]
+  test_golden_fixtures.py::test_golden_valid_fixtures_round_trip_byte_for_byte[ExportBundle/maximal-shared-export]
+  test_golden_fixtures.py::test_golden_valid_fixtures_round_trip_byte_for_byte[ExportBundle/maximal]
+  test_golden_fixtures.py::test_golden_valid_fixtures_round_trip_byte_for_byte[MetricResult/maximal-boolean-false]
+  test_golden_fixtures.py::test_golden_valid_fixtures_round_trip_byte_for_byte[MetricResult/maximal-error-undetermined]
+  test_golden_fixtures.py::test_golden_valid_fixtures_round_trip_byte_for_byte[MetricResult/maximal-error]
+  test_golden_fixtures.py::test_golden_valid_fixtures_round_trip_byte_for_byte[MetricResult/maximal-integer-scorer-declared]
+  test_golden_fixtures.py::test_golden_valid_fixtures_round_trip_byte_for_byte[MetricResult/maximal-na-agent-channel-unknown]
+  test_golden_fixtures.py::test_golden_valid_fixtures_round_trip_byte_for_byte[MetricResult/maximal-na-language-not-observed]
+  test_golden_fixtures.py::test_golden_valid_fixtures_round_trip_byte_for_byte[MetricResult/maximal-na-missing-input]
+  test_golden_fixtures.py::test_golden_valid_fixtures_round_trip_byte_for_byte[MetricResult/maximal-na-unsupported-language]
+  test_golden_fixtures.py::test_golden_valid_fixtures_round_trip_byte_for_byte[MetricResult/maximal-na-unsupported-script]
+  test_golden_fixtures.py::test_golden_valid_fixtures_round_trip_byte_for_byte[MetricResult/maximal-number]
+  test_golden_fixtures.py::test_golden_valid_fixtures_round_trip_byte_for_byte[MetricResult/maximal-per-turn-share]
+  test_golden_fixtures.py::test_golden_valid_fixtures_round_trip_byte_for_byte[MetricResult/maximal-string]
+  test_golden_fixtures.py::test_golden_valid_fixtures_round_trip_byte_for_byte[MetricResult/maximal]
+  test_golden_fixtures.py::test_golden_valid_fixtures_round_trip_byte_for_byte[MetricResult/minimal]
+  test_golden_fixtures.py::test_golden_valid_fixtures_round_trip_byte_for_byte[RunBundle/maximal]
+
+## 14  cascade: the registry's covering tests are bundle tests that fail through SCR-1 (_support_b7.world())
+  test_adversarial_registry.py::test_covering_tests_run_and_pass[A-01]
+  test_adversarial_registry.py::test_covering_tests_run_and_pass[A-02]
+  test_adversarial_registry.py::test_covering_tests_run_and_pass[A-05]
+  test_adversarial_registry.py::test_covering_tests_run_and_pass[A-20]
+  test_adversarial_registry.py::test_covering_tests_run_and_pass[A-27]
+  test_adversarial_registry.py::test_covering_tests_run_and_pass[A-30]
+  test_adversarial_registry.py::test_covering_tests_run_and_pass[A-31]
+  test_adversarial_registry.py::test_covering_tests_run_and_pass[A-34]
+  test_adversarial_registry.py::test_covering_tests_run_and_pass[A-35]
+  test_adversarial_registry.py::test_covering_tests_run_and_pass[A-38]
+  test_adversarial_registry.py::test_covering_tests_run_and_pass[A-44]
+  test_adversarial_registry.py::test_covering_tests_run_and_pass[X-04]
+  test_adversarial_registry.py::test_covering_tests_run_and_pass[X-11]
+  test_adversarial_registry.py::test_covering_tests_run_and_pass[X-12]
+
+## 5  SCR-6 (with SCR-1): CO-BUNDLE-CROSS-RECORD lacks the two claims; the models now reject documents the schema accepts
+  test_schema_agreement.py::test_invalid_rejected_by_both[ExportBundle-internal]
+  test_schema_agreement.py::test_invalid_rejected_by_both[ExportBundle-shared]
+  test_schema_agreement.py::test_invalid_rejected_by_both[RunBundle-t0_simulated]
+  test_schema_agreement.py::test_invalid_rejected_by_both[RunBundle-t1_human]
+  test_schema_gaps.py::test_every_difference_between_a_model_and_its_schema_is_claimed_by_a_rule
+
+## 3  SCR-7 + golden regeneration: no valid golden fixture carries transcript_ids
+  test_golden_fixtures.py::test_every_property_covered_by_valid_fixture[MetricResult]
+  test_golden_fixtures.py::test_property_coverage_of_all_valid_fixtures_is_100_percent
+  test_golden_fixtures.py::test_property_coverage_runs_as_a_script_and_prints_100_percent
+
+## 2  SCR-3: _with_second_records holds two transcripts and no transcript_ids (T-A3)
+  test_export_rules.py::test_every_record_of_a_kind_is_checked_not_only_the_first[benchmark]
+  test_export_rules.py::test_every_record_of_a_kind_is_checked_not_only_the_first[shared_export]
+
+## 1  SCR-1 cascade (world-derived sample documents, schema agreement): AssertionError: assert '[unprotected]' in '1 validation error for ExportBundle\nrun_bundles.0\n  Value error, [applicabi
+  test_export_purpose.py::test_load_bundle_keeps_its_other_errors_with_a_matching_demand
+
+## 1  SCR-2: the benchmark-consent test drops inputs from the run while keeping results that need them
+  test_export_rules.py::test_benchmark_consent_of_tool_calls_comes_from_the_run_markers
+
+## 1  SCR-4: the expected MetricResult field set lacks transcript_ids
+  test_results.py::test_metric_result_shape_and_enums
+
+## 1  SCR-1 cascade (world-derived sample documents, schema agreement): AssertionError: unknown|ExportBundle|metadata
+  test_schema_agreement.py::test_unknown_members_are_rejected_at_every_object_level
+
+## 1  SCR-1 cascade (world-derived sample documents, schema agreement): AssertionError: unclaimed difference at ExportBundle|run_bundles.*.spans.*.span_ref.system: ''
+  test_schema_agreement.py::test_arbitrary_text_at_a_string_leaf_is_judged_alike_by_model_and_schema
+
+## 1  SCR-5: UNIQUE_ITEMS_PROPERTIES lacks transcript_ids
+  test_schema_export.py::test_unique_items_is_only_for_arrays_of_scalars
+
+## 1  NOT CAUSED BY THIS CHANGE: docs/phase1/api-surface-hardening.md (concurrent qa hardening doc) says code-only and no register row cites it
+  test_schema_gaps.py::test_every_document_that_says_code_only_is_cited_by_a_row

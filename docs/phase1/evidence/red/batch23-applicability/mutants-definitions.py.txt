@@ -1,0 +1,86 @@
+import json, subprocess, shutil, sys, re
+S="<scratchpad>"
+SRC=f"{S}/b23/repo/packages/evalschema/src/tracer_evalschema"
+ORA=f"{S}/b23/oracle/src/tracer_evalschema"
+B="bundle.py"; R="results.py"
+M=[]
+def m(name, f, old, new): M.append((name,f,old,new))
+
+m("no-rule", B, "    _check_applicability(bundle, withheld_kinds)\n", "")
+m("status-not-compared", B, "            if stored_na != (exp.na_reason is not None):\n                raise _bad(position, result, \"status\")\n", "")
+m("na-reason-not-compared", B, "            if result.na_reason != exp.na_reason:\n                raise _bad(position, result, \"na_reason\")\n", "")
+m("missing-kinds-not-compared", B, "            if list(result.missing_kinds) != list(exp.missing_kinds):\n                raise _bad(position, result, \"missing_kinds\")\n", "")
+m("missing-kinds-as-set", B, "if list(result.missing_kinds) != list(exp.missing_kinds):", "if set(result.missing_kinds) != set(exp.missing_kinds):")
+m("language-source-not-compared", B, "        if result.language_source != exp.language_source:\n            raise _bad(position, result, \"language_source\")\n", "")
+m("declared-ids-not-compared", B, "        if list(result.declared_language_transcript_ids) != list(\n            exp.declared_language_transcript_ids\n        ):\n            raise _bad(position, result, \"declared_language_transcript_ids\")\n", "")
+m("error-fully-exempt", B, "            if exp.na_reason in _RUN_LEVEL:\n                raise _bad(position, result, \"status\")\n        else:", "            pass\n        else:")
+m("error-not-exempt-from-status", B, "        if result.status == \"error\":", "        if False:")
+m("error-language-source-skipped", B, "        if result.language_source != exp.language_source:", "        if result.status != \"error\" and result.language_source != exp.language_source:")
+m("withheld-does-not-skip-language", B, "    skip_language = bool(withheld_kinds & {\"transcript\", \"turn\"})", "    skip_language = False")
+m("withheld-skips-everything", B, "        if skip_language:\n            exp = res.applicability(definition, run, turns=[], transcripts=[])", "        if skip_language:\n            continue\n            exp = res.applicability(definition, run, turns=[], transcripts=[])")
+m("withheld-only-transcript", B, "{\"transcript\", \"turn\"}", "{\"transcript\"}")
+m("withheld-only-turn", B, "{\"transcript\", \"turn\"}", "{\"turn\"}")
+m("withheld-skip-lets-run-level-na-stored-as-scored", B, "                if not ok:\n                    raise _bad(position, result, \"status\")", "                if not ok and result.status == \"not_applicable\":\n                    raise _bad(position, result, \"status\")")
+m("withheld-skip-lets-wrong-na-pass", B, "            elif result.na_reason in _RUN_LEVEL:\n                raise _bad(position, result, \"na_reason\")", "            else:\n                pass")
+m("ta4-absent", B, "        and not any(t.role == \"agent\" for t in bundle.turns)", "        and False")
+m("ta4-ignores-withheld-turns", B, "        and \"turn\" not in withheld_kinds\n", "")
+m("ta4-fires-without-turns", B, "        and bundle.turns\n", "")
+m("ta4-requires-caller-too", B, "not any(t.role == \"agent\" for t in bundle.turns)", "not any(t.role in (\"agent\",) and False for t in bundle.turns)")
+m("ids-never-required", B, "            if len(held) > 1 and reads:", "            if False:")
+m("ids-required-for-all", B, "            if len(held) > 1 and reads:", "            if len(held) > 1:")
+m("ids-required-only-for-transcript-kinds", B, "bool(set(definition.requires) & {\"transcript\", \"agent_transcript\"}) or (\n            definition.languages != LANGUAGE_INDEPENDENT\n        )", "bool(set(definition.requires) & {\"transcript\", \"agent_transcript\"})")
+m("ids-required-only-for-language-dependent", B, "bool(set(definition.requires) & {\"transcript\", \"agent_transcript\"}) or (\n            definition.languages != LANGUAGE_INDEPENDENT\n        )", "(definition.languages != LANGUAGE_INDEPENDENT)")
+m("ids-required-with-two-or-more-zero", B, "len(held) > 1 and reads", "len(held) > 0 and reads")
+m("ids-required-with-three", B, "len(held) > 1 and reads", "len(held) > 2 and reads")
+m("ids-ignored-reads-all", B, "            chosen = [held[i] for i in result.transcript_ids if i in held]", "            chosen = list(held.values())")
+m("ids-ignored-reads-first", B, "            chosen = [held[i] for i in result.transcript_ids if i in held]", "            chosen = [held[result.transcript_ids[0]]] if result.transcript_ids[0] in held else []")
+m("ids-ignored-reads-last", B, "            chosen = [held[i] for i in result.transcript_ids if i in held]", "            chosen = [held[result.transcript_ids[-1]]] if result.transcript_ids[-1] in held else []")
+m("derive-first-of-several", B, "chosen = list(held.values()) if len(held) == 1 else []", "chosen = list(held.values())[:1]")
+m("derive-none", B, "chosen = list(held.values()) if len(held) == 1 else []", "chosen = []")
+m("turns-not-limited-to-chosen", B, "        turns = [t for t in bundle.turns if t.transcript_id in chosen_ids]", "        turns = list(bundle.turns)")
+m("agent-role-filter-dropped", B, "        return [t for t in turns if t.role == \"agent\"]", "        return list(turns)")
+m("transcript-reads-nothing", B, "    if \"transcript\" in requires:\n        return list(turns)", "    if \"transcript\" in requires:\n        return []")
+m("audio-metric-reads-all-turns", B, "        return list(turns)\n    return []", "        return list(turns)\n    return list(turns)")
+m("per-turn-weakest-reason", B, "reason = None if None in reasons else res.strongest_na_reason(reasons)", "reason = None if None in reasons else sorted(reasons)[-1]")
+m("per-turn-all-na-scorable", B, "reason = None if None in reasons else res.strongest_na_reason(reasons)", "reason = None")
+m("per-turn-any-na-is-na", B, "reason = None if None in reasons else res.strongest_na_reason(reasons)", "reason = res.strongest_na_reason([r for r in reasons if r] or ['missing_input']) if any(reasons) else None")
+m("per-turn-source-observed-only", B, "source = \"declared\" if declared else (\"observed\" if sources else None)", "source = \"observed\" if sources else None")
+m("per-turn-source-none", B, "source = \"declared\" if declared else (\"observed\" if sources else None)", "source = None")
+m("per-turn-single-app", B, "    apps = [res.applicability(definition, run, turns=[t], transcripts=transcripts) for t in read]", "    apps = [res.applicability(definition, run, turns=read, transcripts=transcripts)]")
+m("per-turn-run-level-last", B, "    for app in apps:\n        if app.na_reason in _RUN_LEVEL:\n            return app\n", "")
+m("applicability-ignores-chosen-for-lang", B, "        exp = _expected(definition, run, turns, chosen)", "        exp = _expected(definition, run, turns, list(held.values()))")
+m("message-no-position", B, "(results[{position}])", "")
+m("message-no-id", B, "f\"[applicability] result {result.id} (results[{position}]): {field} differs", "f\"[applicability] result (results[{position}]): {field} differs")
+m("message-quotes-text", B, "\"re-run of applicability over the bundle\"\n    )", "\"re-run of applicability over the bundle \" + repr([t.text for t in result_turns_dummy])\n    )")
+m("message-names-all-fields", B, "{field} differs from the", "status na_reason missing_kinds language_source {field} differs from the")
+m("rule-runs-before-verdict", B, "    _check_results(bundle, withheld)\n", "    _check_applicability(bundle, withheld_kinds)\n    _check_results(bundle, withheld)\n")
+m("rule-runs-before-tier", B, "    check_observed_tier(run, records, withheld=bundle.withheld)\n    _check_applicability(bundle, withheld_kinds)\n", "    _check_applicability(bundle, withheld_kinds)\n    check_observed_tier(run, records, withheld=bundle.withheld)\n")
+m("unresolved-ids-not-checked", B, "        for transcript_id in result.transcript_ids or ():\n            need(transcript_id, result.id, \"transcript_ids\")\n", "")
+m("unresolved-ids-checked-ignores-withheld", B, "        for transcript_id in result.transcript_ids or ():\n            need(transcript_id, result.id, \"transcript_ids\")\n", "        for transcript_id in result.transcript_ids or ():\n            if transcript_id not in present:\n                raise ValueError(f\"[unresolved] transcript_ids of {result.id} names {transcript_id}\")\n")
+m("field-allows-duplicates", R, "            AfterValidator(_unique_read_ids),\n", "")
+m("field-allows-empty", R, "Field(min_length=1, json_schema_extra={\"uniqueItems\": True})", "Field(json_schema_extra={\"uniqueItems\": True})")
+m("field-sorted", R, "def _unique_read_ids(ids: list[TranscriptId]) -> list[TranscriptId]:\n    texts = [str(i) for i in ids]", "def _unique_read_ids(ids: list[TranscriptId]) -> list[TranscriptId]:\n    ids = sorted(ids, key=str)\n    texts = [str(i) for i in ids]")
+m("field-required", R, "    ) = None\n\n    @model_validator(mode=\"after\")\n    def _status_rules", "    )\n\n    @model_validator(mode=\"after\")\n    def _status_rules")
+m("field-defaults-to-empty-list", R, "    ) = None\n\n    @model_validator(mode=\"after\")\n    def _status_rules", "    ) = Field(default_factory=list)\n\n    @model_validator(mode=\"after\")\n    def _status_rules")
+m("field-excluded-from-dump", R, "            Field(min_length=1, json_schema_extra={\"uniqueItems\": True}),\n        ]\n        | None\n    ) = None", "            Field(min_length=1, json_schema_extra={\"uniqueItems\": True}),\n        ]\n        | None\n    ) = Field(default=None, exclude=True)")
+m("field-accepts-any-id-kind", R, "        Annotated[\n            list[TranscriptId],\n            AfterValidator(_unique_read_ids),", "        Annotated[\n            list[str],\n            AfterValidator(_unique_read_ids),")
+
+only = sys.argv[1:] 
+res=[]
+for name,f,old,new in M:
+    if only and name not in only: continue
+    shutil.copy(f"{ORA}/{B}", f"{SRC}/{B}"); shutil.copy(f"{ORA}/{R}", f"{SRC}/{R}")
+    txt=open(f"{SRC}/{f}").read()
+    if old not in txt:
+        res.append((name,"PATTERN-NOT-FOUND","")); print(name,"PATTERN-NOT-FOUND",flush=True); continue
+    open(f"{SRC}/{f}","w").write(txt.replace(old,new,1))
+    p=subprocess.run(["~/tracer/.venv/bin/python","-m","pytest","-p","no:cacheprovider","-x","-q","--tb=no","-rf",
+        "packages/evalschema/tests/test_bundle_applicability.py"],cwd=f"{S}/b23/repo",capture_output=True,text=True,
+        env={"PYTHONPATH":f"{S}/b23/repo/packages/evalschema/src","PATH":"/usr/bin:/bin"})
+    out=p.stdout
+    first=[l for l in out.splitlines() if l.startswith("FAILED")]
+    status="KILLED" if first else ("SURVIVED" if p.returncode==0 else "ERROR")
+    label=(first[0].split("::",1)[1][:110] if first else out.strip().splitlines()[-1][:110])
+    res.append((name,status,label)); print(f"{name}: {status} {label}",flush=True)
+shutil.copy(f"{ORA}/{B}", f"{SRC}/{B}"); shutil.copy(f"{ORA}/{R}", f"{SRC}/{R}")
+json.dump(res,open(f"{S}/b23/mutants-out.json","w"),indent=1)
