@@ -148,11 +148,15 @@ class AgentTarget(HidingModel, VersionedEntity):
 
     name: HumanLabel
     endpoint: Endpoint
-    languages: Annotated[list[SupportedLanguage], AfterValidator(_no_repeats("languages"))] = Field(
-        default_factory=list
-    )
+    languages: Annotated[
+        list[SupportedLanguage],
+        AfterValidator(_no_repeats("languages")),
+        Field(json_schema_extra={"uniqueItems": True}),
+    ] = Field(default_factory=list)
     declared_capabilities: Annotated[
-        list[InputKind], AfterValidator(_no_repeats("declared_capabilities"))
+        list[InputKind],
+        AfterValidator(_no_repeats("declared_capabilities")),
+        Field(json_schema_extra={"uniqueItems": True}),
     ] = Field(default_factory=list)
     declared_stack: list[DeclaredStackEntry] = Field(default_factory=list)
 

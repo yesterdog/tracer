@@ -1,0 +1,6996 @@
+{
+  "$defs": {
+    "AgentTargetRef": {
+      "additionalProperties": false,
+      "description": "``{id, version, content_digest?}`` of an ``AgentTarget`` (ADR 0009 Decision 4, N35): what a\nRun holds. What the run detects is recorded on the Run, never written back (P-23).",
+      "properties": {
+        "content_digest": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ContentDigest"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "id": {
+          "pattern": "^agt_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "version"
+      ],
+      "title": "AgentTargetRef",
+      "type": "object"
+    },
+    "AppliesWhenCondition": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "context_tokens_gt",
+                  "context_tokens_le"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "batch"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "region"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      ],
+      "description": "One typed condition of a price entry (P-37). A condition is something the resolver can\nevaluate from the caller's ``PriceFacts`` or knows it cannot (``ambiguous_price``).",
+      "properties": {
+        "kind": {
+          "enum": [
+            "context_tokens_gt",
+            "context_tokens_le",
+            "batch",
+            "region"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+              "type": "string"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "kind",
+        "value"
+      ],
+      "title": "AppliesWhenCondition",
+      "type": "object"
+    },
+    "Artifact": {
+      "additionalProperties": false,
+      "description": "A stored file of a run, usually a recording (prefix ``art``; ADR 0012 Decision 4).\n\nA record of fact. ``privacy`` is required on every artifact (ADR 0016 I3). The model hides its\ninput in validation errors, and no message quotes a rejected value (ADR 0007 Decision 8).",
+      "properties": {
+        "audio_format": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AudioFormat"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "created_at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Created At",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^art_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "metadata_flags": {
+          "items": {
+            "$ref": "#/$defs/MetadataFlag"
+          },
+          "title": "Metadata Flags",
+          "type": "array"
+        },
+        "privacy": {
+          "$ref": "#/$defs/PrivacyMarker"
+        },
+        "schema_version": {
+          "enum": [
+            "0.0.1"
+          ],
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "size": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Size",
+          "type": "integer"
+        },
+        "turn_ref": {
+          "anyOf": [
+            {
+              "pattern": "^turn_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Turn Ref"
+        },
+        "uri": {
+          "pattern": "^(?:(?:https?|s3|gs)://[A-Za-z0-9._~:/?\\[\\]@!$&'()*+,;=%-]+|file:///[A-Za-z0-9._~:/\\[\\]@!$&'()*+,;=%-]+)$",
+          "title": "Uri",
+          "type": "string"
+        }
+      },
+      "required": [
+        "created_at",
+        "id",
+        "privacy",
+        "schema_version",
+        "sha256",
+        "size",
+        "uri"
+      ],
+      "title": "Artifact",
+      "type": "object"
+    },
+    "AudioFormat": {
+      "additionalProperties": false,
+      "description": "The format of an audio artifact (ADR 0012 Decision 4). ``container`` and ``codec`` are open\nvalues; the numbers are strict positive integers.",
+      "properties": {
+        "bits_per_sample": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bits Per Sample"
+        },
+        "channels": {
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991,
+          "title": "Channels",
+          "type": "integer"
+        },
+        "codec": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "title": "Codec",
+          "type": "string"
+        },
+        "container": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "title": "Container",
+          "type": "string"
+        },
+        "sample_rate_hz": {
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991,
+          "title": "Sample Rate Hz",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "channels",
+        "codec",
+        "container",
+        "sample_rate_hz"
+      ],
+      "title": "AudioFormat",
+      "type": "object"
+    },
+    "BillingRules": {
+      "additionalProperties": false,
+      "description": "How a provider bills one event (ADR 0014 Decision 11, P-38): both parts are required and\neach is a value or the literal ``\"none\"``. ``increment``: a positive decimal quantity in the\nentry's unit (the quantity is rounded up to a multiple of it). ``minimum``: a USD ``Money``\n>= 0, the minimum charge per billable event.",
+      "properties": {
+        "increment": {
+          "anyOf": [
+            {
+              "enum": [
+                "none"
+              ],
+              "type": "string"
+            },
+            {
+              "pattern": "^(?:[1-9][0-9]*|[1-9][0-9]*\\.[0-9]{0,17}[1-9]|0\\.[0-9]{0,17}[1-9])$",
+              "type": "string"
+            }
+          ],
+          "title": "Increment"
+        },
+        "minimum": {
+          "anyOf": [
+            {
+              "enum": [
+                "none"
+              ],
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/Money"
+            }
+          ],
+          "title": "Minimum"
+        }
+      },
+      "required": [
+        "increment",
+        "minimum"
+      ],
+      "title": "BillingRules",
+      "type": "object"
+    },
+    "CallerExternalId": {
+      "additionalProperties": false,
+      "description": "The caller's transport identifier (a SIP or telephony ``user_id``, possibly a phone\nnumber), verbatim, with its own privacy marker (P-43, ADR 0016 Decision 6). The only place\nsuch an identifier may live; it never enters a snapshot.",
+      "properties": {
+        "privacy": {
+          "$ref": "#/$defs/PrivacyMarker"
+        },
+        "value": {
+          "minLength": 1,
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "privacy",
+        "value"
+      ],
+      "title": "CallerExternalId",
+      "type": "object"
+    },
+    "ChannelAssignment": {
+      "additionalProperties": false,
+      "description": "One channel of a recording and whom it carries (P-31: ``mixed`` is a mono channel that\ncarries the caller and the agent together).",
+      "properties": {
+        "index": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Index",
+          "type": "integer"
+        },
+        "role": {
+          "enum": [
+            "caller",
+            "agent",
+            "unknown",
+            "mixed"
+          ],
+          "title": "Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "index",
+        "role"
+      ],
+      "title": "ChannelAssignment",
+      "type": "object"
+    },
+    "ChannelMap": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "else": {
+            "properties": {
+              "confidence": {
+                "type": "null"
+              }
+            }
+          },
+          "if": {
+            "properties": {
+              "determination": {
+                "enum": [
+                  "inferred"
+                ]
+              }
+            },
+            "required": [
+              "determination"
+            ]
+          },
+          "then": {
+            "properties": {
+              "confidence": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "confidence"
+            ]
+          }
+        }
+      ],
+      "description": "Which channel of an artifact carries whom (ADR 0012 Decision 5).\n\n``declared``: the producer's documented layout (for example Pipecat's stereo buffer, left the\ncaller and right the agent); ``method`` names the declaration and there is no confidence (a\ndeclaration is not a probability). ``inferred``: our analysis; ``method`` names it and\n``confidence`` is required. At most one channel is the agent (a second AI agent is a separate\nrun), indexes are unique and the order is kept.",
+      "properties": {
+        "artifact_id": {
+          "pattern": "^art_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Artifact Id",
+          "type": "string"
+        },
+        "channels": {
+          "items": {
+            "$ref": "#/$defs/ChannelAssignment"
+          },
+          "minItems": 1,
+          "title": "Channels",
+          "type": "array"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        },
+        "determination": {
+          "enum": [
+            "declared",
+            "inferred"
+          ],
+          "title": "Determination",
+          "type": "string"
+        },
+        "method": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "title": "Method",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "channels",
+        "determination",
+        "method"
+      ],
+      "title": "ChannelMap",
+      "type": "object"
+    },
+    "ConfigSnapshot": {
+      "additionalProperties": false,
+      "description": "The configuration a run used, frozen (prefix ``snap``; ADR 0006 Decision 1).\n\nChecked on load, after the fields: the digest equals ``compute_snapshot_digest`` of the\ndocument (``DigestMismatch``, ``DigestKeyUnavailable`` and ``UnknownDigestScheme`` unwrapped);\nno definition and no binding is embedded twice (same ``id`` and ``version``; a code-only rule,\nregister row ``CO-LONG-LIST-UNIQUENESS``); the evaluator's persona and binding references,\nand each binding's definition reference, resolve to an embedded record of that\n``(id, version)``, and a digest on such a reference is verified (``RefDigestMismatchError``,\nE5); every binding belongs to the evaluator; the rubric passes ``validate_rubric``; the\nevaluator has at least one expected-outcome check, and every such check is a required rubric\nitem.",
+      "properties": {
+        "content_digest": {
+          "$ref": "#/$defs/ContentDigest"
+        },
+        "created_at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Created At",
+          "type": "string"
+        },
+        "evaluator": {
+          "$ref": "#/$defs/Evaluator"
+        },
+        "id": {
+          "pattern": "^snap_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "metadata_flags": {
+          "items": {
+            "$ref": "#/$defs/MetadataFlag"
+          },
+          "title": "Metadata Flags",
+          "type": "array"
+        },
+        "metric_bindings": {
+          "items": {
+            "$ref": "#/$defs/MetricBinding"
+          },
+          "minItems": 1,
+          "title": "Metric Bindings",
+          "type": "array"
+        },
+        "metric_definitions": {
+          "items": {
+            "$ref": "#/$defs/MetricDefinition"
+          },
+          "minItems": 1,
+          "title": "Metric Definitions",
+          "type": "array"
+        },
+        "persona": {
+          "$ref": "#/$defs/Persona"
+        },
+        "pricing_catalog": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PricingCatalogRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "rubric": {
+          "$ref": "#/$defs/Rubric"
+        },
+        "schema_version": {
+          "enum": [
+            "0.0.1"
+          ],
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "content_digest",
+        "created_at",
+        "evaluator",
+        "id",
+        "metric_bindings",
+        "metric_definitions",
+        "persona",
+        "rubric",
+        "schema_version"
+      ],
+      "title": "ConfigSnapshot",
+      "type": "object"
+    },
+    "ConsentRecord": {
+      "additionalProperties": false,
+      "description": "Whether the person recorded consented (ADR 0016 Decision 3). ``unknown`` is a state, not a\ndefault: it counts as not obtained for benchmark exports (P-44, P1-14).",
+      "properties": {
+        "recorded_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Recorded At"
+        },
+        "reference": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reference"
+        },
+        "status": {
+          "enum": [
+            "obtained",
+            "not_obtained",
+            "unknown"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "title": "ConsentRecord",
+      "type": "object"
+    },
+    "ContentDigest": {
+      "additionalProperties": false,
+      "description": "``{scheme, value, key_ref?}`` (ADR 0006 Decision 3). An unregistered scheme raises\n``UnknownDigestScheme`` (not wrapped by pydantic): it is never \"unverifiable, accept\".",
+      "properties": {
+        "key_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/KeyRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "scheme": {
+          "enum": [
+            "sha256-jcs/v1",
+            "hmac-sha256-jcs/v1"
+          ],
+          "title": "Scheme",
+          "type": "string"
+        },
+        "value": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "scheme",
+        "value"
+      ],
+      "title": "ContentDigest",
+      "type": "object"
+    },
+    "CostExclusion": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "reason": {
+                "enum": [
+                  "duplicate_of_reported"
+                ]
+              }
+            },
+            "required": [
+              "reason"
+            ]
+          },
+          "then": {
+            "properties": {
+              "covered_by": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ],
+      "description": "A record a summary leaves out of its total, and why (Decision 16a): the record's\n``na_reason``, ``duplicate_of_reported`` (an available computed record set aside for an\navailable reported one; ``covered_by`` non-empty) or ``overlaps_reported`` (an available\ncomputed record that only partly overlaps included reported records, N53). ``covered_by``\nlists the included records that cover all of the record's usage, else it is empty; it names\neach record at most once (N78).",
+      "properties": {
+        "covered_by": {
+          "items": {
+            "pattern": "^cst_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "title": "Covered By",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "reason": {
+          "enum": [
+            "no_price_for_model",
+            "unit_unpriced",
+            "no_usage",
+            "ambiguous_price",
+            "billing_rules_missing",
+            "usage_not_reported",
+            "unsupported_currency",
+            "currency_not_reported",
+            "amount_unparseable",
+            "currency_conflict",
+            "duplicate_of_reported",
+            "overlaps_reported"
+          ],
+          "title": "Reason",
+          "type": "string"
+        },
+        "ref": {
+          "pattern": "^cst_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "covered_by",
+        "reason",
+        "ref"
+      ],
+      "title": "CostExclusion",
+      "type": "object"
+    },
+    "CostRecord": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "else": {
+            "properties": {
+              "amount": {
+                "type": "null"
+              },
+              "basis": {
+                "type": "null"
+              },
+              "na_reason": {
+                "not": {
+                  "type": "null"
+                }
+              },
+              "pricing_snapshot": {
+                "type": "null"
+              },
+              "reported_by": {
+                "type": "null"
+              },
+              "rounding": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "na_reason"
+            ]
+          },
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "available"
+                ]
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "amount": {
+                "not": {
+                  "type": "null"
+                }
+              },
+              "basis": {
+                "not": {
+                  "type": "null"
+                }
+              },
+              "na_reason": {
+                "type": "null"
+              },
+              "reported_raw": {
+                "type": "null"
+              },
+              "unpriced_units": {
+                "maxItems": 0
+              }
+            },
+            "required": [
+              "amount",
+              "basis"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "basis": {
+                "enum": [
+                  "reported"
+                ]
+              }
+            },
+            "required": [
+              "basis"
+            ]
+          },
+          "then": {
+            "properties": {
+              "pricing_snapshot": {
+                "type": "null"
+              },
+              "reported_by": {
+                "not": {
+                  "type": "null"
+                }
+              },
+              "rounding": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "reported_by"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "basis": {
+                "enum": [
+                  "computed"
+                ]
+              }
+            },
+            "required": [
+              "basis"
+            ]
+          },
+          "then": {
+            "properties": {
+              "pricing_snapshot": {
+                "not": {
+                  "type": "null"
+                }
+              },
+              "reported_by": {
+                "type": "null"
+              },
+              "usage_record_ids": {
+                "minItems": 1
+              }
+            },
+            "required": [
+              "pricing_snapshot"
+            ]
+          }
+        },
+        {
+          "else": {
+            "properties": {
+              "reported_raw": {
+                "type": "null"
+              }
+            }
+          },
+          "if": {
+            "properties": {
+              "na_reason": {
+                "enum": [
+                  "unsupported_currency",
+                  "currency_not_reported",
+                  "amount_unparseable",
+                  "currency_conflict"
+                ]
+              }
+            },
+            "required": [
+              "na_reason"
+            ]
+          },
+          "then": {
+            "properties": {
+              "reported_raw": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "reported_raw"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "na_reason": {
+                "enum": [
+                  "unsupported_currency"
+                ]
+              }
+            },
+            "required": [
+              "na_reason"
+            ]
+          },
+          "then": {
+            "properties": {
+              "reported_raw": {
+                "properties": {
+                  "currency_source": {
+                    "enum": [
+                      "payload",
+                      "api_contract"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "na_reason": {
+                "enum": [
+                  "currency_not_reported"
+                ]
+              }
+            },
+            "required": [
+              "na_reason"
+            ]
+          },
+          "then": {
+            "properties": {
+              "reported_raw": {
+                "properties": {
+                  "currency_source": {
+                    "enum": [
+                      "none"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "na_reason": {
+                "enum": [
+                  "amount_unparseable"
+                ]
+              }
+            },
+            "required": [
+              "na_reason"
+            ]
+          },
+          "then": {
+            "properties": {
+              "reported_raw": {
+                "properties": {
+                  "currency_source": {
+                    "enum": [
+                      "payload",
+                      "api_contract"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "na_reason": {
+                "enum": [
+                  "currency_conflict"
+                ]
+              }
+            },
+            "required": [
+              "na_reason"
+            ]
+          },
+          "then": {
+            "properties": {
+              "reported_raw": {
+                "properties": {
+                  "currency_source": {
+                    "enum": [
+                      "payload"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "else": {
+            "properties": {
+              "unpriced_units": {
+                "maxItems": 0
+              }
+            }
+          },
+          "if": {
+            "properties": {
+              "na_reason": {
+                "enum": [
+                  "unit_unpriced"
+                ]
+              }
+            },
+            "required": [
+              "na_reason"
+            ]
+          },
+          "then": {
+            "properties": {
+              "unpriced_units": {
+                "minItems": 1
+              }
+            },
+            "required": [
+              "unpriced_units"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "na_reason": {
+                "enum": [
+                  "no_usage",
+                  "usage_not_reported"
+                ]
+              }
+            },
+            "required": [
+              "na_reason"
+            ]
+          },
+          "then": {
+            "properties": {
+              "usage_record_ids": {
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "na_reason": {
+                "enum": [
+                  "no_price_for_model",
+                  "unit_unpriced",
+                  "billing_rules_missing",
+                  "ambiguous_price"
+                ]
+              }
+            },
+            "required": [
+              "na_reason"
+            ]
+          },
+          "then": {
+            "properties": {
+              "usage_record_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ],
+      "description": "A cost of one domain (prefix ``cst``; a record of fact). See the module docstring.",
+      "properties": {
+        "amount": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Money"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "basis": {
+          "anyOf": [
+            {
+              "enum": [
+                "reported",
+                "computed"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Basis"
+        },
+        "created_at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Created At",
+          "type": "string"
+        },
+        "domain": {
+          "enum": [
+            "evaluation",
+            "agent_under_test"
+          ],
+          "title": "Domain",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^cst_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "metadata_flags": {
+          "items": {
+            "$ref": "#/$defs/MetadataFlag"
+          },
+          "title": "Metadata Flags",
+          "type": "array"
+        },
+        "na_reason": {
+          "anyOf": [
+            {
+              "enum": [
+                "no_price_for_model",
+                "unit_unpriced",
+                "no_usage",
+                "ambiguous_price",
+                "billing_rules_missing",
+                "usage_not_reported",
+                "unsupported_currency",
+                "currency_not_reported",
+                "amount_unparseable",
+                "currency_conflict"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Na Reason"
+        },
+        "pricing_snapshot": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PricingSnapshot"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "reported_by": {
+          "anyOf": [
+            {
+              "enum": [
+                "provider",
+                "telemetry_platform"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reported By"
+        },
+        "reported_raw": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ReportedCostRaw"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "rounding": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CostRounding"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "schema_version": {
+          "enum": [
+            "0.0.1"
+          ],
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "available",
+            "not_available"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "unpriced_units": {
+          "items": {
+            "enum": [
+              "input_tokens",
+              "cache_read_input_tokens",
+              "cache_write_input_tokens",
+              "output_tokens",
+              "audio_input_seconds",
+              "audio_output_seconds",
+              "input_characters",
+              "requests"
+            ],
+            "type": "string"
+          },
+          "title": "Unpriced Units",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "usage_record_ids": {
+          "items": {
+            "pattern": "^use_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "title": "Usage Record Ids",
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "created_at",
+        "domain",
+        "id",
+        "schema_version",
+        "status",
+        "usage_record_ids"
+      ],
+      "title": "CostRecord",
+      "type": "object"
+    },
+    "CostRounding": {
+      "additionalProperties": false,
+      "description": "``{scale: 18, mode: half_even, exact: false}`` (P-35): present on an available computed\nrecord iff the record's total was rounded.",
+      "properties": {
+        "exact": {
+          "enum": [
+            false
+          ],
+          "title": "Exact",
+          "type": "boolean"
+        },
+        "mode": {
+          "enum": [
+            "half_even"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "scale": {
+          "enum": [
+            18
+          ],
+          "title": "Scale",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "exact",
+        "mode",
+        "scale"
+      ],
+      "title": "CostRounding",
+      "type": "object"
+    },
+    "CostSummary": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "else": {
+            "properties": {
+              "completeness": {
+                "enum": [
+                  "none"
+                ]
+              },
+              "total": {
+                "type": "null"
+              }
+            }
+          },
+          "if": {
+            "properties": {
+              "included": {
+                "minItems": 1
+              }
+            },
+            "required": [
+              "included"
+            ]
+          },
+          "then": {
+            "properties": {
+              "completeness": {
+                "enum": [
+                  "complete",
+                  "partial"
+                ]
+              },
+              "total": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "total"
+            ]
+          }
+        }
+      ],
+      "description": "The cost of one domain of a run (prefix ``csum``; a record of fact; Decision 16). The\nrules on the summary alone are checked here; the rules against its records are\n``check_cost_summary``.",
+      "properties": {
+        "completeness": {
+          "enum": [
+            "complete",
+            "partial",
+            "none"
+          ],
+          "title": "Completeness",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Created At",
+          "type": "string"
+        },
+        "domain": {
+          "enum": [
+            "evaluation",
+            "agent_under_test"
+          ],
+          "title": "Domain",
+          "type": "string"
+        },
+        "excluded": {
+          "items": {
+            "$ref": "#/$defs/CostExclusion"
+          },
+          "title": "Excluded",
+          "type": "array"
+        },
+        "id": {
+          "pattern": "^csum_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "included": {
+          "items": {
+            "pattern": "^cst_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "title": "Included",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "metadata_flags": {
+          "items": {
+            "$ref": "#/$defs/MetadataFlag"
+          },
+          "title": "Metadata Flags",
+          "type": "array"
+        },
+        "schema_version": {
+          "enum": [
+            "0.0.1"
+          ],
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "total": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Money"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "completeness",
+        "created_at",
+        "domain",
+        "excluded",
+        "id",
+        "included",
+        "schema_version"
+      ],
+      "title": "CostSummary",
+      "type": "object"
+    },
+    "Dataset": {
+      "additionalProperties": false,
+      "description": "A versioned set of dataset items (prefix ``dts``; ADR 0009 Decision 5, N25).",
+      "properties": {
+        "content_digest": {
+          "$ref": "#/$defs/ContentDigest"
+        },
+        "created_at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Created At",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^dts_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "item_ids": {
+          "items": {
+            "pattern": "^dti_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "title": "Item Ids",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "metadata_flags": {
+          "items": {
+            "$ref": "#/$defs/MetadataFlag"
+          },
+          "title": "Metadata Flags",
+          "type": "array"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "schema_version": {
+          "enum": [
+            "0.0.1"
+          ],
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "content_digest",
+        "created_at",
+        "id",
+        "item_ids",
+        "name",
+        "schema_version",
+        "version"
+      ],
+      "title": "Dataset",
+      "type": "object"
+    },
+    "DatasetItem": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "artifact_id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "artifact_id"
+            ]
+          },
+          "then": {
+            "properties": {
+              "privacy": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "privacy"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "artifact_id": {
+                "type": "string"
+              },
+              "source_run_id": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "artifact_id"
+            ]
+          },
+          "then": {
+            "properties": {
+              "privacy": {
+                "properties": {
+                  "human_subject": {
+                    "enum": [
+                      true
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "transcript_id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "transcript_id"
+            ]
+          },
+          "then": {
+            "properties": {
+              "privacy": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "privacy"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "source_run_id": {
+                "type": "null"
+              },
+              "transcript_id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "transcript_id"
+            ]
+          },
+          "then": {
+            "properties": {
+              "privacy": {
+                "properties": {
+                  "human_subject": {
+                    "enum": [
+                      true
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "description": "One item of a dataset (prefix ``dti``; a record of fact). It names no dataset: a Dataset\nversion lists its items (N25). See the module docstring for the privacy rules.",
+      "properties": {
+        "artifact_id": {
+          "anyOf": [
+            {
+              "pattern": "^art_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Artifact Id"
+        },
+        "created_at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Created At",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^dti_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "language": {
+          "pattern": "^(?:[eE][nN](?:-(?:[lL][aA][tT][nN]))?|[hH][iI](?:-(?:[dD][eE][vV][aA]))?|[mM][rR](?:-(?:[dD][eE][vV][aA]))?|[tT][eE](?:-(?:[tT][eE][lL][uU]))?|[tT][aA](?:-(?:[tT][aA][mM][lL]))?|[kK][nN](?:-(?:[kK][nN][dD][aA]))?|[mM][lL](?:-(?:[mM][lL][yY][mM]))?|[pP][aA](?:-(?:[gG][uU][rR][uU]))?|[gG][uU](?:-(?:[gG][uU][jJ][rR]))?)(?:-(?:[gG][bB]|[iI][nN]|[uU][sS]))?$",
+          "title": "Language",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "metadata_flags": {
+          "items": {
+            "$ref": "#/$defs/MetadataFlag"
+          },
+          "title": "Metadata Flags",
+          "type": "array"
+        },
+        "privacy": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PrivacyMarker"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "schema_version": {
+          "enum": [
+            "0.0.1"
+          ],
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source_run_id": {
+          "anyOf": [
+            {
+              "pattern": "^run_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Run Id"
+        },
+        "transcript_id": {
+          "anyOf": [
+            {
+              "pattern": "^tsc_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Transcript Id"
+        }
+      },
+      "required": [
+        "created_at",
+        "id",
+        "language",
+        "schema_version"
+      ],
+      "title": "DatasetItem",
+      "type": "object"
+    },
+    "DekWrap": {
+      "additionalProperties": false,
+      "description": "The payload's data key, wrapped with AES Key Wrap (RFC 3394) under the key-encryption key\nthat ``kek_ref`` names (ADR 0015 Decision 2). ``kek_ref`` names a key; it never holds one.",
+      "properties": {
+        "alg": {
+          "enum": [
+            "A256KW"
+          ],
+          "title": "Alg",
+          "type": "string"
+        },
+        "kek_ref": {
+          "$ref": "#/$defs/KeyRef"
+        },
+        "wrapped_dek": {
+          "pattern": "^[A-Za-z0-9_-]{53}[AQgw]$",
+          "title": "Wrapped Dek",
+          "type": "string"
+        }
+      },
+      "required": [
+        "alg",
+        "kek_ref",
+        "wrapped_dek"
+      ],
+      "title": "DekWrap",
+      "type": "object"
+    },
+    "EnumScale": {
+      "additionalProperties": false,
+      "description": "The options of an enum metric (non-empty, distinct ``MetricKey`` values).",
+      "properties": {
+        "options": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Options",
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "options"
+      ],
+      "title": "EnumScale",
+      "type": "object"
+    },
+    "EqualsTrueRule": {
+      "additionalProperties": false,
+      "description": "``equals_true``: a boolean passes iff it is ``true``.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "equals_true"
+          ],
+          "title": "Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "EqualsTrueRule",
+      "type": "object"
+    },
+    "Evaluator": {
+      "additionalProperties": false,
+      "description": "One test of an agent (prefix ``evl``; ADR 0010 Decision 8, ADR 0013 Decision 2).\n\nIts ``content_digest`` is computed over ``evaluator_digest_domain`` (N20).",
+      "properties": {
+        "content_digest": {
+          "$ref": "#/$defs/ContentDigest"
+        },
+        "created_at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Created At",
+          "type": "string"
+        },
+        "expected_outcome": {
+          "minLength": 1,
+          "title": "Expected Outcome",
+          "type": "string"
+        },
+        "expected_tool_calls": {
+          "items": {
+            "$ref": "#/$defs/ExpectedToolCall"
+          },
+          "title": "Expected Tool Calls",
+          "type": "array"
+        },
+        "id": {
+          "pattern": "^evl_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "instructions": {
+          "minLength": 1,
+          "title": "Instructions",
+          "type": "string"
+        },
+        "language": {
+          "pattern": "^(?:[eE][nN](?:-(?:[lL][aA][tT][nN]))?|[hH][iI](?:-(?:[dD][eE][vV][aA]))?|[mM][rR](?:-(?:[dD][eE][vV][aA]))?|[tT][eE](?:-(?:[tT][eE][lL][uU]))?|[tT][aA](?:-(?:[tT][aA][mM][lL]))?|[kK][nN](?:-(?:[kK][nN][dD][aA]))?|[mM][lL](?:-(?:[mM][lL][yY][mM]))?|[pP][aA](?:-(?:[gG][uU][rR][uU]))?|[gG][uU](?:-(?:[gG][uU][jJ][rR]))?)(?:-(?:[gG][bB]|[iI][nN]|[uU][sS]))?$",
+          "title": "Language",
+          "type": "string"
+        },
+        "max_duration_ms": {
+          "exclusiveMinimum": 0,
+          "maximum": 14400000,
+          "minimum": 0,
+          "title": "Max Duration Ms",
+          "type": "integer"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "metadata_flags": {
+          "items": {
+            "$ref": "#/$defs/MetadataFlag"
+          },
+          "title": "Metadata Flags",
+          "type": "array"
+        },
+        "metric_bindings": {
+          "items": {
+            "$ref": "#/$defs/MetricBindingRef"
+          },
+          "minItems": 1,
+          "title": "Metric Bindings",
+          "type": "array"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "persona": {
+          "$ref": "#/$defs/PersonaRef"
+        },
+        "schema_version": {
+          "enum": [
+            "0.0.1"
+          ],
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "scripted_turns": {
+          "items": {
+            "$ref": "#/$defs/ScriptedTurn"
+          },
+          "title": "Scripted Turns",
+          "type": "array"
+        },
+        "test_profile": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TestProfileRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "content_digest",
+        "created_at",
+        "expected_outcome",
+        "id",
+        "instructions",
+        "language",
+        "max_duration_ms",
+        "metric_bindings",
+        "name",
+        "persona",
+        "schema_version",
+        "version"
+      ],
+      "title": "Evaluator",
+      "type": "object"
+    },
+    "EvidenceRef": {
+      "additionalProperties": false,
+      "description": "A pointer from a result to its evidence in the same bundle (ADR 0012 Decision 3).\n\n``ref_id`` is an ID of the kind ``kind`` names (``turn_``, ``exc_``, ``tcl_``, ``spn_``,\n``art_``). Offsets are ``Ms`` from sample 0 of the artifact, with ``end_ms >= start_ms``.",
+      "properties": {
+        "end_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End Ms"
+        },
+        "kind": {
+          "enum": [
+            "turn",
+            "exchange",
+            "tool_call",
+            "span",
+            "artifact_range"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "ref_id": {
+          "pattern": "^(?:turn|exc|tcl|spn|art)_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Ref Id",
+          "type": "string"
+        },
+        "start_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Start Ms"
+        }
+      },
+      "required": [
+        "kind",
+        "ref_id"
+      ],
+      "title": "EvidenceRef",
+      "type": "object"
+    },
+    "Exchange": {
+      "additionalProperties": false,
+      "description": "One request/response cycle of a run (prefix ``exc``; ADR 0011 Decision 4). Pipecat's\n``turn_number`` maps to ``index``, never to ``Turn.seq``. ``was_interrupted`` is true, false or\nunknown (``None``).",
+      "properties": {
+        "created_at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Created At",
+          "type": "string"
+        },
+        "duration_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Duration Ms"
+        },
+        "id": {
+          "pattern": "^exc_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "index": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Index",
+          "type": "integer"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "metadata_flags": {
+          "items": {
+            "$ref": "#/$defs/MetadataFlag"
+          },
+          "title": "Metadata Flags",
+          "type": "array"
+        },
+        "schema_version": {
+          "enum": [
+            "0.0.1"
+          ],
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "audio_alignment",
+            "telemetry",
+            "observer",
+            "inferred_from_turns"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "started_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Started At"
+        },
+        "was_interrupted": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Was Interrupted"
+        }
+      },
+      "required": [
+        "created_at",
+        "id",
+        "index",
+        "schema_version",
+        "source"
+      ],
+      "title": "Exchange",
+      "type": "object"
+    },
+    "ExpectedToolCall": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "match": {
+                "enum": [
+                  "name_only"
+                ]
+              }
+            },
+            "required": [
+              "match"
+            ]
+          },
+          "then": {
+            "properties": {
+              "arguments": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "match": {
+                "enum": [
+                  "arguments_exact"
+                ]
+              }
+            },
+            "required": [
+              "match"
+            ]
+          },
+          "then": {
+            "properties": {
+              "arguments": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "arguments"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "match": {
+                "enum": [
+                  "arguments_subset"
+                ]
+              }
+            },
+            "required": [
+              "match"
+            ]
+          },
+          "then": {
+            "properties": {
+              "arguments": {
+                "minProperties": 1,
+                "type": "object"
+              }
+            },
+            "required": [
+              "arguments"
+            ]
+          }
+        }
+      ],
+      "description": "A tool call the agent is expected to make (ADR 0010 Decision 8).",
+      "properties": {
+        "arguments": {
+          "anyOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Arguments"
+        },
+        "match": {
+          "enum": [
+            "name_only",
+            "arguments_exact",
+            "arguments_subset"
+          ],
+          "title": "Match",
+          "type": "string"
+        },
+        "name": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "title": "Name",
+          "type": "string"
+        },
+        "order_index": {
+          "minimum": 0,
+          "title": "Order Index",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "match",
+        "name",
+        "order_index"
+      ],
+      "title": "ExpectedToolCall",
+      "type": "object"
+    },
+    "ExternalRef": {
+      "additionalProperties": false,
+      "description": "An identifier assigned by another system, kept as data (never as our ID).\n\nAll three parts are stored exactly as given (ADR 0001 Decision 7).",
+      "properties": {
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "system": {
+          "title": "System",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "system",
+        "value"
+      ],
+      "title": "ExternalRef",
+      "type": "object"
+    },
+    "IngestWarning": {
+      "additionalProperties": false,
+      "description": "Something an importer could not map faithfully (ADR 0012 Decision 7). ``path`` locates the\nvalue in its source (the form depends on the mapping), ``raw`` is the source value verbatim.\nA ``LanguageLabelWarning`` becomes an ``IngestWarning`` with the same ``code`` and ``raw``.",
+      "properties": {
+        "code": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        },
+        "path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Path"
+        },
+        "raw": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Raw"
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ],
+      "title": "IngestWarning",
+      "type": "object"
+    },
+    "JudgeInfo": {
+      "additionalProperties": false,
+      "description": "The provenance of a judge's verdict (ADR 0010 Decision 6): the model asked for, the hash of\nthe prompt, the call parameters, the per-turn answers, and what the judge and the provider\nreported. Nothing is synthesized: an absent ``confidence`` or ``p_yes`` stays absent.",
+      "properties": {
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        },
+        "model_ref": {
+          "$ref": "#/$defs/ModelRef"
+        },
+        "params": {
+          "title": "Params",
+          "type": "object"
+        },
+        "per_turn": {
+          "items": {
+            "$ref": "#/$defs/JudgeTurnVerdict"
+          },
+          "title": "Per Turn",
+          "type": "array"
+        },
+        "prompt_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Prompt Sha256",
+          "type": "string"
+        },
+        "reported_model": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reported Model"
+        }
+      },
+      "required": [
+        "model_ref",
+        "params",
+        "prompt_sha256"
+      ],
+      "title": "JudgeInfo",
+      "type": "object"
+    },
+    "JudgeTurnVerdict": {
+      "additionalProperties": false,
+      "description": "The judge's answer for one turn (``turn_seq`` names a ``Turn.seq``). ``p_yes`` is present\nonly if the judge produced it (ADR 0010 Decision 6).",
+      "properties": {
+        "p_yes": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "P Yes"
+        },
+        "reported_model": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reported Model"
+        },
+        "turn_seq": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Turn Seq",
+          "type": "integer"
+        },
+        "verdict": {
+          "enum": [
+            "yes",
+            "no",
+            "undetermined"
+          ],
+          "title": "Verdict",
+          "type": "string"
+        }
+      },
+      "required": [
+        "turn_seq",
+        "verdict"
+      ],
+      "title": "JudgeTurnVerdict",
+      "type": "object"
+    },
+    "KeyRef": {
+      "additionalProperties": false,
+      "description": "Names a key held by a key manager; never carries key material (ADR 0007 Decision 4).\n\n``key_id`` is the key manager's own name for the key, an opaque string stored as given\n(ADR 0001 I12), not one of our typed IDs.",
+      "properties": {
+        "key_id": {
+          "minLength": 1,
+          "title": "Key Id",
+          "type": "string"
+        },
+        "key_version": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Key Version"
+        },
+        "provider_hint": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provider Hint"
+        }
+      },
+      "required": [
+        "key_id"
+      ],
+      "title": "KeyRef",
+      "type": "object"
+    },
+    "LanguageDeclaration": {
+      "additionalProperties": false,
+      "description": "A user's declaration of the language of an untagged import (N14, ADR 0004 Decision 6g).\n\nNever an observation: it fills no observed field, script-sensitive metrics never use it, and\nevery result that uses it says so (``language_source=declared``).",
+      "properties": {
+        "declared_at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Declared At",
+          "type": "string"
+        },
+        "declared_by": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/+-]{0,255}$",
+          "title": "Declared By",
+          "type": "string"
+        },
+        "language": {
+          "pattern": "^(?:[eE][nN]|[hH][iI]|[mM][rR]|[tT][eE]|[tT][aA]|[kK][nN]|[mM][lL]|[pP][aA]|[gG][uU])(?:-(?:[gG][bB]|[iI][nN]|[uU][sS]))?$",
+          "title": "Language",
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "user_declared"
+          ],
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "declared_at",
+        "declared_by",
+        "language",
+        "source"
+      ],
+      "title": "LanguageDeclaration",
+      "type": "object"
+    },
+    "MetadataFlag": {
+      "additionalProperties": false,
+      "description": "A secret-looking string in ``metadata``: where it is and why (ADR 0007 Decision 5a).",
+      "properties": {
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "reason": {
+          "enum": [
+            "known_credential_prefix",
+            "high_entropy_token"
+          ],
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "reason"
+      ],
+      "title": "MetadataFlag",
+      "type": "object"
+    },
+    "MetricBinding": {
+      "additionalProperties": false,
+      "description": "A definition bound to an evaluator (prefix ``mbd``; ADR 0010 Decisions 4 and 4a).\n\n``params`` set parameters the definition declares, stored unchanged; they never change a\ndefinition field such as the pass rule (E6). ``check_binding_params`` checks them against the\ndefinition. A disabled binding is never run and may not be a rubric item.",
+      "properties": {
+        "content_digest": {
+          "$ref": "#/$defs/ContentDigest"
+        },
+        "created_at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Created At",
+          "type": "string"
+        },
+        "enabled": {
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "evaluator_id": {
+          "pattern": "^evl_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Evaluator Id",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^mbd_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "metadata_flags": {
+          "items": {
+            "$ref": "#/$defs/MetadataFlag"
+          },
+          "title": "Metadata Flags",
+          "type": "array"
+        },
+        "metric": {
+          "$ref": "#/$defs/MetricDefinitionRef"
+        },
+        "params": {
+          "patternProperties": {
+            "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$": {}
+          },
+          "title": "Params",
+          "type": "object"
+        },
+        "schema_version": {
+          "enum": [
+            "0.0.1"
+          ],
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "content_digest",
+        "created_at",
+        "enabled",
+        "evaluator_id",
+        "id",
+        "metric",
+        "params",
+        "schema_version",
+        "version"
+      ],
+      "title": "MetricBinding",
+      "type": "object"
+    },
+    "MetricBindingRef": {
+      "additionalProperties": false,
+      "description": "``{id, version, content_digest?}`` of a ``MetricBinding`` (ADR 0009 Decision 4).",
+      "properties": {
+        "content_digest": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ContentDigest"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "id": {
+          "pattern": "^mbd_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "version"
+      ],
+      "title": "MetricBindingRef",
+      "type": "object"
+    },
+    "MetricDefinition": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "else": {
+            "properties": {
+              "implementation_ref": {
+                "type": "string"
+              },
+              "judge_model_ref": {
+                "type": "null"
+              },
+              "prompt_template": {
+                "type": "null"
+              },
+              "prompt_variables": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "implementation_ref"
+            ]
+          },
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "llm_judge"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "implementation_ref": {
+                "type": "null"
+              },
+              "judge_model_ref": {
+                "type": "object"
+              },
+              "prompt_template": {
+                "type": "string"
+              },
+              "prompt_variables": {
+                "type": "array"
+              }
+            },
+            "required": [
+              "judge_model_ref",
+              "prompt_template",
+              "prompt_variables"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "value_type": {
+                "enum": [
+                  "rating"
+                ]
+              }
+            },
+            "required": [
+              "value_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "scale": {
+                "required": [
+                  "max",
+                  "min"
+                ],
+                "type": "object"
+              }
+            },
+            "required": [
+              "scale"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "value_type": {
+                "enum": [
+                  "enum"
+                ]
+              }
+            },
+            "required": [
+              "value_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "scale": {
+                "required": [
+                  "options"
+                ],
+                "type": "object"
+              }
+            },
+            "required": [
+              "scale"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "value_type": {
+                "enum": [
+                  "boolean",
+                  "numeric"
+                ]
+              }
+            },
+            "required": [
+              "value_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "scale": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "else": {
+            "properties": {
+              "unit": {
+                "type": "null"
+              }
+            }
+          },
+          "if": {
+            "properties": {
+              "value_type": {
+                "enum": [
+                  "numeric"
+                ]
+              }
+            },
+            "required": [
+              "value_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "unit"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "languages": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "languages"
+            ]
+          },
+          "then": {
+            "properties": {
+              "script_sensitive": {
+                "enum": [
+                  false
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "description": "What a metric measures and how it passes (prefix ``met``; ADR 0010 Decisions 1 and 1a).\n\nThe judge fields (``prompt_template``, ``prompt_variables``, ``judge_model_ref``) are required\nfor ``kind=llm_judge`` and forbidden otherwise; ``implementation_ref`` is the reverse. A\n``scale`` belongs to rating and enum metrics, a ``unit`` to numeric ones. The pass rule fits\n``value_type`` (for ``per_turn_share`` it is a range on the share and ``turn_rule`` fits the\ntype), its bounds lie in the value domain, and some value passes.",
+      "properties": {
+        "aggregation": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/PerConversationAggregation"
+            },
+            {
+              "$ref": "#/$defs/PerTurnShareAggregation"
+            }
+          ],
+          "title": "Aggregation"
+        },
+        "content_digest": {
+          "$ref": "#/$defs/ContentDigest"
+        },
+        "created_at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Created At",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^met_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "implementation_ref": {
+          "anyOf": [
+            {
+              "maxLength": 256,
+              "pattern": "^[a-z][a-z0-9_]*:[A-Za-z0-9._:/@+-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Implementation Ref"
+        },
+        "judge_model_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ModelRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "key": {
+          "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$",
+          "title": "Key",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "deterministic",
+            "llm_judge",
+            "audio",
+            "latency"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "languages": {
+          "anyOf": [
+            {
+              "enum": [
+                "language_independent"
+              ],
+              "type": "string"
+            },
+            {
+              "items": {
+                "pattern": "^(?:[eE][nN](?:-(?:[lL][aA][tT][nN]))?|[hH][iI](?:-(?:[dD][eE][vV][aA]))?|[mM][rR](?:-(?:[dD][eE][vV][aA]))?|[tT][eE](?:-(?:[tT][eE][lL][uU]))?|[tT][aA](?:-(?:[tT][aA][mM][lL]))?|[kK][nN](?:-(?:[kK][nN][dD][aA]))?|[mM][lL](?:-(?:[mM][lL][yY][mM]))?|[pP][aA](?:-(?:[gG][uU][rR][uU]))?|[gG][uU](?:-(?:[gG][uU][jJ][rR]))?)(?:-(?:[gG][bB]|[iI][nN]|[uU][sS]))?$",
+                "type": "string"
+              },
+              "minItems": 1,
+              "type": "array",
+              "uniqueItems": true
+            }
+          ],
+          "title": "Languages"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "metadata_flags": {
+          "items": {
+            "$ref": "#/$defs/MetadataFlag"
+          },
+          "title": "Metadata Flags",
+          "type": "array"
+        },
+        "parameters": {
+          "items": {
+            "$ref": "#/$defs/MetricParameter"
+          },
+          "title": "Parameters",
+          "type": "array"
+        },
+        "pass_rule": {
+          "anyOf": [
+            {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/RangeRule"
+                },
+                {
+                  "$ref": "#/$defs/EqualsTrueRule"
+                },
+                {
+                  "$ref": "#/$defs/OneOfRule"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pass Rule"
+        },
+        "prompt_template": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prompt Template"
+        },
+        "prompt_variables": {
+          "anyOf": [
+            {
+              "items": {
+                "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$",
+                "type": "string"
+              },
+              "type": "array",
+              "uniqueItems": true
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prompt Variables"
+        },
+        "requires": {
+          "items": {
+            "enum": [
+              "audio",
+              "agent_audio",
+              "transcript",
+              "agent_transcript",
+              "turn_timing",
+              "tool_calls",
+              "tool_results",
+              "spans",
+              "usage",
+              "reference_text",
+              "expected_tool_calls"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Requires",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "scale": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RatingScale"
+            },
+            {
+              "$ref": "#/$defs/EnumScale"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scale"
+        },
+        "schema_version": {
+          "enum": [
+            "0.0.1"
+          ],
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "script_sensitive": {
+          "title": "Script Sensitive",
+          "type": "boolean"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "enum": [
+                "ms",
+                "count",
+                "ratio",
+                "percent",
+                "wer",
+                "cer"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "value_type": {
+          "enum": [
+            "boolean",
+            "rating",
+            "enum",
+            "numeric"
+          ],
+          "title": "Value Type",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "aggregation",
+        "content_digest",
+        "created_at",
+        "id",
+        "key",
+        "kind",
+        "languages",
+        "requires",
+        "schema_version",
+        "script_sensitive",
+        "value_type",
+        "version"
+      ],
+      "title": "MetricDefinition",
+      "type": "object"
+    },
+    "MetricDefinitionRef": {
+      "additionalProperties": false,
+      "description": "``{id, version, content_digest?}`` of a ``MetricDefinition`` (ADR 0009 Decision 4).",
+      "properties": {
+        "content_digest": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ContentDigest"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "id": {
+          "pattern": "^met_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "version"
+      ],
+      "title": "MetricDefinitionRef",
+      "type": "object"
+    },
+    "MetricParameter": {
+      "additionalProperties": false,
+      "description": "A parameter a binding may set (ADR 0010 Decision 4a). ``default`` of ``null`` means no\ndefault; a present default has the declared ``value_type``.",
+      "properties": {
+        "default": {
+          "default": null,
+          "title": "Default"
+        },
+        "name": {
+          "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$",
+          "title": "Name",
+          "type": "string"
+        },
+        "value_type": {
+          "enum": [
+            "boolean",
+            "integer",
+            "number",
+            "string",
+            "json"
+          ],
+          "title": "Value Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "value_type"
+      ],
+      "title": "MetricParameter",
+      "type": "object"
+    },
+    "MetricResult": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "scored"
+                ]
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "anyOf": [
+              {
+                "properties": {
+                  "per_turn": {
+                    "type": "null"
+                  },
+                  "value": {
+                    "not": {
+                      "type": "null"
+                    }
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "per_turn": {
+                    "type": "object"
+                  },
+                  "value": {
+                    "type": "null"
+                  }
+                },
+                "required": [
+                  "per_turn"
+                ]
+              }
+            ],
+            "properties": {
+              "error": {
+                "type": "null"
+              },
+              "missing_kinds": {
+                "maxItems": 0
+              },
+              "na_reason": {
+                "type": "null"
+              },
+              "per_turn": {
+                "properties": {
+                  "counted_turns": {
+                    "minimum": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "not_applicable",
+                  "error"
+                ]
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "passed": {
+                "type": "null"
+              },
+              "value": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "not_applicable"
+                ]
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "else": {
+              "properties": {
+                "missing_kinds": {
+                  "maxItems": 0
+                }
+              }
+            },
+            "if": {
+              "properties": {
+                "na_reason": {
+                  "enum": [
+                    "missing_input"
+                  ]
+                }
+              },
+              "required": [
+                "na_reason"
+              ]
+            },
+            "properties": {
+              "error": {
+                "type": "null"
+              },
+              "judge": {
+                "type": "null"
+              },
+              "na_reason": {
+                "type": "string"
+              },
+              "per_turn": {
+                "properties": {
+                  "counted_turns": {
+                    "maximum": 0
+                  },
+                  "counts": {
+                    "properties": {
+                      "undetermined": {
+                        "maximum": 0
+                      }
+                    }
+                  }
+                }
+              },
+              "scorer": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "na_reason"
+            ],
+            "then": {
+              "properties": {
+                "missing_kinds": {
+                  "minItems": 1
+                }
+              },
+              "required": [
+                "missing_kinds"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "error"
+                ]
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "error": {
+                "type": "object"
+              },
+              "missing_kinds": {
+                "maxItems": 0
+              },
+              "na_reason": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "error"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "per_turn": {
+                "type": "object"
+              },
+              "status": {
+                "enum": [
+                  "error"
+                ]
+              }
+            },
+            "required": [
+              "per_turn",
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "error": {
+                "properties": {
+                  "code": {
+                    "enum": [
+                      "judge_undetermined"
+                    ]
+                  }
+                },
+                "type": "object"
+              },
+              "per_turn": {
+                "properties": {
+                  "counted_turns": {
+                    "maximum": 0
+                  },
+                  "counts": {
+                    "properties": {
+                      "undetermined": {
+                        "minimum": 1
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "required": [
+              "error"
+            ]
+          }
+        },
+        {
+          "else": {
+            "properties": {
+              "declared_language_transcript_ids": {
+                "maxItems": 0
+              }
+            }
+          },
+          "if": {
+            "properties": {
+              "language_source": {
+                "enum": [
+                  "declared"
+                ]
+              }
+            },
+            "required": [
+              "language_source"
+            ]
+          },
+          "then": {
+            "properties": {
+              "declared_language_transcript_ids": {
+                "minItems": 1
+              }
+            },
+            "required": [
+              "declared_language_transcript_ids"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "na_reason": {
+                "enum": [
+                  "missing_input",
+                  "agent_channel_unknown"
+                ]
+              }
+            },
+            "required": [
+              "na_reason"
+            ]
+          },
+          "then": {
+            "properties": {
+              "language_source": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ],
+      "description": "The result of one metric on one run (prefix ``res``; ADR 0004, ADR 0010 Decision 5).\n\nRules on the result alone (each reported at the field it is about):\n\n- ``scored``: no ``na_reason``, ``error`` or ``missing_kinds``; exactly one of ``value`` and\n  ``per_turn``, and a scored ``per_turn`` has a counted turn;\n- only a scored result has a ``value`` or ``passed``;\n- ``not_applicable``: ``na_reason`` required; no ``error``, ``scorer`` or ``judge``;\n  ``missing_kinds`` non-empty if and only if ``na_reason=missing_input``; ``per_turn`` only\n  when every turn was not applicable (counted 0, undetermined 0);\n- ``error``: ``error`` required; no ``na_reason`` or ``missing_kinds``; ``per_turn`` only with\n  no counted turn, an undetermined turn and ``error.code=judge_undetermined`` (P-56);\n- ``declared_language_transcript_ids`` non-empty if and only if ``language_source=declared``;\n- ``language_source`` is absent when the language steps did not run (``missing_input``,\n  ``agent_channel_unknown``).",
+      "properties": {
+        "created_at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Created At",
+          "type": "string"
+        },
+        "declared_language_transcript_ids": {
+          "items": {
+            "pattern": "^tsc_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "title": "Declared Language Transcript Ids",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "error": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResultError"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "evidence_refs": {
+          "items": {
+            "$ref": "#/$defs/EvidenceRef"
+          },
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "id": {
+          "pattern": "^res_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "judge": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/JudgeInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "language_source": {
+          "anyOf": [
+            {
+              "enum": [
+                "observed",
+                "declared"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Language Source"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "metadata_flags": {
+          "items": {
+            "$ref": "#/$defs/MetadataFlag"
+          },
+          "title": "Metadata Flags",
+          "type": "array"
+        },
+        "metric": {
+          "$ref": "#/$defs/MetricDefinitionRef"
+        },
+        "missing_kinds": {
+          "items": {
+            "enum": [
+              "audio",
+              "agent_audio",
+              "transcript",
+              "agent_transcript",
+              "turn_timing",
+              "tool_calls",
+              "tool_results",
+              "spans",
+              "usage",
+              "reference_text",
+              "expected_tool_calls"
+            ],
+            "type": "string"
+          },
+          "title": "Missing Kinds",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "na_reason": {
+          "anyOf": [
+            {
+              "enum": [
+                "missing_input",
+                "agent_channel_unknown",
+                "language_not_observed",
+                "unsupported_language",
+                "unsupported_script"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Na Reason"
+        },
+        "passed": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Passed"
+        },
+        "per_turn": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PerTurnSummary"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "schema_version": {
+          "enum": [
+            "0.0.1"
+          ],
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "scorer": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ScorerInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "status": {
+          "enum": [
+            "scored",
+            "not_applicable",
+            "error"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "maximum": 9007199254740991,
+              "minimum": -9007199254740991,
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "created_at",
+        "id",
+        "metric",
+        "schema_version",
+        "status",
+        "value"
+      ],
+      "title": "MetricResult",
+      "type": "object"
+    },
+    "ModelRef": {
+      "additionalProperties": false,
+      "description": "A provider and model, without any key reference (ADR 0010 Decision 1a).",
+      "properties": {
+        "model": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "title": "Model",
+          "type": "string"
+        },
+        "provider": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "title": "Provider",
+          "type": "string"
+        }
+      },
+      "required": [
+        "model",
+        "provider"
+      ],
+      "title": "ModelRef",
+      "type": "object"
+    },
+    "Money": {
+      "additionalProperties": false,
+      "description": "An exact amount of money: ``{amount, currency}``, both required (ADR 0014 Decision 1).\n\nEqual by value. ``+`` adds exactly and returns the canonical amount; ``display()`` rounds for\npresentation only.",
+      "properties": {
+        "amount": {
+          "pattern": "^(?:0|-?[1-9][0-9]*|-?(?:0|[1-9][0-9]*)\\.[0-9]{0,17}[1-9])$",
+          "title": "Amount",
+          "type": "string"
+        },
+        "currency": {
+          "enum": [
+            "USD"
+          ],
+          "title": "Currency",
+          "type": "string"
+        }
+      },
+      "required": [
+        "amount",
+        "currency"
+      ],
+      "title": "Money",
+      "type": "object"
+    },
+    "OneOfRule": {
+      "additionalProperties": false,
+      "description": "``one_of{options}``: an enum value passes iff it is one of the distinct ``options``.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "one_of"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "options": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Options",
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "kind",
+        "options"
+      ],
+      "title": "OneOfRule",
+      "type": "object"
+    },
+    "PayloadRedaction": {
+      "additionalProperties": false,
+      "description": "The redaction of the payload of one record of an export (S-N89, B3): ``subject_id`` (an\nartifact, a transcript or a tool call) and the ``RedactionRecord``. Entries for one subject\nadd up (the union of their ``covers``).",
+      "properties": {
+        "redaction": {
+          "$ref": "#/$defs/RedactionRecord"
+        },
+        "subject_id": {
+          "pattern": "^(?:art|tsc|tcl)_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Subject Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "redaction",
+        "subject_id"
+      ],
+      "title": "PayloadRedaction",
+      "type": "object"
+    },
+    "PerConversationAggregation": {
+      "additionalProperties": false,
+      "description": "One value per run.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "per_conversation"
+          ],
+          "title": "Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "PerConversationAggregation",
+      "type": "object"
+    },
+    "PerTurnCounts": {
+      "additionalProperties": false,
+      "description": "The per-turn outcomes of a ``per_turn_share`` metric (P-56); all four are required.",
+      "properties": {
+        "failed": {
+          "minimum": 0,
+          "title": "Failed",
+          "type": "integer"
+        },
+        "not_applicable": {
+          "minimum": 0,
+          "title": "Not Applicable",
+          "type": "integer"
+        },
+        "passed": {
+          "minimum": 0,
+          "title": "Passed",
+          "type": "integer"
+        },
+        "undetermined": {
+          "minimum": 0,
+          "title": "Undetermined",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "failed",
+        "not_applicable",
+        "passed",
+        "undetermined"
+      ],
+      "title": "PerTurnCounts",
+      "type": "object"
+    },
+    "PerTurnShareAggregation": {
+      "additionalProperties": false,
+      "description": "The share of counted turns that pass ``turn_rule`` (P-58); its threshold is the\ndefinition's ``pass_rule``.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "per_turn_share"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "turn_rule": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/RangeRule"
+            },
+            {
+              "$ref": "#/$defs/EqualsTrueRule"
+            },
+            {
+              "$ref": "#/$defs/OneOfRule"
+            }
+          ],
+          "title": "Turn Rule"
+        }
+      },
+      "required": [
+        "kind",
+        "turn_rule"
+      ],
+      "title": "PerTurnShareAggregation",
+      "type": "object"
+    },
+    "PerTurnSummary": {
+      "additionalProperties": false,
+      "description": "The per-turn outcome of a ``per_turn_share`` metric (P-58): the counts, the turn coverage\n(``counted_turns`` of ``total_turns``) and the share of counted turns that passed.\n\nChecked on load: ``counted_turns = passed + failed``, ``total_turns`` is the sum of the four\ncounts (at least 1), and ``share`` equals ``metrics.per_turn_share(counts)``: present if and\nonly if a turn was counted.",
+      "properties": {
+        "counted_turns": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Counted Turns",
+          "type": "integer"
+        },
+        "counts": {
+          "$ref": "#/$defs/PerTurnCounts"
+        },
+        "share": {
+          "anyOf": [
+            {
+              "pattern": "^(?:0|-?[1-9][0-9]*|-?(?:0|[1-9][0-9]*)\\.[0-9]{0,17}[1-9])$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Share"
+        },
+        "total_turns": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Total Turns",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "counted_turns",
+        "counts",
+        "total_turns"
+      ],
+      "title": "PerTurnSummary",
+      "type": "object"
+    },
+    "Persona": {
+      "additionalProperties": false,
+      "description": "The simulated caller (prefix ``per``): a configured language and an optional accent.",
+      "properties": {
+        "accent": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Accent"
+        },
+        "content_digest": {
+          "$ref": "#/$defs/ContentDigest"
+        },
+        "created_at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Created At",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^per_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "language": {
+          "pattern": "^(?:[eE][nN](?:-(?:[lL][aA][tT][nN]))?|[hH][iI](?:-(?:[dD][eE][vV][aA]))?|[mM][rR](?:-(?:[dD][eE][vV][aA]))?|[tT][eE](?:-(?:[tT][eE][lL][uU]))?|[tT][aA](?:-(?:[tT][aA][mM][lL]))?|[kK][nN](?:-(?:[kK][nN][dD][aA]))?|[mM][lL](?:-(?:[mM][lL][yY][mM]))?|[pP][aA](?:-(?:[gG][uU][rR][uU]))?|[gG][uU](?:-(?:[gG][uU][jJ][rR]))?)(?:-(?:[gG][bB]|[iI][nN]|[uU][sS]))?$",
+          "title": "Language",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "metadata_flags": {
+          "items": {
+            "$ref": "#/$defs/MetadataFlag"
+          },
+          "title": "Metadata Flags",
+          "type": "array"
+        },
+        "schema_version": {
+          "enum": [
+            "0.0.1"
+          ],
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "content_digest",
+        "created_at",
+        "id",
+        "language",
+        "schema_version",
+        "version"
+      ],
+      "title": "Persona",
+      "type": "object"
+    },
+    "PersonaRef": {
+      "additionalProperties": false,
+      "description": "``{id, version, content_digest?}`` of a ``Persona`` (ADR 0009 Decision 4).",
+      "properties": {
+        "content_digest": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ContentDigest"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "id": {
+          "pattern": "^per_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "version"
+      ],
+      "title": "PersonaRef",
+      "type": "object"
+    },
+    "PriceEntry": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "price_source": {
+                "enum": [
+                  "user_supplied"
+                ]
+              }
+            },
+            "required": [
+              "price_source"
+            ]
+          },
+          "then": {
+            "properties": {
+              "provenance": {
+                "properties": {
+                  "note": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "note"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "description": "One price of a catalog version (ADR 0014 Decision 11; a value object since revision 15).\nSee the module docstring.",
+      "properties": {
+        "aliases": {
+          "items": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+            "type": "string"
+          },
+          "title": "Aliases",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "applies_when": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/AppliesWhenCondition"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Applies When"
+        },
+        "billing": {
+          "anyOf": [
+            {
+              "enum": [
+                "unknown"
+              ],
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/BillingRules"
+            }
+          ],
+          "title": "Billing"
+        },
+        "effective_from": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Effective From",
+          "type": "string"
+        },
+        "effective_to": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective To"
+        },
+        "entry_key": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "title": "Entry Key",
+          "type": "string"
+        },
+        "model": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "title": "Model",
+          "type": "string"
+        },
+        "price": {
+          "$ref": "#/$defs/Money"
+        },
+        "price_source": {
+          "enum": [
+            "catalog",
+            "user_supplied"
+          ],
+          "title": "Price Source",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/PriceProvenance"
+        },
+        "provider": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "title": "Provider",
+          "type": "string"
+        },
+        "unit": {
+          "enum": [
+            "input_tokens",
+            "cache_read_input_tokens",
+            "cache_write_input_tokens",
+            "output_tokens",
+            "audio_input_seconds",
+            "audio_output_seconds",
+            "input_characters",
+            "requests"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "unit_quantity": {
+          "pattern": "^(?:[1-9][0-9]*|[1-9][0-9]*\\.[0-9]{0,17}[1-9]|0\\.[0-9]{0,17}[1-9])$",
+          "title": "Unit Quantity",
+          "type": "string"
+        }
+      },
+      "required": [
+        "billing",
+        "effective_from",
+        "entry_key",
+        "model",
+        "price",
+        "price_source",
+        "provenance",
+        "provider",
+        "unit",
+        "unit_quantity"
+      ],
+      "title": "PriceEntry",
+      "type": "object"
+    },
+    "PriceProvenance": {
+      "additionalProperties": false,
+      "description": "Where a price came from (ADR 0014 Decision 11). See the module docstring.",
+      "properties": {
+        "kind": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "title": "Kind",
+          "type": "string"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        },
+        "retrieved_at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Retrieved At",
+          "type": "string"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "pattern": "^https?://[A-Za-z0-9._~:/?#\\[\\]@!$&'()*+,;=%-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url"
+        }
+      },
+      "required": [
+        "kind",
+        "retrieved_at"
+      ],
+      "title": "PriceProvenance",
+      "type": "object"
+    },
+    "PricingCatalog": {
+      "additionalProperties": false,
+      "description": "A version of a pricing catalog (prefix ``pcat``; versioned, ADR 0009). See the module\ndocstring.",
+      "properties": {
+        "content_digest": {
+          "$ref": "#/$defs/ContentDigest"
+        },
+        "created_at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Created At",
+          "type": "string"
+        },
+        "entries": {
+          "items": {
+            "$ref": "#/$defs/PriceEntry"
+          },
+          "minItems": 1,
+          "title": "Entries",
+          "type": "array"
+        },
+        "id": {
+          "pattern": "^pcat_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "metadata_flags": {
+          "items": {
+            "$ref": "#/$defs/MetadataFlag"
+          },
+          "title": "Metadata Flags",
+          "type": "array"
+        },
+        "published_at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Published At",
+          "type": "string"
+        },
+        "schema_version": {
+          "enum": [
+            "0.0.1"
+          ],
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "content_digest",
+        "created_at",
+        "entries",
+        "id",
+        "published_at",
+        "schema_version",
+        "version"
+      ],
+      "title": "PricingCatalog",
+      "type": "object"
+    },
+    "PricingCatalogRef": {
+      "additionalProperties": false,
+      "description": "``{id, version, content_digest}`` of a pricing catalog (ADR 0006 I16, N26): the digest is\nrequired, and ``check_pricing_catalog_ref`` verifies it against the catalog of the bundle.",
+      "properties": {
+        "content_digest": {
+          "$ref": "#/$defs/ContentDigest"
+        },
+        "id": {
+          "pattern": "^pcat_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "content_digest",
+        "id",
+        "version"
+      ],
+      "title": "PricingCatalogRef",
+      "type": "object"
+    },
+    "PricingSnapshot": {
+      "additionalProperties": false,
+      "description": "The catalog version and the entries a computed cost used (ADR 0014 Decision 12, O6, N61):\n``(catalog_id, version, content_digest)`` names one catalog version and ``entry_keys`` the\nentries used, by their catalog-scoped ``entry_key`` (non-empty, distinct).",
+      "properties": {
+        "catalog_id": {
+          "pattern": "^pcat_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Catalog Id",
+          "type": "string"
+        },
+        "content_digest": {
+          "$ref": "#/$defs/ContentDigest"
+        },
+        "entry_keys": {
+          "items": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Entry Keys",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "catalog_id",
+        "content_digest",
+        "entry_keys",
+        "version"
+      ],
+      "title": "PricingSnapshot",
+      "type": "object"
+    },
+    "PrivacyMarker": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "else": {
+            "properties": {
+              "consent": {
+                "type": "null"
+              },
+              "human_subject_reason": {
+                "type": "null"
+              },
+              "retention": {
+                "type": "null"
+              }
+            }
+          },
+          "if": {
+            "properties": {
+              "human_subject": {
+                "enum": [
+                  true
+                ]
+              }
+            },
+            "required": [
+              "human_subject"
+            ]
+          },
+          "then": {
+            "properties": {
+              "consent": {
+                "type": "object"
+              },
+              "retention": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "consent",
+              "retention"
+            ]
+          }
+        }
+      ],
+      "description": "Whether a payload is human-subject data, with its consent and retention (ADR 0016).\n\nConsent and retention are present if and only if ``human_subject`` is true (P-46): a consent\nrecord for a synthetic voice would read as a consent gap. ``human_subject_reason`` records why\na marker is stricter than the derivation (P-47) and is rejected on a false marker.",
+      "properties": {
+        "consent": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ConsentRecord"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "human_subject": {
+          "title": "Human Subject",
+          "type": "boolean"
+        },
+        "human_subject_reason": {
+          "anyOf": [
+            {
+              "enum": [
+                "marked_before_role_evidence",
+                "real_person_likeness",
+                "manual"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Human Subject Reason"
+        },
+        "retention": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RetentionPolicy"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "human_subject"
+      ],
+      "title": "PrivacyMarker",
+      "type": "object"
+    },
+    "ProvenanceRedaction": {
+      "additionalProperties": false,
+      "description": "The recorded omission of a provenance field of an exported dataset item (ADR 0016\nDecision 9, O9, D2): the item, the field and the reason, never the run ID. Not a\n``RedactionRecord``: it has no ``covers`` and never protects a payload.",
+      "properties": {
+        "field": {
+          "enum": [
+            "source_run_id"
+          ],
+          "title": "Field",
+          "type": "string"
+        },
+        "item_id": {
+          "pattern": "^dti_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Item Id",
+          "type": "string"
+        },
+        "reason": {
+          "enum": [
+            "unresolved_reference"
+          ],
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "field",
+        "item_id",
+        "reason"
+      ],
+      "title": "ProvenanceRedaction",
+      "type": "object"
+    },
+    "RangeRule": {
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "properties": {
+            "min": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "min"
+          ]
+        },
+        {
+          "properties": {
+            "max": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "max"
+          ]
+        }
+      ],
+      "description": "``range{min?, max?, inclusive}``: ``max`` alone means lower is better, ``min`` alone higher\nis better, both a target band. ``inclusive`` applies to both bounds.",
+      "properties": {
+        "inclusive": {
+          "title": "Inclusive",
+          "type": "boolean"
+        },
+        "kind": {
+          "enum": [
+            "range"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "max": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max"
+        },
+        "min": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min"
+        }
+      },
+      "required": [
+        "inclusive",
+        "kind"
+      ],
+      "title": "RangeRule",
+      "type": "object"
+    },
+    "RatingScale": {
+      "additionalProperties": false,
+      "description": "The integer scale of a rating metric (``min < max``).",
+      "properties": {
+        "max": {
+          "title": "Max",
+          "type": "integer"
+        },
+        "min": {
+          "title": "Min",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "max",
+        "min"
+      ],
+      "title": "RatingScale",
+      "type": "object"
+    },
+    "RedactionRecord": {
+      "additionalProperties": false,
+      "description": "How a payload was redacted (ADR 0016 Decision 7): the ``method`` and the tool\n(``tool_ref``) that performed it, when (``performed_at``, UTC), and the payload kinds it\n``covers`` (a non-empty list of distinct members of ``REDACTION_COVERS``).\n\nA value object of exactly four fields, with no id (S-N89). ``method`` and ``tool_ref`` are\nnon-empty free text for now (S-N86; P1-14 may narrow them). It holds no payload content, so it\ndoes not hide its input (S-N88). The export rule that demands a seal or a redaction for\nhuman-subject payloads is a bundle rule (P1-14).",
+      "properties": {
+        "covers": {
+          "items": {
+            "enum": [
+              "audio",
+              "text",
+              "tool_arguments",
+              "tool_result"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Covers",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "method": {
+          "minLength": 1,
+          "title": "Method",
+          "type": "string"
+        },
+        "performed_at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Performed At",
+          "type": "string"
+        },
+        "tool_ref": {
+          "minLength": 1,
+          "title": "Tool Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "covers",
+        "method",
+        "performed_at",
+        "tool_ref"
+      ],
+      "title": "RedactionRecord",
+      "type": "object"
+    },
+    "ReportedCostRaw": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "else": {
+            "properties": {
+              "currency_raw": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "currency_raw"
+            ]
+          },
+          "if": {
+            "properties": {
+              "currency_source": {
+                "enum": [
+                  "none"
+                ]
+              }
+            },
+            "required": [
+              "currency_source"
+            ]
+          },
+          "then": {
+            "properties": {
+              "currency_raw": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ],
+      "description": "A reported source's cost values, verbatim and never parsed (ADR 0014 Decisions 12, 12b):\nthe amount lexeme, the currency label as sent (``payload``) or as the cited API contract\nwrites it (``api_contract``), or no currency (``none``). A present ``currency_raw`` is never\nempty or ASCII white space only, which is no label (D6).",
+      "properties": {
+        "amount_raw": {
+          "title": "Amount Raw",
+          "type": "string"
+        },
+        "currency_raw": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Currency Raw"
+        },
+        "currency_source": {
+          "enum": [
+            "payload",
+            "api_contract",
+            "none"
+          ],
+          "title": "Currency Source",
+          "type": "string"
+        },
+        "reported_by": {
+          "enum": [
+            "provider",
+            "telemetry_platform"
+          ],
+          "title": "Reported By",
+          "type": "string"
+        }
+      },
+      "required": [
+        "amount_raw",
+        "currency_source",
+        "reported_by"
+      ],
+      "title": "ReportedCostRaw",
+      "type": "object"
+    },
+    "ResultError": {
+      "additionalProperties": false,
+      "description": "Why a metric could not be computed although its inputs existed (ADR 0004 I3).",
+      "properties": {
+        "code": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ],
+      "title": "ResultError",
+      "type": "object"
+    },
+    "RetentionPolicy": {
+      "additionalProperties": false,
+      "description": "How long human-subject data is kept, and whether it is deleted when the time is up.",
+      "properties": {
+        "delete_on_expiry": {
+          "title": "Delete On Expiry",
+          "type": "boolean"
+        },
+        "policy_ref": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Policy Ref"
+        },
+        "retain_until": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retain Until"
+        }
+      },
+      "required": [
+        "delete_on_expiry"
+      ],
+      "title": "RetentionPolicy",
+      "type": "object"
+    },
+    "Rubric": {
+      "additionalProperties": false,
+      "description": "The checks of a verdict (prefix ``rub``; ADR 0013 Decision 7).",
+      "properties": {
+        "content_digest": {
+          "$ref": "#/$defs/ContentDigest"
+        },
+        "created_at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Created At",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^rub_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/$defs/RubricItem"
+          },
+          "minItems": 1,
+          "title": "Items",
+          "type": "array"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "metadata_flags": {
+          "items": {
+            "$ref": "#/$defs/MetadataFlag"
+          },
+          "title": "Metadata Flags",
+          "type": "array"
+        },
+        "schema_version": {
+          "enum": [
+            "0.0.1"
+          ],
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "content_digest",
+        "created_at",
+        "id",
+        "items",
+        "schema_version",
+        "version"
+      ],
+      "title": "Rubric",
+      "type": "object"
+    },
+    "RubricItem": {
+      "additionalProperties": false,
+      "description": "One check of a rubric: a binding, whether it is required, and an optional weight.",
+      "properties": {
+        "binding": {
+          "$ref": "#/$defs/MetricBindingRef"
+        },
+        "required": {
+          "title": "Required",
+          "type": "boolean"
+        },
+        "weight": {
+          "anyOf": [
+            {
+              "pattern": "^(?:[1-9][0-9]*(?:\\.[0-9]{0,17}[1-9])?|0\\.[0-9]{0,17}[1-9])$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Weight"
+        }
+      },
+      "required": [
+        "binding",
+        "required"
+      ],
+      "title": "RubricItem",
+      "type": "object"
+    },
+    "Run": {
+      "additionalProperties": false,
+      "description": "A run (prefix ``run``; a record of fact, ADR 0009 Decision 5). See the module docstring.",
+      "properties": {
+        "agent_target": {
+          "$ref": "#/$defs/AgentTargetRef"
+        },
+        "available_inputs": {
+          "items": {
+            "enum": [
+              "audio",
+              "agent_audio",
+              "transcript",
+              "agent_transcript",
+              "turn_timing",
+              "tool_calls",
+              "tool_results",
+              "spans",
+              "usage",
+              "reference_text",
+              "expected_tool_calls"
+            ],
+            "type": "string"
+          },
+          "title": "Available Inputs",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "caller_external_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CallerExternalId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "caller_origin": {
+          "enum": [
+            "simulated",
+            "human"
+          ],
+          "title": "Caller Origin",
+          "type": "string"
+        },
+        "channel_maps": {
+          "items": {
+            "$ref": "#/$defs/ChannelMap"
+          },
+          "title": "Channel Maps",
+          "type": "array"
+        },
+        "config_snapshot_id": {
+          "pattern": "^snap_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Config Snapshot Id",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Created At",
+          "type": "string"
+        },
+        "detected_capabilities": {
+          "items": {
+            "enum": [
+              "audio",
+              "agent_audio",
+              "transcript",
+              "agent_transcript",
+              "turn_timing",
+              "tool_calls",
+              "tool_results",
+              "spans",
+              "usage",
+              "reference_text",
+              "expected_tool_calls"
+            ],
+            "type": "string"
+          },
+          "title": "Detected Capabilities",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "external_refs": {
+          "items": {
+            "$ref": "#/$defs/ExternalRef"
+          },
+          "title": "External Refs",
+          "type": "array"
+        },
+        "id": {
+          "pattern": "^run_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "ingest_warnings": {
+          "items": {
+            "$ref": "#/$defs/IngestWarning"
+          },
+          "title": "Ingest Warnings",
+          "type": "array"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "metadata_flags": {
+          "items": {
+            "$ref": "#/$defs/MetadataFlag"
+          },
+          "title": "Metadata Flags",
+          "type": "array"
+        },
+        "mode": {
+          "enum": [
+            "simulated",
+            "recorded"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "observed_tier": {
+          "enum": [
+            "T0",
+            "T1",
+            "T2"
+          ],
+          "title": "Observed Tier",
+          "type": "string"
+        },
+        "project_id": {
+          "pattern": "^prj_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Project Id",
+          "type": "string"
+        },
+        "schema_version": {
+          "enum": [
+            "0.0.1"
+          ],
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "started_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Started At"
+        }
+      },
+      "required": [
+        "agent_target",
+        "caller_origin",
+        "config_snapshot_id",
+        "created_at",
+        "id",
+        "mode",
+        "observed_tier",
+        "project_id",
+        "schema_version"
+      ],
+      "title": "Run",
+      "type": "object"
+    },
+    "RunBundle": {
+      "additionalProperties": false,
+      "description": "The records of one run (prefix ``rbnd``; N22, B1). A record of fact.\n\n``run`` and ``snapshot`` are required; every list defaults to empty and ``verdict`` to none.\n``withheld`` declares the records the bundle deliberately does not carry. No sealed payload,\nno redaction and no purpose: those belong to the ``ExportBundle`` (ADR 0015 Decision 7, B9).\n``check_run_bundle`` runs on load, after the fields.",
+      "properties": {
+        "artifacts": {
+          "items": {
+            "$ref": "#/$defs/Artifact"
+          },
+          "title": "Artifacts",
+          "type": "array"
+        },
+        "cost_records": {
+          "items": {
+            "$ref": "#/$defs/CostRecord"
+          },
+          "title": "Cost Records",
+          "type": "array"
+        },
+        "cost_summaries": {
+          "items": {
+            "$ref": "#/$defs/CostSummary"
+          },
+          "title": "Cost Summaries",
+          "type": "array"
+        },
+        "created_at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Created At",
+          "type": "string"
+        },
+        "exchanges": {
+          "items": {
+            "$ref": "#/$defs/Exchange"
+          },
+          "title": "Exchanges",
+          "type": "array"
+        },
+        "id": {
+          "pattern": "^rbnd_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "metadata_flags": {
+          "items": {
+            "$ref": "#/$defs/MetadataFlag"
+          },
+          "title": "Metadata Flags",
+          "type": "array"
+        },
+        "pricing_catalogs": {
+          "items": {
+            "$ref": "#/$defs/PricingCatalog"
+          },
+          "title": "Pricing Catalogs",
+          "type": "array"
+        },
+        "results": {
+          "items": {
+            "$ref": "#/$defs/MetricResult"
+          },
+          "title": "Results",
+          "type": "array"
+        },
+        "run": {
+          "$ref": "#/$defs/Run"
+        },
+        "schema_version": {
+          "enum": [
+            "0.0.1"
+          ],
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "snapshot": {
+          "$ref": "#/$defs/ConfigSnapshot"
+        },
+        "spans": {
+          "items": {
+            "$ref": "#/$defs/StageSpan"
+          },
+          "title": "Spans",
+          "type": "array"
+        },
+        "test_profiles": {
+          "items": {
+            "$ref": "#/$defs/TestProfile"
+          },
+          "title": "Test Profiles",
+          "type": "array"
+        },
+        "tool_calls": {
+          "items": {
+            "$ref": "#/$defs/ToolCallEvent"
+          },
+          "title": "Tool Calls",
+          "type": "array"
+        },
+        "transcripts": {
+          "items": {
+            "$ref": "#/$defs/Transcript"
+          },
+          "title": "Transcripts",
+          "type": "array"
+        },
+        "turns": {
+          "items": {
+            "$ref": "#/$defs/Turn"
+          },
+          "title": "Turns",
+          "type": "array"
+        },
+        "usage_records": {
+          "items": {
+            "$ref": "#/$defs/UsageRecord"
+          },
+          "title": "Usage Records",
+          "type": "array"
+        },
+        "verdict": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RunVerdict"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "withheld": {
+          "items": {
+            "$ref": "#/$defs/WithheldRecord"
+          },
+          "title": "Withheld",
+          "type": "array"
+        }
+      },
+      "required": [
+        "created_at",
+        "id",
+        "run",
+        "schema_version",
+        "snapshot"
+      ],
+      "title": "RunBundle",
+      "type": "object"
+    },
+    "RunVerdict": {
+      "additionalProperties": false,
+      "description": "The verdict of a run (prefix ``vrd``; ADR 0013). A record of fact without ``run_id``: the\nRunBundle is the unit of a run (N22).",
+      "properties": {
+        "checks": {
+          "items": {
+            "$ref": "#/$defs/VerdictCheck"
+          },
+          "title": "Checks",
+          "type": "array"
+        },
+        "created_at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Created At",
+          "type": "string"
+        },
+        "errored": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Errored",
+          "type": "integer"
+        },
+        "failed": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Failed",
+          "type": "integer"
+        },
+        "id": {
+          "pattern": "^vrd_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "metadata_flags": {
+          "items": {
+            "$ref": "#/$defs/MetadataFlag"
+          },
+          "title": "Metadata Flags",
+          "type": "array"
+        },
+        "not_applicable": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Not Applicable",
+          "type": "integer"
+        },
+        "passed": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Passed",
+          "type": "integer"
+        },
+        "required_total": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Required Total",
+          "type": "integer"
+        },
+        "schema_version": {
+          "enum": [
+            "0.0.1"
+          ],
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "pass",
+            "fail",
+            "inconclusive"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "weight_coverage": {
+          "anyOf": [
+            {
+              "pattern": "^(?:0|-?[1-9][0-9]*|-?(?:0|[1-9][0-9]*)\\.[0-9]{0,17}[1-9])$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Weight Coverage"
+        },
+        "weighted_excluded": {
+          "items": {
+            "$ref": "#/$defs/WeightedExclusion"
+          },
+          "title": "Weighted Excluded",
+          "type": "array"
+        },
+        "weighted_score": {
+          "anyOf": [
+            {
+              "pattern": "^(?:0|-?[1-9][0-9]*|-?(?:0|[1-9][0-9]*)\\.[0-9]{0,17}[1-9])$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Weighted Score"
+        }
+      },
+      "required": [
+        "checks",
+        "created_at",
+        "errored",
+        "failed",
+        "id",
+        "not_applicable",
+        "passed",
+        "required_total",
+        "schema_version",
+        "status"
+      ],
+      "title": "RunVerdict",
+      "type": "object"
+    },
+    "ScorerInfo": {
+      "additionalProperties": false,
+      "description": "The non-judge scorer that ran (P-61): ``implementation_ref`` equals the definition's, and\n``version`` is stored verbatim and compared for equality only (never parsed or ordered).",
+      "properties": {
+        "implementation_ref": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "title": "Implementation Ref",
+          "type": "string"
+        },
+        "version": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "implementation_ref",
+        "version"
+      ],
+      "title": "ScorerInfo",
+      "type": "object"
+    },
+    "ScriptedTurn": {
+      "additionalProperties": false,
+      "description": "A scripted caller line: its list position, its text and its language.",
+      "properties": {
+        "index": {
+          "minimum": 0,
+          "title": "Index",
+          "type": "integer"
+        },
+        "language": {
+          "pattern": "^(?:[eE][nN](?:-(?:[lL][aA][tT][nN]))?|[hH][iI](?:-(?:[dD][eE][vV][aA]))?|[mM][rR](?:-(?:[dD][eE][vV][aA]))?|[tT][eE](?:-(?:[tT][eE][lL][uU]))?|[tT][aA](?:-(?:[tT][aA][mM][lL]))?|[kK][nN](?:-(?:[kK][nN][dD][aA]))?|[mM][lL](?:-(?:[mM][lL][yY][mM]))?|[pP][aA](?:-(?:[gG][uU][rR][uU]))?|[gG][uU](?:-(?:[gG][uU][jJ][rR]))?)(?:-(?:[gG][bB]|[iI][nN]|[uU][sS]))?$",
+          "title": "Language",
+          "type": "string"
+        },
+        "text": {
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "index",
+        "language",
+        "text"
+      ],
+      "title": "ScriptedTurn",
+      "type": "object"
+    },
+    "SealedAadFields": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "payload_type": {
+                "enum": [
+                  "test_profile"
+                ]
+              }
+            },
+            "required": [
+              "payload_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "subject_id": {
+                "pattern": "^tpf_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+              },
+              "subject_version": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "subject_version"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "payload_type": {
+                "enum": [
+                  "audio"
+                ]
+              }
+            },
+            "required": [
+              "payload_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "subject_id": {
+                "pattern": "^art_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+              },
+              "subject_version": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "payload_type": {
+                "enum": [
+                  "transcript_text"
+                ]
+              }
+            },
+            "required": [
+              "payload_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "subject_id": {
+                "pattern": "^tsc_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+              },
+              "subject_version": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "payload_type": {
+                "enum": [
+                  "tool_arguments"
+                ]
+              }
+            },
+            "required": [
+              "payload_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "subject_id": {
+                "pattern": "^tcl_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+              },
+              "subject_version": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "payload_type": {
+                "enum": [
+                  "tool_result"
+                ]
+              }
+            },
+            "required": [
+              "payload_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "subject_id": {
+                "pattern": "^tcl_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+              },
+              "subject_version": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ],
+      "description": "The additional authenticated data of a sealed payload (ADR 0015 Decision 4).\n\nDecryption under any other ``payload_type``, ``subject_id``, ``subject_version`` or\n``schema_version`` fails authentication. ``schema_version`` is the plaintext's version and is\nnot compared with the package's version (S-N79): a migrated bundle does not rewrite it.",
+      "properties": {
+        "payload_type": {
+          "enum": [
+            "test_profile",
+            "audio",
+            "transcript_text",
+            "tool_arguments",
+            "tool_result"
+          ],
+          "title": "Payload Type",
+          "type": "string"
+        },
+        "schema_version": {
+          "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "subject_id": {
+          "pattern": "^(?:tpf|art|tsc|tcl)_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Subject Id",
+          "type": "string"
+        },
+        "subject_version": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Subject Version"
+        }
+      },
+      "required": [
+        "payload_type",
+        "schema_version",
+        "subject_id"
+      ],
+      "title": "SealedAadFields",
+      "type": "object"
+    },
+    "SealedPayload": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "properties": {
+            "plaintext_digest": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "properties": {
+                    "scheme": {
+                      "enum": [
+                        "hmac-sha256-jcs/v1"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "key_ref",
+                    "scheme"
+                  ],
+                  "type": "object"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "description": "An encrypted payload bound to its subject (ADR 0015 Decision 1). Only an ``ExportBundle``\nmay carry one (Decision 7, P1-14); snapshots, runs and internal bundles never do.",
+      "properties": {
+        "aad_fields": {
+          "$ref": "#/$defs/SealedAadFields"
+        },
+        "alg": {
+          "enum": [
+            "A256GCM"
+          ],
+          "title": "Alg",
+          "type": "string"
+        },
+        "ciphertext": {
+          "minLength": 22,
+          "pattern": "^(?:[A-Za-z0-9_-]{4})*(?:[A-Za-z0-9_-][AQgw]|[A-Za-z0-9_-]{2}[AEIMQUYcgkosw048])?$",
+          "title": "Ciphertext",
+          "type": "string"
+        },
+        "dek_wrap": {
+          "$ref": "#/$defs/DekWrap"
+        },
+        "format": {
+          "enum": [
+            "tracer.sealed.v1"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "nonce": {
+          "pattern": "^[A-Za-z0-9_-]{16}$",
+          "title": "Nonce",
+          "type": "string"
+        },
+        "plaintext_digest": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ContentDigest"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "aad_fields",
+        "alg",
+        "ciphertext",
+        "dek_wrap",
+        "format",
+        "nonce"
+      ],
+      "title": "SealedPayload",
+      "type": "object"
+    },
+    "Segment": {
+      "additionalProperties": false,
+      "description": "A part of a turn with its own timing (P-28): a word, a phrase (a Sarvam phrase timestamp)\nor an utterance. The text is stored verbatim and its bidi flag is computed when omitted and\nverified when supplied (ADR 0017 Decision 2).",
+      "properties": {
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        },
+        "contains_bidi_controls": {
+          "default": false,
+          "title": "Contains Bidi Controls",
+          "type": "boolean"
+        },
+        "end_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End Ms"
+        },
+        "granularity": {
+          "enum": [
+            "word",
+            "phrase",
+            "utterance"
+          ],
+          "title": "Granularity",
+          "type": "string"
+        },
+        "start_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Start Ms"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "granularity",
+        "text"
+      ],
+      "title": "Segment",
+      "type": "object"
+    },
+    "StageSpan": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "else": {
+            "properties": {
+              "stage_raw": {
+                "type": "null"
+              }
+            }
+          },
+          "if": {
+            "properties": {
+              "stage": {
+                "enum": [
+                  "other"
+                ]
+              }
+            },
+            "required": [
+              "stage"
+            ]
+          },
+          "then": {
+            "properties": {
+              "stage_raw": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "stage_raw"
+            ]
+          }
+        }
+      ],
+      "description": "The timing of one pipeline stage (prefix ``spn``; ADR 0012 Decision 2).\n\n``stage_raw`` keeps the source's label when, and only when, ``stage`` is ``other`` (P-05).\nValues the source does not give stay absent and are never derived. ``span_ref`` points to the\nraw span or trace (a foreign identifier, ADR 0012 Decision 6).",
+      "properties": {
+        "created_at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Created At",
+          "type": "string"
+        },
+        "duration_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Duration Ms"
+        },
+        "exchange_index": {
+          "anyOf": [
+            {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Exchange Index"
+        },
+        "id": {
+          "pattern": "^spn_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "metadata_flags": {
+          "items": {
+            "$ref": "#/$defs/MetadataFlag"
+          },
+          "title": "Metadata Flags",
+          "type": "array"
+        },
+        "model": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model"
+        },
+        "provider": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provider"
+        },
+        "schema_version": {
+          "enum": [
+            "0.0.1"
+          ],
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "span_ref": {
+          "$ref": "#/$defs/ExternalRef"
+        },
+        "stage": {
+          "enum": [
+            "stt",
+            "llm",
+            "tts",
+            "judge",
+            "sim_caller_llm",
+            "sim_caller_tts",
+            "realtime",
+            "other"
+          ],
+          "title": "Stage",
+          "type": "string"
+        },
+        "stage_raw": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stage Raw"
+        },
+        "start": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Start"
+        },
+        "ttfb_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ttfb Ms"
+        }
+      },
+      "required": [
+        "created_at",
+        "id",
+        "schema_version",
+        "span_ref",
+        "stage"
+      ],
+      "title": "StageSpan",
+      "type": "object"
+    },
+    "TestProfile": {
+      "additionalProperties": false,
+      "description": "The identity a simulated caller presents (prefix ``tpf``). Every data field is PII.",
+      "properties": {
+        "account_number": {
+          "minLength": 1,
+          "title": "Account Number",
+          "type": "string",
+          "x-pii": true
+        },
+        "content_digest": {
+          "$ref": "#/$defs/ContentDigest"
+        },
+        "created_at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Created At",
+          "type": "string"
+        },
+        "dob": {
+          "minLength": 1,
+          "title": "Dob",
+          "type": "string",
+          "x-pii": true
+        },
+        "id": {
+          "pattern": "^tpf_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "metadata_flags": {
+          "items": {
+            "$ref": "#/$defs/MetadataFlag"
+          },
+          "title": "Metadata Flags",
+          "type": "array"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string",
+          "x-pii": true
+        },
+        "schema_version": {
+          "enum": [
+            "0.0.1"
+          ],
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "account_number",
+        "content_digest",
+        "created_at",
+        "dob",
+        "id",
+        "name",
+        "schema_version",
+        "version"
+      ],
+      "title": "TestProfile",
+      "type": "object"
+    },
+    "TestProfileRef": {
+      "additionalProperties": false,
+      "description": "``{id, version, content_digest?}`` of a ``TestProfile``; it holds no profile value.",
+      "properties": {
+        "content_digest": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ContentDigest"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "id": {
+          "pattern": "^tpf_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "version"
+      ],
+      "title": "TestProfileRef",
+      "type": "object"
+    },
+    "TimelineOrigin": {
+      "additionalProperties": false,
+      "description": "What offset 0 means (ADR 0002 Decision 3): sample 0 of an artifact (``kind=artifact``,\n``ref`` an ``art_`` ID), or the start of a telemetry trace or an observer session (``ref`` an\n``ExternalRef`` of the source, or none).",
+      "properties": {
+        "kind": {
+          "enum": [
+            "artifact",
+            "telemetry",
+            "observer"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "ref": {
+          "anyOf": [
+            {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/ExternalRef"
+                },
+                {
+                  "pattern": "^art_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                  "type": "string"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ref"
+        },
+        "started_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Started At"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "TimelineOrigin",
+      "type": "object"
+    },
+    "ToolCallEvent": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "arguments_complete": {
+                "enum": [
+                  false
+                ]
+              }
+            },
+            "required": [
+              "arguments_complete"
+            ]
+          },
+          "then": {
+            "properties": {
+              "arguments": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "result_complete": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "result_complete"
+            ]
+          },
+          "then": {
+            "properties": {
+              "result_raw": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "result_raw"
+            ]
+          }
+        }
+      ],
+      "description": "A tool call of the agent (prefix ``tcl``; ADR 0012 Decision 1).\n\n``arguments_complete`` is required and never inferred. ``result_complete`` needs\n``result_raw``. ``timeline_origin`` is present if and only if ``offset_ms`` is. ``seq`` is the\norder of the calls of a run and is unique there (``check_tool_call_seqs``). ``result_error``\nis true, false or unknown (``None``): ``status`` says only whether the call finished. The\nevent carries no privacy marker of its own (it takes its run's derived value).",
+      "properties": {
+        "arguments": {
+          "anyOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Arguments"
+        },
+        "arguments_complete": {
+          "title": "Arguments Complete",
+          "type": "boolean"
+        },
+        "arguments_raw": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Arguments Raw"
+        },
+        "created_at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Created At",
+          "type": "string"
+        },
+        "external_call_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "External Call Id"
+        },
+        "id": {
+          "pattern": "^tcl_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "metadata_flags": {
+          "items": {
+            "$ref": "#/$defs/MetadataFlag"
+          },
+          "title": "Metadata Flags",
+          "type": "array"
+        },
+        "name": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "title": "Name",
+          "type": "string"
+        },
+        "offset_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Offset Ms"
+        },
+        "result_complete": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Result Complete"
+        },
+        "result_error": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Result Error"
+        },
+        "result_raw": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Result Raw"
+        },
+        "schema_version": {
+          "enum": [
+            "0.0.1"
+          ],
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "seq": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "source": {
+          "enum": [
+            "agent_export",
+            "agent_telemetry",
+            "observer"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "completed",
+            "cancelled",
+            "unknown"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "timeline_origin": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TimelineOrigin"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "arguments_complete",
+        "created_at",
+        "id",
+        "name",
+        "schema_version",
+        "seq",
+        "source",
+        "status"
+      ],
+      "title": "ToolCallEvent",
+      "type": "object"
+    },
+    "Transcript": {
+      "additionalProperties": false,
+      "description": "A transcript of a run (prefix ``tsc``; ADR 0011 Decision 1).\n\n``source`` names the producer, while each turn's ``source`` names its pipeline stage.\n``declared_language`` is allowed only on an imported transcript (``agent_export``,\n``agent_telemetry``, ``observer``, ``human_reference``) that carries no language label\n(``detected_language`` and ``detected_language_raw`` both absent); it is never copied into an\nobserved field. ``provider_call_ref`` is the provider's request identifier (N28).",
+      "properties": {
+        "created_at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Created At",
+          "type": "string"
+        },
+        "declared_language": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LanguageDeclaration"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "detected_language": {
+          "anyOf": [
+            {
+              "pattern": "^(?!(?:[eE][nN]-[gG][bB]-[oO][eE][dD]|[iI]-[aA][mM][iI]|[iI]-[bB][nN][nN]|[iI]-[dD][eE][fF][aA][uU][lL][tT]|[iI]-[eE][nN][oO][cC][hH][iI][aA][nN]|[iI]-[hH][aA][kK]|[iI]-[kK][lL][iI][nN][gG][oO][nN]|[iI]-[lL][uU][xX]|[iI]-[mM][iI][nN][gG][oO]|[iI]-[nN][aA][vV][aA][jJ][oO]|[iI]-[pP][wW][nN]|[iI]-[tT][aA][oO]|[iI]-[tT][aA][yY]|[iI]-[tT][sS][uU]|[sS][gG][nN]-[bB][eE]-[fF][rR]|[sS][gG][nN]-[bB][eE]-[nN][lL]|[sS][gG][nN]-[cC][hH]-[dD][eE]|[aA][rR][tT]-[lL][oO][jJ][bB][aA][nN]|[cC][eE][lL]-[gG][aA][uU][lL][iI][sS][hH]|[nN][oO]-[bB][oO][kK]|[nN][oO]-[nN][yY][nN]|[zZ][hH]-[gG][uU][oO][yY][uU]|[zZ][hH]-[hH][aA][kK][kK][aA]|[zZ][hH]-[mM][iI][nN]|[zZ][hH]-[mM][iI][nN]-[nN][aA][nN]|[zZ][hH]-[xX][iI][aA][nN][gG])$)(?:[A-Za-z]{2,3}(?:-[A-Za-z]{3}(?:-[A-Za-z]{3}){0,2})?(?:-[A-Za-z]{4})?(?:-(?:[A-Za-z]{2}|[0-9]{3}))?(?:-(?:[A-Za-z0-9]{5,8}|[0-9][A-Za-z0-9]{3}))*(?:-[0-9A-WYZa-wyz](?:-[A-Za-z0-9]{2,8})+)*(?:-[Xx](?:-[A-Za-z0-9]{1,8})+)?|[Xx](?:-[A-Za-z0-9]{1,8})+)$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Detected Language"
+        },
+        "detected_language_raw": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Detected Language Raw"
+        },
+        "id": {
+          "pattern": "^tsc_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "language_confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Language Confidence"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "metadata_flags": {
+          "items": {
+            "$ref": "#/$defs/MetadataFlag"
+          },
+          "title": "Metadata Flags",
+          "type": "array"
+        },
+        "model": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model"
+        },
+        "privacy": {
+          "$ref": "#/$defs/PrivacyMarker"
+        },
+        "provider": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provider"
+        },
+        "provider_call_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ExternalRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "schema_version": {
+          "enum": [
+            "0.0.1"
+          ],
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "our_stt",
+            "agent_export",
+            "agent_telemetry",
+            "observer",
+            "script",
+            "human_reference"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "timeline_origin": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TimelineOrigin"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "created_at",
+        "id",
+        "privacy",
+        "schema_version",
+        "source"
+      ],
+      "title": "Transcript",
+      "type": "object"
+    },
+    "Turn": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "else": {
+            "anyOf": [
+              {
+                "properties": {
+                  "start_ms": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "start_ms"
+                ]
+              },
+              {
+                "properties": {
+                  "end_ms": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "end_ms"
+                ]
+              }
+            ]
+          },
+          "if": {
+            "properties": {
+              "timing_source": {
+                "enum": [
+                  "none"
+                ]
+              }
+            },
+            "required": [
+              "timing_source"
+            ]
+          },
+          "then": {
+            "properties": {
+              "end_ms": {
+                "type": "null"
+              },
+              "start_ms": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ],
+      "description": "One turn of a transcript (prefix ``turn``; ADR 0011 Decisions 1 to 3).\n\n``seq`` orders the turns of its transcript and is unique there (``check_transcript``).\nTiming is optional: ``timing_source`` is ``none`` if and only if the turn has neither\n``start_ms`` nor ``end_ms`` (a ``wall_time`` is not an offset). ``end_ms >= start_ms``, and a\nsegment's bounds lie inside the turn's. ``language`` is any well-formed observed tag and\n``language_raw`` the provider's label, verbatim. ``interrupted`` is true, false or unknown\n(``None``). There is no confidence on a turn (P-29).",
+      "properties": {
+        "contains_bidi_controls": {
+          "default": false,
+          "title": "Contains Bidi Controls",
+          "type": "boolean"
+        },
+        "created_at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Created At",
+          "type": "string"
+        },
+        "end_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End Ms"
+        },
+        "exchange_index": {
+          "anyOf": [
+            {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Exchange Index"
+        },
+        "id": {
+          "pattern": "^turn_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "interrupted": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interrupted"
+        },
+        "language": {
+          "anyOf": [
+            {
+              "pattern": "^(?!(?:[eE][nN]-[gG][bB]-[oO][eE][dD]|[iI]-[aA][mM][iI]|[iI]-[bB][nN][nN]|[iI]-[dD][eE][fF][aA][uU][lL][tT]|[iI]-[eE][nN][oO][cC][hH][iI][aA][nN]|[iI]-[hH][aA][kK]|[iI]-[kK][lL][iI][nN][gG][oO][nN]|[iI]-[lL][uU][xX]|[iI]-[mM][iI][nN][gG][oO]|[iI]-[nN][aA][vV][aA][jJ][oO]|[iI]-[pP][wW][nN]|[iI]-[tT][aA][oO]|[iI]-[tT][aA][yY]|[iI]-[tT][sS][uU]|[sS][gG][nN]-[bB][eE]-[fF][rR]|[sS][gG][nN]-[bB][eE]-[nN][lL]|[sS][gG][nN]-[cC][hH]-[dD][eE]|[aA][rR][tT]-[lL][oO][jJ][bB][aA][nN]|[cC][eE][lL]-[gG][aA][uU][lL][iI][sS][hH]|[nN][oO]-[bB][oO][kK]|[nN][oO]-[nN][yY][nN]|[zZ][hH]-[gG][uU][oO][yY][uU]|[zZ][hH]-[hH][aA][kK][kK][aA]|[zZ][hH]-[mM][iI][nN]|[zZ][hH]-[mM][iI][nN]-[nN][aA][nN]|[zZ][hH]-[xX][iI][aA][nN][gG])$)(?:[A-Za-z]{2,3}(?:-[A-Za-z]{3}(?:-[A-Za-z]{3}){0,2})?(?:-[A-Za-z]{4})?(?:-(?:[A-Za-z]{2}|[0-9]{3}))?(?:-(?:[A-Za-z0-9]{5,8}|[0-9][A-Za-z0-9]{3}))*(?:-[0-9A-WYZa-wyz](?:-[A-Za-z0-9]{2,8})+)*(?:-[Xx](?:-[A-Za-z0-9]{1,8})+)?|[Xx](?:-[A-Za-z0-9]{1,8})+)$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Language"
+        },
+        "language_raw": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Language Raw"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "metadata_flags": {
+          "items": {
+            "$ref": "#/$defs/MetadataFlag"
+          },
+          "title": "Metadata Flags",
+          "type": "array"
+        },
+        "role": {
+          "enum": [
+            "caller",
+            "agent",
+            "unknown"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "schema_version": {
+          "enum": [
+            "0.0.1"
+          ],
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "segments": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/Segment"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Segments"
+        },
+        "seq": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "source": {
+          "enum": [
+            "our_stt",
+            "agent_stt",
+            "agent_llm_output",
+            "agent_tts_input",
+            "agent_context",
+            "agent_log",
+            "script",
+            "human_reference"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "start_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Start Ms"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "timing_source": {
+          "enum": [
+            "audio_alignment",
+            "telemetry",
+            "observer",
+            "none"
+          ],
+          "title": "Timing Source",
+          "type": "string"
+        },
+        "transcript_id": {
+          "pattern": "^tsc_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Transcript Id",
+          "type": "string"
+        },
+        "wall_time": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/WallTime"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "created_at",
+        "id",
+        "role",
+        "schema_version",
+        "seq",
+        "source",
+        "text",
+        "timing_source",
+        "transcript_id"
+      ],
+      "title": "Turn",
+      "type": "object"
+    },
+    "UsageQuantity": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "else": {
+            "properties": {
+              "count": {
+                "type": "integer"
+              }
+            }
+          },
+          "if": {
+            "properties": {
+              "unit": {
+                "enum": [
+                  "audio_input_seconds",
+                  "audio_output_seconds"
+                ]
+              }
+            },
+            "required": [
+              "unit"
+            ]
+          },
+          "then": {
+            "properties": {
+              "count": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      ],
+      "description": "One usage bucket of a billable call (ADR 0014 Decision 9). See the module docstring.",
+      "properties": {
+        "count": {
+          "anyOf": [
+            {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "pattern": "^(?:0|-?[1-9][0-9]*|-?(?:0|[1-9][0-9]*)\\.[0-9]{0,17}[1-9])$",
+              "type": "string"
+            }
+          ],
+          "title": "Count"
+        },
+        "unit": {
+          "enum": [
+            "input_tokens",
+            "cache_read_input_tokens",
+            "cache_write_input_tokens",
+            "output_tokens",
+            "audio_input_seconds",
+            "audio_output_seconds",
+            "input_characters",
+            "requests"
+          ],
+          "title": "Unit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "count",
+        "unit"
+      ],
+      "title": "UsageQuantity",
+      "type": "object"
+    },
+    "UsageRecord": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "domain": {
+                "enum": [
+                  "agent_under_test"
+                ]
+              }
+            },
+            "required": [
+              "domain"
+            ]
+          },
+          "then": {
+            "properties": {
+              "source": {
+                "enum": [
+                  "provider_reported",
+                  "telemetry"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "description": "The usage of one billable call (prefix ``use``; a record of fact, ADR 0009 Decision 5).\n\nSee the module docstring. A correction is a new record with a new ID.",
+      "properties": {
+        "created_at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Created At",
+          "type": "string"
+        },
+        "domain": {
+          "enum": [
+            "evaluation",
+            "agent_under_test"
+          ],
+          "title": "Domain",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^use_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "metadata_flags": {
+          "items": {
+            "$ref": "#/$defs/MetadataFlag"
+          },
+          "title": "Metadata Flags",
+          "type": "array"
+        },
+        "model": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model"
+        },
+        "occurred_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Occurred At"
+        },
+        "provider": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "title": "Provider",
+          "type": "string"
+        },
+        "provider_call_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ExternalRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "quantities": {
+          "items": {
+            "$ref": "#/$defs/UsageQuantity"
+          },
+          "minItems": 1,
+          "title": "Quantities",
+          "type": "array"
+        },
+        "raw": {
+          "anyOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Raw"
+        },
+        "run_id": {
+          "pattern": "^run_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "schema_version": {
+          "enum": [
+            "0.0.1"
+          ],
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "provider_reported",
+            "telemetry",
+            "measured"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "stage": {
+          "enum": [
+            "stt",
+            "llm",
+            "tts",
+            "judge",
+            "sim_caller_llm",
+            "sim_caller_tts",
+            "realtime",
+            "other"
+          ],
+          "title": "Stage",
+          "type": "string"
+        }
+      },
+      "required": [
+        "created_at",
+        "domain",
+        "id",
+        "provider",
+        "quantities",
+        "run_id",
+        "schema_version",
+        "source",
+        "stage"
+      ],
+      "title": "UsageRecord",
+      "type": "object"
+    },
+    "VerdictCheck": {
+      "additionalProperties": false,
+      "description": "One required rubric binding and the outcome of its result (ADR 0013 Decisions 2 and 3).\n``metric_ref`` is the binding's ``metric`` reference, never text.",
+      "properties": {
+        "binding_id": {
+          "pattern": "^mbd_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Binding Id",
+          "type": "string"
+        },
+        "metric_ref": {
+          "$ref": "#/$defs/MetricDefinitionRef"
+        },
+        "outcome": {
+          "enum": [
+            "passed",
+            "failed",
+            "not_applicable",
+            "errored"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "result_id": {
+          "pattern": "^res_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Result Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "binding_id",
+        "metric_ref",
+        "outcome",
+        "result_id"
+      ],
+      "title": "VerdictCheck",
+      "type": "object"
+    },
+    "WallTime": {
+      "additionalProperties": false,
+      "description": "A wall-clock instant and what it marks (ADR 0002 Decision 4). Never an offset.",
+      "properties": {
+        "at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "At",
+          "type": "string"
+        },
+        "meaning": {
+          "enum": [
+            "start",
+            "end",
+            "logged",
+            "unknown"
+          ],
+          "title": "Meaning",
+          "type": "string"
+        }
+      },
+      "required": [
+        "at",
+        "meaning"
+      ],
+      "title": "WallTime",
+      "type": "object"
+    },
+    "WeightedExclusion": {
+      "additionalProperties": false,
+      "description": "A weighted check left out of the weighted score, and why (ADR 0013 Decision 8).",
+      "properties": {
+        "binding_id": {
+          "pattern": "^mbd_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Binding Id",
+          "type": "string"
+        },
+        "outcome": {
+          "enum": [
+            "not_applicable",
+            "errored"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        }
+      },
+      "required": [
+        "binding_id",
+        "outcome"
+      ],
+      "title": "WeightedExclusion",
+      "type": "object"
+    },
+    "WithheldRecord": {
+      "additionalProperties": false,
+      "description": "A record that a run bundle deliberately does not carry (ADR 0004 Decision 2a, D3, B4):\nthe record's ``kind`` (``WITHHOLDABLE_KINDS``) and its ``record_id``, a typed ID of that kind.\nIt names a kind and an ID, never a value.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "artifact",
+            "transcript",
+            "turn",
+            "exchange",
+            "tool_call",
+            "span",
+            "result",
+            "usage_record",
+            "cost_record"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "record_id": {
+          "pattern": "^(?:art|tsc|turn|exc|tcl|spn|res|use|cst)_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Record Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "record_id"
+      ],
+      "title": "WithheldRecord",
+      "type": "object"
+    }
+  },
+  "$id": "urn:tracer:evalschema:0.0.1:ExportBundle",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "An export of run bundles and datasets (prefix ``exp``; ADR 0016 Decision 7, B1). A record\nof fact. ``purpose`` is ``internal``, ``shared_export`` or ``benchmark``. The only entity that\nembeds sealed payloads (ADR 0015 Decision 7). ``check_export_bundle`` runs on load, after the\nfields (and after each embedded run bundle has passed ``check_run_bundle``).",
+  "properties": {
+    "created_at": {
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+      "title": "Created At",
+      "type": "string"
+    },
+    "dataset_items": {
+      "items": {
+        "$ref": "#/$defs/DatasetItem"
+      },
+      "title": "Dataset Items",
+      "type": "array"
+    },
+    "datasets": {
+      "items": {
+        "$ref": "#/$defs/Dataset"
+      },
+      "title": "Datasets",
+      "type": "array"
+    },
+    "id": {
+      "pattern": "^exp_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "metadata_flags": {
+      "items": {
+        "$ref": "#/$defs/MetadataFlag"
+      },
+      "title": "Metadata Flags",
+      "type": "array"
+    },
+    "payload_redactions": {
+      "items": {
+        "$ref": "#/$defs/PayloadRedaction"
+      },
+      "title": "Payload Redactions",
+      "type": "array"
+    },
+    "provenance_redactions": {
+      "items": {
+        "$ref": "#/$defs/ProvenanceRedaction"
+      },
+      "title": "Provenance Redactions",
+      "type": "array"
+    },
+    "purpose": {
+      "enum": [
+        "internal",
+        "shared_export",
+        "benchmark"
+      ],
+      "title": "Purpose",
+      "type": "string"
+    },
+    "run_bundles": {
+      "items": {
+        "$ref": "#/$defs/RunBundle"
+      },
+      "title": "Run Bundles",
+      "type": "array"
+    },
+    "schema_version": {
+      "enum": [
+        "0.0.1"
+      ],
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "sealed_payloads": {
+      "items": {
+        "$ref": "#/$defs/SealedPayload"
+      },
+      "title": "Sealed Payloads",
+      "type": "array"
+    }
+  },
+  "required": [
+    "created_at",
+    "id",
+    "purpose",
+    "schema_version"
+  ],
+  "title": "ExportBundle",
+  "type": "object"
+}

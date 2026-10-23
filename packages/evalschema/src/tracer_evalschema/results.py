@@ -20,6 +20,7 @@ ADR 0010 Decisions 3, 3a, 4a, 5, 5a and 6; P1-11).
 
 from __future__ import annotations
 
+import copy
 import math
 from collections.abc import Iterable, Sequence
 from decimal import ROUND_HALF_EVEN, Decimal
@@ -276,6 +277,136 @@ def _unique_kinds(kinds: list[str]) -> list[str]:
 
 # ----------------------------------------------------------------------------- MetricResult
 
+_NULL: Final = {"type": "null"}
+_NO_ITEMS: Final = {"maxItems": 0}
+
+
+def _when_status(*statuses: str) -> dict[str, Any]:
+    return {"properties": {"status": {"enum": list(statuses)}}, "required": ["status"]}
+
+
+def _result_conditions(schema: dict[str, Any]) -> None:
+    """The presence rules of ``MetricResult._status_rules`` as JSON Schema ``if``/``then`` keyed
+    on the closed sets ``status``, ``na_reason`` and ``language_source`` (N38; api-surface 26).
+
+    An absent member and ``null`` are the same to the model, so "has no X" is ``X: null`` (absent
+    passes) and "needs X" is ``required`` plus a non-null type; an empty list and an absent list
+    are the same too (``maxItems: 0``). Nothing here is stricter than the model: the rules that
+    read another record (the definition, the bundle) stay in code.
+    """
+    has_value = {"properties": {"value": {"not": _NULL}, "per_turn": _NULL}}
+    has_per_turn = {
+        "required": ["per_turn"],
+        "properties": {"value": _NULL, "per_turn": {"type": "object"}},
+    }
+    rules: list[dict[str, Any]] = [
+        {
+            # scored: no na_reason, error or missing_kinds; exactly one of value and per_turn; a
+            # scored per_turn has a counted turn.
+            "if": _when_status("scored"),
+            "then": {
+                "properties": {
+                    "na_reason": _NULL,
+                    "error": _NULL,
+                    "missing_kinds": _NO_ITEMS,
+                    "per_turn": {"properties": {"counted_turns": {"minimum": 1}}},
+                },
+                "anyOf": [has_value, has_per_turn],
+            },
+        },
+        {
+            # only a scored result has a value or passed (never 0, false or empty).
+            "if": _when_status("not_applicable", "error"),
+            "then": {"properties": {"value": _NULL, "passed": _NULL}},
+        },
+        {
+            # not_applicable: na_reason required; nothing ran, so no error, scorer or judge; a
+            # per_turn has no counted and no undetermined turn; missing_kinds non-empty if and
+            # only if na_reason=missing_input.
+            "if": _when_status("not_applicable"),
+            "then": {
+                "required": ["na_reason"],
+                "properties": {
+                    "na_reason": {"type": "string"},
+                    "error": _NULL,
+                    "scorer": _NULL,
+                    "judge": _NULL,
+                    "per_turn": {
+                        "properties": {
+                            "counted_turns": {"maximum": 0},
+                            "counts": {"properties": {"undetermined": {"maximum": 0}}},
+                        }
+                    },
+                },
+                "if": {
+                    "properties": {"na_reason": {"enum": ["missing_input"]}},
+                    "required": ["na_reason"],
+                },
+                "then": {
+                    "required": ["missing_kinds"],
+                    "properties": {"missing_kinds": {"minItems": 1}},
+                },
+                "else": {"properties": {"missing_kinds": _NO_ITEMS}},
+            },
+        },
+        {
+            # error: a structured error required; no na_reason or missing_kinds.
+            "if": _when_status("error"),
+            "then": {
+                "required": ["error"],
+                "properties": {
+                    "error": {"type": "object"},
+                    "na_reason": _NULL,
+                    "missing_kinds": _NO_ITEMS,
+                },
+            },
+        },
+        {
+            # an error per_turn: no counted turn, an undetermined turn and
+            # error.code=judge_undetermined (P-56).
+            "if": {
+                "properties": {"status": {"enum": ["error"]}, "per_turn": {"type": "object"}},
+                "required": ["status", "per_turn"],
+            },
+            "then": {
+                "required": ["error"],
+                "properties": {
+                    "per_turn": {
+                        "properties": {
+                            "counted_turns": {"maximum": 0},
+                            "counts": {"properties": {"undetermined": {"minimum": 1}}},
+                        }
+                    },
+                    "error": {
+                        "type": "object",
+                        "properties": {"code": {"enum": [JUDGE_UNDETERMINED]}},
+                    },
+                },
+            },
+        },
+        {
+            # declared_language_transcript_ids non-empty if and only if language_source=declared.
+            "if": {
+                "properties": {"language_source": {"enum": ["declared"]}},
+                "required": ["language_source"],
+            },
+            "then": {
+                "required": ["declared_language_transcript_ids"],
+                "properties": {"declared_language_transcript_ids": {"minItems": 1}},
+            },
+            "else": {"properties": {"declared_language_transcript_ids": _NO_ITEMS}},
+        },
+        {
+            # missing_input and agent_channel_unknown are decided before the language steps.
+            "if": {
+                "properties": {"na_reason": {"enum": ["missing_input", "agent_channel_unknown"]}},
+                "required": ["na_reason"],
+            },
+            "then": {"properties": {"language_source": _NULL}},
+        },
+    ]
+    schema["allOf"] = copy.deepcopy(rules)  # no node is shared between rules or calls
+
 
 class MetricResult(EntityBase):
     """The result of one metric on one run (prefix ``res``; ADR 0004, ADR 0010 Decision 5).
@@ -295,6 +426,8 @@ class MetricResult(EntityBase):
       ``agent_channel_unknown``).
     """
 
+    model_config = ConfigDict(json_schema_extra=_result_conditions)
+
     id_prefix: ClassVar[str] = "res"
 
     metric: MetricDefinitionRef
@@ -313,7 +446,9 @@ class MetricResult(EntityBase):
     judge: JudgeInfo | None = None
     language_source: Annotated[str, ClosedSet(LANGUAGE_SOURCES)] | None = None
     declared_language_transcript_ids: Annotated[
-        list[TranscriptId], AfterValidator(_unique_sorted_ids)
+        list[TranscriptId],
+        AfterValidator(_unique_sorted_ids),
+        Field(json_schema_extra={"uniqueItems": True}),
     ] = Field(default_factory=list)
     evidence_refs: list[EvidenceRef] = Field(default_factory=list)
 

@@ -27,9 +27,29 @@ classifiers = [
     "Typing :: Typed",
 ]
 
+[tool.hatch.build]
+# Generated JSON Schema files and their lock (P1-15, ADR 0008 Decision 7) are committed package
+# data under src/tracer_evalschema/schemas/ and ship byte for byte in the wheel and the sdist
+# (checked by test_schema_lock.py). Listed as artifacts so an ignore rule can never drop them.
+artifacts = [
+    "src/tracer_evalschema/schemas/*.schema.json",
+    "src/tracer_evalschema/schemas/schema.lock",
+]
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/tracer_evalschema"]
 
 [tool.hatch.build.targets.sdist]
-# Test-only clean-room UAX #9 reference (P1-04e): never shipped (checked by test_uax9_packaging).
-exclude = ["/tests/support", "/tests/test_uax9_*.py"]
+# The sdist ships no tests (A25, superseding the sdist half of A23; ADR 0008 Decision 7). It
+# holds the package source with the committed schemas and lock, README.md, LICENSE and NOTICE
+# (also named by license-files above) and this pyproject.toml (always added by hatchling). The
+# tests need the repository (tests/fixtures/real, tests/support, scripts/, docs/, the root
+# pyproject.toml), so verification runs from the git checkout. The wheel stays test-free (P1-21).
+# Neither archive ever carries the test-only clean-room UAX #9 reference (P1-04e), the captured
+# provider responses (tests/fixtures/real) or the private call data (tests/fixtures/private).
+only-include = [
+    "src/tracer_evalschema",
+    "README.md",
+    "LICENSE",
+    "NOTICE",
+]

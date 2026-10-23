@@ -1,0 +1,813 @@
+{
+  "$defs": {
+    "ContentDigest": {
+      "additionalProperties": false,
+      "description": "``{scheme, value, key_ref?}`` (ADR 0006 Decision 3). An unregistered scheme raises\n``UnknownDigestScheme`` (not wrapped by pydantic): it is never \"unverifiable, accept\".",
+      "properties": {
+        "key_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/KeyRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "scheme": {
+          "enum": [
+            "sha256-jcs/v1",
+            "hmac-sha256-jcs/v1"
+          ],
+          "title": "Scheme",
+          "type": "string"
+        },
+        "value": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "scheme",
+        "value"
+      ],
+      "title": "ContentDigest",
+      "type": "object"
+    },
+    "EnumScale": {
+      "additionalProperties": false,
+      "description": "The options of an enum metric (non-empty, distinct ``MetricKey`` values).",
+      "properties": {
+        "options": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Options",
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "options"
+      ],
+      "title": "EnumScale",
+      "type": "object"
+    },
+    "EqualsTrueRule": {
+      "additionalProperties": false,
+      "description": "``equals_true``: a boolean passes iff it is ``true``.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "equals_true"
+          ],
+          "title": "Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "EqualsTrueRule",
+      "type": "object"
+    },
+    "KeyRef": {
+      "additionalProperties": false,
+      "description": "Names a key held by a key manager; never carries key material (ADR 0007 Decision 4).\n\n``key_id`` is the key manager's own name for the key, an opaque string stored as given\n(ADR 0001 I12), not one of our typed IDs.",
+      "properties": {
+        "key_id": {
+          "minLength": 1,
+          "title": "Key Id",
+          "type": "string"
+        },
+        "key_version": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Key Version"
+        },
+        "provider_hint": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provider Hint"
+        }
+      },
+      "required": [
+        "key_id"
+      ],
+      "title": "KeyRef",
+      "type": "object"
+    },
+    "MetadataFlag": {
+      "additionalProperties": false,
+      "description": "A secret-looking string in ``metadata``: where it is and why (ADR 0007 Decision 5a).",
+      "properties": {
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "reason": {
+          "enum": [
+            "known_credential_prefix",
+            "high_entropy_token"
+          ],
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "reason"
+      ],
+      "title": "MetadataFlag",
+      "type": "object"
+    },
+    "MetricParameter": {
+      "additionalProperties": false,
+      "description": "A parameter a binding may set (ADR 0010 Decision 4a). ``default`` of ``null`` means no\ndefault; a present default has the declared ``value_type``.",
+      "properties": {
+        "default": {
+          "default": null,
+          "title": "Default"
+        },
+        "name": {
+          "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$",
+          "title": "Name",
+          "type": "string"
+        },
+        "value_type": {
+          "enum": [
+            "boolean",
+            "integer",
+            "number",
+            "string",
+            "json"
+          ],
+          "title": "Value Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "value_type"
+      ],
+      "title": "MetricParameter",
+      "type": "object"
+    },
+    "ModelRef": {
+      "additionalProperties": false,
+      "description": "A provider and model, without any key reference (ADR 0010 Decision 1a).",
+      "properties": {
+        "model": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "title": "Model",
+          "type": "string"
+        },
+        "provider": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "title": "Provider",
+          "type": "string"
+        }
+      },
+      "required": [
+        "model",
+        "provider"
+      ],
+      "title": "ModelRef",
+      "type": "object"
+    },
+    "OneOfRule": {
+      "additionalProperties": false,
+      "description": "``one_of{options}``: an enum value passes iff it is one of the distinct ``options``.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "one_of"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "options": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Options",
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "kind",
+        "options"
+      ],
+      "title": "OneOfRule",
+      "type": "object"
+    },
+    "PerConversationAggregation": {
+      "additionalProperties": false,
+      "description": "One value per run.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "per_conversation"
+          ],
+          "title": "Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "PerConversationAggregation",
+      "type": "object"
+    },
+    "PerTurnShareAggregation": {
+      "additionalProperties": false,
+      "description": "The share of counted turns that pass ``turn_rule`` (P-58); its threshold is the\ndefinition's ``pass_rule``.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "per_turn_share"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "turn_rule": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/RangeRule"
+            },
+            {
+              "$ref": "#/$defs/EqualsTrueRule"
+            },
+            {
+              "$ref": "#/$defs/OneOfRule"
+            }
+          ],
+          "title": "Turn Rule"
+        }
+      },
+      "required": [
+        "kind",
+        "turn_rule"
+      ],
+      "title": "PerTurnShareAggregation",
+      "type": "object"
+    },
+    "RangeRule": {
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "properties": {
+            "min": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "min"
+          ]
+        },
+        {
+          "properties": {
+            "max": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "max"
+          ]
+        }
+      ],
+      "description": "``range{min?, max?, inclusive}``: ``max`` alone means lower is better, ``min`` alone higher\nis better, both a target band. ``inclusive`` applies to both bounds.",
+      "properties": {
+        "inclusive": {
+          "title": "Inclusive",
+          "type": "boolean"
+        },
+        "kind": {
+          "enum": [
+            "range"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "max": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max"
+        },
+        "min": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min"
+        }
+      },
+      "required": [
+        "inclusive",
+        "kind"
+      ],
+      "title": "RangeRule",
+      "type": "object"
+    },
+    "RatingScale": {
+      "additionalProperties": false,
+      "description": "The integer scale of a rating metric (``min < max``).",
+      "properties": {
+        "max": {
+          "title": "Max",
+          "type": "integer"
+        },
+        "min": {
+          "title": "Min",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "max",
+        "min"
+      ],
+      "title": "RatingScale",
+      "type": "object"
+    }
+  },
+  "$id": "urn:tracer:evalschema:0.0.1:MetricDefinition",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "else": {
+        "properties": {
+          "implementation_ref": {
+            "type": "string"
+          },
+          "judge_model_ref": {
+            "type": "null"
+          },
+          "prompt_template": {
+            "type": "null"
+          },
+          "prompt_variables": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "implementation_ref"
+        ]
+      },
+      "if": {
+        "properties": {
+          "kind": {
+            "enum": [
+              "llm_judge"
+            ]
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "implementation_ref": {
+            "type": "null"
+          },
+          "judge_model_ref": {
+            "type": "object"
+          },
+          "prompt_template": {
+            "type": "string"
+          },
+          "prompt_variables": {
+            "type": "array"
+          }
+        },
+        "required": [
+          "judge_model_ref",
+          "prompt_template",
+          "prompt_variables"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "value_type": {
+            "enum": [
+              "rating"
+            ]
+          }
+        },
+        "required": [
+          "value_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "scale": {
+            "required": [
+              "max",
+              "min"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "scale"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "value_type": {
+            "enum": [
+              "enum"
+            ]
+          }
+        },
+        "required": [
+          "value_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "scale": {
+            "required": [
+              "options"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "scale"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "value_type": {
+            "enum": [
+              "boolean",
+              "numeric"
+            ]
+          }
+        },
+        "required": [
+          "value_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "scale": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "else": {
+        "properties": {
+          "unit": {
+            "type": "null"
+          }
+        }
+      },
+      "if": {
+        "properties": {
+          "value_type": {
+            "enum": [
+              "numeric"
+            ]
+          }
+        },
+        "required": [
+          "value_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "unit": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "unit"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "languages": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "languages"
+        ]
+      },
+      "then": {
+        "properties": {
+          "script_sensitive": {
+            "enum": [
+              false
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "description": "What a metric measures and how it passes (prefix ``met``; ADR 0010 Decisions 1 and 1a).\n\nThe judge fields (``prompt_template``, ``prompt_variables``, ``judge_model_ref``) are required\nfor ``kind=llm_judge`` and forbidden otherwise; ``implementation_ref`` is the reverse. A\n``scale`` belongs to rating and enum metrics, a ``unit`` to numeric ones. The pass rule fits\n``value_type`` (for ``per_turn_share`` it is a range on the share and ``turn_rule`` fits the\ntype), its bounds lie in the value domain, and some value passes.",
+  "properties": {
+    "aggregation": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/PerConversationAggregation"
+        },
+        {
+          "$ref": "#/$defs/PerTurnShareAggregation"
+        }
+      ],
+      "title": "Aggregation"
+    },
+    "content_digest": {
+      "$ref": "#/$defs/ContentDigest"
+    },
+    "created_at": {
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+      "title": "Created At",
+      "type": "string"
+    },
+    "id": {
+      "pattern": "^met_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "implementation_ref": {
+      "anyOf": [
+        {
+          "maxLength": 256,
+          "pattern": "^[a-z][a-z0-9_]*:[A-Za-z0-9._:/@+-]+$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Implementation Ref"
+    },
+    "judge_model_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ModelRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "key": {
+      "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$",
+      "title": "Key",
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "deterministic",
+        "llm_judge",
+        "audio",
+        "latency"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "languages": {
+      "anyOf": [
+        {
+          "enum": [
+            "language_independent"
+          ],
+          "type": "string"
+        },
+        {
+          "items": {
+            "pattern": "^(?:[eE][nN](?:-(?:[lL][aA][tT][nN]))?|[hH][iI](?:-(?:[dD][eE][vV][aA]))?|[mM][rR](?:-(?:[dD][eE][vV][aA]))?|[tT][eE](?:-(?:[tT][eE][lL][uU]))?|[tT][aA](?:-(?:[tT][aA][mM][lL]))?|[kK][nN](?:-(?:[kK][nN][dD][aA]))?|[mM][lL](?:-(?:[mM][lL][yY][mM]))?|[pP][aA](?:-(?:[gG][uU][rR][uU]))?|[gG][uU](?:-(?:[gG][uU][jJ][rR]))?)(?:-(?:[gG][bB]|[iI][nN]|[uU][sS]))?$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        }
+      ],
+      "title": "Languages"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "metadata_flags": {
+      "items": {
+        "$ref": "#/$defs/MetadataFlag"
+      },
+      "title": "Metadata Flags",
+      "type": "array"
+    },
+    "parameters": {
+      "items": {
+        "$ref": "#/$defs/MetricParameter"
+      },
+      "title": "Parameters",
+      "type": "array"
+    },
+    "pass_rule": {
+      "anyOf": [
+        {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/RangeRule"
+            },
+            {
+              "$ref": "#/$defs/EqualsTrueRule"
+            },
+            {
+              "$ref": "#/$defs/OneOfRule"
+            }
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Pass Rule"
+    },
+    "prompt_template": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Prompt Template"
+    },
+    "prompt_variables": {
+      "anyOf": [
+        {
+          "items": {
+            "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$",
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Prompt Variables"
+    },
+    "requires": {
+      "items": {
+        "enum": [
+          "audio",
+          "agent_audio",
+          "transcript",
+          "agent_transcript",
+          "turn_timing",
+          "tool_calls",
+          "tool_results",
+          "spans",
+          "usage",
+          "reference_text",
+          "expected_tool_calls"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Requires",
+      "type": "array",
+      "uniqueItems": true
+    },
+    "scale": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RatingScale"
+        },
+        {
+          "$ref": "#/$defs/EnumScale"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Scale"
+    },
+    "schema_version": {
+      "enum": [
+        "0.0.1"
+      ],
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "script_sensitive": {
+      "title": "Script Sensitive",
+      "type": "boolean"
+    },
+    "unit": {
+      "anyOf": [
+        {
+          "enum": [
+            "ms",
+            "count",
+            "ratio",
+            "percent",
+            "wer",
+            "cer"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Unit"
+    },
+    "value_type": {
+      "enum": [
+        "boolean",
+        "rating",
+        "enum",
+        "numeric"
+      ],
+      "title": "Value Type",
+      "type": "string"
+    },
+    "version": {
+      "minimum": 1,
+      "title": "Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "aggregation",
+    "content_digest",
+    "created_at",
+    "id",
+    "key",
+    "kind",
+    "languages",
+    "requires",
+    "schema_version",
+    "script_sensitive",
+    "value_type",
+    "version"
+  ],
+  "title": "MetricDefinition",
+  "type": "object"
+}

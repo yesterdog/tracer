@@ -1,0 +1,472 @@
+{
+  "$defs": {
+    "ContentDigest": {
+      "additionalProperties": false,
+      "description": "``{scheme, value, key_ref?}`` (ADR 0006 Decision 3). An unregistered scheme raises\n``UnknownDigestScheme`` (not wrapped by pydantic): it is never \"unverifiable, accept\".",
+      "properties": {
+        "key_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/KeyRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "scheme": {
+          "enum": [
+            "sha256-jcs/v1",
+            "hmac-sha256-jcs/v1"
+          ],
+          "title": "Scheme",
+          "type": "string"
+        },
+        "value": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "scheme",
+        "value"
+      ],
+      "title": "ContentDigest",
+      "type": "object"
+    },
+    "ExpectedToolCall": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "match": {
+                "enum": [
+                  "name_only"
+                ]
+              }
+            },
+            "required": [
+              "match"
+            ]
+          },
+          "then": {
+            "properties": {
+              "arguments": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "match": {
+                "enum": [
+                  "arguments_exact"
+                ]
+              }
+            },
+            "required": [
+              "match"
+            ]
+          },
+          "then": {
+            "properties": {
+              "arguments": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "arguments"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "match": {
+                "enum": [
+                  "arguments_subset"
+                ]
+              }
+            },
+            "required": [
+              "match"
+            ]
+          },
+          "then": {
+            "properties": {
+              "arguments": {
+                "minProperties": 1,
+                "type": "object"
+              }
+            },
+            "required": [
+              "arguments"
+            ]
+          }
+        }
+      ],
+      "description": "A tool call the agent is expected to make (ADR 0010 Decision 8).",
+      "properties": {
+        "arguments": {
+          "anyOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Arguments"
+        },
+        "match": {
+          "enum": [
+            "name_only",
+            "arguments_exact",
+            "arguments_subset"
+          ],
+          "title": "Match",
+          "type": "string"
+        },
+        "name": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "title": "Name",
+          "type": "string"
+        },
+        "order_index": {
+          "minimum": 0,
+          "title": "Order Index",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "match",
+        "name",
+        "order_index"
+      ],
+      "title": "ExpectedToolCall",
+      "type": "object"
+    },
+    "KeyRef": {
+      "additionalProperties": false,
+      "description": "Names a key held by a key manager; never carries key material (ADR 0007 Decision 4).\n\n``key_id`` is the key manager's own name for the key, an opaque string stored as given\n(ADR 0001 I12), not one of our typed IDs.",
+      "properties": {
+        "key_id": {
+          "minLength": 1,
+          "title": "Key Id",
+          "type": "string"
+        },
+        "key_version": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Key Version"
+        },
+        "provider_hint": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provider Hint"
+        }
+      },
+      "required": [
+        "key_id"
+      ],
+      "title": "KeyRef",
+      "type": "object"
+    },
+    "MetadataFlag": {
+      "additionalProperties": false,
+      "description": "A secret-looking string in ``metadata``: where it is and why (ADR 0007 Decision 5a).",
+      "properties": {
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "reason": {
+          "enum": [
+            "known_credential_prefix",
+            "high_entropy_token"
+          ],
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "reason"
+      ],
+      "title": "MetadataFlag",
+      "type": "object"
+    },
+    "MetricBindingRef": {
+      "additionalProperties": false,
+      "description": "``{id, version, content_digest?}`` of a ``MetricBinding`` (ADR 0009 Decision 4).",
+      "properties": {
+        "content_digest": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ContentDigest"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "id": {
+          "pattern": "^mbd_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "version"
+      ],
+      "title": "MetricBindingRef",
+      "type": "object"
+    },
+    "PersonaRef": {
+      "additionalProperties": false,
+      "description": "``{id, version, content_digest?}`` of a ``Persona`` (ADR 0009 Decision 4).",
+      "properties": {
+        "content_digest": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ContentDigest"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "id": {
+          "pattern": "^per_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "version"
+      ],
+      "title": "PersonaRef",
+      "type": "object"
+    },
+    "ScriptedTurn": {
+      "additionalProperties": false,
+      "description": "A scripted caller line: its list position, its text and its language.",
+      "properties": {
+        "index": {
+          "minimum": 0,
+          "title": "Index",
+          "type": "integer"
+        },
+        "language": {
+          "pattern": "^(?:[eE][nN](?:-(?:[lL][aA][tT][nN]))?|[hH][iI](?:-(?:[dD][eE][vV][aA]))?|[mM][rR](?:-(?:[dD][eE][vV][aA]))?|[tT][eE](?:-(?:[tT][eE][lL][uU]))?|[tT][aA](?:-(?:[tT][aA][mM][lL]))?|[kK][nN](?:-(?:[kK][nN][dD][aA]))?|[mM][lL](?:-(?:[mM][lL][yY][mM]))?|[pP][aA](?:-(?:[gG][uU][rR][uU]))?|[gG][uU](?:-(?:[gG][uU][jJ][rR]))?)(?:-(?:[gG][bB]|[iI][nN]|[uU][sS]))?$",
+          "title": "Language",
+          "type": "string"
+        },
+        "text": {
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "index",
+        "language",
+        "text"
+      ],
+      "title": "ScriptedTurn",
+      "type": "object"
+    },
+    "TestProfileRef": {
+      "additionalProperties": false,
+      "description": "``{id, version, content_digest?}`` of a ``TestProfile``; it holds no profile value.",
+      "properties": {
+        "content_digest": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ContentDigest"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "id": {
+          "pattern": "^tpf_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "version"
+      ],
+      "title": "TestProfileRef",
+      "type": "object"
+    }
+  },
+  "$id": "urn:tracer:evalschema:0.0.1:Evaluator",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One test of an agent (prefix ``evl``; ADR 0010 Decision 8, ADR 0013 Decision 2).\n\nIts ``content_digest`` is computed over ``evaluator_digest_domain`` (N20).",
+  "properties": {
+    "content_digest": {
+      "$ref": "#/$defs/ContentDigest"
+    },
+    "created_at": {
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+      "title": "Created At",
+      "type": "string"
+    },
+    "expected_outcome": {
+      "minLength": 1,
+      "title": "Expected Outcome",
+      "type": "string"
+    },
+    "expected_tool_calls": {
+      "items": {
+        "$ref": "#/$defs/ExpectedToolCall"
+      },
+      "title": "Expected Tool Calls",
+      "type": "array"
+    },
+    "id": {
+      "pattern": "^evl_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "instructions": {
+      "minLength": 1,
+      "title": "Instructions",
+      "type": "string"
+    },
+    "language": {
+      "pattern": "^(?:[eE][nN](?:-(?:[lL][aA][tT][nN]))?|[hH][iI](?:-(?:[dD][eE][vV][aA]))?|[mM][rR](?:-(?:[dD][eE][vV][aA]))?|[tT][eE](?:-(?:[tT][eE][lL][uU]))?|[tT][aA](?:-(?:[tT][aA][mM][lL]))?|[kK][nN](?:-(?:[kK][nN][dD][aA]))?|[mM][lL](?:-(?:[mM][lL][yY][mM]))?|[pP][aA](?:-(?:[gG][uU][rR][uU]))?|[gG][uU](?:-(?:[gG][uU][jJ][rR]))?)(?:-(?:[gG][bB]|[iI][nN]|[uU][sS]))?$",
+      "title": "Language",
+      "type": "string"
+    },
+    "max_duration_ms": {
+      "exclusiveMinimum": 0,
+      "maximum": 14400000,
+      "minimum": 0,
+      "title": "Max Duration Ms",
+      "type": "integer"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "metadata_flags": {
+      "items": {
+        "$ref": "#/$defs/MetadataFlag"
+      },
+      "title": "Metadata Flags",
+      "type": "array"
+    },
+    "metric_bindings": {
+      "items": {
+        "$ref": "#/$defs/MetricBindingRef"
+      },
+      "minItems": 1,
+      "title": "Metric Bindings",
+      "type": "array"
+    },
+    "name": {
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "persona": {
+      "$ref": "#/$defs/PersonaRef"
+    },
+    "schema_version": {
+      "enum": [
+        "0.0.1"
+      ],
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "scripted_turns": {
+      "items": {
+        "$ref": "#/$defs/ScriptedTurn"
+      },
+      "title": "Scripted Turns",
+      "type": "array"
+    },
+    "test_profile": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TestProfileRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "version": {
+      "minimum": 1,
+      "title": "Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "content_digest",
+    "created_at",
+    "expected_outcome",
+    "id",
+    "instructions",
+    "language",
+    "max_duration_ms",
+    "metric_bindings",
+    "name",
+    "persona",
+    "schema_version",
+    "version"
+  ],
+  "title": "Evaluator",
+  "type": "object"
+}

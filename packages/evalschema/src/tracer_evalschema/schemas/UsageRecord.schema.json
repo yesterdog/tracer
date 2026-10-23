@@ -1,0 +1,298 @@
+{
+  "$defs": {
+    "ExternalRef": {
+      "additionalProperties": false,
+      "description": "An identifier assigned by another system, kept as data (never as our ID).\n\nAll three parts are stored exactly as given (ADR 0001 Decision 7).",
+      "properties": {
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "system": {
+          "title": "System",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "system",
+        "value"
+      ],
+      "title": "ExternalRef",
+      "type": "object"
+    },
+    "MetadataFlag": {
+      "additionalProperties": false,
+      "description": "A secret-looking string in ``metadata``: where it is and why (ADR 0007 Decision 5a).",
+      "properties": {
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "reason": {
+          "enum": [
+            "known_credential_prefix",
+            "high_entropy_token"
+          ],
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "reason"
+      ],
+      "title": "MetadataFlag",
+      "type": "object"
+    },
+    "UsageQuantity": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "else": {
+            "properties": {
+              "count": {
+                "type": "integer"
+              }
+            }
+          },
+          "if": {
+            "properties": {
+              "unit": {
+                "enum": [
+                  "audio_input_seconds",
+                  "audio_output_seconds"
+                ]
+              }
+            },
+            "required": [
+              "unit"
+            ]
+          },
+          "then": {
+            "properties": {
+              "count": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      ],
+      "description": "One usage bucket of a billable call (ADR 0014 Decision 9). See the module docstring.",
+      "properties": {
+        "count": {
+          "anyOf": [
+            {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "pattern": "^(?:0|-?[1-9][0-9]*|-?(?:0|[1-9][0-9]*)\\.[0-9]{0,17}[1-9])$",
+              "type": "string"
+            }
+          ],
+          "title": "Count"
+        },
+        "unit": {
+          "enum": [
+            "input_tokens",
+            "cache_read_input_tokens",
+            "cache_write_input_tokens",
+            "output_tokens",
+            "audio_input_seconds",
+            "audio_output_seconds",
+            "input_characters",
+            "requests"
+          ],
+          "title": "Unit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "count",
+        "unit"
+      ],
+      "title": "UsageQuantity",
+      "type": "object"
+    }
+  },
+  "$id": "urn:tracer:evalschema:0.0.1:UsageRecord",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "domain": {
+            "enum": [
+              "agent_under_test"
+            ]
+          }
+        },
+        "required": [
+          "domain"
+        ]
+      },
+      "then": {
+        "properties": {
+          "source": {
+            "enum": [
+              "provider_reported",
+              "telemetry"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "description": "The usage of one billable call (prefix ``use``; a record of fact, ADR 0009 Decision 5).\n\nSee the module docstring. A correction is a new record with a new ID.",
+  "properties": {
+    "created_at": {
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+      "title": "Created At",
+      "type": "string"
+    },
+    "domain": {
+      "enum": [
+        "evaluation",
+        "agent_under_test"
+      ],
+      "title": "Domain",
+      "type": "string"
+    },
+    "id": {
+      "pattern": "^use_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "metadata_flags": {
+      "items": {
+        "$ref": "#/$defs/MetadataFlag"
+      },
+      "title": "Metadata Flags",
+      "type": "array"
+    },
+    "model": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Model"
+    },
+    "occurred_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Occurred At"
+    },
+    "provider": {
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+      "title": "Provider",
+      "type": "string"
+    },
+    "provider_call_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ExternalRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "quantities": {
+      "items": {
+        "$ref": "#/$defs/UsageQuantity"
+      },
+      "minItems": 1,
+      "title": "Quantities",
+      "type": "array"
+    },
+    "raw": {
+      "anyOf": [
+        {
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Raw"
+    },
+    "run_id": {
+      "pattern": "^run_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "title": "Run Id",
+      "type": "string"
+    },
+    "schema_version": {
+      "enum": [
+        "0.0.1"
+      ],
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source": {
+      "enum": [
+        "provider_reported",
+        "telemetry",
+        "measured"
+      ],
+      "title": "Source",
+      "type": "string"
+    },
+    "stage": {
+      "enum": [
+        "stt",
+        "llm",
+        "tts",
+        "judge",
+        "sim_caller_llm",
+        "sim_caller_tts",
+        "realtime",
+        "other"
+      ],
+      "title": "Stage",
+      "type": "string"
+    }
+  },
+  "required": [
+    "created_at",
+    "domain",
+    "id",
+    "provider",
+    "quantities",
+    "run_id",
+    "schema_version",
+    "source",
+    "stage"
+  ],
+  "title": "UsageRecord",
+  "type": "object"
+}

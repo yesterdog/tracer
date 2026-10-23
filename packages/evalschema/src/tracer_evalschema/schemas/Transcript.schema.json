@@ -1,0 +1,487 @@
+{
+  "$defs": {
+    "ConsentRecord": {
+      "additionalProperties": false,
+      "description": "Whether the person recorded consented (ADR 0016 Decision 3). ``unknown`` is a state, not a\ndefault: it counts as not obtained for benchmark exports (P-44, P1-14).",
+      "properties": {
+        "recorded_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Recorded At"
+        },
+        "reference": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reference"
+        },
+        "status": {
+          "enum": [
+            "obtained",
+            "not_obtained",
+            "unknown"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "title": "ConsentRecord",
+      "type": "object"
+    },
+    "ExternalRef": {
+      "additionalProperties": false,
+      "description": "An identifier assigned by another system, kept as data (never as our ID).\n\nAll three parts are stored exactly as given (ADR 0001 Decision 7).",
+      "properties": {
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "system": {
+          "title": "System",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "system",
+        "value"
+      ],
+      "title": "ExternalRef",
+      "type": "object"
+    },
+    "LanguageDeclaration": {
+      "additionalProperties": false,
+      "description": "A user's declaration of the language of an untagged import (N14, ADR 0004 Decision 6g).\n\nNever an observation: it fills no observed field, script-sensitive metrics never use it, and\nevery result that uses it says so (``language_source=declared``).",
+      "properties": {
+        "declared_at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Declared At",
+          "type": "string"
+        },
+        "declared_by": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/+-]{0,255}$",
+          "title": "Declared By",
+          "type": "string"
+        },
+        "language": {
+          "pattern": "^(?:[eE][nN]|[hH][iI]|[mM][rR]|[tT][eE]|[tT][aA]|[kK][nN]|[mM][lL]|[pP][aA]|[gG][uU])(?:-(?:[gG][bB]|[iI][nN]|[uU][sS]))?$",
+          "title": "Language",
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "user_declared"
+          ],
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "declared_at",
+        "declared_by",
+        "language",
+        "source"
+      ],
+      "title": "LanguageDeclaration",
+      "type": "object"
+    },
+    "MetadataFlag": {
+      "additionalProperties": false,
+      "description": "A secret-looking string in ``metadata``: where it is and why (ADR 0007 Decision 5a).",
+      "properties": {
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "reason": {
+          "enum": [
+            "known_credential_prefix",
+            "high_entropy_token"
+          ],
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "reason"
+      ],
+      "title": "MetadataFlag",
+      "type": "object"
+    },
+    "PrivacyMarker": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "else": {
+            "properties": {
+              "consent": {
+                "type": "null"
+              },
+              "human_subject_reason": {
+                "type": "null"
+              },
+              "retention": {
+                "type": "null"
+              }
+            }
+          },
+          "if": {
+            "properties": {
+              "human_subject": {
+                "enum": [
+                  true
+                ]
+              }
+            },
+            "required": [
+              "human_subject"
+            ]
+          },
+          "then": {
+            "properties": {
+              "consent": {
+                "type": "object"
+              },
+              "retention": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "consent",
+              "retention"
+            ]
+          }
+        }
+      ],
+      "description": "Whether a payload is human-subject data, with its consent and retention (ADR 0016).\n\nConsent and retention are present if and only if ``human_subject`` is true (P-46): a consent\nrecord for a synthetic voice would read as a consent gap. ``human_subject_reason`` records why\na marker is stricter than the derivation (P-47) and is rejected on a false marker.",
+      "properties": {
+        "consent": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ConsentRecord"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "human_subject": {
+          "title": "Human Subject",
+          "type": "boolean"
+        },
+        "human_subject_reason": {
+          "anyOf": [
+            {
+              "enum": [
+                "marked_before_role_evidence",
+                "real_person_likeness",
+                "manual"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Human Subject Reason"
+        },
+        "retention": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RetentionPolicy"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "human_subject"
+      ],
+      "title": "PrivacyMarker",
+      "type": "object"
+    },
+    "RetentionPolicy": {
+      "additionalProperties": false,
+      "description": "How long human-subject data is kept, and whether it is deleted when the time is up.",
+      "properties": {
+        "delete_on_expiry": {
+          "title": "Delete On Expiry",
+          "type": "boolean"
+        },
+        "policy_ref": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Policy Ref"
+        },
+        "retain_until": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retain Until"
+        }
+      },
+      "required": [
+        "delete_on_expiry"
+      ],
+      "title": "RetentionPolicy",
+      "type": "object"
+    },
+    "TimelineOrigin": {
+      "additionalProperties": false,
+      "description": "What offset 0 means (ADR 0002 Decision 3): sample 0 of an artifact (``kind=artifact``,\n``ref`` an ``art_`` ID), or the start of a telemetry trace or an observer session (``ref`` an\n``ExternalRef`` of the source, or none).",
+      "properties": {
+        "kind": {
+          "enum": [
+            "artifact",
+            "telemetry",
+            "observer"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "ref": {
+          "anyOf": [
+            {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/ExternalRef"
+                },
+                {
+                  "pattern": "^art_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                  "type": "string"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ref"
+        },
+        "started_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Started At"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "TimelineOrigin",
+      "type": "object"
+    }
+  },
+  "$id": "urn:tracer:evalschema:0.0.1:Transcript",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A transcript of a run (prefix ``tsc``; ADR 0011 Decision 1).\n\n``source`` names the producer, while each turn's ``source`` names its pipeline stage.\n``declared_language`` is allowed only on an imported transcript (``agent_export``,\n``agent_telemetry``, ``observer``, ``human_reference``) that carries no language label\n(``detected_language`` and ``detected_language_raw`` both absent); it is never copied into an\nobserved field. ``provider_call_ref`` is the provider's request identifier (N28).",
+  "properties": {
+    "created_at": {
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+      "title": "Created At",
+      "type": "string"
+    },
+    "declared_language": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/LanguageDeclaration"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "detected_language": {
+      "anyOf": [
+        {
+          "pattern": "^(?!(?:[eE][nN]-[gG][bB]-[oO][eE][dD]|[iI]-[aA][mM][iI]|[iI]-[bB][nN][nN]|[iI]-[dD][eE][fF][aA][uU][lL][tT]|[iI]-[eE][nN][oO][cC][hH][iI][aA][nN]|[iI]-[hH][aA][kK]|[iI]-[kK][lL][iI][nN][gG][oO][nN]|[iI]-[lL][uU][xX]|[iI]-[mM][iI][nN][gG][oO]|[iI]-[nN][aA][vV][aA][jJ][oO]|[iI]-[pP][wW][nN]|[iI]-[tT][aA][oO]|[iI]-[tT][aA][yY]|[iI]-[tT][sS][uU]|[sS][gG][nN]-[bB][eE]-[fF][rR]|[sS][gG][nN]-[bB][eE]-[nN][lL]|[sS][gG][nN]-[cC][hH]-[dD][eE]|[aA][rR][tT]-[lL][oO][jJ][bB][aA][nN]|[cC][eE][lL]-[gG][aA][uU][lL][iI][sS][hH]|[nN][oO]-[bB][oO][kK]|[nN][oO]-[nN][yY][nN]|[zZ][hH]-[gG][uU][oO][yY][uU]|[zZ][hH]-[hH][aA][kK][kK][aA]|[zZ][hH]-[mM][iI][nN]|[zZ][hH]-[mM][iI][nN]-[nN][aA][nN]|[zZ][hH]-[xX][iI][aA][nN][gG])$)(?:[A-Za-z]{2,3}(?:-[A-Za-z]{3}(?:-[A-Za-z]{3}){0,2})?(?:-[A-Za-z]{4})?(?:-(?:[A-Za-z]{2}|[0-9]{3}))?(?:-(?:[A-Za-z0-9]{5,8}|[0-9][A-Za-z0-9]{3}))*(?:-[0-9A-WYZa-wyz](?:-[A-Za-z0-9]{2,8})+)*(?:-[Xx](?:-[A-Za-z0-9]{1,8})+)?|[Xx](?:-[A-Za-z0-9]{1,8})+)$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Detected Language"
+    },
+    "detected_language_raw": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Detected Language Raw"
+    },
+    "id": {
+      "pattern": "^tsc_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "language_confidence": {
+      "anyOf": [
+        {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Language Confidence"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "metadata_flags": {
+      "items": {
+        "$ref": "#/$defs/MetadataFlag"
+      },
+      "title": "Metadata Flags",
+      "type": "array"
+    },
+    "model": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Model"
+    },
+    "privacy": {
+      "$ref": "#/$defs/PrivacyMarker"
+    },
+    "provider": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Provider"
+    },
+    "provider_call_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ExternalRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "schema_version": {
+      "enum": [
+        "0.0.1"
+      ],
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source": {
+      "enum": [
+        "our_stt",
+        "agent_export",
+        "agent_telemetry",
+        "observer",
+        "script",
+        "human_reference"
+      ],
+      "title": "Source",
+      "type": "string"
+    },
+    "timeline_origin": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TimelineOrigin"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "created_at",
+    "id",
+    "privacy",
+    "schema_version",
+    "source"
+  ],
+  "title": "Transcript",
+  "type": "object"
+}

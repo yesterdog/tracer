@@ -1,0 +1,329 @@
+{
+  "$defs": {
+    "ExternalRef": {
+      "additionalProperties": false,
+      "description": "An identifier assigned by another system, kept as data (never as our ID).\n\nAll three parts are stored exactly as given (ADR 0001 Decision 7).",
+      "properties": {
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "system": {
+          "title": "System",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "system",
+        "value"
+      ],
+      "title": "ExternalRef",
+      "type": "object"
+    },
+    "MetadataFlag": {
+      "additionalProperties": false,
+      "description": "A secret-looking string in ``metadata``: where it is and why (ADR 0007 Decision 5a).",
+      "properties": {
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "reason": {
+          "enum": [
+            "known_credential_prefix",
+            "high_entropy_token"
+          ],
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "reason"
+      ],
+      "title": "MetadataFlag",
+      "type": "object"
+    },
+    "TimelineOrigin": {
+      "additionalProperties": false,
+      "description": "What offset 0 means (ADR 0002 Decision 3): sample 0 of an artifact (``kind=artifact``,\n``ref`` an ``art_`` ID), or the start of a telemetry trace or an observer session (``ref`` an\n``ExternalRef`` of the source, or none).",
+      "properties": {
+        "kind": {
+          "enum": [
+            "artifact",
+            "telemetry",
+            "observer"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "ref": {
+          "anyOf": [
+            {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/ExternalRef"
+                },
+                {
+                  "pattern": "^art_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                  "type": "string"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ref"
+        },
+        "started_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Started At"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "TimelineOrigin",
+      "type": "object"
+    }
+  },
+  "$id": "urn:tracer:evalschema:0.0.1:ToolCallEvent",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "arguments_complete": {
+            "enum": [
+              false
+            ]
+          }
+        },
+        "required": [
+          "arguments_complete"
+        ]
+      },
+      "then": {
+        "properties": {
+          "arguments": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "result_complete": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "result_complete"
+        ]
+      },
+      "then": {
+        "properties": {
+          "result_raw": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "result_raw"
+        ]
+      }
+    }
+  ],
+  "description": "A tool call of the agent (prefix ``tcl``; ADR 0012 Decision 1).\n\n``arguments_complete`` is required and never inferred. ``result_complete`` needs\n``result_raw``. ``timeline_origin`` is present if and only if ``offset_ms`` is. ``seq`` is the\norder of the calls of a run and is unique there (``check_tool_call_seqs``). ``result_error``\nis true, false or unknown (``None``): ``status`` says only whether the call finished. The\nevent carries no privacy marker of its own (it takes its run's derived value).",
+  "properties": {
+    "arguments": {
+      "anyOf": [
+        {
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Arguments"
+    },
+    "arguments_complete": {
+      "title": "Arguments Complete",
+      "type": "boolean"
+    },
+    "arguments_raw": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Arguments Raw"
+    },
+    "created_at": {
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+      "title": "Created At",
+      "type": "string"
+    },
+    "external_call_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "External Call Id"
+    },
+    "id": {
+      "pattern": "^tcl_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "metadata_flags": {
+      "items": {
+        "$ref": "#/$defs/MetadataFlag"
+      },
+      "title": "Metadata Flags",
+      "type": "array"
+    },
+    "name": {
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+      "title": "Name",
+      "type": "string"
+    },
+    "offset_ms": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Offset Ms"
+    },
+    "result_complete": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Result Complete"
+    },
+    "result_error": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Result Error"
+    },
+    "result_raw": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Result Raw"
+    },
+    "schema_version": {
+      "enum": [
+        "0.0.1"
+      ],
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "seq": {
+      "maximum": 9007199254740991,
+      "minimum": 0,
+      "title": "Seq",
+      "type": "integer"
+    },
+    "source": {
+      "enum": [
+        "agent_export",
+        "agent_telemetry",
+        "observer"
+      ],
+      "title": "Source",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "completed",
+        "cancelled",
+        "unknown"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "timeline_origin": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TimelineOrigin"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "arguments_complete",
+    "created_at",
+    "id",
+    "name",
+    "schema_version",
+    "seq",
+    "source",
+    "status"
+  ],
+  "title": "ToolCallEvent",
+  "type": "object"
+}

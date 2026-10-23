@@ -50,5 +50,6 @@ class Project(HidingModel, EntityBase):
 
     name: HumanLabel
     provider_configs: Annotated[
-        list[ProviderConfigRef], AfterValidator(_unique_provider_models)
+        list[ProviderConfigRef],
+        AfterValidator(_unique_provider_models),
     ] = Field(default_factory=list)

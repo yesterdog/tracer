@@ -98,7 +98,11 @@ class Rubric(HidingModel, VersionedEntity):
 
     id_prefix: ClassVar[str] = "rub"
 
-    items: Annotated[list[RubricItem], Field(min_length=1), AfterValidator(_check_items)]
+    items: Annotated[
+        list[RubricItem],
+        Field(min_length=1),
+        AfterValidator(_check_items),
+    ]
 
 
 # ------------------------------------------------------------------------------ resolution

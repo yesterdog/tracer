@@ -220,7 +220,9 @@ class OneOfRule(BaseModel):
 
     kind: Annotated[str, ClosedSet(("one_of",))]
     options: Annotated[
-        list[Annotated[str, Strict()]], Field(min_length=1), AfterValidator(_unique("options"))
+        list[Annotated[str, Strict()]],
+        Field(min_length=1, json_schema_extra={"uniqueItems": True}),
+        AfterValidator(_unique("options")),
     ]
 
 
@@ -433,7 +435,11 @@ class EnumScale(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    options: Annotated[list[MetricKey], Field(min_length=1), AfterValidator(_unique("options"))]
+    options: Annotated[
+        list[MetricKey],
+        Field(min_length=1, json_schema_extra={"uniqueItems": True}),
+        AfterValidator(_unique("options")),
+    ]
 
 
 class PerConversationAggregation(BaseModel):
@@ -528,7 +534,9 @@ def _distinct_primary_languages(tags: list[str]) -> list[str]:
 MetricLanguages = (
     Annotated[str, ClosedSet((LANGUAGE_INDEPENDENT,))]
     | Annotated[
-        list[SupportedLanguage], Field(min_length=1), AfterValidator(_distinct_primary_languages)
+        list[SupportedLanguage],
+        Field(min_length=1, json_schema_extra={"uniqueItems": True}),
+        AfterValidator(_distinct_primary_languages),
     ]
 )
 """``"language_independent"`` or a non-empty list of distinct primary languages (P-59)."""
@@ -655,13 +663,19 @@ class MetricDefinition(HidingModel, VersionedEntity):
     script_sensitive: Annotated[bool, Strict()]
     aggregation: Aggregation
     pass_rule: PassRule | None = None
-    parameters: Annotated[list[MetricParameter], AfterValidator(_unique_parameter_names)] = Field(
-        default_factory=list
-    )
+    parameters: Annotated[
+        list[MetricParameter],
+        AfterValidator(_unique_parameter_names),
+    ] = Field(default_factory=list)
     implementation_ref: ImplementationRef | None = None
     prompt_template: Annotated[VerbatimText, Field(min_length=1)] | None = None
     prompt_variables: (
-        Annotated[list[MetricKey], AfterValidator(_unique("prompt_variables"))] | None
+        Annotated[
+            list[MetricKey],
+            AfterValidator(_unique("prompt_variables")),
+            Field(json_schema_extra={"uniqueItems": True}),
+        ]
+        | None
     ) = None
     judge_model_ref: ModelRef | None = None
 

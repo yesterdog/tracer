@@ -1,0 +1,414 @@
+{
+  "$defs": {
+    "ConsentRecord": {
+      "additionalProperties": false,
+      "description": "Whether the person recorded consented (ADR 0016 Decision 3). ``unknown`` is a state, not a\ndefault: it counts as not obtained for benchmark exports (P-44, P1-14).",
+      "properties": {
+        "recorded_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Recorded At"
+        },
+        "reference": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reference"
+        },
+        "status": {
+          "enum": [
+            "obtained",
+            "not_obtained",
+            "unknown"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "title": "ConsentRecord",
+      "type": "object"
+    },
+    "MetadataFlag": {
+      "additionalProperties": false,
+      "description": "A secret-looking string in ``metadata``: where it is and why (ADR 0007 Decision 5a).",
+      "properties": {
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "reason": {
+          "enum": [
+            "known_credential_prefix",
+            "high_entropy_token"
+          ],
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "reason"
+      ],
+      "title": "MetadataFlag",
+      "type": "object"
+    },
+    "PrivacyMarker": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "else": {
+            "properties": {
+              "consent": {
+                "type": "null"
+              },
+              "human_subject_reason": {
+                "type": "null"
+              },
+              "retention": {
+                "type": "null"
+              }
+            }
+          },
+          "if": {
+            "properties": {
+              "human_subject": {
+                "enum": [
+                  true
+                ]
+              }
+            },
+            "required": [
+              "human_subject"
+            ]
+          },
+          "then": {
+            "properties": {
+              "consent": {
+                "type": "object"
+              },
+              "retention": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "consent",
+              "retention"
+            ]
+          }
+        }
+      ],
+      "description": "Whether a payload is human-subject data, with its consent and retention (ADR 0016).\n\nConsent and retention are present if and only if ``human_subject`` is true (P-46): a consent\nrecord for a synthetic voice would read as a consent gap. ``human_subject_reason`` records why\na marker is stricter than the derivation (P-47) and is rejected on a false marker.",
+      "properties": {
+        "consent": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ConsentRecord"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "human_subject": {
+          "title": "Human Subject",
+          "type": "boolean"
+        },
+        "human_subject_reason": {
+          "anyOf": [
+            {
+              "enum": [
+                "marked_before_role_evidence",
+                "real_person_likeness",
+                "manual"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Human Subject Reason"
+        },
+        "retention": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RetentionPolicy"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "human_subject"
+      ],
+      "title": "PrivacyMarker",
+      "type": "object"
+    },
+    "RetentionPolicy": {
+      "additionalProperties": false,
+      "description": "How long human-subject data is kept, and whether it is deleted when the time is up.",
+      "properties": {
+        "delete_on_expiry": {
+          "title": "Delete On Expiry",
+          "type": "boolean"
+        },
+        "policy_ref": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Policy Ref"
+        },
+        "retain_until": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retain Until"
+        }
+      },
+      "required": [
+        "delete_on_expiry"
+      ],
+      "title": "RetentionPolicy",
+      "type": "object"
+    }
+  },
+  "$id": "urn:tracer:evalschema:0.0.1:DatasetItem",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "artifact_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "privacy": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "privacy"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "artifact_id": {
+            "type": "string"
+          },
+          "source_run_id": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "artifact_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "privacy": {
+            "properties": {
+              "human_subject": {
+                "enum": [
+                  true
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "transcript_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "transcript_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "privacy": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "privacy"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "source_run_id": {
+            "type": "null"
+          },
+          "transcript_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "transcript_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "privacy": {
+            "properties": {
+              "human_subject": {
+                "enum": [
+                  true
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "description": "One item of a dataset (prefix ``dti``; a record of fact). It names no dataset: a Dataset\nversion lists its items (N25). See the module docstring for the privacy rules.",
+  "properties": {
+    "artifact_id": {
+      "anyOf": [
+        {
+          "pattern": "^art_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Artifact Id"
+    },
+    "created_at": {
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+      "title": "Created At",
+      "type": "string"
+    },
+    "id": {
+      "pattern": "^dti_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "language": {
+      "pattern": "^(?:[eE][nN](?:-(?:[lL][aA][tT][nN]))?|[hH][iI](?:-(?:[dD][eE][vV][aA]))?|[mM][rR](?:-(?:[dD][eE][vV][aA]))?|[tT][eE](?:-(?:[tT][eE][lL][uU]))?|[tT][aA](?:-(?:[tT][aA][mM][lL]))?|[kK][nN](?:-(?:[kK][nN][dD][aA]))?|[mM][lL](?:-(?:[mM][lL][yY][mM]))?|[pP][aA](?:-(?:[gG][uU][rR][uU]))?|[gG][uU](?:-(?:[gG][uU][jJ][rR]))?)(?:-(?:[gG][bB]|[iI][nN]|[uU][sS]))?$",
+      "title": "Language",
+      "type": "string"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "metadata_flags": {
+      "items": {
+        "$ref": "#/$defs/MetadataFlag"
+      },
+      "title": "Metadata Flags",
+      "type": "array"
+    },
+    "privacy": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PrivacyMarker"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "schema_version": {
+      "enum": [
+        "0.0.1"
+      ],
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_run_id": {
+      "anyOf": [
+        {
+          "pattern": "^run_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Run Id"
+    },
+    "transcript_id": {
+      "anyOf": [
+        {
+          "pattern": "^tsc_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Transcript Id"
+    }
+  },
+  "required": [
+    "created_at",
+    "id",
+    "language",
+    "schema_version"
+  ],
+  "title": "DatasetItem",
+  "type": "object"
+}

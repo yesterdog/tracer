@@ -152,7 +152,9 @@ def _one_quantity_per_unit(quantities: list[UsageQuantity]) -> list[UsageQuantit
 
 
 Quantities = Annotated[
-    list[UsageQuantity], Field(min_length=1), AfterValidator(_one_quantity_per_unit)
+    list[UsageQuantity],
+    Field(min_length=1),
+    AfterValidator(_one_quantity_per_unit),
 ]
 
 

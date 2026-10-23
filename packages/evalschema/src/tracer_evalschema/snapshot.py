@@ -146,11 +146,13 @@ class ConfigSnapshot(HidingModel, EntityBase):
 
     Checked on load, after the fields: the digest equals ``compute_snapshot_digest`` of the
     document (``DigestMismatch``, ``DigestKeyUnavailable`` and ``UnknownDigestScheme`` unwrapped);
-    the evaluator's persona and binding references, and each binding's definition reference,
-    resolve to an embedded record of that ``(id, version)``, and a digest on such a reference is
-    verified (``RefDigestMismatchError``, E5); every binding belongs to the evaluator; the rubric
-    passes ``validate_rubric``; the evaluator has at least one expected-outcome check, and every
-    such check is a required rubric item.
+    no definition and no binding is embedded twice (same ``id`` and ``version``; a code-only rule,
+    register row ``CO-LONG-LIST-UNIQUENESS``); the evaluator's persona and binding references,
+    and each binding's definition reference, resolve to an embedded record of that
+    ``(id, version)``, and a digest on such a reference is verified (``RefDigestMismatchError``,
+    E5); every binding belongs to the evaluator; the rubric passes ``validate_rubric``; the
+    evaluator has at least one expected-outcome check, and every such check is a required rubric
+    item.
     """
 
     id_prefix: ClassVar[str] = "snap"
@@ -170,6 +172,7 @@ class ConfigSnapshot(HidingModel, EntityBase):
             snapshot_digest_domain(self.model_dump(mode="json", by_alias=True)),
             self.content_digest,
         )
+        self._check_repeats()
         self._check_references()
         try:
             validate_rubric(
@@ -179,6 +182,31 @@ class ConfigSnapshot(HidingModel, EntityBase):
             raise_problems(type(self).__name__, [Problem(("rubric",), "rubric", str(exc))])
         self._check_expected_outcome()
         return self
+
+    def _check_repeats(self) -> None:
+        # A21/A24: references resolve through a mapping keyed by (id, version), so a repeated
+        # record would otherwise collapse silently. Each repeat is reported at its own position;
+        # the message names the rule, never the record, its ID or its digest (N42).
+        problems: list[Problem] = []
+        entries: tuple[tuple[str, str, list[Any]], ...] = (
+            ("metric_definitions", "definition", list(self.metric_definitions)),
+            ("metric_bindings", "binding", list(self.metric_bindings)),
+        )
+        for field, noun, records in entries:
+            seen: set[tuple[Any, int]] = set()
+            for position, record in enumerate(records):
+                key = (record.id, record.version)
+                if key in seen:
+                    problems.append(
+                        Problem(
+                            (field, position),
+                            "duplicate",
+                            f"duplicate {noun}: the {noun} at position {position} has the id and "
+                            f"version of an earlier entry of {field}",
+                        )
+                    )
+                seen.add(key)
+        raise_problems(type(self).__name__, problems)
 
     def _check_references(self) -> None:
         evaluator = self.evaluator

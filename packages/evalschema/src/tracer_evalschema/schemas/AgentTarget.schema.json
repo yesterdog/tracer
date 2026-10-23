@@ -1,0 +1,322 @@
+{
+  "$defs": {
+    "ContentDigest": {
+      "additionalProperties": false,
+      "description": "``{scheme, value, key_ref?}`` (ADR 0006 Decision 3). An unregistered scheme raises\n``UnknownDigestScheme`` (not wrapped by pydantic): it is never \"unverifiable, accept\".",
+      "properties": {
+        "key_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/KeyRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "scheme": {
+          "enum": [
+            "sha256-jcs/v1",
+            "hmac-sha256-jcs/v1"
+          ],
+          "title": "Scheme",
+          "type": "string"
+        },
+        "value": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "scheme",
+        "value"
+      ],
+      "title": "ContentDigest",
+      "type": "object"
+    },
+    "DeclaredStackEntry": {
+      "additionalProperties": false,
+      "description": "One declared component of the agent's stack (ADR 0012 I15).",
+      "properties": {
+        "model": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "title": "Model",
+          "type": "string"
+        },
+        "provider": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "title": "Provider",
+          "type": "string"
+        },
+        "stage": {
+          "enum": [
+            "stt",
+            "llm",
+            "tts",
+            "realtime"
+          ],
+          "title": "Stage",
+          "type": "string"
+        }
+      },
+      "required": [
+        "model",
+        "provider",
+        "stage"
+      ],
+      "title": "DeclaredStackEntry",
+      "type": "object"
+    },
+    "KeyRef": {
+      "additionalProperties": false,
+      "description": "Names a key held by a key manager; never carries key material (ADR 0007 Decision 4).\n\n``key_id`` is the key manager's own name for the key, an opaque string stored as given\n(ADR 0001 I12), not one of our typed IDs.",
+      "properties": {
+        "key_id": {
+          "minLength": 1,
+          "title": "Key Id",
+          "type": "string"
+        },
+        "key_version": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Key Version"
+        },
+        "provider_hint": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provider Hint"
+        }
+      },
+      "required": [
+        "key_id"
+      ],
+      "title": "KeyRef",
+      "type": "object"
+    },
+    "MetadataFlag": {
+      "additionalProperties": false,
+      "description": "A secret-looking string in ``metadata``: where it is and why (ADR 0007 Decision 5a).",
+      "properties": {
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "reason": {
+          "enum": [
+            "known_credential_prefix",
+            "high_entropy_token"
+          ],
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "reason"
+      ],
+      "title": "MetadataFlag",
+      "type": "object"
+    },
+    "SipEndpoint": {
+      "additionalProperties": false,
+      "description": "A SIP endpoint: ``sip:`` or ``sips:``; the user part is the address, a password is not.",
+      "properties": {
+        "transport": {
+          "enum": [
+            "sip"
+          ],
+          "title": "Transport",
+          "type": "string"
+        },
+        "uri": {
+          "pattern": "^sips?:[A-Za-z0-9._~:/?\\[\\]@!$&'()*+,;=%-]+$",
+          "title": "Uri",
+          "type": "string"
+        }
+      },
+      "required": [
+        "transport",
+        "uri"
+      ],
+      "title": "SipEndpoint",
+      "type": "object"
+    },
+    "WebRtcEndpoint": {
+      "additionalProperties": false,
+      "description": "A WebRTC signalling endpoint: ``http://`` or ``https://`` with a host, no credentials.",
+      "properties": {
+        "transport": {
+          "enum": [
+            "webrtc"
+          ],
+          "title": "Transport",
+          "type": "string"
+        },
+        "url": {
+          "pattern": "^https?://[A-Za-z0-9._~:/?\\[\\]@!$&'()*+,;=%-]+$",
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "transport",
+        "url"
+      ],
+      "title": "WebRtcEndpoint",
+      "type": "object"
+    },
+    "WebSocketEndpoint": {
+      "additionalProperties": false,
+      "description": "A WebSocket endpoint: ``ws://`` or ``wss://`` with a host, no credentials, no fragment.",
+      "properties": {
+        "transport": {
+          "enum": [
+            "ws"
+          ],
+          "title": "Transport",
+          "type": "string"
+        },
+        "url": {
+          "pattern": "^wss?://[A-Za-z0-9._~:/?\\[\\]@!$&'()*+,;=%-]+$",
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "transport",
+        "url"
+      ],
+      "title": "WebSocketEndpoint",
+      "type": "object"
+    }
+  },
+  "$id": "urn:tracer:evalschema:0.0.1:AgentTarget",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "The agent under evaluation (prefix ``agt``), versioned for its declared fields.\n\n``languages`` may be empty, which means \"no language declared\", never \"all languages\"; a tag\nappears once (after case canonicalization). ``declared_capabilities`` is a unique list of\n``InputKind``. ``declared_stack`` keeps its order.",
+  "properties": {
+    "content_digest": {
+      "$ref": "#/$defs/ContentDigest"
+    },
+    "created_at": {
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+      "title": "Created At",
+      "type": "string"
+    },
+    "declared_capabilities": {
+      "items": {
+        "enum": [
+          "audio",
+          "agent_audio",
+          "transcript",
+          "agent_transcript",
+          "turn_timing",
+          "tool_calls",
+          "tool_results",
+          "spans",
+          "usage",
+          "reference_text",
+          "expected_tool_calls"
+        ],
+        "type": "string"
+      },
+      "title": "Declared Capabilities",
+      "type": "array",
+      "uniqueItems": true
+    },
+    "declared_stack": {
+      "items": {
+        "$ref": "#/$defs/DeclaredStackEntry"
+      },
+      "title": "Declared Stack",
+      "type": "array"
+    },
+    "endpoint": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/WebSocketEndpoint"
+        },
+        {
+          "$ref": "#/$defs/WebRtcEndpoint"
+        },
+        {
+          "$ref": "#/$defs/SipEndpoint"
+        }
+      ],
+      "title": "Endpoint"
+    },
+    "id": {
+      "pattern": "^agt_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "languages": {
+      "items": {
+        "pattern": "^(?:[eE][nN](?:-(?:[lL][aA][tT][nN]))?|[hH][iI](?:-(?:[dD][eE][vV][aA]))?|[mM][rR](?:-(?:[dD][eE][vV][aA]))?|[tT][eE](?:-(?:[tT][eE][lL][uU]))?|[tT][aA](?:-(?:[tT][aA][mM][lL]))?|[kK][nN](?:-(?:[kK][nN][dD][aA]))?|[mM][lL](?:-(?:[mM][lL][yY][mM]))?|[pP][aA](?:-(?:[gG][uU][rR][uU]))?|[gG][uU](?:-(?:[gG][uU][jJ][rR]))?)(?:-(?:[gG][bB]|[iI][nN]|[uU][sS]))?$",
+        "type": "string"
+      },
+      "title": "Languages",
+      "type": "array",
+      "uniqueItems": true
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "metadata_flags": {
+      "items": {
+        "$ref": "#/$defs/MetadataFlag"
+      },
+      "title": "Metadata Flags",
+      "type": "array"
+    },
+    "name": {
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "schema_version": {
+      "enum": [
+        "0.0.1"
+      ],
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "version": {
+      "minimum": 1,
+      "title": "Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "content_digest",
+    "created_at",
+    "endpoint",
+    "id",
+    "name",
+    "schema_version",
+    "version"
+  ],
+  "title": "AgentTarget",
+  "type": "object"
+}

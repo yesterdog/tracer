@@ -16,9 +16,9 @@ and 9; P1-13).
 
 from __future__ import annotations
 
-from typing import Annotated, ClassVar
+from typing import Annotated, Any, ClassVar
 
-from pydantic import AfterValidator, Field, model_validator
+from pydantic import AfterValidator, ConfigDict, Field, model_validator
 
 from tracer_evalschema._hiding import values_hidden
 from tracer_evalschema._validation import Problem, raise_problems
@@ -55,9 +55,37 @@ class Dataset(VersionedEntity):
     ]
 
 
+def _item_privacy_conditions(schema: dict[str, Any]) -> None:
+    """The privacy rules of a dataset item as ``if``/``then`` keyed on the presence of a payload
+    (a non-null ``artifact_id`` or ``transcript_id``): the item carries a privacy marker, and
+    without a ``source_run_id`` the marker is human-subject (ADR 0016 Decision 5)."""
+    rules: list[dict[str, Any]] = []
+    for payload in ("artifact_id", "transcript_id"):
+        rules.append(
+            {
+                "if": {"properties": {payload: {"type": "string"}}, "required": [payload]},
+                "then": {"required": ["privacy"], "properties": {"privacy": {"type": "object"}}},
+            }
+        )
+        rules.append(
+            {
+                "if": {
+                    "properties": {payload: {"type": "string"}, "source_run_id": {"type": "null"}},
+                    "required": [payload],
+                },
+                "then": {
+                    "properties": {"privacy": {"properties": {"human_subject": {"enum": [True]}}}}
+                },
+            }
+        )
+    schema["allOf"] = rules
+
+
 class DatasetItem(EntityBase):
     """One item of a dataset (prefix ``dti``; a record of fact). It names no dataset: a Dataset
     version lists its items (N25). See the module docstring for the privacy rules."""
+
+    model_config = ConfigDict(json_schema_extra=_item_privacy_conditions)
 
     id_prefix: ClassVar[str] = "dti"
 

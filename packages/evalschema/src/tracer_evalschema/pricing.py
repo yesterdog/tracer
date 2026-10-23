@@ -282,7 +282,9 @@ Aliases = Annotated[
     AfterValidator(_distinct_aliases),
 ]
 Conditions = Annotated[
-    list[AppliesWhenCondition], Field(min_length=1), AfterValidator(_distinct_kinds)
+    list[AppliesWhenCondition],
+    Field(min_length=1),
+    AfterValidator(_distinct_kinds),
 ]
 
 

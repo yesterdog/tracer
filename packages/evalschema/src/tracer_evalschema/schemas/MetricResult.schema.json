@@ -1,0 +1,951 @@
+{
+  "$defs": {
+    "ContentDigest": {
+      "additionalProperties": false,
+      "description": "``{scheme, value, key_ref?}`` (ADR 0006 Decision 3). An unregistered scheme raises\n``UnknownDigestScheme`` (not wrapped by pydantic): it is never \"unverifiable, accept\".",
+      "properties": {
+        "key_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/KeyRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "scheme": {
+          "enum": [
+            "sha256-jcs/v1",
+            "hmac-sha256-jcs/v1"
+          ],
+          "title": "Scheme",
+          "type": "string"
+        },
+        "value": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "scheme",
+        "value"
+      ],
+      "title": "ContentDigest",
+      "type": "object"
+    },
+    "EvidenceRef": {
+      "additionalProperties": false,
+      "description": "A pointer from a result to its evidence in the same bundle (ADR 0012 Decision 3).\n\n``ref_id`` is an ID of the kind ``kind`` names (``turn_``, ``exc_``, ``tcl_``, ``spn_``,\n``art_``). Offsets are ``Ms`` from sample 0 of the artifact, with ``end_ms >= start_ms``.",
+      "properties": {
+        "end_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End Ms"
+        },
+        "kind": {
+          "enum": [
+            "turn",
+            "exchange",
+            "tool_call",
+            "span",
+            "artifact_range"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "ref_id": {
+          "pattern": "^(?:turn|exc|tcl|spn|art)_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Ref Id",
+          "type": "string"
+        },
+        "start_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Start Ms"
+        }
+      },
+      "required": [
+        "kind",
+        "ref_id"
+      ],
+      "title": "EvidenceRef",
+      "type": "object"
+    },
+    "JudgeInfo": {
+      "additionalProperties": false,
+      "description": "The provenance of a judge's verdict (ADR 0010 Decision 6): the model asked for, the hash of\nthe prompt, the call parameters, the per-turn answers, and what the judge and the provider\nreported. Nothing is synthesized: an absent ``confidence`` or ``p_yes`` stays absent.",
+      "properties": {
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        },
+        "model_ref": {
+          "$ref": "#/$defs/ModelRef"
+        },
+        "params": {
+          "title": "Params",
+          "type": "object"
+        },
+        "per_turn": {
+          "items": {
+            "$ref": "#/$defs/JudgeTurnVerdict"
+          },
+          "title": "Per Turn",
+          "type": "array"
+        },
+        "prompt_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Prompt Sha256",
+          "type": "string"
+        },
+        "reported_model": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reported Model"
+        }
+      },
+      "required": [
+        "model_ref",
+        "params",
+        "prompt_sha256"
+      ],
+      "title": "JudgeInfo",
+      "type": "object"
+    },
+    "JudgeTurnVerdict": {
+      "additionalProperties": false,
+      "description": "The judge's answer for one turn (``turn_seq`` names a ``Turn.seq``). ``p_yes`` is present\nonly if the judge produced it (ADR 0010 Decision 6).",
+      "properties": {
+        "p_yes": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "P Yes"
+        },
+        "reported_model": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reported Model"
+        },
+        "turn_seq": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Turn Seq",
+          "type": "integer"
+        },
+        "verdict": {
+          "enum": [
+            "yes",
+            "no",
+            "undetermined"
+          ],
+          "title": "Verdict",
+          "type": "string"
+        }
+      },
+      "required": [
+        "turn_seq",
+        "verdict"
+      ],
+      "title": "JudgeTurnVerdict",
+      "type": "object"
+    },
+    "KeyRef": {
+      "additionalProperties": false,
+      "description": "Names a key held by a key manager; never carries key material (ADR 0007 Decision 4).\n\n``key_id`` is the key manager's own name for the key, an opaque string stored as given\n(ADR 0001 I12), not one of our typed IDs.",
+      "properties": {
+        "key_id": {
+          "minLength": 1,
+          "title": "Key Id",
+          "type": "string"
+        },
+        "key_version": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Key Version"
+        },
+        "provider_hint": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provider Hint"
+        }
+      },
+      "required": [
+        "key_id"
+      ],
+      "title": "KeyRef",
+      "type": "object"
+    },
+    "MetadataFlag": {
+      "additionalProperties": false,
+      "description": "A secret-looking string in ``metadata``: where it is and why (ADR 0007 Decision 5a).",
+      "properties": {
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "reason": {
+          "enum": [
+            "known_credential_prefix",
+            "high_entropy_token"
+          ],
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "reason"
+      ],
+      "title": "MetadataFlag",
+      "type": "object"
+    },
+    "MetricDefinitionRef": {
+      "additionalProperties": false,
+      "description": "``{id, version, content_digest?}`` of a ``MetricDefinition`` (ADR 0009 Decision 4).",
+      "properties": {
+        "content_digest": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ContentDigest"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "id": {
+          "pattern": "^met_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "version"
+      ],
+      "title": "MetricDefinitionRef",
+      "type": "object"
+    },
+    "ModelRef": {
+      "additionalProperties": false,
+      "description": "A provider and model, without any key reference (ADR 0010 Decision 1a).",
+      "properties": {
+        "model": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "title": "Model",
+          "type": "string"
+        },
+        "provider": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "title": "Provider",
+          "type": "string"
+        }
+      },
+      "required": [
+        "model",
+        "provider"
+      ],
+      "title": "ModelRef",
+      "type": "object"
+    },
+    "PerTurnCounts": {
+      "additionalProperties": false,
+      "description": "The per-turn outcomes of a ``per_turn_share`` metric (P-56); all four are required.",
+      "properties": {
+        "failed": {
+          "minimum": 0,
+          "title": "Failed",
+          "type": "integer"
+        },
+        "not_applicable": {
+          "minimum": 0,
+          "title": "Not Applicable",
+          "type": "integer"
+        },
+        "passed": {
+          "minimum": 0,
+          "title": "Passed",
+          "type": "integer"
+        },
+        "undetermined": {
+          "minimum": 0,
+          "title": "Undetermined",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "failed",
+        "not_applicable",
+        "passed",
+        "undetermined"
+      ],
+      "title": "PerTurnCounts",
+      "type": "object"
+    },
+    "PerTurnSummary": {
+      "additionalProperties": false,
+      "description": "The per-turn outcome of a ``per_turn_share`` metric (P-58): the counts, the turn coverage\n(``counted_turns`` of ``total_turns``) and the share of counted turns that passed.\n\nChecked on load: ``counted_turns = passed + failed``, ``total_turns`` is the sum of the four\ncounts (at least 1), and ``share`` equals ``metrics.per_turn_share(counts)``: present if and\nonly if a turn was counted.",
+      "properties": {
+        "counted_turns": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Counted Turns",
+          "type": "integer"
+        },
+        "counts": {
+          "$ref": "#/$defs/PerTurnCounts"
+        },
+        "share": {
+          "anyOf": [
+            {
+              "pattern": "^(?:0|-?[1-9][0-9]*|-?(?:0|[1-9][0-9]*)\\.[0-9]{0,17}[1-9])$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Share"
+        },
+        "total_turns": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Total Turns",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "counted_turns",
+        "counts",
+        "total_turns"
+      ],
+      "title": "PerTurnSummary",
+      "type": "object"
+    },
+    "ResultError": {
+      "additionalProperties": false,
+      "description": "Why a metric could not be computed although its inputs existed (ADR 0004 I3).",
+      "properties": {
+        "code": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ],
+      "title": "ResultError",
+      "type": "object"
+    },
+    "ScorerInfo": {
+      "additionalProperties": false,
+      "description": "The non-judge scorer that ran (P-61): ``implementation_ref`` equals the definition's, and\n``version`` is stored verbatim and compared for equality only (never parsed or ordered).",
+      "properties": {
+        "implementation_ref": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "title": "Implementation Ref",
+          "type": "string"
+        },
+        "version": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "implementation_ref",
+        "version"
+      ],
+      "title": "ScorerInfo",
+      "type": "object"
+    }
+  },
+  "$id": "urn:tracer:evalschema:0.0.1:MetricResult",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "scored"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "anyOf": [
+          {
+            "properties": {
+              "per_turn": {
+                "type": "null"
+              },
+              "value": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          {
+            "properties": {
+              "per_turn": {
+                "type": "object"
+              },
+              "value": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "per_turn"
+            ]
+          }
+        ],
+        "properties": {
+          "error": {
+            "type": "null"
+          },
+          "missing_kinds": {
+            "maxItems": 0
+          },
+          "na_reason": {
+            "type": "null"
+          },
+          "per_turn": {
+            "properties": {
+              "counted_turns": {
+                "minimum": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "not_applicable",
+              "error"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "passed": {
+            "type": "null"
+          },
+          "value": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "not_applicable"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "else": {
+          "properties": {
+            "missing_kinds": {
+              "maxItems": 0
+            }
+          }
+        },
+        "if": {
+          "properties": {
+            "na_reason": {
+              "enum": [
+                "missing_input"
+              ]
+            }
+          },
+          "required": [
+            "na_reason"
+          ]
+        },
+        "properties": {
+          "error": {
+            "type": "null"
+          },
+          "judge": {
+            "type": "null"
+          },
+          "na_reason": {
+            "type": "string"
+          },
+          "per_turn": {
+            "properties": {
+              "counted_turns": {
+                "maximum": 0
+              },
+              "counts": {
+                "properties": {
+                  "undetermined": {
+                    "maximum": 0
+                  }
+                }
+              }
+            }
+          },
+          "scorer": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "na_reason"
+        ],
+        "then": {
+          "properties": {
+            "missing_kinds": {
+              "minItems": 1
+            }
+          },
+          "required": [
+            "missing_kinds"
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "error"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "error": {
+            "type": "object"
+          },
+          "missing_kinds": {
+            "maxItems": 0
+          },
+          "na_reason": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "error"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "per_turn": {
+            "type": "object"
+          },
+          "status": {
+            "enum": [
+              "error"
+            ]
+          }
+        },
+        "required": [
+          "per_turn",
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "error": {
+            "properties": {
+              "code": {
+                "enum": [
+                  "judge_undetermined"
+                ]
+              }
+            },
+            "type": "object"
+          },
+          "per_turn": {
+            "properties": {
+              "counted_turns": {
+                "maximum": 0
+              },
+              "counts": {
+                "properties": {
+                  "undetermined": {
+                    "minimum": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "error"
+        ]
+      }
+    },
+    {
+      "else": {
+        "properties": {
+          "declared_language_transcript_ids": {
+            "maxItems": 0
+          }
+        }
+      },
+      "if": {
+        "properties": {
+          "language_source": {
+            "enum": [
+              "declared"
+            ]
+          }
+        },
+        "required": [
+          "language_source"
+        ]
+      },
+      "then": {
+        "properties": {
+          "declared_language_transcript_ids": {
+            "minItems": 1
+          }
+        },
+        "required": [
+          "declared_language_transcript_ids"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "na_reason": {
+            "enum": [
+              "missing_input",
+              "agent_channel_unknown"
+            ]
+          }
+        },
+        "required": [
+          "na_reason"
+        ]
+      },
+      "then": {
+        "properties": {
+          "language_source": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ],
+  "description": "The result of one metric on one run (prefix ``res``; ADR 0004, ADR 0010 Decision 5).\n\nRules on the result alone (each reported at the field it is about):\n\n- ``scored``: no ``na_reason``, ``error`` or ``missing_kinds``; exactly one of ``value`` and\n  ``per_turn``, and a scored ``per_turn`` has a counted turn;\n- only a scored result has a ``value`` or ``passed``;\n- ``not_applicable``: ``na_reason`` required; no ``error``, ``scorer`` or ``judge``;\n  ``missing_kinds`` non-empty if and only if ``na_reason=missing_input``; ``per_turn`` only\n  when every turn was not applicable (counted 0, undetermined 0);\n- ``error``: ``error`` required; no ``na_reason`` or ``missing_kinds``; ``per_turn`` only with\n  no counted turn, an undetermined turn and ``error.code=judge_undetermined`` (P-56);\n- ``declared_language_transcript_ids`` non-empty if and only if ``language_source=declared``;\n- ``language_source`` is absent when the language steps did not run (``missing_input``,\n  ``agent_channel_unknown``).",
+  "properties": {
+    "created_at": {
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+      "title": "Created At",
+      "type": "string"
+    },
+    "declared_language_transcript_ids": {
+      "items": {
+        "pattern": "^tsc_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+        "type": "string"
+      },
+      "title": "Declared Language Transcript Ids",
+      "type": "array",
+      "uniqueItems": true
+    },
+    "error": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ResultError"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "evidence_refs": {
+      "items": {
+        "$ref": "#/$defs/EvidenceRef"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "id": {
+      "pattern": "^res_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "judge": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/JudgeInfo"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "language_source": {
+      "anyOf": [
+        {
+          "enum": [
+            "observed",
+            "declared"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Language Source"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "metadata_flags": {
+      "items": {
+        "$ref": "#/$defs/MetadataFlag"
+      },
+      "title": "Metadata Flags",
+      "type": "array"
+    },
+    "metric": {
+      "$ref": "#/$defs/MetricDefinitionRef"
+    },
+    "missing_kinds": {
+      "items": {
+        "enum": [
+          "audio",
+          "agent_audio",
+          "transcript",
+          "agent_transcript",
+          "turn_timing",
+          "tool_calls",
+          "tool_results",
+          "spans",
+          "usage",
+          "reference_text",
+          "expected_tool_calls"
+        ],
+        "type": "string"
+      },
+      "title": "Missing Kinds",
+      "type": "array",
+      "uniqueItems": true
+    },
+    "na_reason": {
+      "anyOf": [
+        {
+          "enum": [
+            "missing_input",
+            "agent_channel_unknown",
+            "language_not_observed",
+            "unsupported_language",
+            "unsupported_script"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Na Reason"
+    },
+    "passed": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Passed"
+    },
+    "per_turn": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PerTurnSummary"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "schema_version": {
+      "enum": [
+        "0.0.1"
+      ],
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "scorer": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ScorerInfo"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "status": {
+      "enum": [
+        "scored",
+        "not_applicable",
+        "error"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "value": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "maximum": 9007199254740991,
+          "minimum": -9007199254740991,
+          "type": "integer"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Value"
+    }
+  },
+  "required": [
+    "created_at",
+    "id",
+    "metric",
+    "schema_version",
+    "status",
+    "value"
+  ],
+  "title": "MetricResult",
+  "type": "object"
+}

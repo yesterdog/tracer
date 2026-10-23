@@ -13,6 +13,9 @@ ADR 0006 Decisions 3-5. This is the only module that hashes or compares digests 
 The digest domain is defined on the JSON document alone, so a verifier in any language needs no
 model: drop the top-level ``content_digest`` and ``schema_version``, then drop every object
 member whose value is ``null`` at any depth (array elements are kept, ``null`` included).
+
+``sha256_hex`` is the plain SHA-256 of a byte string, for callers that hash files rather than
+documents (the ``schema.lock`` of ``schema_export``); it keeps ``hashlib`` in this module.
 """
 
 from __future__ import annotations
@@ -48,6 +51,7 @@ __all__ = [
     "compute_digest",
     "digest_domain",
     "jcs_bytes",
+    "sha256_hex",
     "verify_digest",
 ]
 
@@ -165,6 +169,17 @@ def jcs_bytes(document: Any) -> bytes:
 def canonical_bytes(obj: BaseModel | Mapping[str, Any]) -> bytes:
     """RFC 8785 (JCS) bytes of the digest domain; ``NonIJsonValueError`` outside I-JSON."""
     return jcs_bytes(digest_domain(obj))
+
+
+def sha256_hex(data: bytes) -> str:
+    """Lowercase hexadecimal SHA-256 of ``data`` (64 characters).
+
+    Only ``bytes`` are accepted: a ``str`` (or any other type) raises ``TypeError`` instead of
+    being encoded with a guessed encoding, so the hash of a file is always the hash of its bytes.
+    """
+    if not isinstance(data, bytes):
+        raise TypeError(f"sha256_hex() takes bytes, not {type(data).__name__}")
+    return hashlib.sha256(data).hexdigest()
 
 
 def _hex_digest(scheme: str, payload: bytes, key: bytes | None) -> str:

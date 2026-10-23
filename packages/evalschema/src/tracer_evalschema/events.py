@@ -113,7 +113,12 @@ def _is_whole_json_object(raw: str) -> bool:
 
 
 def _tool_call_conditions(schema: dict[str, Any]) -> None:
-    """``arguments`` only with ``arguments_complete=true`` (ADR 0012 I1), as ``if``/``then``."""
+    """The presence rules of a tool call as ``if``/``then``: ``arguments`` only with
+    ``arguments_complete=true`` (ADR 0012 I1), and ``result_complete`` only together with
+    ``result_raw``. The second is keyed on a non-null ``result_complete`` rather than written as
+    ``dependentRequired``, because an absent member and ``null`` are the same to the model: a
+    ``result_complete: null`` without ``result_raw`` is valid and ``dependentRequired`` would
+    reject it."""
     schema["allOf"] = [
         {
             "if": {
@@ -121,7 +126,14 @@ def _tool_call_conditions(schema: dict[str, Any]) -> None:
                 "required": ["arguments_complete"],
             },
             "then": {"properties": {"arguments": {"type": "null"}}},
-        }
+        },
+        {
+            "if": {
+                "properties": {"result_complete": {"type": "boolean"}},
+                "required": ["result_complete"],
+            },
+            "then": {"required": ["result_raw"], "properties": {"result_raw": {"type": "string"}}},
+        },
     ]
 
 

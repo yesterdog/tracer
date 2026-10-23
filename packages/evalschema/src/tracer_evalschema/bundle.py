@@ -398,6 +398,14 @@ class ProvenanceRedaction(BaseModel):
 # ===================================================================================== entities
 
 
+# The lists of a bundle never hold one element twice: the bundle rules reject a repeated record ID
+# (``[duplicate]``), entity version, withheld declaration, sealed subject or omission entry. The
+# schema does not say so with ``uniqueItems`` (A22, ADR 0008 Decision 8): a validator compares
+# arrays of objects pairwise, so the keyword costs quadratic time on a list whose length the
+# document chooses (a 4,000-turn bundle). Long-list uniqueness is a code-only rule
+# (CO-LONG-LIST-UNIQUENESS); a consumer that validates with the schema alone must check it.
+
+
 class RunBundle(HidingModel, EntityBase):
     """The records of one run (prefix ``rbnd``; N22, B1). A record of fact.
 

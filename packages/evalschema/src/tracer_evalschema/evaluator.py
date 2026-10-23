@@ -214,11 +214,14 @@ class Evaluator(HidingModel, VersionedEntity):
     persona: PersonaRef
     test_profile: TestProfileRef | None = None
     metric_bindings: Annotated[
-        list[MetricBindingRef], Field(min_length=1), AfterValidator(_unique_bindings)
+        list[MetricBindingRef],
+        Field(min_length=1),
+        AfterValidator(_unique_bindings),
     ]
-    scripted_turns: Annotated[list[ScriptedTurn], AfterValidator(_contiguous_indexes)] = Field(
-        default_factory=list
-    )
+    scripted_turns: Annotated[
+        list[ScriptedTurn],
+        AfterValidator(_contiguous_indexes),
+    ] = Field(default_factory=list)
     expected_tool_calls: Annotated[list[ExpectedToolCall], AfterValidator(_contiguous_ranks)] = (
         Field(default_factory=list)
     )

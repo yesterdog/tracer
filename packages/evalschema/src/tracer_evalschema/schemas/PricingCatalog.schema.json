@@ -1,0 +1,551 @@
+{
+  "$defs": {
+    "AppliesWhenCondition": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "context_tokens_gt",
+                  "context_tokens_le"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "batch"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "region"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      ],
+      "description": "One typed condition of a price entry (P-37). A condition is something the resolver can\nevaluate from the caller's ``PriceFacts`` or knows it cannot (``ambiguous_price``).",
+      "properties": {
+        "kind": {
+          "enum": [
+            "context_tokens_gt",
+            "context_tokens_le",
+            "batch",
+            "region"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+              "type": "string"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "kind",
+        "value"
+      ],
+      "title": "AppliesWhenCondition",
+      "type": "object"
+    },
+    "BillingRules": {
+      "additionalProperties": false,
+      "description": "How a provider bills one event (ADR 0014 Decision 11, P-38): both parts are required and\neach is a value or the literal ``\"none\"``. ``increment``: a positive decimal quantity in the\nentry's unit (the quantity is rounded up to a multiple of it). ``minimum``: a USD ``Money``\n>= 0, the minimum charge per billable event.",
+      "properties": {
+        "increment": {
+          "anyOf": [
+            {
+              "enum": [
+                "none"
+              ],
+              "type": "string"
+            },
+            {
+              "pattern": "^(?:[1-9][0-9]*|[1-9][0-9]*\\.[0-9]{0,17}[1-9]|0\\.[0-9]{0,17}[1-9])$",
+              "type": "string"
+            }
+          ],
+          "title": "Increment"
+        },
+        "minimum": {
+          "anyOf": [
+            {
+              "enum": [
+                "none"
+              ],
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/Money"
+            }
+          ],
+          "title": "Minimum"
+        }
+      },
+      "required": [
+        "increment",
+        "minimum"
+      ],
+      "title": "BillingRules",
+      "type": "object"
+    },
+    "ContentDigest": {
+      "additionalProperties": false,
+      "description": "``{scheme, value, key_ref?}`` (ADR 0006 Decision 3). An unregistered scheme raises\n``UnknownDigestScheme`` (not wrapped by pydantic): it is never \"unverifiable, accept\".",
+      "properties": {
+        "key_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/KeyRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "scheme": {
+          "enum": [
+            "sha256-jcs/v1",
+            "hmac-sha256-jcs/v1"
+          ],
+          "title": "Scheme",
+          "type": "string"
+        },
+        "value": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "scheme",
+        "value"
+      ],
+      "title": "ContentDigest",
+      "type": "object"
+    },
+    "KeyRef": {
+      "additionalProperties": false,
+      "description": "Names a key held by a key manager; never carries key material (ADR 0007 Decision 4).\n\n``key_id`` is the key manager's own name for the key, an opaque string stored as given\n(ADR 0001 I12), not one of our typed IDs.",
+      "properties": {
+        "key_id": {
+          "minLength": 1,
+          "title": "Key Id",
+          "type": "string"
+        },
+        "key_version": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Key Version"
+        },
+        "provider_hint": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provider Hint"
+        }
+      },
+      "required": [
+        "key_id"
+      ],
+      "title": "KeyRef",
+      "type": "object"
+    },
+    "MetadataFlag": {
+      "additionalProperties": false,
+      "description": "A secret-looking string in ``metadata``: where it is and why (ADR 0007 Decision 5a).",
+      "properties": {
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "reason": {
+          "enum": [
+            "known_credential_prefix",
+            "high_entropy_token"
+          ],
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "reason"
+      ],
+      "title": "MetadataFlag",
+      "type": "object"
+    },
+    "Money": {
+      "additionalProperties": false,
+      "description": "An exact amount of money: ``{amount, currency}``, both required (ADR 0014 Decision 1).\n\nEqual by value. ``+`` adds exactly and returns the canonical amount; ``display()`` rounds for\npresentation only.",
+      "properties": {
+        "amount": {
+          "pattern": "^(?:0|-?[1-9][0-9]*|-?(?:0|[1-9][0-9]*)\\.[0-9]{0,17}[1-9])$",
+          "title": "Amount",
+          "type": "string"
+        },
+        "currency": {
+          "enum": [
+            "USD"
+          ],
+          "title": "Currency",
+          "type": "string"
+        }
+      },
+      "required": [
+        "amount",
+        "currency"
+      ],
+      "title": "Money",
+      "type": "object"
+    },
+    "PriceEntry": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "price_source": {
+                "enum": [
+                  "user_supplied"
+                ]
+              }
+            },
+            "required": [
+              "price_source"
+            ]
+          },
+          "then": {
+            "properties": {
+              "provenance": {
+                "properties": {
+                  "note": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "note"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "description": "One price of a catalog version (ADR 0014 Decision 11; a value object since revision 15).\nSee the module docstring.",
+      "properties": {
+        "aliases": {
+          "items": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+            "type": "string"
+          },
+          "title": "Aliases",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "applies_when": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/AppliesWhenCondition"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Applies When"
+        },
+        "billing": {
+          "anyOf": [
+            {
+              "enum": [
+                "unknown"
+              ],
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/BillingRules"
+            }
+          ],
+          "title": "Billing"
+        },
+        "effective_from": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Effective From",
+          "type": "string"
+        },
+        "effective_to": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective To"
+        },
+        "entry_key": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "title": "Entry Key",
+          "type": "string"
+        },
+        "model": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "title": "Model",
+          "type": "string"
+        },
+        "price": {
+          "$ref": "#/$defs/Money"
+        },
+        "price_source": {
+          "enum": [
+            "catalog",
+            "user_supplied"
+          ],
+          "title": "Price Source",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/PriceProvenance"
+        },
+        "provider": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "title": "Provider",
+          "type": "string"
+        },
+        "unit": {
+          "enum": [
+            "input_tokens",
+            "cache_read_input_tokens",
+            "cache_write_input_tokens",
+            "output_tokens",
+            "audio_input_seconds",
+            "audio_output_seconds",
+            "input_characters",
+            "requests"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "unit_quantity": {
+          "pattern": "^(?:[1-9][0-9]*|[1-9][0-9]*\\.[0-9]{0,17}[1-9]|0\\.[0-9]{0,17}[1-9])$",
+          "title": "Unit Quantity",
+          "type": "string"
+        }
+      },
+      "required": [
+        "billing",
+        "effective_from",
+        "entry_key",
+        "model",
+        "price",
+        "price_source",
+        "provenance",
+        "provider",
+        "unit",
+        "unit_quantity"
+      ],
+      "title": "PriceEntry",
+      "type": "object"
+    },
+    "PriceProvenance": {
+      "additionalProperties": false,
+      "description": "Where a price came from (ADR 0014 Decision 11). See the module docstring.",
+      "properties": {
+        "kind": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "title": "Kind",
+          "type": "string"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        },
+        "retrieved_at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "Retrieved At",
+          "type": "string"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "pattern": "^https?://[A-Za-z0-9._~:/?#\\[\\]@!$&'()*+,;=%-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url"
+        }
+      },
+      "required": [
+        "kind",
+        "retrieved_at"
+      ],
+      "title": "PriceProvenance",
+      "type": "object"
+    }
+  },
+  "$id": "urn:tracer:evalschema:0.0.1:PricingCatalog",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A version of a pricing catalog (prefix ``pcat``; versioned, ADR 0009). See the module\ndocstring.",
+  "properties": {
+    "content_digest": {
+      "$ref": "#/$defs/ContentDigest"
+    },
+    "created_at": {
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+      "title": "Created At",
+      "type": "string"
+    },
+    "entries": {
+      "items": {
+        "$ref": "#/$defs/PriceEntry"
+      },
+      "minItems": 1,
+      "title": "Entries",
+      "type": "array"
+    },
+    "id": {
+      "pattern": "^pcat_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "metadata_flags": {
+      "items": {
+        "$ref": "#/$defs/MetadataFlag"
+      },
+      "title": "Metadata Flags",
+      "type": "array"
+    },
+    "published_at": {
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+      "title": "Published At",
+      "type": "string"
+    },
+    "schema_version": {
+      "enum": [
+        "0.0.1"
+      ],
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "version": {
+      "minimum": 1,
+      "title": "Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "content_digest",
+    "created_at",
+    "entries",
+    "id",
+    "published_at",
+    "schema_version",
+    "version"
+  ],
+  "title": "PricingCatalog",
+  "type": "object"
+}

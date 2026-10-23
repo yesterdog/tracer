@@ -43,6 +43,8 @@ jobs:
       - run: uv run --locked ruff format --check
       - run: uv run --locked mypy
       - run: uv run --locked python scripts/check_headers.py
+      # Generated JSON Schema files and schema.lock must equal the generator's output (P1-15).
+      - run: uv run --locked python -m tracer_evalschema.schema_export --check
 
   licenses:
     name: license scan

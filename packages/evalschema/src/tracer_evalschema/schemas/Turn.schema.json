@@ -1,0 +1,381 @@
+{
+  "$defs": {
+    "MetadataFlag": {
+      "additionalProperties": false,
+      "description": "A secret-looking string in ``metadata``: where it is and why (ADR 0007 Decision 5a).",
+      "properties": {
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "reason": {
+          "enum": [
+            "known_credential_prefix",
+            "high_entropy_token"
+          ],
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "reason"
+      ],
+      "title": "MetadataFlag",
+      "type": "object"
+    },
+    "Segment": {
+      "additionalProperties": false,
+      "description": "A part of a turn with its own timing (P-28): a word, a phrase (a Sarvam phrase timestamp)\nor an utterance. The text is stored verbatim and its bidi flag is computed when omitted and\nverified when supplied (ADR 0017 Decision 2).",
+      "properties": {
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        },
+        "contains_bidi_controls": {
+          "default": false,
+          "title": "Contains Bidi Controls",
+          "type": "boolean"
+        },
+        "end_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End Ms"
+        },
+        "granularity": {
+          "enum": [
+            "word",
+            "phrase",
+            "utterance"
+          ],
+          "title": "Granularity",
+          "type": "string"
+        },
+        "start_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Start Ms"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "granularity",
+        "text"
+      ],
+      "title": "Segment",
+      "type": "object"
+    },
+    "WallTime": {
+      "additionalProperties": false,
+      "description": "A wall-clock instant and what it marks (ADR 0002 Decision 4). Never an offset.",
+      "properties": {
+        "at": {
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "title": "At",
+          "type": "string"
+        },
+        "meaning": {
+          "enum": [
+            "start",
+            "end",
+            "logged",
+            "unknown"
+          ],
+          "title": "Meaning",
+          "type": "string"
+        }
+      },
+      "required": [
+        "at",
+        "meaning"
+      ],
+      "title": "WallTime",
+      "type": "object"
+    }
+  },
+  "$id": "urn:tracer:evalschema:0.0.1:Turn",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "else": {
+        "anyOf": [
+          {
+            "properties": {
+              "start_ms": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "start_ms"
+            ]
+          },
+          {
+            "properties": {
+              "end_ms": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "end_ms"
+            ]
+          }
+        ]
+      },
+      "if": {
+        "properties": {
+          "timing_source": {
+            "enum": [
+              "none"
+            ]
+          }
+        },
+        "required": [
+          "timing_source"
+        ]
+      },
+      "then": {
+        "properties": {
+          "end_ms": {
+            "type": "null"
+          },
+          "start_ms": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ],
+  "description": "One turn of a transcript (prefix ``turn``; ADR 0011 Decisions 1 to 3).\n\n``seq`` orders the turns of its transcript and is unique there (``check_transcript``).\nTiming is optional: ``timing_source`` is ``none`` if and only if the turn has neither\n``start_ms`` nor ``end_ms`` (a ``wall_time`` is not an offset). ``end_ms >= start_ms``, and a\nsegment's bounds lie inside the turn's. ``language`` is any well-formed observed tag and\n``language_raw`` the provider's label, verbatim. ``interrupted`` is true, false or unknown\n(``None``). There is no confidence on a turn (P-29).",
+  "properties": {
+    "contains_bidi_controls": {
+      "default": false,
+      "title": "Contains Bidi Controls",
+      "type": "boolean"
+    },
+    "created_at": {
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+      "title": "Created At",
+      "type": "string"
+    },
+    "end_ms": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "End Ms"
+    },
+    "exchange_index": {
+      "anyOf": [
+        {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Exchange Index"
+    },
+    "id": {
+      "pattern": "^turn_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "interrupted": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Interrupted"
+    },
+    "language": {
+      "anyOf": [
+        {
+          "pattern": "^(?!(?:[eE][nN]-[gG][bB]-[oO][eE][dD]|[iI]-[aA][mM][iI]|[iI]-[bB][nN][nN]|[iI]-[dD][eE][fF][aA][uU][lL][tT]|[iI]-[eE][nN][oO][cC][hH][iI][aA][nN]|[iI]-[hH][aA][kK]|[iI]-[kK][lL][iI][nN][gG][oO][nN]|[iI]-[lL][uU][xX]|[iI]-[mM][iI][nN][gG][oO]|[iI]-[nN][aA][vV][aA][jJ][oO]|[iI]-[pP][wW][nN]|[iI]-[tT][aA][oO]|[iI]-[tT][aA][yY]|[iI]-[tT][sS][uU]|[sS][gG][nN]-[bB][eE]-[fF][rR]|[sS][gG][nN]-[bB][eE]-[nN][lL]|[sS][gG][nN]-[cC][hH]-[dD][eE]|[aA][rR][tT]-[lL][oO][jJ][bB][aA][nN]|[cC][eE][lL]-[gG][aA][uU][lL][iI][sS][hH]|[nN][oO]-[bB][oO][kK]|[nN][oO]-[nN][yY][nN]|[zZ][hH]-[gG][uU][oO][yY][uU]|[zZ][hH]-[hH][aA][kK][kK][aA]|[zZ][hH]-[mM][iI][nN]|[zZ][hH]-[mM][iI][nN]-[nN][aA][nN]|[zZ][hH]-[xX][iI][aA][nN][gG])$)(?:[A-Za-z]{2,3}(?:-[A-Za-z]{3}(?:-[A-Za-z]{3}){0,2})?(?:-[A-Za-z]{4})?(?:-(?:[A-Za-z]{2}|[0-9]{3}))?(?:-(?:[A-Za-z0-9]{5,8}|[0-9][A-Za-z0-9]{3}))*(?:-[0-9A-WYZa-wyz](?:-[A-Za-z0-9]{2,8})+)*(?:-[Xx](?:-[A-Za-z0-9]{1,8})+)?|[Xx](?:-[A-Za-z0-9]{1,8})+)$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Language"
+    },
+    "language_raw": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Language Raw"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "metadata_flags": {
+      "items": {
+        "$ref": "#/$defs/MetadataFlag"
+      },
+      "title": "Metadata Flags",
+      "type": "array"
+    },
+    "role": {
+      "enum": [
+        "caller",
+        "agent",
+        "unknown"
+      ],
+      "title": "Role",
+      "type": "string"
+    },
+    "schema_version": {
+      "enum": [
+        "0.0.1"
+      ],
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "segments": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/Segment"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Segments"
+    },
+    "seq": {
+      "maximum": 9007199254740991,
+      "minimum": 0,
+      "title": "Seq",
+      "type": "integer"
+    },
+    "source": {
+      "enum": [
+        "our_stt",
+        "agent_stt",
+        "agent_llm_output",
+        "agent_tts_input",
+        "agent_context",
+        "agent_log",
+        "script",
+        "human_reference"
+      ],
+      "title": "Source",
+      "type": "string"
+    },
+    "start_ms": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Start Ms"
+    },
+    "text": {
+      "title": "Text",
+      "type": "string"
+    },
+    "timing_source": {
+      "enum": [
+        "audio_alignment",
+        "telemetry",
+        "observer",
+        "none"
+      ],
+      "title": "Timing Source",
+      "type": "string"
+    },
+    "transcript_id": {
+      "pattern": "^tsc_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "title": "Transcript Id",
+      "type": "string"
+    },
+    "wall_time": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/WallTime"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "created_at",
+    "id",
+    "role",
+    "schema_version",
+    "seq",
+    "source",
+    "text",
+    "timing_source",
+    "transcript_id"
+  ],
+  "title": "Turn",
+  "type": "object"
+}
