@@ -15,6 +15,9 @@
   never a silent "not human".
 - ``check_human_subject_marker(marker, run, turns)``: a stored marker may be stricter than the
   derivation (with a reason), never looser (P-47). The marker is never changed.
+- ``RedactionRecord{method, tool_ref, performed_at, covers[]}`` (ADR 0016 Decision 7, P1-26): how a
+  payload was redacted and which payload kinds the redaction covers. Exactly four fields and no
+  id (S-N89): an export bundle pairs a payload with its seal or redaction by position (P1-14).
 
 The export-time functions (``export_human_subject``, P-57) belong to the bundles (P1-14).
 """
@@ -24,7 +27,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Annotated, Any, Final
 
-from pydantic import BaseModel, ConfigDict, Strict, model_validator
+from pydantic import AfterValidator, BaseModel, ConfigDict, Field, Strict, model_validator
 
 from tracer_evalschema._constraints import ClosedSet
 from tracer_evalschema._validation import Problem, raise_problems
@@ -38,8 +41,10 @@ if TYPE_CHECKING:
 __all__ = [
     "CONSENT_STATUSES",
     "HUMAN_SUBJECT_REASONS",
+    "REDACTION_COVERS",
     "ConsentRecord",
     "PrivacyMarker",
+    "RedactionRecord",
     "RetentionPolicy",
     "check_human_subject_marker",
     "derive_human_subject",
@@ -48,6 +53,9 @@ __all__ = [
 
 CONSENT_STATUSES: Final = ("obtained", "not_obtained", "unknown")
 HUMAN_SUBJECT_REASONS: Final = ("marked_before_role_evidence", "real_person_likeness", "manual")
+REDACTION_COVERS: Final = ("audio", "text", "tool_arguments", "tool_result")
+"""The payload kinds a redaction names separately (ADR 0016 Decision 7 and I10; ``tool_result``
+added by S-N87, because a sealed payload type ``tool_result`` exists)."""
 
 
 class ConsentRecord(BaseModel):
@@ -143,6 +151,41 @@ class PrivacyMarker(BaseModel):
                 )
         raise_problems(type(self).__name__, problems)
         return self
+
+
+# ------------------------------------------------------------------------------- redaction
+
+
+def _distinct_covers(values: list[str]) -> list[str]:
+    if len(set(values)) != len(values):
+        raise ValueError("covers names one payload kind twice")
+    return values
+
+
+RedactionCovers = Annotated[
+    list[Annotated[str, ClosedSet(REDACTION_COVERS)]],
+    Field(min_length=1, json_schema_extra={"uniqueItems": True}),
+    AfterValidator(_distinct_covers),
+]
+
+
+class RedactionRecord(BaseModel):
+    """How a payload was redacted (ADR 0016 Decision 7): the ``method`` and the tool
+    (``tool_ref``) that performed it, when (``performed_at``, UTC), and the payload kinds it
+    ``covers`` (a non-empty list of distinct members of ``REDACTION_COVERS``).
+
+    A value object of exactly four fields, with no id (S-N89). ``method`` and ``tool_ref`` are
+    non-empty free text for now (S-N86; P1-14 may narrow them). It holds no payload content, so it
+    does not hide its input (S-N88). The export rule that demands a seal or a redaction for
+    human-subject payloads is a bundle rule (P1-14).
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    method: Annotated[VerbatimText, Field(min_length=1)]
+    tool_ref: Annotated[VerbatimText, Field(min_length=1)]
+    performed_at: UtcDatetime
+    covers: RedactionCovers
 
 
 # ------------------------------------------------------------------------------- derivation

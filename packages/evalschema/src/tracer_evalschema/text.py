@@ -4,6 +4,8 @@
 
 - ``VerbatimText``: free text stored code point for code point (no normalization, no stripping);
   only lone surrogates are rejected, because they cannot be encoded as UTF-8.
+  ``replace_lone_surrogates`` is the one replacement an importer applies before storing source
+  text that holds them (U+FFFD, one for one; ADR 0014 Decision 12c, N82).
 - ``HumanLabel``: names and labels that a person reads and compares (ADR 0017 Decision 4).
 - ``MachineKey`` and ``MetricKey``: ASCII keys (ADR 0017 Decision 5, P-49).
 - ``contains_bidi_controls`` and ``BidiFlaggedText``: the bidi flag, computed when omitted and
@@ -38,6 +40,7 @@ __all__ = [
     "contains_bidi_controls",
     "display_safe",
     "marker_table_json",
+    "replace_lone_surrogates",
     "with_computed_bidi_flag",
 ]
 
@@ -65,6 +68,15 @@ def _reject_lone_surrogates(value: str) -> str:
 
 VerbatimText = Annotated[str, Strict(), AfterValidator(_reject_lone_surrogates)]
 """Free text, stored exactly as received (no NFC/NFD, no strip, no escaping)."""
+
+_REPLACEMENT = "\ufffd"
+
+
+def replace_lone_surrogates(value: str) -> str:
+    """``value`` with every code point in U+D800..U+DFFF replaced by U+FFFD, one for one, and
+    nothing else changed (N82). A Python ``str`` holds an astral character as one code point, so
+    every surrogate code point in it is lone, also two in a row. Pure."""
+    return _SURROGATES.sub(_REPLACEMENT, value)
 
 
 # --------------------------------------------------------------------------------- HumanLabel

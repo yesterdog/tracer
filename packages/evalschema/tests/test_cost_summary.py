@@ -153,6 +153,44 @@ def test_cost_exclusion_shape_and_reasons() -> None:
         assert forbidden not in model.model_fields
 
 
+def test_covered_by_repeated_ids_rejected() -> None:
+    """N78 (owner auto-approved, api-surface 23.10): ``CostExclusion.covered_by`` lists distinct
+    records. A repeated ID is a ``ValidationError`` located at ``covered_by`` whatever the reason
+    (``duplicate_of_reported`` included), adjacent or not, with the repeat among other IDs, and
+    also when the exclusion sits inside a ``CostSummary`` (located at ``excluded``). Distinct IDs,
+    one ID and the empty list stay valid, and the order of distinct IDs is kept."""
+    model = registered_class("CostExclusion")
+    ref, a, b, c = (new_id("cst") for _ in range(4))
+    for reason in EXCLUSION_REASONS:
+        assert_rejected(
+            model, {"ref": ref, "reason": reason, "covered_by": [a, a]}, field="covered_by"
+        )
+    for repeated in ([a, b, a], [a, b, b], [a, a, b], [a, b, c, b], [a, b, c, a, b, c]):
+        assert_rejected(
+            model,
+            {"ref": ref, "reason": "unsupported_currency", "covered_by": repeated},
+            field="covered_by",
+        )
+    for ok in ([], [a], [a, b], [b, a], [a, b, c]):
+        loaded = model.model_validate(
+            {"ref": ref, "reason": "unsupported_currency", "covered_by": ok}
+        )
+        assert [str(i) for i in loaded.covered_by] == ok
+    assert model.model_validate(
+        {"ref": ref, "reason": "duplicate_of_reported", "covered_by": [a, b]}
+    )
+    cover = new_id("cst")
+    assert_rejected(
+        cost_class("CostSummary"),
+        summary_doc(
+            included=[cover],
+            excluded=[_exclusion(ref, "unsupported_currency", [cover, cover])],
+            total=usd("5"),
+        ),
+        field="excluded",
+    )
+
+
 def test_cost_summary_shape_and_enums() -> None:
     """Proposed name (ADR 0014 Decision 16, ADR 0003 Decision 1): a summary is an entity
     (``csum``) with exactly the entity fields plus ``domain``, ``total``, ``included``,

@@ -775,10 +775,21 @@ def test_hide_input_set_closed_under_embedding() -> None:
     ``Evaluator``; revision 13 (N41) adds ``ScriptedTurn``, ``ExpectedToolCall``, ``Persona``,
     ``MetricDefinition``, ``MetricBinding`` and ``Rubric``; revision 15 (N60) adds ``UsageRecord``,
     ``ReportedCostRaw`` and ``CostRecord``, and revision 16 (N62) ``PriceProvenance``,
-    ``PriceEntry`` and ``PricingCatalog``. A model that embeds any of them, at
+    ``PriceEntry`` and ``PricingCatalog``; revision 18 (S-N88) ``SealedPayload`` and the two models
+    nested in it. A model that embeds any of them, at
     any depth, hides too. Models added later (``Artifact``, bundles) fall under the same walk."""
     registry = api("registry")
     by_name = {m.__name__: m for m in registry.model_classes()}
+    # revision 18 (api-surface-sealing R2, S-N88): the sealed payload and the two models nested in
+    # it (the key-wrap model and the AAD model; their class names are not pinned, so they are read
+    # from the field annotations of ``SealedPayload``)
+    sealed_nested: list[str] = []
+    if "SealedPayload" in by_name:
+        for field in ("dek_wrap", "aad_fields"):
+            annotation = by_name["SealedPayload"].model_fields[field].annotation
+            assert isinstance(annotation, type), (field, annotation)
+            sealed_nested.append(annotation.__name__)
+        assert len(set(sealed_nested)) == 2, sealed_nested
     seeds = (
         "ProviderConfigRef",
         "Project",
@@ -812,6 +823,10 @@ def test_hide_input_set_closed_under_embedding() -> None:
         "PriceProvenance",
         "PriceEntry",
         "PricingCatalog",
+        # revision 18, S-N88: a rejected value can be a damaged ciphertext or wrapped DEK, the
+        # nonce, or the id of the person's record whose data is sealed
+        "SealedPayload",
+        *sealed_nested,
     )
     for name in seeds:
         assert name in by_name, f"{name} is not implemented yet"

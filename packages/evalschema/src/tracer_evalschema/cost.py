@@ -82,7 +82,7 @@ from tracer_evalschema.primitives import (
     iso4217_currency_name,
 )
 from tracer_evalschema.snapshot import PricingCatalogRef, check_pricing_catalog_ref
-from tracer_evalschema.text import MachineKey, VerbatimText
+from tracer_evalschema.text import MachineKey, VerbatimText, replace_lone_surrogates
 from tracer_evalschema.usage import DOMAINS, USAGE_UNITS, UsageRecord, UsageUnit
 
 __all__ = [
@@ -530,13 +530,18 @@ class CostExclusion(BaseModel):
     ``na_reason``, ``duplicate_of_reported`` (an available computed record set aside for an
     available reported one; ``covered_by`` non-empty) or ``overlaps_reported`` (an available
     computed record that only partly overlaps included reported records, N53). ``covered_by``
-    lists the included records that cover all of the record's usage, else it is empty."""
+    lists the included records that cover all of the record's usage, else it is empty; it names
+    each record at most once (N78)."""
 
     model_config = ConfigDict(extra="forbid", frozen=True, json_schema_extra=_exclusion_conditions)
 
     ref: CostRecordId
     reason: Annotated[str, ClosedSet(EXCLUSION_REASONS)]
-    covered_by: list[CostRecordId]
+    covered_by: Annotated[
+        list[CostRecordId],
+        Field(json_schema_extra={"uniqueItems": True}),
+        AfterValidator(_distinct("covered_by")),
+    ]
 
     @model_validator(mode="after")
     def _duplicate_is_covered(self) -> CostExclusion:
@@ -1238,6 +1243,16 @@ def _code_text(label: str) -> str:
     return f"{label} ({name})" if name is not None else repr(label)
 
 
+def _lone_surrogates(text: str) -> str:
+    """The lone surrogates of ``text`` as ``U+XXXX at index i`` (code point indexes), for a
+    message that names what was replaced without holding it."""
+    return ", ".join(
+        f"U+{ord(ch):04X} at index {index}"
+        for index, ch in enumerate(text)
+        if 0xD800 <= ord(ch) <= 0xDFFF
+    )
+
+
 def import_reported_cost(
     *,
     domain: str,
@@ -1254,8 +1269,12 @@ def import_reported_cost(
     """Turn a reported cost into a ``CostRecord`` and its ingest warnings (ADR 0014 Decision 12c);
     the import is never rejected for what the source sent.
 
-    Steps: (1) the label is trimmed of ASCII white space and ASCII-folded only (P-52); an empty or
-    blank label is no label (D6). (2) A payload label wins over a cited contract; every
+    Steps: (0) text that is not valid Unicode (a lone surrogate, which cannot be written as UTF-8)
+    is stored with each lone surrogate replaced by U+FFFD and records ``text_not_valid_unicode``,
+    label first, then amount; such a label is unparseable (``unsupported_currency``) and such an
+    amount too (``amount_unparseable`` once the currency is USD) (N82). (1) The label is trimmed
+    of ASCII white space and ASCII-folded only (P-52); an empty or blank label is no label (D6).
+    (2) A payload label wins over a cited contract; every
     disagreement records ``currency_contract_conflict`` (N68); a USD label against a non-USD
     contract is ``currency_conflict``. A label and a contract agree when both are USD after P-52
     or the label equals the contract's code exactly (N73). (3) No label: a cited contract's
@@ -1291,6 +1310,33 @@ def import_reported_cost(
         raise TypeError("amount_raw is the source lexeme as text (never a parsed number)")
     if currency_raw is not None and not isinstance(currency_raw, str):
         raise TypeError("currency_raw is the currency label as text, or None when none was sent")
+
+    # step 0 (N82): never raise on the text of the source; replace lone surrogates and flag them
+    label_damaged = currency_raw is not None and (
+        replace_lone_surrogates(currency_raw) != currency_raw
+    )
+    amount_damaged = replace_lone_surrogates(amount_raw) != amount_raw
+    if currency_raw is not None and label_damaged:
+        where = _lone_surrogates(currency_raw)
+        currency_raw = replace_lone_surrogates(currency_raw)
+        warn(
+            "text_not_valid_unicode",
+            currency_raw,
+            currency_source_path,
+            f"the reported currency label is not valid Unicode text (lone surrogate {where}); "
+            "each lone surrogate is stored as U+FFFD and the label is treated as unparseable",
+        )
+    if amount_damaged:
+        where = _lone_surrogates(amount_raw)
+        amount_raw = replace_lone_surrogates(amount_raw)
+        warn(
+            "text_not_valid_unicode",
+            amount_raw,
+            amount_source_path,
+            f"the reported amount is not valid Unicode text (lone surrogate {where}); each lone "
+            "surrogate is stored as U+FFFD and the amount is treated as unparseable",
+        )
+
     cited = contract if _is_cited(contract) else None
     if cited is not None and _is_blank_label(cited.currency):
         raise ValueError("a cited contract states a currency code (contract.currency is blank)")
@@ -1299,7 +1345,8 @@ def import_reported_cost(
 
     if currency_raw is not None and has_label:
         label = currency_raw
-        label_usd = normalize_currency_label(label) == _USD
+        # a damaged label never normalizes to USD (U+FFFD is no ASCII white space); stated anyway
+        label_usd = not label_damaged and normalize_currency_label(label) == _USD
         if label_usd and label != _USD:
             warn(
                 "currency_label_normalized",
@@ -1351,7 +1398,7 @@ def import_reported_cost(
         )
         return raw_record("currency_not_reported", "none", None)
 
-    canonical = _normalized_amount(amount_raw)
+    canonical = None if amount_damaged else _normalized_amount(amount_raw)
     if canonical is None:
         warn(
             "amount_unparseable",

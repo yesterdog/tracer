@@ -47,6 +47,7 @@ __all__ = [
     "canonical_bytes",
     "compute_digest",
     "digest_domain",
+    "jcs_bytes",
     "verify_digest",
 ]
 
@@ -151,12 +152,19 @@ def digest_domain(obj: BaseModel | Mapping[str, Any]) -> dict[str, Any]:
     return domain
 
 
-def canonical_bytes(obj: BaseModel | Mapping[str, Any]) -> bytes:
-    """RFC 8785 (JCS) bytes of the digest domain; ``NonIJsonValueError`` outside I-JSON."""
+def jcs_bytes(document: Any) -> bytes:
+    """RFC 8785 (JCS) bytes of a JSON-mode value, exactly as given (no digest-domain rule is
+    applied); ``NonIJsonValueError`` outside I-JSON. The sealed-payload AAD uses it
+    (``sealed.aad_bytes``), so ``rfc8785`` stays imported in this module only."""
     try:
-        return rfc8785.dumps(digest_domain(obj))
+        return rfc8785.dumps(document)
     except rfc8785.CanonicalizationError as exc:
         raise NonIJsonValueError(f"value cannot be canonicalized (RFC 8785): {exc}") from exc
+
+
+def canonical_bytes(obj: BaseModel | Mapping[str, Any]) -> bytes:
+    """RFC 8785 (JCS) bytes of the digest domain; ``NonIJsonValueError`` outside I-JSON."""
+    return jcs_bytes(digest_domain(obj))
 
 
 def _hex_digest(scheme: str, payload: bytes, key: bytes | None) -> str:

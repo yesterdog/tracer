@@ -11,7 +11,7 @@ import unicodedata
 from pathlib import Path
 from typing import Any
 
-from .support.uax9 import ucd
+from .support.uax9 import compat, ucd
 
 DATA = ucd.DATA_DIR
 
@@ -105,26 +105,127 @@ def test_uax9_every_code_point_has_a_class() -> None:
 
 # Bidi_Class changes between Unicode 15.1 (Python 3.13) and 16.0 (this data): found by this test
 # and confirmed against the 16.0.0 DerivedBidiClass.txt lines of these code points.
-CHANGED_IN_16_0 = {0x1171E, 0x1D6C1, 0x1D6FB, 0x1D735, 0x1D76F, 0x1D7A9}
+CHANGED_IN_16_0 = frozenset({0x1171E, 0x1D6C1, 0x1D6FB, 0x1D735, 0x1D76F, 0x1D7A9})
+
+
+# Bidi_Class changes of code points assigned in 16.0.0 when the interpreter ships a NEWER Unicode.
+# Each entry needs a Unicode release-note / DerivedBidiClass diff justification. Python 3.15
+# (Unicode 17.0.0, 3.15.0rc2) shows no such change: every difference there is a code point that is
+# unassigned (Cn) in the 16.0.0 data, so this set is empty and must stay empty without evidence.
+CHANGED_IN_NEWER_UNICODE: frozenset[int] = frozenset()
+
+
+def _interpreter_differences() -> compat.Differences:
+    return compat.differences(
+        ucd.bidi_class,
+        lambda cp: unicodedata.bidirectional(chr(cp)),
+        lambda cp: unicodedata.category(chr(cp)),
+    )
+
+
+def _verdict(version: str, found: compat.Differences) -> list[int]:
+    return compat.verdict(
+        version,
+        found,
+        changed_in_16_0=CHANGED_IN_16_0,
+        changed_in_newer=CHANGED_IN_NEWER_UNICODE,
+    )
 
 
 def test_uax9_classes_agree_with_the_interpreters_unicodedata() -> None:
     """Characters assigned both here (16.0.0) and in the running Python keep the same class.
 
-    Python 3.14 ships Unicode 16.0 (all must agree). Older Pythons ship older Unicode; the only
-    differences allowed are the code points whose class changed in 16.0.
+    Equal Unicode version (Python 3.14): no difference at all. Older Python: only the code points
+    whose class changed in 16.0. Newer Python (3.15 ships 17.0.0): code points unassigned in the
+    16.0.0 data are not comparable; every code point assigned in 16.0.0 must still agree unless it
+    is in the reviewed CHANGED_IN_NEWER_UNICODE list.
     """
-    mismatches = set()
-    for cp in range(0x110000):
-        if 0xD800 <= cp <= 0xDFFF:
-            continue
-        theirs = unicodedata.bidirectional(chr(cp))
-        if theirs and unicodedata.category(chr(cp)) != "Cn" and ucd.bidi_class(cp) != theirs:
-            mismatches.add(cp)
-    if unicodedata.unidata_version == ucd.UNICODE_VERSION:
-        assert not mismatches
-    else:
-        assert mismatches <= CHANGED_IN_16_0, sorted(map(hex, mismatches - CHANGED_IN_16_0))[:10]
+    found = _interpreter_differences()
+    bad = _verdict(unicodedata.unidata_version, found)
+    assert not bad, [hex(cp) for cp in bad[:10]]
+    if compat.version_tuple(unicodedata.unidata_version) > compat.version_tuple(
+        ucd.UNICODE_VERSION
+    ):
+        assert found.changed == CHANGED_IN_NEWER_UNICODE, "an unreviewed class change was allowed"
+
+
+def test_uax9_assigned_set_comes_from_the_vendored_data() -> None:
+    assigned = compat.assigned_in_data()
+    assert {0x41, 0x5D0, 0x627, 0x1171E} <= assigned
+    assert 0x10ED0 not in assigned, "assigned in Unicode 17.0.0, Cn in 16.0.0"
+    assert 0x1ACF not in assigned
+    assert 0xFFFE not in assigned, "noncharacter"
+    assert 0x378 not in assigned, "unassigned"
+    assert 0xD800 not in assigned
+
+
+def test_uax9_every_data_line_carries_a_general_category() -> None:
+    """The assigned set is parsed from comments, so no data line may be silently skipped."""
+    lines = [
+        ln
+        for ln in (DATA / "DerivedBidiClass.txt").read_text(encoding="utf-8").splitlines()
+        if ln and not ln.startswith("#")
+    ]
+    assert lines
+    assert all(compat.LINE.match(ln) for ln in lines)
+
+
+def test_uax9_assigned_set_equals_the_interpreters_when_versions_are_equal() -> None:
+    if unicodedata.unidata_version != ucd.UNICODE_VERSION:
+        return
+    expected = {
+        cp
+        for cp in range(0x110000)
+        if not 0xD800 <= cp <= 0xDFFF and unicodedata.category(chr(cp)) != "Cn"
+    }
+    assert compat.assigned_in_data() - set(range(0xD800, 0xE000)) == expected
+
+
+def test_uax9_newer_interpreter_branch_rejects_a_real_mismatch() -> None:
+    """Inject a wrong class for a code point assigned in 16.0.0 and pretend Unicode 17.0.0."""
+
+    def mutated(cp: int) -> str:
+        return "R" if cp == 0x41 else ucd.bidi_class(cp)
+
+    found = compat.differences(
+        mutated,
+        ucd.bidi_class,
+        lambda cp: "Lu" if cp == 0x41 else "Lo",
+    )
+    assert found.changed == frozenset({0x41})
+    assert found.newly_assigned == frozenset()
+    assert _verdict("17.0.0", found) == [0x41]
+    assert _verdict("16.0.0", found) == [0x41]
+    assert _verdict("99.0.0", found) == [0x41]
+
+
+def test_uax9_newer_interpreter_branch_tolerates_only_newly_assigned() -> None:
+    def mutated(cp: int) -> str:
+        return "L" if cp == 0x10ED0 else ucd.bidi_class(cp)
+
+    found = compat.differences(
+        mutated, lambda cp: ucd.bidi_class(cp) if cp != 0x10ED0 else "ON", lambda cp: "Lo"
+    )
+    assert found.newly_assigned == frozenset({0x10ED0})
+    assert found.changed == frozenset()
+    assert _verdict("17.0.0", found) == []
+    assert _verdict("16.0.0", found) == [0x10ED0], "equal version stays at full strength"
+    assert _verdict("15.1.0", found) == [0x10ED0], "older interpreter has no such allowance"
+
+
+def test_uax9_older_interpreter_branch_rejects_an_unlisted_change() -> None:
+    found = compat.Differences(frozenset({0x41, 0x1171E}), frozenset())
+    assert _verdict("15.1.0", found) == [0x41]
+    assert _verdict("16.0.0", found) == [0x41, 0x1171E]
+
+
+def test_uax9_reviewed_newer_allowlist_is_honoured_only_for_assigned_code_points() -> None:
+    found = compat.Differences(frozenset({0x41}), frozenset({0x10ED0}))
+    ok = compat.verdict(
+        "17.0.0", found, changed_in_16_0=frozenset(), changed_in_newer=frozenset({0x41})
+    )
+    assert ok == []
+    assert _verdict("17.0.0", found) == [0x41]
 
 
 def test_uax9_bidi_brackets() -> None:

@@ -198,6 +198,17 @@ def _closed_enum_table() -> list[tuple[str, tuple[str, ...], set[str]]]:
         ("AgentTarget", ("endpoint", "transport"), {"ws", "webrtc", "sip"}),
         ("ContentDigest", ("scheme",), {"sha256-jcs/v1", "hmac-sha256-jcs/v1"}),
         ("Money", ("currency",), {"USD"}),
+        # revision 18 (api-surface-sealing R3, S-N80, S-N87): the closed sets of the sealed
+        # payload and of the redaction record; owners are checked once they exist
+        ("SealedPayload", ("format",), {"tracer.sealed.v1"}),
+        ("SealedPayload", ("alg",), {"A256GCM"}),
+        ("SealedPayload", ("dek_wrap", "alg"), {"A256KW"}),
+        (
+            "SealedPayload",
+            ("aad_fields", "payload_type"),
+            {"test_profile", "audio", "transcript_text", "tool_arguments", "tool_result"},
+        ),
+        ("RedactionRecord", ("covers",), {"audio", "text", "tool_arguments", "tool_result"}),
         (
             "Transcript",
             ("source",),

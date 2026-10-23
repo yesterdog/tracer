@@ -626,3 +626,123 @@ def test_import_warning_paths_follow_their_field() -> None:
                     key=repr,
                 )
                 assert _triples(imported) == wanted, (kwargs, passed_currency, passed_amount)
+
+
+def _no_surrogates(*texts: str | None) -> None:
+    for text in texts:
+        if text is not None:
+            assert not any(0xD800 <= ord(ch) <= 0xDFFF for ch in text), repr(text)
+
+
+def _serialisable(imported: Any) -> None:
+    """The record and every warning encode as UTF-8 JSON and the record validates again (a lone
+    surrogate cannot be written as UTF-8)."""
+    _revalidates(imported)
+    imported.record.model_dump_json().encode("utf-8")
+    for warning in imported.warnings:
+        warning.model_dump_json().encode("utf-8")
+        _no_surrogates(warning.raw, warning.path, warning.message)
+
+
+def test_import_lone_surrogate_never_raises_and_is_flagged() -> None:
+    """N82 (owner auto-approved, api-surface 23.10; closes the P1-31 lone-surrogate item):
+    ``import_reported_cost`` never raises on the text of a reported label or amount. A string with
+    a lone surrogate (U+D800..U+DFFF, also two in a row, which is not an astral character) is
+    unparseable: a label is ``unsupported_currency`` (``currency_source=payload``), an amount with
+    a USD label is ``amount_unparseable``; with a non-USD label the amount stays unparsed as in
+    D7. The stored ``reported_raw`` holds the text with every lone surrogate replaced by U+FFFD,
+    one for one, and nothing else changed. One ``text_not_valid_unicode`` warning per affected
+    field records the replacement, with the path of that field when passed (D19, absent when not
+    passed). The ``raw`` of the ``unsupported_currency`` and ``amount_unparseable`` warnings is the
+    same replaced text as the stored one (the warning model cannot hold a surrogate); that of the
+    ``text_not_valid_unicode`` warning is not pinned beyond holding no surrogate. No warning,
+    message or record holds a surrogate and all serialise as UTF-8 JSON. A
+    valid astral character is kept as sent and gives no such warning."""
+    d800, dc00 = chr(0xD800), chr(0xDC00)
+    fffd = chr(0xFFFD)
+    cpath, apath = "/spans/0/cost/currency", "/spans/0/cost/amount"
+    labels = (
+        ("US" + d800 + "D", "US" + fffd + "D"),
+        ("USD" + dc00, "USD" + fffd),
+        (d800, fffd),
+        ("EUR" + d800, "EUR" + fffd),
+        (chr(0xD83D) + chr(0xDE00), fffd + fffd),
+    )
+    for sent, stored in labels:
+        for paths in ({"currency_source_path": cpath, "amount_source_path": apath}, {}):
+            imported = _import(currency_raw=sent, amount_raw="12.5", **paths)
+            _not_available(imported.record, "unsupported_currency")
+            raw = imported.record.reported_raw
+            assert (raw.currency_raw, raw.currency_source, raw.amount_raw) == (
+                stored,
+                "payload",
+                "12.5",
+            )
+            assert sorted(_codes(imported)) == ["text_not_valid_unicode", "unsupported_currency"]
+            flagged = _warning(imported, "text_not_valid_unicode")
+            assert flagged.path == paths.get("currency_source_path")
+            assert _warning(imported, "unsupported_currency").path == flagged.path
+            assert _warning(imported, "unsupported_currency").raw == stored
+            _serialisable(imported)
+    for sent, stored in (
+        ("1" + d800 + "2", "1" + fffd + "2"),
+        (d800, fffd),
+        ("12.5" + dc00, "12.5" + fffd),
+        (d800 + dc00, fffd + fffd),
+    ):
+        for label, contract in (("USD", None), ("usd", None), (None, _contract("USD"))):
+            imported = _import(
+                currency_raw=label,
+                amount_raw=sent,
+                contract=contract,
+                currency_source_path=cpath,
+                amount_source_path=apath,
+            )
+            _not_available(imported.record, "amount_unparseable")
+            raw = imported.record.reported_raw
+            assert raw.amount_raw == stored
+            assert raw.currency_source == ("payload" if contract is None else "api_contract")
+            assert "decimal_normalized" not in _codes(imported)
+            assert _warning(imported, "amount_unparseable").path == apath
+            assert _warning(imported, "amount_unparseable").raw == stored
+            assert _warning(imported, "text_not_valid_unicode").path == apath
+            _serialisable(imported)
+        foreign = _import(
+            currency_raw="EUR",
+            amount_raw=sent,
+            currency_source_path=cpath,
+            amount_source_path=apath,
+        )
+        _not_available(foreign.record, "unsupported_currency")
+        assert foreign.record.reported_raw.amount_raw == stored
+        assert "amount_unparseable" not in _codes(foreign)
+        assert _warning(foreign, "text_not_valid_unicode").path == apath
+        _serialisable(foreign)
+        silent = _import(currency_raw=None, amount_raw=sent)
+        _not_available(silent.record, "currency_not_reported")
+        assert silent.record.reported_raw.amount_raw == stored
+        assert "text_not_valid_unicode" in _codes(silent)
+        _serialisable(silent)
+    # both fields damaged: one warning each, told apart by path
+    both = _import(
+        currency_raw="EU" + d800,
+        amount_raw="1" + dc00,
+        currency_source_path=cpath,
+        amount_source_path=apath,
+    )
+    _not_available(both.record, "unsupported_currency")
+    assert (both.record.reported_raw.currency_raw, both.record.reported_raw.amount_raw) == (
+        "EU" + fffd,
+        "1" + fffd,
+    )
+    flagged_paths = sorted(str(w.path) for w in both.warnings if w.code == "text_not_valid_unicode")
+    assert flagged_paths == sorted([cpath, apath])
+    _serialisable(both)
+    # valid text is not flagged and kept as sent, astral characters included
+    astral = "EUR" + chr(0x1F600)
+    kept = _import(currency_raw=astral, amount_raw="12.5")
+    assert kept.record.reported_raw.currency_raw == astral
+    assert "text_not_valid_unicode" not in _codes(kept)
+    assert _warning(kept, "unsupported_currency").raw == astral
+    assert "text_not_valid_unicode" not in _codes(_import(currency_raw="USD", amount_raw="1e3"))
+    assert "text_not_valid_unicode" not in _codes(_import())
