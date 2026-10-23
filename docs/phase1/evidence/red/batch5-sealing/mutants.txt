@@ -1,0 +1,76 @@
+# Batch 5 (P1-26 sealing) mutants (qa, 2026-10-23)
+
+Throwaway oracle `oracle14` outside the repository: the repository src of 2026-10-23 (batch 4 implemented) plus `sealed.py` (SealedPayload, DekWrap, SealedAadFields, RedactionRecord) written to docs/phase1/api-surface-sealing.md sections 1 and 4. One change per mutant. Each mutant is run over `test_sealed_payload.py`, `test_sealing_adversarial.py`, `test_ids.py` (minus the one gate-bound test that needs RunBundle and ExportBundle) and `test_project_agent.py::test_hide_input_set_closed_under_embedding` on Python 3.13, with `-x`; CAUGHT = a test failed (first one listed), SURVIVED = none failed. M01-M53 change the oracle model; H01-H10 change the test-only reference helper `_support_b5.py` (the tests prove the helper against the golden vectors).
+
+Final run: 63 mutants, 60 caught, 3 survived (all equivalent in this oracle), 0 broken patches.
+
+## Survivors
+
+- M05 / M46 | wrapped_dek last character unconstrained | SURVIVED | equivalent in this oracle: `DekWrap` has a second, redundant guard (`_canonical` on the field) that still rejects a non-zero trailing bit. With the guard also removed (M49) the mutant is CAUGHT by the trailing-bits case of `test_base64url_canonical_no_padding`.
+- M48 | the keyed-scheme test written as `startswith("hmac")` | SURVIVED | equivalent: the registry holds exactly `sha256-jcs/v1` and `hmac-sha256-jcs/v1`, so the two predicates agree on every registered scheme (an unregistered one never reaches the model, it raises `UnknownDigestScheme`).
+
+## All mutants
+
+M01 | format any string | CAUGHT | test_unknown_format_rejected[tracer.sealed.v2]
+M02 | alg also A128GCM | CAUGHT | test_alg_closed[A128GCM]
+M03 | kw alg also A128KW | CAUGHT | test_dek_wrap_alg_closed[A128KW]
+M04 | nonce 16..32 chars | CAUGHT | test_nonce_len_matches_alg[13]
+M05 | wrapped last char free | SURVIVED |
+M06 | wrapped length 43 or 54 | CAUGHT | test_wrapped_dek_len_matches_kw_alg[32]
+M07 | no tag-room check | CAUGHT | test_ciphertext_shorter_than_tag_rejected[1]
+M08 | no canonical check | CAUGHT | test_base64url_canonical_no_padding[ciphertext-impossible
+M09 | canonical misses 2-bit case | CAUGHT | test_base64url_canonical_no_padding[ciphertext-trailing
+M10 | padding allowed in ciphertext | CAUGHT | test_base64url_canonical_no_padding[ciphertext-equals
+M11 | std alphabet allowed in ciphertext | CAUGHT | test_base64url_canonical_no_padding[ciphertext-plus
+M12 | payload_type adds usage_raw | CAUGHT | test_sealed_closed_sets_emit_enum_not_const
+M13 | tool_result subject is Artifact | CAUGHT | test_payload_types_exact
+M14 | subject kind check removed | CAUGHT | test_aad_subject_kind_matches_payload_type[test_profile]
+M15 | version required for all types | CAUGHT | test_payload_types_exact
+M16 | version optional for profile | CAUGHT | test_aad_subject_version_present_iff_versioned[test_profile]
+M17 | version allowed on non-versioned | CAUGHT | test_aad_subject_version_present_iff_versioned[audio]
+M18 | version ge 0 | CAUGHT | test_aad_subject_version_present_iff_versioned[test_profile]
+M19 | semver loose | CAUGHT | test_aad_schema_version_is_plaintext_version
+M20 | plain digest accepted | CAUGHT | test_sealed_profile_plain_digest_rejected
+M21 | drop-or-key only for profiles | CAUGHT | test_sealed_payload_plaintext_digest_absent_or_keyed_all_types[audio]
+M22 | keyed digest also rejected | CAUGHT | test_aad_schema_version_is_plaintext_version
+M23 | no key separation | CAUGHT | test_digest_key_ref_differs_from_kek_ref
+M24 | key separation by key_id only | CAUGHT | test_digest_key_ref_differs_from_kek_ref
+M25 | SealedPayload shows input | CAUGHT | test_sealed_shape
+M26 | DekWrap shows input | CAUGHT | test_sealed_shape
+M27 | aad shows input | CAUGHT | test_sealed_shape
+M28 | SealedPayload extra ignore | CAUGHT | test_sealed_shape
+M29 | DekWrap extra ignore | CAUGHT | test_sealed_shape
+M30 | SealedPayload not frozen | CAUGHT | test_sealed_shape
+M31 | plaintext_digest required | CAUGHT | test_sealed_shape
+M32 | kek_ref is a dict | CAUGHT | test_sealed_shape
+M33 | covers may be empty | CAUGHT | test_redaction_covers_each_payload_kind_separately
+M34 | covers may repeat | CAUGHT | test_redaction_covers_each_payload_kind_separately
+M35 | covers adds video | CAUGHT | test_redaction_covers_each_payload_kind_separately
+M36 | performed_at is str | CAUGHT | test_redaction_performed_at_is_a_utc_instant
+M37 | method may be empty | CAUGHT | test_redaction_record_fields
+M38 | Redaction extra ignore | CAUGHT | test_redaction_record_fields
+M39 | subject_id any string | CAUGHT | test_sealed_shape
+M40 | nonce allows padding | CAUGHT | test_base64url_canonical_no_padding[nonce-equals
+M41 | ciphertext allows whitespace | CAUGHT | test_base64url_canonical_no_padding[ciphertext-leading
+M42 | aad schema_version optional | CAUGHT | test_sealed_shape
+M43 | payload_type loses tool_result | CAUGHT | test_sealed_closed_sets_emit_enum_not_const
+M44 | transcript_text subject is profile | CAUGHT | test_payload_types_exact
+M45 | sealed embedded in DatasetItem | CAUGHT | test_sealed_only_in_export_bundle
+M46 | wrapped_dek no canonical (regex any 54) | SURVIVED |
+M47 | covers closed set open | CAUGHT | test_redaction_covers_each_payload_kind_separately
+M48 | keyed value pattern: KEYED scheme check on name only | SURVIVED |
+M49 | wrapped last char free, and the oracle's redundant canonical guard on wrapped_dek removed | CAUGHT | test_base64url_canonical_no_padding[wrapped_dek-trailing bits set]
+M50 | kind error echoes the id | CAUGHT | test_aad_subject_kind_matches_payload_type[test_profile]
+M51 | drop-or-key error echoes the value | CAUGHT | test_sealed_profile_plain_digest_rejected
+M52 | RedactionRecord not frozen | CAUGHT | test_redaction_record_fields
+M53 | explicit null digest rejected | CAUGHT | test_sealed_required_fields
+H01 | AAD keeps null members | CAUGHT | test_seal_unseal_roundtrip[audio]
+H02 | AAD drops schema_version | CAUGHT | test_golden_vector_profile_unseals_independently
+H03 | fixed nonce | CAUGHT | test_one_fresh_dek_and_nonce_per_payload
+H04 | fixed DEK | CAUGHT | test_one_fresh_dek_and_nonce_per_payload
+H05 | unseal ignores AAD | CAUGHT | test_seal_unseal_roundtrip[test_profile]
+H06 | unseal skips digest check | CAUGHT | test_digest_mismatch_after_decrypt_raises
+H07 | unverified reported verified | CAUGHT | test_digest_checked_with_wrong_key_raises_and_missing_key_is_unverified
+H08 | UnsealError leaks KEK | CAUGHT | test_unseal_rejects_wrong_kek
+H09 | seal writes plain digest | CAUGHT | test_golden_vectors_are_reproduced_by_the_reference_seal
+H10 | unseal skips model validation | CAUGHT | test_golden_vector_profile_unseals_independently

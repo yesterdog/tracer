@@ -79,7 +79,7 @@ The project evaluates one thing: the AI agent. The caller is either a human or a
 - I7. `user_id` never appears in a snapshot or export; `caller_external_id` lives on Run and is privacy-marked. Tests: `test_user_id_not_in_snapshot_or_export`, `test_caller_external_id_requires_privacy_marker`; Adversarial: A-27; gate item 10.
 - I8. Shared and benchmark exports require seal or redaction for every human-subject payload. Tests: `test_shared_export_human_requires_seal_or_redaction`, `test_benchmark_purpose_human_requires_seal_or_redaction`; Adversarial: A-20.
 - I9. A simulated run with an `unknown`-role turn is human-subject and its payloads need seal or redaction in a shared export. Tests: `test_simulated_run_with_unknown_role_turn_is_human_subject`, `test_shared_export_simulated_run_with_unknown_role_requires_seal_or_redaction`; Adversarial: A-20.
-- I10. Redaction must cover each payload kind (audio, text, tool arguments) separately. Tests: `test_redaction_record_fields`, `test_redaction_covers_all_payload_kinds`.
+- I10. Redaction must cover each payload kind (audio, text, tool arguments, tool results; `tool_result` added in revision 19, S-N87) separately. Tests: `test_redaction_record_fields`, `test_redaction_covers_all_payload_kinds`.
 - I11. Internal bundles may contain human-subject data. Test: `test_internal_bundle_human_allowed`.
 - I12. Sealed payloads only in ExportBundle. Test: `test_sealed_only_in_export_bundle`.
 - I13. F8 roles: assistant -> agent, user -> caller. Test: `test_f8_roles_map`.

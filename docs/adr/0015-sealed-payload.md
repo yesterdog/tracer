@@ -1,19 +1,34 @@
 # ADR 0015: SealedPayload
 
-- Status: Accepted (user decision Q7; revision 3 user decision 2: the plaintext digest of a sealed profile is dropped or keyed). P-42 and P-18 decided by the user in revision 5. Revision 7: `aad_fields.subject_id` is a typed ID (ADR 0001 I12); `aad_fields.schema_version` is one of the four allowed reference fields of ADR 0001 Decision 8. Open [Proposed] items: none.
-- Date: 2026-10-22 (revision 5: drop-or-key applies to every payload type (P-42); keyed digests name their key in `key_ref` (P-18))
+- Status: Accepted (user decision Q7; revision 3 user decision 2: the plaintext digest of a sealed profile is dropped or keyed). P-42 and P-18 decided by the user in revision 5. Revision 7: `aad_fields.subject_id` is a typed ID (ADR 0001 I12); `aad_fields.schema_version` is one of the four allowed reference fields of ADR 0001 Decision 8. Revision 19 (P1-26 implemented): the readings S-N77 to S-N90 of `docs/phase1/api-surface.md` section 24.4 were auto-approved on qa's recommendation under the owner's standing rule and are applied below (payload types, AAD null rule, tag layout, lengths, plaintext/digest reading, key separation, input hiding, the known gap S-N83). Open [Proposed] items: none.
+- Date: 2026-10-22 (revision 5: drop-or-key applies to every payload type (P-42); keyed digests name their key in `key_ref` (P-18)); revision 19: 2026-10-23
 - Task: P1-00b (implemented by P1-26; production seal/unseal is out of Phase 1)
 
 ## Context
 Snapshots never contain PII (ADR 0006). Some workflows still need to move sensitive content between parties: re-running a verification-flow evaluator elsewhere, or sharing human-subject recordings or transcripts with a research partner (ADR 0016). That content must be confidential, bound to the entity it belongs to (so a ciphertext cannot be moved to another profile), and portable across languages, without the schema ever holding key material. A digest stored in clear next to the ciphertext must not undo the confidentiality.
 
 ## Decision
-1. **`SealedPayload`** (value object): `{format: "tracer.sealed.v1", alg: "A256GCM", dek_wrap{alg: "A256KW", kek_ref: KeyRef, wrapped_dek}, nonce, ciphertext, aad_fields{payload_type, subject_id, subject_version, schema_version}, plaintext_digest: ContentDigest?}`.
+1. **`SealedPayload`** (value object): `{format: "tracer.sealed.v1", alg: "A256GCM", dek_wrap{alg: "A256KW", kek_ref: KeyRef, wrapped_dek}, nonce, ciphertext, aad_fields{payload_type, subject_id, subject_version, schema_version}, plaintext_digest: ContentDigest?}`. Revision 19: the nested models are `DekWrap` and `SealedAadFields` (module `tracer_evalschema.sealed`); all three hide their input in validation errors (ADR 0007 Decision 8; S-N88), because a rejected value can be a damaged ciphertext or wrapped key, the nonce, or the ID of the person's record whose data is sealed. Every model that embeds one of them hides too.
 2. **Envelope encryption.** A fresh 256-bit data key (DEK) for every payload, used with AES-256-GCM. The DEK is wrapped with AES Key Wrap (RFC 3394, A256KW) under a key-encryption key (KEK) named by `KeyRef{key_id, key_version?, provider_hint?}`. KeyRef never carries key material (ADR 0007).
 3. **Nonce:** exactly 12 bytes. With one DEK per payload, a random nonce cannot repeat under the same key.
 4. **AAD** = the JCS canonical bytes of `aad_fields`. `subject_id` is a typed ID of the sealed subject's kind (a union of the sealable kinds, matched against `payload_type`, fixed in P1-26; revision 7). Whether `subject_version` is present for subjects that are not versioned (Artifact, Transcript, ToolCallEvent) is fixed by schema-architect at P1-26 (recommendation: present iff the subject kind is versioned). Decryption with any other subject, version, payload type or schema version fails authentication. `aad_fields.schema_version` is the schema version of the *plaintext*.
-5. **Encoding:** binary fields are base64url without padding, in canonical form (no whitespace; non-canonical trailing bits rejected).
+   Revision 19 (S-N80, S-N84): the payload types are a closed set of five, each with its subject kind; `subject_version` is present if and only if the subject kind is versioned:
+
+   | `payload_type` | `subject_id` kind | `subject_version` |
+   |---|---|---|
+   | `test_profile` | `TestProfileId` (`tpf`) | required, integer >= 1 |
+   | `audio` | `ArtifactId` (`art`) | absent |
+   | `transcript_text` | `TranscriptId` (`tsc`), the whole transcript's text | absent |
+   | `tool_arguments` | `ToolCallEventId` (`tcl`) | absent |
+   | `tool_result` | `ToolCallEventId` (`tcl`) | absent |
+
+   Adding a payload type (for example provider payloads of `UsageRecord.raw`) is an additive change with an amendment to this table.
+   4a. **The AAD bytes (revision 19, S-N78).** AAD = the RFC 8785 (JCS) bytes of the JSON-mode `aad_fields` with every `null` member removed, the same null rule as the digest domain (ADR 0006 Decision 5 (c)): an absent `subject_version` and an explicit `null` give the same bytes, and member order in the document does not matter. Example (golden vector G2 of the tests): `{"payload_type":"audio","schema_version":"0.0.1","subject_id":"art_..."}`. The package ships this one definition as the pure function `sealed.aad_bytes(aad_fields)`.
+   4b. **`aad_fields.schema_version` (revision 19, S-N79)** is validated for its form only (`MAJOR.MINOR.PATCH`, no leading zeros, no suffix, no white space) and is not compared with the reader's version: the plaintext is opaque to the model. Whether a reader can use a plaintext of a version it does not support is the consumer's check after unsealing.
+5. **Encoding:** binary fields are base64url without padding, in canonical form (no whitespace; non-canonical trailing bits rejected). Revision 19 (S-N81, S-N82): the alphabet is `A-Z a-z 0-9 - _`, a length of 1 modulo 4 is impossible and rejected. `nonce` is exactly 12 bytes (16 characters). `dek_wrap.wrapped_dek` is exactly 40 bytes (54 characters), the RFC 3394 output for a 256-bit key. **Tag layout:** `ciphertext` is the AES-256-GCM encrypted bytes followed by the 16-byte authentication tag (the layout of `AESGCM.encrypt` in Python `cryptography`, of Java, Go and the Web Crypto API); there is no separate tag field, so `ciphertext` is at least 16 bytes and exactly 16 bytes is an empty plaintext. The JSON Schema states the canonical form as a pattern (alphabet, lengths, zero trailing bits).
 6. **`plaintext_digest` (user decision 2; extended to every payload type by P-42).** For every `payload_type` (test profiles, audio, transcript text, tool arguments and results), `plaintext_digest` is either **absent** or uses a **keyed** scheme (`hmac-sha256-jcs/v1`, key named by the digest's `key_ref` and never in the export, ADR 0006). A plain `sha256-jcs/v1` digest on any sealed payload is a validation error, because short sealed text (a one-word answer, a spoken date of birth, an account number in tool arguments) is as guessable as a profile. When present, it is checked after decryption through `verify_digest()` (with the key resolver), and a mismatch raises.
+   6a. **What the digest is over (revision 19, S-N77).** The plaintext is bytes. A present `plaintext_digest` requires the plaintext to be the UTF-8 text of a JSON object, and the digest is the keyed digest of that object's digest domain (ADR 0006 Decision 5), checked only after GCM has authenticated the ciphertext. For a sealed `test_profile` it is the keyed digest of the profile document, the link to the referenced profile. Audio and any other non-JSON plaintext is sealed with the digest absent. A recipient without the HMAC key gets the plaintext authenticated but the digest unverified, never "verified".
+   6b. **Key separation (revision 19, S-N85).** The digest's `key_ref` must not name the key-encryption key: a `key_ref` with the same `key_id` and `key_version` as `dek_wrap.kek_ref` is a validation error at `plaintext_digest`. Otherwise a party entrusted with the digest key (to check the link) could unwrap every DEK. The rule catches the direct mistake; it cannot detect two names for one key.
 7. **Where sealed payloads may appear:** only inside an `ExportBundle`. They never appear in snapshots, runs or internal bundles.
 8. Phase 1 ships the schema and a **test-only** reference seal/unseal implementation (`cryptography` is a test-only dependency). Production key management (KMS integrations) is out of Phase 1.
 
@@ -32,7 +47,7 @@ Snapshots never contain PII (ADR 0006). Some workflows still need to move sensit
 - Migrating a bundle to a newer schema version does not rewrite `aad_fields.schema_version`. The plaintext keeps its own version until it is unsealed and resealed.
 
 ## Invariants (testable)
-- I1. The shape matches the spec. Test: `test_sealed_shape`.
+- I1. The shape matches the spec. Test: `test_sealed_shape`. Revision 19: the further shape, encoding, AAD, digest, no-echo and adversarial tests (A-33 to A-44) are listed in `docs/phase1/SCOPE.md` section 5 under P1-26 and in `docs/phase1/api-surface.md` section 24.2.
 - I2. The algorithm and format sets are closed. Tests: `test_alg_closed`, `test_unknown_format_rejected`.
 - I3. The nonce length matches the algorithm (12 bytes). Test: `test_nonce_len_matches_alg`.
 - I4. Base64url is canonical, with no padding. Test: `test_base64url_canonical_no_padding`.
@@ -46,6 +61,9 @@ Snapshots never contain PII (ADR 0006). Some workflows still need to move sensit
 - I11a. Every sealed payload type follows the same drop-or-key rule. Test: `test_sealed_payload_plaintext_digest_absent_or_keyed_all_types`.
 - I12. Sealed payloads appear only in ExportBundle. Test: `test_sealed_only_in_export_bundle`.
 - I13. A human-subject payload in a shared export is sealed or redacted. Test: `test_shared_export_human_requires_seal_or_redaction` (ADR 0016).
+
+## Known gaps
+- **S-N83 (revision 19). No value check on `KeyRef.key_id`.** `KeyRef` rejects every key-like field name (I5), but a key pasted as the *value* of `key_id` or `key_version` (`sk-...`, `AKIA...`, a JWT, a PEM block) is accepted and would be stored and exported in clear. A value rule was written and withdrawn: a rejected key would then appear in error messages unless `KeyRef` hid its input, and a hiding `KeyRef` forces every model that embeds it through `ContentDigest` (about 15 models) to hide too. Not added in 0.0.1. **Owner: security-licensing; revisit at the P1-21 audit** (or in Phase 2, when key-manager integrations validate `key_id` against the provider's own syntax).
 
 ## Decided items (formerly [Proposed]; all decided by the user in revision 5)
 - **P-42. Drop-or-key for every sealed payload type. Decided by the user (revision 5): accepted as recommended.** Decision: apply Decision 6 to every `payload_type` (audio, transcript text, tool arguments), not only profiles. Reason: every sealed payload is sealed because it holds personal data, and short text payloads (a one-word answer, a date of birth spoken in a turn, an account number in tool arguments) are as guessable as a profile; only long audio is high-entropy. Had it been decided otherwise: plain digests remain allowed for non-profile payloads, and `SCHEMA_POLICY.md` must state that sealed short text can be confirmed by guessing. Test (binding): `test_sealed_payload_plaintext_digest_absent_or_keyed_all_types`.

@@ -1,0 +1,42 @@
+# group: cost-followups   (batch 5b green run, schema-architect, SCOPE revision 20, cost follow-ups N78/N82)
+# date: 2026-10-23T14:08:49Z (UTC)  local: 2026-10-23T19:38:49+0530
+# command: python -m pytest -p no:cacheprovider -q -rf packages/evalschema/tests/test_cost_summary.py packages/evalschema/tests/test_cost_import.py packages/evalschema/tests/test_cost.py packages/evalschema/tests/test_cost_contract.py packages/evalschema/tests/test_cost_compute.py packages/evalschema/tests/test_batch4_entities.py packages/evalschema/tests/test_text_types.py   (cwd ~/tracer; pyproject addopts apply)
+# interpreter: <scratchpad>/b5b-env3.12/bin/python   (env built with: UV_PROJECT_ENVIRONMENT=<env> uv sync --locked --all-groups --python 3.12)
+# versions: python 3.12.14; pydantic 2.14.1, pydantic-core 2.50.1, pytest 9.1.1, jsonschema 4.26.0, rfc8785 0.1.4, hypothesis 6.170.5, cryptography 50.0.2
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git: 4 commits (HEAD 9223d98); 0 staged paths
+# ------------------------------------------------------------------------------
+........................................................................ [ 42%]
+..............F......................................................... [ 84%]
+..........................                                               [100%]
+=================================== FAILURES ===================================
+_________ test_policy_documents_reported_cost_without_usage_limitation _________
+
+    def test_policy_documents_reported_cost_without_usage_limitation() -> None:
+        """P1-20a, N51 remainder (a) (api-surface 23.6 group R item 3; red until SCHEMA_POLICY.md
+        exists, like the two existing policy-document tests): SCHEMA_POLICY.md states that a reported
+        cost without usage records shares no usage in summaries, so a double count with a computed
+        record for the same call is not detected, and that importers must link usage whenever the
+        source identifies it. Gate-bound."""
+        candidates = [
+            PACKAGE_DIR / "SCHEMA_POLICY.md",
+            ROOT / "SCHEMA_POLICY.md",
+            ROOT / "docs" / "SCHEMA_POLICY.md",
+        ]
+        text = ""
+        for path in candidates:
+            if path.is_file():
+                text = path.read_text(encoding="utf-8")
+                break
+        else:
+>           pytest.fail(
+                "SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of "
+                + ", ".join(str(c) for c in candidates)
+            )
+E           Failed: SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of ~/tracer/packages/evalschema/SCHEMA_POLICY.md, ~/tracer/SCHEMA_POLICY.md, ~/tracer/docs/SCHEMA_POLICY.md
+
+packages/evalschema/tests/test_cost.py:824: Failed
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_cost.py::test_policy_documents_reported_cost_without_usage_limitation
+1 failed, 169 passed in 3.07s
+# exit status: 1

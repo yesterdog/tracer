@@ -1,0 +1,22 @@
+# Batch 5b follow-ups mutants (qa, 2026-10-23). Throwaway oracle15 outside the repo; one change per mutant to cost.py; run on Python 3.13 with -x. 20 mutants, 20 caught, 0 survived, 0 broken (N82-15 survived once, before the warning raw assertions were added, and was then caught).
+# Closed-enum rows (R3) were checked separately on the oracle: A128KW added to dek_wrap.alg, extra member in format, extra in alg, tool_result removed from covers, tool_result removed from payload types: 5 of 5 caught by test_all_closed_enums_exact.
+N78-01 no repeat check | CAUGHT | E       Failed: DID NOT RAISE ValidationError / FAILED packages/evalschema/tests/test_cost_summary.py::test_covered_by_repeated_ids_rejected
+N78-02 only adjacent repeats | CAUGHT | E       Failed: DID NOT RAISE ValidationError / FAILED packages/evalschema/tests/test_cost_summary.py::test_covered_by_repeated_ids_rejected
+N78-03 skipped for duplicate_of_reported | CAUGHT | E       Failed: DID NOT RAISE ValidationError / FAILED packages/evalschema/tests/test_cost_summary.py::test_covered_by_repeated_ids_rejected
+N78-04 only pairs (len 2) | CAUGHT | E       Failed: DID NOT RAISE ValidationError / FAILED packages/evalschema/tests/test_cost_summary.py::test_covered_by_repeated_ids_rejected
+N78-05 skipped for unsupported_currency | CAUGHT | E       Failed: DID NOT RAISE ValidationError / FAILED packages/evalschema/tests/test_cost_summary.py::test_covered_by_repeated_ids_rejected
+N82-01 no warning for label | CAUGHT | E               AssertionError: assert ['unsupported_currency'] == ['text_not_va...ted_currency'] / E
+N82-02 no warning for amount | CAUGHT | E       AssertionError: ('text_not_valid_unicode', ['amount_unparseable']) / E       assert 0 == 1
+N82-03 amount kept raw in record | CAUGHT | E       pydantic_core._pydantic_core.ValidationError: 1 validation error for IngestWarning / E       raw
+N82-04 replaced by '?' | CAUGHT | E               AssertionError: assert ('US?D', 'payload', '12.5') == ('US�D', 'payload', '12.5') / E
+N82-05 label warning uses amount path | CAUGHT | E               AssertionError: assert '/spans/0/cost/amount' == '/spans/0/cost/currency' / E
+N82-06 amount warning uses currency path | CAUGHT | E               AssertionError: assert '/spans/0/cost/currency' == '/spans/0/cost/amount' / E
+N82-07 surrogates dropped, not replaced | CAUGHT | E       AssertionError: assert 'available' == 'not_available' / E
+N82-08 high surrogates only | CAUGHT | E       pydantic_core._pydantic_core.ValidationError: 1 validation error for IngestWarning / E       raw
+N82-09 low surrogates not replaced | CAUGHT | E       pydantic_core._pydantic_core.ValidationError: 1 validation error for IngestWarning / E       raw
+N82-10 label not cleaned | CAUGHT | E       pydantic_core._pydantic_core.ValidationError: 1 validation error for IngestWarning / E       raw
+N82-11 flags astral characters too | CAUGHT | E       assert 'text_not_valid_unicode' not in ['text_not_valid_unicode', 'unsupported_currency'] / E        +  where ['text_not_valid_unicode', 'unsupported_currency'] = _codes(ImportedCost(record=CostRecord(i
+N82-12 amount cleaned only for USD label | CAUGHT | E       pydantic_core._pydantic_core.ValidationError: 1 validation error for IngestWarning / E       raw
+N82-13 raises TypeError on surrogate | CAUGHT | E           TypeError: bad / FAILED packages/evalschema/tests/test_cost_import.py::test_import_lone_surrogate_never_raises_and_is_flagged
+N82-14 amount warning twice | CAUGHT | E       AssertionError: ('text_not_valid_unicode', ['text_not_valid_unicode', 'text_not_valid_unicode', 'amoun / E       assert 2 == 1
+N82-15 amount_unparseable raw is uncleaned | CAUGHT | E               AssertionError: assert '1�2\x00' == '1�2' / E
