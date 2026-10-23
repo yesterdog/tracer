@@ -1,0 +1,91 @@
+# Revision 9 group A additions (appended 2026-10-23, qa). Mutants injected into oracle9 (the revision 8 oracle plus the pattern rule with part names, whole-URL strict decoding and the language_independent/script_sensitive rule), outside the repo.
+# All 342 mutants of the earlier list plus the new ones were run against oracle9 with the six batch 2 test files: format: mutant id | status | first failing tests
+# A14 and A15 are NOT APPLICABLE in oracle9 (their code line was replaced by the _scan function); they are superseded by U01-U08, U26. U25, U27-U29 survived the first version of the new test and the placements were added; all are caught after that.
+U01 pattern rule skips the path | caught | test_credential_errors_have_no_input_in_any_logged_form, test_endpoint_rejects_wider_credential_names_and_prefixes, test_url_credential_pattern_anywhere_rejected
+U02 pattern rule skips the query | caught | test_credential_errors_have_no_input_in_any_logged_form, test_endpoint_rejects_wider_credential_names_and_prefixes, test_url_credential_pattern_anywhere_rejected
+U03 pattern rule skips the ws host | caught | test_url_credential_pattern_anywhere_rejected
+U04 pattern rule skips the sip user part | caught | test_credential_errors_have_no_input_in_any_logged_form, test_endpoint_rejects_wider_credential_names_and_prefixes, test_url_credential_pattern_anywhere_rejected
+U05 pattern rule skips the sip host | caught | test_url_credential_pattern_anywhere_rejected
+U06 pattern rule skips sip parameters | caught | test_url_credential_pattern_anywhere_rejected
+U07 pattern rule skips sip headers | caught | test_endpoint_rejects_wider_credential_names_and_prefixes, test_url_credential_pattern_anywhere_rejected
+U08 pattern rule searches the written text only | caught | test_endpoint_rejects_wider_credential_names_and_prefixes, test_url_credential_pattern_anywhere_rejected
+U10 pattern rule decodes twice | caught | test_url_credential_pattern_anywhere_rejected
+U11 high-entropy rule applied to URLs | caught | test_url_credential_pattern_anywhere_rejected, test_url_high_entropy_segment_accepted, test_url_pattern_fitting_slug_is_rejected_known_false_positive
+U12 start of a part is not a boundary | caught | test_credential_errors_have_no_input_in_any_logged_form, test_endpoint_rejects_wider_credential_names_and_prefixes, test_url_credential_pattern_anywhere_rejected
+U13 no left boundary | caught | test_endpoint_rejects_wider_credential_names_and_prefixes, test_url_credential_pattern_anywhere_rejected, test_url_pattern_fitting_slug_is_rejected_known_false_positive
+U14 patterns case-insensitive | caught | test_url_credential_pattern_anywhere_rejected, test_url_pattern_fitting_slug_is_rejected_known_false_positive
+U15 message does not name the part | caught | test_url_credential_pattern_anywhere_rejected, test_url_pattern_fitting_slug_is_rejected_known_false_positive
+U16 message echoes the value | caught | test_credential_errors_have_no_input_in_any_logged_form, test_url_credential_pattern_anywhere_rejected, test_url_pattern_fitting_slug_is_rejected_known_false_positive
+U17 message always names the path | caught | test_url_credential_pattern_anywhere_rejected
+U18 message does not name the rule | caught | test_url_credential_pattern_anywhere_rejected, test_url_pattern_fitting_slug_is_rejected_known_false_positive
+U19 malformed escapes tolerated in the pattern search | caught | test_url_credential_pattern_anywhere_rejected
+U20 query names only searched | caught | test_credential_errors_have_no_input_in_any_logged_form, test_endpoint_rejects_wider_credential_names_and_prefixes, test_url_credential_pattern_anywhere_rejected
+U21 query values only searched | caught | test_url_credential_pattern_anywhere_rejected
+U22 path searched to eight characters | caught | test_credential_errors_have_no_input_in_any_logged_form, test_endpoint_rejects_wider_credential_names_and_prefixes, test_url_credential_pattern_anywhere_rejected
+U23 sip header names only | caught | test_endpoint_rejects_wider_credential_names_and_prefixes, test_url_credential_pattern_anywhere_rejected
+U24 sip parameter names only | caught | test_url_credential_pattern_anywhere_rejected
+U25 sip user part scan only without params | caught | test_url_credential_pattern_anywhere_rejected
+U300 pattern 0 dropped from the URL rule | caught | test_credential_errors_have_no_input_in_any_logged_form, test_endpoint_rejects_wider_credential_names_and_prefixes, test_url_credential_pattern_anywhere_rejected
+U301 pattern 1 dropped from the URL rule | caught | test_url_credential_pattern_anywhere_rejected
+U302 pattern 2 dropped from the URL rule | caught | test_credential_errors_have_no_input_in_any_logged_form, test_endpoint_rejects_wider_credential_names_and_prefixes, test_url_credential_pattern_anywhere_rejected
+U303 pattern 3 dropped from the URL rule | caught | test_credential_errors_have_no_input_in_any_logged_form, test_endpoint_rejects_wider_credential_names_and_prefixes, test_url_credential_pattern_anywhere_rejected
+U304 pattern 4 dropped from the URL rule | caught | test_credential_errors_have_no_input_in_any_logged_form, test_endpoint_rejects_wider_credential_names_and_prefixes, test_url_credential_pattern_anywhere_rejected
+U305 pattern 5 dropped from the URL rule | caught | test_url_credential_pattern_anywhere_rejected
+U306 pattern 6 dropped from the URL rule | caught | test_credential_errors_have_no_input_in_any_logged_form, test_endpoint_rejects_wider_credential_names_and_prefixes, test_url_credential_pattern_anywhere_rejected
+U307 pattern 7 dropped from the URL rule | caught | test_credential_errors_have_no_input_in_any_logged_form, test_endpoint_rejects_wider_credential_names_and_prefixes, test_url_credential_pattern_anywhere_rejected
+U308 pattern 8 dropped from the URL rule | caught | test_credential_errors_have_no_input_in_any_logged_form, test_endpoint_rejects_wider_credential_names_and_prefixes, test_url_credential_pattern_anywhere_rejected
+U309 pattern 9 dropped from the URL rule | caught | test_credential_errors_have_no_input_in_any_logged_form, test_endpoint_rejects_wider_credential_names_and_prefixes, test_url_credential_pattern_anywhere_rejected
+U310 pattern 10 dropped from the URL rule | caught | test_url_credential_pattern_anywhere_rejected
+U4 sk- needs 19 | caught | test_url_credential_pattern_anywhere_rejected
+U4 sk- needs 21 | caught | test_url_credential_pattern_anywhere_rejected
+U4 stripe needs 15 | caught | test_url_credential_pattern_anywhere_rejected
+U4 stripe needs 17 | caught | test_url_credential_pattern_anywhere_rejected
+U4 aws needs 15 | caught | test_url_credential_pattern_anywhere_rejected
+U4 aws needs 17 exactly | caught | test_credential_errors_have_no_input_in_any_logged_form, test_endpoint_rejects_wider_credential_names_and_prefixes, test_url_credential_pattern_anywhere_rejected
+U4 aws lower case tail | caught | test_url_credential_pattern_anywhere_rejected
+U4 aws prefix AKIA only | caught | test_url_credential_pattern_anywhere_rejected
+U4 google needs 34 | caught | test_url_credential_pattern_anywhere_rejected
+U4 google needs 36 | caught | test_credential_errors_have_no_input_in_any_logged_form, test_endpoint_rejects_wider_credential_names_and_prefixes, test_url_credential_pattern_anywhere_rejected
+U4 github needs 35 | caught | test_url_credential_pattern_anywhere_rejected
+U4 github class has x | caught | test_url_credential_pattern_anywhere_rejected
+U4 github class lacks r | caught | test_url_credential_pattern_anywhere_rejected
+U4 github_pat needs 21 | caught | test_url_credential_pattern_anywhere_rejected
+U4 gitlab needs 19 | caught | test_url_credential_pattern_anywhere_rejected
+U4 slack needs 9 | caught | test_url_credential_pattern_anywhere_rejected
+U4 slack class has z | caught | test_url_credential_pattern_anywhere_rejected
+U4 hf needs 29 | caught | test_url_credential_pattern_anywhere_rejected
+U4 jwt first part needs 9 | caught | test_url_credential_pattern_anywhere_rejected
+U4 jwt second part needs 9 | caught | test_url_credential_pattern_anywhere_rejected
+U4 jwt third part required | caught | test_url_credential_pattern_anywhere_rejected
+U4 jwt third part optional | caught | test_url_credential_pattern_anywhere_rejected
+U4 pem without inner space class | caught | test_url_credential_pattern_anywhere_rejected
+U5 boundary treats '_' as a letter | caught | test_endpoint_rejects_wider_credential_names_and_prefixes, test_url_credential_pattern_anywhere_rejected
+U5 boundary treats '-' as a letter | caught | test_url_credential_pattern_anywhere_rejected
+U5 boundary treats '.' as a letter | caught | test_url_credential_pattern_anywhere_rejected
+U5 boundary treats '=' as a letter | caught | test_credential_errors_have_no_input_in_any_logged_form, test_endpoint_rejects_wider_credential_names_and_prefixes, test_url_credential_pattern_anywhere_rejected
+U5 boundary treats '/' as a letter | caught | test_credential_errors_have_no_input_in_any_logged_form, test_endpoint_rejects_wider_credential_names_and_prefixes, test_url_credential_pattern_anywhere_rejected
+U5 boundary treats ':' as a letter | caught | test_url_credential_pattern_anywhere_rejected
+U5 boundary treats '~' as a letter | caught | test_url_credential_pattern_anywhere_rejected
+U5 boundary treats '+' as a letter | caught | test_url_credential_pattern_anywhere_rejected
+U60 boundary lets a digit start a key | caught | test_url_credential_pattern_anywhere_rejected
+U61 boundary lets a letter start a key | caught | test_endpoint_rejects_wider_credential_names_and_prefixes, test_url_credential_pattern_anywhere_rejected, test_url_pattern_fitting_slug_is_rejected_known_false_positive
+L01 sentinel with script_sensitive allowed | caught | test_language_independent_metric_not_script_sensitive
+L02 rule reversed | caught | test_metric_languages_accepts_language_independent_value, test_metric_languages_list_or_language_independent, test_language_independent_metric_not_script_sensitive
+L03 rule applies to every definition | caught | test_latency_lower_is_better_expressed_with_range_max, test_script_sensitive_required_no_default, test_language_independent_metric_not_script_sensitive
+L04 rule only for latency | caught | test_language_independent_metric_not_script_sensitive
+L05 rule message does not name the rule | caught | test_language_independent_metric_not_script_sensitive
+L06 rule only for judges | caught | test_language_independent_metric_not_script_sensitive
+L07 one-element sentinel list accepted | caught | test_metric_languages_accepts_language_independent_value, test_metric_languages_list_or_language_independent
+L08 empty languages list accepted | caught | test_metric_languages_nonempty_distinct_primary, test_metric_languages_list_or_language_independent
+L09 sentinel in another case accepted | caught | test_metric_languages_accepts_language_independent_value, test_metric_languages_list_or_language_independent
+L10 all accepted as a sentinel | caught | test_metric_languages_accepts_language_independent_value, test_metric_languages_list_or_language_independent
+L11 sentinel with trailing space accepted | caught | test_metric_languages_accepts_language_independent_value, test_metric_languages_list_or_language_independent
+L12 languages gets a default | caught | test_metric_languages_list_or_language_independent
+L13 list with shared primary language accepted | caught | test_metric_languages_nonempty_distinct_primary, test_metric_languages_list_or_language_independent
+L14 empty string is a sentinel | caught | test_metric_languages_accepts_language_independent_value, test_metric_languages_list_or_language_independent
+L15 languages list may hold unsupported tags | caught | test_metric_languages_supported_only, test_metric_languages_accepts_language_independent_value, test_metric_languages_list_or_language_independent
+U26 pattern rule disabled (supersedes A14) | caught | test_credential_errors_have_no_input_in_any_logged_form, test_endpoint_rejects_wider_credential_names_and_prefixes, test_url_credential_pattern_anywhere_rejected
+U27 sip host scan only without a port | caught | test_url_credential_pattern_anywhere_rejected
+U28 ws path scan only without a query | caught | test_url_credential_pattern_anywhere_rejected
+U29 sip parameters scan only without headers | caught | test_url_credential_pattern_anywhere_rejected
+# Totals: 87 new mutants, 87 caught; of the 259 earlier mutants, 257 caught against oracle9 and 2 not applicable (A14, A15, superseded). No survivor.

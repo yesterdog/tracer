@@ -1,0 +1,975 @@
+# group: p1-22-verdict   (batch 3, mode red, qa)
+# date: 2026-10-23T06:24:37Z (UTC)  local: 2026-10-23T11:54:37+0530
+# command: python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_verdict.py    (cwd ~/tracer; pyproject addopts: -ra --strict-markers --strict-config -m 'not private_fixtures and not local_only')
+# interpreter: <scratchpad>/env3.14/bin/python
+# versions: python 3.14.7; pydantic 2.14.1, pydantic-core 2.50.1, pytest 9.1.1, jsonschema 4.26.0, hypothesis 6.170.5, rfc8785 0.1.4
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git status: ## No commits yet on main; 12 untracked/changed entries; 0 staged paths; no commits made
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.14.7, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>/env3.14/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 24 items
+
+packages/evalschema/tests/test_verdict.py::test_weighted_exclusions_are_unique_per_binding FAILED [  4%]
+packages/evalschema/tests/test_verdict.py::test_outcome_of_result_needs_a_pass_decision FAILED [  8%]
+packages/evalschema/tests/test_verdict.py::test_run_verdict_shape_and_enums FAILED [ 12%]
+packages/evalschema/tests/test_verdict.py::test_empty_verdict_rejected FAILED [ 16%]
+packages/evalschema/tests/test_verdict.py::test_counts_sum_to_required_total FAILED [ 20%]
+packages/evalschema/tests/test_verdict.py::test_status_pass_fail_inconclusive_table FAILED [ 25%]
+packages/evalschema/tests/test_verdict.py::test_inconsistent_status_rejected FAILED [ 29%]
+packages/evalschema/tests/test_verdict.py::test_counts_equal_check_tally FAILED [ 33%]
+packages/evalschema/tests/test_verdict.py::test_headline FAILED          [ 37%]
+packages/evalschema/tests/test_verdict.py::test_headline_unchanged_by_weights FAILED [ 41%]
+packages/evalschema/tests/test_verdict.py::test_weighted_score_5_3_2_with_na_is_1_coverage_0_8 FAILED [ 45%]
+packages/evalschema/tests/test_verdict.py::test_weighted_score_excludes_na_and_lists_them FAILED [ 50%]
+packages/evalschema/tests/test_verdict.py::test_weighted_score_excludes_errored FAILED [ 54%]
+packages/evalschema/tests/test_verdict.py::test_weighted_score_absent_when_all_excluded FAILED [ 58%]
+packages/evalschema/tests/test_verdict.py::test_weighted_score_range_0_1 FAILED [ 62%]
+packages/evalschema/tests/test_verdict.py::test_weight_coverage_required_with_score FAILED [ 66%]
+packages/evalschema/tests/test_verdict.py::test_weight_coverage_is_scored_over_total_weight FAILED [ 70%]
+packages/evalschema/tests/test_verdict.py::test_render_weighted_score_shows_coverage FAILED [ 75%]
+packages/evalschema/tests/test_verdict.py::test_no_renderer_shows_weighted_score_without_coverage FAILED [ 79%]
+packages/evalschema/tests/test_verdict.py::test_weighted_score_uses_per_turn_passed_not_share FAILED [ 83%]
+packages/evalschema/tests/test_verdict.py::test_checks_reference_required_bindings_only FAILED [ 87%]
+packages/evalschema/tests/test_verdict.py::test_check_outcome_matches_metric_result_status FAILED [ 91%]
+packages/evalschema/tests/test_verdict.py::test_verdict_check_metric_ref_is_typed_and_equals_binding_metric FAILED [ 95%]
+packages/evalschema/tests/test_verdict.py::test_weighted_score_checked_against_rubric_and_results FAILED [100%]
+
+=================================== FAILURES ===================================
+_______________ test_weighted_exclusions_are_unique_per_binding ________________
+
+    def test_weighted_exclusions_are_unique_per_binding() -> None:
+        """Proposed name (ADR 0013 Decision 8): ``weighted_excluded`` lists a binding at most once."""
+        binding = new_id("mbd")
+        exclusion = {"binding_id": binding, "outcome": "not_applicable"}
+>       entity_class3("RunVerdict").model_validate(
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            _verdict_doc(["passed", "not_applicable"], weighted_excluded=[exclusion])
+        )
+
+packages/evalschema/tests/test_verdict.py:112: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.verdict'
+import_ = <function _gcd_import at 0x1060fbe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.verdict'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_________________ test_outcome_of_result_needs_a_pass_decision _________________
+
+    def test_outcome_of_result_needs_a_pass_decision() -> None:
+        """Proposed name (ADR 0013 Decision 3; a reading listed in api-surface 22.5): a scored result
+        with ``passed=None`` (a metric without a pass rule, P-08) has no verdict outcome: it cannot be a
+        required check, and ``outcome_of_result`` raises a ``ValueError`` naming the result instead of
+        reading it as passed or failed."""
+        definition = make("MetricDefinition", **judge_definition(pass_rule=None))
+>       informational = entity_class3("MetricResult").model_validate(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            result_doc(definition, value=True, passed=None)
+        )
+
+packages/evalschema/tests/test_verdict.py:134: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.results'
+import_ = <function _gcd_import at 0x1060fbe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.results'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_______________________ test_run_verdict_shape_and_enums _______________________
+
+    def test_run_verdict_shape_and_enums() -> None:
+        """Proposed name (ADR 0013 Decisions 1-3): a verdict is an entity (``vrd``, a record of fact)
+        with ``required_total``, the four counts, ``status`` (pass, fail, inconclusive), ``checks``,
+        the optional ``weighted_score`` and ``weight_coverage`` and ``weighted_excluded``; a check is
+        a value object ``{binding_id, metric_ref, outcome, result_id}`` with the outcome set passed,
+        failed, not_applicable, errored; the typed IDs are ``mbd_`` and ``res_`` and ``metric_ref``
+        is a ``MetricDefinitionRef`` object, never text."""
+>       model = entity_class3("RunVerdict")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_verdict.py:148: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.verdict'
+import_ = <function _gcd_import at 0x1060fbe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.verdict'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_________________________ test_empty_verdict_rejected __________________________
+
+    def test_empty_verdict_rejected() -> None:
+        """Proposed name (ADR 0013 Decision 7: a rubric has at least one required metric, so a verdict
+        has at least one check): ``required_total`` is at least 1. A verdict of 0/0 would be a
+        vacuous ``pass``."""
+>       _reject(_verdict_doc([]), "required_total")
+
+packages/evalschema/tests/test_verdict.py:199: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_verdict.py:105: in _reject
+    assert_rejected3(entity_class3("RunVerdict"), doc, field=field)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.verdict'
+import_ = <function _gcd_import at 0x1060fbe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.verdict'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+______________________ test_counts_sum_to_required_total _______________________
+
+    def test_counts_sum_to_required_total() -> None:
+        """ADR 0013 I1: ``required_total`` equals ``passed + failed + not_applicable + errored``;
+        the denominator includes the checks that did not run. A count that does not add up, a negative
+        or non-integer count, or a missing count is rejected."""
+        outcomes = ["passed", "passed", "failed", "not_applicable", "errored"]
+>       loaded = _verdict(outcomes)
+                 ^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_verdict.py:216: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_verdict.py:101: in _verdict
+    return entity_class3("RunVerdict").model_validate(_verdict_doc(outcomes, **over))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.verdict'
+import_ = <function _gcd_import at 0x1060fbe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.verdict'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+___________________ test_status_pass_fail_inconclusive_table ___________________
+
+    def test_status_pass_fail_inconclusive_table() -> None:
+        """ADR 0013 Decision 6, I2: ``pass`` iff every required check passed; ``fail`` iff any failed;
+        ``inconclusive`` iff none failed and some did not run. The table of the ADR:
+        (5,5,0,0,0) pass, (5,3,1,1,0) fail, (5,4,0,1,0) inconclusive, (5,4,0,0,1) inconclusive,
+        where the columns are required_total, passed, failed, not_applicable, errored."""
+        table = [
+            ((5, 5, 0, 0, 0), "pass"),
+            ((5, 3, 1, 1, 0), "fail"),
+            ((5, 4, 0, 1, 0), "inconclusive"),
+            ((5, 4, 0, 0, 1), "inconclusive"),
+        ]
+        for (total, passed, failed, not_applicable, errored), status in table:
+            outcomes = (
+                ["passed"] * passed
+                + ["failed"] * failed
+                + ["not_applicable"] * not_applicable
+                + ["errored"] * errored
+            )
+            assert len(outcomes) == total
+>           assert _verdict(outcomes).status == status
+                   ^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_verdict.py:248: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_verdict.py:101: in _verdict
+    return entity_class3("RunVerdict").model_validate(_verdict_doc(outcomes, **over))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.verdict'
+import_ = <function _gcd_import at 0x1060fbe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.verdict'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+______________________ test_inconsistent_status_rejected _______________________
+
+    def test_inconsistent_status_rejected() -> None:
+        """A-15, ADR 0013 I3: a stored status that disagrees with the counts is rejected, for every
+        wrong status of every composition of up to four checks; a failed check with a ``pass`` status
+        is the classic forgery."""
+        statuses = ("pass", "fail", "inconclusive")
+        for total in range(1, 5):
+            for composition in itertools.product(OUTCOMES, repeat=total):
+                right = _status(composition.count("passed"), composition.count("failed"), total)
+                for status in statuses:
+                    doc = _verdict_doc(list(composition), status=status)
+                    if status == right:
+>                       entity_class3("RunVerdict").model_validate(doc)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_verdict.py:267: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.verdict'
+import_ = <function _gcd_import at 0x1060fbe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.verdict'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+________________________ test_counts_equal_check_tally _________________________
+
+    def test_counts_equal_check_tally() -> None:
+        """ADR 0013 I4, Decision 4: every count equals the tally of ``checks[].outcome``; a count
+        moved from one outcome to another with the sum intact is rejected, and so is a binding that
+        has two checks."""
+        outcomes = ["passed", "passed", "failed", "not_applicable"]
+>       _verdict(outcomes)
+
+packages/evalschema/tests/test_verdict.py:280: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_verdict.py:101: in _verdict
+    return entity_class3("RunVerdict").model_validate(_verdict_doc(outcomes, **over))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.verdict'
+import_ = <function _gcd_import at 0x1060fbe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.verdict'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+________________________________ test_headline _________________________________
+
+    def test_headline() -> None:
+        """ADR 0013 Decision 5, I5: ``render_headline`` is exactly ``"{passed}/{required_total} required
+        checks passed"``; the denominator includes not_applicable and errored checks, so a run that
+        could not check everything never reads as a clean pass."""
+>       render = _verdict_module().render_headline
+                 ^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_verdict.py:300: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_verdict.py:61: in _verdict_module
+    return api("verdict")
+           ^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.verdict'
+import_ = <function _gcd_import at 0x1060fbe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.verdict'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+______________________ test_headline_unchanged_by_weights ______________________
+
+    def test_headline_unchanged_by_weights() -> None:
+        """P-33 (ADR 0013 Decision 5, I5): weights never change the headline and the headline never
+        contains the weighted score; the same checks with and without a weighted score and with
+        different scores render the same text."""
+>       render = _verdict_module().render_headline
+                 ^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_verdict.py:316: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_verdict.py:61: in _verdict_module
+    return api("verdict")
+           ^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.verdict'
+import_ = <function _gcd_import at 0x1060fbe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.verdict'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_____________ test_weighted_score_5_3_2_with_na_is_1_coverage_0_8 ______________
+
+    def test_weighted_score_5_3_2_with_na_is_1_coverage_0_8() -> None:
+        """P-33 golden (ADR 0013 Decision 8, I8c): weights 5, 3 and 2; the weight-5 and weight-3 checks
+        passed and the weight-2 check is not_applicable: score ``1``, coverage ``0.8``, rendered
+        ``weighted score 1.00 (weight coverage 0.80)``, and the weight-2 check is listed as excluded."""
+>       verdict_module = _verdict_module()
+                         ^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_verdict.py:340: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_verdict.py:61: in _verdict_module
+    return api("verdict")
+           ^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.verdict'
+import_ = <function _gcd_import at 0x1060fbe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.verdict'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+________________ test_weighted_score_excludes_na_and_lists_them ________________
+
+    def test_weighted_score_excludes_na_and_lists_them() -> None:
+        """ADR 0013 Decision 8, I8: not_applicable weighted checks are left out of both sums and
+        listed in ``weighted_excluded`` with their binding ID and outcome, in input order; failed
+        checks stay in with a contribution of 0."""
+>       compute = _verdict_module().compute_weighted_score
+                  ^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_verdict.py:362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_verdict.py:61: in _verdict_module
+    return api("verdict")
+           ^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.verdict'
+import_ = <function _gcd_import at 0x1060fbe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.verdict'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_____________________ test_weighted_score_excludes_errored _____________________
+
+    def test_weighted_score_excludes_errored() -> None:
+        """P-33 (ADR 0013 Decision 8, I8): an errored weighted check is excluded exactly like a
+        not_applicable one (never counted as 0), and listed with outcome ``errored``."""
+>       compute = _verdict_module().compute_weighted_score
+                  ^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_verdict.py:382: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_verdict.py:61: in _verdict_module
+    return api("verdict")
+           ^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.verdict'
+import_ = <function _gcd_import at 0x1060fbe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.verdict'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_________________ test_weighted_score_absent_when_all_excluded _________________
+
+    def test_weighted_score_absent_when_all_excluded() -> None:
+        """P-33 (ADR 0013 Decision 8, I8a): when no weighted check was scored (all excluded, or the
+        rubric has no weights) both the score and the coverage are absent: never a score of 0
+        standing for 'nothing measured'."""
+>       compute = _verdict_module().compute_weighted_score
+                  ^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_verdict.py:403: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_verdict.py:61: in _verdict_module
+    return api("verdict")
+           ^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.verdict'
+import_ = <function _gcd_import at 0x1060fbe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.verdict'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+________________________ test_weighted_score_range_0_1 _________________________
+
+    def test_weighted_score_range_0_1() -> None:
+        """P-33 (ADR 0013 Decision 8, I8a; hypothesis): the computed score lies in [0,1] and the
+        coverage in (0,1] for any weights and outcomes, the score is 0 only when every scored
+        check failed, and a stored score or coverage outside its range is rejected."""
+>       compute = _verdict_module().compute_weighted_score
+                  ^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_verdict.py:421: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_verdict.py:61: in _verdict_module
+    return api("verdict")
+           ^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.verdict'
+import_ = <function _gcd_import at 0x1060fbe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.verdict'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+___________________ test_weight_coverage_required_with_score ___________________
+
+    def test_weight_coverage_required_with_score() -> None:
+        """P-33 (ADR 0013 Decision 8, I8b): ``weight_coverage`` is present whenever ``weighted_score``
+        is, and only then; the two are stored together. A score without a coverage, or a coverage
+        without a score, is rejected."""
+>       _verdict(["passed"], weighted_score="1", weight_coverage="0.8")
+
+packages/evalschema/tests/test_verdict.py:463: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_verdict.py:101: in _verdict
+    return entity_class3("RunVerdict").model_validate(_verdict_doc(outcomes, **over))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.verdict'
+import_ = <function _gcd_import at 0x1060fbe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.verdict'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_______________ test_weight_coverage_is_scored_over_total_weight _______________
+
+    def test_weight_coverage_is_scored_over_total_weight() -> None:
+        """P-33 (ADR 0013 Decision 8, I8b): ``weight_coverage`` is the scored weight over the total
+        weight of all weighted checks, exact in ``Decimal`` and rounded half-even at scale 18 when it
+        does not terminate; the score is ``sum(w * passed) / sum(w)`` over the scored checks."""
+>       compute = _verdict_module().compute_weighted_score
+                  ^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_verdict.py:479: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_verdict.py:61: in _verdict_module
+    return api("verdict")
+           ^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.verdict'
+import_ = <function _gcd_import at 0x1060fbe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.verdict'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+__________________ test_render_weighted_score_shows_coverage ___________________
+
+    def test_render_weighted_score_shows_coverage() -> None:
+        """P-33 (ADR 0013 Decision 8, I8d): ``render_weighted_score`` returns ``"weighted score {score}
+        (weight coverage {coverage})"`` with both values at two decimals (half-even, display only; the
+        stored values stay exact) and ``None`` when there is no score."""
+>       render = _verdict_module().render_weighted_score
+                 ^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_verdict.py:507: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_verdict.py:61: in _verdict_module
+    return api("verdict")
+           ^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.verdict'
+import_ = <function _gcd_import at 0x1060fbe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.verdict'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+____________ test_no_renderer_shows_weighted_score_without_coverage ____________
+
+    def test_no_renderer_shows_weighted_score_without_coverage() -> None:
+        """P-33 (ADR 0013 I8d; contract test): every public ``render_*`` function of the package that
+        can render a verdict shows the weighted score together with its coverage: the walk calls each
+        renderer with a verdict that has a score and checks its output, and requires
+        ``render_weighted_score`` to be among the renderers that produced it."""
+        package = api("")
+>       verdict = _verdict(["passed", "failed"], weighted_score="0.43", weight_coverage="0.87")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_verdict.py:529: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_verdict.py:101: in _verdict
+    return entity_class3("RunVerdict").model_validate(_verdict_doc(outcomes, **over))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.verdict'
+import_ = <function _gcd_import at 0x1060fbe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.verdict'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+______________ test_weighted_score_uses_per_turn_passed_not_share ______________
+
+    def test_weighted_score_uses_per_turn_passed_not_share() -> None:
+        """P-58 (ADR 0013 Decision 8a): a weighted ``per_turn_share`` check is one check that
+        contributes ``w * passed`` (1 or 0), never ``w * share``: a share of 0.75 against ``range{min:
+        0.8}`` fails and contributes 0, so weights 4 (that check) and 1 (passed) give 1/5, not
+        (4 * 0.75 + 1) / 5. A passing share contributes its whole weight."""
+>       verdict_module = _verdict_module()
+                         ^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_verdict.py:559: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_verdict.py:61: in _verdict_module
+    return api("verdict")
+           ^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.verdict'
+import_ = <function _gcd_import at 0x1060fbe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.verdict'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_________________ test_checks_reference_required_bindings_only _________________
+
+    def test_checks_reference_required_bindings_only() -> None:
+        """ADR 0013 I10, Decision 2: ``checks`` has one entry for each required binding of the rubric
+        and none for a binding that is not required; a missing check, an extra check for an optional
+        binding, a check for a binding outside the rubric, and a binding checked twice are rejected.
+        The headline counts required checks only, while an optional weighted check can still enter
+        the weighted score (P-34)."""
+>       world, results = _world_and_results(
+            ["passed", "failed", "passed"], required=(True, True, False)
+        )
+
+packages/evalschema/tests/test_verdict.py:700: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_verdict.py:645: in _world_and_results
+    results = [_result_of(d, o) for d, o in zip(world["definitions"], outcomes, strict=True)]
+               ^^^^^^^^^^^^^^^^
+packages/evalschema/tests/test_verdict.py:607: in _result_of
+    model = entity_class3("MetricResult")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.results'
+import_ = <function _gcd_import at 0x1060fbe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.results'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_______________ test_check_outcome_matches_metric_result_status ________________
+
+    def test_check_outcome_matches_metric_result_status() -> None:
+        """ADR 0013 Decision 3, I11: scored with ``passed`` true is ``passed``; scored with ``passed``
+        false is ``failed``; not_applicable is ``not_applicable``; error is ``errored``
+        (``outcome_of_result``). A check whose outcome disagrees with its result is rejected, and so
+        is one whose result is not supplied or belongs to another metric."""
+>       verdict_module = _verdict_module()
+                         ^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_verdict.py:742: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_verdict.py:61: in _verdict_module
+    return api("verdict")
+           ^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.verdict'
+import_ = <function _gcd_import at 0x1060fbe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.verdict'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_______ test_verdict_check_metric_ref_is_typed_and_equals_binding_metric _______
+
+    def test_verdict_check_metric_ref_is_typed_and_equals_binding_metric() -> None:
+        """Proposed name (ADR 0013 Decision 2, api-surface 19.4 item 1): ``metric_ref`` of a check is a
+        ``MetricDefinitionRef`` object and must equal the ``metric`` of the binding named by
+        ``binding_id``; another definition, another version or a text such as ``key@version`` is
+        rejected. Digests on the reference are verified when present."""
+>       world, results = _world_and_results(["passed", "failed"], weights=(None, None))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_verdict.py:788: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_verdict.py:645: in _world_and_results
+    results = [_result_of(d, o) for d, o in zip(world["definitions"], outcomes, strict=True)]
+               ^^^^^^^^^^^^^^^^
+packages/evalschema/tests/test_verdict.py:607: in _result_of
+    model = entity_class3("MetricResult")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.results'
+import_ = <function _gcd_import at 0x1060fbe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.results'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+____________ test_weighted_score_checked_against_rubric_and_results ____________
+
+    def test_weighted_score_checked_against_rubric_and_results() -> None:
+        """Proposed name (ADR 0013 Decision 8; ``check_verdict``): the stored ``weighted_score``,
+        ``weight_coverage`` and ``weighted_excluded`` equal what the rubric's weights and the results
+        give (a forged score, a wrong coverage and a wrong exclusion list are rejected), a weighted
+        check that is not required still counts (P-34) and an unweighted check is in neither sum."""
+>       world, results = _world_and_results(["passed", "failed", "not_applicable"])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_verdict.py:814: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_verdict.py:645: in _world_and_results
+    results = [_result_of(d, o) for d, o in zip(world["definitions"], outcomes, strict=True)]
+               ^^^^^^^^^^^^^^^^
+packages/evalschema/tests/test_verdict.py:607: in _result_of
+    model = entity_class3("MetricResult")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.results'
+import_ = <function _gcd_import at 0x1060fbe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.results'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+- generated xml file: <scratchpad>/junit3/p1-22-verdict.py3.14.xml -
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_verdict.py::test_weighted_exclusions_are_unique_per_binding
+FAILED packages/evalschema/tests/test_verdict.py::test_outcome_of_result_needs_a_pass_decision
+FAILED packages/evalschema/tests/test_verdict.py::test_run_verdict_shape_and_enums
+FAILED packages/evalschema/tests/test_verdict.py::test_empty_verdict_rejected
+FAILED packages/evalschema/tests/test_verdict.py::test_counts_sum_to_required_total
+FAILED packages/evalschema/tests/test_verdict.py::test_status_pass_fail_inconclusive_table
+FAILED packages/evalschema/tests/test_verdict.py::test_inconsistent_status_rejected
+FAILED packages/evalschema/tests/test_verdict.py::test_counts_equal_check_tally
+FAILED packages/evalschema/tests/test_verdict.py::test_headline - ModuleNotFo...
+FAILED packages/evalschema/tests/test_verdict.py::test_headline_unchanged_by_weights
+FAILED packages/evalschema/tests/test_verdict.py::test_weighted_score_5_3_2_with_na_is_1_coverage_0_8
+FAILED packages/evalschema/tests/test_verdict.py::test_weighted_score_excludes_na_and_lists_them
+FAILED packages/evalschema/tests/test_verdict.py::test_weighted_score_excludes_errored
+FAILED packages/evalschema/tests/test_verdict.py::test_weighted_score_absent_when_all_excluded
+FAILED packages/evalschema/tests/test_verdict.py::test_weighted_score_range_0_1
+FAILED packages/evalschema/tests/test_verdict.py::test_weight_coverage_required_with_score
+FAILED packages/evalschema/tests/test_verdict.py::test_weight_coverage_is_scored_over_total_weight
+FAILED packages/evalschema/tests/test_verdict.py::test_render_weighted_score_shows_coverage
+FAILED packages/evalschema/tests/test_verdict.py::test_no_renderer_shows_weighted_score_without_coverage
+FAILED packages/evalschema/tests/test_verdict.py::test_weighted_score_uses_per_turn_passed_not_share
+FAILED packages/evalschema/tests/test_verdict.py::test_checks_reference_required_bindings_only
+FAILED packages/evalschema/tests/test_verdict.py::test_check_outcome_matches_metric_result_status
+FAILED packages/evalschema/tests/test_verdict.py::test_verdict_check_metric_ref_is_typed_and_equals_binding_metric
+FAILED packages/evalschema/tests/test_verdict.py::test_weighted_score_checked_against_rubric_and_results
+============================== 24 failed in 0.37s ==============================
+# exit status: 1

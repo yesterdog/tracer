@@ -1,0 +1,125 @@
+# group: p1-05-base-versioning-digest-loader   (batch 1 green run, schema-architect)
+# date: 2026-10-22T17:56:57Z (UTC)  local: 2026-10-22T23:26:57+0530
+# command: python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_entity_base.py packages/evalschema/tests/test_versioning.py packages/evalschema/tests/test_digest.py packages/evalschema/tests/test_loader.py   (cwd ~/tracer; pyproject addopts: -ra --strict-markers --strict-config -m 'not private_fixtures and not local_only')
+# interpreter: <scratchpad>/env3.14/bin/python
+# versions: python 3.14.7; pydantic 2.14.1, pydantic-core 2.50.1, pytest 9.1.1, jsonschema 4.26.0, rfc8785 0.1.4
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git status: no commits; 0 staged paths
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.14.7, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>/env3.14/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 81 items
+
+packages/evalschema/tests/test_entity_base.py::test_entity_base_required_fields PASSED [  1%]
+packages/evalschema/tests/test_entity_base.py::test_extra_field_forbidden PASSED [  2%]
+packages/evalschema/tests/test_entity_base.py::test_entity_id_must_match_class_prefix PASSED [  3%]
+packages/evalschema/tests/test_entity_base.py::test_entity_created_at_is_utc_datetime PASSED [  4%]
+packages/evalschema/tests/test_entity_base.py::test_schema_version_too_new PASSED [  6%]
+packages/evalschema/tests/test_entity_base.py::test_schema_version_mismatch_older PASSED [  7%]
+packages/evalschema/tests/test_entity_base.py::test_schema_version_invalid[1] PASSED [  8%]
+packages/evalschema/tests/test_entity_base.py::test_schema_version_invalid[v0.0.1] PASSED [  9%]
+packages/evalschema/tests/test_entity_base.py::test_schema_version_invalid_other_malformed PASSED [ 11%]
+packages/evalschema/tests/test_entity_base.py::test_version_errors_carry_found_and_expected PASSED [ 12%]
+packages/evalschema/tests/test_entity_base.py::test_package_version_equals_schema_version PASSED [ 13%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flags_verified_on_load PASSED [ 14%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_rule_golden PASSED [ 16%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[sk--sk-aaaaaaaaaaaaaaaaaaaa-sk-aaaaaaaaaaaaaaaaaaa] PASSED [ 17%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[sk_live_-sk_live_aaaaaaaaaaaaaaaa-sk_live_aaaaaaaaaaaaaaa] PASSED [ 18%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[rk_test_-rk_test_bbbbbbbbbbbbbbbb-rk_test_bbbbbbbbbbbbbbb] PASSED [ 19%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[sk_test_-sk_test_cccccccccccccccccccc-sk_prod_cccccccccccccccccccc] PASSED [ 20%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[AKIA-AKIAAAAAAAAAAAAAAAAA-AKIAAAAAAAAAAAAAAAA] PASSED [ 22%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[ASIA-ASIA0000000000000000-ASIAaaaaaaaaaaaaaaaa] PASSED [ 23%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[AIza-AIzaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-AIzaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] PASSED [ 24%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[ghp_-ghp_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-ghp_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] PASSED [ 25%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[ghs_-ghs_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-ghx_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] PASSED [ 27%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[github_pat_-github_pat_aaaaaaaaaaaaaaaaaaaaaa-github_pat_aaaaaaaaaaaaaaaaaaaaa] PASSED [ 28%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[glpat--glpat-aaaaaaaaaaaaaaaaaaaa-glpat-aaaaaaaaaaaaaaaaaaa] PASSED [ 29%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[xoxb--xoxb-1111111111-xoxb-111111111] PASSED [ 30%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[xoxs--xoxs-ab-ab-ab-ab--xoxz-1111111111] PASSED [ 32%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[hf_-hf_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-hf_aaaaaaaaaaaaaaaaaaaaaaaaaaaaa] PASSED [ 33%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[jwt-eyJaaaaaaaaaa.eyJbbbbbbbbbb.-eyJaaaaaaaaa.eyJbbbbbbbbbb.] PASSED [ 34%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[pem------BEGIN RSA PRIVATE KEY-----------BEGIN PUBLIC KEY-----] PASSED [ 35%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[pem2------BEGIN PRIVATE KEY-----------BEGIN private key-----] PASSED [ 37%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_high_entropy_boundaries[32-16-True] PASSED [ 38%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_high_entropy_boundaries[32-30-True] PASSED [ 39%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_high_entropy_boundaries[40-24-True] PASSED [ 40%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_high_entropy_boundaries[64-30-True] PASSED [ 41%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_high_entropy_boundaries[31-16-False] PASSED [ 43%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_high_entropy_boundaries[31-30-False] PASSED [ 44%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_high_entropy_boundaries[32-15-False] PASSED [ 45%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_high_entropy_boundaries[64-15-False] PASSED [ 46%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_high_entropy_boundaries[16-16-False] PASSED [ 48%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_high_entropy_needs_upper_lower_and_digit_in_one_run PASSED [ 49%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_scope_is_string_leaves_of_metadata_only PASSED [ 50%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_pointer_escaping_and_utf16_order PASSED [ 51%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_one_flag_per_path_prefix_reason_wins PASSED [ 53%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flags_supplied_list_must_equal_the_computed_list PASSED [ 54%]
+packages/evalschema/tests/test_entity_base.py::test_typed_errors_do_not_derive_from_the_exceptions_pydantic_wraps PASSED [ 55%]
+packages/evalschema/tests/test_entity_base.py::test_schema_version_errors_propagate_unwrapped_through_every_entry_point PASSED [ 56%]
+packages/evalschema/tests/test_entity_base.py::test_digest_errors_propagate_unwrapped_through_every_entry_point PASSED [ 58%]
+packages/evalschema/tests/test_entity_base.py::test_loader_typed_errors_are_not_wrapped_either PASSED [ 59%]
+packages/evalschema/tests/test_versioning.py::test_version_int_ge_1 PASSED [ 60%]
+packages/evalschema/tests/test_versioning.py::test_versioned_content_digest_mismatch_rejected PASSED [ 61%]
+packages/evalschema/tests/test_versioning.py::test_ref_requires_version PASSED [ 62%]
+packages/evalschema/tests/test_versioning.py::test_versioned_entity_set_matches_adr FAILED [ 64%]
+packages/evalschema/tests/test_versioning.py::test_bundle_mixed_versions_rejected PASSED [ 65%]
+packages/evalschema/tests/test_versioning.py::test_bundle_rejects_same_id_version_different_digest PASSED [ 66%]
+packages/evalschema/tests/test_versioning.py::test_bundle_rejects_same_record_id_different_content PASSED [ 67%]
+packages/evalschema/tests/test_versioning.py::test_ref_digest_must_match_resolved_entity_in_bundle PASSED [ 69%]
+packages/evalschema/tests/test_digest.py::test_content_digest_scheme_registered PASSED [ 70%]
+packages/evalschema/tests/test_digest.py::test_unknown_digest_scheme_rejected PASSED [ 71%]
+packages/evalschema/tests/test_digest.py::test_digest_plain_sha256_jcs_golden PASSED [ 72%]
+packages/evalschema/tests/test_digest.py::test_hmac_digest_golden PASSED [ 74%]
+packages/evalschema/tests/test_digest.py::test_digest_key_ref_must_be_absent_for_v1 PASSED [ 75%]
+packages/evalschema/tests/test_digest.py::test_content_digest_has_no_salt_ref_field PASSED [ 76%]
+packages/evalschema/tests/test_digest.py::test_hmac_digest_requires_key_ref PASSED [ 77%]
+packages/evalschema/tests/test_digest.py::test_keyed_digest_unverifiable_without_key_raises PASSED [ 79%]
+packages/evalschema/tests/test_digest.py::test_digest_verification_single_entry_point PASSED [ 80%]
+packages/evalschema/tests/test_digest.py::test_digest_domain_excludes_schema_version_and_nulls PASSED [ 81%]
+packages/evalschema/tests/test_digest.py::test_digest_domain_of_a_versioned_entity PASSED [ 82%]
+packages/evalschema/tests/test_digest.py::test_digest_rejects_non_ijson_values PASSED [ 83%]
+packages/evalschema/tests/test_digest.py::test_digest_domain_removes_content_digest_and_schema_version_at_top_level_only PASSED [ 85%]
+packages/evalschema/tests/test_digest.py::test_digest_domain_removes_nulls_at_every_object_depth_and_keeps_array_nulls PASSED [ 86%]
+packages/evalschema/tests/test_digest.py::test_digest_domain_of_a_model_equals_that_of_its_json_dump PASSED [ 87%]
+packages/evalschema/tests/test_digest.py::test_digest_domain_does_not_modify_its_input PASSED [ 88%]
+packages/evalschema/tests/test_digest.py::test_canonical_bytes_are_the_jcs_of_the_domain PASSED [ 90%]
+packages/evalschema/tests/test_digest.py::test_verify_digest_returns_none_or_raises PASSED [ 91%]
+packages/evalschema/tests/test_digest.py::test_verify_digest_settles_the_key_and_the_scheme_before_hashing_the_content PASSED [ 92%]
+packages/evalschema/tests/test_digest.py::test_content_digest_scheme_is_an_enum_in_both_schema_modes PASSED [ 93%]
+packages/evalschema/tests/test_digest.py::test_key_ref_key_id_is_an_opaque_string_stored_verbatim PASSED [ 95%]
+packages/evalschema/tests/test_loader.py::test_strict_loader_duplicate_keys PASSED [ 96%]
+packages/evalschema/tests/test_loader.py::test_strict_loader_models_reject_duplicate_keys PASSED [ 97%]
+packages/evalschema/tests/test_loader.py::test_strict_loader_depth_10k_no_recursionerror PASSED [ 98%]
+packages/evalschema/tests/test_loader.py::test_strict_loader_malformed_json_is_a_plain_error PASSED [100%]
+
+=================================== FAILURES ===================================
+____________________ test_versioned_entity_set_matches_adr _____________________
+
+    def test_versioned_entity_set_matches_adr() -> None:
+        registry = api("registry")
+        base = api("base")
+        versioned = {
+            cls.__name__
+            for cls in registry.entity_classes().values()
+            if issubclass(cls, base.VersionedEntity)
+        }
+>       assert versioned == ADR_VERSIONED
+E       AssertionError: assert set() == {'AgentTarget...Persona', ...}
+E         
+E         Extra items in the right set:
+E         'Persona'
+E         'AgentTarget'
+E         'MetricDefinition'
+E         'MetricBinding'
+E         'TestProfile'...
+E         
+E         ...Full output truncated (18 lines hidden), use '-vv' to show
+
+packages/evalschema/tests/test_versioning.py:126: AssertionError
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_versioning.py::test_versioned_entity_set_matches_adr
+========================= 1 failed, 80 passed in 0.13s =========================

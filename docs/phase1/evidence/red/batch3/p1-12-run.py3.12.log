@@ -1,0 +1,309 @@
+# group: p1-12-run   (batch 3, mode red, qa)
+# date: 2026-10-23T06:23:20Z (UTC)  local: 2026-10-23T11:53:20+0530
+# command: python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_run.py    (cwd ~/tracer; pyproject addopts: -ra --strict-markers --strict-config -m 'not private_fixtures and not local_only')
+# interpreter: <scratchpad>/env3.12/bin/python
+# versions: python 3.12.14; pydantic 2.14.1, pydantic-core 2.50.1, pytest 9.1.1, jsonschema 4.26.0, hypothesis 6.170.5, rfc8785 0.1.4
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git status: ## No commits yet on main; 12 untracked/changed entries; 0 staged paths; no commits made
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.12.14, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>/env3.12/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 7 items
+
+packages/evalschema/tests/test_run.py::test_run_shape_and_enums FAILED   [ 14%]
+packages/evalschema/tests/test_run.py::test_run_caller_origin_required FAILED [ 28%]
+packages/evalschema/tests/test_run.py::test_simulated_mode_implies_simulated_caller FAILED [ 42%]
+packages/evalschema/tests/test_run.py::test_run_started_at_optional_utc FAILED [ 57%]
+packages/evalschema/tests/test_run.py::test_external_refs_never_ids FAILED [ 71%]
+packages/evalschema/tests/test_run.py::test_run_detected_capabilities_separate_from_declared FAILED [ 85%]
+packages/evalschema/tests/test_run.py::test_run_channel_maps_and_warnings_are_value_objects FAILED [100%]
+
+=================================== FAILURES ===================================
+___________________________ test_run_shape_and_enums ___________________________
+
+    def test_run_shape_and_enums() -> None:
+        """Proposed name (SCOPE section 2 P1-12, ADR 0003 Decision 1): a run is an entity (``run``, a
+        record of fact: no ``version``, no digest) with exactly the fields of the contract;
+        ``mode`` is simulated or recorded (an ``enum``); ``available_inputs`` and
+        ``detected_capabilities`` are unique ``InputKind`` lists; ``agent_target`` is a typed
+        reference (``AgentTargetRef{id, version, content_digest?}``); ``observed_tier`` takes T0, T1
+        and T2; it round-trips through JSON and its JSON Schema."""
+>       model = entity_class3("Run")
+                ^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_run.py:76: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.run', import_ = <function _gcd_import at 0x1057000e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.run'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________________ test_run_caller_origin_required ________________________
+
+    def test_run_caller_origin_required() -> None:
+        """ADR 0016 Decision 2, I2: ``caller_origin`` is required with no default and is exactly
+        ``simulated`` or ``human``: forgetting it must not silently turn a recording of a real person
+        into a simulated call. The mode does not imply it for a recorded run."""
+>       model = entity_class3("Run")
+                ^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_run.py:157: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.run', import_ = <function _gcd_import at 0x1057000e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.run'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_________________ test_simulated_mode_implies_simulated_caller _________________
+
+    def test_simulated_mode_implies_simulated_caller() -> None:
+        """ADR 0016 Decision 2, I2: ``mode=simulated`` implies ``caller_origin=simulated``: a simulated
+        run is driven by our runner, so its caller cannot be a human. A recorded run may have either
+        origin (a replay of a simulated call, or a real call)."""
+        for mode, origin, valid in (
+            ("simulated", "simulated", True),
+            ("simulated", "human", False),
+            ("recorded", "simulated", True),
+            ("recorded", "human", True),
+        ):
+            if valid:
+>               run = _run(mode=mode, caller_origin=origin)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_run.py:183: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_run.py:62: in _run
+    return make3("Run", **over)
+           ^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:587: in make3
+    model = entity_class3(name)
+            ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.run', import_ = <function _gcd_import at 0x1057000e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.run'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________________ test_run_started_at_optional_utc _______________________
+
+    def test_run_started_at_optional_utc() -> None:
+        """P-36 input (ADR 0014 Decision 15, SCOPE P1-12): ``Run.started_at`` is a ``UtcDatetime`` or
+        absent: set by our runner for runs we drive, taken from the source for imported recordings,
+        absent when unknown, and never the ingest time (a missing value stays ``None`` and is not
+        filled with ``created_at`` or the clock). Naive times, numbers and text are rejected."""
+>       model = entity_class3("Run")
+                ^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_run.py:199: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.run', import_ = <function _gcd_import at 0x1057000e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.run'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_________________________ test_external_refs_never_ids _________________________
+
+    def test_external_refs_never_ids() -> None:
+        """ADR 0001 I6, ADR 0012 I14: a foreign identifier (a Pipecat session, a VoicEra call ID, a
+        trace ID) is recorded as an ``ExternalRef{system, kind, value}`` in ``Run.external_refs`` with
+        the value verbatim, and never becomes an ID of ours: ``from_external`` mints a fresh v7 ID that
+        differs from the external UUID, and a Run cannot take a bare or non-v7 UUID, or an ID of
+        another kind, as its own ID or in an ID field."""
+        ids = api("ids")
+        external = str(uuid.uuid4())  # a v4 UUID, as VoicEra writes its call_id
+        minted, ref = ids.from_external(ids.RunId, system="voicera", kind="call_id", value=external)
+        assert str(minted.uuid) != external
+        assert minted.uuid.version == 7
+>       run = _run(id=str(minted), external_refs=[ref.model_dump()])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_run.py:239: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_run.py:62: in _run
+    return make3("Run", **over)
+           ^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:587: in make3
+    model = entity_class3(name)
+            ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.run', import_ = <function _gcd_import at 0x1057000e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.run'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____________ test_run_detected_capabilities_separate_from_declared _____________
+
+    def test_run_detected_capabilities_separate_from_declared() -> None:
+        """Proposed name (P-23, ADR 0009 Decision 5; the Run half of
+        ``test_declared_vs_detected_capabilities_separate``): what a run detects is recorded on the Run
+        (``available_inputs`` as evidence and ``detected_capabilities``, the same ``InputKind``
+        vocabulary as ``AgentTarget.declared_capabilities``) and never written back into the versioned
+        AgentTarget: the Run references the target by ``{id, version}`` only, carries no declaration of
+        its own, and the two lists on a run are independent."""
+        target = entity_class("AgentTarget")
+>       declared = registered_class("AgentTargetRef")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_run.py:272: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'AgentTargetRef'
+
+    def registered_class(name: str) -> Any:
+        """The module-level model class ``name`` of the package, wherever the architect put it.
+    
+        Used for the value objects whose module api-surface 19.4.1 does not fix. A missing class fails
+        the test that needs it (AssertionError), never collection."""
+        found = {model.__name__: model for model in api("registry").model_classes()}
+>       assert name in found, f"{name} is not implemented yet"
+               ^^^^^^^^^^^^^
+E       AssertionError: AgentTargetRef is not implemented yet
+
+packages/evalschema/tests/_support_b2.py:105: AssertionError
+_____________ test_run_channel_maps_and_warnings_are_value_objects _____________
+
+    def test_run_channel_maps_and_warnings_are_value_objects() -> None:
+        """Proposed name (ADR 0012 Decisions 5 and 7): ``channel_maps`` holds ``ChannelMap`` value
+        objects (no IDs of their own; each names its artifact) and ``ingest_warnings`` holds
+        ``IngestWarning`` value objects; both survive a round trip as given."""
+>       artifact = make3("Artifact")
+                   ^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_run.py:305: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:587: in make3
+    model = entity_class3(name)
+            ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.artifact'
+import_ = <function _gcd_import at 0x1057000e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.artifact'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+- generated xml file: <scratchpad>/junit3/p1-12-run.py3.12.xml -
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_run.py::test_run_shape_and_enums - Modu...
+FAILED packages/evalschema/tests/test_run.py::test_run_caller_origin_required
+FAILED packages/evalschema/tests/test_run.py::test_simulated_mode_implies_simulated_caller
+FAILED packages/evalschema/tests/test_run.py::test_run_started_at_optional_utc
+FAILED packages/evalschema/tests/test_run.py::test_external_refs_never_ids - ...
+FAILED packages/evalschema/tests/test_run.py::test_run_detected_capabilities_separate_from_declared
+FAILED packages/evalschema/tests/test_run.py::test_run_channel_maps_and_warnings_are_value_objects
+============================== 7 failed in 0.17s ===============================
+# exit status: 1

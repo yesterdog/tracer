@@ -1,0 +1,2322 @@
+# group: p1-04c-language   (revision 7 red run)
+# date: 2026-10-22T17:19:18Z (UTC)  local: 2026-10-22T22:49:18+0530
+# command: python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_language.py   (cwd ~/tracer; python = ~/tracer/.venv/bin/python; pyproject addopts: -ra --strict-markers --strict-config -m 'not private_fixtures and not local_only')
+# python: Python 3.13.15 (~/tracer/.venv/bin/python)
+# pydantic 2.14.1, pytest 9.1.1, jsonschema 4.26.0
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git status: ## No commits yet on main; 11 untracked/changed entries; nothing staged, no commits made
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.13.15, pytest-9.1.1, pluggy-1.7.0 -- ~/tracer/.venv/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 63 items
+
+packages/evalschema/tests/test_language.py::test_supported_accepts[hi-IN] FAILED [  1%]
+packages/evalschema/tests/test_language.py::test_supported_accepts[en-US] FAILED [  3%]
+packages/evalschema/tests/test_language.py::test_supported_accepts[en-GB] FAILED [  4%]
+packages/evalschema/tests/test_language.py::test_supported_accepts[pa-Guru-IN] FAILED [  6%]
+packages/evalschema/tests/test_language.py::test_supported_accepts[ml] FAILED [  7%]
+packages/evalschema/tests/test_language.py::test_supported_accepts[gu-IN] FAILED [  9%]
+packages/evalschema/tests/test_language.py::test_supported_accepts_every_configured_language_code FAILED [ 11%]
+packages/evalschema/tests/test_language.py::test_canonical_case FAILED   [ 12%]
+packages/evalschema/tests/test_language.py::test_supported_rejects[bn] FAILED [ 14%]
+packages/evalschema/tests/test_language.py::test_supported_rejects[ur] FAILED [ 15%]
+packages/evalschema/tests/test_language.py::test_supported_rejects[or] FAILED [ 17%]
+packages/evalschema/tests/test_language.py::test_supported_rejects[as] FAILED [ 19%]
+packages/evalschema/tests/test_language.py::test_supported_rejects[pa-Arab] FAILED [ 20%]
+packages/evalschema/tests/test_language.py::test_supported_script_allowed_only_if_native FAILED [ 22%]
+packages/evalschema/tests/test_language.py::test_supported_region_outside_vendored_set_rejected FAILED [ 23%]
+packages/evalschema/tests/test_language.py::test_observed_accepts_regions_outside_vendored_set[ta-LK] FAILED [ 25%]
+packages/evalschema/tests/test_language.py::test_observed_accepts_regions_outside_vendored_set[en-AU] FAILED [ 26%]
+packages/evalschema/tests/test_language.py::test_hi_en_rejected_with_codemix_message FAILED [ 28%]
+packages/evalschema/tests/test_language.py::test_codemix_message_applies_to_the_eight_non_english_languages_with_region_EN FAILED [ 30%]
+packages/evalschema/tests/test_language.py::test_en_EN_and_other_pairs_get_the_ordinary_messages FAILED [ 31%]
+packages/evalschema/tests/test_language.py::test_observed_hi_en_is_region_EN FAILED [ 33%]
+packages/evalschema/tests/test_language.py::test_configured_rejects_hi_Latn FAILED [ 34%]
+packages/evalschema/tests/test_language.py::test_observed_accepts_hi_Latn FAILED [ 36%]
+packages/evalschema/tests/test_language.py::test_rejects[und] FAILED     [ 38%]
+packages/evalschema/tests/test_language.py::test_rejects[mul] FAILED     [ 39%]
+packages/evalschema/tests/test_language.py::test_rejects[zxx] FAILED     [ 41%]
+packages/evalschema/tests/test_language.py::test_rejects[hi-x-foo] FAILED [ 42%]
+packages/evalschema/tests/test_language.py::test_rejects[hi-u-nu-deva] FAILED [ 44%]
+packages/evalschema/tests/test_language.py::test_rejects[hi-1901] FAILED [ 46%]
+packages/evalschema/tests/test_language.py::test_observed_accepts_special_and_extension_tags FAILED [ 47%]
+packages/evalschema/tests/test_language.py::test_observed_accepts_bn_IN FAILED [ 49%]
+packages/evalschema/tests/test_language.py::test_observed_accepts_well_formed_unregistered[xq-IN] FAILED [ 50%]
+packages/evalschema/tests/test_language.py::test_observed_accepts_well_formed_unregistered[hi-AA] FAILED [ 52%]
+packages/evalschema/tests/test_language.py::test_observed_accepts_well_formed_unregistered[qaa] FAILED [ 53%]
+packages/evalschema/tests/test_language.py::test_observed_accepts_private_use_only_and_extlang_forms FAILED [ 55%]
+packages/evalschema/tests/test_language.py::test_observed_validation_does_not_read_registry FAILED [ 57%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_malformed[hi_IN] FAILED [ 58%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_malformed[hi--IN] FAILED [ 60%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_malformed[-hi] FAILED [ 61%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_malformed[hi-IN-] FAILED [ 63%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_malformed[] FAILED [ 65%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_other_malformed_forms FAILED [ 66%]
+packages/evalschema/tests/test_language.py::test_observed_primary_subtag_2_3_letters[hindi] FAILED [ 68%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_grandfathered[i-klingon] FAILED [ 69%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_grandfathered[en-GB-oed] FAILED [ 71%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_grandfathered[zh-min-nan] FAILED [ 73%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_grandfathered[art-lojban] FAILED [ 74%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_all_26_grandfathered_tags FAILED [ 76%]
+packages/evalschema/tests/test_language.py::test_observed_grandfathered_is_a_whole_tag_case_insensitive_match FAILED [ 77%]
+packages/evalschema/tests/test_language.py::test_observed_accepts_up_to_three_extlang_subtags FAILED [ 79%]
+packages/evalschema/tests/test_language.py::test_types_do_not_trim_labels FAILED [ 80%]
+packages/evalschema/tests/test_language.py::test_importer_language_name_raw_kept_tag_empty[hindi] FAILED [ 82%]
+packages/evalschema/tests/test_language.py::test_importer_language_name_raw_kept_tag_empty[Hindi] FAILED [ 84%]
+packages/evalschema/tests/test_language.py::test_importer_language_name_raw_kept_tag_empty[\u0939\u093f\u0928\u094d\u0926\u0940] FAILED [ 85%]
+packages/evalschema/tests/test_language.py::test_importer_language_name_raw_kept_tag_empty[English (India)] FAILED [ 87%]
+packages/evalschema/tests/test_language.py::test_importer_language_name_raw_kept_tag_empty[hi in] FAILED [ 88%]
+packages/evalschema/tests/test_language.py::test_detected_language_raw_verbatim FAILED [ 90%]
+packages/evalschema/tests/test_language.py::test_detected_language_raw_kept_when_tag_unparseable FAILED [ 92%]
+packages/evalschema/tests/test_language.py::test_importer_underscore_to_hyphen_with_warning_raw_kept FAILED [ 93%]
+packages/evalschema/tests/test_language.py::test_normalize_language_label_is_pure_and_total FAILED [ 95%]
+packages/evalschema/tests/test_language.py::test_case_only_difference_gives_no_warning FAILED [ 96%]
+packages/evalschema/tests/test_language.py::test_primary_language_equivalence FAILED [ 98%]
+packages/evalschema/tests/test_language.py::test_supported_no_suppress_script_rewrite FAILED [100%]
+
+=================================== FAILURES ===================================
+________________________ test_supported_accepts[hi-IN] _________________________
+
+tag = 'hi-IN'
+
+    @pytest.mark.parametrize("tag", ["hi-IN", "en-US", "en-GB", "pa-Guru-IN", "ml", "gu-IN"])
+    def test_supported_accepts(tag: str) -> None:
+>       adapter = _supported()
+                  ^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:81: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:63: in _supported
+    return adapter("language", "SupportedLanguage")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________________________ test_supported_accepts[en-US] _________________________
+
+tag = 'en-US'
+
+    @pytest.mark.parametrize("tag", ["hi-IN", "en-US", "en-GB", "pa-Guru-IN", "ml", "gu-IN"])
+    def test_supported_accepts(tag: str) -> None:
+>       adapter = _supported()
+                  ^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:81: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:63: in _supported
+    return adapter("language", "SupportedLanguage")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________________________ test_supported_accepts[en-GB] _________________________
+
+tag = 'en-GB'
+
+    @pytest.mark.parametrize("tag", ["hi-IN", "en-US", "en-GB", "pa-Guru-IN", "ml", "gu-IN"])
+    def test_supported_accepts(tag: str) -> None:
+>       adapter = _supported()
+                  ^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:81: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:63: in _supported
+    return adapter("language", "SupportedLanguage")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+______________________ test_supported_accepts[pa-Guru-IN] ______________________
+
+tag = 'pa-Guru-IN'
+
+    @pytest.mark.parametrize("tag", ["hi-IN", "en-US", "en-GB", "pa-Guru-IN", "ml", "gu-IN"])
+    def test_supported_accepts(tag: str) -> None:
+>       adapter = _supported()
+                  ^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:81: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:63: in _supported
+    return adapter("language", "SupportedLanguage")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__________________________ test_supported_accepts[ml] __________________________
+
+tag = 'ml'
+
+    @pytest.mark.parametrize("tag", ["hi-IN", "en-US", "en-GB", "pa-Guru-IN", "ml", "gu-IN"])
+    def test_supported_accepts(tag: str) -> None:
+>       adapter = _supported()
+                  ^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:81: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:63: in _supported
+    return adapter("language", "SupportedLanguage")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________________________ test_supported_accepts[gu-IN] _________________________
+
+tag = 'gu-IN'
+
+    @pytest.mark.parametrize("tag", ["hi-IN", "en-US", "en-GB", "pa-Guru-IN", "ml", "gu-IN"])
+    def test_supported_accepts(tag: str) -> None:
+>       adapter = _supported()
+                  ^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:81: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:63: in _supported
+    return adapter("language", "SupportedLanguage")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____________ test_supported_accepts_every_configured_language_code _____________
+
+    def test_supported_accepts_every_configured_language_code() -> None:
+        """Proposed name. The nine bare codes and each with the IN region (en also US, GB)."""
+>       adapter = _supported()
+                  ^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:90: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:63: in _supported
+    return adapter("language", "SupportedLanguage")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________________________ test_canonical_case ______________________________
+
+    def test_canonical_case() -> None:
+>       adapter = _supported()
+                  ^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:63: in _supported
+    return adapter("language", "SupportedLanguage")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__________________________ test_supported_rejects[bn] __________________________
+
+tag = 'bn'
+
+    @pytest.mark.parametrize("tag", ["bn", "ur", "or", "as", "pa-Arab"])
+    def test_supported_rejects(tag: str) -> None:
+>       adapter = _supported()
+                  ^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:118: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:63: in _supported
+    return adapter("language", "SupportedLanguage")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__________________________ test_supported_rejects[ur] __________________________
+
+tag = 'ur'
+
+    @pytest.mark.parametrize("tag", ["bn", "ur", "or", "as", "pa-Arab"])
+    def test_supported_rejects(tag: str) -> None:
+>       adapter = _supported()
+                  ^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:118: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:63: in _supported
+    return adapter("language", "SupportedLanguage")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__________________________ test_supported_rejects[or] __________________________
+
+tag = 'or'
+
+    @pytest.mark.parametrize("tag", ["bn", "ur", "or", "as", "pa-Arab"])
+    def test_supported_rejects(tag: str) -> None:
+>       adapter = _supported()
+                  ^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:118: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:63: in _supported
+    return adapter("language", "SupportedLanguage")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__________________________ test_supported_rejects[as] __________________________
+
+tag = 'as'
+
+    @pytest.mark.parametrize("tag", ["bn", "ur", "or", "as", "pa-Arab"])
+    def test_supported_rejects(tag: str) -> None:
+>       adapter = _supported()
+                  ^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:118: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:63: in _supported
+    return adapter("language", "SupportedLanguage")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________________ test_supported_rejects[pa-Arab] ________________________
+
+tag = 'pa-Arab'
+
+    @pytest.mark.parametrize("tag", ["bn", "ur", "or", "as", "pa-Arab"])
+    def test_supported_rejects(tag: str) -> None:
+>       adapter = _supported()
+                  ^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:118: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:63: in _supported
+    return adapter("language", "SupportedLanguage")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_________________ test_supported_script_allowed_only_if_native _________________
+
+    def test_supported_script_allowed_only_if_native() -> None:
+        """Proposed name. ADR 0005 Decision 1: a script subtag is accepted only if native."""
+>       adapter = _supported()
+                  ^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:131: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:63: in _supported
+    return adapter("language", "SupportedLanguage")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________ test_supported_region_outside_vendored_set_rejected ______________
+
+    def test_supported_region_outside_vendored_set_rejected() -> None:
+>       adapter = _supported()
+                  ^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:150: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:63: in _supported
+    return adapter("language", "SupportedLanguage")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__________ test_observed_accepts_regions_outside_vendored_set[ta-LK] ___________
+
+tag = 'ta-LK'
+
+    @pytest.mark.parametrize("tag", ["ta-LK", "en-AU"])
+    def test_observed_accepts_regions_outside_vendored_set(tag: str) -> None:
+        """P-14: observed tags are unaffected by the vendored region set."""
+>       adapter = _observed()
+                  ^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:172: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:67: in _observed
+    return adapter("language", "ObservedLanguageTag")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__________ test_observed_accepts_regions_outside_vendored_set[en-AU] ___________
+
+tag = 'en-AU'
+
+    @pytest.mark.parametrize("tag", ["ta-LK", "en-AU"])
+    def test_observed_accepts_regions_outside_vendored_set(tag: str) -> None:
+        """P-14: observed tags are unaffected by the vendored region set."""
+>       adapter = _observed()
+                  ^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:172: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:67: in _observed
+    return adapter("language", "ObservedLanguageTag")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+___________________ test_hi_en_rejected_with_codemix_message ___________________
+
+    def test_hi_en_rejected_with_codemix_message() -> None:
+>       language = api("language")
+                   ^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:180: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_ test_codemix_message_applies_to_the_eight_non_english_languages_with_region_EN _
+
+    def test_codemix_message_applies_to_the_eight_non_english_languages_with_region_EN() -> None:
+        """Proposed name. ADR 0005 Decision 1 (revision 7): primary subtag one of the eight configured
+        non-English languages and region subtag EN in any case -> the mixed-language message, which
+        takes precedence over the region message (EN is not a vendored region)."""
+        eight = [code for code in NINE if code != "en"]
+        assert len(eight) == 8
+        for code in eight:
+            for region in ("en", "EN", "En", "eN"):
+                for tag in (f"{code}-{region}", f"{code.upper()}-{region}", f"{code}-Deva-{region}"):
+                    if tag.startswith(f"{code}-Deva-") and code not in ("hi", "mr"):
+                        continue  # Deva is not a native script of the other languages
+>                   has_codemix, has_region = _codemix_and_region_messages(tag)
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:212: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:194: in _codemix_and_region_messages
+    language = api("language")
+               ^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________ test_en_EN_and_other_pairs_get_the_ordinary_messages _____________
+
+    def test_en_EN_and_other_pairs_get_the_ordinary_messages() -> None:
+        """Proposed name. ``en-EN`` is English with an unsupported region, not a code-mix alias; no
+        other pair is read as code-mix either (api-surface 15a item 11)."""
+        for tag in ("en-EN", "en-en", "EN-EN", "EN-en"):
+>           has_codemix, has_region = _codemix_and_region_messages(tag)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:223: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:194: in _codemix_and_region_messages
+    language = api("language")
+               ^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________________ test_observed_hi_en_is_region_EN _______________________
+
+    def test_observed_hi_en_is_region_EN() -> None:
+>       adapter = _observed()
+                  ^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:236: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:67: in _observed
+    return adapter("language", "ObservedLanguageTag")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________________ test_configured_rejects_hi_Latn ________________________
+
+    def test_configured_rejects_hi_Latn() -> None:
+>       adapter = _supported()
+                  ^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:243: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:63: in _supported
+    return adapter("language", "SupportedLanguage")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________________________ test_observed_accepts_hi_Latn _________________________
+
+    def test_observed_accepts_hi_Latn() -> None:
+>       adapter = _observed()
+                  ^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:250: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:67: in _observed
+    return adapter("language", "ObservedLanguageTag")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+______________________________ test_rejects[und] _______________________________
+
+tag = 'und'
+
+    @pytest.mark.parametrize("tag", SPECIAL_AND_EXTENSION)
+    def test_rejects(tag: str) -> None:
+        """SCOPE name; target type SupportedLanguage: special, extension, variant, private use."""
+        with pytest.raises(ValidationError):
+>           _supported().validate_python(tag)
+            ^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:260: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:63: in _supported
+    return adapter("language", "SupportedLanguage")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+______________________________ test_rejects[mul] _______________________________
+
+tag = 'mul'
+
+    @pytest.mark.parametrize("tag", SPECIAL_AND_EXTENSION)
+    def test_rejects(tag: str) -> None:
+        """SCOPE name; target type SupportedLanguage: special, extension, variant, private use."""
+        with pytest.raises(ValidationError):
+>           _supported().validate_python(tag)
+            ^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:260: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:63: in _supported
+    return adapter("language", "SupportedLanguage")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+______________________________ test_rejects[zxx] _______________________________
+
+tag = 'zxx'
+
+    @pytest.mark.parametrize("tag", SPECIAL_AND_EXTENSION)
+    def test_rejects(tag: str) -> None:
+        """SCOPE name; target type SupportedLanguage: special, extension, variant, private use."""
+        with pytest.raises(ValidationError):
+>           _supported().validate_python(tag)
+            ^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:260: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:63: in _supported
+    return adapter("language", "SupportedLanguage")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____________________________ test_rejects[hi-x-foo] ____________________________
+
+tag = 'hi-x-foo'
+
+    @pytest.mark.parametrize("tag", SPECIAL_AND_EXTENSION)
+    def test_rejects(tag: str) -> None:
+        """SCOPE name; target type SupportedLanguage: special, extension, variant, private use."""
+        with pytest.raises(ValidationError):
+>           _supported().validate_python(tag)
+            ^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:260: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:63: in _supported
+    return adapter("language", "SupportedLanguage")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__________________________ test_rejects[hi-u-nu-deva] __________________________
+
+tag = 'hi-u-nu-deva'
+
+    @pytest.mark.parametrize("tag", SPECIAL_AND_EXTENSION)
+    def test_rejects(tag: str) -> None:
+        """SCOPE name; target type SupportedLanguage: special, extension, variant, private use."""
+        with pytest.raises(ValidationError):
+>           _supported().validate_python(tag)
+            ^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:260: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:63: in _supported
+    return adapter("language", "SupportedLanguage")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____________________________ test_rejects[hi-1901] _____________________________
+
+tag = 'hi-1901'
+
+    @pytest.mark.parametrize("tag", SPECIAL_AND_EXTENSION)
+    def test_rejects(tag: str) -> None:
+        """SCOPE name; target type SupportedLanguage: special, extension, variant, private use."""
+        with pytest.raises(ValidationError):
+>           _supported().validate_python(tag)
+            ^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:260: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:63: in _supported
+    return adapter("language", "SupportedLanguage")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________ test_observed_accepts_special_and_extension_tags _______________
+
+    def test_observed_accepts_special_and_extension_tags() -> None:
+>       adapter = _observed()
+                  ^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:266: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:67: in _observed
+    return adapter("language", "ObservedLanguageTag")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_________________________ test_observed_accepts_bn_IN __________________________
+
+    def test_observed_accepts_bn_IN() -> None:
+>       adapter = _observed()
+                  ^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:273: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:67: in _observed
+    return adapter("language", "ObservedLanguageTag")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____________ test_observed_accepts_well_formed_unregistered[xq-IN] _____________
+
+tag = 'xq-IN'
+
+    @pytest.mark.parametrize("tag", ["xq-IN", "hi-AA", "qaa"])
+    def test_observed_accepts_well_formed_unregistered(tag: str) -> None:
+>       assert _observed().validate_python(tag) == tag
+               ^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:283: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:67: in _observed
+    return adapter("language", "ObservedLanguageTag")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____________ test_observed_accepts_well_formed_unregistered[hi-AA] _____________
+
+tag = 'hi-AA'
+
+    @pytest.mark.parametrize("tag", ["xq-IN", "hi-AA", "qaa"])
+    def test_observed_accepts_well_formed_unregistered(tag: str) -> None:
+>       assert _observed().validate_python(tag) == tag
+               ^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:283: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:67: in _observed
+    return adapter("language", "ObservedLanguageTag")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________ test_observed_accepts_well_formed_unregistered[qaa] ______________
+
+tag = 'qaa'
+
+    @pytest.mark.parametrize("tag", ["xq-IN", "hi-AA", "qaa"])
+    def test_observed_accepts_well_formed_unregistered(tag: str) -> None:
+>       assert _observed().validate_python(tag) == tag
+               ^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:283: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:67: in _observed
+    return adapter("language", "ObservedLanguageTag")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+___________ test_observed_accepts_private_use_only_and_extlang_forms ___________
+
+    def test_observed_accepts_private_use_only_and_extlang_forms() -> None:
+        """Proposed name. ADR 0005 Decision 2: langtag and private-use-only tags are well-formed;
+        an optional extlang may follow a 2-3 letter primary subtag (P-12)."""
+>       adapter = _observed()
+                  ^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:289: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:67: in _observed
+    return adapter("language", "ObservedLanguageTag")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________ test_observed_validation_does_not_read_registry ________________
+
+    def test_observed_validation_does_not_read_registry() -> None:
+        """Runs observed validation in a fresh interpreter and watches every file open (audit hook):
+        nothing under the package data directory may be read while validating (ADR 0005 I11)."""
+        tags = ["bn-IN", "hi-Latn", "xq-IN", "und", "hi-x-foo", "ta-LK", "en-AU", "hi-en", "qaa"]
+        proc = subprocess.run(  # noqa: S603
+            [
+                sys.executable,
+                "-c",
+                _AUDIT_CHILD,
+                str(DATA_DIR.resolve()),
+                json.dumps(tags),
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+>       assert proc.returncode == 0, proc.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "<string>", line 8, in <module>
+E             from tracer_evalschema import language
+E         ImportError: cannot import name 'language' from 'tracer_evalschema' (~/tracer/packages/evalschema/src/tracer_evalschema/__init__.py)
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['~/tracer/.venv/bin/python', '-c', '\nimport json\nimport os\nimport sys\n\nfrom pydantic import TypeAdapter\n\nfrom tracer_evalschema import language\n\nadapter = TypeAdapter(language.ObservedLanguageTag)\ndata_dir = sys.argv[1]\nopened = []\n\ndef hook(event, args):\n    if event == "open":\n        target = args[0]\n        if isinstance(target, int):\n            return\n        if os.path.realpath(os.fsdecode(target)).startswith(data_dir):\n            opened.append(os.fsdecode(target))\n\nsys.addaudithook(hook)\ntags = json.loads(sys.argv[2])\nresults = [adapter.validate_python(tag) for tag in tags]\nprint(json.dumps({"opened": opened, "results": results}))\n', '~/tracer/packages/evalschema/src/tracer_evalschema/data', '["bn-IN", "hi-Latn", "xq-IN", "und", "hi-x-foo", "ta-LK", "en-AU", "hi-en", "qaa"]'], returncode=1, stdout='', stderr='Traceback (most recent call last):\n  File "<string>", line 8, in <module>\n    from tracer_evalschema import language\nImportError: cannot import name \'language\' from \'tracer_evalschema\' (~/tracer/packages/evalschema/src/tracer_evalschema/__init__.py)\n').returncode
+
+packages/evalschema/tests/test_language.py:340: AssertionError
+____________________ test_observed_rejects_malformed[hi_IN] ____________________
+
+tag = 'hi_IN'
+
+    @pytest.mark.parametrize("tag", ["hi_IN", "hi--IN", "-hi", "hi-IN-", ""])
+    def test_observed_rejects_malformed(tag: str) -> None:
+>       adapter = _observed()
+                  ^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:358: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:67: in _observed
+    return adapter("language", "ObservedLanguageTag")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+___________________ test_observed_rejects_malformed[hi--IN] ____________________
+
+tag = 'hi--IN'
+
+    @pytest.mark.parametrize("tag", ["hi_IN", "hi--IN", "-hi", "hi-IN-", ""])
+    def test_observed_rejects_malformed(tag: str) -> None:
+>       adapter = _observed()
+                  ^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:358: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:67: in _observed
+    return adapter("language", "ObservedLanguageTag")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________________ test_observed_rejects_malformed[-hi] _____________________
+
+tag = '-hi'
+
+    @pytest.mark.parametrize("tag", ["hi_IN", "hi--IN", "-hi", "hi-IN-", ""])
+    def test_observed_rejects_malformed(tag: str) -> None:
+>       adapter = _observed()
+                  ^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:358: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:67: in _observed
+    return adapter("language", "ObservedLanguageTag")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+___________________ test_observed_rejects_malformed[hi-IN-] ____________________
+
+tag = 'hi-IN-'
+
+    @pytest.mark.parametrize("tag", ["hi_IN", "hi--IN", "-hi", "hi-IN-", ""])
+    def test_observed_rejects_malformed(tag: str) -> None:
+>       adapter = _observed()
+                  ^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:358: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:67: in _observed
+    return adapter("language", "ObservedLanguageTag")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+______________________ test_observed_rejects_malformed[] _______________________
+
+tag = ''
+
+    @pytest.mark.parametrize("tag", ["hi_IN", "hi--IN", "-hi", "hi-IN-", ""])
+    def test_observed_rejects_malformed(tag: str) -> None:
+>       adapter = _observed()
+                  ^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:358: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:67: in _observed
+    return adapter("language", "ObservedLanguageTag")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_________________ test_observed_rejects_other_malformed_forms __________________
+
+    def test_observed_rejects_other_malformed_forms() -> None:
+        """Proposed name. Neighbours of the SCOPE list: whitespace, newline, non-ASCII, wrong shapes."""
+>       adapter = _observed()
+                  ^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:367: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:67: in _observed
+    return adapter("language", "ObservedLanguageTag")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________ test_observed_primary_subtag_2_3_letters[hindi] ________________
+
+tag = 'hindi'
+
+    @pytest.mark.parametrize("tag", ["hindi"])
+    def test_observed_primary_subtag_2_3_letters(tag: str) -> None:
+>       adapter = _observed()
+                  ^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:391: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:67: in _observed
+    return adapter("language", "ObservedLanguageTag")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________________ test_observed_rejects_grandfathered[i-klingon] ________________
+
+tag = 'i-klingon'
+
+    @pytest.mark.parametrize("tag", ["i-klingon", "en-GB-oed", "zh-min-nan", "art-lojban"])
+    def test_observed_rejects_grandfathered(tag: str) -> None:
+>       adapter = _observed()
+                  ^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:417: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:67: in _observed
+    return adapter("language", "ObservedLanguageTag")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________________ test_observed_rejects_grandfathered[en-GB-oed] ________________
+
+tag = 'en-GB-oed'
+
+    @pytest.mark.parametrize("tag", ["i-klingon", "en-GB-oed", "zh-min-nan", "art-lojban"])
+    def test_observed_rejects_grandfathered(tag: str) -> None:
+>       adapter = _observed()
+                  ^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:417: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:67: in _observed
+    return adapter("language", "ObservedLanguageTag")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________ test_observed_rejects_grandfathered[zh-min-nan] ________________
+
+tag = 'zh-min-nan'
+
+    @pytest.mark.parametrize("tag", ["i-klingon", "en-GB-oed", "zh-min-nan", "art-lojban"])
+    def test_observed_rejects_grandfathered(tag: str) -> None:
+>       adapter = _observed()
+                  ^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:417: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:67: in _observed
+    return adapter("language", "ObservedLanguageTag")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________ test_observed_rejects_grandfathered[art-lojban] ________________
+
+tag = 'art-lojban'
+
+    @pytest.mark.parametrize("tag", ["i-klingon", "en-GB-oed", "zh-min-nan", "art-lojban"])
+    def test_observed_rejects_grandfathered(tag: str) -> None:
+>       adapter = _observed()
+                  ^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:417: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:67: in _observed
+    return adapter("language", "ObservedLanguageTag")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________ test_observed_rejects_all_26_grandfathered_tags ________________
+
+    def test_observed_rejects_all_26_grandfathered_tags() -> None:
+        """Proposed name. P-12 reads 'grandfathered' literally: the whole RFC 5646 production, in any
+        letter case (the ABNF is case-insensitive), while near neighbours stay valid."""
+        assert len(GRANDFATHERED) == 26
+        assert len(set(GRANDFATHERED)) == 26
+>       adapter = _observed()
+                  ^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:429: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:67: in _observed
+    return adapter("language", "ObservedLanguageTag")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+______ test_observed_grandfathered_is_a_whole_tag_case_insensitive_match _______
+
+    def test_observed_grandfathered_is_a_whole_tag_case_insensitive_match() -> None:
+        """Proposed name. ADR 0005 Decision 2 (revision 7): the whole tag is compared, in any letter
+        case, with each of the 26 literal tags (RFC 5646 section 2.1.1); a longer tag that only begins
+        with one is an ordinary langtag judged by the grammar."""
+>       adapter = _observed()
+                  ^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:443: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:67: in _observed
+    return adapter("language", "ObservedLanguageTag")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+______________ test_observed_accepts_up_to_three_extlang_subtags _______________
+
+    def test_observed_accepts_up_to_three_extlang_subtags() -> None:
+        """Proposed name. ADR 0005 Decision 2 (revision 7): a 2-3 letter primary subtag may be
+        followed by at most three 3-letter extlang subtags (RFC 5646 ``extlang = 3ALPHA *2("-"
+        3ALPHA)``)."""
+>       adapter = _observed()
+                  ^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:487: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:67: in _observed
+    return adapter("language", "ObservedLanguageTag")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________________________ test_types_do_not_trim_labels _________________________
+
+    def test_types_do_not_trim_labels() -> None:
+        """Proposed name. Revision 7 (api-surface 15a item 10): the types never trim or rewrite
+        white space; a padded label is not a tag. (Trimming of provider labels is an importer step,
+        E4, accepted by the user: its tests belong to the importer tasks, P1-31.)"""
+>       for checker in (_observed(), _supported()):
+                        ^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:518: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:67: in _observed
+    return adapter("language", "ObservedLanguageTag")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____________ test_importer_language_name_raw_kept_tag_empty[hindi] _____________
+
+raw = 'hindi'
+
+    @pytest.mark.parametrize(
+        "raw",
+        ["hindi", "Hindi", "\u0939\u093f\u0928\u094d\u0926\u0940", "English (India)", "hi in"],
+    )
+    def test_importer_language_name_raw_kept_tag_empty(raw: str) -> None:
+>       language = api("language")
+                   ^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:547: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____________ test_importer_language_name_raw_kept_tag_empty[Hindi] _____________
+
+raw = 'Hindi'
+
+    @pytest.mark.parametrize(
+        "raw",
+        ["hindi", "Hindi", "\u0939\u093f\u0928\u094d\u0926\u0940", "English (India)", "hi in"],
+    )
+    def test_importer_language_name_raw_kept_tag_empty(raw: str) -> None:
+>       language = api("language")
+                   ^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:547: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_ test_importer_language_name_raw_kept_tag_empty[\u0939\u093f\u0928\u094d\u0926\u0940] _
+
+raw = 'हिन्दी'
+
+    @pytest.mark.parametrize(
+        "raw",
+        ["hindi", "Hindi", "\u0939\u093f\u0928\u094d\u0926\u0940", "English (India)", "hi in"],
+    )
+    def test_importer_language_name_raw_kept_tag_empty(raw: str) -> None:
+>       language = api("language")
+                   ^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:547: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______ test_importer_language_name_raw_kept_tag_empty[English (India)] ________
+
+raw = 'English (India)'
+
+    @pytest.mark.parametrize(
+        "raw",
+        ["hindi", "Hindi", "\u0939\u093f\u0928\u094d\u0926\u0940", "English (India)", "hi in"],
+    )
+    def test_importer_language_name_raw_kept_tag_empty(raw: str) -> None:
+>       language = api("language")
+                   ^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:547: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____________ test_importer_language_name_raw_kept_tag_empty[hi in] _____________
+
+raw = 'hi in'
+
+    @pytest.mark.parametrize(
+        "raw",
+        ["hindi", "Hindi", "\u0939\u093f\u0928\u094d\u0926\u0940", "English (India)", "hi in"],
+    )
+    def test_importer_language_name_raw_kept_tag_empty(raw: str) -> None:
+>       language = api("language")
+                   ^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:547: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________________ test_detected_language_raw_verbatim ______________________
+
+    def test_detected_language_raw_verbatim() -> None:
+        """The raw label is kept code point for code point, whether or not it parses (ADR 0005 I13)."""
+>       language = api("language")
+                   ^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:560: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________ test_detected_language_raw_kept_when_tag_unparseable _____________
+
+    def test_detected_language_raw_kept_when_tag_unparseable() -> None:
+>       language = api("language")
+                   ^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:586: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+___________ test_importer_underscore_to_hyphen_with_warning_raw_kept ___________
+
+    def test_importer_underscore_to_hyphen_with_warning_raw_kept() -> None:
+>       language = api("language")
+                   ^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:596: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________ test_normalize_language_label_is_pure_and_total ________________
+
+    def test_normalize_language_label_is_pure_and_total() -> None:
+        """Proposed name. SCOPE P1-04c: 'pure normalize_language_label(raw) -> (tag or None,
+        warnings)'. It never raises, is deterministic and returns a fresh warnings list each call."""
+>       language = api("language")
+                   ^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:625: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__________________ test_case_only_difference_gives_no_warning __________________
+
+    def test_case_only_difference_gives_no_warning() -> None:
+        """Proposed name. ADR 0005 Decision 3 (revision 7): ``language_label_normalized`` is added
+        iff the underscore replacement changed the label. A case-only difference loses nothing (tags
+        are case-insensitive and the raw label is kept), so it gives no warning."""
+>       language = api("language")
+                   ^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:663: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+______________________ test_primary_language_equivalence _______________________
+
+    def test_primary_language_equivalence() -> None:
+>       language = api("language")
+                   ^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:687: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__________________ test_supported_no_suppress_script_rewrite ___________________
+
+    def test_supported_no_suppress_script_rewrite() -> None:
+        """ADR 0005 Decision 1: no other rewriting; a suppressed script is not removed or added."""
+>       adapter = _supported()
+                  ^^^^^^^^^^^^
+
+packages/evalschema/tests/test_language.py:703: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_language.py:63: in _supported
+    return adapter("language", "SupportedLanguage")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:37: in adapter
+    target: Any = getattr(api(module), name)
+                          ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.language'
+import_ = <function _gcd_import at 0x101b5c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.language'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+- generated xml file: <scratchpad>/junit7/p1-04c-language.py3.13.xml -
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_language.py::test_supported_accepts[hi-IN]
+FAILED packages/evalschema/tests/test_language.py::test_supported_accepts[en-US]
+FAILED packages/evalschema/tests/test_language.py::test_supported_accepts[en-GB]
+FAILED packages/evalschema/tests/test_language.py::test_supported_accepts[pa-Guru-IN]
+FAILED packages/evalschema/tests/test_language.py::test_supported_accepts[ml]
+FAILED packages/evalschema/tests/test_language.py::test_supported_accepts[gu-IN]
+FAILED packages/evalschema/tests/test_language.py::test_supported_accepts_every_configured_language_code
+FAILED packages/evalschema/tests/test_language.py::test_canonical_case - Modu...
+FAILED packages/evalschema/tests/test_language.py::test_supported_rejects[bn]
+FAILED packages/evalschema/tests/test_language.py::test_supported_rejects[ur]
+FAILED packages/evalschema/tests/test_language.py::test_supported_rejects[or]
+FAILED packages/evalschema/tests/test_language.py::test_supported_rejects[as]
+FAILED packages/evalschema/tests/test_language.py::test_supported_rejects[pa-Arab]
+FAILED packages/evalschema/tests/test_language.py::test_supported_script_allowed_only_if_native
+FAILED packages/evalschema/tests/test_language.py::test_supported_region_outside_vendored_set_rejected
+FAILED packages/evalschema/tests/test_language.py::test_observed_accepts_regions_outside_vendored_set[ta-LK]
+FAILED packages/evalschema/tests/test_language.py::test_observed_accepts_regions_outside_vendored_set[en-AU]
+FAILED packages/evalschema/tests/test_language.py::test_hi_en_rejected_with_codemix_message
+FAILED packages/evalschema/tests/test_language.py::test_codemix_message_applies_to_the_eight_non_english_languages_with_region_EN
+FAILED packages/evalschema/tests/test_language.py::test_en_EN_and_other_pairs_get_the_ordinary_messages
+FAILED packages/evalschema/tests/test_language.py::test_observed_hi_en_is_region_EN
+FAILED packages/evalschema/tests/test_language.py::test_configured_rejects_hi_Latn
+FAILED packages/evalschema/tests/test_language.py::test_observed_accepts_hi_Latn
+FAILED packages/evalschema/tests/test_language.py::test_rejects[und] - Module...
+FAILED packages/evalschema/tests/test_language.py::test_rejects[mul] - Module...
+FAILED packages/evalschema/tests/test_language.py::test_rejects[zxx] - Module...
+FAILED packages/evalschema/tests/test_language.py::test_rejects[hi-x-foo] - M...
+FAILED packages/evalschema/tests/test_language.py::test_rejects[hi-u-nu-deva]
+FAILED packages/evalschema/tests/test_language.py::test_rejects[hi-1901] - Mo...
+FAILED packages/evalschema/tests/test_language.py::test_observed_accepts_special_and_extension_tags
+FAILED packages/evalschema/tests/test_language.py::test_observed_accepts_bn_IN
+FAILED packages/evalschema/tests/test_language.py::test_observed_accepts_well_formed_unregistered[xq-IN]
+FAILED packages/evalschema/tests/test_language.py::test_observed_accepts_well_formed_unregistered[hi-AA]
+FAILED packages/evalschema/tests/test_language.py::test_observed_accepts_well_formed_unregistered[qaa]
+FAILED packages/evalschema/tests/test_language.py::test_observed_accepts_private_use_only_and_extlang_forms
+FAILED packages/evalschema/tests/test_language.py::test_observed_validation_does_not_read_registry
+FAILED packages/evalschema/tests/test_language.py::test_observed_rejects_malformed[hi_IN]
+FAILED packages/evalschema/tests/test_language.py::test_observed_rejects_malformed[hi--IN]
+FAILED packages/evalschema/tests/test_language.py::test_observed_rejects_malformed[-hi]
+FAILED packages/evalschema/tests/test_language.py::test_observed_rejects_malformed[hi-IN-]
+FAILED packages/evalschema/tests/test_language.py::test_observed_rejects_malformed[]
+FAILED packages/evalschema/tests/test_language.py::test_observed_rejects_other_malformed_forms
+FAILED packages/evalschema/tests/test_language.py::test_observed_primary_subtag_2_3_letters[hindi]
+FAILED packages/evalschema/tests/test_language.py::test_observed_rejects_grandfathered[i-klingon]
+FAILED packages/evalschema/tests/test_language.py::test_observed_rejects_grandfathered[en-GB-oed]
+FAILED packages/evalschema/tests/test_language.py::test_observed_rejects_grandfathered[zh-min-nan]
+FAILED packages/evalschema/tests/test_language.py::test_observed_rejects_grandfathered[art-lojban]
+FAILED packages/evalschema/tests/test_language.py::test_observed_rejects_all_26_grandfathered_tags
+FAILED packages/evalschema/tests/test_language.py::test_observed_grandfathered_is_a_whole_tag_case_insensitive_match
+FAILED packages/evalschema/tests/test_language.py::test_observed_accepts_up_to_three_extlang_subtags
+FAILED packages/evalschema/tests/test_language.py::test_types_do_not_trim_labels
+FAILED packages/evalschema/tests/test_language.py::test_importer_language_name_raw_kept_tag_empty[hindi]
+FAILED packages/evalschema/tests/test_language.py::test_importer_language_name_raw_kept_tag_empty[Hindi]
+FAILED packages/evalschema/tests/test_language.py::test_importer_language_name_raw_kept_tag_empty[\u0939\u093f\u0928\u094d\u0926\u0940]
+FAILED packages/evalschema/tests/test_language.py::test_importer_language_name_raw_kept_tag_empty[English (India)]
+FAILED packages/evalschema/tests/test_language.py::test_importer_language_name_raw_kept_tag_empty[hi in]
+FAILED packages/evalschema/tests/test_language.py::test_detected_language_raw_verbatim
+FAILED packages/evalschema/tests/test_language.py::test_detected_language_raw_kept_when_tag_unparseable
+FAILED packages/evalschema/tests/test_language.py::test_importer_underscore_to_hyphen_with_warning_raw_kept
+FAILED packages/evalschema/tests/test_language.py::test_normalize_language_label_is_pure_and_total
+FAILED packages/evalschema/tests/test_language.py::test_case_only_difference_gives_no_warning
+FAILED packages/evalschema/tests/test_language.py::test_primary_language_equivalence
+FAILED packages/evalschema/tests/test_language.py::test_supported_no_suppress_script_rewrite
+============================== 63 failed in 0.72s ==============================
+# exit status: 1

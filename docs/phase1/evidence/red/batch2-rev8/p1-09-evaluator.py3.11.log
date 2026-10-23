@@ -1,0 +1,759 @@
+# group: p1-09-evaluator   (revision 8 red run, qa)
+# date: 2026-10-23T03:34:41Z (UTC)  local: 2026-10-23T09:04:41+0530
+# command: python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_evaluator.py   (cwd ~/tracer; pyproject addopts: -ra --strict-markers --strict-config -m 'not private_fixtures and not local_only')
+# interpreter: <scratchpad>/env3.11/bin/python
+# versions: python 3.11.16; pydantic 2.14.1; pytest 9.1.1; jsonschema 4.26.0
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git status: ## No commits yet on main; 12 untracked/changed entries; 0 staged paths; no commits made
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.11.16, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>/env3.11/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 18 items
+
+packages/evalschema/tests/test_evaluator.py::test_evaluator_max_duration_bounds FAILED [  5%]
+packages/evalschema/tests/test_evaluator.py::test_scripted_turn_index_contiguous FAILED [ 11%]
+packages/evalschema/tests/test_evaluator.py::test_scripted_turn_language_supported FAILED [ 16%]
+packages/evalschema/tests/test_evaluator.py::test_scripted_turn_placeholder_stored_unresolved FAILED [ 22%]
+packages/evalschema/tests/test_evaluator.py::test_profile_placeholder_unknown_field_rejected FAILED [ 27%]
+packages/evalschema/tests/test_evaluator.py::test_expected_tool_call_match_enum FAILED [ 33%]
+packages/evalschema/tests/test_evaluator.py::test_bindings_unique FAILED [ 38%]
+packages/evalschema/tests/test_evaluator.py::test_evaluator_expected_outcome_required FAILED [ 44%]
+packages/evalschema/tests/test_evaluator.py::test_evaluator_references_are_versioned_and_typed FAILED [ 50%]
+packages/evalschema/tests/test_evaluator.py::test_evaluator_text_fields_are_verbatim FAILED [ 55%]
+packages/evalschema/tests/test_evaluator.py::test_evaluator_max_duration_schema_is_exact FAILED [ 61%]
+packages/evalschema/tests/test_evaluator.py::test_evaluator_requires_at_least_one_binding FAILED [ 66%]
+packages/evalschema/tests/test_evaluator.py::test_expected_tool_call_arguments_rules FAILED [ 72%]
+packages/evalschema/tests/test_evaluator.py::test_expected_tool_call_order_ranks_contiguous FAILED [ 77%]
+packages/evalschema/tests/test_evaluator.py::test_malformed_profile_placeholder_rejected FAILED [ 83%]
+packages/evalschema/tests/test_evaluator.py::test_profile_placeholder_requires_test_profile FAILED [ 88%]
+packages/evalschema/tests/test_evaluator.py::test_profile_placeholders_in_outcome_and_tool_arguments FAILED [ 94%]
+packages/evalschema/tests/test_evaluator.py::test_evaluator_references_reject_text_forms FAILED [100%]
+
+=================================== FAILURES ===================================
+______________________ test_evaluator_max_duration_bounds ______________________
+
+    def test_evaluator_max_duration_bounds() -> None:
+        """SCOPE P1-09 / ADR 0010 Decision 8: ``max_duration_ms`` is required and bounded: a positive
+        integer number of milliseconds up to a stated maximum (the schema's ``maximum``). The bound
+        itself is the architect's to choose; it must exceed one minute."""
+>       maximum = _max_duration()
+                  ^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator.py:66: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_evaluator.py:56: in _max_duration
+    node = schema_of(entity_class("Evaluator"))["properties"]["max_duration_ms"]
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.evaluator'
+import_ = <function _gcd_import at 0x103547d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.evaluator'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_____________________ test_scripted_turn_index_contiguous ______________________
+
+    def test_scripted_turn_index_contiguous() -> None:
+        """ADR 0010 Decision 8: scripted turn indexes run 0, 1, 2, ... without gaps or repeats."""
+>       assert _evaluator(scripted_turns=[]).scripted_turns == []
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator.py:90: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_evaluator.py:49: in _evaluator
+    return make("Evaluator", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.evaluator'
+import_ = <function _gcd_import at 0x103547d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.evaluator'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+____________________ test_scripted_turn_language_supported _____________________
+
+    def test_scripted_turn_language_supported() -> None:
+        """ADR 0005 Decision 6: a scripted turn's (and the evaluator's) language is a
+        ``SupportedLanguage``: native script, regions IN/US/GB, canonical case; excluded, romanized
+        and mixed tags are rejected."""
+>       turn = cls("evaluator", "ScriptedTurn")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.evaluator'
+import_ = <function _gcd_import at 0x103547d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.evaluator'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_______________ test_scripted_turn_placeholder_stored_unresolved _______________
+
+    def test_scripted_turn_placeholder_stored_unresolved() -> None:
+        """P-16: profile values appear in scripted turns and instructions only as
+        ``{{profile.<field>}}`` placeholders; they are stored exactly as written, never resolved,
+        also when the evaluator references a profile; other ``{{...}}`` text is ordinary text."""
+        text = "मेरा नाम {{profile.name}} है और खाता {{profile.account_number}} है"
+>       turn = cls("evaluator", "ScriptedTurn").model_validate(_turn(0, text=text))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator.py:158: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.evaluator'
+import_ = <function _gcd_import at 0x103547d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.evaluator'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_______________ test_profile_placeholder_unknown_field_rejected ________________
+
+    def test_profile_placeholder_unknown_field_rejected() -> None:
+        """P-16 (accepted by the user in revision 6): a placeholder that names no TestProfile field
+        is rejected, in scripted turns and in instructions; the message names the field."""
+>       turn = cls("evaluator", "ScriptedTurn")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator.py:190: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.evaluator'
+import_ = <function _gcd_import at 0x103547d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.evaluator'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+______________________ test_expected_tool_call_match_enum ______________________
+
+    def test_expected_tool_call_match_enum() -> None:
+        """ADR 0010 Decision 8: ``ExpectedToolCall.match`` is a closed enum (a string ``enum`` in
+        the JSON Schema, never ``const``); ``name`` is an open machine key; ``order_index`` is a
+        non-negative integer. Revision 8 fixes the members to ``name_only``, ``arguments_exact`` and
+        ``arguments_subset``; the last two require ``arguments``, so the per-member loop and the
+        evaluator embedding supply them."""
+>       call = cls("evaluator", "ExpectedToolCall")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator.py:241: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.evaluator'
+import_ = <function _gcd_import at 0x103547d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.evaluator'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_____________________________ test_bindings_unique _____________________________
+
+    def test_bindings_unique() -> None:
+        """ADR 0010 Decision 4 / SCOPE P1-09: an evaluator lists each binding once, and two bindings of
+        one evaluator never name the same metric definition (any version, enabled or not)."""
+        first, second = ref("mbd"), ref("mbd")
+>       assert len(_evaluator(metric_bindings=[first, second]).metric_bindings) == 2
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator.py:280: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_evaluator.py:49: in _evaluator
+    return make("Evaluator", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.evaluator'
+import_ = <function _gcd_import at 0x103547d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.evaluator'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+___________________ test_evaluator_expected_outcome_required ___________________
+
+    def test_evaluator_expected_outcome_required() -> None:
+        """Proposed name (ADR 0013 Decision 2: the expected outcome is an ordinary required boolean
+        check with ``equals_true``; how the text and that check are tied together is an open question,
+        api-surface section 19). The text itself is required and stored verbatim."""
+>       assert _evaluator().expected_outcome.startswith("The agent starts a refund")
+               ^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator.py:308: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_evaluator.py:49: in _evaluator
+    return make("Evaluator", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.evaluator'
+import_ = <function _gcd_import at 0x103547d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.evaluator'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+______________ test_evaluator_references_are_versioned_and_typed _______________
+
+    def test_evaluator_references_are_versioned_and_typed() -> None:
+        """Proposed name (ADR 0009 Decision 4): the persona is referenced as ``{id, version}`` of the
+        right kind; the optional test profile is a ``TestProfileRef`` holding no profile data."""
+>       persona = _evaluator().persona
+                  ^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator.py:322: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_evaluator.py:49: in _evaluator
+    return make("Evaluator", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.evaluator'
+import_ = <function _gcd_import at 0x103547d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.evaluator'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+___________________ test_evaluator_text_fields_are_verbatim ____________________
+
+    def test_evaluator_text_fields_are_verbatim() -> None:
+        """Proposed name. Free text (instructions, expected outcome, scripted turn text) is stored
+        code point for code point; ``name`` is a label."""
+        text = "क्\u200dष और क्\u200cष, ണ്\u200d, mixed: abc 123\nline two"
+>       loaded = _evaluator(instructions=text, scripted_turns=[_turn(0, text=text)])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator.py:354: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_evaluator.py:49: in _evaluator
+    return make("Evaluator", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.evaluator'
+import_ = <function _gcd_import at 0x103547d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.evaluator'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_________________ test_evaluator_max_duration_schema_is_exact __________________
+
+    def test_evaluator_max_duration_schema_is_exact() -> None:
+        """Resolution 6 (ADR 0002 Decision 2): the property schema is exactly ``{"type": "integer",
+        "minimum": 0, "exclusiveMinimum": 0, "maximum": 14400000}`` (1 ms to 4 hours) in both schema
+        modes. The ``Ms`` base (``type`` integer, ``minimum`` 0) stays unchanged and the field only adds
+        tightening keywords, so the batch 1 walk ``test_ms_field_names_are_integers_schema`` holds
+        (it runs over this field too). Draft 2020-12 semantics are checked with ``jsonschema``."""
+>       model = entity_class("Evaluator")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator.py:378: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.evaluator'
+import_ = <function _gcd_import at 0x103547d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.evaluator'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_________________ test_evaluator_requires_at_least_one_binding _________________
+
+    def test_evaluator_requires_at_least_one_binding() -> None:
+        """Section 19.4.1: ``metric_bindings`` is non-empty, because every evaluator has an
+        expected-outcome check (resolution 7), and the schema states ``minItems``. Proposed name."""
+>       assert len(_evaluator(metric_bindings=[ref("mbd")]).metric_bindings) == 1
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator.py:401: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_evaluator.py:49: in _evaluator
+    return make("Evaluator", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.evaluator'
+import_ = <function _gcd_import at 0x103547d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.evaluator'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+___________________ test_expected_tool_call_arguments_rules ____________________
+
+    def test_expected_tool_call_arguments_rules() -> None:
+        """Resolution 5 (ADR 0010 Decision 8): ``ExpectedToolCall{name, match, arguments?,
+        order_index}``. ``name_only`` forbids ``arguments``; ``arguments_exact`` requires them (``{}``
+        means "called with no arguments"); ``arguments_subset`` requires a non-empty object. The
+        arguments are I-JSON values stored unchanged, and the JSON Schema states the same conditions.
+        Proposed name."""
+>       call = cls("evaluator", "ExpectedToolCall")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator.py:417: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.evaluator'
+import_ = <function _gcd_import at 0x103547d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.evaluator'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+________________ test_expected_tool_call_order_ranks_contiguous ________________
+
+    def test_expected_tool_call_order_ranks_contiguous() -> None:
+        """Resolution 5 (ADR 0010 Decision 8): ``order_index`` is a rank. Calls of rank r must all be
+        observed before any call of rank r + 1, calls of equal rank in any order, and the ranks used by
+        an evaluator form 0..R without gaps, so "unordered" is "all 0". Several calls may share a rank
+        and a name (a tool called twice). Proposed name."""
+    
+        def calls(*ranks: int) -> list[dict[str, Any]]:
+            return [_call(order_index=rank, name=f"tool_{i}") for i, rank in enumerate(ranks)]
+    
+        for good in ((), (0,), (0, 0, 0), (0, 1, 2), (0, 0, 1, 2, 2), (0, 1, 1)):
+>           assert len(_evaluator(expected_tool_calls=calls(*good)).expected_tool_calls) == len(good)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator.py:471: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_evaluator.py:49: in _evaluator
+    return make("Evaluator", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.evaluator'
+import_ = <function _gcd_import at 0x103547d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.evaluator'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_________________ test_malformed_profile_placeholder_rejected __________________
+
+    def test_malformed_profile_placeholder_rejected() -> None:
+        """Resolution 10 (ADR 0006 Decision 9a): a placeholder is exactly ``{{profile.`` + FIELD +
+        ``}}`` with FIELD matching ``[a-z][a-z0-9_]*`` and no white space inside. Text that looks like
+        a placeholder but is not well formed (``{{ profile.name }}``, ``{{Profile.name}}``,
+        ``{{profile.}}``, ``{{profile.name}``, ``{{profile.name.first}}``) is rejected, because it would
+        reach the simulated caller as literal braces. Everything else is ordinary text, and no Unicode
+        normalization is applied to find placeholders. Applies to scripted turns, instructions, the
+        expected outcome and string arguments (E7). Proposed name."""
+>       turn = cls("evaluator", "ScriptedTurn")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator.py:539: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.evaluator'
+import_ = <function _gcd_import at 0x103547d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.evaluator'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+________________ test_profile_placeholder_requires_test_profile ________________
+
+    def test_profile_placeholder_requires_test_profile() -> None:
+        """Resolution 10, N8 (ADR 0006 Decision 9a, ADR 0010 Decision 8): an Evaluator with any profile
+        placeholder, in instructions, the expected outcome, a scripted turn or a string argument at any
+        depth, must reference a ``test_profile``, because nothing else could fill it. Evaluators
+        without a placeholder need none, and other ``{{...}}`` text is ordinary. Proposed name."""
+        placeholder = "Say {{profile.name}} to the agent"
+        nested = {"customer": {"ids": ["x", "{{profile.account_number}}"]}, "n": 3}
+        places = [*_text_places(), ("nested argument", None)]
+        for field, build_over in places:
+            if build_over is None:
+                over = {
+                    "expected_tool_calls": [_call("arguments_subset", arguments=nested)],
+                }
+            else:
+                over = build_over(placeholder)
+            for missing in ({}, {"test_profile": None}):
+>               assert_rejected(entity_class("Evaluator"), raw_document("Evaluator", **over, **missing))
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator.py:581: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.evaluator'
+import_ = <function _gcd_import at 0x103547d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.evaluator'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+___________ test_profile_placeholders_in_outcome_and_tool_arguments ____________
+
+    def test_profile_placeholders_in_outcome_and_tool_arguments() -> None:
+        """E7 (accepted by the owner; widens P-16): profile placeholders are also allowed in
+        ``expected_outcome`` and in the string values of ``ExpectedToolCall.arguments`` (at any depth),
+        so that an account number need not be written literally into an evaluator that is copied into
+        every snapshot. They are stored unresolved and obey the same grammar and field check as in
+        instructions. Only string values can hold a placeholder: numbers cannot. Proposed name."""
+>       call = cls("evaluator", "ExpectedToolCall")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_evaluator.py:598: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.evaluator'
+import_ = <function _gcd_import at 0x103547d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.evaluator'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_________________ test_evaluator_references_reject_text_forms __________________
+
+    def test_evaluator_references_reject_text_forms() -> None:
+        """ADR 0009 Decision 4 (I9a, revision 8): every reference of an evaluator is a JSON object
+        ``{id, version, content_digest?}``; the persona, each binding and the test profile are rejected
+        as a bare string, an ``id@version`` text or a bare ID. Proposed name."""
+        persona, binding, profile = new_id("per"), new_id("mbd"), new_id("tpf")
+        for text in (persona, f"{persona}@1", "persona@1"):
+>           assert_rejected_name("Evaluator", persona=text, field="persona")
+
+packages/evalschema/tests/test_evaluator.py:641: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:379: in assert_rejected_name
+    return assert_rejected(entity_class(name), raw_document(name, **over), field=field)
+                           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.evaluator'
+import_ = <function _gcd_import at 0x103547d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.evaluator'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+- generated xml file: <scratchpad>/junit8/p1-09-evaluator.py3.11.xml -
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_evaluator.py::test_evaluator_max_duration_bounds
+FAILED packages/evalschema/tests/test_evaluator.py::test_scripted_turn_index_contiguous
+FAILED packages/evalschema/tests/test_evaluator.py::test_scripted_turn_language_supported
+FAILED packages/evalschema/tests/test_evaluator.py::test_scripted_turn_placeholder_stored_unresolved
+FAILED packages/evalschema/tests/test_evaluator.py::test_profile_placeholder_unknown_field_rejected
+FAILED packages/evalschema/tests/test_evaluator.py::test_expected_tool_call_match_enum
+FAILED packages/evalschema/tests/test_evaluator.py::test_bindings_unique - Mo...
+FAILED packages/evalschema/tests/test_evaluator.py::test_evaluator_expected_outcome_required
+FAILED packages/evalschema/tests/test_evaluator.py::test_evaluator_references_are_versioned_and_typed
+FAILED packages/evalschema/tests/test_evaluator.py::test_evaluator_text_fields_are_verbatim
+FAILED packages/evalschema/tests/test_evaluator.py::test_evaluator_max_duration_schema_is_exact
+FAILED packages/evalschema/tests/test_evaluator.py::test_evaluator_requires_at_least_one_binding
+FAILED packages/evalschema/tests/test_evaluator.py::test_expected_tool_call_arguments_rules
+FAILED packages/evalschema/tests/test_evaluator.py::test_expected_tool_call_order_ranks_contiguous
+FAILED packages/evalschema/tests/test_evaluator.py::test_malformed_profile_placeholder_rejected
+FAILED packages/evalschema/tests/test_evaluator.py::test_profile_placeholder_requires_test_profile
+FAILED packages/evalschema/tests/test_evaluator.py::test_profile_placeholders_in_outcome_and_tool_arguments
+FAILED packages/evalschema/tests/test_evaluator.py::test_evaluator_references_reject_text_forms
+============================== 18 failed in 0.25s ==============================

@@ -1,0 +1,1929 @@
+# group: p1-08-metric-definition-rev9a   (revision 9 group A red run, qa; appended, earlier logs untouched)
+# date: 2026-10-23T04:28:13Z (UTC)  local: 2026-10-23T09:58:13+0530
+# command: python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_metric_definition.py   (cwd ~/tracer; pyproject addopts: -ra --strict-markers --strict-config -m 'not private_fixtures and not local_only')
+# interpreter: ~/tracer/.venv/bin/python
+# versions: python 3.13.15; pydantic 2.14.1; pytest 9.1.1; jsonschema 4.26.0
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git status: ## No commits yet on main; 12 untracked entries; 0 staged paths; no commits made
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.13.15, pytest-9.1.1, pluggy-1.7.0 -- ~/tracer/.venv/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 46 items
+
+packages/evalschema/tests/test_metric_definition.py::test_input_kind_members_exact FAILED [  2%]
+packages/evalschema/tests/test_metric_definition.py::test_all_closed_enums_exact FAILED [  4%]
+packages/evalschema/tests/test_metric_definition.py::test_open_value_fields_accept_unseen_provider FAILED [  6%]
+packages/evalschema/tests/test_metric_definition.py::test_requires_nonempty_unique FAILED [  8%]
+packages/evalschema/tests/test_metric_definition.py::test_pass_rule_range_inclusive_and_exclusive FAILED [ 10%]
+packages/evalschema/tests/test_metric_definition.py::test_latency_lower_is_better_expressed_with_range_max FAILED [ 13%]
+packages/evalschema/tests/test_metric_definition.py::test_score_higher_is_better_expressed_with_range_min FAILED [ 15%]
+packages/evalschema/tests/test_metric_definition.py::test_pass_rule_without_direction_rejected FAILED [ 17%]
+packages/evalschema/tests/test_metric_definition.py::test_range_requires_at_least_one_bound FAILED [ 19%]
+packages/evalschema/tests/test_metric_definition.py::test_equals_true_rule_boolean FAILED [ 21%]
+packages/evalschema/tests/test_metric_definition.py::test_one_of_rule_options_subset FAILED [ 23%]
+packages/evalschema/tests/test_metric_definition.py::test_pass_rule_kind_matches_value_type FAILED [ 26%]
+packages/evalschema/tests/test_metric_definition.py::test_script_sensitive_required_no_default FAILED [ 28%]
+packages/evalschema/tests/test_metric_definition.py::test_numeric_units_exclude_currency FAILED [ 30%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_key_is_a_metric_key FAILED [ 32%]
+packages/evalschema/tests/test_metric_definition.py::test_scale_matches_value_type FAILED [ 34%]
+packages/evalschema/tests/test_metric_definition.py::test_llm_judge_requires_prompt_template_and_judge_model_ref FAILED [ 36%]
+packages/evalschema/tests/test_metric_definition.py::test_deterministic_kinds_require_implementation_ref FAILED [ 39%]
+packages/evalschema/tests/test_metric_definition.py::test_prompt_template_placeholders_declared_equals_used FAILED [ 41%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_languages_supported_only FAILED [ 43%]
+packages/evalschema/tests/test_metric_definition.py::test_aggregation_discriminated_by_kind FAILED [ 45%]
+packages/evalschema/tests/test_metric_definition.py::test_per_turn_share_bounds_0_1 FAILED [ 47%]
+packages/evalschema/tests/test_metric_definition.py::test_per_turn_share_definition_requires_turn_rule FAILED [ 50%]
+packages/evalschema/tests/test_metric_definition.py::test_per_turn_share_pass_rule_must_be_range FAILED [ 52%]
+packages/evalschema/tests/test_metric_definition.py::test_per_turn_counts_fields_exact FAILED [ 54%]
+packages/evalschema/tests/test_metric_definition.py::test_per_turn_share_excludes_na_turns_from_denominator FAILED [ 56%]
+packages/evalschema/tests/test_metric_definition.py::test_per_turn_share_not_applicable_when_no_turn_applies FAILED [ 58%]
+packages/evalschema/tests/test_metric_definition.py::test_per_turn_status_no_counted_turn_cases FAILED [ 60%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_binding_shape_and_params FAILED [ 63%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_ref_text_form_is_display_only FAILED [ 65%]
+packages/evalschema/tests/test_metric_definition.py::test_judge_model_ref_is_a_model_ref_without_config_ref FAILED [ 67%]
+packages/evalschema/tests/test_metric_definition.py::test_judge_only_fields_forbidden_on_other_kinds FAILED [ 69%]
+packages/evalschema/tests/test_metric_definition.py::test_implementation_ref_is_namespaced FAILED [ 71%]
+packages/evalschema/tests/test_metric_definition.py::test_prompt_template_rejects_other_double_braces FAILED [ 73%]
+packages/evalschema/tests/test_metric_definition.py::test_expected_outcome_variable_definition_shapes FAILED [ 76%]
+packages/evalschema/tests/test_metric_definition.py::test_conditional_field_rules_are_in_the_json_schema FAILED [ 78%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_parameter_shape_and_defaults FAILED [ 80%]
+packages/evalschema/tests/test_metric_definition.py::test_binding_params_must_be_declared_and_typed FAILED [ 82%]
+packages/evalschema/tests/test_metric_definition.py::test_binding_cannot_change_the_pass_rule FAILED [ 84%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_binding_params_keys_are_metric_keys FAILED [ 86%]
+packages/evalschema/tests/test_metric_definition.py::test_scale_and_unit_domains FAILED [ 89%]
+packages/evalschema/tests/test_metric_definition.py::test_range_bounds_within_value_domain FAILED [ 91%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_languages_nonempty_distinct_primary FAILED [ 93%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_languages_accepts_language_independent_value FAILED [ 95%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_languages_list_or_language_independent FAILED [ 97%]
+packages/evalschema/tests/test_metric_definition.py::test_language_independent_metric_not_script_sensitive FAILED [100%]
+
+=================================== FAILURES ===================================
+________________________ test_input_kind_members_exact _________________________
+
+    def test_input_kind_members_exact() -> None:
+        """ADR 0003 I1 / ADR 0004 I16: exactly the eleven members, a string ``enum`` in the schema."""
+>       adapter = TypeAdapter(_m().InputKind)
+                              ^^^^
+
+packages/evalschema/tests/test_metric_definition.py:145: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_metric_definition.py:75: in _m
+    return api("metrics")
+           ^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_________________________ test_all_closed_enums_exact __________________________
+
+    def test_all_closed_enums_exact() -> None:
+        """ADR 0003 I11 (C): every closed set equals the literal table. The batch 2 owners must exist
+        (this test is red until they do); owners of later tasks are checked as soon as they exist, so
+        the test becomes complete without being edited."""
+        registry = api("registry")
+        models = {m.__name__: m for m in registry.model_classes()}
+        for name in (
+            "MetricDefinition",
+            "AgentTarget",
+            "MetricParameter",
+            "DeclaredStackEntry",
+            "ExpectedToolCall",
+        ):
+>           assert name in models, f"{name} is not implemented yet"
+E           AssertionError: MetricDefinition is not implemented yet
+E           assert 'MetricDefinition' in {'MetadataFlag': <class 'tracer_evalschema.base.MetadataFlag'>, 'EntityBase': <class 'tracer_evalschema.base.EntityBase'>, 'VersionedEntity': <class 'tracer_evalschema.base.VersionedEntity'>, 'VersionedRef': <class 'tracer_evalschema.base.VersionedRef'>, ...}
+
+packages/evalschema/tests/test_metric_definition.py:301: AssertionError
+________________ test_open_value_fields_accept_unseen_provider _________________
+
+    def test_open_value_fields_accept_unseen_provider() -> None:
+        """ADR 0003 I12: open values name outside things and accept unseen ones, as ``MachineKey``:
+        provider, model, tool name, and the judge model reference. (Revision 8: the judge model is a
+        ``ModelRef{provider, model}`` without ``config_ref``, so it is built on a judge definition;
+        on a latency definition the field is now rejected.)"""
+        unseen = {"provider": "some-new-vendor", "model": "org/Model-Name:v2"}
+>       judge = _accept(**judge_definition(judge_model_ref=model_ref(**unseen)))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:319: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_metric_definition.py:104: in _accept
+    return make("MetricDefinition", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________________________ test_requires_nonempty_unique _________________________
+
+    def test_requires_nonempty_unique() -> None:
+        """P-07: ``requires`` is a non-empty list of distinct ``InputKind``; pydantic and the JSON
+        Schema (minItems, uniqueItems) agree."""
+>       model = entity_class("MetricDefinition")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:344: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_________________ test_pass_rule_range_inclusive_and_exclusive _________________
+
+    def test_pass_rule_range_inclusive_and_exclusive() -> None:
+        """ADR 0010 I1: a range is inclusive or exclusive at both bounds; comparisons are exact in
+        ``Decimal`` and a float bound is read through its shortest round-trip text."""
+>       band = _rule({"kind": "range", "min": 2, "max": 5, "inclusive": True})
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:366: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_metric_definition.py:83: in _rule
+    return _rules().validate_python(doc)
+           ^^^^^^^^
+packages/evalschema/tests/test_metric_definition.py:79: in _rules
+    return TypeAdapter(_m().PassRule)
+                       ^^^^
+packages/evalschema/tests/test_metric_definition.py:75: in _m
+    return api("metrics")
+           ^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____________ test_latency_lower_is_better_expressed_with_range_max _____________
+
+    def test_latency_lower_is_better_expressed_with_range_max() -> None:
+        """P-25: lower-is-better is ``range{max}``: passes at or below the bound."""
+>       latency = _accept()
+                  ^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:398: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_metric_definition.py:104: in _accept
+    return make("MetricDefinition", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________ test_score_higher_is_better_expressed_with_range_min _____________
+
+    def test_score_higher_is_better_expressed_with_range_min() -> None:
+        """P-25: higher-is-better is ``range{min}``: passes at or above the bound."""
+>       politeness = _accept(**_rating())
+                     ^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:419: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_metric_definition.py:104: in _accept
+    return make("MetricDefinition", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__________________ test_pass_rule_without_direction_rejected ___________________
+
+    def test_pass_rule_without_direction_rejected() -> None:
+        """P-25: an unknown kind (including a single-number rule), a ``range`` with neither bound,
+        a bare number and a bare string are rejected, by pydantic and by the JSON Schema."""
+>       adapter = _rules()
+                  ^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:454: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_metric_definition.py:79: in _rules
+    return TypeAdapter(_m().PassRule)
+                       ^^^^
+packages/evalschema/tests/test_metric_definition.py:75: in _m
+    return api("metrics")
+           ^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____________________ test_range_requires_at_least_one_bound ____________________
+
+    def test_range_requires_at_least_one_bound() -> None:
+        """ADR 0010 I2: min only, max only or both; neither is rejected; min above max, non-finite
+        and non-numeric bounds are rejected; no coercion of bool or text."""
+        for good in (
+            {"kind": "range", "min": 1, "inclusive": True},
+            {"kind": "range", "max": 1, "inclusive": False},
+            {"kind": "range", "min": 1, "max": 1, "inclusive": True},
+            {"kind": "range", "min": 0.5, "max": 2.5, "inclusive": True},
+        ):
+>           rule = _rule(good)
+                   ^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:481: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_metric_definition.py:83: in _rule
+    return _rules().validate_python(doc)
+           ^^^^^^^^
+packages/evalschema/tests/test_metric_definition.py:79: in _rules
+    return TypeAdapter(_m().PassRule)
+                       ^^^^
+packages/evalschema/tests/test_metric_definition.py:75: in _m
+    return api("metrics")
+           ^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________________________ test_equals_true_rule_boolean _________________________
+
+    def test_equals_true_rule_boolean() -> None:
+        """P-25 / ADR 0010 I3: ``equals_true`` passes exactly on ``True``; it takes no argument and
+        there is no ``equals_false``; no coercion of 1 or "true"."""
+>       rule = _rule(equals_true_rule())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:501: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_metric_definition.py:83: in _rule
+    return _rules().validate_python(doc)
+           ^^^^^^^^
+packages/evalschema/tests/test_metric_definition.py:79: in _rules
+    return TypeAdapter(_m().PassRule)
+                       ^^^^
+packages/evalschema/tests/test_metric_definition.py:75: in _m
+    return api("metrics")
+           ^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________________ test_one_of_rule_options_subset ________________________
+
+    def test_one_of_rule_options_subset() -> None:
+        """ADR 0010 I3, I4: ``one_of{options}`` has distinct strings and passes exactly on a listed
+        option; inside a definition the options must be a subset of the enum's options."""
+>       rule = _rule(one_of_rule(["resolved", "escalated"]))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:519: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_metric_definition.py:83: in _rule
+    return _rules().validate_python(doc)
+           ^^^^^^^^
+packages/evalschema/tests/test_metric_definition.py:79: in _rules
+    return TypeAdapter(_m().PassRule)
+                       ^^^^
+packages/evalschema/tests/test_metric_definition.py:75: in _m
+    return api("metrics")
+           ^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____________________ test_pass_rule_kind_matches_value_type ____________________
+
+    def test_pass_rule_kind_matches_value_type() -> None:
+        """ADR 0010 I4: boolean takes ``equals_true``, numeric and rating take ``range``, enum takes
+        ``one_of``; any other pairing is rejected; every type may have no pass rule (P-08)."""
+        rules = {
+            "range": {"kind": "range", "min": 1, "inclusive": True},
+            "equals_true": equals_true_rule(),
+            "one_of": one_of_rule(["resolved"]),
+        }
+        docs = {
+            "boolean": judge_definition(),
+            "numeric": latency_definition(),
+            "rating": _rating(),
+            "enum": _enum(),
+        }
+        fits = {"boolean": "equals_true", "numeric": "range", "rating": "range", "enum": "one_of"}
+        for value_type, doc in docs.items():
+            for kind, rule in rules.items():
+                candidate = {**doc, "pass_rule": rule}
+                if kind == fits[value_type] and kind == "one_of":
+                    candidate["pass_rule"] = one_of_rule(["resolved"])
+                if kind == fits[value_type]:
+                    assert _accept(**candidate).pass_rule.kind == kind
+                else:
+>                   _reject(field="pass_rule", **candidate)
+
+packages/evalschema/tests/test_metric_definition.py:569: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_metric_definition.py:108: in _reject
+    return assert_rejected_name("MetricDefinition", field=field, **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:379: in assert_rejected_name
+    return assert_rejected(entity_class(name), raw_document(name, **over), field=field)
+                           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__________________ test_script_sensitive_required_no_default ___________________
+
+    def test_script_sensitive_required_no_default() -> None:
+        """ADR 0004 I13: ``script_sensitive`` is a required boolean with no default, in pydantic and
+        in the JSON Schema."""
+>       model = entity_class("MetricDefinition")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:582: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________________ test_numeric_units_exclude_currency ______________________
+
+    def test_numeric_units_exclude_currency() -> None:
+        """ADR 0010 I6: units are a closed non-currency set (ms, ratio, count, percent, wer, ...);
+        no ISO 4217 code in any case, no symbol and no word for money is a unit; units belong to
+        numeric metrics only."""
+>       model = entity_class("MetricDefinition")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:603: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________________ test_metric_key_is_a_metric_key ________________________
+
+    def test_metric_key_is_a_metric_key() -> None:
+        """Proposed name (ADR 0010 Decision 1 says MachineKey, SCOPE and ADR 0017 define ``MetricKey``
+        for our own keys; ambiguity listed in api-surface): lowercase snake case."""
+        for key in ("wer", "p95_latency", "tool_call_success", "goal_completion"):
+>           assert _accept(key=key).key == key
+                   ^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:626: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_metric_definition.py:104: in _accept
+    return make("MetricDefinition", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________________________ test_scale_matches_value_type _________________________
+
+    def test_scale_matches_value_type() -> None:
+        """Proposed name (ADR 0010 Decision 1: "for rating: integer min/max; for enum: the option
+        list"). A rating needs ``scale{min, max}`` with integers min < max, an enum needs
+        ``scale{options}`` (non-empty, distinct strings); boolean and numeric take no scale."""
+>       assert _accept(**_rating()).scale.min == 1
+               ^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:635: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_metric_definition.py:104: in _accept
+    return make("MetricDefinition", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_________ test_llm_judge_requires_prompt_template_and_judge_model_ref __________
+
+    def test_llm_judge_requires_prompt_template_and_judge_model_ref() -> None:
+        """Proposed name (stated by the batch 2 brief; ADR 0010 Decision 1 lists both as optional):
+        a ``llm_judge`` definition needs a ``prompt_template`` and a ``judge_model_ref``."""
+>       assert _accept(**judge_definition()).kind == "llm_judge"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:667: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_metric_definition.py:104: in _accept
+    return make("MetricDefinition", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________ test_deterministic_kinds_require_implementation_ref ______________
+
+    def test_deterministic_kinds_require_implementation_ref() -> None:
+        """Proposed name (stated by the batch 2 brief): ``deterministic``, ``audio`` and ``latency``
+        definitions name the scorer that computes them in ``implementation_ref`` (a MachineKey);
+        a judge needs none."""
+        for kind in ("deterministic", "audio", "latency"):
+>           assert _accept(kind=kind).implementation_ref == "builtin:p95_latency"
+                   ^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:682: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_metric_definition.py:104: in _accept
+    return make("MetricDefinition", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____________ test_prompt_template_placeholders_declared_equals_used ____________
+
+    def test_prompt_template_placeholders_declared_equals_used() -> None:
+        """Proposed name (stated by the batch 2 brief): the placeholders ``{{name}}`` used in a
+        ``prompt_template`` are exactly the names in ``prompt_variables`` (declared = used, no
+        duplicates)."""
+        template = "Goal: {{expected_outcome}}\nTranscript:\n{{transcript}}\nAgain {{transcript}}"
+>       ok = _accept(
+            **judge_definition(
+                prompt_template=template, prompt_variables=["expected_outcome", "transcript"]
+            )
+        )
+
+packages/evalschema/tests/test_metric_definition.py:697: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_metric_definition.py:104: in _accept
+    return make("MetricDefinition", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________________ test_metric_languages_supported_only _____________________
+
+    def test_metric_languages_supported_only() -> None:
+        """Proposed name. ``languages`` lists configured languages (SupportedLanguage): native
+        script, regions IN/US/GB, canonical case; excluded, romanized and mixed tags are rejected."""
+>       assert _accept(languages=["HI-in", "en", "pa-Guru"]).languages == ["hi-IN", "en", "pa-Guru"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:720: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_metric_definition.py:104: in _accept
+    return make("MetricDefinition", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____________________ test_aggregation_discriminated_by_kind ____________________
+
+    def test_aggregation_discriminated_by_kind() -> None:
+        """Proposed name (ADR 0010 Decision 3): ``aggregation`` is ``{kind: per_conversation}`` or
+        ``{kind: per_turn_share, turn_rule}``; the tag is an enum in the schema, and unknown kinds
+        and cross-variant fields are rejected."""
+>       assert _accept().aggregation.kind == "per_conversation"
+               ^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:729: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_metric_definition.py:104: in _accept
+    return make("MetricDefinition", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________________________ test_per_turn_share_bounds_0_1 ________________________
+
+    def test_per_turn_share_bounds_0_1() -> None:
+        """P-58 (ADR 0010 I7): for a ``per_turn_share`` definition the pass rule is a range whose
+        bounds lie in [0, 1] (the share is a fraction); other definitions are not bounded."""
+        for good in (
+            {"min": 0.8},
+            {"min": 0},
+            {"min": 1},
+            {"max": 1},
+            {"min": 0.25, "max": 0.75},
+            {"min": 0, "max": 1},
+        ):
+            rule = {"kind": "range", "inclusive": True, **good}
+>           assert _accept(**_turn_share(rule)).pass_rule.kind == "range"
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:766: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_metric_definition.py:104: in _accept
+    return make("MetricDefinition", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+______________ test_per_turn_share_definition_requires_turn_rule _______________
+
+    def test_per_turn_share_definition_requires_turn_rule() -> None:
+        """P-58: ``per_turn_share`` needs a ``turn_rule`` (a pass rule that fits the value type) and
+        has no ``min_share`` any more."""
+>       ok = _accept(**_turn_share())
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:783: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_metric_definition.py:104: in _accept
+    return make("MetricDefinition", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_________________ test_per_turn_share_pass_rule_must_be_range __________________
+
+    def test_per_turn_share_pass_rule_must_be_range() -> None:
+        """P-58: whatever the value type, the pass rule of a ``per_turn_share`` definition is a
+        ``range`` on the share; ``equals_true`` and ``one_of`` are rejected for it."""
+>       assert _accept(**_turn_share()).pass_rule.kind == "range"
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:822: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_metric_definition.py:104: in _accept
+    return make("MetricDefinition", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+______________________ test_per_turn_counts_fields_exact _______________________
+
+    def test_per_turn_counts_fields_exact() -> None:
+        """P-56: ``PerTurnCounts`` is exactly ``{passed, failed, not_applicable, undetermined}``, all
+        required integers >= 0."""
+>       counts = cls("metrics", "PerTurnCounts")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:843: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____________ test_per_turn_share_excludes_na_turns_from_denominator ____________
+
+    def test_per_turn_share_excludes_na_turns_from_denominator() -> None:
+        """P-26 (and P-56 for undetermined turns): ``share = passed / (passed + failed)`` as a canonical
+        decimal string, half-even at scale 18; not_applicable and undetermined turns are not counted."""
+>       share = _m().per_turn_share
+                ^^^^
+
+packages/evalschema/tests/test_metric_definition.py:873: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_metric_definition.py:75: in _m
+    return api("metrics")
+           ^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+___________ test_per_turn_share_not_applicable_when_no_turn_applies ____________
+
+    def test_per_turn_share_not_applicable_when_no_turn_applies() -> None:
+        """P-26: no counted turn and every turn not_applicable: the metric is ``not_applicable`` and
+        there is no share (never 0)."""
+>       status, share = _m().per_turn_status, _m().per_turn_share
+                        ^^^^
+
+packages/evalschema/tests/test_metric_definition.py:889: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_metric_definition.py:75: in _m
+    return api("metrics")
+           ^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__________________ test_per_turn_status_no_counted_turn_cases __________________
+
+    def test_per_turn_status_no_counted_turn_cases() -> None:
+        """Proposed name (P-56 detail in ADR 0010 Decision 3): with no counted turn and any
+        undetermined turn the outcome is ``error`` (code judge_undetermined), else ``not_applicable``;
+        an all-zero count has no turns and is a ValueError."""
+>       status = _m().per_turn_status
+                 ^^^^
+
+packages/evalschema/tests/test_metric_definition.py:900: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_metric_definition.py:75: in _m
+    return api("metrics")
+           ^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________________ test_metric_binding_shape_and_params _____________________
+
+    def test_metric_binding_shape_and_params() -> None:
+        """Proposed name (ADR 0010 Decision 4 and the batch 2 brief): a binding is a versioned entity
+        ``{evaluator_id, metric: {id, version}, params, enabled}``; the metric reference is a
+        ``MetricDefinition`` id with a version; ``params`` are JSON overrides stored unchanged."""
+>       binding = entity_class("MetricBinding")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:916: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__________________ test_metric_ref_text_form_is_display_only ___________________
+
+    def test_metric_ref_text_form_is_display_only() -> None:
+        """Resolution 1 / ADR 0009 Decision 4 (I9a): a metric reference is the object
+        ``MetricDefinitionRef{id, version, content_digest?}`` and a string is rejected. ``key@version``
+        (``p95_latency@3``) is display text made by ``render_metric_ref(definition)``; it is never
+        stored and never parsed. Keys do not identify definitions: two definitions may share one.
+        (The equality of ``VerdictCheck.metric_ref`` with the binding's ``metric`` is P1-22 and is not
+        tested here.)"""
+>       metrics = _m()
+                  ^^^^
+
+packages/evalschema/tests/test_metric_definition.py:1007: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_metric_definition.py:75: in _m
+    return api("metrics")
+           ^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____________ test_judge_model_ref_is_a_model_ref_without_config_ref ____________
+
+    def test_judge_model_ref_is_a_model_ref_without_config_ref() -> None:
+        """Resolution 4: ``judge_model_ref`` is ``ModelRef{provider, model}`` (value object, open
+        ``MachineKey`` values) and carries no ``config_ref``: a definition is portable and digested,
+        while a ``config_ref`` names one deployment's variable (ADR 0010 Decision 1a)."""
+>       model_ref_class = registered_class("ModelRef")
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:1062: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'ModelRef'
+
+    def registered_class(name: str) -> Any:
+        """The module-level model class ``name`` of the package, wherever the architect put it.
+    
+        Used for the value objects whose module api-surface 19.4.1 does not fix. A missing class fails
+        the test that needs it (AssertionError), never collection."""
+        found = {model.__name__: model for model in api("registry").model_classes()}
+>       assert name in found, f"{name} is not implemented yet"
+               ^^^^^^^^^^^^^
+E       AssertionError: ModelRef is not implemented yet
+
+packages/evalschema/tests/_support_b2.py:105: AssertionError
+_______________ test_judge_only_fields_forbidden_on_other_kinds ________________
+
+    def test_judge_only_fields_forbidden_on_other_kinds() -> None:
+        """Resolution 4 (ADR 0010 Decision 1a): ``prompt_template``, ``prompt_variables`` and
+        ``judge_model_ref`` are required when ``kind=llm_judge`` and forbidden for the other kinds;
+        ``implementation_ref`` is the other way round. A judge without its prompt and model cannot be
+        reproduced, and a scorer name on a judge would name two computations for one value."""
+        judge_fields: dict[str, Any] = {
+            "prompt_template": JUDGE_TEMPLATE,
+            "prompt_variables": ["expected_outcome", "transcript"],
+            "judge_model_ref": model_ref(),
+        }
+        for kind in ("deterministic", "audio", "latency"):
+>           assert _accept(kind=kind).kind == kind
+                   ^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:1105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_metric_definition.py:104: in _accept
+    return make("MetricDefinition", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____________________ test_implementation_ref_is_namespaced _____________________
+
+    def test_implementation_ref_is_namespaced() -> None:
+        """Resolution 4 (ADR 0010 Decision 1a): ``implementation_ref`` is a ``MachineKey`` of the form
+        ``<namespace>:<name>`` with the namespace ``[a-z][a-z0-9_]*`` (``builtin:wer``); the runtime's
+        scorer registry resolves it (Phase 3). Proposed name."""
+        for good in ("builtin:wer", "acme_corp:wer_v2", "x1:y", "builtin:p95.latency"):
+>           assert _accept(implementation_ref=good).implementation_ref == good
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:1123: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_metric_definition.py:104: in _accept
+    return make("MetricDefinition", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________ test_prompt_template_rejects_other_double_braces _______________
+
+    def test_prompt_template_rejects_other_double_braces() -> None:
+        """Resolution 4 (ADR 0010 Decision 1a): any ``{{`` in a template that is not a well-formed
+        ``{{name}}`` variable (a ``MetricKey``) is rejected, so a mistyped variable cannot reach the
+        judge as literal text. Single braces and a lone ``}}`` are ordinary text. Proposed name."""
+        for template, declared in (
+            ("Q {{transcript}} and {single} and }} done", ["transcript"]),
+            ("No variable, {just} braces", []),
+        ):
+>           assert _accept(**judge_definition(prompt_template=template, prompt_variables=declared))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:1147: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_metric_definition.py:104: in _accept
+    return make("MetricDefinition", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________ test_expected_outcome_variable_definition_shapes _______________
+
+    def test_expected_outcome_variable_definition_shapes() -> None:
+        """Resolution 7 (ADR 0013 Decision 2): the evaluator's expected outcome reaches its check
+        through the reserved prompt variable ``expected_outcome``. The rule that every evaluator has an
+        expected-outcome check, and that it is a required rubric item, is the ConfigSnapshot's (P1-12).
+        Here: the variable is an ordinary declared variable in every judge shape, an
+        expected-outcome check (boolean, per conversation, ``equals_true``) is a valid definition, and
+        other shapes that use the variable are valid ordinary metrics. Proposed name."""
+>       check = _accept(**judge_definition())
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:1173: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_metric_definition.py:104: in _accept
+    return make("MetricDefinition", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________ test_conditional_field_rules_are_in_the_json_schema ______________
+
+    def test_conditional_field_rules_are_in_the_json_schema() -> None:
+        """Section 19.4.1: rules that need several fields are checked by a model validator and, where
+        JSON Schema can express them, emitted as ``allOf`` of ``if``/``then``. The kind conditions of
+        the judge fields and ``implementation_ref``, and the scale and unit conditions of the value
+        type, are expressible (they are not in the code-only list of N12), so the schema must refuse
+        what pydantic refuses. Proposed name."""
+>       model = entity_class("MetricDefinition")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:1197: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+___________________ test_metric_parameter_shape_and_defaults ___________________
+
+    def test_metric_parameter_shape_and_defaults() -> None:
+        """Section 19.4.1: ``MetricParameter{name: MetricKey, value_type, default?}`` is a value object
+        and ``MetricDefinition.parameters`` (default ``[]``, names unique) declares what a binding's
+        ``params`` may set. A ``default`` must match the ``value_type``: ``integer`` is a JSON integer,
+        ``number`` a finite JSON number, ``boolean`` and ``integer`` never accept each other, and
+        ``json`` is any I-JSON value. Proposed name."""
+>       param = registered_class("MetricParameter")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:1237: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'MetricParameter'
+
+    def registered_class(name: str) -> Any:
+        """The module-level model class ``name`` of the package, wherever the architect put it.
+    
+        Used for the value objects whose module api-surface 19.4.1 does not fix. A missing class fails
+        the test that needs it (AssertionError), never collection."""
+        found = {model.__name__: model for model in api("registry").model_classes()}
+>       assert name in found, f"{name} is not implemented yet"
+               ^^^^^^^^^^^^^
+E       AssertionError: MetricParameter is not implemented yet
+
+packages/evalschema/tests/_support_b2.py:105: AssertionError
+________________ test_binding_params_must_be_declared_and_typed ________________
+
+    def test_binding_params_must_be_declared_and_typed() -> None:
+        """Resolution 4 (ADR 0010 Decision 4a): when a binding meets its definition,
+        ``check_binding_params(binding, definition)`` requires that every key is a declared parameter,
+        every value matches the declared ``value_type`` strictly (no bool/number coercion), and every
+        declared parameter without a default is present. A ``ValueError`` names the binding ID and the
+        key. The effective values are the defaults overlaid by ``params`` (so a default makes a
+        parameter optional)."""
+        declared = [parameter("percentile", "integer"), parameter("window", "number", default=2.5)]
+>       definition = make("MetricDefinition", **latency_definition(parameters=declared))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:1300: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+___________________ test_binding_cannot_change_the_pass_rule ___________________
+
+    def test_binding_cannot_change_the_pass_rule() -> None:
+        """E6 (accepted by the owner): a binding cannot change a pass threshold. Two evaluators that
+        want p95 limits of 800 ms and 1500 ms need two definitions (or two versions), not one definition
+        with two binding params. ``params`` set declared parameters only, so a key that names a
+        definition field (pass rule, bounds, requires, scale, unit, aggregation, languages, kind,
+        prompt) is rejected as undeclared, and the binding model has no field that could carry a rule.
+        Proposed name."""
+        declared = [parameter("percentile", "integer", default=95)]
+>       definition = make("MetricDefinition", **latency_definition(parameters=declared))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:1336: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________ test_metric_binding_params_keys_are_metric_keys ________________
+
+    def test_metric_binding_params_keys_are_metric_keys() -> None:
+        """Section 19.4.1: ``MetricBinding.params`` is ``dict[MetricKey, I-JSON]``: the names are
+        lowercase snake case like the declared parameters, the dict is required (it may be empty), and
+        the values are stored unchanged. Proposed name."""
+>       assert make("MetricBinding", params={"threshold_ms": 800, "a1": None}).params == {
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "threshold_ms": 800,
+            "a1": None,
+        }
+
+packages/evalschema/tests/test_metric_definition.py:1383: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_________________________ test_scale_and_unit_domains __________________________
+
+    def test_scale_and_unit_domains() -> None:
+        """Resolution 5 (ADR 0010 Decision 1a): the units are exactly ``ms``, ``count``, ``ratio``,
+        ``percent``, ``wer``, ``cer`` (a string ``enum``); the scale is flat: ``RatingScale{min, max}``
+        for a rating and ``EnumScale{options: list[MetricKey]}`` for an enum; aggregation is a
+        ``kind``-tagged object. The value domains of the units are exercised by
+        ``test_range_bounds_within_value_domain``."""
+>       model = entity_class("MetricDefinition")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:1404: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____________________ test_range_bounds_within_value_domain _____________________
+
+    def test_range_bounds_within_value_domain() -> None:
+        """Resolution 5 (ADR 0010 Decision 1a, section 19.4.1): range bounds lie within the value
+        domain (the scale for a rating, the unit's domain for a numeric metric, [0, 1] for the share)
+        and the set of passing values is non-empty, counting integers only for a rating and for
+        ``count``. Bounds are compared in ``Decimal``, a float read through its shortest text."""
+        for unit, rule, accepted in _NUMERIC_BOUNDS:
+            doc = latency_definition(unit=unit, pass_rule=rule)
+            if accepted:
+>               assert _accept(**doc).pass_rule.kind == "range", (unit, rule)
+                       ^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:1525: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_metric_definition.py:104: in _accept
+    return make("MetricDefinition", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________ test_metric_languages_nonempty_distinct_primary ________________
+
+    def test_metric_languages_nonempty_distinct_primary() -> None:
+        """Resolution 12 (ADR 0005 Decision 6, ADR 0004 Decision 6): ``MetricDefinition.languages`` is
+        non-empty (schema ``minItems: 1``) and no two entries share a primary language, because
+        coverage is decided by primary language. An empty list is rejected, never read as "none" or
+        "all"; ``hi`` next to ``hi-IN`` would suggest a region distinction that the matching never
+        makes."""
+        nine = ["en-US", "hi-IN", "mr", "te", "ta-IN", "kn", "ml", "pa-Guru-IN", "gu"]
+        for good in (nine, ["hi-IN", "en"], ["en-US"], ["HI-in", "en-GB"]):
+>           assert len(_accept(languages=good).languages) == len(good)
+                       ^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:1575: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_metric_definition.py:104: in _accept
+    return make("MetricDefinition", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+___________ test_metric_languages_accepts_language_independent_value ___________
+
+    def test_metric_languages_accepts_language_independent_value() -> None:
+        """P-59 (a), accepted by the owner: ``MetricDefinition.languages`` may be the single value
+        ``"language_independent"`` instead of a list (emitted as a string ``enum``), for a metric that
+        does not depend on language (latency, interruption counts, talk ratio). Pinned reading: the
+        scalar string, not a one-element list. That such a metric skips the language check, and that a
+        language-dependent metric on untagged input is ``not_applicable`` with ``language_not_observed``
+        (P-59 (b)), belong to MetricResult (P1-11). Proposed name."""
+>       model = entity_class("MetricDefinition")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:1601: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+______________ test_metric_languages_list_or_language_independent ______________
+
+    def test_metric_languages_list_or_language_independent() -> None:
+        """P-59 (accepted by the owner, api-surface 20.2): ``MetricDefinition.languages`` is required
+        (no default) and is either the string ``"language_independent"`` or a non-empty list of
+        distinct primary ``SupportedLanguage`` values. The one-element list
+        ``["language_independent"]`` and the empty list are rejected, as is the sentinel next to a
+        language, in another case or spelling, or as any other type. The JSON Schema is an ``anyOf`` of
+        ``{"type": "string", "enum": ["language_independent"]}`` and the array schema with
+        ``minItems: 1``. The text is the same for every metric kind. Proposed name, binding since
+        revision 9."""
+>       model = entity_class("MetricDefinition")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:1667: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____________ test_language_independent_metric_not_script_sensitive _____________
+
+    def test_language_independent_metric_not_script_sensitive() -> None:
+        """P-59 (accepted by the owner, api-surface 20.2; ADR 0004 Decision 6): a metric whose
+        ``languages`` is ``"language_independent"`` has no language to depend on, so
+        ``script_sensitive=True`` with it is rejected, at ``languages`` or ``script_sensitive`` or at
+        the model, with a message that names the rule. ``script_sensitive=False`` is accepted with it,
+        and a list of languages is accepted with either value, so the rule binds the sentinel only.
+        The rule is the same for every kind and in both entry points. It spans two fields, so
+        the JSON Schema may or may not express it (api-surface 19.6 N12 keeps it code-only); that is
+        not pinned. Proposed name, binding since revision 9."""
+>       model = entity_class("MetricDefinition")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_metric_definition.py:1779: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c844a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+- generated xml file: <scratchpad>/junit9/p1-08-metric-definition-rev9a.py3.13.xml -
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_metric_definition.py::test_input_kind_members_exact
+FAILED packages/evalschema/tests/test_metric_definition.py::test_all_closed_enums_exact
+FAILED packages/evalschema/tests/test_metric_definition.py::test_open_value_fields_accept_unseen_provider
+FAILED packages/evalschema/tests/test_metric_definition.py::test_requires_nonempty_unique
+FAILED packages/evalschema/tests/test_metric_definition.py::test_pass_rule_range_inclusive_and_exclusive
+FAILED packages/evalschema/tests/test_metric_definition.py::test_latency_lower_is_better_expressed_with_range_max
+FAILED packages/evalschema/tests/test_metric_definition.py::test_score_higher_is_better_expressed_with_range_min
+FAILED packages/evalschema/tests/test_metric_definition.py::test_pass_rule_without_direction_rejected
+FAILED packages/evalschema/tests/test_metric_definition.py::test_range_requires_at_least_one_bound
+FAILED packages/evalschema/tests/test_metric_definition.py::test_equals_true_rule_boolean
+FAILED packages/evalschema/tests/test_metric_definition.py::test_one_of_rule_options_subset
+FAILED packages/evalschema/tests/test_metric_definition.py::test_pass_rule_kind_matches_value_type
+FAILED packages/evalschema/tests/test_metric_definition.py::test_script_sensitive_required_no_default
+FAILED packages/evalschema/tests/test_metric_definition.py::test_numeric_units_exclude_currency
+FAILED packages/evalschema/tests/test_metric_definition.py::test_metric_key_is_a_metric_key
+FAILED packages/evalschema/tests/test_metric_definition.py::test_scale_matches_value_type
+FAILED packages/evalschema/tests/test_metric_definition.py::test_llm_judge_requires_prompt_template_and_judge_model_ref
+FAILED packages/evalschema/tests/test_metric_definition.py::test_deterministic_kinds_require_implementation_ref
+FAILED packages/evalschema/tests/test_metric_definition.py::test_prompt_template_placeholders_declared_equals_used
+FAILED packages/evalschema/tests/test_metric_definition.py::test_metric_languages_supported_only
+FAILED packages/evalschema/tests/test_metric_definition.py::test_aggregation_discriminated_by_kind
+FAILED packages/evalschema/tests/test_metric_definition.py::test_per_turn_share_bounds_0_1
+FAILED packages/evalschema/tests/test_metric_definition.py::test_per_turn_share_definition_requires_turn_rule
+FAILED packages/evalschema/tests/test_metric_definition.py::test_per_turn_share_pass_rule_must_be_range
+FAILED packages/evalschema/tests/test_metric_definition.py::test_per_turn_counts_fields_exact
+FAILED packages/evalschema/tests/test_metric_definition.py::test_per_turn_share_excludes_na_turns_from_denominator
+FAILED packages/evalschema/tests/test_metric_definition.py::test_per_turn_share_not_applicable_when_no_turn_applies
+FAILED packages/evalschema/tests/test_metric_definition.py::test_per_turn_status_no_counted_turn_cases
+FAILED packages/evalschema/tests/test_metric_definition.py::test_metric_binding_shape_and_params
+FAILED packages/evalschema/tests/test_metric_definition.py::test_metric_ref_text_form_is_display_only
+FAILED packages/evalschema/tests/test_metric_definition.py::test_judge_model_ref_is_a_model_ref_without_config_ref
+FAILED packages/evalschema/tests/test_metric_definition.py::test_judge_only_fields_forbidden_on_other_kinds
+FAILED packages/evalschema/tests/test_metric_definition.py::test_implementation_ref_is_namespaced
+FAILED packages/evalschema/tests/test_metric_definition.py::test_prompt_template_rejects_other_double_braces
+FAILED packages/evalschema/tests/test_metric_definition.py::test_expected_outcome_variable_definition_shapes
+FAILED packages/evalschema/tests/test_metric_definition.py::test_conditional_field_rules_are_in_the_json_schema
+FAILED packages/evalschema/tests/test_metric_definition.py::test_metric_parameter_shape_and_defaults
+FAILED packages/evalschema/tests/test_metric_definition.py::test_binding_params_must_be_declared_and_typed
+FAILED packages/evalschema/tests/test_metric_definition.py::test_binding_cannot_change_the_pass_rule
+FAILED packages/evalschema/tests/test_metric_definition.py::test_metric_binding_params_keys_are_metric_keys
+FAILED packages/evalschema/tests/test_metric_definition.py::test_scale_and_unit_domains
+FAILED packages/evalschema/tests/test_metric_definition.py::test_range_bounds_within_value_domain
+FAILED packages/evalschema/tests/test_metric_definition.py::test_metric_languages_nonempty_distinct_primary
+FAILED packages/evalschema/tests/test_metric_definition.py::test_metric_languages_accepts_language_independent_value
+FAILED packages/evalschema/tests/test_metric_definition.py::test_metric_languages_list_or_language_independent
+FAILED packages/evalschema/tests/test_metric_definition.py::test_language_independent_metric_not_script_sensitive
+============================== 46 failed in 0.94s ==============================

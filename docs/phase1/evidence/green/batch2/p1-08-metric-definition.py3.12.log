@@ -1,0 +1,64 @@
+# group: p1-08-metric-definition   (batch 2 group A green run, schema-architect)
+# date: 2026-10-23T04:51:32Z (UTC)  local: 2026-10-23T10:21:32+0530
+# command: python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_metric_definition.py   (cwd ~/tracer; pyproject addopts apply)
+# interpreter: <scratchpad>/env3.12/bin/python
+# versions: python 3.12.14; pydantic 2.14.1, pydantic-core 2.50.1, pytest 9.1.1, jsonschema 4.26.0, rfc8785 0.1.4
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git status: no commits; 0 staged paths
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.12.14, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>/env3.12/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 46 items
+
+packages/evalschema/tests/test_metric_definition.py::test_input_kind_members_exact PASSED [  2%]
+packages/evalschema/tests/test_metric_definition.py::test_all_closed_enums_exact PASSED [  4%]
+packages/evalschema/tests/test_metric_definition.py::test_open_value_fields_accept_unseen_provider PASSED [  6%]
+packages/evalschema/tests/test_metric_definition.py::test_requires_nonempty_unique PASSED [  8%]
+packages/evalschema/tests/test_metric_definition.py::test_pass_rule_range_inclusive_and_exclusive PASSED [ 10%]
+packages/evalschema/tests/test_metric_definition.py::test_latency_lower_is_better_expressed_with_range_max PASSED [ 13%]
+packages/evalschema/tests/test_metric_definition.py::test_score_higher_is_better_expressed_with_range_min PASSED [ 15%]
+packages/evalschema/tests/test_metric_definition.py::test_pass_rule_without_direction_rejected PASSED [ 17%]
+packages/evalschema/tests/test_metric_definition.py::test_range_requires_at_least_one_bound PASSED [ 19%]
+packages/evalschema/tests/test_metric_definition.py::test_equals_true_rule_boolean PASSED [ 21%]
+packages/evalschema/tests/test_metric_definition.py::test_one_of_rule_options_subset PASSED [ 23%]
+packages/evalschema/tests/test_metric_definition.py::test_pass_rule_kind_matches_value_type PASSED [ 26%]
+packages/evalschema/tests/test_metric_definition.py::test_script_sensitive_required_no_default PASSED [ 28%]
+packages/evalschema/tests/test_metric_definition.py::test_numeric_units_exclude_currency PASSED [ 30%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_key_is_a_metric_key PASSED [ 32%]
+packages/evalschema/tests/test_metric_definition.py::test_scale_matches_value_type PASSED [ 34%]
+packages/evalschema/tests/test_metric_definition.py::test_llm_judge_requires_prompt_template_and_judge_model_ref PASSED [ 36%]
+packages/evalschema/tests/test_metric_definition.py::test_deterministic_kinds_require_implementation_ref PASSED [ 39%]
+packages/evalschema/tests/test_metric_definition.py::test_prompt_template_placeholders_declared_equals_used PASSED [ 41%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_languages_supported_only PASSED [ 43%]
+packages/evalschema/tests/test_metric_definition.py::test_aggregation_discriminated_by_kind PASSED [ 45%]
+packages/evalschema/tests/test_metric_definition.py::test_per_turn_share_bounds_0_1 PASSED [ 47%]
+packages/evalschema/tests/test_metric_definition.py::test_per_turn_share_definition_requires_turn_rule PASSED [ 50%]
+packages/evalschema/tests/test_metric_definition.py::test_per_turn_share_pass_rule_must_be_range PASSED [ 52%]
+packages/evalschema/tests/test_metric_definition.py::test_per_turn_counts_fields_exact PASSED [ 54%]
+packages/evalschema/tests/test_metric_definition.py::test_per_turn_share_excludes_na_turns_from_denominator PASSED [ 56%]
+packages/evalschema/tests/test_metric_definition.py::test_per_turn_share_not_applicable_when_no_turn_applies PASSED [ 58%]
+packages/evalschema/tests/test_metric_definition.py::test_per_turn_status_no_counted_turn_cases PASSED [ 60%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_binding_shape_and_params PASSED [ 63%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_ref_text_form_is_display_only PASSED [ 65%]
+packages/evalschema/tests/test_metric_definition.py::test_judge_model_ref_is_a_model_ref_without_config_ref PASSED [ 67%]
+packages/evalschema/tests/test_metric_definition.py::test_judge_only_fields_forbidden_on_other_kinds PASSED [ 69%]
+packages/evalschema/tests/test_metric_definition.py::test_implementation_ref_is_namespaced PASSED [ 71%]
+packages/evalschema/tests/test_metric_definition.py::test_prompt_template_rejects_other_double_braces PASSED [ 73%]
+packages/evalschema/tests/test_metric_definition.py::test_expected_outcome_variable_definition_shapes PASSED [ 76%]
+packages/evalschema/tests/test_metric_definition.py::test_conditional_field_rules_are_in_the_json_schema PASSED [ 78%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_parameter_shape_and_defaults PASSED [ 80%]
+packages/evalschema/tests/test_metric_definition.py::test_binding_params_must_be_declared_and_typed PASSED [ 82%]
+packages/evalschema/tests/test_metric_definition.py::test_binding_cannot_change_the_pass_rule PASSED [ 84%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_binding_params_keys_are_metric_keys PASSED [ 86%]
+packages/evalschema/tests/test_metric_definition.py::test_scale_and_unit_domains PASSED [ 89%]
+packages/evalschema/tests/test_metric_definition.py::test_range_bounds_within_value_domain PASSED [ 91%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_languages_nonempty_distinct_primary PASSED [ 93%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_languages_accepts_language_independent_value PASSED [ 95%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_languages_list_or_language_independent PASSED [ 97%]
+packages/evalschema/tests/test_metric_definition.py::test_language_independent_metric_not_script_sensitive PASSED [100%]
+
+============================== 46 passed in 0.83s ==============================

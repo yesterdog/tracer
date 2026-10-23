@@ -1,0 +1,69 @@
+# group: p1-07-persona-profile   (batch 2 group A green run, schema-architect)
+# date: 2026-10-23T04:52:36Z (UTC)  local: 2026-10-23T10:22:36+0530
+# command: python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_persona_profile.py   (cwd ~/tracer; pyproject addopts apply)
+# interpreter: <scratchpad>/env3.14/bin/python
+# versions: python 3.14.7; pydantic 2.14.1, pydantic-core 2.50.1, pytest 9.1.1, jsonschema 4.26.0, rfc8785 0.1.4
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git status: no commits; 0 staged paths
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.14.7, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>/env3.14/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 19 items
+
+packages/evalschema/tests/test_persona_profile.py::test_persona_has_no_codemix_field PASSED [  5%]
+packages/evalschema/tests/test_persona_profile.py::test_persona_language_supported_only PASSED [ 10%]
+packages/evalschema/tests/test_persona_profile.py::test_persona_accent_is_a_human_label PASSED [ 15%]
+packages/evalschema/tests/test_persona_profile.py::test_test_profile_pii_marked PASSED [ 21%]
+packages/evalschema/tests/test_persona_profile.py::test_test_profile_has_no_secret_like_fields PASSED [ 26%]
+packages/evalschema/tests/test_persona_profile.py::test_test_profile_ref_has_no_pii PASSED [ 31%]
+packages/evalschema/tests/test_persona_profile.py::test_test_profile_ref_shape_and_digest PASSED [ 36%]
+packages/evalschema/tests/test_persona_profile.py::test_snapshot_embedded_entity_schemas_carry_no_pii_marker PASSED [ 42%]
+packages/evalschema/tests/test_persona_profile.py::test_policy_documents_low_entropy_digest_limitation FAILED [ 47%]
+packages/evalschema/tests/test_persona_profile.py::test_profile_placeholder_fields_are_the_profile_data_fields PASSED [ 52%]
+packages/evalschema/tests/test_persona_profile.py::test_literal_profile_value_in_free_text_is_flagged_with_path_not_value PASSED [ 57%]
+packages/evalschema/tests/test_persona_profile.py::test_profile_value_lint_is_total_on_other_models PASSED [ 63%]
+packages/evalschema/tests/test_persona_profile.py::test_every_profile_field_is_usable_as_a_placeholder PASSED [ 68%]
+packages/evalschema/tests/test_persona_profile.py::test_profile_lint_folding_and_token_bounds PASSED [ 73%]
+packages/evalschema/tests/test_persona_profile.py::test_profile_lint_folds_unicode_forms PASSED [ 78%]
+packages/evalschema/tests/test_persona_profile.py::test_profile_lint_paths_order_and_privacy PASSED [ 84%]
+packages/evalschema/tests/test_persona_profile.py::test_profile_lint_covers_expected_outcome_and_tool_arguments PASSED [ 89%]
+packages/evalschema/tests/test_persona_profile.py::test_test_profile_errors_do_not_echo_values PASSED [ 94%]
+packages/evalschema/tests/test_persona_profile.py::test_persona_has_only_language_and_accent PASSED [100%]
+
+=================================== FAILURES ===================================
+_____________ test_policy_documents_low_entropy_digest_limitation ______________
+
+    def test_policy_documents_low_entropy_digest_limitation() -> None:
+        """ADR 0006 Decision 6 / I12, A-26: SCHEMA_POLICY.md states that a plain digest of a
+        low-entropy profile in internal data can be brute-forced, and that shared exports never
+        carry such a plain digest (they drop or key it). Gate-bound: green when P1-20a writes the
+        file."""
+>       text = _policy_text().lower()
+               ^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_persona_profile.py:340: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _policy_text() -> str:
+        candidates = [
+            PACKAGE_DIR / "SCHEMA_POLICY.md",
+            ROOT / "SCHEMA_POLICY.md",
+            ROOT / "docs" / "SCHEMA_POLICY.md",
+        ]
+        for path in candidates:
+            if path.is_file():
+                return path.read_text(encoding="utf-8")
+>       pytest.fail(
+            "SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of "
+            + ", ".join(str(p.relative_to(ROOT)) for p in candidates)
+        )
+E       Failed: SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of packages/evalschema/SCHEMA_POLICY.md, SCHEMA_POLICY.md, docs/SCHEMA_POLICY.md
+
+packages/evalschema/tests/test_persona_profile.py:329: Failed
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_persona_profile.py::test_policy_documents_low_entropy_digest_limitation
+========================= 1 failed, 18 passed in 0.16s =========================

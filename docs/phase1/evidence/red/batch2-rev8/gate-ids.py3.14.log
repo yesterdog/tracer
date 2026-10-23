@@ -1,0 +1,139 @@
+# group: gate-ids   (revision 8 red run, qa)
+# date: 2026-10-23T03:36:21Z (UTC)  local: 2026-10-23T09:06:21+0530
+# command: python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_ids.py   (cwd ~/tracer; pyproject addopts: -ra --strict-markers --strict-config -m 'not private_fixtures and not local_only')
+# interpreter: <scratchpad>/env3.14/bin/python
+# versions: python 3.14.7; pydantic 2.14.1; pytest 9.1.1; jsonschema 4.26.0
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git status: ## No commits yet on main; 12 untracked/changed entries; 0 staged paths; no commits made
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.14.7, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>/env3.14/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 28 items
+
+packages/evalschema/tests/test_ids.py::test_id_roundtrip_prefixed PASSED [  3%]
+packages/evalschema/tests/test_ids.py::test_id_rejects_wrong_kind PASSED [  7%]
+packages/evalschema/tests/test_ids.py::test_id_rejects_uppercase PASSED  [ 10%]
+packages/evalschema/tests/test_ids.py::test_id_rejects_uuid_v4_with_prefix PASSED [ 14%]
+packages/evalschema/tests/test_ids.py::test_id_rejects_bare_uuid_on_wire PASSED [ 17%]
+packages/evalschema/tests/test_ids.py::test_id_rejects_trailing_newline_and_whitespace PASSED [ 21%]
+packages/evalschema/tests/test_ids.py::test_id_is_not_a_str_subclass PASSED [ 25%]
+packages/evalschema/tests/test_ids.py::test_id_uuid_property_is_uuid_UUID PASSED [ 28%]
+packages/evalschema/tests/test_ids.py::test_from_external_mints_v7_and_records_external_ref PASSED [ 32%]
+packages/evalschema/tests/test_ids.py::test_from_external_signature_is_id_type_then_keyword_only_parts PASSED [ 35%]
+packages/evalschema/tests/test_ids.py::test_from_external_returns_a_pair_of_typed_id_and_external_ref_for_every_kind PASSED [ 39%]
+packages/evalschema/tests/test_ids.py::test_from_external_is_pure PASSED [ 42%]
+packages/evalschema/tests/test_ids.py::test_uuid7_monotonic_10k_same_ms PASSED [ 46%]
+packages/evalschema/tests/test_ids.py::test_uuid7_rfc9562_layout PASSED  [ 50%]
+packages/evalschema/tests/test_ids.py::test_uuid7_layout_matches_stdlib_when_available PASSED [ 53%]
+packages/evalschema/tests/test_ids.py::test_prefix_registry_unique PASSED [ 57%]
+packages/evalschema/tests/test_ids.py::test_prefix_registry_frozen_matches_adr PASSED [ 60%]
+packages/evalschema/tests/test_ids.py::test_new_prefixes_not_confusable PASSED [ 64%]
+packages/evalschema/tests/test_ids.py::test_frozen_registry_confusable_pairs_are_the_known_five PASSED [ 67%]
+packages/evalschema/tests/test_ids.py::test_new_prefix_syntax_is_two_to_six_lowercase_letters PASSED [ 71%]
+packages/evalschema/tests/test_ids.py::test_new_prefix_distance_and_anagram_rule_matches_an_independent_enumeration PASSED [ 75%]
+packages/evalschema/tests/test_ids.py::test_new_prefix_rejects_every_permutation_of_every_registered_prefix PASSED [ 78%]
+packages/evalschema/tests/test_ids.py::test_validate_new_prefix_flags_exactly_the_five_frozen_pairs PASSED [ 82%]
+packages/evalschema/tests/test_ids.py::test_jsonschema_pattern_rejects_wrong_kind PASSED [ 85%]
+packages/evalschema/tests/test_ids.py::test_every_id_reference_field_has_registered_prefix PASSED [ 89%]
+packages/evalschema/tests/test_ids.py::test_every_entity_has_registered_prefix FAILED [ 92%]
+packages/evalschema/tests/test_ids.py::test_value_objects_have_no_entity_fields FAILED [ 96%]
+packages/evalschema/tests/test_ids.py::test_opaque_id_fields_are_exactly_the_adr_allowlist FAILED [100%]
+
+=================================== FAILURES ===================================
+___________________ test_every_entity_has_registered_prefix ____________________
+
+    def test_every_entity_has_registered_prefix() -> None:
+        registry = api("registry")
+        ids = api("ids")
+        base = api("base")
+        entities = registry.entity_classes()
+>       assert set(entities) == set(ids.ID_PREFIXES), (
+            "every registered prefix needs exactly one EntityBase subclass and vice versa; "
+            f"missing {sorted(set(ids.ID_PREFIXES) - set(entities))}, "
+            f"unregistered {sorted(set(entities) - set(ids.ID_PREFIXES))}"
+        )
+E       AssertionError: every registered prefix needs exactly one EntityBase subclass and vice versa; missing ['agt', 'art', 'cst', 'csum', 'dti', 'dts', 'evl', 'exc', 'exp', 'mbd', 'met', 'pcat', 'pce', 'per', 'prj', 'rbnd', 'res', 'rub', 'run', 'snap', 'spn', 'tcl', 'tpf', 'tsc', 'turn', 'use', 'vrd'], unregistered []
+E       assert set() == {'agt', 'art'...', 'dts', ...}
+E         
+E         Extra items in the right set:
+E         'art'
+E         'evl'
+E         'cst'
+E         'turn'
+E         'per'...
+E         
+E         ...Full output truncated (54 lines hidden), use '-vv' to show
+
+packages/evalschema/tests/test_ids.py:801: AssertionError
+___________________ test_value_objects_have_no_entity_fields ___________________
+
+    def test_value_objects_have_no_entity_fields() -> None:
+        """Revision 7 (api-surface section 18 N1; ADR 0001 Decision 8 and I14), restated in revision 8
+        (section 19.6 N6) as a rule.
+    
+        A value object carries no identity fields of its own. The only fields of value objects that
+        share an entity field's name are: ``id`` of a ``<Entity>Ref`` typed ``<Entity>Id`` where
+        ``<Entity>`` is a registered entity class name (``TestProfileRef``, ``PricingCatalogRef``,
+        ``PersonaRef``, ``MetricDefinitionRef``, ``MetricBindingRef`` and later ones by the same rule);
+        ``VersionedRef.id`` (a typed ID of any kind); and the ``schema_version`` of the nested model
+        behind ``SealedPayload.aad_fields`` (the version of the sealed plaintext). A ``<Entity>Ref``
+        whose ``id`` is not typed ``<Entity>Id`` is not an exception."""
+        registry = api("registry")
+        base = api("base")
+        ids = api("ids")
+        value_objects = registry.value_object_classes()
+        required = dict.fromkeys([*VALUE_OBJECT_NAMES, *EXPECTED_TYPED_REFS])
+        missing = [name for name in required if name not in value_objects]
+>       assert not missing, f"value objects not implemented yet: {missing}"
+E       AssertionError: value objects not implemented yet: ['PrivacyMarker', 'ConsentRecord', 'RetentionPolicy', 'SealedPayload', 'RedactionRecord', 'AudioFormat', 'ChannelMap', 'Segment', 'ScriptedTurn', 'ExpectedToolCall', 'EvidenceRef', 'IngestWarning', 'WallTime', 'TimelineOrigin', 'TestProfileRef', 'PricingCatalogRef', 'ProviderConfigRef', 'JudgeInfo', 'VerdictCheck', 'UsageQuantity', 'BillingRules', 'PriceProvenance', 'PricingSnapshot', 'ReportedCostRaw', 'DeclaredStackEntry', 'CallerExternalId', 'RangeRule', 'EqualsTrueRule', 'OneOfRule', 'PerTurnCounts', 'CostRounding', 'CostExclusion', 'PerTurnSummary', 'PersonaRef', 'MetricDefinitionRef', 'MetricBindingRef', 'ModelRef', 'MetricParameter', 'RatingScale', 'EnumScale', 'PerConversationAggregation', 'PerTurnShareAggregation', 'RubricItem', 'LiteralProfileValue', 'WebSocketEndpoint', 'WebRtcEndpoint', 'SipEndpoint']
+E       assert not ['PrivacyMarker', 'ConsentRecord', 'RetentionPolicy', 'SealedPayload', 'RedactionRecord', 'AudioFormat', ...]
+
+packages/evalschema/tests/test_ids.py:859: AssertionError
+_____________ test_opaque_id_fields_are_exactly_the_adr_allowlist ______________
+
+    def test_opaque_id_fields_are_exactly_the_adr_allowlist() -> None:
+        """Proposed name. Every field named ``*_id``, ``*_ids`` or ``ref_id`` is a typed ID except
+        exactly ``KeyRef.key_id``, ``ToolCallEvent.external_call_id`` and ``Run.caller_external_id``.
+        ``SealedPayload.aad_fields.subject_id`` is typed. The allowlist is checked per model, so a
+        second ``key_id`` somewhere else would be caught (the by-name skip in
+        test_every_id_reference_field_has_registered_prefix would not)."""
+        registry = api("registry")
+        ids = api("ids")
+        opaque: set[tuple[str, str]] = set()
+        typed_seen: set[tuple[str, str]] = set()
+        for model in registry.model_classes():
+            for name, info in model.model_fields.items():
+                if not (name.endswith(("_id", "_ids")) or name == "ref_id"):
+                    continue
+                leaves = _model_leaves(info.annotation)
+                if any(issubclass(leaf, ids.TypedId) for leaf in leaves):
+                    typed_seen.add((model.__name__, name))
+                else:
+                    opaque.add((model.__name__, name))
+>       assert opaque == OPAQUE_ID_FIELDS, (
+            f"opaque *_id fields: unexpected {sorted(opaque - OPAQUE_ID_FIELDS)}, "
+            f"missing {sorted(OPAQUE_ID_FIELDS - opaque)}"
+        )
+E       AssertionError: opaque *_id fields: unexpected [], missing [('Run', 'caller_external_id'), ('ToolCallEvent', 'external_call_id')]
+E       assert {('KeyRef', 'key_id')} == {('KeyRef', '...nal_call_id')}
+E         
+E         Extra items in the right set:
+E         ('Run', 'caller_external_id')
+E         ('ToolCallEvent', 'external_call_id')
+E         
+E         Full diff:
+E           {...
+E         
+E         ...Full output truncated (13 lines hidden), use '-vv' to show
+
+packages/evalschema/tests/test_ids.py:928: AssertionError
+- generated xml file: <scratchpad>/junit8/gate-ids.py3.14.xml -
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_ids.py::test_every_entity_has_registered_prefix
+FAILED packages/evalschema/tests/test_ids.py::test_value_objects_have_no_entity_fields
+FAILED packages/evalschema/tests/test_ids.py::test_opaque_id_fields_are_exactly_the_adr_allowlist
+========================= 3 failed, 25 passed in 0.42s =========================

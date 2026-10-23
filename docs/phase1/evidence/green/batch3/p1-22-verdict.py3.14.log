@@ -1,0 +1,42 @@
+# group: p1-22-verdict   (batch 3 green run, schema-architect)
+# date: 2026-10-23T10:52:01Z (UTC)  local: 2026-10-23T16:22:01+0530
+# command: python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_verdict.py   (cwd ~/tracer; pyproject addopts apply)
+# interpreter: <scratchpad>/arch-b3-env3.14/bin/python
+# versions: python 3.14.7; pydantic 2.14.1, pydantic-core 2.50.1, pytest 9.1.1, jsonschema 4.26.0, rfc8785 0.1.4, hypothesis 6.170.5
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git status: no commits; 0 staged paths
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.14.7, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>/arch-b3-env3.14/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 24 items
+
+packages/evalschema/tests/test_verdict.py::test_weighted_exclusions_are_unique_per_binding PASSED [  4%]
+packages/evalschema/tests/test_verdict.py::test_outcome_of_result_needs_a_pass_decision PASSED [  8%]
+packages/evalschema/tests/test_verdict.py::test_run_verdict_shape_and_enums PASSED [ 12%]
+packages/evalschema/tests/test_verdict.py::test_empty_verdict_rejected PASSED [ 16%]
+packages/evalschema/tests/test_verdict.py::test_counts_sum_to_required_total PASSED [ 20%]
+packages/evalschema/tests/test_verdict.py::test_status_pass_fail_inconclusive_table PASSED [ 25%]
+packages/evalschema/tests/test_verdict.py::test_inconsistent_status_rejected PASSED [ 29%]
+packages/evalschema/tests/test_verdict.py::test_counts_equal_check_tally PASSED [ 33%]
+packages/evalschema/tests/test_verdict.py::test_headline PASSED          [ 37%]
+packages/evalschema/tests/test_verdict.py::test_headline_unchanged_by_weights PASSED [ 41%]
+packages/evalschema/tests/test_verdict.py::test_weighted_score_5_3_2_with_na_is_1_coverage_0_8 PASSED [ 45%]
+packages/evalschema/tests/test_verdict.py::test_weighted_score_excludes_na_and_lists_them PASSED [ 50%]
+packages/evalschema/tests/test_verdict.py::test_weighted_score_excludes_errored PASSED [ 54%]
+packages/evalschema/tests/test_verdict.py::test_weighted_score_absent_when_all_excluded PASSED [ 58%]
+packages/evalschema/tests/test_verdict.py::test_weighted_score_range_0_1 PASSED [ 62%]
+packages/evalschema/tests/test_verdict.py::test_weight_coverage_required_with_score PASSED [ 66%]
+packages/evalschema/tests/test_verdict.py::test_weight_coverage_is_scored_over_total_weight PASSED [ 70%]
+packages/evalschema/tests/test_verdict.py::test_render_weighted_score_shows_coverage PASSED [ 75%]
+packages/evalschema/tests/test_verdict.py::test_no_renderer_shows_weighted_score_without_coverage PASSED [ 79%]
+packages/evalschema/tests/test_verdict.py::test_weighted_score_uses_per_turn_passed_not_share PASSED [ 83%]
+packages/evalschema/tests/test_verdict.py::test_checks_reference_required_bindings_only PASSED [ 87%]
+packages/evalschema/tests/test_verdict.py::test_check_outcome_matches_metric_result_status PASSED [ 91%]
+packages/evalschema/tests/test_verdict.py::test_verdict_check_metric_ref_is_typed_and_equals_binding_metric PASSED [ 95%]
+packages/evalschema/tests/test_verdict.py::test_weighted_score_checked_against_rubric_and_results PASSED [100%]
+
+============================== 24 passed in 0.37s ==============================

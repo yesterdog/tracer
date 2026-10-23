@@ -1,0 +1,244 @@
+# Batch 4 (usage, pricing, cost) mutants (qa, 2026-10-23)
+
+Throwaway oracle `oracle12` outside the repository: a correct implementation of api-surface section 23 (modules usage, pricing, cost) on top of the batch 1 to 3 oracle. One change per mutant (a few use two or three coordinated edits). Each mutant is run with `pytest -x -q` over the eight new test files (test_usage, test_pricing, test_cost, test_cost_summary, test_cost_compute, test_cost_import, test_cost_contract, test_batch4_entities; 206 tests) on Python 3.13. CAUGHT = at least one test failed (the first failing test is listed); SURVIVED = all passed.
+
+Final run: 228 mutants, 223 caught, 5 survived, 0 other (patch not applied or broken). The first pass (210 mutants) found 11 survivors; six were closed by strengthening the tests (P37 order of applies_when, C72 distinct entry IDs, S09 covered_by names only records sharing usage, K10 duplicate_of_reported needs a reported cover, I23 amount_raw kept untrimmed when no currency is sent; C56 was a patch that did not apply and was fixed) and 18 mutants on closed-set and ID typing (E01 to E18) were added.
+
+## Survivors
+
+- S08 | partial overlap with reported allowed | SURVIVED |  -- not pinned: a computed record that shares only part of its usage with reported records. ADR 0014 Decision 16a does not say what happens; the oracle raises a ValueError (api-surface 23.3 N53). Owner decision needed before a test can pin it.
+- S12 | no-usage record counted covered | SURVIVED |  -- equivalent: an excluded record with no usage has no covering record either way, so covered_by is empty with or without the vacuous-subset guard.
+- K09 | check: duplicate_of_reported accepted for reported | SURVIVED |  -- redundant, not a gap: the same summary (a reported record excluded as duplicate_of_reported) is rejected by the next check, which requires every covering record to be a reported one; the mutant only changes which message is raised first.
+- K16 | check_pricing_snapshot: scheme skipped | SURVIVED |  -- equivalent: only two digest schemes are registered and a plain digest never has a key_ref while a keyed one always has, so a scheme difference always shows as a key_ref difference.
+- I04 | normalize uses unicode strip | SURVIVED |  -- not pinned: Unicode white space (for example U+00A0) around a currency label. ADR 0014 Decision 12a says only "surrounding whitespace"; the tests pin ASCII white space (api-surface 23.3 N59).
+
+## All mutants
+
+U01 | count not strict int | CAUGHT | test_token_counts_int_nonneg[input_tokens]
+U02 | negative int count allowed | CAUGHT | test_token_counts_int_nonneg[input_tokens]
+U03 | negative seconds allowed | CAUGHT | test_audio_seconds_decimal[audio_input_seconds]
+U04 | seconds accept int | CAUGHT | test_audio_seconds_decimal[audio_input_seconds]
+U05 | tokens accept decimal text | CAUGHT | test_token_counts_int_nonneg[input_tokens]
+U06 | unit requests dropped | CAUGHT | test_token_counts_int_nonneg[requests]
+U07 | extra unit tokens | CAUGHT | test_usage_quantity_shape_and_unit_set
+U08 | domain agent added | CAUGHT | test_usage_domain_stage_enum
+U09 | stage other dropped | CAUGHT | test_usage_domain_stage_enum
+U10 | source estimated added | CAUGHT | test_usage_domain_stage_enum
+U11 | measured rule only for telemetry | CAUGHT | test_usage_domain_stage_enum
+U12 | measured rule removed | CAUGHT | test_agent_domain_measured_usage_rejected
+U13 | measured error at domain | CAUGHT | test_agent_domain_measured_usage_rejected
+U14 | measured rule for evaluation too | CAUGHT | test_usage_domain_stage_enum
+U15 | empty quantities allowed | CAUGHT | test_usage_record_shape_and_required_fields
+U16 | duplicate units allowed | CAUGHT | test_usage_record_shape_and_required_fields
+U17 | raw not copied | CAUGHT | test_raw_preserved
+U18 | run_id any kind | CAUGHT | test_usage_record_shape_and_required_fields
+U19 | provider plain str | CAUGHT | test_usage_record_shape_and_required_fields
+U20 | model plain str | CAUGHT | test_usage_record_shape_and_required_fields
+U21 | provider_call_ref plain str | CAUGHT | test_usage_record_shape_and_required_fields
+U22 | float count allowed | CAUGHT | test_no_float_in_cost_path
+U23 | unit set unclosed | CAUGHT | test_usage_quantity_shape_and_unit_set
+U24 | domain unclosed | CAUGHT | test_usage_domain_stage_enum
+U25 | stage unclosed | CAUGHT | test_usage_domain_stage_enum
+U26 | source unclosed | CAUGHT | test_usage_domain_stage_enum
+U27 | run_id optional | CAUGHT | test_usage_record_shape_and_required_fields
+U28 | quantity extra allowed | CAUGHT | test_usage_quantity_shape_and_unit_set
+P01 | adjacent ranges overlap | CAUGHT | test_overlapping_ranges_rejected[adjacent-half-open]
+P02 | open-ended never overlaps | CAUGHT | test_overlapping_ranges_rejected[open-later]
+P03 | key ignores applies_when | CAUGHT | test_overlapping_ranges_only_within_one_key
+P04 | key ignores unit | CAUGHT | test_pricing_catalog_shape
+P05 | key ignores provider | CAUGHT | test_overlapping_ranges_only_within_one_key
+P06 | key ignores model | CAUGHT | test_overlapping_ranges_only_within_one_key
+P07 | duplicate entry ids allowed | CAUGHT | test_pricing_catalog_shape
+P08 | inverted range allowed | CAUGHT | test_price_entry_shape_and_enums
+P09 | empty range allowed | CAUGHT | test_price_entry_shape_and_enums
+P10 | negative price and minimum allowed | CAUGHT | test_pricing_catalog_shape
+P11 | price may be negative | CAUGHT | test_pricing_catalog_shape
+P12 | minimum may be negative | CAUGHT | test_price_and_minimum_nonnegative
+P13 | billing none accepted | CAUGHT | test_price_entry_requires_billing_rules
+P14 | increment zero allowed | CAUGHT | test_price_entry_shape_and_enums
+P15 | unit_quantity may be zero or negative | CAUGHT | test_price_entry_shape_and_enums
+P16 | provenance optional | CAUGHT | test_price_entry_shape_and_enums
+P17 | price_source defaults | CAUGHT | test_price_entry_shape_and_enums
+P18 | condition kind region dropped | CAUGHT | test_applies_when_conditions_closed_kinds_and_value_types
+P19 | batch value int accepted | CAUGHT | test_applies_when_conditions_closed_kinds_and_value_types
+P20 | negative context tokens allowed | CAUGHT | test_applies_when_conditions_closed_kinds_and_value_types
+P21 | region unchecked | CAUGHT | test_applies_when_conditions_closed_kinds_and_value_types
+P22 | aliases any str | CAUGHT | test_price_entry_shape_and_enums
+P23 | retrieved_at optional | CAUGHT | test_provenance_required
+P24 | increment unknown accepted | CAUGHT | test_billing_parts_required_value_or_none
+P25 | minimum unknown accepted | CAUGHT | test_billing_parts_required_value_or_none
+P26 | increment defaults to none | CAUGHT | test_billing_parts_required_value_or_none
+P27 | minimum defaults to none | CAUGHT | test_billing_parts_required_value_or_none
+P28 | billing defaults unknown | CAUGHT | test_price_entry_shape_and_enums
+P29 | published_at optional | CAUGHT | test_pricing_catalog_shape
+P30 | catalog not versioned digest | CAUGHT | test_catalog_digest_immutable
+P31 | price_source unclosed | CAUGHT | test_price_entry_shape_and_enums
+P32 | unit unclosed | CAUGHT | test_price_entry_shape_and_enums
+P33 | kind unclosed | CAUGHT | test_applies_when_conditions_closed_kinds_and_value_types
+P34 | provenance kind any str | CAUGHT | test_provenance_required
+P35 | float price accepted | CAUGHT | test_no_float_in_cost_path
+P36 | entry extra allowed | CAUGHT | test_price_entry_shape_and_enums
+P37 | overlap needs same applies_when order | CAUGHT | test_overlapping_ranges_only_within_one_key
+P38 | overlap only reported for first pair | CAUGHT | test_overlapping_ranges_rejected[partial]
+C01 | negative cost allowed | CAUGHT | test_cost_amount_nonnegative
+C02 | rounding scale any | CAUGHT | test_cost_rounding_fields_exact
+C03 | rounding mode half_up | CAUGHT | test_cost_rounding_fields_exact
+C04 | rounding exact true allowed | CAUGHT | test_cost_rounding_fields_exact
+C05 | currency_raw rule reversed | CAUGHT | test_cost_record_shape_and_enums
+C06 | dup exclusion rule dropped | CAUGHT | test_cost_exclusion_shape_and_reasons
+C07 | amount not required | CAUGHT | test_not_available_cost_has_no_basis
+C08 | basis not required | CAUGHT | test_not_available_cost_has_no_basis
+C09 | na_reason allowed when available | CAUGHT | test_not_available_cost_has_no_basis
+C10 | reported_by not required | CAUGHT | test_reported_basis_requires_reporter
+C11 | snapshot not required | CAUGHT | test_computed_requires_pricing_snapshot
+C12 | NA amount allowed | CAUGHT | test_not_available_cost_has_no_basis
+C13 | NA basis allowed | CAUGHT | test_not_available_cost_has_no_basis
+C14 | NA reported_by allowed | CAUGHT | test_not_available_cost_has_no_basis
+C15 | NA snapshot allowed | CAUGHT | test_not_available_cost_has_no_basis
+C16 | NA rounding allowed | CAUGHT | test_not_available_cost_has_no_basis
+C17 | reported with snapshot allowed | CAUGHT | test_computed_requires_pricing_snapshot
+C18 | reported with rounding allowed | CAUGHT | test_cost_rounding_fields_exact
+C19 | computed with reported_by allowed | CAUGHT | test_reported_basis_requires_reporter
+C20 | reported_raw not required | CAUGHT | test_reported_raw_present_iff_currency_na_reason
+C21 | reported_raw allowed anywhere | CAUGHT | test_reported_raw_present_iff_currency_na_reason
+C22 | source consistency dropped | CAUGHT | test_reported_raw_currency_source_consistent
+C23 | unpriced_units iff dropped | CAUGHT | test_unpriced_units_listed_only_with_unit_unpriced
+C24 | unpriced duplicates allowed | CAUGHT | test_unpriced_units_listed_only_with_unit_unpriced
+C25 | na reason currency_not_reported dropped | CAUGHT | test_cost_record_shape_and_enums
+C26 | basis estimated added | CAUGHT | test_basis_enum_exact
+C27 | snapshot entry_ids may be empty | CAUGHT | test_computed_requires_pricing_snapshot
+C28 | snapshot digest optional | CAUGHT | test_computed_requires_pricing_snapshot
+C29 | included duplicates allowed | CAUGHT | test_cost_summary_shape_and_enums
+C30 | excluded duplicates allowed | CAUGHT | test_cost_summary_shape_and_enums
+C31 | ref may be included | CAUGHT | test_cost_summary_shape_and_enums
+C32 | covered_by outside included allowed | CAUGHT | test_cost_summary_shape_and_enums
+C33 | total iff dropped | CAUGHT | test_cost_summary_total_absent_when_none_included
+C34 | completeness unchecked | CAUGHT | test_cost_summary_total_absent_when_none_included
+C35 | covered exclusions count as partial | CAUGHT | test_cost_summary_shape_and_enums
+C36 | uncovered exclusions still complete | CAUGHT | test_completeness_rules[1-covered_flags5-partial]
+C37 | no included gives partial when excluded | CAUGHT | test_cost_summary_total_absent_when_none_included
+C38 | price date falls back to now | CAUGHT | test_price_resolution_without_any_date_is_ambiguous
+C39 | usage time ignored | CAUGHT | test_price_resolution_uses_usage_time
+C40 | effective_to inclusive | CAUGHT | test_price_resolution_uses_usage_time
+C41 | effective_from exclusive | CAUGHT | test_price_resolution_uses_usage_time
+C42 | aliases ignored | CAUGHT | test_ambiguous_match_not_available
+C43 | fuzzy prefix model match | CAUGHT | test_exact_model_match_no_fuzzy_matching
+C44 | provider case-insensitive | CAUGHT | test_exact_model_match_no_fuzzy_matching
+C45 | unit ignored | CAUGHT | test_compute_multi_unit_and_multi_usage_sum
+C46 | ambiguous picks first | CAUGHT | test_ambiguous_match_not_available
+C47 | unknown condition treated as false | CAUGHT | test_unevaluable_applies_when_ambiguous
+C48 | unknown condition treated as true | CAUGHT | test_unevaluable_applies_when_ambiguous
+C49 | gt uses >= | CAUGHT | test_unevaluable_applies_when_ambiguous
+C50 | le uses < | CAUGHT | test_unevaluable_applies_when_ambiguous
+C51 | batch fact ignored | CAUGHT | test_unevaluable_applies_when_ambiguous
+C52 | region case-insensitive | CAUGHT | test_unevaluable_applies_when_ambiguous
+C53 | domain mismatch allowed | CAUGHT | test_recording_duration_not_accepted_as_agent_stt_usage
+C54 | agent empty usage gives no_usage | CAUGHT | test_agent_cost_not_available_without_reported_usage
+C55 | evaluation empty usage gives usage_not_reported | CAUGHT | test_agent_cost_not_available_without_reported_usage
+C56 | increment rounds down | CAUGHT | test_billing_increment_and_minimum_applied
+C57 | increment skipped | CAUGHT | test_billing_increment_and_minimum_applied
+C58 | minimum skipped | CAUGHT | test_billing_increment_and_minimum_applied
+C59 | minimum added | CAUGHT | test_billing_increment_and_minimum_applied
+C60 | unit_quantity ignored | CAUGHT | test_compute_exact
+C61 | round half up | CAUGHT | test_compute_scale_overflow_rounds_half_even_and_records
+C62 | round down | CAUGHT | test_compute_scale_overflow_rounds_half_even_and_records
+C63 | rounding always recorded | CAUGHT | test_compute_exact
+C64 | rounding never recorded | CAUGHT | test_compute_scale_overflow_rounds_half_even_and_records
+C65 | rounded per event | CAUGHT | test_compute_scale_overflow_rounds_half_even_and_records
+C66 | scale 17 | CAUGHT | test_compute_scale_overflow_rounds_half_even_and_records
+C67 | price through float | CAUGHT | test_compute_exact
+C68 | partial sum reported | CAUGHT | test_partial_units_not_available
+C69 | billing unknown treated as none | CAUGHT | test_missing_billing_rules_not_available
+C70 | billing unknown gives unit_unpriced | CAUGHT | test_missing_billing_rules_not_available
+C71 | all unpriced still unit_unpriced | CAUGHT | test_price_resolution_uses_usage_time
+C72 | entry ids not distinct | CAUGHT | test_compute_multi_unit_and_multi_usage_sum
+C73 | snapshot version wrong | CAUGHT | test_compute_exact
+C74 | domain always evaluation | CAUGHT | test_agent_domain_computed_from_telemetry_usage
+C75 | usage ids dropped on NA | CAUGHT | test_price_resolution_without_any_date_is_ambiguous
+C76 | record id ignored | CAUGHT | test_compute_exact
+C77 | global decimal context used | CAUGHT | test_compute_is_pure_and_needs_an_explicit_context
+C78 | ambiguity ignored for unknown billing order | CAUGHT | test_price_resolution_without_any_date_is_ambiguous
+C79 | no price gives zero amount | CAUGHT | test_price_resolution_uses_usage_time
+C80 | increment per call not per event | CAUGHT | test_billing_increment_and_minimum_applied
+C81 | context_tokens unknown assumed 0 | CAUGHT | test_unevaluable_applies_when_ambiguous
+C82 | usage_times ignored | CAUGHT | test_price_resolution_uses_usage_time
+C83 | run_started_at ignored | CAUGHT | test_compute_exact
+S01 | reported not preferred | CAUGHT | test_available_reported_preferred_over_computed_duplicate
+S02 | covered_by always empty | CAUGHT | test_reported_non_usd_and_computed_usd_same_usage_counted_once
+S03 | partial coverage counts as covered | CAUGHT | test_completeness_ignores_covered_exclusions
+S04 | included order reversed | CAUGHT | test_cost_summary_single_usd_total_with_exclusions
+S05 | total through float | CAUGHT | test_cost_summary_single_usd_total_with_exclusions
+S06 | same-basis overlap allowed | CAUGHT | test_usage_record_in_at_most_one_included_cost
+S07 | domain not checked in summarize | CAUGHT | test_check_cost_summary_other_rules
+S08 | partial overlap with reported allowed | SURVIVED | 
+S09 | covering includes all included | CAUGHT | test_cost_exclusion_covered_by_names_included_records_only
+S10 | excluded reason fixed | CAUGHT | test_cost_summary_single_usd_total_with_exclusions
+S11 | duplicate reason replaced | CAUGHT | test_available_reported_preferred_over_computed_duplicate
+S12 | no-usage record counted covered | SURVIVED | 
+K01 | check: usage overlap skipped | CAUGHT | test_usage_record_in_at_most_one_included_cost
+K02 | check: total skipped | CAUGHT | test_cost_summary_single_usd_total_with_exclusions
+K03 | check: covered_by skipped | CAUGHT | test_cost_exclusion_covered_by_names_included_records_only
+K04 | check: unaccounted skipped | CAUGHT | test_available_reported_preferred_over_computed_duplicate
+K05 | check: reason skipped | CAUGHT | test_check_cost_summary_other_rules
+K06 | check: domain skipped | CAUGHT | test_check_cost_summary_other_rules
+K07 | check: availability skipped | CAUGHT | test_check_cost_summary_other_rules
+K08 | check: supplied skipped | CAUGHT | test_check_cost_summary_other_rules
+K09 | check: duplicate_of_reported accepted for reported | SURVIVED | 
+K10 | check: duplicate cover basis skipped | CAUGHT | test_available_reported_preferred_over_computed_duplicate
+K11 | check: reasons for available any | CAUGHT | test_available_reported_preferred_over_computed_duplicate
+K12 | check_pricing_snapshot: version skipped | CAUGHT | test_cost_pricing_snapshot_content_digest_named_and_verified
+K13 | check_pricing_snapshot: id skipped | CAUGHT | test_cost_pricing_snapshot_content_digest_named_and_verified
+K14 | check_pricing_snapshot: mismatch is ValueError | CAUGHT | test_cost_pricing_snapshot_content_digest_named_and_verified
+K15 | check_pricing_snapshot: value skipped | CAUGHT | test_cost_pricing_snapshot_content_digest_named_and_verified
+K16 | check_pricing_snapshot: scheme skipped | SURVIVED | 
+K17 | check_pricing_snapshot: key_ref skipped | CAUGHT | test_cost_pricing_snapshot_content_digest_named_and_verified
+K18 | check_pricing_snapshot: entries skipped | CAUGHT | test_pricing_snapshot_entry_ids_resolve_in_catalog
+I01 | normalize uses upper | CAUGHT | test_normalize_currency_label_rejects_everything_else[u\u017fd]
+I02 | normalize uses casefold | CAUGHT | test_normalize_currency_label_rejects_everything_else[u\u017fd]
+I03 | normalize no trim | CAUGHT | test_normalize_currency_label_accepts_usd_variants[
+I04 | normalize uses unicode strip | SURVIVED | 
+I05 | normalize maps dollar sign | CAUGHT | test_normalize_currency_label_rejects_everything_else[$]
+I06 | normalize maps US$ | CAUGHT | test_normalize_currency_label_rejects_everything_else[US$]
+I07 | normalize prefix match | CAUGHT | test_normalize_currency_label_rejects_everything_else[USD$]
+I08 | normalize NFKC | CAUGHT | test_normalize_currency_label_rejects_everything_else[\uff35\uff33\uff24]
+I09 | label variant no warning | CAUGHT | test_reported_currency_case_variant_normalized_with_warning
+I10 | label warning raw trimmed | CAUGHT | test_reported_currency_case_variant_normalized_with_warning
+I11 | label warning for exact USD | CAUGHT | test_reported_currency_case_variant_normalized_with_warning
+I12 | no currency assumed USD | CAUGHT | test_reported_cost_without_currency_not_available
+I13 | uncited contract used | CAUGHT | test_documented_currency_contract_requires_citation
+I14 | contract needs only url | CAUGHT | test_documented_currency_contract_requires_citation
+I15 | contract source recorded as payload | CAUGHT | test_documented_currency_contract_requires_citation
+I16 | amount not normalized | CAUGHT | test_import_usd_amount_lexeme_normalized_with_warning
+I17 | decimal warning missing | CAUGHT | test_import_usd_amount_lexeme_normalized_with_warning
+I18 | reported_by constant in raw | CAUGHT | test_import_non_usd_not_converted_parsed_or_rejected
+I19 | unsupported warning without code | CAUGHT | test_import_non_usd_not_converted_parsed_or_rejected
+I20 | unsupported warning missing | CAUGHT | test_reported_currency_symbol_not_normalized
+I21 | non-USD amount canonicalized | CAUGHT | test_import_non_usd_not_converted_parsed_or_rejected
+I22 | currency label lowercased in raw | CAUGHT | test_reported_currency_symbol_not_normalized
+I23 | no-currency raw keeps amount trimmed | CAUGHT | test_reported_cost_without_currency_not_available
+I24 | usage ids dropped in import | CAUGHT | test_import_usd_amount_lexeme_normalized_with_warning
+I25 | import available without reporter | CAUGHT | test_import_usd_amount_lexeme_normalized_with_warning
+I26 | label warning raw lowercased | CAUGHT | test_reported_currency_case_variant_normalized_with_warning
+I27 | contract USD ignored | CAUGHT | test_documented_currency_contract_requires_citation
+F01 | float literal in cost | CAUGHT | test_no_float_in_cost_path
+F02 | float name in pricing | CAUGHT | test_no_float_in_cost_path
+F03 | float literal in usage | CAUGHT | test_no_float_in_cost_path
+F04 | money amount as number in total | CAUGHT | test_cost_summary_shape_and_enums
+E01 | amount_raw any | CAUGHT | test_reported_non_usd_cost_not_available_raw_preserved
+E02 | usage ids any kind | CAUGHT | test_cost_record_shape_and_enums
+E03 | exclusion ref any kind | CAUGHT | test_cost_exclusion_shape_and_reasons
+E04 | included any kind | CAUGHT | test_cost_summary_shape_and_enums
+E05 | summary domain unclosed | CAUGHT | test_cost_summary_shape_and_enums
+E06 | snapshot catalog_id any kind | CAUGHT | test_computed_requires_pricing_snapshot
+E07 | snapshot entry_ids any kind | CAUGHT | test_computed_requires_pricing_snapshot
+E08 | raw reported_by unclosed | CAUGHT | test_reported_non_usd_cost_not_available_raw_preserved
+E09 | record reported_by unclosed | CAUGHT | test_cost_record_shape_and_enums
+E10 | na_reason unclosed | CAUGHT | test_cost_record_shape_and_enums
+E11 | status unclosed | CAUGHT | test_cost_record_shape_and_enums
+E12 | record domain unclosed | CAUGHT | test_cost_record_shape_and_enums
+E13 | currency_source unclosed | CAUGHT | test_reported_raw_currency_source_consistent
+E14 | exclusion reason unclosed | CAUGHT | test_cost_exclusion_shape_and_reasons
+E15 | completeness unclosed | CAUGHT | test_cost_summary_shape_and_enums
+E16 | unpriced_units any str | CAUGHT | test_cost_record_shape_and_enums
+E17 | pricing snapshot version any int | CAUGHT | test_computed_requires_pricing_snapshot
+E18 | summary total any currency | CAUGHT | test_cost_summary_shape_and_enums

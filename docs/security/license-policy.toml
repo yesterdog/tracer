@@ -1,0 +1,128 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 The Tracer contributors
+#
+# License policy enforced by scripts/check_licenses.py. See docs/security/P1-02-licenses.md.
+# Metadata order: License-Expression, then License, then classifiers. Classifiers alone never
+# clear a package. An override or exception applies only to the exact name and version and only
+# while the pinned license file has the recorded SHA-256; a version bump re-triggers review.
+
+[allowlist]
+# "A OR B" passes if one side is allowed; "A AND B" needs every side allowed.
+spdx = [
+    "Apache-2.0",
+    "MIT",
+    "MIT-0",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "PSF-2.0",
+    "Unicode-3.0",
+    "0BSD",
+]
+
+[runtime]
+# Frozen runtime closure of tracer-evalschema (from uv.lock). Any change must be a conscious edit.
+closure = [
+    "annotated-types",
+    "pydantic",
+    "pydantic-core",
+    "rfc8785",
+    "typing-extensions",
+    "typing-inspection",
+]
+# Exact Requires-Dist of the built wheel/sdist (no extras, nothing test-only).
+requires_dist = ["pydantic==2.14.1", "rfc8785==0.1.4"]
+
+# ---------------------------------------------------------------------------------------------
+# Exceptions: copyleft licenses allowed by name, version and dependency group.
+# ---------------------------------------------------------------------------------------------
+
+[[exceptions]]
+name = "hypothesis"
+version = "6.170.5"
+spdx = "MPL-2.0"
+scope = "test"
+groups = ["dev", "test"]
+license_file = "licenses/LICENSE.txt"
+license_file_sha256 = "ac89037bac63550644dce8cf32c6765e5fab9dc1a1ce94b89f8a805f341a6750"
+decided_by = "project owner (sign-off for audit finding E2)"
+reason = "Test-only property-testing library; used unmodified, never vendored, never in runtime metadata."
+
+[[exceptions]]
+name = "pathspec"
+version = "1.1.1"
+spdx = "MPL-2.0"
+scope = "dev"
+groups = ["dev"]
+license_file = "licenses/LICENSE"
+license_file_sha256 = "fab3dd6bdab226f1c08630b1dd917e11fcb4ec5e1e020e2c16f83a0a13863e85"
+decided_by = "project owner (sign-off for audit finding E1)"
+reason = "Transitive dev tool dependency (mypy, hatchling); used unmodified, never vendored."
+
+# ---------------------------------------------------------------------------------------------
+# Overrides: metadata is empty, non-SPDX or classifier-only; the license file was read by a human.
+# ---------------------------------------------------------------------------------------------
+
+[[overrides]]
+name = "rfc8785"
+version = "0.1.4"
+spdx = "Apache-2.0"
+scope = "runtime"
+license_file = "LICENSE"
+license_file_sha256 = "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+reason = "Metadata has only the classifier 'Apache Software License'; LICENSE is the unmodified Apache-2.0 terms (no appendix)."
+
+[[overrides]]
+name = "colorama"
+version = "0.4.6"
+spdx = "BSD-3-Clause"
+scope = "dev"
+platform_only = true  # Windows-only dependency of pytest; not installed on Linux/macOS
+license_file = "licenses/LICENSE.txt"
+license_file_sha256 = "cac35c02686e5d04a5a7140bfb3b36e73aed496656e891102e428886d7930318"
+reason = "No License field; classifier 'BSD License'; LICENSE.txt is the 3-clause text (read from the wheel whose hash matches uv.lock)."
+
+[[overrides]]
+name = "nodeenv"
+version = "1.11.0"
+spdx = "BSD-3-Clause"
+scope = "dev"
+license_file = "licenses/LICENSE"
+license_file_sha256 = "606faf42d48b54d539dae99db6fecd48544535587e27275b319a3f36113cb6fa"
+reason = "License field is the bare word 'BSD'; LICENSE is the 3-clause text."
+
+[[overrides]]
+name = "python-discovery"
+version = "1.6.4"
+spdx = "MIT"
+scope = "dev"
+license_file = "licenses/LICENSE"
+license_file_sha256 = "90e25e1faf2a4aaea8d95ee8e7f5738b052a1acc0c9c58068101f931a86bd588"
+reason = "License field holds the MIT text instead of an identifier; LICENSE is the MIT text."
+
+[[overrides]]
+name = "sortedcontainers"
+version = "2.4.0"
+spdx = "Apache-2.0"
+scope = "test"
+license_file = "LICENSE"
+license_file_sha256 = "1db7cae7fce6452e2e608e401a0f953e0133e4c2d75db69fb8ae851d2086f5b6"
+reason = "License field is 'Apache 2.0' (non-SPDX); LICENSE states Apache License 2.0."
+
+[[overrides]]
+name = "mypy-extensions"
+version = "1.1.0"
+spdx = "MIT"
+scope = "dev"
+license_file = "licenses/LICENSE"
+license_file_sha256 = "a50450da1d53cd777b80ced77c58ff96abe0ccd879706bd142c3ec20e245f0b4"
+reason = "PyPI JSON shows no expression while the wheel says MIT; pinned so the file text is what counts."
+
+[[overrides]]
+name = "trove-classifiers"
+version = "2026.9.21.13"
+spdx = "Apache-2.0"
+scope = "dev"
+license_file = "licenses/LICENSE"
+license_file_sha256 = "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+reason = "Added by pinning hatchling; classifier-only metadata ('Apache Software License'); LICENSE is the Apache License 2.0 text."

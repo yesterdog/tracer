@@ -1,0 +1,532 @@
+# group: p1-10c-events   (batch 3, mode red, qa)
+# date: 2026-10-23T06:24:34Z (UTC)  local: 2026-10-23T11:54:34+0530
+# command: python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_events.py    (cwd ~/tracer; pyproject addopts: -ra --strict-markers --strict-config -m 'not private_fixtures and not local_only')
+# interpreter: <scratchpad>/env3.14/bin/python
+# versions: python 3.14.7; pydantic 2.14.1, pydantic-core 2.50.1, pytest 9.1.1, jsonschema 4.26.0, hypothesis 6.170.5, rfc8785 0.1.4
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git status: ## No commits yet on main; 12 untracked/changed entries; 0 staged paths; no commits made
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.14.7, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>/env3.14/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 14 items
+
+packages/evalschema/tests/test_events.py::test_truncated_args_not_complete_not_parsed FAILED [  7%]
+packages/evalschema/tests/test_events.py::test_arguments_present_implies_complete FAILED [ 14%]
+packages/evalschema/tests/test_events.py::test_cancelled_status FAILED   [ 21%]
+packages/evalschema/tests/test_events.py::test_result_optional FAILED    [ 28%]
+packages/evalschema/tests/test_events.py::test_result_complete_requires_result_raw FAILED [ 35%]
+packages/evalschema/tests/test_events.py::test_result_error_none_when_not_reported FAILED [ 42%]
+packages/evalschema/tests/test_events.py::test_tool_call_seq_unique_per_run FAILED [ 50%]
+packages/evalschema/tests/test_events.py::test_tool_call_event_shape FAILED [ 57%]
+packages/evalschema/tests/test_events.py::test_stage_span_nonneg FAILED  [ 64%]
+packages/evalschema/tests/test_events.py::test_stage_span_other_keeps_stage_raw FAILED [ 71%]
+packages/evalschema/tests/test_events.py::test_stage_span_shape FAILED   [ 78%]
+packages/evalschema/tests/test_events.py::test_evidence_ref_resolves_in_bundle FAILED [ 85%]
+packages/evalschema/tests/test_events.py::test_evidence_ref_shape FAILED [ 92%]
+packages/evalschema/tests/test_events.py::test_ingest_warning_shape FAILED [100%]
+
+=================================== FAILURES ===================================
+_________________ test_truncated_args_not_complete_not_parsed __________________
+
+    def test_truncated_args_not_complete_not_parsed() -> None:
+        """A-29, ADR 0012 I1, SCOPE P1-10c acceptance: a truncated payload never yields
+        ``arguments_complete``. A call whose ``arguments_raw`` is cut off is stored with
+        ``arguments_complete=False`` and ``arguments=None`` (the raw string kept exactly, never
+        repaired); claiming ``arguments_complete=True`` for raw text that is not a whole JSON object,
+        or attaching a parsed ``arguments`` to it, is rejected."""
+        for raw in TRUNCATED:
+>           call = _call(arguments_raw=raw, arguments=None, arguments_complete=False)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_events.py:67: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_events.py:50: in _call
+    return make3("ToolCallEvent", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:587: in make3
+    model = entity_class3(name)
+            ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.events'
+import_ = <function _gcd_import at 0x101c17e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.events'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+___________________ test_arguments_present_implies_complete ____________________
+
+    def test_arguments_present_implies_complete() -> None:
+        """ADR 0012 I1: ``arguments`` (the parsed object) is present only when ``arguments_complete`` is
+        true. ``arguments_complete`` is required (no default, never inferred) and a strict boolean; a
+        call may carry the raw string alone."""
+>       event = entity_class3("ToolCallEvent")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_events.py:91: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.events'
+import_ = <function _gcd_import at 0x101c17e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.events'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+____________________________ test_cancelled_status _____________________________
+
+    def test_cancelled_status() -> None:
+        """ADR 0012 I2: ``status`` is completed, cancelled or unknown (an ``enum``); a cancelled call
+        needs no result, and 'we do not know whether it completed' is ``unknown``, not a flag."""
+>       event = entity_class3("ToolCallEvent")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_events.py:115: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.events'
+import_ = <function _gcd_import at 0x101c17e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.events'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_____________________________ test_result_optional _____________________________
+
+    def test_result_optional() -> None:
+        """ADR 0012 I3: a call with no result is valid (``result_raw=None``, ``result_complete=None``,
+        ``result_error=None``); the three result fields survive a JSON round trip as given."""
+>       event = entity_class3("ToolCallEvent")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_events.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.events'
+import_ = <function _gcd_import at 0x101c17e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.events'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+___________________ test_result_complete_requires_result_raw ___________________
+
+    def test_result_complete_requires_result_raw() -> None:
+        """ADR 0012 I3: ``result_complete`` is present only together with ``result_raw``. A value of
+        ``false`` without a result is just as wrong as ``true``."""
+        for flag in (True, False):
+>           _reject_call("result_complete", result_raw=None, result_complete=flag)
+
+packages/evalschema/tests/test_events.py:147: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_events.py:54: in _reject_call
+    assert_rejected3(entity_class3("ToolCallEvent"), tool_call_doc(**over), field=field)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.events'
+import_ = <function _gcd_import at 0x101c17e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.events'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+___________________ test_result_error_none_when_not_reported ___________________
+
+    def test_result_error_none_when_not_reported() -> None:
+        """P-32 (ADR 0012 Decision 1, I18): ``result_error`` is true, false or ``None`` (the source
+        did not report it); ``None`` is distinct from ``False`` and never defaults to false, and
+        ``status`` keeps meaning only 'did the call finish': a completed call may have errored."""
+>       event = entity_class3("ToolCallEvent")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_events.py:159: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.events'
+import_ = <function _gcd_import at 0x101c17e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.events'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+______________________ test_tool_call_seq_unique_per_run _______________________
+
+    def test_tool_call_seq_unique_per_run() -> None:
+        """ADR 0012 I4: ``seq`` (a non-negative integer, the order of calls in a run) is unique among
+        the tool calls of one run (``check_tool_call_seqs``); gaps are fine."""
+>       check = api("events").check_tool_call_seqs
+                ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_events.py:179: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.events'
+import_ = <function _gcd_import at 0x101c17e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.events'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+__________________________ test_tool_call_event_shape __________________________
+
+    def test_tool_call_event_shape() -> None:
+        """Proposed name (ADR 0012 Decision 1, ADR 0001 I12): ``name`` is a MachineKey (open: unseen
+        tool names are fine); ``external_call_id`` is the provider's identifier, opaque and stored
+        verbatim as data (a v4 UUID or any text, never a typed ID of ours and never rewritten); the
+        event carries no privacy marker (it takes its run's derived value) and no secret-like
+        field."""
+>       event = entity_class3("ToolCallEvent")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_events.py:201: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.events'
+import_ = <function _gcd_import at 0x101c17e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.events'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+____________________________ test_stage_span_nonneg ____________________________
+
+    def test_stage_span_nonneg() -> None:
+        """ADR 0002 I5, ADR 0012 I5: ``duration_ms`` and ``ttfb_ms`` are non-negative integers
+        (zero is fine), ``start`` is a UTC instant, and a value the source does not provide stays
+        absent (never derived)."""
+>       span = entity_class3("StageSpan")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_events.py:228: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.events'
+import_ = <function _gcd_import at 0x101c17e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.events'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+____________________ test_stage_span_other_keeps_stage_raw _____________________
+
+    def test_stage_span_other_keeps_stage_raw() -> None:
+        """P-05 (ADR 0003 Decision 1, ADR 0012 I19): ``StageSpan.stage`` is the usage-stage set
+        (stt, llm, tts, judge, sim_caller_llm, sim_caller_tts, realtime, other); when the stage is
+        ``other`` the source label is kept in ``stage_raw`` (a MachineKey, verbatim) so latency and
+        cost join on one key; ``stage_raw`` is absent for every other stage."""
+>       span = entity_class3("StageSpan")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_events.py:252: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.events'
+import_ = <function _gcd_import at 0x101c17e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.events'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+____________________________ test_stage_span_shape _____________________________
+
+    def test_stage_span_shape() -> None:
+        """Proposed name (ADR 0012 Decision 2, Decision 6): ``span_ref`` is required and points to the
+        raw span as an ``ExternalRef`` (trace and span IDs are foreign identifiers, never our IDs);
+        ``provider`` and ``model`` are open MachineKeys; ``exchange_index`` is a non-negative
+        integer; the span has no privacy marker."""
+>       span = entity_class3("StageSpan")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_events.py:275: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.events'
+import_ = <function _gcd_import at 0x101c17e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.events'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_____________________ test_evidence_ref_resolves_in_bundle _____________________
+
+    def test_evidence_ref_resolves_in_bundle() -> None:
+        """ADR 0012 Decision 3, I6 (the bundle half is P1-14): an ``EvidenceRef{kind, ref_id,
+        start_ms?, end_ms?}`` points from a result to evidence of the same bundle. ``kind`` is turn,
+        exchange, tool_call, span or artifact_range, and ``ref_id`` is the typed ID of the matching
+        kind (turn_, exc_, tcl_, spn_, art_); a mismatch is rejected. ``check_evidence_resolves``
+        rejects a reference whose ID is not the ``id`` of a supplied record."""
+>       evidence = registered_class("EvidenceRef")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_events.py:309: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'EvidenceRef'
+
+    def registered_class(name: str) -> Any:
+        """The module-level model class ``name`` of the package, wherever the architect put it.
+    
+        Used for the value objects whose module api-surface 19.4.1 does not fix. A missing class fails
+        the test that needs it (AssertionError), never collection."""
+        found = {model.__name__: model for model in api("registry").model_classes()}
+>       assert name in found, f"{name} is not implemented yet"
+               ^^^^^^^^^^^^^
+E       AssertionError: EvidenceRef is not implemented yet
+
+packages/evalschema/tests/_support_b2.py:105: AssertionError
+___________________________ test_evidence_ref_shape ____________________________
+
+    def test_evidence_ref_shape() -> None:
+        """Proposed name (ADR 0012 Decision 3, ADR 0003): the kind set is exactly turn, exchange,
+        tool_call, span, artifact_range; offsets are ``Ms`` values measured from sample 0 of the
+        artifact, with ``end_ms >= start_ms``; the reference has no identity fields; unknown fields
+        are rejected."""
+>       evidence = registered_class("EvidenceRef")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_events.py:356: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'EvidenceRef'
+
+    def registered_class(name: str) -> Any:
+        """The module-level model class ``name`` of the package, wherever the architect put it.
+    
+        Used for the value objects whose module api-surface 19.4.1 does not fix. A missing class fails
+        the test that needs it (AssertionError), never collection."""
+        found = {model.__name__: model for model in api("registry").model_classes()}
+>       assert name in found, f"{name} is not implemented yet"
+               ^^^^^^^^^^^^^
+E       AssertionError: EvidenceRef is not implemented yet
+
+packages/evalschema/tests/_support_b2.py:105: AssertionError
+__________________________ test_ingest_warning_shape ___________________________
+
+    def test_ingest_warning_shape() -> None:
+        """ADR 0012 I16, Decision 7: ``IngestWarning{code, path?, raw?, message}``: ``code`` is a
+        MachineKey, ``message`` is required and non-empty, ``path`` and ``raw`` are optional verbatim
+        text (the raw value of what could not be mapped faithfully, kept code point for code point),
+        unknown fields are rejected, and it is a value object. It can carry a
+        ``LanguageLabelWarning`` 1:1 (same code, same raw)."""
+>       warning = registered_class("IngestWarning")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_events.py:390: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'IngestWarning'
+
+    def registered_class(name: str) -> Any:
+        """The module-level model class ``name`` of the package, wherever the architect put it.
+    
+        Used for the value objects whose module api-surface 19.4.1 does not fix. A missing class fails
+        the test that needs it (AssertionError), never collection."""
+        found = {model.__name__: model for model in api("registry").model_classes()}
+>       assert name in found, f"{name} is not implemented yet"
+               ^^^^^^^^^^^^^
+E       AssertionError: IngestWarning is not implemented yet
+
+packages/evalschema/tests/_support_b2.py:105: AssertionError
+- generated xml file: <scratchpad>/junit3/p1-10c-events.py3.14.xml -
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_events.py::test_truncated_args_not_complete_not_parsed
+FAILED packages/evalschema/tests/test_events.py::test_arguments_present_implies_complete
+FAILED packages/evalschema/tests/test_events.py::test_cancelled_status - Modu...
+FAILED packages/evalschema/tests/test_events.py::test_result_optional - Modul...
+FAILED packages/evalschema/tests/test_events.py::test_result_complete_requires_result_raw
+FAILED packages/evalschema/tests/test_events.py::test_result_error_none_when_not_reported
+FAILED packages/evalschema/tests/test_events.py::test_tool_call_seq_unique_per_run
+FAILED packages/evalschema/tests/test_events.py::test_tool_call_event_shape
+FAILED packages/evalschema/tests/test_events.py::test_stage_span_nonneg - Mod...
+FAILED packages/evalschema/tests/test_events.py::test_stage_span_other_keeps_stage_raw
+FAILED packages/evalschema/tests/test_events.py::test_stage_span_shape - Modu...
+FAILED packages/evalschema/tests/test_events.py::test_evidence_ref_resolves_in_bundle
+FAILED packages/evalschema/tests/test_events.py::test_evidence_ref_shape - As...
+FAILED packages/evalschema/tests/test_events.py::test_ingest_warning_shape - ...
+============================== 14 failed in 0.21s ==============================
+# exit status: 1

@@ -1,0 +1,509 @@
+# Batch 3 mutants (qa, 2026-10-23)
+
+Throwaway oracle outside the repository: a correct implementation of api-surface section 22 on top of the real batch 1 and 2 code. One change per mutant; each mutant is run with `pytest -x` over the 241 batch 3 test files (`test_privacy`, `test_artifact`, `test_transcript`, `test_events`, `test_results`, `test_results_language`, `test_verdict`, `test_snapshot`, `test_run`, `test_dataset`, `test_batch3_entities`) on Python 3.13, with `test_policy_documents_free_text_lint_limitation` deselected (P1-20a). CAUGHT = at least one test failed (the first failing test is listed); SURVIVED = all passed. A mutant whose patch did not apply or whose module did not import is reported separately (none in the final run).
+
+Final run: 470 mutants, 442 caught, 28 survived. Every survivor is explained below: equivalent given another rule of the oracle, or a reading the tests deliberately do not pin (api-surface 22.3).
+
+## Survivors
+
+- A12 | confidence may be NaN | SURVIVED |  -- equivalent: `Field(ge=0, le=1)` already rejects NaN (comparison false)
+- A32 | channel map may have no channel | SURVIVED |  -- not pinned: an empty `ChannelMap.channels` list (api-surface 22.3 N36)
+- U04 | userinfo accepted | SURVIVED |  -- equivalent in the oracle: userinfo is also rejected by the host and port rules; a real implementation must still reject it explicitly (tests reject `user:pw@` and `user@` forms)
+- U09 | patterns searched only decoded | SURVIVED |  -- equivalent: the percent-decoded text contains every written match for these patterns (an escape always ends in a hex digit, so the written boundary rule fails wherever the decoded one fails)
+- U15 | fragment accepted | SURVIVED |  -- not pinned: a fragment in an artifact URI (N36)
+- U16 | relative uri accepted | SURVIVED |  -- equivalent: the scheme check rejects a relative reference first
+- U17 | uppercase scheme accepted | SURVIVED |  -- equivalent: the scheme check rejects an upper-case scheme first
+- U18 | malformed percent escape accepted | SURVIVED |  -- equivalent: the pattern search decodes the escapes again and rejects them
+- E34 | evidence ref_id takes any ID | SURVIVED |  -- equivalent in behaviour: the kind check still rejects a mismatched ID; only the JSON Schema pattern is wider (the walk test needs the union, section 22.1)
+- R72 | per-turn definition accepts a value | SURVIVED |  -- equivalent: the result alone already refuses a value beside `per_turn`, and the other branch of the check still fires
+- R73 | per-turn definition without per_turn accepted | SURVIVED |  -- equivalent: the remaining condition still fires for a value without `per_turn`
+- L06 | transcript raw label ignored | SURVIVED |  -- equivalent: a transcript with a raw label cannot also hold a declaration, so ignoring the label gives the same `None`
+- L11 | declaration beats the transcript tag | SURVIVED |  -- equivalent: a declaration cannot coexist with `detected_language`
+- L21 | script rule applies to declared too | SURVIVED |  -- equivalent: a script-sensitive metric never has a declared effective language, so the extra condition is never reached
+- L29 | no read turn is applicable | SURVIVED |  -- not pinned: `check_language` with no turn and no transcript (N29)
+- L56 | agent_channel_unknown without audio | SURVIVED |  -- not pinned: `agent_audio` missing without `audio` (N23)
+- L57 | agent_channel_unknown whenever agent_audio missing | SURVIVED |  -- not pinned: `agent_audio` missing together with other kinds (N23)
+- L74 | per-turn render of non-scored result | SURVIVED |  -- equivalent: a non-scored result never carries a share (a share needs a counted turn)
+- S01 | top-level schema_version kept in the domain | SURVIVED |  -- equivalent in the oracle: `compute_digest` strips the top-level `schema_version` again; the test pins the domain's content instead
+- S08 | top-level content_digest kept in the domain | SURVIVED |  -- equivalent in the oracle: `compute_digest` strips the top-level `content_digest` again
+- S17 | binding of another evaluator accepted | SURVIVED |  -- equivalent: `validate_rubric` also rejects bindings of different evaluators
+- S18 | definition not resolved | SURVIVED |  -- equivalent: `validate_rubric` also rejects an unresolved definition
+- S24 | disabled binding counts as a check | SURVIVED |  -- equivalent: a disabled binding is never a rubric item, so it cannot be a required item either
+- S25 | check shape: kind ignored | SURVIVED |  -- equivalent: only `llm_judge` definitions have prompt variables
+- S26 | check shape: value type ignored | SURVIVED |  -- equivalent: the `equals_true` rule only fits boolean definitions
+- S27 | check shape: aggregation ignored | SURVIVED |  -- equivalent: the share's pass rule is a range, never `equals_true`
+- S28 | check shape: pass rule ignored | SURVIVED |  -- equivalent: the remaining conditions fix the pass rule
+- S37 | pricing ref check: other scheme accepted | SURVIVED |  -- equivalent: two schemes never carry the same key information (keyed requires a key_ref, plain forbids one)
+
+## All mutants (id | change | status | first failing test)
+
+P01 | human origin does not derive true | CAUGHT | test_human_subject_derived_from_caller_origin_human
+P02 | no role evidence derives false | CAUGHT | test_human_subject_defaults_true_when_unknown
+P03 | unknown role ignored | CAUGHT | test_human_subject_derived_from_unknown_role
+P04 | mixed counted as unknown | CAUGHT | test_human_subject_false_only_when_simulated_and_roles_known
+P05 | channel maps ignored | CAUGHT | test_human_subject_derived_from_unknown_role
+P06 | turn roles ignored | CAUGHT | test_human_subject_false_only_when_simulated_and_roles_known
+P07 | looser marker allowed | CAUGHT | test_simulated_run_with_unknown_role_turn_is_human_subject
+P08 | stricter marker needs no reason | CAUGHT | test_human_subject_stricter_marker_requires_reason
+P09 | consent not required when human | CAUGHT | test_consent_retention_required_iff_human_subject
+P10 | retention not required when human | CAUGHT | test_consent_retention_required_iff_human_subject
+P11 | consent allowed when not human | CAUGHT | test_consent_retention_required_iff_human_subject
+P12 | retention allowed when not human | CAUGHT | test_consent_retention_required_iff_human_subject
+P13 | reason allowed on a false marker | CAUGHT | test_consent_retention_required_iff_human_subject
+P14 | consent status gains granted | CAUGHT | test_consent_enum
+P15 | consent status loses unknown | CAUGHT | test_consent_enum
+P16 | reason set gains precaution | CAUGHT | test_privacy_marker_shape_and_reason_set
+P17 | reason set loses real_person_likeness | CAUGHT | test_privacy_marker_shape_and_reason_set
+P18 | retain_until takes any datetime | CAUGHT | test_retain_until_utc
+P19 | delete_on_expiry optional | CAUGHT | test_retain_until_utc
+P20 | human_subject coerces | CAUGHT | test_privacy_marker_shape_and_reason_set
+P21 | recorded_at takes any datetime | CAUGHT | test_consent_enum
+A01 | sha256 accepts upper case | CAUGHT | test_artifact_sha256_hex
+A02 | sha256 accepts 63 characters | CAUGHT | test_artifact_sha256_hex
+A03 | size may be negative | CAUGHT | test_artifact_sha256_hex
+A04 | sample rate may be 0 | CAUGHT | test_audio_format_fields
+A05 | channels may be 0 | CAUGHT | test_audio_format_fields
+A06 | bits per sample may be 0 | CAUGHT | test_audio_format_fields
+A07 | container is free text | CAUGHT | test_audio_format_fields
+A08 | codec is free text | CAUGHT | test_audio_format_fields
+A09 | declared map may carry confidence | CAUGHT | test_channel_map_declared_forbids_confidence
+A10 | inferred map needs no confidence | CAUGHT | test_channel_map_inferred_requires_method_confidence
+A11 | confidence unbounded | CAUGHT | test_channel_map_inferred_requires_method_confidence
+A12 | confidence may be NaN | SURVIVED | 
+A13 | two agent channels allowed | CAUGHT | test_channel_map_single_agent_channel
+A14 | duplicate channel index allowed | CAUGHT | test_channel_map_indexes_unique
+A15 | mixed identifies the agent | CAUGHT | test_mono_channel_mixed_excludes_agent_audio
+A16 | agent_audio needs every map to identify the agent | CAUGHT | test_unknown_agent_channel_excludes_agent_audio
+A17 | no map still means agent audio | CAUGHT | test_unknown_agent_channel_excludes_agent_audio
+A18 | index equal to channel count accepted | CAUGHT | test_channel_index_within_channels
+A19 | non-audio artifact accepted | CAUGHT | test_channel_map_artifact_must_be_audio
+A20 | map of another artifact accepted | CAUGHT | test_channel_map_artifact_must_be_audio
+A21 | channel roles gain ivr | CAUGHT | test_channel_role_set_exact
+A22 | channel roles lose mixed | CAUGHT | test_human_subject_derived_from_caller_origin_human
+A23 | Artifact shows its input in errors | CAUGHT | test_artifact_errors_do_not_echo_uri_credentials
+A24 | Artifact privacy optional | CAUGHT | test_privacy_marker_required_for_human_caller
+A25 | turn_ref takes any ID | CAUGHT | test_artifact_sha256_hex
+A26 | channel index may be negative | CAUGHT | test_channel_map_single_agent_channel
+A27 | method optional | CAUGHT | test_channel_map_declared_forbids_confidence
+A28 | determination open | CAUGHT | test_channel_role_set_exact
+A29 | audio format optional pieces: codec optional | CAUGHT | test_audio_format_fields
+A30 | uri not checked | CAUGHT | test_artifact_uri_rejects_presigned_signature
+A31 | channel map artifact id any ID | CAUGHT | test_channel_role_set_exact
+A32 | channel map may have no channel | SURVIVED | 
+U01 | artifact URIs: only http(s) | CAUGHT | test_artifact_uri_rejects_presigned_signature
+U02 | credential parameter names not checked | CAUGHT | test_artifact_uri_rejects_presigned_signature
+U03 | credential patterns not checked | CAUGHT | test_artifact_uri_rejects_wider_credential_names_and_patterns
+U04 | userinfo accepted | SURVIVED | 
+U05 | hyphen not read as underscore | CAUGHT | test_artifact_uri_rejects_wider_credential_names_and_patterns
+U06 | case not folded | CAUGHT | test_artifact_uri_rejects_presigned_signature
+U07 | names not percent-decoded | CAUGHT | test_artifact_uri_rejects_presigned_signature
+U08 | patterns not searched decoded | CAUGHT | test_artifact_uri_rejects_wider_credential_names_and_patterns
+U09 | patterns searched only decoded | SURVIVED | 
+U10 | pattern left boundary dropped | CAUGHT | test_artifact_uri_rejects_wider_credential_names_and_patterns
+U11 | path pattern skipped | CAUGHT | test_artifact_uri_rejects_wider_credential_names_and_patterns
+U12 | query values not searched for patterns | CAUGHT | test_artifact_uri_rejects_wider_credential_names_and_patterns
+U13 | host not searched for patterns | CAUGHT | test_artifact_uri_rejects_wider_credential_names_and_patterns
+U14 | separator ; not split | CAUGHT | test_artifact_uri_rejects_presigned_signature
+U15 | fragment accepted | SURVIVED | 
+U16 | relative uri accepted | SURVIVED | 
+U17 | uppercase scheme accepted | SURVIVED | 
+U18 | malformed percent escape accepted | SURVIVED | 
+U19 | white space accepted | CAUGHT | test_artifact_uri_rejects_presigned_signature
+U20 | empty host accepted | CAUGHT | test_artifact_uri_rejects_presigned_signature
+U300 | credential name token dropped | CAUGHT | test_artifact_uri_rejects_presigned_signature
+U301 | credential name key dropped | CAUGHT | test_artifact_uri_rejects_presigned_signature
+U302 | credential name api_key dropped | CAUGHT | test_artifact_uri_rejects_presigned_signature
+U303 | credential name sig dropped | CAUGHT | test_artifact_uri_rejects_presigned_signature
+U304 | credential name signature dropped | CAUGHT | test_artifact_uri_rejects_presigned_signature
+U305 | credential name x-amz-signature dropped | CAUGHT | test_artifact_uri_rejects_presigned_signature
+U306 | credential name x-amz-credential dropped | CAUGHT | test_artifact_uri_rejects_presigned_signature
+U307 | credential name apikey dropped | CAUGHT | test_artifact_uri_rejects_wider_credential_names_and_patterns
+U308 | credential name access_token dropped | CAUGHT | test_artifact_uri_rejects_wider_credential_names_and_patterns
+U309 | credential name auth_token dropped | CAUGHT | test_artifact_uri_rejects_wider_credential_names_and_patterns
+U310 | credential name refresh_token dropped | CAUGHT | test_artifact_uri_rejects_wider_credential_names_and_patterns
+U311 | credential name client_secret dropped | CAUGHT | test_artifact_uri_rejects_wider_credential_names_and_patterns
+U312 | credential name password dropped | CAUGHT | test_artifact_uri_rejects_wider_credential_names_and_patterns
+U313 | credential name passwd dropped | CAUGHT | test_artifact_uri_rejects_wider_credential_names_and_patterns
+U314 | credential name secret dropped | CAUGHT | test_artifact_uri_rejects_wider_credential_names_and_patterns
+U315 | credential name bearer dropped | CAUGHT | test_artifact_uri_rejects_wider_credential_names_and_patterns
+U316 | credential name authorization dropped | CAUGHT | test_artifact_uri_rejects_wider_credential_names_and_patterns
+U317 | credential name credential dropped | CAUGHT | test_artifact_uri_rejects_wider_credential_names_and_patterns
+U318 | credential name credentials dropped | CAUGHT | test_artifact_uri_rejects_wider_credential_names_and_patterns
+U319 | credential name private_key dropped | CAUGHT | test_artifact_uri_rejects_wider_credential_names_and_patterns
+U320 | credential name x-amz-security-token dropped | CAUGHT | test_artifact_uri_rejects_presigned_signature
+U321 | credential name x-goog-signature dropped | CAUGHT | test_artifact_uri_rejects_presigned_signature
+U322 | credential name x-goog-credential dropped | CAUGHT | test_artifact_uri_rejects_presigned_signature
+U323 | credential name x-api-key dropped | CAUGHT | test_artifact_uri_rejects_wider_credential_names_and_patterns
+U324 | credential name x-goog-api-key dropped | CAUGHT | test_artifact_uri_rejects_wider_credential_names_and_patterns
+T01 | seq has a default | CAUGHT | test_turn_seq_required_timing_optional
+T02 | seq may be negative | CAUGHT | test_turn_seq_required_timing_optional
+T03 | timing none allowed with offsets | CAUGHT | test_timing_source_none_iff_no_timing
+T04 | timing source set without offsets allowed | CAUGHT | test_timing_source_none_iff_no_timing
+T05 | turn end before start allowed | CAUGHT | test_turn_end_ge_start
+T06 | segment end before start allowed | CAUGHT | test_segment_end_ge_start
+T07 | segment outside turn allowed | CAUGHT | test_segment_times_within_turn
+T08 | segment start not checked | CAUGHT | test_segment_times_within_turn
+T09 | segment end not checked | CAUGHT | test_segment_times_within_turn
+T10 | segment end checked against start | CAUGHT | test_segment_times_within_turn
+T11 | segment confidence unbounded above | CAUGHT | test_confidence_in_0_1
+T12 | language confidence unbounded below | CAUGHT | test_confidence_in_0_1
+T13 | role gains ivr | CAUGHT | test_role_enum_exact
+T14 | role gains human_agent | CAUGHT | test_role_enum_exact
+T15 | role loses unknown | CAUGHT | test_human_subject_derived_from_unknown_role
+T16 | turn source gains agent | CAUGHT | test_turn_source_enum_exact
+T17 | turn source loses agent_log | CAUGHT | test_human_subject_derived_from_caller_origin_human
+T18 | transcript source gains agent_log | CAUGHT | test_transcript_source_names_producer
+T19 | Turn has started_at | CAUGHT | test_turn_has_no_started_at_field
+T20 | interrupted defaults false | CAUGHT | test_turn_seq_required_timing_optional
+T21 | interrupted coerces | CAUGHT | test_interrupted_none_distinct_from_false
+T22 | exchange was_interrupted defaults false | CAUGHT | test_interrupted_none_distinct_from_false
+T23 | language_raw is stripped | CAUGHT | test_turn_language_raw_verbatim
+T24 | language_raw is NFC normalized | CAUGHT | test_turn_language_raw_verbatim
+T25 | Turn.language must be supported | CAUGHT | test_turn_language_observed_any
+T26 | turn bidi flag not verified | CAUGHT | test_turn_and_segment_bidi_flag_computed_and_verified
+T27 | segment bidi flag not verified | CAUGHT | test_turn_and_segment_bidi_flag_computed_and_verified
+T28 | turn bidi flag not computed | CAUGHT | test_turn_and_segment_bidi_flag_computed_and_verified
+T29 | duplicate seq allowed | CAUGHT | test_turn_seq_unique_within_transcript
+T30 | turn of another transcript allowed | CAUGHT | test_turn_seq_unique_within_transcript
+T31 | offsets do not need an origin | CAUGHT | test_timeline_origin_required_iff_offsets_present
+T32 | origin without offsets allowed | CAUGHT | test_timeline_origin_required_iff_offsets_present
+T33 | segment offsets ignored for the origin rule | CAUGHT | test_timeline_origin_required_iff_offsets_present
+T34 | exchange references not checked | CAUGHT | test_exchange_index_references_existing_exchange
+T35 | exchange index uniqueness not checked | CAUGHT | test_exchange_index_references_existing_exchange
+T36 | artifact origin without ref allowed | CAUGHT | test_timeline_origin_artifact_requires_artifact_ref
+T37 | artifact origin takes an external ref | CAUGHT | test_timeline_origin_artifact_requires_artifact_ref
+T38 | telemetry origin takes an art ref | CAUGHT | test_timeline_origin_artifact_requires_artifact_ref
+T39 | declaration may carry a script subtag | CAUGHT | test_transcript_declared_language_shape_and_provenance
+T40 | declared_by may hold @ | CAUGHT | test_transcript_declared_language_shape_and_provenance
+T41 | declaration source open | CAUGHT | test_transcript_declared_language_shape_and_provenance
+T42 | declared_at optional | CAUGHT | test_transcript_declared_language_shape_and_provenance
+T43 | declaration allowed on our_stt | CAUGHT | test_declared_language_only_on_untagged_imported_transcript
+T44 | declaration allowed on script | CAUGHT | test_declared_language_only_on_untagged_imported_transcript
+T45 | declaration allowed with detected_language | CAUGHT | test_declared_language_only_on_untagged_imported_transcript
+T46 | declaration allowed with detected_language_raw | CAUGHT | test_declared_language_only_on_untagged_imported_transcript
+T47 | declaration fills detected_language | CAUGHT | test_transcript_declared_language_shape_and_provenance
+T48 | exchange source gains derived | CAUGHT | test_exchange_shape_and_sources
+T49 | exchange index may be negative | CAUGHT | test_exchange_shape_and_sources
+T50 | wall time meanings gain begin | CAUGHT | test_turn_has_no_started_at_field
+T51 | wall time counts as timing | CAUGHT | test_timing_source_none_iff_no_timing
+T52 | Transcript privacy optional | CAUGHT | test_privacy_marker_required_on_payload_entities
+T53 | Turn has a confidence field | CAUGHT | test_confidence_in_0_1
+T54 | Turn validation is slow | CAUGHT | test_long_transcript_50k_turns_under_2s
+T55 | granularity gains sentence | CAUGHT | test_segment_granularity_phrase
+T56 | granularity loses phrase | CAUGHT | test_segment_end_ge_start
+T57 | timeline origin kinds gain file | CAUGHT | test_timeline_origin_artifact_requires_artifact_ref
+T58 | turn text NFC normalized | CAUGHT | test_turn_and_segment_bidi_flag_computed_and_verified
+T59 | Turn exchange_index may be negative | CAUGHT | test_exchange_index_references_existing_exchange
+T60 | transcript provider free text | CAUGHT | test_transcript_shape_and_optional_fields
+T61 | Turn transcript_id any ID | CAUGHT | test_human_subject_derived_from_caller_origin_human
+T62 | Turn language not canonicalized (plain str) | CAUGHT | test_turn_language_observed_any
+E01 | parsed arguments without complete allowed | CAUGHT | test_truncated_args_not_complete_not_parsed
+E02 | truncated raw can be complete | CAUGHT | test_truncated_args_not_complete_not_parsed
+E03 | non-object raw can be complete | CAUGHT | test_truncated_args_not_complete_not_parsed
+E04 | result_complete without result_raw allowed | CAUGHT | test_result_complete_requires_result_raw
+E05 | offset without origin allowed | CAUGHT | test_timeline_origin_required_iff_offsets_present
+E06 | origin without offset allowed | CAUGHT | test_timeline_origin_required_iff_offsets_present
+E07 | tool status gains errored | CAUGHT | test_cancelled_status
+E08 | tool status loses unknown | CAUGHT | test_cancelled_status
+E09 | result_error defaults false | CAUGHT | test_result_error_none_when_not_reported
+E10 | result_error coerces | CAUGHT | test_result_error_none_when_not_reported
+E11 | tool seq may be negative | CAUGHT | test_tool_call_seq_unique_per_run
+E12 | tool seq uniqueness not checked | CAUGHT | test_tool_call_seq_unique_per_run
+E13 | stage_raw not required for other | CAUGHT | test_stage_span_other_keeps_stage_raw
+E14 | stage_raw allowed for other stages | CAUGHT | test_stage_span_other_keeps_stage_raw
+E15 | stage gains asr | CAUGHT | test_stage_span_other_keeps_stage_raw
+E16 | stage loses judge | CAUGHT | test_stage_span_other_keeps_stage_raw
+E17 | span duration may be negative | CAUGHT | test_stage_span_nonneg
+E18 | ttfb may be negative | CAUGHT | test_stage_span_nonneg
+E19 | span_ref optional | CAUGHT | test_stage_span_shape
+E20 | span_ref is plain text | CAUGHT | test_stage_span_nonneg
+E21 | evidence kind and id kind may differ | CAUGHT | test_evidence_ref_resolves_in_bundle
+E22 | evidence end before start allowed | CAUGHT | test_evidence_ref_shape
+E23 | evidence references are not resolved | CAUGHT | test_evidence_ref_resolves_in_bundle
+E24 | evidence kinds gain message | CAUGHT | test_evidence_ref_shape
+E25 | ingest message optional | CAUGHT | test_ingest_warning_shape
+E26 | ingest message may be empty | CAUGHT | test_ingest_warning_shape
+E27 | ingest code is free text | CAUGHT | test_ingest_warning_shape
+E28 | external_call_id must be a machine key | CAUGHT | test_tool_call_event_shape
+E29 | tool name is free text | CAUGHT | test_tool_call_event_shape
+E30 | arguments_complete defaults true | CAUGHT | test_arguments_present_implies_complete
+E31 | arguments_complete coerces | CAUGHT | test_arguments_present_implies_complete
+E32 | arguments_raw is stripped | CAUGHT | test_truncated_args_not_complete_not_parsed
+E33 | tool source must be a transcript source | CAUGHT | test_timeline_origin_required_iff_offsets_present
+E34 | evidence ref_id takes any ID | SURVIVED | 
+E35 | span exchange_index negative | CAUGHT | test_stage_span_shape
+E36 | span start naive allowed | CAUGHT | test_stage_span_nonneg
+R01 | NA may carry a value | CAUGHT | test_na_value_and_passed_none
+R02 | NA may carry passed | CAUGHT | test_na_value_and_passed_none
+R03 | NA reason optional | CAUGHT | test_na_requires_reason
+R04 | missing_input needs no kinds | CAUGHT | test_na_requires_reason
+R05 | other reasons may carry kinds | CAUGHT | test_na_requires_reason
+R06 | error needs no error | CAUGHT | test_error_structured_no_value
+R07 | error may carry a value | CAUGHT | test_error_structured_no_value
+R08 | scored may carry na_reason | CAUGHT | test_na_requires_reason
+R09 | scored needs no value | CAUGHT | test_na_value_and_passed_none
+R10 | per_turn result may carry a value | CAUGHT | test_scored_value_matches_type
+R11 | scored per_turn with nothing counted | CAUGHT | test_per_turn_share_all_undetermined_is_judge_undetermined_error
+R12 | NA per_turn with undetermined turns | CAUGHT | test_per_turn_share_all_undetermined_is_judge_undetermined_error
+R13 | error per_turn with counted turns | CAUGHT | test_per_turn_share_absent_when_no_turn_counted
+R14 | error per_turn needs no undetermined turn | CAUGHT | test_per_turn_share_absent_when_no_turn_counted
+R15 | error per_turn code unchecked | CAUGHT | test_per_turn_share_all_undetermined_is_judge_undetermined_error
+R16 | declared ids without declared source | CAUGHT | test_declared_language_transcript_ids_iff_declared
+R17 | declared source without ids | CAUGHT | test_declared_language_transcript_ids_iff_declared
+R18 | ids unsorted allowed | CAUGHT | test_declared_language_transcript_ids_iff_declared
+R19 | ids duplicates allowed | CAUGHT | test_declared_language_transcript_ids_iff_declared
+R20 | language_source allowed after missing_input | CAUGHT | test_result_language_source_presence_and_values
+R21 | NaN accepted | CAUGHT | test_metric_value_rejects_nan_inf
+R22 | huge integers accepted | CAUGHT | test_metric_value_rejects_nan_inf
+R23 | scorer allowed on NA | CAUGHT | test_scorer_info_present_iff_non_judge_scored_or_error
+R24 | judge allowed on NA | CAUGHT | test_judge_info_present_only_on_scored_or_errored_judge_results
+R25 | na_reason gains unsupported_domain | CAUGHT | test_metric_result_shape_and_enums
+R26 | na_reason loses language_not_observed | CAUGHT | test_metric_result_shape_and_enums
+R27 | status gains skipped | CAUGHT | test_metric_result_shape_and_enums
+R28 | share not compared to counts | CAUGHT | test_per_turn_share_excludes_undetermined_turns_and_counts_them
+R29 | counted_turns not compared | CAUGHT | test_per_turn_coverage_checked_against_counts
+R30 | total_turns not compared | CAUGHT | test_per_turn_coverage_checked_against_counts
+R31 | total_turns may be 0 | CAUGHT | test_per_turn_coverage_checked_against_counts
+R32 | share absent allowed when counted | CAUGHT | test_per_turn_share_mismatch_rejected
+R33 | share present allowed when nothing counted | CAUGHT | test_per_turn_share_excludes_undetermined_turns_and_counts_them
+R34 | prompt hash accepts upper case | CAUGHT | test_judge_info_shape
+R35 | p_yes unbounded | CAUGHT | test_judge_p_yes_absent_when_not_reported
+R36 | reported_model may be empty | CAUGHT | test_judge_reported_model_verbatim_and_optional
+R37 | per-turn reported_model may be empty | CAUGHT | test_judge_per_turn_reported_model_verbatim_and_optional
+R38 | reported_model filled from model_ref | CAUGHT | test_judge_info_shape
+R39 | verdict set gains maybe | CAUGHT | test_per_turn_verdict_undetermined
+R40 | verdict set loses undetermined | CAUGHT | test_per_turn_verdict_undetermined
+R41 | scorer version stripped of v | CAUGHT | test_scorer_version_stored_verbatim
+R42 | scorer version lowercased | CAUGHT | test_scorer_version_stored_verbatim
+R43 | scorer version is free text | CAUGHT | test_scorer_version_stored_verbatim
+R44 | scorer version optional | CAUGHT | test_scorer_version_stored_verbatim
+R45 | error code free text | CAUGHT | test_error_structured_no_value
+R46 | error message may be empty | CAUGHT | test_error_structured_no_value
+R50 | scorer not required for scored non-judge | CAUGHT | test_scored_value_matches_type
+R51 | scorer not required for errored non-judge | CAUGHT | test_scorer_info_present_iff_non_judge_scored_or_error
+R52 | scorer implementation_ref not compared | CAUGHT | test_scorer_info_matches_definition_implementation_ref
+R53 | scorer implementation_ref compared case-insensitively | CAUGHT | test_scorer_info_matches_definition_implementation_ref
+R54 | scorer allowed on judge results | CAUGHT | test_scorer_info_present_iff_non_judge_scored_or_error
+R55 | judge allowed on non-judge results | CAUGHT | test_judge_info_present_only_on_scored_or_errored_judge_results
+R56 | scored judge result needs no JudgeInfo | CAUGHT | test_judge_info_present_only_on_scored_or_errored_judge_results
+R57 | mismatched definition accepted | CAUGHT | test_check_result_against_definition_checks_the_reference
+R58 | definition version ignored | CAUGHT | test_check_result_against_definition_checks_the_reference
+R59 | boolean value takes int | CAUGHT | test_scored_value_matches_type
+R60 | rating takes float | CAUGHT | test_scored_value_matches_type
+R61 | rating upper bound exclusive | CAUGHT | test_scored_value_matches_type
+R62 | rating lower bound exclusive | CAUGHT | test_scored_value_matches_type
+R63 | rating bounds unchecked | CAUGHT | test_rating_value_within_scale
+R64 | enum option unchecked | CAUGHT | test_enum_value_in_options
+R65 | numeric takes bool | CAUGHT | test_scored_value_matches_type
+R66 | numeric takes text | CAUGHT | test_scored_value_matches_type
+R67 | value type not checked | CAUGHT | test_judge_undetermined_is_error
+R68 | passed not compared with the rule | CAUGHT | test_scored_without_pass_rule_has_passed_none
+R69 | passed ignored when the rule is absent | CAUGHT | test_scored_without_pass_rule_has_passed_none
+R70 | per-turn passed uses the value | CAUGHT | test_scored_value_matches_type
+R71 | per-turn passed uses float share | CAUGHT | test_per_turn_share_pass_from_range_rule
+R72 | per-turn definition accepts a value | SURVIVED | 
+R73 | per-turn definition without per_turn accepted | SURVIVED | 
+R74 | per_turn accepted on per-conversation definitions | CAUGHT | test_scored_value_matches_type
+R75 | language-independent keeps language_source | CAUGHT | test_result_language_source_presence_and_values
+R76 | declared allowed on script-sensitive | CAUGHT | test_script_sensitive_metric_ignores_declared_language
+R77 | language_source not required for scored | CAUGHT | test_result_language_source_presence_and_values
+R78 | language_source not required for error | CAUGHT | test_result_language_source_presence_and_values
+R79 | language_source not required for unsupported_script | CAUGHT | test_result_language_source_presence_and_values
+R80 | language_source not required for unsupported_language | CAUGHT | test_result_language_source_presence_and_values
+L01 | independent metrics get language steps | CAUGHT | test_na_missing_kinds_equal_requires_minus_available
+L02 | transcript tag before turn tag | CAUGHT | test_na_reason_precedence
+L03 | und counts as a tag on the turn | CAUGHT | test_language_independent_metric_skips_language_check
+L04 | turn raw label ignored | CAUGHT | test_turn_language_takes_precedence_over_transcript_language
+L05 | und counts as a tag on the transcript | CAUGHT | test_und_and_unparseable_labels_are_language_not_observed
+L06 | transcript raw label ignored | SURVIVED | 
+L07 | declaration used by script-sensitive metrics | CAUGHT | test_script_sensitive_metric_ignores_declared_language
+L08 | declaration never used | CAUGHT | test_declared_language_lifts_language_not_observed
+L09 | declaration beats the turn tag | CAUGHT | test_declared_language_lifts_language_not_observed
+L10 | declaration covers turns with a label of their own | CAUGHT | test_declared_language_not_used_for_und_or_unparseable_labels
+L11 | declaration beats the transcript tag | SURVIVED | 
+L12 | declaration marked observed | CAUGHT | test_declared_language_lifts_language_not_observed
+L13 | one tagged turn is enough | CAUGHT | test_na_reason_precedence
+L14 | untagged turns skipped | CAUGHT | test_na_reason_precedence
+L15 | unsupported_language checks the first turn only | CAUGHT | test_unsupported_language_na_for_observed_bn_IN
+L16 | unsupported_language checks nothing | CAUGHT | test_na_reason_precedence
+L17 | coverage compares the full tag | CAUGHT | test_unsupported_language_na_for_observed_bn_IN
+L18 | coverage compares the full tag (turn side) | CAUGHT | test_na_reason_precedence
+L19 | script rule applied to lenient metrics | CAUGHT | test_na_reason_precedence
+L20 | script rule never applied | CAUGHT | test_na_reason_precedence
+L21 | script rule applies to declared too | SURVIVED | 
+L22 | script not in the allowed set is ignored for a 5-letter check | CAUGHT | test_na_reason_precedence
+L23 | no script subtag treated as romanized | CAUGHT | test_wer_not_applicable_for_observed_romanized
+L24 | language_source: observed beats declared | CAUGHT | test_declared_language_lifts_language_not_observed
+L25 | language_source: declared only if all declared | CAUGHT | test_declared_language_lifts_language_not_observed
+L26 | language_source never recorded | CAUGHT | test_und_and_unparseable_labels_are_language_not_observed
+L27 | declared ids include observed transcripts | CAUGHT | test_und_and_unparseable_labels_are_language_not_observed
+L28 | declared ids unsorted (reverse) | CAUGHT | test_declared_language_lifts_language_not_observed
+L29 | no read turn is applicable | SURVIVED | 
+L30 | turn of an unknown transcript tolerated | CAUGHT | test_effective_language_steps_table
+L31 | precedence: script before language | CAUGHT | test_na_reason_precedence
+L32 | mul counts as supported | CAUGHT | test_language_independent_metric_skips_language_check
+L40 | precedence swaps missing_input and agent_channel_unknown | CAUGHT | test_na_reason_precedence
+L41 | precedence swaps agent_channel_unknown and language_not_observed | CAUGHT | test_na_reason_precedence
+L42 | precedence swaps language_not_observed and unsupported_language | CAUGHT | test_na_reason_precedence
+L43 | precedence swaps unsupported_language and unsupported_script | CAUGHT | test_na_reason_precedence
+L45 | precedence reversed | CAUGHT | test_na_reason_precedence
+L46 | strongest reason takes the last | CAUGHT | test_na_reason_precedence
+L47 | strongest reason accepts unknown reasons | CAUGHT | test_na_reason_precedence
+L50 | missing inputs reversed | CAUGHT | test_missing_inputs_helper
+L51 | missing inputs sorted | CAUGHT | test_missing_inputs_helper
+L52 | missing inputs reads the tier | CAUGHT | test_available_inputs_not_derived_from_tier
+L53 | missing inputs reads detected capabilities | CAUGHT | test_available_inputs_not_derived_from_tier
+L54 | missing kinds not listed | CAUGHT | test_na_missing_kinds_equal_requires_minus_available
+L55 | agent channel known although unknown | CAUGHT | test_na_reason_precedence
+L56 | agent_channel_unknown without audio | SURVIVED | 
+L57 | agent_channel_unknown whenever agent_audio missing | SURVIVED | 
+L58 | language steps run before missing_input | CAUGHT | test_na_reason_precedence
+L59 | language steps skipped | CAUGHT | test_na_reason_precedence
+L60 | provenance dropped from applicability | CAUGHT | test_declared_language_lifts_language_not_observed
+L70 | per-turn render omits coverage | CAUGHT | test_render_per_turn_share_shows_turn_coverage
+L71 | per-turn render coverage counts total twice | CAUGHT | test_render_per_turn_share_shows_turn_coverage
+L72 | per-turn render rounds half up | CAUGHT | test_render_per_turn_share_shows_turn_coverage
+L73 | per-turn render three decimals | CAUGHT | test_render_per_turn_share_shows_turn_coverage
+L74 | per-turn render of non-scored result | SURVIVED | 
+L75 | per-turn render for a result without per_turn | CAUGHT | test_render_per_turn_share_shows_turn_coverage
+V01 | counts need not sum | CAUGHT | test_counts_sum_to_required_total
+V02 | counts need not equal the tally | CAUGHT | test_counts_equal_check_tally
+V03 | one binding may have two checks | CAUGHT | test_counts_equal_check_tally
+V04 | status not checked | CAUGHT | test_inconsistent_status_rejected
+V05 | any not-run check fails the verdict | CAUGHT | test_weighted_exclusions_are_unique_per_binding
+V06 | not-run checks do not stop a pass | CAUGHT | test_weighted_exclusions_are_unique_per_binding
+V07 | a failed check is inconclusive | CAUGHT | test_run_verdict_shape_and_enums
+V08 | inconclusive reads as pass | CAUGHT | test_weighted_exclusions_are_unique_per_binding
+V09 | status set gains error | CAUGHT | test_run_verdict_shape_and_enums
+V10 | empty verdict accepted | CAUGHT | test_empty_verdict_rejected
+V11 | score without coverage accepted | CAUGHT | test_weight_coverage_required_with_score
+V12 | coverage without score accepted | CAUGHT | test_weight_coverage_required_with_score
+V13 | score above 1 accepted | CAUGHT | test_weighted_score_range_0_1
+V14 | negative score accepted | CAUGHT | test_weighted_score_range_0_1
+V15 | zero coverage accepted | CAUGHT | test_weighted_score_range_0_1
+V16 | coverage above 1 accepted | CAUGHT | test_weighted_score_range_0_1
+V17 | duplicate exclusions accepted | CAUGHT | test_weighted_exclusions_are_unique_per_binding
+V18 | headline numerator is the total | CAUGHT | test_headline
+V19 | headline denominator drops not-run checks | CAUGHT | test_headline
+V20 | headline shows the score | CAUGHT | test_headline
+V21 | weighted score shown without coverage | CAUGHT | test_weighted_score_5_3_2_with_na_is_1_coverage_0_8
+V22 | weighted score shows a raw coverage | CAUGHT | test_weighted_score_5_3_2_with_na_is_1_coverage_0_8
+V23 | weighted score rounds half up | CAUGHT | test_render_weighted_score_shows_coverage
+V24 | weighted score has one decimal | CAUGHT | test_weighted_score_5_3_2_with_na_is_1_coverage_0_8
+V25 | unscored weighted score rendered | CAUGHT | test_weighted_score_absent_when_all_excluded
+V26 | scored without passed counts as passed | CAUGHT | test_outcome_of_result_needs_a_pass_decision
+V27 | errored reads as not_applicable | CAUGHT | test_judge_undetermined_is_error
+V28 | not_applicable reads as failed | CAUGHT | test_check_outcome_matches_metric_result_status
+V29 | failed reads as passed | CAUGHT | test_weighted_score_uses_per_turn_passed_not_share
+V30 | excluded checks count as zero in the score | CAUGHT | test_weighted_score_5_3_2_with_na_is_1_coverage_0_8
+V31 | coverage is not scored over total | CAUGHT | test_weighted_score_5_3_2_with_na_is_1_coverage_0_8
+V32 | errored checks scored as failed | CAUGHT | test_weighted_score_excludes_errored
+V33 | not_applicable checks scored as passed | CAUGHT | test_weighted_score_5_3_2_with_na_is_1_coverage_0_8
+V34 | nothing scored gives score 0 | CAUGHT | test_weighted_score_absent_when_all_excluded
+V35 | weighted rounding is truncation | CAUGHT | test_weighted_score_excludes_na_and_lists_them
+V36 | weighted rounding half up | CAUGHT | test_weight_coverage_is_scored_over_total_weight
+V37 | weighted rounding at scale 17 | CAUGHT | test_weighted_score_excludes_na_and_lists_them
+V38 | weights ignored (count instead) | CAUGHT | test_weighted_score_5_3_2_with_na_is_1_coverage_0_8
+V39 | exclusion not listed | CAUGHT | test_weighted_score_5_3_2_with_na_is_1_coverage_0_8
+V40 | exclusions listed in reverse | CAUGHT | test_weighted_score_excludes_na_and_lists_them
+V41 | check_verdict: required bindings unchecked | CAUGHT | test_checks_reference_required_bindings_only
+V42 | check_verdict: metric_ref unchecked | CAUGHT | test_verdict_check_metric_ref_is_typed_and_equals_binding_metric
+V43 | check_verdict: result metric unchecked | CAUGHT | test_check_outcome_matches_metric_result_status
+V44 | check_verdict: outcome unchecked | CAUGHT | test_check_outcome_matches_metric_result_status
+V45 | check_verdict: weighted score unchecked | CAUGHT | test_weighted_score_checked_against_rubric_and_results
+V46 | check_verdict: exclusions unchecked | CAUGHT | test_weighted_score_checked_against_rubric_and_results
+V47 | check_verdict: missing result tolerated | CAUGHT | test_check_outcome_matches_metric_result_status
+V48 | check_verdict: weighted non-required bindings ignored | CAUGHT | test_checks_reference_required_bindings_only
+V49 | check_verdict: unweighted items weighted 1 | CAUGHT | test_check_outcome_matches_metric_result_status
+V50 | outcome set gains skipped | CAUGHT | test_run_verdict_shape_and_enums
+V51 | exclusion outcome gains failed | CAUGHT | test_weighted_score_excludes_errored
+V52 | check metric_ref is text | CAUGHT | test_weighted_exclusions_are_unique_per_binding
+V53 | check binding_id any ID | CAUGHT | test_run_verdict_shape_and_enums
+V54 | counts may be negative | CAUGHT | test_counts_sum_to_required_total
+V55 | counts coerce | CAUGHT | test_counts_sum_to_required_total
+V56 | weighted score not canonical | CAUGHT | test_weighted_score_range_0_1
+S01 | top-level schema_version kept in the domain | SURVIVED | 
+S02 | evaluator schema_version kept | CAUGHT | test_snapshot_jcs_digest_stable
+S03 | persona schema_version kept | CAUGHT | test_snapshot_jcs_digest_stable
+S04 | rubric schema_version kept | CAUGHT | test_snapshot_jcs_digest_stable
+S05 | definition schema_version kept | CAUGHT | test_snapshot_jcs_digest_stable
+S06 | binding schema_version kept | CAUGHT | test_snapshot_jcs_digest_stable
+S07 | profile digest kept in the domain | CAUGHT | test_snapshot_digest_independent_of_profile_digest
+S08 | top-level content_digest kept in the domain | SURVIVED | 
+S09 | embedded content_digest dropped from the domain | CAUGHT | test_snapshot_jcs_digest_stable
+S10 | schema_version removed by name at every depth | CAUGHT | test_snapshot_digest_ignores_embedded_schema_version
+S11 | nulls kept in the domain | CAUGHT | test_snapshot_jcs_digest_stable
+S12 | digest not verified | CAUGHT | test_snapshot_forged_digest_rejected
+S13 | persona not resolved | CAUGHT | test_definition_refs_digest_optional_and_verified_when_present
+S14 | persona digest not verified | CAUGHT | test_definition_refs_digest_optional_and_verified_when_present
+S15 | binding refs not resolved | CAUGHT | test_definition_refs_digest_optional_and_verified_when_present
+S16 | binding digest not verified | CAUGHT | test_definition_refs_digest_optional_and_verified_when_present
+S17 | binding of another evaluator accepted | SURVIVED | 
+S18 | definition not resolved | SURVIVED | 
+S19 | definition digest not verified | CAUGHT | test_definition_refs_digest_optional_and_verified_when_present
+S20 | rubric not validated | CAUGHT | test_snapshot_validates_the_rubric_against_bindings
+S21 | no expected-outcome check needed | CAUGHT | test_snapshot_expected_outcome_is_a_required_equals_true_check
+S22 | expected-outcome check need not be required | CAUGHT | test_snapshot_expected_outcome_is_a_required_equals_true_check
+S23 | only the first check must be required | CAUGHT | test_snapshot_expected_outcome_is_a_required_equals_true_check
+S24 | disabled binding counts as a check | SURVIVED | 
+S25 | check shape: kind ignored | SURVIVED | 
+S26 | check shape: value type ignored | SURVIVED | 
+S27 | check shape: aggregation ignored | SURVIVED | 
+S28 | check shape: pass rule ignored | SURVIVED | 
+S29 | check shape: prompt variable ignored | CAUGHT | test_snapshot_expected_outcome_is_a_required_equals_true_check
+S30 | internal snapshot: absent digest accepted | CAUGHT | test_internal_snapshot_profile_digest_plain_required
+S31 | internal snapshot: keyed digest accepted | CAUGHT | test_internal_snapshot_profile_digest_plain_required
+S32 | pricing ref: digest optional | CAUGHT | test_pricing_catalog_ref_digest_verified
+S33 | pricing ref check: id ignored | CAUGHT | test_pricing_catalog_ref_digest_verified
+S34 | pricing ref check: version ignored | CAUGHT | test_pricing_catalog_ref_digest_verified
+S35 | pricing ref check: mismatch ignored | CAUGHT | test_pricing_catalog_ref_digest_verified
+S36 | pricing ref check: keyed accepted | CAUGHT | test_pricing_catalog_ref_digest_verified
+S37 | pricing ref check: other scheme accepted | SURVIVED | 
+S38 | lint leaks the value | CAUGHT | test_snapshot_free_text_profile_value_lint_warns
+S39 | lint reports no path | CAUGHT | test_snapshot_free_text_profile_value_lint_warns
+S40 | lint code changed | CAUGHT | test_snapshot_free_text_profile_value_lint_warns
+S41 | lint skips the expected outcome | CAUGHT | test_snapshot_free_text_profile_value_lint_warns
+S42 | snapshot embeds the test profile | CAUGHT | test_snapshot_shape
+S43 | snapshot is versioned | CAUGHT | test_snapshot_shape
+S44 | snapshot lacks content_digest | CAUGHT | test_snapshot_shape
+S45 | snapshot accepts no definitions | CAUGHT | test_snapshot_shape
+S46 | snapshot holds a caller id | CAUGHT | test_user_id_not_in_snapshot_or_export
+S47 | snapshot digest scheme not plain | CAUGHT | test_snapshot_shape
+N01 | caller_origin defaults to simulated | CAUGHT | test_run_shape_and_enums
+N02 | simulated mode allows a human caller | CAUGHT | test_simulated_mode_implies_simulated_caller
+N03 | agent_audio without a channel map accepted | CAUGHT | test_unknown_agent_channel_excludes_agent_audio
+N04 | started_at defaults to created_at | CAUGHT | test_run_started_at_optional_utc
+N05 | started_at takes any datetime | CAUGHT | test_run_started_at_optional_utc
+N06 | available_inputs may repeat | CAUGHT | test_run_shape_and_enums
+N07 | detected_capabilities may repeat | CAUGHT | test_run_shape_and_enums
+N08 | CallerExternalId privacy optional | CAUGHT | test_caller_external_id_requires_privacy_marker
+N09 | CallerExternalId value may be empty | CAUGHT | test_caller_external_id_requires_privacy_marker
+N10 | Run shows its input in errors | CAUGHT | test_caller_external_id_requires_privacy_marker
+N11 | CallerExternalId shows its input | CAUGHT | test_caller_external_id_requires_privacy_marker
+N12 | observed_tier open | CAUGHT | test_run_shape_and_enums
+N13 | observed_tier has a default | CAUGHT | test_run_shape_and_enums
+N14 | mode open | CAUGHT | test_run_shape_and_enums
+N15 | mode gains live | CAUGHT | test_run_shape_and_enums
+N16 | caller_origin gains unknown | CAUGHT | test_run_shape_and_enums
+N17 | project_id takes any ID | CAUGHT | test_run_shape_and_enums
+N18 | config_snapshot_id takes a bare uuid | CAUGHT | test_run_shape_and_enums
+N19 | external_refs untyped | CAUGHT | test_external_refs_never_ids
+N20 | Run is versioned | CAUGHT | test_unknown_agent_channel_excludes_agent_audio
+N21 | Run carries declared_capabilities | CAUGHT | test_run_shape_and_enums
+N22 | ingest_warnings untyped | CAUGHT | test_run_shape_and_enums
+N23 | agent_target takes a plain id | CAUGHT | test_human_subject_derived_from_caller_origin_human
+N24 | AgentTargetRef takes any id | CAUGHT | test_run_shape_and_enums
+D01 | recording item needs no privacy | CAUGHT | test_privacy_marker_required_on_payload_entities
+D02 | transcript item needs no privacy | CAUGHT | test_human_recording_item_requires_privacy_marker
+D03 | looser marker accepted without a run | CAUGHT | test_dataset_item_recording_without_run_is_human_subject
+D04 | language open | CAUGHT | test_dataset_item_no_codemix
+D05 | item_ids may repeat | CAUGHT | test_dataset_is_a_versioned_entity
+D06 | item has a mixed-language field | CAUGHT | test_dataset_item_no_codemix
+D07 | item has a declared_language field | CAUGHT | test_dataset_item_language_is_not_a_declaration
+D08 | Dataset not versioned | CAUGHT | test_dataset_is_a_versioned_entity
+D09 | item has a version | CAUGHT | test_privacy_marker_required_on_payload_entities
+D10 | item artifact_id any ID | CAUGHT | test_human_recording_item_requires_privacy_marker
+D11 | dataset name any text | CAUGHT | test_dataset_is_a_versioned_entity
+D12 | dataset item_ids any ID | CAUGHT | test_dataset_is_a_versioned_entity
+R90 | evidence_refs untyped | CAUGHT | test_metric_result_evidence_refs_are_evidence_ref_objects
+R91 | evidence_refs required | CAUGHT | test_metric_result_shape_and_enums

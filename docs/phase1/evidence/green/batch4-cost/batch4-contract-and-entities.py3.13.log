@@ -1,0 +1,43 @@
+# group: batch4-contract-and-entities   (batch 4 green run, schema-architect, SCOPE revision 18)
+# date: 2026-10-23T13:11:55Z (UTC)  local: 2026-10-23T18:41:55+0530
+# command: python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_cost_contract.py packages/evalschema/tests/test_batch4_entities.py   (cwd ~/tracer; pyproject addopts apply)
+# interpreter: <scratchpad>/arch-b4-env3.13/bin/python   (env built with: UV_PROJECT_ENVIRONMENT=<env> uv sync --locked --all-groups --python 3.13)
+# versions: python 3.13.15; pydantic 2.14.1, pydantic-core 2.50.1, pytest 9.1.1, jsonschema 4.26.0, rfc8785 0.1.4, hypothesis 6.170.5
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git status: 0 commits; 0 staged paths
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.13.15, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>/arch-b4-env3.13/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 25 items
+
+packages/evalschema/tests/test_cost_contract.py::test_no_float_in_cost_path PASSED [  4%]
+packages/evalschema/tests/test_cost_contract.py::test_every_money_amount_schema_is_string_pattern PASSED [  8%]
+packages/evalschema/tests/test_batch4_entities.py::test_batch4_entity_is_registered_with_its_prefix[UsageRecord] PASSED [ 12%]
+packages/evalschema/tests/test_batch4_entities.py::test_batch4_entity_is_registered_with_its_prefix[PricingCatalog] PASSED [ 16%]
+packages/evalschema/tests/test_batch4_entities.py::test_batch4_entity_is_registered_with_its_prefix[CostRecord] PASSED [ 20%]
+packages/evalschema/tests/test_batch4_entities.py::test_batch4_entity_is_registered_with_its_prefix[CostSummary] PASSED [ 24%]
+packages/evalschema/tests/test_batch4_entities.py::test_batch4_entity_roundtrip_and_schema_agree[UsageRecord] PASSED [ 28%]
+packages/evalschema/tests/test_batch4_entities.py::test_batch4_entity_roundtrip_and_schema_agree[PricingCatalog] PASSED [ 32%]
+packages/evalschema/tests/test_batch4_entities.py::test_batch4_entity_roundtrip_and_schema_agree[CostRecord] PASSED [ 36%]
+packages/evalschema/tests/test_batch4_entities.py::test_batch4_entity_roundtrip_and_schema_agree[CostSummary] PASSED [ 40%]
+packages/evalschema/tests/test_batch4_entities.py::test_batch4_entity_rejects_unknown_fields[UsageRecord] PASSED [ 44%]
+packages/evalschema/tests/test_batch4_entities.py::test_batch4_entity_rejects_unknown_fields[PricingCatalog] PASSED [ 48%]
+packages/evalschema/tests/test_batch4_entities.py::test_batch4_entity_rejects_unknown_fields[CostRecord] PASSED [ 52%]
+packages/evalschema/tests/test_batch4_entities.py::test_batch4_entity_rejects_unknown_fields[CostSummary] PASSED [ 56%]
+packages/evalschema/tests/test_batch4_entities.py::test_batch4_entity_checks_schema_version_and_id_kind[UsageRecord] PASSED [ 60%]
+packages/evalschema/tests/test_batch4_entities.py::test_batch4_entity_checks_schema_version_and_id_kind[PricingCatalog] PASSED [ 64%]
+packages/evalschema/tests/test_batch4_entities.py::test_batch4_entity_checks_schema_version_and_id_kind[CostRecord] PASSED [ 68%]
+packages/evalschema/tests/test_batch4_entities.py::test_batch4_entity_checks_schema_version_and_id_kind[CostSummary] PASSED [ 72%]
+packages/evalschema/tests/test_batch4_entities.py::test_batch4_digested_entity_digest_is_verified[PricingCatalog] PASSED [ 76%]
+packages/evalschema/tests/test_batch4_entities.py::test_batch4_records_of_fact_are_not_versioned[UsageRecord] PASSED [ 80%]
+packages/evalschema/tests/test_batch4_entities.py::test_batch4_records_of_fact_are_not_versioned[CostRecord] PASSED [ 84%]
+packages/evalschema/tests/test_batch4_entities.py::test_batch4_records_of_fact_are_not_versioned[CostSummary] PASSED [ 88%]
+packages/evalschema/tests/test_batch4_entities.py::test_batch4_models_emit_enum_not_const PASSED [ 92%]
+packages/evalschema/tests/test_batch4_entities.py::test_batch4_models_are_all_found_by_the_registry_walk PASSED [ 96%]
+packages/evalschema/tests/test_batch4_entities.py::test_price_entry_is_a_value_object_and_prefix_pce_is_withdrawn PASSED [100%]
+
+============================== 25 passed in 0.26s ==============================

@@ -1,0 +1,41 @@
+# group: p1-04d-step1-bidi-conformance
+# date: 2026-10-22T16:23:08Z (UTC)  local: 2026-10-22T21:53:08+0530
+# command: .venv/bin/python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_bidi_conformance.py   (cwd ~/tracer; pyproject addopts: -ra --strict-markers --strict-config -m 'not private_fixtures')
+# python: Python 3.13.15 (~/tracer/.venv/bin/python)
+# uv.lock sha256: ab83aa1248c1f471282a0e905b314c6372e251c51418d9c3c787442fcc464cad
+# git status: ## No commits yet on main; 11 untracked/changed entries; nothing staged, no commits made
+# bidi-ref group installed: python-bidi 0.6.12
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.13.15, pytest-9.1.1, pluggy-1.7.0 -- ~/tracer/.venv/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 7 items
+
+packages/evalschema/tests/test_bidi_conformance.py::test_bidi_reference_passes_biditest FAILED [ 14%]
+packages/evalschema/tests/test_bidi_conformance.py::test_bidi_reference_passes_bidicharactertest PASSED [ 28%]
+packages/evalschema/tests/test_bidi_conformance.py::test_bidi_reference_conformance_covers_isolates_and_overrides PASSED [ 42%]
+packages/evalschema/tests/test_bidi_conformance.py::test_unicode_conformance_files_match_provenance PASSED [ 57%]
+packages/evalschema/tests/test_bidi_conformance.py::test_reference_unicode_version_matches_vendored_files PASSED [ 71%]
+packages/evalschema/tests/test_bidi_conformance.py::test_harness_detects_a_broken_reference PASSED [ 85%]
+packages/evalschema/tests/test_bidi_conformance.py::test_pool_characters_have_their_class PASSED [100%]
+
+=================================== FAILURES ===================================
+_____________________ test_bidi_reference_passes_biditest ______________________
+
+    def test_bidi_reference_passes_biditest() -> None:
+        result = bc.conformance("BidiTest.txt")
+        assert result.data_lines > 0
+>       assert result.failed_lines == 0, result.summary()
+E       AssertionError: BidiTest.txt: 489439/490846 data lines pass (1407 fail, 1435/770241 paragraph-level variants fail, 0 unparsed); isolate lines 273522/274412 pass; embedding/override lines 303828/305180 pass; failure kinds [visual-order: 1435]; first failures [line 17490: visual-order: L LRE S dir=R expected [2 0] got [0 2]; line 17491: visual-order: L LRE WS dir=R expected [2 0] got [0 2]; line 17492: visual-order: L LRE LRI dir=R expected [2 0] got [0 2]; line 17493: visual-order: L LRE RLI dir=R expected [2 0] got [0 2]; line 17494: visual-order: L LRE FSI dir=R expected [2 0] got [0 2]]
+E       assert 1407 == 0
+E        +  where 1407 = ConformanceResult(file='BidiTest.txt', data_lines=490846, variants=770241, failed_lines=1407, failed_variants=1435, unparsed_lines=0, isolate_lines=274412, override_lines=305180, failed_isolate_lines=890, failed_override_lines=1352, reasons=Counter({'visual-order': 1435}), examples=[Failure(line_no=17490, detail='visual-order: L LRE S dir=R expected [2 0] got [0 2]'), Failure(line_no=17491, detail='visual-order: L LRE WS dir=R expected [2 0] got [0 2]'), Failure(line_no=17492, detail='visual-order: L LRE LRI dir=R expected [2 0] got [0 2]'), Failure(line_no=17493, detail='visual-order: L LRE RLI dir=R expected [2 0] got [0 2]'), Failure(line_no=17494, detail='visual-order: L LRE FSI dir=R expected [2 0] got [0 2]'), Failure(line_no=17495, detail='visual-order: L LRE PDI dir=R expected [2 0] got [0 2]'), Failure(line_no=17497, detail='visual-order: L LRO S dir=R expected [2 0] got [0 2]'), Failure(line_no=17498, detail='visual-order: L LRO WS dir=R expected [2 0] got [0 2]'), Failure(line_no=17499, detail='visual-order: L LRO LRI dir=R expected [2 0] got [0 2]'), Failure(line_no=17500, detail='visual-order: L LRO RLI dir=R expected [2 0] got [0 2]'), Failure(line_no=17501, detail='visual-order: L LRO FSI dir=R expected [2 0] got [0 2]'), Failure(line_no=17502, detail='visual-order: L LRO PDI dir=R expected [2 0] got [0 2]'), Failure(line_no=17544, detail='visual-order: EN LRE S dir=R expected [2 0] got [0 2]'), Failure(line_no=17545, detail='visual-order: EN LRE WS dir=R expected [2 0] got [0 2]'), Failure(line_no=17546, detail='visual-order: EN LRE LRI dir=R expected [2 0] got [0 2]')]).failed_lines
+
+packages/evalschema/tests/test_bidi_conformance.py:41: AssertionError
+- generated xml file: <scratchpad>/junit/p1-04d-step1-bidi-conformance.xml -
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_bidi_conformance.py::test_bidi_reference_passes_biditest
+========================= 1 failed, 6 passed in 4.83s ==========================
+# exit status: 1

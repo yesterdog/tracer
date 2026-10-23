@@ -1,0 +1,80 @@
+# group: p1-11-results   (batch 3 green run, schema-architect)
+# date: 2026-10-23T10:49:32Z (UTC)  local: 2026-10-23T16:19:32+0530
+# command: python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_results.py packages/evalschema/tests/test_results_language.py   (cwd ~/tracer; pyproject addopts apply)
+# interpreter: <scratchpad>/arch-b3-env3.11/bin/python
+# versions: python 3.11.16; pydantic 2.14.1, pydantic-core 2.50.1, pytest 9.1.1, jsonschema 4.26.0, rfc8785 0.1.4, hypothesis 6.170.5
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git status: no commits; 0 staged paths
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.11.16, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>/arch-b3-env3.11/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 62 items
+
+packages/evalschema/tests/test_results.py::test_metric_result_shape_and_enums PASSED [  1%]
+packages/evalschema/tests/test_results.py::test_na_value_and_passed_none PASSED [  3%]
+packages/evalschema/tests/test_results.py::test_na_requires_reason PASSED [  4%]
+packages/evalschema/tests/test_results.py::test_na_missing_kinds_equal_requires_minus_available PASSED [  6%]
+packages/evalschema/tests/test_results.py::test_na_reason_precedence PASSED [  8%]
+packages/evalschema/tests/test_results.py::test_error_structured_no_value PASSED [  9%]
+packages/evalschema/tests/test_results.py::test_judge_undetermined_is_error PASSED [ 11%]
+packages/evalschema/tests/test_results.py::test_scored_value_matches_type PASSED [ 12%]
+packages/evalschema/tests/test_results.py::test_scored_without_pass_rule_has_passed_none PASSED [ 14%]
+packages/evalschema/tests/test_results.py::test_rating_value_within_scale PASSED [ 16%]
+packages/evalschema/tests/test_results.py::test_enum_value_in_options PASSED [ 17%]
+packages/evalschema/tests/test_results.py::test_metric_value_rejects_nan_inf PASSED [ 19%]
+packages/evalschema/tests/test_results.py::test_missing_inputs_helper PASSED [ 20%]
+packages/evalschema/tests/test_results.py::test_available_inputs_not_derived_from_tier PASSED [ 22%]
+packages/evalschema/tests/test_results.py::test_per_turn_verdict_undetermined PASSED [ 24%]
+packages/evalschema/tests/test_results.py::test_judge_p_yes_absent_when_not_reported PASSED [ 25%]
+packages/evalschema/tests/test_results.py::test_judge_info_shape PASSED  [ 27%]
+packages/evalschema/tests/test_results.py::test_judge_reported_model_verbatim_and_optional PASSED [ 29%]
+packages/evalschema/tests/test_results.py::test_judge_per_turn_reported_model_verbatim_and_optional PASSED [ 30%]
+packages/evalschema/tests/test_results.py::test_prompt_injection_text_is_data PASSED [ 32%]
+packages/evalschema/tests/test_results.py::test_per_turn_share_excludes_undetermined_turns_and_counts_them PASSED [ 33%]
+packages/evalschema/tests/test_results.py::test_per_turn_share_all_undetermined_is_judge_undetermined_error PASSED [ 35%]
+packages/evalschema/tests/test_results.py::test_render_per_turn_share_shows_turn_coverage PASSED [ 37%]
+packages/evalschema/tests/test_results.py::test_no_renderer_shows_per_turn_share_without_turn_coverage PASSED [ 38%]
+packages/evalschema/tests/test_results.py::test_per_turn_share_value_is_none PASSED [ 40%]
+packages/evalschema/tests/test_results.py::test_per_turn_share_stored_in_per_turn_summary PASSED [ 41%]
+packages/evalschema/tests/test_results.py::test_per_turn_share_checked_against_counts PASSED [ 43%]
+packages/evalschema/tests/test_results.py::test_per_turn_share_mismatch_rejected PASSED [ 45%]
+packages/evalschema/tests/test_results.py::test_per_turn_coverage_checked_against_counts PASSED [ 46%]
+packages/evalschema/tests/test_results.py::test_per_turn_share_absent_when_no_turn_counted PASSED [ 48%]
+packages/evalschema/tests/test_results.py::test_per_turn_share_pass_from_range_rule PASSED [ 50%]
+packages/evalschema/tests/test_results.py::test_passed_uses_definition_pass_rule_not_binding_params PASSED [ 51%]
+packages/evalschema/tests/test_results.py::test_check_result_against_definition_checks_the_reference PASSED [ 53%]
+packages/evalschema/tests/test_results.py::test_scorer_info_present_iff_non_judge_scored_or_error PASSED [ 54%]
+packages/evalschema/tests/test_results.py::test_scorer_info_matches_definition_implementation_ref PASSED [ 56%]
+packages/evalschema/tests/test_results.py::test_scorer_version_stored_verbatim PASSED [ 58%]
+packages/evalschema/tests/test_results.py::test_judge_info_present_only_on_scored_or_errored_judge_results PASSED [ 59%]
+packages/evalschema/tests/test_results.py::test_metric_result_evidence_refs_are_evidence_ref_objects PASSED [ 61%]
+packages/evalschema/tests/test_results_language.py::test_language_independent_metric_skips_language_check PASSED [ 62%]
+packages/evalschema/tests/test_results_language.py::test_check_language_without_turns_or_transcripts PASSED [ 64%]
+packages/evalschema/tests/test_results_language.py::test_agent_channel_unknown_only_when_agent_audio_alone_is_missing PASSED [ 66%]
+packages/evalschema/tests/test_results_language.py::test_untagged_input_is_language_not_observed PASSED [ 67%]
+packages/evalschema/tests/test_results_language.py::test_und_and_unparseable_labels_are_language_not_observed PASSED [ 69%]
+packages/evalschema/tests/test_results_language.py::test_turn_language_takes_precedence_over_transcript_language PASSED [ 70%]
+packages/evalschema/tests/test_results_language.py::test_configured_language_never_used_as_observed PASSED [ 72%]
+packages/evalschema/tests/test_results_language.py::test_per_conversation_any_untagged_turn_is_language_not_observed PASSED [ 74%]
+packages/evalschema/tests/test_results_language.py::test_per_turn_share_untagged_turns_not_counted PASSED [ 75%]
+packages/evalschema/tests/test_results_language.py::test_unsupported_language_na_for_observed_bn_IN PASSED [ 77%]
+packages/evalschema/tests/test_results_language.py::test_wer_not_applicable_for_observed_romanized PASSED [ 79%]
+packages/evalschema/tests/test_results_language.py::test_romanized_observed_scored_when_not_script_sensitive PASSED [ 80%]
+packages/evalschema/tests/test_results_language.py::test_declared_language_lifts_language_not_observed PASSED [ 82%]
+packages/evalschema/tests/test_results_language.py::test_declared_language_never_treated_as_observed PASSED [ 83%]
+packages/evalschema/tests/test_results_language.py::test_declared_language_not_used_for_und_or_unparseable_labels PASSED [ 85%]
+packages/evalschema/tests/test_results_language.py::test_observed_turn_tag_takes_precedence_over_declared_language PASSED [ 87%]
+packages/evalschema/tests/test_results_language.py::test_declared_language_still_gives_unsupported_language PASSED [ 88%]
+packages/evalschema/tests/test_results_language.py::test_declaration_does_not_suppress_unsupported_script PASSED [ 90%]
+packages/evalschema/tests/test_results_language.py::test_script_sensitive_metric_ignores_declared_language PASSED [ 91%]
+packages/evalschema/tests/test_results_language.py::test_result_language_source_presence_and_values PASSED [ 93%]
+packages/evalschema/tests/test_results_language.py::test_declared_language_transcript_ids_iff_declared PASSED [ 95%]
+packages/evalschema/tests/test_results_language.py::test_effective_language_steps_table PASSED [ 96%]
+packages/evalschema/tests/test_results_language.py::test_untagged_import_worked_example_6f PASSED [ 98%]
+packages/evalschema/tests/test_results_language.py::test_untagged_import_with_declaration_worked_example_6h PASSED [100%]
+
+============================== 62 passed in 0.31s ==============================

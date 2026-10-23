@@ -1,0 +1,77 @@
+# group: p1-12-snapshot-run   (batch 3 green run, schema-architect)
+# date: 2026-10-23T10:52:02Z (UTC)  local: 2026-10-23T16:22:02+0530
+# command: python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_snapshot.py packages/evalschema/tests/test_run.py   (cwd ~/tracer; pyproject addopts apply)
+# interpreter: <scratchpad>/arch-b3-env3.14/bin/python
+# versions: python 3.14.7; pydantic 2.14.1, pydantic-core 2.50.1, pytest 9.1.1, jsonschema 4.26.0, rfc8785 0.1.4, hypothesis 6.170.5
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git status: no commits; 0 staged paths
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.14.7, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>/arch-b3-env3.14/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 25 items
+
+packages/evalschema/tests/test_snapshot.py::test_snapshot_shape PASSED   [  4%]
+packages/evalschema/tests/test_snapshot.py::test_snapshot_pii_walk_zero PASSED [  8%]
+packages/evalschema/tests/test_snapshot.py::test_snapshot_jcs_digest_stable PASSED [ 12%]
+packages/evalschema/tests/test_snapshot.py::test_snapshot_forged_digest_rejected PASSED [ 16%]
+packages/evalschema/tests/test_snapshot.py::test_snapshot_digest_independent_of_profile_digest PASSED [ 20%]
+packages/evalschema/tests/test_snapshot.py::test_evaluator_digest_excludes_test_profile_digest PASSED [ 24%]
+packages/evalschema/tests/test_snapshot.py::test_config_snapshot_and_evaluator_errors_do_not_echo_input PASSED [ 28%]
+packages/evalschema/tests/test_snapshot.py::test_snapshot_digest_ignores_embedded_schema_version PASSED [ 32%]
+packages/evalschema/tests/test_snapshot.py::test_internal_snapshot_profile_digest_plain_required PASSED [ 36%]
+packages/evalschema/tests/test_snapshot.py::test_pricing_catalog_ref_digest_verified PASSED [ 40%]
+packages/evalschema/tests/test_snapshot.py::test_snapshot_free_text_profile_value_lint_warns PASSED [ 44%]
+packages/evalschema/tests/test_snapshot.py::test_policy_documents_free_text_lint_limitation FAILED [ 48%]
+packages/evalschema/tests/test_snapshot.py::test_snapshot_expected_outcome_is_a_required_equals_true_check PASSED [ 52%]
+packages/evalschema/tests/test_snapshot.py::test_definition_refs_digest_optional_and_verified_when_present PASSED [ 56%]
+packages/evalschema/tests/test_snapshot.py::test_snapshot_validates_the_rubric_against_bindings PASSED [ 60%]
+packages/evalschema/tests/test_snapshot.py::test_snapshot_errors_do_not_quote_rejected_values PASSED [ 64%]
+packages/evalschema/tests/test_run.py::test_run_shape_and_enums PASSED   [ 68%]
+packages/evalschema/tests/test_run.py::test_observed_tier_t0_rejected_with_spans PASSED [ 72%]
+packages/evalschema/tests/test_run.py::test_run_caller_origin_required PASSED [ 76%]
+packages/evalschema/tests/test_run.py::test_simulated_mode_implies_simulated_caller PASSED [ 80%]
+packages/evalschema/tests/test_run.py::test_run_started_at_optional_utc PASSED [ 84%]
+packages/evalschema/tests/test_run.py::test_external_refs_never_ids PASSED [ 88%]
+packages/evalschema/tests/test_run.py::test_run_detected_capabilities_separate_from_declared PASSED [ 92%]
+packages/evalschema/tests/test_run.py::test_run_channel_maps_and_warnings_are_value_objects PASSED [ 96%]
+packages/evalschema/tests/test_run.py::test_run_errors_do_not_quote_rejected_values PASSED [100%]
+
+=================================== FAILURES ===================================
+_______________ test_policy_documents_free_text_lint_limitation ________________
+
+    def test_policy_documents_free_text_lint_limitation() -> None:
+        """P-16 (ADR 0006 Decision 9, I21): SCHEMA_POLICY.md states that the free-text lint can only
+        find
+        values of the profile it is given, that personal data typed into free text that is in no
+        profile cannot be detected and stays the author's responsibility, and (revision 8) that
+        another format of the same value or a part of a value is not found. Gate-bound: green when
+        P1-20a writes the file."""
+>       flat = re.sub(r"\s+", " ", _policy_text().lower())
+                                   ^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_snapshot.py:656: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _policy_text() -> str:
+        candidates = [
+            PACKAGE_DIR / "SCHEMA_POLICY.md",
+            ROOT / "SCHEMA_POLICY.md",
+            ROOT / "docs" / "SCHEMA_POLICY.md",
+        ]
+        for path in candidates:
+            if path.is_file():
+                return path.read_text(encoding="utf-8")
+>       pytest.fail(
+            "SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of "
+            + ", ".join(str(p.relative_to(ROOT)) for p in candidates)
+        )
+E       Failed: SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of packages/evalschema/SCHEMA_POLICY.md, SCHEMA_POLICY.md, docs/SCHEMA_POLICY.md
+
+packages/evalschema/tests/test_snapshot.py:643: Failed
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_snapshot.py::test_policy_documents_free_text_lint_limitation
+========================= 1 failed, 24 passed in 0.41s =========================

@@ -1,0 +1,1033 @@
+# group: p1-11-results-language   (batch 3, mode red, qa)
+# date: 2026-10-23T06:23:19Z (UTC)  local: 2026-10-23T11:53:19+0530
+# command: python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_results_language.py    (cwd ~/tracer; pyproject addopts: -ra --strict-markers --strict-config -m 'not private_fixtures and not local_only')
+# interpreter: <scratchpad>/env3.12/bin/python
+# versions: python 3.12.14; pydantic 2.14.1, pydantic-core 2.50.1, pytest 9.1.1, jsonschema 4.26.0, hypothesis 6.170.5, rfc8785 0.1.4
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git status: ## No commits yet on main; 12 untracked/changed entries; 0 staged paths; no commits made
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.12.14, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>/env3.12/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 22 items
+
+packages/evalschema/tests/test_results_language.py::test_language_independent_metric_skips_language_check FAILED [  4%]
+packages/evalschema/tests/test_results_language.py::test_untagged_input_is_language_not_observed FAILED [  9%]
+packages/evalschema/tests/test_results_language.py::test_und_and_unparseable_labels_are_language_not_observed FAILED [ 13%]
+packages/evalschema/tests/test_results_language.py::test_turn_language_takes_precedence_over_transcript_language FAILED [ 18%]
+packages/evalschema/tests/test_results_language.py::test_configured_language_never_used_as_observed FAILED [ 22%]
+packages/evalschema/tests/test_results_language.py::test_per_conversation_any_untagged_turn_is_language_not_observed FAILED [ 27%]
+packages/evalschema/tests/test_results_language.py::test_per_turn_share_untagged_turns_not_counted FAILED [ 31%]
+packages/evalschema/tests/test_results_language.py::test_unsupported_language_na_for_observed_bn_IN FAILED [ 36%]
+packages/evalschema/tests/test_results_language.py::test_wer_not_applicable_for_observed_romanized FAILED [ 40%]
+packages/evalschema/tests/test_results_language.py::test_romanized_observed_scored_when_not_script_sensitive FAILED [ 45%]
+packages/evalschema/tests/test_results_language.py::test_declared_language_lifts_language_not_observed FAILED [ 50%]
+packages/evalschema/tests/test_results_language.py::test_declared_language_never_treated_as_observed FAILED [ 54%]
+packages/evalschema/tests/test_results_language.py::test_declared_language_not_used_for_und_or_unparseable_labels FAILED [ 59%]
+packages/evalschema/tests/test_results_language.py::test_observed_turn_tag_takes_precedence_over_declared_language FAILED [ 63%]
+packages/evalschema/tests/test_results_language.py::test_declared_language_still_gives_unsupported_language FAILED [ 68%]
+packages/evalschema/tests/test_results_language.py::test_declaration_does_not_suppress_unsupported_script FAILED [ 72%]
+packages/evalschema/tests/test_results_language.py::test_script_sensitive_metric_ignores_declared_language FAILED [ 77%]
+packages/evalschema/tests/test_results_language.py::test_result_language_source_presence_and_values FAILED [ 81%]
+packages/evalschema/tests/test_results_language.py::test_declared_language_transcript_ids_iff_declared FAILED [ 86%]
+packages/evalschema/tests/test_results_language.py::test_effective_language_steps_table FAILED [ 90%]
+packages/evalschema/tests/test_results_language.py::test_untagged_import_worked_example_6f FAILED [ 95%]
+packages/evalschema/tests/test_results_language.py::test_untagged_import_with_declaration_worked_example_6h FAILED [100%]
+
+=================================== FAILURES ===================================
+____________ test_language_independent_metric_skips_language_check _____________
+
+    def test_language_independent_metric_skips_language_check() -> None:
+        """P-59 (ADR 0004 Decisions 6a and 6b, I23): a metric whose ``languages`` is
+        ``"language_independent"`` has no language step at all: untagged input, a language outside the
+        nine, a romanized tag, ``und``, ``mul`` and ``zxx`` change nothing, and no language provenance
+        is recorded (``language_source`` None). The same inputs make a language-dependent metric not
+        applicable."""
+>       transcript = _transcript()
+                     ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_results_language.py:104: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_results_language.py:71: in _transcript
+    return make3("Transcript", source=source, **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:587: in make3
+    model = entity_class3(name)
+            ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x103b080e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_________________ test_untagged_input_is_language_not_observed _________________
+
+    def test_untagged_input_is_language_not_observed() -> None:
+        """P-59 (ADR 0004 Decisions 6c and 6e, I24): a language-dependent metric whose input has no
+        observed language tag is not_applicable with ``language_not_observed``, never
+        ``unsupported_language`` (the language may well be supported). A result with that reason is a
+        valid not_applicable result, with no language provenance when no turn has a language."""
+>       transcript = _transcript()
+                     ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_results_language.py:143: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_results_language.py:71: in _transcript
+    return make3("Transcript", source=source, **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:587: in make3
+    model = entity_class3(name)
+            ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x103b080e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__________ test_und_and_unparseable_labels_are_language_not_observed ___________
+
+    def test_und_and_unparseable_labels_are_language_not_observed() -> None:
+        """P-59 (ADR 0004 Decision 6c): ``und`` (the producer said it did not determine the language)
+        and a raw label that did not normalize to a tag (``language_raw`` present while the tag is
+        None) count as untagged, on the turn and on the transcript. A label that does normalize
+        (``hi_IN`` to ``hi-IN``) is an observation. ``mul`` and ``zxx`` are observations whose primary
+        language is never covered."""
+        definition = _definition()
+>       transcript = _transcript()
+                     ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_results_language.py:177: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_results_language.py:71: in _transcript
+    return make3("Transcript", source=source, **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:587: in make3
+    model = entity_class3(name)
+            ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x103b080e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_________ test_turn_language_takes_precedence_over_transcript_language _________
+
+    def test_turn_language_takes_precedence_over_transcript_language() -> None:
+        """P-59 (ADR 0004 Decision 6c, api-surface 21.2 steps 1-4): a turn's own tag is used before
+        its transcript's tag; the transcript's tag fills a turn with no label; and a turn with a label
+        of its own that is not a tag (``und`` or an unparseable raw label) does not fall back to the
+        transcript."""
+        definition = _definition(languages=["en", "hi"])
+>       tagged = _transcript("our_stt", detected_language=OTHER)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_results_language.py:208: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_results_language.py:71: in _transcript
+    return make3("Transcript", source=source, **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:587: in make3
+    model = entity_class3(name)
+            ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x103b080e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________ test_configured_language_never_used_as_observed ________________
+
+    def test_configured_language_never_used_as_observed() -> None:
+        """P-59 (ADR 0004 Decision 6c): configured languages describe intent, not what was heard.
+        Whatever the Evaluator, Persona, ScriptedTurn, DatasetItem and AgentTarget say, an untagged
+        input stays ``language_not_observed``; the functions have no parameter through which a
+        configured language could enter."""
+        configured = "mr-IN"
+        evaluator = make("Evaluator", language=configured)
+        persona = make("Persona", language=configured)
+        target = make("AgentTarget", languages=[configured])
+>       item = make3("DatasetItem", language=configured)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_results_language.py:239: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:587: in make3
+    model = entity_class3(name)
+            ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.dataset'
+import_ = <function _gcd_import at 0x103b080e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.dataset'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______ test_per_conversation_any_untagged_turn_is_language_not_observed _______
+
+    def test_per_conversation_any_untagged_turn_is_language_not_observed() -> None:
+        """P-59 (ADR 0004 Decision 6e): a per_conversation metric applies the language steps to all the
+        turns it reads, so one untagged turn makes the whole result ``language_not_observed``: scoring
+        the tagged turns alone would score a different input than the definition names. Wherever the
+        untagged turn stands and however many turns are tagged. The tagged turns' provenance is
+        still reported."""
+        definition = _definition()
+>       transcript = _transcript()
+                     ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_results_language.py:283: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_results_language.py:71: in _transcript
+    return make3("Transcript", source=source, **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:587: in make3
+    model = entity_class3(name)
+            ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x103b080e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________________ test_per_turn_share_untagged_turns_not_counted ________________
+
+    def test_per_turn_share_untagged_turns_not_counted() -> None:
+        """P-59 (ADR 0004 Decision 6e, I25): for a ``per_turn_share`` metric the steps run on each turn
+        on its own: an untagged turn is a not_applicable turn, outside the denominator and counted in
+        ``counts.not_applicable``; the share is over the counted turns; when no turn is counted the
+        result's reason is the strongest of the turns' reasons."""
+        definition = _definition(
+            aggregation={"kind": "per_turn_share", "turn_rule": {"kind": "equals_true"}},
+            pass_rule={"kind": "range", "min": 0.5, "inclusive": True},
+        )
+>       transcript = _transcript()
+                     ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_results_language.py:308: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_results_language.py:71: in _transcript
+    return make3("Transcript", source=source, **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:587: in make3
+    model = entity_class3(name)
+            ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x103b080e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________ test_unsupported_language_na_for_observed_bn_IN ________________
+
+    def test_unsupported_language_na_for_observed_bn_IN() -> None:
+        """A-23, ADR 0004 I14: an observed tag outside the nine languages is a valid observation on
+        a turn and a transcript and is never rejected at ingest; a metric whose ``languages`` do not
+        cover its primary language is not_applicable with ``unsupported_language`` (not
+        ``language_not_observed``, the language was observed), with the provenance ``observed``."""
+>       transcript = _transcript(detected_language=OTHER, detected_language_raw=OTHER)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_results_language.py:354: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_results_language.py:71: in _transcript
+    return make3("Transcript", source=source, **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:587: in make3
+    model = entity_class3(name)
+            ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x103b080e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________________ test_wer_not_applicable_for_observed_romanized ________________
+
+    def test_wer_not_applicable_for_observed_romanized() -> None:
+        """A script-sensitive metric (ADR 0004 Decision 7, I11; deferred from P1-04c): on observed text
+        whose script is not a native script of its language (``hi-Latn``) it is not_applicable with
+        ``unsupported_script``, and it says so for every configured language, derived from the
+        data file ``languages.json`` and not from the metric key. Text without a script subtag is not
+        treated as romanized."""
+        wer = _wer()
+>       transcript = _transcript()
+                     ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_results_language.py:408: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_results_language.py:71: in _transcript
+    return make3("Transcript", source=source, **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:587: in make3
+    model = entity_class3(name)
+            ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x103b080e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+___________ test_romanized_observed_scored_when_not_script_sensitive ___________
+
+    def test_romanized_observed_scored_when_not_script_sensitive() -> None:
+        """ADR 0004 I12 (deferred from P1-04c): the same romanized text with a definition that is not
+        script-sensitive (a judge of goal completion) is applicable and scored: the result is a normal
+        scored result whose language provenance is ``observed``."""
+        judge = _definition()
+>       transcript = _transcript()
+                     ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_results_language.py:481: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_results_language.py:71: in _transcript
+    return make3("Transcript", source=source, **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:587: in make3
+    model = entity_class3(name)
+            ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x103b080e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+______________ test_declared_language_lifts_language_not_observed ______________
+
+    def test_declared_language_lifts_language_not_observed() -> None:
+        """N14 (ADR 0004 Decisions 6e and 6g, I29): for a metric that is not script-sensitive, a
+        declaration covers the turns that have no label of their own, so ``language_not_observed``
+        no longer applies to them: the result is applicable (scored, or ``unsupported_language`` when
+        the declared language is not covered), the provenance is ``declared`` and the transcript is
+        listed. A turn with its own tag next to a covered turn keeps its own source; one covered
+        turn is enough for ``declared``."""
+        definition = _definition()
+>       declared = _declared()
+                   ^^^^^^^^^^^
+
+packages/evalschema/tests/test_results_language.py:505: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_results_language.py:92: in _declared
+    return _transcript(source, declared_language=language_declaration(**over))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/test_results_language.py:71: in _transcript
+    return make3("Transcript", source=source, **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:587: in make3
+    model = entity_class3(name)
+            ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x103b080e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________ test_declared_language_never_treated_as_observed _______________
+
+    def test_declared_language_never_treated_as_observed() -> None:
+        """N14 (ADR 0004 Decision 6g, I29): a declaration fills no observed field: the transcript's
+        ``detected_language`` and ``detected_language_raw`` and the turns' ``language`` and
+        ``language_raw`` stay as imported, also after the language steps ran; it is never copied to
+        another transcript of the same call (an ``our_stt`` transcript of the call has its own tags and
+        its own provenance); the result says ``declared``, not ``observed``."""
+        definition = _definition()
+>       declared = _declared()
+                   ^^^^^^^^^^^
+
+packages/evalschema/tests/test_results_language.py:543: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_results_language.py:92: in _declared
+    return _transcript(source, declared_language=language_declaration(**over))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/test_results_language.py:71: in _transcript
+    return make3("Transcript", source=source, **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:587: in make3
+    model = entity_class3(name)
+            ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x103b080e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________ test_declared_language_not_used_for_und_or_unparseable_labels _________
+
+    def test_declared_language_not_used_for_und_or_unparseable_labels() -> None:
+        """N14 (ADR 0004 Decision 6g, I29): a declaration fills only absence. A turn with a label of its
+        own that is not a tag (``und``, or a raw label that did not parse) keeps 'no observed
+        language' and the declaration does not cover it, even though its transcript has one."""
+        definition = _definition()
+>       declared = _declared()
+                   ^^^^^^^^^^^
+
+packages/evalschema/tests/test_results_language.py:573: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_results_language.py:92: in _declared
+    return _transcript(source, declared_language=language_declaration(**over))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/test_results_language.py:71: in _transcript
+    return make3("Transcript", source=source, **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:587: in make3
+    model = entity_class3(name)
+            ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x103b080e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________ test_observed_turn_tag_takes_precedence_over_declared_language ________
+
+    def test_observed_turn_tag_takes_precedence_over_declared_language() -> None:
+        """N14 (ADR 0004 Decision 6g, I29): a turn with its own tag uses that tag (provenance
+        ``observed``), not the declaration: with a declared ``mr`` and a metric that covers only
+        ``hi`` and ``en``, a turn tagged ``en-IN`` is applicable while an untagged one is
+        ``unsupported_language`` (its language is the declared one)."""
+        definition = _definition(languages=["hi", "en"])
+>       declared = _declared(language="mr-IN")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_results_language.py:598: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_results_language.py:92: in _declared
+    return _transcript(source, declared_language=language_declaration(**over))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/test_results_language.py:71: in _transcript
+    return make3("Transcript", source=source, **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:587: in make3
+    model = entity_class3(name)
+            ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x103b080e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+___________ test_declared_language_still_gives_unsupported_language ____________
+
+    def test_declared_language_still_gives_unsupported_language() -> None:
+        """N14 (ADR 0004 Decision 6g, I30): a declaration does not make a language supported: when the
+        declared language's primary language is not in ``languages`` the result is
+        ``unsupported_language`` with provenance ``declared`` and the declaring transcript listed;
+        ``missing_input`` still comes before it."""
+        definition = _definition(languages=["hi", "en"])
+>       declared = _declared(language="mr-IN")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_results_language.py:617: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_results_language.py:92: in _declared
+    return _transcript(source, declared_language=language_declaration(**over))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/test_results_language.py:71: in _transcript
+    return make3("Transcript", source=source, **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:587: in make3
+    model = entity_class3(name)
+            ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x103b080e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____________ test_declaration_does_not_suppress_unsupported_script _____________
+
+    def test_declaration_does_not_suppress_unsupported_script() -> None:
+        """N14 (ADR 0004 Decisions 6e and 6g, I30): a declaration never hides ``unsupported_script``: a
+        script-sensitive metric over turns that carry their own romanized tag (``hi-Latn``) of a
+        transcript that also holds a declaration is ``unsupported_script`` with provenance
+        ``observed`` and no declared transcript. (For a metric that is not script-sensitive the same
+        turns are applicable.)"""
+        sensitive = _definition(script_sensitive=True, key="native_script_check")
+>       declared = _declared(language="hi-IN")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_results_language.py:652: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_results_language.py:92: in _declared
+    return _transcript(source, declared_language=language_declaration(**over))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/test_results_language.py:71: in _transcript
+    return make3("Transcript", source=source, **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:587: in make3
+    model = entity_class3(name)
+            ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x103b080e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____________ test_script_sensitive_metric_ignores_declared_language ____________
+
+    def test_script_sensitive_metric_ignores_declared_language() -> None:
+        """N14 (ADR 0004 Decision 6g, I30): a script-sensitive metric never uses a declared language,
+        because a declaration states the language and not the script of the text. A turn whose
+        language would come only from the declaration has no effective language for such a metric:
+        ``language_not_observed``, exactly as without the declaration, and no provenance; the same
+        turns are applicable for a metric that is not script-sensitive. A result cannot claim
+        ``declared`` for a script-sensitive definition."""
+        sensitive = _definition(script_sensitive=True, key="native_script_check")
+        lenient = _definition()
+>       declared = _declared()
+                   ^^^^^^^^^^^
+
+packages/evalschema/tests/test_results_language.py:682: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_results_language.py:92: in _declared
+    return _transcript(source, declared_language=language_declaration(**over))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/test_results_language.py:71: in _transcript
+    return make3("Transcript", source=source, **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:587: in make3
+    model = entity_class3(name)
+            ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x103b080e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________ test_result_language_source_presence_and_values ________________
+
+    def test_result_language_source_presence_and_values() -> None:
+        """N14 (ADR 0004 Decision 6g, I31): ``language_source`` is ``observed``, ``declared`` or absent.
+        On the result alone it is None when the language steps did not run (``missing_input``,
+        ``agent_channel_unknown``). Against the definition: None for a language-independent metric;
+        not ``declared`` for a script-sensitive one; and for a language-dependent metric required once
+        the steps found a language (scored, error, ``unsupported_language``, ``unsupported_script``),
+        free for ``language_not_observed``."""
+>       model = entity_class3("MetricResult")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_results_language.py:713: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.results'
+import_ = <function _gcd_import at 0x103b080e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.results'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+______________ test_declared_language_transcript_ids_iff_declared ______________
+
+    def test_declared_language_transcript_ids_iff_declared() -> None:
+        """N14 (ADR 0004 Decision 6g, I31): ``declared_language_transcript_ids`` is non-empty if and
+        only
+        if ``language_source`` is ``declared``; the IDs are ``tsc_`` IDs, unique and sorted by their
+        string form; the default is the empty list."""
+>       model = entity_class3("MetricResult")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_results_language.py:804: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.results'
+import_ = <function _gcd_import at 0x103b080e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.results'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________________ test_effective_language_steps_table ______________________
+
+    def test_effective_language_steps_table() -> None:
+        """Proposed name (api-surface 21.2, the six steps): ``effective_language`` returns
+        ``(language, source)`` or ``None``: 1 the turn's tag (not ``und``); 2 a turn with ``und`` or an
+        unparseable raw label has none; 3 the transcript's tag (not ``und``); 4 a transcript with
+        ``und``
+        or an unparseable raw label has none; 5 the declaration, if the definition is not
+        script-sensitive; 6 otherwise none. Configured languages are never read. With no turn read
+        (``turn=None``) only steps 3 to 6 apply."""
+>       effective = _results().effective_language
+                    ^^^^^^^^^^
+
+packages/evalschema/tests/test_results_language.py:860: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_results_language.py:51: in _results
+    return api("results")
+           ^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.results'
+import_ = <function _gcd_import at 0x103b080e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.results'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____________________ test_untagged_import_worked_example_6f ____________________
+
+    def test_untagged_import_worked_example_6f() -> None:
+        """Proposed name (ADR 0004 Decision 6f, I26; the structure of the F8 example on synthetic
+        records; the real twin test is ``test_f8_untagged_transcript_language_reasons`` in P1-36): an
+        untagged ``agent_export`` transcript with no timing and no audio. p95 response latency
+        (language independent, needs turn timing) is ``missing_input``; an agent turn count (language
+        independent) is applicable; goal completion (judge, languages mr, hi, en, not script-sensitive)
+        is ``language_not_observed`` whatever the configured language of the evaluator; WER (script
+        sensitive, needs audio and a reference) is ``missing_input``, which comes before the language
+        steps. A script-sensitive metric that has its inputs is ``language_not_observed``."""
+>       results = _results()
+                  ^^^^^^^^^^
+
+packages/evalschema/tests/test_results_language.py:906: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_results_language.py:51: in _results
+    return api("results")
+           ^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.results'
+import_ = <function _gcd_import at 0x103b080e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.results'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+___________ test_untagged_import_with_declaration_worked_example_6h ____________
+
+    def test_untagged_import_with_declaration_worked_example_6h() -> None:
+        """Proposed name (ADR 0004 Decision 6h, I33; the real twin test is
+        ``test_f8_declared_language_reasons`` in P1-36): the same import with a declared Marathi.
+        Latency stays ``missing_input`` and the turn count stays applicable, both without provenance;
+        goal completion is applicable with ``declared`` and the transcript listed; the same judge in
+        a version that lists only Hindi and English is ``unsupported_language`` with ``declared``;
+        WER stays ``missing_input`` and a script-sensitive metric with its inputs stays
+        ``language_not_observed``; an ``our_stt`` transcript of the call with ``mr-IN`` turns gives
+        ``observed`` on that transcript while the declaration stays on the export."""
+>       results = _results()
+                  ^^^^^^^^^^
+
+packages/evalschema/tests/test_results_language.py:969: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_results_language.py:51: in _results
+    return api("results")
+           ^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.results'
+import_ = <function _gcd_import at 0x103b080e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.results'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+- generated xml file: <scratchpad>/junit3/p1-11-results-language.py3.12.xml -
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_results_language.py::test_language_independent_metric_skips_language_check
+FAILED packages/evalschema/tests/test_results_language.py::test_untagged_input_is_language_not_observed
+FAILED packages/evalschema/tests/test_results_language.py::test_und_and_unparseable_labels_are_language_not_observed
+FAILED packages/evalschema/tests/test_results_language.py::test_turn_language_takes_precedence_over_transcript_language
+FAILED packages/evalschema/tests/test_results_language.py::test_configured_language_never_used_as_observed
+FAILED packages/evalschema/tests/test_results_language.py::test_per_conversation_any_untagged_turn_is_language_not_observed
+FAILED packages/evalschema/tests/test_results_language.py::test_per_turn_share_untagged_turns_not_counted
+FAILED packages/evalschema/tests/test_results_language.py::test_unsupported_language_na_for_observed_bn_IN
+FAILED packages/evalschema/tests/test_results_language.py::test_wer_not_applicable_for_observed_romanized
+FAILED packages/evalschema/tests/test_results_language.py::test_romanized_observed_scored_when_not_script_sensitive
+FAILED packages/evalschema/tests/test_results_language.py::test_declared_language_lifts_language_not_observed
+FAILED packages/evalschema/tests/test_results_language.py::test_declared_language_never_treated_as_observed
+FAILED packages/evalschema/tests/test_results_language.py::test_declared_language_not_used_for_und_or_unparseable_labels
+FAILED packages/evalschema/tests/test_results_language.py::test_observed_turn_tag_takes_precedence_over_declared_language
+FAILED packages/evalschema/tests/test_results_language.py::test_declared_language_still_gives_unsupported_language
+FAILED packages/evalschema/tests/test_results_language.py::test_declaration_does_not_suppress_unsupported_script
+FAILED packages/evalschema/tests/test_results_language.py::test_script_sensitive_metric_ignores_declared_language
+FAILED packages/evalschema/tests/test_results_language.py::test_result_language_source_presence_and_values
+FAILED packages/evalschema/tests/test_results_language.py::test_declared_language_transcript_ids_iff_declared
+FAILED packages/evalschema/tests/test_results_language.py::test_effective_language_steps_table
+FAILED packages/evalschema/tests/test_results_language.py::test_untagged_import_worked_example_6f
+FAILED packages/evalschema/tests/test_results_language.py::test_untagged_import_with_declaration_worked_example_6h
+============================== 22 failed in 0.39s ==============================
+# exit status: 1

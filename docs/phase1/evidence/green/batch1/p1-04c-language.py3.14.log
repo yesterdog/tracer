@@ -1,0 +1,81 @@
+# group: p1-04c-language   (batch 1 green run, schema-architect)
+# date: 2026-10-22T17:56:57Z (UTC)  local: 2026-10-22T23:26:57+0530
+# command: python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_language.py   (cwd ~/tracer; pyproject addopts: -ra --strict-markers --strict-config -m 'not private_fixtures and not local_only')
+# interpreter: <scratchpad>/env3.14/bin/python
+# versions: python 3.14.7; pydantic 2.14.1, pydantic-core 2.50.1, pytest 9.1.1, jsonschema 4.26.0, rfc8785 0.1.4
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git status: no commits; 0 staged paths
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.14.7, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>/env3.14/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 63 items
+
+packages/evalschema/tests/test_language.py::test_supported_accepts[hi-IN] PASSED [  1%]
+packages/evalschema/tests/test_language.py::test_supported_accepts[en-US] PASSED [  3%]
+packages/evalschema/tests/test_language.py::test_supported_accepts[en-GB] PASSED [  4%]
+packages/evalschema/tests/test_language.py::test_supported_accepts[pa-Guru-IN] PASSED [  6%]
+packages/evalschema/tests/test_language.py::test_supported_accepts[ml] PASSED [  7%]
+packages/evalschema/tests/test_language.py::test_supported_accepts[gu-IN] PASSED [  9%]
+packages/evalschema/tests/test_language.py::test_supported_accepts_every_configured_language_code PASSED [ 11%]
+packages/evalschema/tests/test_language.py::test_canonical_case PASSED   [ 12%]
+packages/evalschema/tests/test_language.py::test_supported_rejects[bn] PASSED [ 14%]
+packages/evalschema/tests/test_language.py::test_supported_rejects[ur] PASSED [ 15%]
+packages/evalschema/tests/test_language.py::test_supported_rejects[or] PASSED [ 17%]
+packages/evalschema/tests/test_language.py::test_supported_rejects[as] PASSED [ 19%]
+packages/evalschema/tests/test_language.py::test_supported_rejects[pa-Arab] PASSED [ 20%]
+packages/evalschema/tests/test_language.py::test_supported_script_allowed_only_if_native PASSED [ 22%]
+packages/evalschema/tests/test_language.py::test_supported_region_outside_vendored_set_rejected PASSED [ 23%]
+packages/evalschema/tests/test_language.py::test_observed_accepts_regions_outside_vendored_set[ta-LK] PASSED [ 25%]
+packages/evalschema/tests/test_language.py::test_observed_accepts_regions_outside_vendored_set[en-AU] PASSED [ 26%]
+packages/evalschema/tests/test_language.py::test_hi_en_rejected_with_codemix_message PASSED [ 28%]
+packages/evalschema/tests/test_language.py::test_codemix_message_applies_to_the_eight_non_english_languages_with_region_EN PASSED [ 30%]
+packages/evalschema/tests/test_language.py::test_en_EN_and_other_pairs_get_the_ordinary_messages PASSED [ 31%]
+packages/evalschema/tests/test_language.py::test_observed_hi_en_is_region_EN PASSED [ 33%]
+packages/evalschema/tests/test_language.py::test_configured_rejects_hi_Latn PASSED [ 34%]
+packages/evalschema/tests/test_language.py::test_observed_accepts_hi_Latn PASSED [ 36%]
+packages/evalschema/tests/test_language.py::test_rejects[und] PASSED     [ 38%]
+packages/evalschema/tests/test_language.py::test_rejects[mul] PASSED     [ 39%]
+packages/evalschema/tests/test_language.py::test_rejects[zxx] PASSED     [ 41%]
+packages/evalschema/tests/test_language.py::test_rejects[hi-x-foo] PASSED [ 42%]
+packages/evalschema/tests/test_language.py::test_rejects[hi-u-nu-deva] PASSED [ 44%]
+packages/evalschema/tests/test_language.py::test_rejects[hi-1901] PASSED [ 46%]
+packages/evalschema/tests/test_language.py::test_observed_accepts_special_and_extension_tags PASSED [ 47%]
+packages/evalschema/tests/test_language.py::test_observed_accepts_bn_IN PASSED [ 49%]
+packages/evalschema/tests/test_language.py::test_observed_accepts_well_formed_unregistered[xq-IN] PASSED [ 50%]
+packages/evalschema/tests/test_language.py::test_observed_accepts_well_formed_unregistered[hi-AA] PASSED [ 52%]
+packages/evalschema/tests/test_language.py::test_observed_accepts_well_formed_unregistered[qaa] PASSED [ 53%]
+packages/evalschema/tests/test_language.py::test_observed_accepts_private_use_only_and_extlang_forms PASSED [ 55%]
+packages/evalschema/tests/test_language.py::test_observed_validation_does_not_read_registry PASSED [ 57%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_malformed[hi_IN] PASSED [ 58%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_malformed[hi--IN] PASSED [ 60%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_malformed[-hi] PASSED [ 61%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_malformed[hi-IN-] PASSED [ 63%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_malformed[] PASSED [ 65%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_other_malformed_forms PASSED [ 66%]
+packages/evalschema/tests/test_language.py::test_observed_primary_subtag_2_3_letters[hindi] PASSED [ 68%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_grandfathered[i-klingon] PASSED [ 69%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_grandfathered[en-GB-oed] PASSED [ 71%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_grandfathered[zh-min-nan] PASSED [ 73%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_grandfathered[art-lojban] PASSED [ 74%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_all_26_grandfathered_tags PASSED [ 76%]
+packages/evalschema/tests/test_language.py::test_observed_grandfathered_is_a_whole_tag_case_insensitive_match PASSED [ 77%]
+packages/evalschema/tests/test_language.py::test_observed_accepts_up_to_three_extlang_subtags PASSED [ 79%]
+packages/evalschema/tests/test_language.py::test_types_do_not_trim_labels PASSED [ 80%]
+packages/evalschema/tests/test_language.py::test_importer_language_name_raw_kept_tag_empty[hindi] PASSED [ 82%]
+packages/evalschema/tests/test_language.py::test_importer_language_name_raw_kept_tag_empty[Hindi] PASSED [ 84%]
+packages/evalschema/tests/test_language.py::test_importer_language_name_raw_kept_tag_empty[\u0939\u093f\u0928\u094d\u0926\u0940] PASSED [ 85%]
+packages/evalschema/tests/test_language.py::test_importer_language_name_raw_kept_tag_empty[English (India)] PASSED [ 87%]
+packages/evalschema/tests/test_language.py::test_importer_language_name_raw_kept_tag_empty[hi in] PASSED [ 88%]
+packages/evalschema/tests/test_language.py::test_detected_language_raw_verbatim PASSED [ 90%]
+packages/evalschema/tests/test_language.py::test_detected_language_raw_kept_when_tag_unparseable PASSED [ 92%]
+packages/evalschema/tests/test_language.py::test_importer_underscore_to_hyphen_with_warning_raw_kept PASSED [ 93%]
+packages/evalschema/tests/test_language.py::test_normalize_language_label_is_pure_and_total PASSED [ 95%]
+packages/evalschema/tests/test_language.py::test_case_only_difference_gives_no_warning PASSED [ 96%]
+packages/evalschema/tests/test_language.py::test_primary_language_equivalence PASSED [ 98%]
+packages/evalschema/tests/test_language.py::test_supported_no_suppress_script_rewrite PASSED [100%]
+
+============================== 63 passed in 0.17s ==============================

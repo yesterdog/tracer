@@ -1,0 +1,502 @@
+# group: p1-12-snapshot   (batch 3, mode red, qa)
+# date: 2026-10-23T06:23:20Z (UTC)  local: 2026-10-23T11:53:20+0530
+# command: python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_snapshot.py    (cwd ~/tracer; pyproject addopts: -ra --strict-markers --strict-config -m 'not private_fixtures and not local_only')
+# interpreter: <scratchpad>/env3.12/bin/python
+# versions: python 3.12.14; pydantic 2.14.1, pydantic-core 2.50.1, pytest 9.1.1, jsonschema 4.26.0, hypothesis 6.170.5, rfc8785 0.1.4
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git status: ## No commits yet on main; 12 untracked/changed entries; 0 staged paths; no commits made
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.12.14, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>/env3.12/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 13 items
+
+packages/evalschema/tests/test_snapshot.py::test_snapshot_shape FAILED   [  7%]
+packages/evalschema/tests/test_snapshot.py::test_snapshot_pii_walk_zero FAILED [ 15%]
+packages/evalschema/tests/test_snapshot.py::test_snapshot_jcs_digest_stable FAILED [ 23%]
+packages/evalschema/tests/test_snapshot.py::test_snapshot_forged_digest_rejected FAILED [ 30%]
+packages/evalschema/tests/test_snapshot.py::test_snapshot_digest_independent_of_profile_digest FAILED [ 38%]
+packages/evalschema/tests/test_snapshot.py::test_snapshot_digest_ignores_embedded_schema_version FAILED [ 46%]
+packages/evalschema/tests/test_snapshot.py::test_internal_snapshot_profile_digest_plain_required FAILED [ 53%]
+packages/evalschema/tests/test_snapshot.py::test_pricing_catalog_ref_digest_verified FAILED [ 61%]
+packages/evalschema/tests/test_snapshot.py::test_snapshot_free_text_profile_value_lint_warns FAILED [ 69%]
+packages/evalschema/tests/test_snapshot.py::test_policy_documents_free_text_lint_limitation FAILED [ 76%]
+packages/evalschema/tests/test_snapshot.py::test_snapshot_expected_outcome_is_a_required_equals_true_check FAILED [ 84%]
+packages/evalschema/tests/test_snapshot.py::test_definition_refs_digest_optional_and_verified_when_present FAILED [ 92%]
+packages/evalschema/tests/test_snapshot.py::test_snapshot_validates_the_rubric_against_bindings FAILED [100%]
+
+=================================== FAILURES ===================================
+_____________________________ test_snapshot_shape ______________________________
+
+    def test_snapshot_shape() -> None:
+        """Proposed name (ADR 0006 Decision 1, ADR 0009 Decision 5): a snapshot is an entity (``snap``)
+        that is digested but not versioned: no ``version``, a required ``content_digest``. It embeds
+        the evaluator, the persona, the definitions, the bindings and the rubric, and holds only
+        references for the rest: its fields are exactly those, and it round-trips through JSON and its
+        JSON Schema."""
+>       model = entity_class3("ConfigSnapshot")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_snapshot.py:112: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.snapshot'
+import_ = <function _gcd_import at 0x101c940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.snapshot'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_________________________ test_snapshot_pii_walk_zero __________________________
+
+    def test_snapshot_pii_walk_zero() -> None:
+        """ADR 0006 I1, gate item 10: the ConfigSnapshot schema (embedded entities and references
+        included, both modes) has no ``x-pii`` field, the snapshot embeds no ``TestProfile`` (only
+        a ``TestProfileRef``), and the values of the referenced profile appear nowhere in the
+        snapshot document. A positive control: the profile itself has ``x-pii`` fields."""
+>       model = entity_class3("ConfigSnapshot")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_snapshot.py:149: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.snapshot'
+import_ = <function _gcd_import at 0x101c940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.snapshot'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________________ test_snapshot_jcs_digest_stable ________________________
+
+    def test_snapshot_jcs_digest_stable() -> None:
+        """ADR 0006 I3, gate item 10: the snapshot digest is the plain SHA-256 over the RFC 8785 (JCS)
+        bytes of the digest domain, computed here independently from the JSON document alone: it
+        equals the stored ``content_digest`` and ``compute_snapshot_digest``, does not depend on key
+        order or on the process (a fresh interpreter computes the same value), and changes when the
+        content changes."""
+>       doc = _doc()
+              ^^^^^^
+
+packages/evalschema/tests/test_snapshot.py:176: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_snapshot.py:63: in _doc
+    return snapshot_doc(snapshot_parts(**parts))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:491: in snapshot_doc
+    digest = api("snapshot").compute_snapshot_digest(body)
+             ^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.snapshot'
+import_ = <function _gcd_import at 0x101c940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.snapshot'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________________ test_snapshot_forged_digest_rejected _____________________
+
+    def test_snapshot_forged_digest_rejected() -> None:
+        """A-09, ADR 0006 I4: a snapshot whose ``content_digest`` is not the digest of its content is
+        rejected with the typed ``DigestMismatch``: a wrong hex value, a changed top-level field, an
+        embedded record replaced by another valid record (the embedded digests are inside the
+        domain, so each version used is pinned). A keyed digest cannot be verified without a key
+        (``DigestKeyUnavailable``) and an unregistered scheme is ``UnknownDigestScheme``."""
+        errors = api("errors")
+>       model = entity_class3("ConfigSnapshot")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_snapshot.py:225: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.snapshot'
+import_ = <function _gcd_import at 0x101c940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.snapshot'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+______________ test_snapshot_digest_independent_of_profile_digest ______________
+
+    def test_snapshot_digest_independent_of_profile_digest() -> None:
+        """P-17 (ADR 0006 Decision 5, I20): every ``TestProfileRef`` inside a snapshot contributes only
+        ``{id, version}`` to the snapshot digest; its ``content_digest`` is outside the domain, so a
+        plain digest, another plain digest, a keyed digest and no digest at all give one snapshot
+        digest, while the profile's ``id`` and ``version`` are inside it. Computed on the JSON
+        document, so that a recipient of an export that dropped the profile digest can recompute it."""
+>       module = api("snapshot")
+                 ^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_snapshot.py:261: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.snapshot'
+import_ = <function _gcd_import at 0x101c940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.snapshot'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________ test_snapshot_digest_ignores_embedded_schema_version _____________
+
+    def test_snapshot_digest_ignores_embedded_schema_version() -> None:
+        """Revision 7 (ADR 0006 Decision 5, depth): the ``schema_version`` of each embedded entity
+        (Evaluator, Persona, each MetricDefinition and MetricBinding, the Rubric) is outside the
+        snapshot digest domain, at the paths the snapshot names, so the digest stays stable across
+        schema upgrades; the top-level ``schema_version`` is outside it too. A user ``metadata`` key
+        called ``schema_version`` is NOT removed (removal is by path, never by key name), and every
+        other change moves the digest, including an embedded ``content_digest``."""
+>       module = api("snapshot")
+                 ^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_snapshot.py:298: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.snapshot'
+import_ = <function _gcd_import at 0x101c940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.snapshot'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________ test_internal_snapshot_profile_digest_plain_required _____________
+
+    def test_internal_snapshot_profile_digest_plain_required() -> None:
+        """ADR 0006 Decision 6, I18: an internal snapshot records the plain (``sha256-jcs/v1``) digest
+        of
+        its test profile; ``check_internal_snapshot`` rejects an absent digest and a keyed one, and
+        accepts a plain one. A snapshot without a test profile has nothing to record. The snapshot
+        model itself loads all of these (a shared export drops or keys the digest, P1-14)."""
+>       check = api("snapshot").check_internal_snapshot
+                ^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_snapshot.py:368: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.snapshot'
+import_ = <function _gcd_import at 0x101c940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.snapshot'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+___________________ test_pricing_catalog_ref_digest_verified ___________________
+
+    def test_pricing_catalog_ref_digest_verified() -> None:
+        """ADR 0006 I16, gate item 10 (the bundle half is P1-14, the catalog entity P1-24):
+        ``PricingCatalogRef{id, version, digest}`` names a ``pcat_`` ID, a version of at least 1 and a
+        required digest; ``check_pricing_catalog_ref`` verifies the reference against the catalog
+        document of the bundle: another ID or version, a different digest of the same scheme, and a
+        digest that cannot be compared without a key are rejected, never reported as matching."""
+>       ref_model = registered_class("PricingCatalogRef")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_snapshot.py:384: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'PricingCatalogRef'
+
+    def registered_class(name: str) -> Any:
+        """The module-level model class ``name`` of the package, wherever the architect put it.
+    
+        Used for the value objects whose module api-surface 19.4.1 does not fix. A missing class fails
+        the test that needs it (AssertionError), never collection."""
+        found = {model.__name__: model for model in api("registry").model_classes()}
+>       assert name in found, f"{name} is not implemented yet"
+               ^^^^^^^^^^^^^
+E       AssertionError: PricingCatalogRef is not implemented yet
+
+packages/evalschema/tests/_support_b2.py:105: AssertionError
+_______________ test_snapshot_free_text_profile_value_lint_warns _______________
+
+    def test_snapshot_free_text_profile_value_lint_warns() -> None:
+        """P-16 (ADR 0006 Decision 9, I21): ``lint_profile_values_in_free_text(snapshot, profile)``
+        returns an ``IngestWarning`` with code ``profile_value_in_free_text`` and the RFC 6901 path
+        of each free-text string of the snapshot that holds a literal value of the profile, sorted by
+        path, and never the value (not in the code, path, raw or message). Placeholders are not
+        values; a snapshot without literals gives no warning; the profile need not be in the
+        snapshot."""
+>       lint = api("snapshot").lint_profile_values_in_free_text
+               ^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_snapshot.py:446: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.snapshot'
+import_ = <function _gcd_import at 0x101c940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.snapshot'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________ test_policy_documents_free_text_lint_limitation ________________
+
+    def test_policy_documents_free_text_lint_limitation() -> None:
+        """P-16 (ADR 0006 Decision 9, I21): SCHEMA_POLICY.md states that the free-text lint can only
+        find
+        values of the profile it is given, that personal data typed into free text that is in no
+        profile cannot be detected and stays the author's responsibility, and (revision 8) that
+        another format of the same value or a part of a value is not found. Gate-bound: green when
+        P1-20a writes the file."""
+>       flat = re.sub(r"\s+", " ", _policy_text().lower())
+                                   ^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_snapshot.py:512: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _policy_text() -> str:
+        candidates = [
+            PACKAGE_DIR / "SCHEMA_POLICY.md",
+            ROOT / "SCHEMA_POLICY.md",
+            ROOT / "docs" / "SCHEMA_POLICY.md",
+        ]
+        for path in candidates:
+            if path.is_file():
+                return path.read_text(encoding="utf-8")
+>       pytest.fail(
+            "SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of "
+            + ", ".join(str(p.relative_to(ROOT)) for p in candidates)
+        )
+E       Failed: SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of packages/evalschema/SCHEMA_POLICY.md, SCHEMA_POLICY.md, docs/SCHEMA_POLICY.md
+
+packages/evalschema/tests/test_snapshot.py:499: Failed
+________ test_snapshot_expected_outcome_is_a_required_equals_true_check ________
+
+    def test_snapshot_expected_outcome_is_a_required_equals_true_check() -> None:
+        """Revision 8 (ADR 0013 Decision 2, api-surface 19.4 item 7): the evaluator's expected outcome
+        reaches its check through the reserved prompt variable ``expected_outcome``. An
+        expected-outcome check is an enabled binding whose definition is ``llm_judge``, boolean,
+        per_conversation, ``equals_true`` and lists ``expected_outcome`` in ``prompt_variables``. The
+        snapshot needs at least one, and every one must be a required rubric item. A definition that
+        uses the variable in another shape is an ordinary metric."""
+>       ok = _snapshot(_doc())
+                       ^^^^^^
+
+packages/evalschema/tests/test_snapshot.py:532: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_snapshot.py:63: in _doc
+    return snapshot_doc(snapshot_parts(**parts))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:491: in snapshot_doc
+    digest = api("snapshot").compute_snapshot_digest(body)
+             ^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.snapshot'
+import_ = <function _gcd_import at 0x101c940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.snapshot'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________ test_definition_refs_digest_optional_and_verified_when_present ________
+
+    def test_definition_refs_digest_optional_and_verified_when_present() -> None:
+        """E5 (accepted by the owner; ADR 0009 Decision 4, I11), the snapshot half: the references
+        between the embedded records (the evaluator's persona and bindings, a binding's definition)
+        may omit ``content_digest``; when one is present it is verified against the embedded record,
+        and a mismatch is rejected with the typed ``RefDigestMismatchError``. An unresolved reference
+        (no embedded record of that ``(id, version)``) is rejected."""
+        errors = api("errors")
+        parts = snapshot_parts()
+>       doc = snapshot_doc(parts)
+              ^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_snapshot.py:577: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:491: in snapshot_doc
+    digest = api("snapshot").compute_snapshot_digest(body)
+             ^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.snapshot'
+import_ = <function _gcd_import at 0x101c940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.snapshot'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________ test_snapshot_validates_the_rubric_against_bindings ______________
+
+    def test_snapshot_validates_the_rubric_against_bindings() -> None:
+        """Proposed name (api-surface 19.4 items 1, 4 and 8, ADR 0013 Decision 7: ``validate_rubric`` is
+        called by the snapshot): the embedded bindings, definitions and rubric must pass the rubric
+        validation, so a binding that belongs to another evaluator, two definitions with one key, a
+        required item whose definition has no pass rule and a disabled binding as a rubric item are
+        rejected, each at snapshot level."""
+>       _snapshot(_doc())
+                  ^^^^^^
+
+packages/evalschema/tests/test_snapshot.py:687: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_snapshot.py:63: in _doc
+    return snapshot_doc(snapshot_parts(**parts))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:491: in snapshot_doc
+    digest = api("snapshot").compute_snapshot_digest(body)
+             ^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.snapshot'
+import_ = <function _gcd_import at 0x101c940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.snapshot'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+- generated xml file: <scratchpad>/junit3/p1-12-snapshot.py3.12.xml -
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_snapshot.py::test_snapshot_shape - Modu...
+FAILED packages/evalschema/tests/test_snapshot.py::test_snapshot_pii_walk_zero
+FAILED packages/evalschema/tests/test_snapshot.py::test_snapshot_jcs_digest_stable
+FAILED packages/evalschema/tests/test_snapshot.py::test_snapshot_forged_digest_rejected
+FAILED packages/evalschema/tests/test_snapshot.py::test_snapshot_digest_independent_of_profile_digest
+FAILED packages/evalschema/tests/test_snapshot.py::test_snapshot_digest_ignores_embedded_schema_version
+FAILED packages/evalschema/tests/test_snapshot.py::test_internal_snapshot_profile_digest_plain_required
+FAILED packages/evalschema/tests/test_snapshot.py::test_pricing_catalog_ref_digest_verified
+FAILED packages/evalschema/tests/test_snapshot.py::test_snapshot_free_text_profile_value_lint_warns
+FAILED packages/evalschema/tests/test_snapshot.py::test_policy_documents_free_text_lint_limitation
+FAILED packages/evalschema/tests/test_snapshot.py::test_snapshot_expected_outcome_is_a_required_equals_true_check
+FAILED packages/evalschema/tests/test_snapshot.py::test_definition_refs_digest_optional_and_verified_when_present
+FAILED packages/evalschema/tests/test_snapshot.py::test_snapshot_validates_the_rubric_against_bindings
+============================== 13 failed in 0.20s ==============================
+# exit status: 1

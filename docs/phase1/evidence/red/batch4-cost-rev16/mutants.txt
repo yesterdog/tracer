@@ -1,0 +1,158 @@
+# Batch 4 revision 16/17 mutants (qa, 2026-10-23)
+
+Throwaway oracle `oracle13` outside the repository: the repository's batch 3 src plus usage/pricing/cost modules written to api-surface 23.6 (groups A to Z), N63 to N69 and the lead's N70 to N76 decisions; `ids.py` without `pce`. One change per mutant. Each mutant is run over the nine batch 4 test files, `test_ids.py`, `test_project_agent.py::test_hide_input_set_closed_under_embedding` and `test_metric_definition.py::test_all_closed_enums_exact` on Python 3.13; CAUGHT = a test outside the known gate-bound set failed (first one listed), SURVIVED = none failed.
+
+Final run: 144 mutants, 141 caught, 3 survived, 0 broken patches.
+
+## Survivors
+
+- S03 | no-usage record counted covered | SURVIVED | equivalent in this oracle: `_covering` already returns an empty list for a record with no included record sharing usage, so removing the guard changes nothing; an implementation with real vacuous coverage (every included record covers it) is caught by `test_record_without_usage_never_covered_and_input_order_kept`, which pins `covered_by == []`.
+- I19 | leading zeros accepted by the lexical regex | SURVIVED | equivalent: the canonical-pattern check after the lexical step still rejects `012.5`, so the amount stays `amount_unparseable`.
+- I20 | plus sign accepted by the lexical regex | SURVIVED | equivalent: same double guard rejects `+1`.
+
+## All mutants
+
+U01 occurred_at required | CAUGHT | test_batch4_entities.py::test_batch4_entity_roundtrip_and_schema_agree[UsageRecord]
+U02 occurred_at plain text | CAUGHT | test_cost.py::test_usage_and_cost_errors_do_not_quote_rejected_values
+U03 UsageRecord does not hide | CAUGHT | test_cost.py::test_usage_and_cost_errors_do_not_quote_rejected_values
+U04 UsageRecord field occurred_at dropped | CAUGHT | test_cost.py::test_cost_record_usage_record_ids_rules
+U05 empty quantities accepted | CAUGHT | test_usage.py::test_usage_record_shape_and_required_fields
+U06 negative seconds accepted | CAUGHT | test_usage.py::test_audio_seconds_decimal[audio_input_seconds]
+P01 entry_key any text | CAUGHT | test_pricing.py::test_price_entry_shape_and_enums
+P02 entry_key repeat accepted | CAUGHT | test_pricing.py::test_pricing_catalog_shape
+P03 empty entries accepted | CAUGHT | test_pricing.py::test_pricing_catalog_shape
+P04 effective_to equal accepted | CAUGHT | test_pricing.py::test_price_entry_shape_and_enums
+P05 empty applies_when accepted | CAUGHT | test_pricing.py::test_applies_when_conditions_closed_kinds_and_value_types
+P06 repeated kind accepted | CAUGHT | test_pricing.py::test_applies_when_conditions_closed_kinds_and_value_types
+P07 user note not required | CAUGHT | test_pricing.py::test_user_supplied_price_requires_provenance_note
+P08 note required for catalog too | CAUGHT | test_batch4_entities.py::test_batch4_digested_entity_digest_is_verified[PricingCatalog]
+P09 blank note accepted | CAUGHT | test_pricing.py::test_user_supplied_price_requires_provenance_note
+P10 note blank = ascii only | CAUGHT | test_pricing.py::test_user_supplied_price_requires_provenance_note
+P11 note minLength dropped | CAUGHT | test_pricing.py::test_user_supplied_price_requires_provenance_note
+P12 loopback host accepted | CAUGHT | test_pricing.py::test_price_provenance_url_loopback_host_rejected
+P13 fragment names unchecked | CAUGHT | test_pricing.py::test_price_provenance_url_rejects_credentials
+P14 fragment patterns unchecked | CAUGHT | test_pricing.py::test_price_provenance_url_syntax
+P15 upper-case scheme accepted | CAUGHT | test_pricing.py::test_price_provenance_url_syntax
+P16 ftp accepted | CAUGHT | test_pricing.py::test_price_provenance_url_syntax
+P17 userinfo accepted | CAUGHT | test_pricing.py::test_price_provenance_url_rejects_credentials
+P18 query names unchecked | CAUGHT | test_pricing.py::test_price_provenance_url_rejects_credentials
+P19 path pattern unchecked | CAUGHT | test_pricing.py::test_price_provenance_url_rejects_credentials
+P20 private hosts rejected | CAUGHT | test_pricing.py::test_price_provenance_url_loopback_host_rejected
+P21 PriceProvenance not value-hiding | CAUGHT | test_pricing.py::test_price_provenance_url_rejects_credentials
+P22 PriceEntry not value-hiding | CAUGHT | test_pricing.py::test_price_entry_rejects_non_usd[-minimum-catalog]
+P23 PricingCatalog not value-hiding | CAUGHT | test_pricing.py::test_price_provenance_url_loopback_host_rejected
+P24 PriceProvenance config hide off | CAUGHT | test_pricing.py::test_price_provenance_url_loopback_host_rejected
+P25 provenance kind closed | CAUGHT | test_cost_compute.py::test_user_supplied_price_is_computed_with_price_source
+P26 alias repeat accepted | CAUGHT | test_pricing.py::test_price_entry_shape_and_enums
+P27 alias equal to model accepted | CAUGHT | test_pricing.py::test_price_entry_shape_and_enums
+P28 overlap key ignores conditions | CAUGHT | test_cost_compute.py::test_ambiguous_match_not_available
+P29 adjacent ranges overlap | CAUGHT | test_pricing.py::test_overlapping_ranges_rejected[adjacent-reversed]
+P30 unit_quantity zero accepted | CAUGHT | test_pricing.py::test_billing_parts_required_value_or_none
+W01 provenance is content | CAUGHT | test_pricing.py::test_entry_identifier_stable_across_catalog_versions
+W02 effective_to is content | CAUGHT | test_pricing.py::test_entry_identifier_stable_across_catalog_versions
+W03 aliases ignored | CAUGHT | test_pricing.py::test_entry_identifier_stable_across_catalog_versions
+W04 aliases order-sensitive | CAUGHT | test_pricing.py::test_entry_identifier_stable_across_catalog_versions
+W05 conditions order-sensitive | CAUGHT | test_pricing.py::test_entry_identifier_stable_across_catalog_versions
+W06 same content new key accepted | CAUGHT | test_pricing.py::test_entry_identifier_stable_across_catalog_versions
+W07 reused key unchecked | CAUGHT | test_pricing.py::test_entry_identifier_stable_across_catalog_versions
+W08 id unchecked | CAUGHT | test_pricing.py::test_entry_identifier_stable_across_catalog_versions
+W09 equal version accepted | CAUGHT | test_pricing.py::test_entry_identifier_stable_across_catalog_versions
+W10 version must be exactly +1 | CAUGHT | test_pricing.py::test_entry_identifier_stable_across_catalog_versions
+W11 price_source ignored | CAUGHT | test_pricing.py::test_entry_identifier_stable_across_catalog_versions
+W12 provider ignored | CAUGHT | test_pricing.py::test_entry_identifier_stable_across_catalog_versions
+W13 effective_from ignored | CAUGHT | test_pricing.py::test_entry_identifier_stable_across_catalog_versions
+W14 billing ignored | CAUGHT | test_pricing.py::test_entry_identifier_stable_across_catalog_versions
+W15 message omits the key | CAUGHT | test_pricing.py::test_entry_identifier_stable_across_catalog_versions
+W16 message shows provenance url | CAUGHT | test_pricing.py::test_entry_identifier_stable_across_catalog_versions
+W17 succession mutates previous | CAUGHT | test_pricing.py::test_entry_identifier_stable_across_catalog_versions
+C01 snapshot keys repeat accepted | CAUGHT | test_cost.py::test_computed_requires_pricing_snapshot
+C02 snapshot keys may be empty | CAUGHT | test_cost.py::test_computed_requires_pricing_snapshot
+C03 usage ids repeat accepted | CAUGHT | test_cost.py::test_cost_record_usage_record_ids_rules
+C04 usage ids schema uniqueItems dropped | CAUGHT | test_cost.py::test_cost_record_usage_record_ids_rules
+C05 computed may lack usage | CAUGHT | test_cost.py::test_cost_record_usage_record_ids_rules
+C06 no_usage may list usage | CAUGHT | test_cost.py::test_cost_record_usage_record_ids_rules
+C07 computed reasons may lack usage | CAUGHT | test_cost.py::test_cost_record_usage_record_ids_rules
+C08 unsupported with USD label accepted | CAUGHT | test_cost.py::test_stored_currency_label_consistent_with_reason
+C09 unparseable with non-USD accepted | CAUGHT | test_cost.py::test_stored_currency_label_consistent_with_reason
+C10 conflict with non-USD accepted | CAUGHT | test_cost.py::test_stored_currency_label_consistent_with_reason
+C11 conflict via api_contract accepted | CAUGHT | test_cost.py::test_reported_raw_currency_source_consistent
+C12 unparseable with source none accepted | CAUGHT | test_cost.py::test_reported_raw_currency_source_consistent
+C13 raw reasons lack conflict | CAUGHT | test_cost.py::test_cost_record_shape_and_enums
+C14 na reasons lack conflict | CAUGHT | test_cost.py::test_cost_record_shape_and_enums
+C15 exclusion reasons lack overlaps | CAUGHT | test_cost_summary.py::test_computed_partially_overlapping_reported_excluded_not_split
+C16 CostRecord not value-hiding | CAUGHT | test_cost.py::test_usage_and_cost_errors_do_not_quote_rejected_values
+C17 ReportedCostRaw not value-hiding | CAUGHT | test_cost.py::test_usage_and_cost_errors_do_not_quote_rejected_values
+C18 CostRecord config hide off | CAUGHT | test_cost.py::test_usage_and_cost_errors_do_not_quote_rejected_values
+C19 unpriced units repeat accepted | CAUGHT | test_cost.py::test_unpriced_units_listed_only_with_unit_unpriced
+K01 zero quantity gets minimum | CAUGHT | test_cost_compute.py::test_zero_quantity_costs_zero_without_minimum
+K02 zero quantity skips resolution | CAUGHT | test_cost_compute.py::test_zero_quantity_costs_zero_without_minimum
+K03 zero quantity entry not named | CAUGHT | test_cost_compute.py::test_zero_quantity_costs_zero_without_minimum
+K04 ambiguous before unit_unpriced | CAUGHT | test_cost_compute.py::test_not_available_reason_precedence
+K05 unit_unpriced before billing missing | CAUGHT | test_cost_compute.py::test_not_available_reason_precedence
+K06 any unpriced is no_price | CAUGHT | test_cost.py::test_cost_record_usage_record_ids_rules
+K07 ambiguous before billing | CAUGHT | test_cost_compute.py::test_not_available_reason_precedence
+K08 run start beats occurred_at | CAUGHT | test_cost_compute.py::test_price_resolution_falls_back_to_run_started_at
+K09 occurred_at ignored | CAUGHT | test_cost_compute.py::test_price_resolution_falls_back_to_run_started_at
+K10 effective_to inclusive | CAUGHT | test_cost_compute.py::test_price_resolution_falls_back_to_run_started_at
+K11 gt not strict | CAUGHT | test_cost_compute.py::test_applies_when_conditions_all_must_hold
+K12 le exclusive | CAUGHT | test_cost_compute.py::test_applies_when_conditions_all_must_hold
+K13 unknown beats known false | CAUGHT | test_cost_compute.py::test_applies_when_conditions_all_must_hold
+K14 any condition suffices | CAUGHT | test_cost.py::test_cost_record_usage_record_ids_rules
+K15 no date still prices | CAUGHT | test_cost.py::test_cost_record_usage_record_ids_rules
+K16 rounding recorded always | CAUGHT | test_cost_compute.py::test_compute_exact
+K17 rounding half up | CAUGHT | test_cost_compute.py::test_agent_domain_computed_from_telemetry_usage
+K18 usage_times accepted | CAUGHT | test_cost_compute.py::test_price_resolution_uses_usage_time
+K19 usage_time kw accepted by resolve | CAUGHT | test_cost_compute.py::test_price_resolution_uses_usage_time
+K20 minimum added not max | CAUGHT | test_cost_compute.py::test_billing_increment_and_minimum_applied
+K21 entry keys repeated | CAUGHT | test_cost_compute.py::test_billing_increment_per_billable_event
+S01 partial overlap = duplicate | CAUGHT | test_cost_summary.py::test_computed_partially_overlapping_reported_excluded_not_split
+S02 partial overlap raises | CAUGHT | test_cost_summary.py::test_computed_partially_overlapping_reported_excluded_not_split
+S03 no-usage record covered | SURVIVED | 
+S04 included sorted by id | CAUGHT | test_cost_summary.py::test_cost_summary_single_usd_total_with_exclusions
+S05 check covered_by order-sensitive | CAUGHT | test_cost_summary.py::test_record_without_usage_never_covered_and_input_order_kept
+S06 check accepts overlap on full cover | CAUGHT | test_cost_summary.py::test_computed_partially_overlapping_reported_excluded_not_split
+S07 check accepts overlap without sharing | CAUGHT | test_cost_summary.py::test_computed_partially_overlapping_reported_excluded_not_split
+S08 check accepts overlap with covered_by | CAUGHT | test_cost_summary.py::test_computed_partially_overlapping_reported_excluded_not_split
+S09 check accepts overlap on reported | CAUGHT | test_cost_summary.py::test_computed_partially_overlapping_reported_excluded_not_split
+S10 excluded sorted | CAUGHT | test_cost_summary.py::test_record_without_usage_never_covered_and_input_order_kept
+S11 overlap covered_by non-empty | CAUGHT | test_cost_summary.py::test_computed_partially_overlapping_reported_excluded_not_split
+I01 no conflict warning for non-USD label | CAUGHT | test_cost_import.py::test_payload_currency_label_wins_over_cited_contract
+I02 conflict reason is unsupported | CAUGHT | test_cost.py::test_cost_record_usage_record_ids_rules
+I03 no normalization warning in conflict | CAUGHT | test_cost_import.py::test_payload_currency_label_wins_over_cited_contract
+I04 agreement tolerant of case | CAUGHT | test_cost_import.py::test_payload_currency_label_wins_over_cited_contract
+I05 equal non-USD codes still conflict | CAUGHT | test_cost_import.py::test_payload_currency_label_wins_over_cited_contract
+I06 unsupported warning uses amount path | CAUGHT | test_cost_import.py::test_import_warning_paths_follow_their_field
+I07 decimal warning uses currency path | CAUGHT | test_cost_import.py::test_import_warning_paths_follow_their_field
+I08 unparseable warning uses currency path | CAUGHT | test_cost_import.py::test_import_warning_paths_follow_their_field
+I09 conflict warning has no path | CAUGHT | test_cost_import.py::test_import_warning_paths_follow_their_field
+I10 not-reported warning has no path | CAUGHT | test_cost_import.py::test_import_warning_paths_follow_their_field
+I11 conflict warning raw is contract code | CAUGHT | test_cost_import.py::test_import_warning_paths_follow_their_field
+I12 contract currency warning raw set | CAUGHT | test_cost_import.py::test_unsupported_currency_warning_raw_and_currency_source_path
+I13 empty label is a label | CAUGHT | test_cost_import.py::test_empty_currency_label_is_currency_not_reported
+I14 unicode space trimmed | CAUGHT | test_cost.py::test_stored_currency_label_consistent_with_reason
+I15 uncited url accepted | CAUGHT | test_cost_import.py::test_currency_not_reported_always_warns
+I16 retrieved_at ignored | CAUGHT | test_cost_import.py::test_currency_not_reported_always_warns
+I17 no not-reported warning for None label | CAUGHT | test_cost_import.py::test_currency_not_reported_always_warns
+I18 source_path alias kept | CAUGHT | test_cost_import.py::test_unsupported_currency_warning_raw_and_currency_source_path
+I19 leading zeros accepted | SURVIVED | 
+I20 sign accepted | SURVIVED | 
+I21 amount parsed for non-USD | CAUGHT | test_cost_import.py::test_import_non_usd_not_converted_parsed_or_rejected
+I22 decimal warning raw canonical | CAUGHT | test_cost_import.py::test_import_usd_amount_lexeme_normalized_with_warning
+I23 conflict message omits contract code | CAUGHT | test_cost_import.py::test_payload_currency_label_wins_over_cited_contract
+I24 unsupported message lacks code | CAUGHT | test_cost_import.py::test_import_non_usd_not_converted_parsed_or_rejected
+I25 conflict record keeps contract code | CAUGHT | test_cost.py::test_cost_record_usage_record_ids_rules
+F01 float in cost | CAUGHT | test_cost_contract.py::test_no_float_in_cost_path
+F02 float in pricing | CAUGHT | test_cost_contract.py::test_no_float_in_cost_path
+F03 unclassified import in pricing | CAUGHT | test_cost_contract.py::test_no_float_in_cost_path
+F04 unclassified import in usage | CAUGHT | test_cost_contract.py::test_no_float_in_cost_path
+F05 float in primitives | CAUGHT | test_cost_contract.py::test_no_float_in_cost_path
+R01 pce prefix back | CAUGHT | test_batch4_entities.py::test_batch4_digested_entity_digest_is_verified[PricingCatalog]
+R02 PriceEntry is an entity again | CAUGHT | test_batch4_entities.py::test_price_entry_is_a_value_object_and_prefix_pce_is_withdrawn
+R03 snapshot keeps entry_ids | CAUGHT | test_cost.py::test_computed_requires_pricing_snapshot
+R04 ReportedCostRaw gains contract_currency_raw | CAUGHT | test_cost.py::test_reported_non_usd_cost_not_available_raw_preserved
+P31 blank note accepted for catalog entries | CAUGHT | test_pricing.py::test_user_supplied_price_requires_provenance_note
+P32 fragment pieces without = unchecked | CAUGHT | test_pricing.py::test_price_provenance_url_rejects_credentials
+U07 unit set lacks requests | CAUGHT | test_cost.py::test_unpriced_units_listed_only_with_unit_unpriced
+C20 reporter set gains vendor | CAUGHT | test_cost.py::test_cost_record_shape_and_enums
+P33 condition kinds gain model | CAUGHT | test_metric_definition.py::test_all_closed_enums_exact
+C21 PricingSnapshot gains digest alias | CAUGHT | test_cost.py::test_cost_pricing_snapshot_content_digest_named_and_verified

@@ -1,0 +1,306 @@
+# group: changed-existing-tests   (batch 4 revision 16 + N63-N69 + revision 17 groups U-Z, mode red, qa)
+# date: 2026-10-23T12:32:27Z (UTC)  local: 2026-10-23T18:02:27+0530
+# command: <scratchpad>/venv3.13/bin/python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_ids.py packages/evalschema/tests/test_project_agent.py::test_hide_input_set_closed_under_embedding packages/evalschema/tests/test_metric_definition.py::test_all_closed_enums_exact   (cwd ~/tracer; pyproject addopts: -ra --strict-markers --strict-config -m 'not private_fixtures and not local_only')
+# interpreter: <scratchpad>/venv3.13/bin/python
+# versions: python 3.13.15; pydantic 2.14.1, pydantic-core 2.50.1, pytest 9.1.1, jsonschema 4.26.0, hypothesis 6.170.5, rfc8785 0.1.4
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# code under test: the repository src/ as of this run (no usage, pricing or cost module; ids still has pce)
+# git status: ## No commits yet on main; 13 untracked/changed entries; 0 staged paths; no commits made
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.13.15, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>/venv3.13/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 30 items
+
+packages/evalschema/tests/test_ids.py::test_id_roundtrip_prefixed FAILED [  3%]
+packages/evalschema/tests/test_ids.py::test_id_rejects_wrong_kind FAILED [  6%]
+packages/evalschema/tests/test_ids.py::test_id_rejects_uppercase PASSED  [ 10%]
+packages/evalschema/tests/test_ids.py::test_id_rejects_uuid_v4_with_prefix PASSED [ 13%]
+packages/evalschema/tests/test_ids.py::test_id_rejects_bare_uuid_on_wire PASSED [ 16%]
+packages/evalschema/tests/test_ids.py::test_id_rejects_trailing_newline_and_whitespace PASSED [ 20%]
+packages/evalschema/tests/test_ids.py::test_id_is_not_a_str_subclass PASSED [ 23%]
+packages/evalschema/tests/test_ids.py::test_id_uuid_property_is_uuid_UUID PASSED [ 26%]
+packages/evalschema/tests/test_ids.py::test_from_external_mints_v7_and_records_external_ref PASSED [ 30%]
+packages/evalschema/tests/test_ids.py::test_from_external_signature_is_id_type_then_keyword_only_parts PASSED [ 33%]
+packages/evalschema/tests/test_ids.py::test_from_external_returns_a_pair_of_typed_id_and_external_ref_for_every_kind PASSED [ 36%]
+packages/evalschema/tests/test_ids.py::test_from_external_is_pure PASSED [ 40%]
+packages/evalschema/tests/test_ids.py::test_uuid7_monotonic_10k_same_ms PASSED [ 43%]
+packages/evalschema/tests/test_ids.py::test_uuid7_rfc9562_layout PASSED  [ 46%]
+packages/evalschema/tests/test_ids.py::test_uuid7_layout_matches_stdlib_when_available PASSED [ 50%]
+packages/evalschema/tests/test_ids.py::test_prefix_registry_unique PASSED [ 53%]
+packages/evalschema/tests/test_ids.py::test_prefix_registry_frozen_matches_adr FAILED [ 56%]
+packages/evalschema/tests/test_ids.py::test_new_prefixes_not_confusable PASSED [ 60%]
+packages/evalschema/tests/test_ids.py::test_frozen_registry_confusable_pairs_are_the_known_five FAILED [ 63%]
+packages/evalschema/tests/test_ids.py::test_new_prefix_syntax_is_two_to_six_lowercase_letters PASSED [ 66%]
+packages/evalschema/tests/test_ids.py::test_new_prefix_distance_and_anagram_rule_matches_an_independent_enumeration FAILED [ 70%]
+packages/evalschema/tests/test_ids.py::test_new_prefix_rejects_every_permutation_of_every_registered_prefix PASSED [ 73%]
+packages/evalschema/tests/test_ids.py::test_validate_new_prefix_flags_exactly_the_five_frozen_pairs PASSED [ 76%]
+packages/evalschema/tests/test_ids.py::test_jsonschema_pattern_rejects_wrong_kind PASSED [ 80%]
+packages/evalschema/tests/test_ids.py::test_every_id_reference_field_has_registered_prefix PASSED [ 83%]
+packages/evalschema/tests/test_ids.py::test_every_entity_has_registered_prefix FAILED [ 86%]
+packages/evalschema/tests/test_ids.py::test_value_objects_have_no_entity_fields FAILED [ 90%]
+packages/evalschema/tests/test_ids.py::test_opaque_id_fields_are_exactly_the_adr_allowlist FAILED [ 93%]
+packages/evalschema/tests/test_project_agent.py::test_hide_input_set_closed_under_embedding FAILED [ 96%]
+packages/evalschema/tests/test_metric_definition.py::test_all_closed_enums_exact PASSED [100%]
+
+=================================== FAILURES ===================================
+__________________________ test_id_roundtrip_prefixed __________________________
+
+    def test_id_roundtrip_prefixed() -> None:
+        ids = api("ids")
+>       assert set(ids.ID_PREFIXES) == set(ADR_PREFIXES), "registry must be loaded before the walk"
+E       AssertionError: registry must be loaded before the walk
+E       assert {'agt', 'art'...', 'dts', ...} == {'agt', 'art'...', 'dts', ...}
+E         
+E         Extra items in the left set:
+E         'pce'
+E         
+E         Full diff:
+E           {
+E               'agt',...
+E         
+E         ...Full output truncated (27 lines hidden), use '-vv' to show
+
+packages/evalschema/tests/test_ids.py:190: AssertionError
+__________________________ test_id_rejects_wrong_kind __________________________
+
+    def test_id_rejects_wrong_kind() -> None:
+        ids = api("ids")
+        prefixes = list(ids.ID_PREFIXES)
+>       assert len(prefixes) == 26
+E       AssertionError: assert 27 == 26
+E        +  where 27 = len(['prj', 'agt', 'per', 'tpf', 'evl', 'met', ...])
+
+packages/evalschema/tests/test_ids.py:213: AssertionError
+___________________ test_prefix_registry_frozen_matches_adr ____________________
+
+    def test_prefix_registry_frozen_matches_adr() -> None:
+        ids = api("ids")
+>       assert dict(ids.ID_PREFIXES) == ADR_PREFIXES
+E       AssertionError: assert {'prj': 'Proj...Profile', ...} == {'prj': 'Proj...Profile', ...}
+E         
+E         Omitting 26 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'pce': 'PriceEntry'}
+E         
+E         Full diff:
+E           {...
+E         
+E         ...Full output truncated (28 lines hidden), use '-vv' to show
+
+packages/evalschema/tests/test_ids.py:533: AssertionError
+___________ test_frozen_registry_confusable_pairs_are_the_known_five ___________
+
+    def test_frozen_registry_confusable_pairs_are_the_known_five() -> None:
+        """Proposed name. ADR 0001 Decision 4/P-03 names three grandfathered one-edit pairs
+        (run/rub, exc/exp, dts/dti), but the frozen table also contains agt/art (one edit) and
+        tsc/cst (anagram). This pins the real set so a sixth pair cannot slip in; the ADR text must be
+        corrected by staff-reviewer (see the QA report)."""
+        pairs = {
+            frozenset((a, b))
+            for a, b in itertools.combinations(ADR_PREFIXES, 2)
+            if _levenshtein(a, b) < 2 or sorted(a) == sorted(b)
+        }
+        assert pairs == {
+            frozenset(p)
+            for p in (("run", "rub"), ("exc", "exp"), ("dts", "dti"), ("agt", "art"), ("tsc", "cst"))
+        }
+        ids = api("ids")
+>       assert dict(ids.ID_PREFIXES) == ADR_PREFIXES
+E       AssertionError: assert {'prj': 'Proj...Profile', ...} == {'prj': 'Proj...Profile', ...}
+E         
+E         Omitting 26 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'pce': 'PriceEntry'}
+E         
+E         Full diff:
+E           {...
+E         
+E         ...Full output truncated (28 lines hidden), use '-vv' to show
+
+packages/evalschema/tests/test_ids.py:590: AssertionError
+_ test_new_prefix_distance_and_anagram_rule_matches_an_independent_enumeration _
+
+    def test_new_prefix_distance_and_anagram_rule_matches_an_independent_enumeration() -> None:
+        """Proposed name. Every string that is registered, within one edit of a registered prefix
+        (insertion, deletion or substitution) or a permutation of one is rejected with
+        ConfusablePrefixError; a seeded sample of everything else (including 2-edit neighbours of
+        registered prefixes, the boundary) is accepted."""
+        forbidden = _confusable_with_frozen_table()
+        syntactic = sorted(c for c in forbidden if PREFIX_SYNTAX.fullmatch(c))
+        assert len(syntactic) > 2_000, "the enumeration must be non-trivial"
+        wrongly_accepted = [c for c in syntactic if _outcome(c) != "confusable"]
+        assert not wrongly_accepted, f"confusable but not rejected: {wrongly_accepted[:15]}"
+    
+        rng = random.Random(20261022)  # noqa: S311 (a seeded sample, not cryptography)
+        registered = sorted(ADR_PREFIXES)
+        sample: set[str] = set()
+        while len(sample) < 1_500:  # free-form prefixes
+            sample.add("".join(rng.choice(LETTERS) for _ in range(rng.randint(2, 6))))
+        while len(sample) < 3_000:  # two random edits away from a registered prefix: the boundary
+            word = rng.choice(registered)
+            for _ in range(2):
+                kind = rng.choice(("insert", "delete", "substitute"))
+                at = rng.randrange(len(word) + 1)
+                if kind == "insert":
+                    word = word[:at] + rng.choice(LETTERS) + word[at:]
+                elif kind == "delete" and len(word) > 2:
+                    word = word[:at] + word[at + 1 :]
+                elif at < len(word):
+                    word = word[:at] + rng.choice(LETTERS) + word[at + 1 :]
+            if PREFIX_SYNTAX.fullmatch(word):
+                sample.add(word)
+        mismatches = []
+        for candidate in sorted(sample):
+            expected = "confusable" if candidate in forbidden else "accepted"
+            got = _outcome(candidate)
+            if got != expected:
+                mismatches.append((candidate, expected, got))
+>       assert not mismatches, f"verdicts differ from the rule: {mismatches[:15]}"
+E       AssertionError: verdicts differ from the rule: [('ce', 'accepted', 'confusable'), ('hpce', 'accepted', 'confusable'), ('pc', 'accepted', 'confusable'), ('pcd', 'accepted', 'confusable'), ('ppe', 'accepted', 'confusable'), ('pue', 'accepted', 'confusable'), ('sce', 'accepted', 'confusable')]
+E       assert not [('ce', 'accepted', 'confusable'), ('hpce', 'accepted', 'confusable'), ('pc', 'accepted', 'confusable'), ('pcd', 'accepted', 'confusable'), ('ppe', 'accepted', 'confusable'), ('pue', 'accepted', 'confusable'), ...]
+
+packages/evalschema/tests/test_ids.py:708: AssertionError
+___________________ test_every_entity_has_registered_prefix ____________________
+
+    def test_every_entity_has_registered_prefix() -> None:
+        registry = api("registry")
+        ids = api("ids")
+        base = api("base")
+        entities = registry.entity_classes()
+>       assert len(ids.ID_PREFIXES) == len(entities) == 26  # `pce` withdrawn in revision 15 (N47)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: assert 27 == 20
+E        +  where 27 = len(mappingproxy({'prj': 'Project', 'agt': 'AgentTarget', 'per': 'Persona', 'tpf': 'TestProfile', 'evl': 'Evaluator', 'met': 'MetricDefinition', 'mbd': 'MetricBinding', 'rub': 'Rubric', 'snap': 'ConfigSnapshot', 'run': 'Run', 'art': 'Artifact', 'tsc': 'Transcript', 'turn': 'Turn', 'exc': 'Exchange', 'tcl': 'ToolCallEvent', 'spn': 'StageSpan', 'res': 'MetricResult', 'vrd': 'RunVerdict', 'dts': 'Dataset', 'dti': 'DatasetItem', 'pcat': 'PricingCatalog', 'pce': 'PriceEntry', 'use': 'UsageRecord', 'cst': 'CostRecord', 'csum': 'CostSummary', 'rbnd': 'RunBundle', 'exp': 'ExportBundle'}))
+E        +    where mappingproxy({'prj': 'Project', 'agt': 'AgentTarget', 'per': 'Persona', 'tpf': 'TestProfile', 'evl': 'Evaluator', 'met': 'MetricDefinition', 'mbd': 'MetricBinding', 'rub': 'Rubric', 'snap': 'ConfigSnapshot', 'run': 'Run', 'art': 'Artifact', 'tsc': 'Transcript', 'turn': 'Turn', 'exc': 'Exchange', 'tcl': 'ToolCallEvent', 'spn': 'StageSpan', 'res': 'MetricResult', 'vrd': 'RunVerdict', 'dts': 'Dataset', 'dti': 'DatasetItem', 'pcat': 'PricingCatalog', 'pce': 'PriceEntry', 'use': 'UsageRecord', 'cst': 'CostRecord', 'csum': 'CostSummary', 'rbnd': 'RunBundle', 'exp': 'ExportBundle'}) = <module 'tracer_evalschema.ids' from '~/tracer/packages/evalschema/src/tracer_evalschema/ids.py'>.ID_PREFIXES
+E        +  and   20 = len({'agt': <class 'tracer_evalschema.agent.AgentTarget'>, 'art': <class 'tracer_evalschema.artifact.Artifact'>, 'dts': <class 'tracer_evalschema.dataset.Dataset'>, 'dti': <class 'tracer_evalschema.dataset.DatasetItem'>, ...})
+
+packages/evalschema/tests/test_ids.py:818: AssertionError
+___________________ test_value_objects_have_no_entity_fields ___________________
+
+    def test_value_objects_have_no_entity_fields() -> None:
+        """Revision 7 (api-surface section 18 N1; ADR 0001 Decision 8 and I14), restated in revision 8
+        (section 19.6 N6) as a rule.
+    
+        A value object carries no identity fields of its own. The only fields of value objects that
+        share an entity field's name are: ``id`` of a ``<Entity>Ref`` typed ``<Entity>Id`` where
+        ``<Entity>`` is a registered entity class name (``TestProfileRef``, ``PricingCatalogRef``,
+        ``PersonaRef``, ``MetricDefinitionRef``, ``MetricBindingRef`` and later ones by the same rule);
+        ``VersionedRef.id`` (a typed ID of any kind); and the ``schema_version`` of the nested model
+        behind ``SealedPayload.aad_fields`` (the version of the sealed plaintext). A ``<Entity>Ref``
+        whose ``id`` is not typed ``<Entity>Id`` is not an exception."""
+        registry = api("registry")
+        base = api("base")
+        ids = api("ids")
+        value_objects = registry.value_object_classes()
+        required = dict.fromkeys([*VALUE_OBJECT_NAMES, *EXPECTED_TYPED_REFS])
+        missing = [name for name in required if name not in value_objects]
+>       assert not missing, f"value objects not implemented yet: {missing}"
+E       AssertionError: value objects not implemented yet: ['SealedPayload', 'RedactionRecord', 'PriceEntry', 'UsageQuantity', 'BillingRules', 'PriceProvenance', 'PricingSnapshot', 'ReportedCostRaw', 'CostRounding', 'CostExclusion']
+E       assert not ['SealedPayload', 'RedactionRecord', 'PriceEntry', 'UsageQuantity', 'BillingRules', 'PriceProvenance', ...]
+
+packages/evalschema/tests/test_ids.py:878: AssertionError
+_____________ test_opaque_id_fields_are_exactly_the_adr_allowlist ______________
+
+    def test_opaque_id_fields_are_exactly_the_adr_allowlist() -> None:
+        """Proposed name. Every field named ``*_id``, ``*_ids`` or ``ref_id`` is a typed ID except
+        exactly ``KeyRef.key_id``, ``ToolCallEvent.external_call_id`` and ``Run.caller_external_id``.
+        ``SealedPayload.aad_fields.subject_id`` is typed. The allowlist is checked per model, so a
+        second ``key_id`` somewhere else would be caught (the by-name skip in
+        test_every_id_reference_field_has_registered_prefix would not)."""
+        registry = api("registry")
+        ids = api("ids")
+        opaque: set[tuple[str, str]] = set()
+        typed_seen: set[tuple[str, str]] = set()
+        for model in registry.model_classes():
+            for name, info in model.model_fields.items():
+                if not (name.endswith(("_id", "_ids")) or name == "ref_id"):
+                    continue
+                leaves = _model_leaves(info.annotation)
+                if any(issubclass(leaf, ids.TypedId) for leaf in leaves):
+                    typed_seen.add((model.__name__, name))
+                else:
+                    opaque.add((model.__name__, name))
+        assert opaque == OPAQUE_ID_FIELDS, (
+            f"opaque *_id fields: unexpected {sorted(opaque - OPAQUE_ID_FIELDS)}, "
+            f"missing {sorted(OPAQUE_ID_FIELDS - opaque)}"
+        )
+        subject = [pair for pair in typed_seen if pair[1] == "subject_id"]
+>       assert subject, "SealedPayload.aad_fields.subject_id must exist and be a typed ID"
+E       AssertionError: SealedPayload.aad_fields.subject_id must exist and be a typed ID
+E       assert []
+
+packages/evalschema/tests/test_ids.py:952: AssertionError
+__________________ test_hide_input_set_closed_under_embedding __________________
+
+    def test_hide_input_set_closed_under_embedding() -> None:
+        """ADR 0007 Decision 8 (a), (b), (e): every model whose validation can reach a
+        credential-checked field or personal data sets ``hide_input_in_errors=True``, and the set is
+        closed under embedding, because the setting of the outermost model governs (a model that
+        embeds a hiding model but does not hide itself shows the rejected value). Seeds:
+        ``ProviderConfigRef``, ``Project``, ``AgentTarget``, the three endpoint classes,
+        ``TestProfile``. Revision 11 (N31) adds ``Transcript``, ``Turn``, ``Segment``,
+        ``ToolCallEvent`` and ``IngestWarning``; revision 12 (O4) adds ``ConfigSnapshot`` and
+        ``Evaluator``; revision 13 (N41) adds ``ScriptedTurn``, ``ExpectedToolCall``, ``Persona``,
+        ``MetricDefinition``, ``MetricBinding`` and ``Rubric``; revision 15 (N60) adds ``UsageRecord``,
+        ``ReportedCostRaw`` and ``CostRecord``, and revision 16 (N62) ``PriceProvenance``,
+        ``PriceEntry`` and ``PricingCatalog``. A model that embeds any of them, at
+        any depth, hides too. Models added later (``Artifact``, bundles) fall under the same walk."""
+        registry = api("registry")
+        by_name = {m.__name__: m for m in registry.model_classes()}
+        seeds = (
+            "ProviderConfigRef",
+            "Project",
+            "AgentTarget",
+            "WebSocketEndpoint",
+            "WebRtcEndpoint",
+            "SipEndpoint",
+            "TestProfile",
+            # revision 11, N31 (api-surface 22.9 item 8)
+            "Transcript",
+            "Turn",
+            "Segment",
+            "ToolCallEvent",
+            "IngestWarning",
+            # revision 12, O4 (item 15)
+            "ConfigSnapshot",
+            "Evaluator",
+            # revision 13, N41 (item 17)
+            "ScriptedTurn",
+            "ExpectedToolCall",
+            "Persona",
+            "MetricDefinition",
+            "MetricBinding",
+            "Rubric",
+            # revision 15, N60 (api-surface 23.6 group I item 1): the usage and cost records that keep
+            # provider payloads; revision 16, N62: the pricing models that reach the credential-checked
+            # provenance URL
+            "UsageRecord",
+            "ReportedCostRaw",
+            "CostRecord",
+            "PriceProvenance",
+            "PriceEntry",
+            "PricingCatalog",
+        )
+        for name in seeds:
+>           assert name in by_name, f"{name} is not implemented yet"
+E           AssertionError: UsageRecord is not implemented yet
+E           assert 'UsageRecord' in {'WebSocketEndpoint': <class 'tracer_evalschema.agent.WebSocketEndpoint'>, 'WebRtcEndpoint': <class 'tracer_evalschema.agent.WebRtcEndpoint'>, 'SipEndpoint': <class 'tracer_evalschema.agent.SipEndpoint'>, 'DeclaredStackEntry': <class 'tracer_evalschema.agent.DeclaredStackEntry'>, ...}
+
+packages/evalschema/tests/test_project_agent.py:817: AssertionError
+- generated xml file: <scratchpad>/junit16/red-changed-existing-tests.py3.13.xml -
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_ids.py::test_id_roundtrip_prefixed - As...
+FAILED packages/evalschema/tests/test_ids.py::test_id_rejects_wrong_kind - As...
+FAILED packages/evalschema/tests/test_ids.py::test_prefix_registry_frozen_matches_adr
+FAILED packages/evalschema/tests/test_ids.py::test_frozen_registry_confusable_pairs_are_the_known_five
+FAILED packages/evalschema/tests/test_ids.py::test_new_prefix_distance_and_anagram_rule_matches_an_independent_enumeration
+FAILED packages/evalschema/tests/test_ids.py::test_every_entity_has_registered_prefix
+FAILED packages/evalschema/tests/test_ids.py::test_value_objects_have_no_entity_fields
+FAILED packages/evalschema/tests/test_ids.py::test_opaque_id_fields_are_exactly_the_adr_allowlist
+FAILED packages/evalschema/tests/test_project_agent.py::test_hide_input_set_closed_under_embedding
+========================= 9 failed, 21 passed in 0.53s =========================
+# exit status: 1

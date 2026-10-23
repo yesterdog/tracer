@@ -1,0 +1,39 @@
+# group: p1-10a-artifact   (batch 3 green run, schema-architect)
+# date: 2026-10-23T10:49:30Z (UTC)  local: 2026-10-23T16:19:30+0530
+# command: python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_artifact.py   (cwd ~/tracer; pyproject addopts apply)
+# interpreter: <scratchpad>/arch-b3-env3.11/bin/python
+# versions: python 3.11.16; pydantic 2.14.1, pydantic-core 2.50.1, pytest 9.1.1, jsonschema 4.26.0, rfc8785 0.1.4, hypothesis 6.170.5
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git status: no commits; 0 staged paths
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.11.16, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>/arch-b3-env3.11/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 21 items
+
+packages/evalschema/tests/test_artifact.py::test_artifact_sha256_hex PASSED [  4%]
+packages/evalschema/tests/test_artifact.py::test_audio_format_fields PASSED [  9%]
+packages/evalschema/tests/test_artifact.py::test_audio_format_bits_per_sample_optional PASSED [ 14%]
+packages/evalschema/tests/test_artifact.py::test_artifact_uri_rejects_presigned_signature PASSED [ 19%]
+packages/evalschema/tests/test_artifact.py::test_artifact_uri_scheme_set_closed PASSED [ 23%]
+packages/evalschema/tests/test_artifact.py::test_artifact_file_uri_form PASSED [ 28%]
+packages/evalschema/tests/test_artifact.py::test_artifact_uri_fragment_rejected PASSED [ 33%]
+packages/evalschema/tests/test_artifact.py::test_artifact_uri_loopback_host_rules PASSED [ 38%]
+packages/evalschema/tests/test_artifact.py::test_channel_map_channels_nonempty PASSED [ 42%]
+packages/evalschema/tests/test_artifact.py::test_artifact_uri_rejects_wider_credential_names_and_patterns PASSED [ 47%]
+packages/evalschema/tests/test_artifact.py::test_artifact_errors_do_not_echo_uri_credentials PASSED [ 52%]
+packages/evalschema/tests/test_artifact.py::test_channel_role_set_exact PASSED [ 57%]
+packages/evalschema/tests/test_artifact.py::test_channel_map_declared_forbids_confidence PASSED [ 61%]
+packages/evalschema/tests/test_artifact.py::test_channel_map_inferred_requires_method_confidence PASSED [ 66%]
+packages/evalschema/tests/test_artifact.py::test_channel_map_single_agent_channel PASSED [ 71%]
+packages/evalschema/tests/test_artifact.py::test_channel_map_indexes_unique PASSED [ 76%]
+packages/evalschema/tests/test_artifact.py::test_channel_index_within_channels PASSED [ 80%]
+packages/evalschema/tests/test_artifact.py::test_channel_map_artifact_must_be_audio PASSED [ 85%]
+packages/evalschema/tests/test_artifact.py::test_unknown_agent_channel_excludes_agent_audio PASSED [ 90%]
+packages/evalschema/tests/test_artifact.py::test_mono_channel_mixed_excludes_agent_audio PASSED [ 95%]
+packages/evalschema/tests/test_artifact.py::test_artifact_errors_do_not_quote_rejected_values PASSED [100%]
+
+============================== 21 passed in 0.20s ==============================

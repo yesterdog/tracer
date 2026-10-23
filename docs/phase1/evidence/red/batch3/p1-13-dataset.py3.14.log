@@ -1,0 +1,215 @@
+# group: p1-13-dataset   (batch 3, mode red, qa)
+# date: 2026-10-23T06:24:36Z (UTC)  local: 2026-10-23T11:54:36+0530
+# command: python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_dataset.py    (cwd ~/tracer; pyproject addopts: -ra --strict-markers --strict-config -m 'not private_fixtures and not local_only')
+# interpreter: <scratchpad>/env3.14/bin/python
+# versions: python 3.14.7; pydantic 2.14.1, pydantic-core 2.50.1, pytest 9.1.1, jsonschema 4.26.0, hypothesis 6.170.5, rfc8785 0.1.4
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git status: ## No commits yet on main; 12 untracked/changed entries; 0 staged paths; no commits made
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.14.7, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>/env3.14/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 5 items
+
+packages/evalschema/tests/test_dataset.py::test_dataset_item_no_codemix FAILED [ 20%]
+packages/evalschema/tests/test_dataset.py::test_human_recording_item_requires_privacy_marker FAILED [ 40%]
+packages/evalschema/tests/test_dataset.py::test_dataset_item_recording_without_run_is_human_subject FAILED [ 60%]
+packages/evalschema/tests/test_dataset.py::test_dataset_item_language_is_not_a_declaration FAILED [ 80%]
+packages/evalschema/tests/test_dataset.py::test_dataset_is_a_versioned_entity FAILED [100%]
+
+=================================== FAILURES ===================================
+_________________________ test_dataset_item_no_codemix _________________________
+
+    def test_dataset_item_no_codemix() -> None:
+        """SCOPE P1-13 acceptance, ADR 0005 I19: no mixed-language field exists anywhere in the Dataset
+        and DatasetItem models or their JSON Schemas, a field of that name is rejected, and
+        ``DatasetItem.language`` accepts a configured language only: the mixed-language alias, an
+        excluded language, a romanized tag (native script only), ``und`` and a language name are
+        rejected, as is a region outside IN, US and GB."""
+>       item_model = entity_class3("DatasetItem")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_dataset.py:64: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.dataset'
+import_ = <function _gcd_import at 0x105693e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.dataset'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+______________ test_human_recording_item_requires_privacy_marker _______________
+
+    def test_human_recording_item_requires_privacy_marker() -> None:
+        """ADR 0016 Decision 4, I3, SCOPE P1-13: a DatasetItem that holds a recording
+        (``artifact_id``) or a transcript (``transcript_id``) carries a PrivacyMarker: omitting it, or
+        giving ``null``, is rejected; a marker for human-subject data carries its consent and
+        retention (P-46). The IDs are typed (``art_``, ``tsc_``, ``run_``)."""
+>       model = entity_class3("DatasetItem")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_dataset.py:104: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.dataset'
+import_ = <function _gcd_import at 0x105693e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.dataset'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+___________ test_dataset_item_recording_without_run_is_human_subject ___________
+
+    def test_dataset_item_recording_without_run_is_human_subject() -> None:
+        """Proposed name (ADR 0016 Decision 5): a DatasetItem with a recording and no source run has
+        no role evidence, so its derivation is ``human_subject=true``: a stored false marker is
+        looser than the derivation and is rejected, also for a transcript item. With a source run the
+        derivation depends on that run's evidence, which is checked where the run is known
+        (``privacy.check_human_subject_marker``), so the model accepts a false marker there."""
+>       model = entity_class3("DatasetItem")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_dataset.py:139: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.dataset'
+import_ = <function _gcd_import at 0x105693e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.dataset'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_______________ test_dataset_item_language_is_not_a_declaration ________________
+
+    def test_dataset_item_language_is_not_a_declaration() -> None:
+        """N14 (ADR 0004 Decision 6g, I32): a dataset item's ``language`` is configured intent. It is
+        never copied into ``Transcript.declared_language`` and never read as an observation: the item
+        has no declaration field, an untagged transcript of the item stays ``language_not_observed``
+        for a language-dependent metric, and an explicit declaration is a separate act of a user
+        with its own provenance (``declared_by``, ``declared_at``)."""
+>       results = api("results")
+                  ^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_dataset.py:171: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.results'
+import_ = <function _gcd_import at 0x105693e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.results'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+______________________ test_dataset_is_a_versioned_entity ______________________
+
+    def test_dataset_is_a_versioned_entity() -> None:
+        """Proposed name (ADR 0009 Decision 5, ADR 0001 Decision 4): Dataset is a versioned entity
+        (``dts``, ``version >= 1``, a verified ``content_digest``) holding a ``name`` (a label) and the
+        IDs of its items (``dti_``, unique, in order); a DatasetItem is a record of fact (``dti``)
+        with no version. Changing the items without a new digest is rejected."""
+        base = api("base")
+>       dataset = entity_class3("Dataset")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_dataset.py:202: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.dataset'
+import_ = <function _gcd_import at 0x105693e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.dataset'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+- generated xml file: <scratchpad>/junit3/p1-13-dataset.py3.14.xml -
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_dataset.py::test_dataset_item_no_codemix
+FAILED packages/evalschema/tests/test_dataset.py::test_human_recording_item_requires_privacy_marker
+FAILED packages/evalschema/tests/test_dataset.py::test_dataset_item_recording_without_run_is_human_subject
+FAILED packages/evalschema/tests/test_dataset.py::test_dataset_item_language_is_not_a_declaration
+FAILED packages/evalschema/tests/test_dataset.py::test_dataset_is_a_versioned_entity
+============================== 5 failed in 0.12s ===============================
+# exit status: 1

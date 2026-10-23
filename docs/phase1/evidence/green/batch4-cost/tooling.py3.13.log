@@ -1,0 +1,44 @@
+# group: tooling   (batch 4 green run, schema-architect, SCOPE revision 18)
+# date: 2026-10-23T13:12:31Z (UTC)  local: 2026-10-23T18:42:31+0530
+# commands: uv run --locked {ruff check . ; ruff format --check . ; mypy ; python scripts/check_headers.py ; python scripts/guard_private_fixtures.py ; python scripts/check_licenses.py} ; uv build --wheel --package tracer-evalschema + wheel listing   (cwd ~/tracer; default env synced with uv sync --locked --all-groups)
+# versions: Python 3.13.15; uv 0.12.18 (Homebrew 2026-09-22 aarch64-apple-darwin); ruff 0.17.1; mypy 2.4.0 (compiled: yes)
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git status: 0 commits; 0 staged paths
+# ------------------------------------------------------------------------------
+$ uv run --locked ruff check .
+136 |     return annotation
+    |
+help: Break down assertion into multiple parts
+
+Found 3 errors.
+[*] 1 fixable with `--fix`.
+exit: 1
+$ uv run --locked ruff format --check .
+146 files already formatted
+exit: 0
+$ uv run --locked mypy
+Success: no issues found in 96 source files
+exit: 0
+$ uv run --locked python scripts/check_headers.py
+exit: 0
+$ uv run --locked python scripts/guard_private_fixtures.py
+exit: 0
+$ uv run --locked python scripts/check_licenses.py
+42 ok, 0 failed
+exit: 0
+$ uv build --wheel --package tracer-evalschema --out-dir <scratchpad>/arch-b4-dist
+Building wheel...
+Successfully built <scratchpad>/arch-b4-dist/tracer_evalschema-0.0.1-py3-none-any.whl
+wheel: tracer_evalschema-0.0.1-py3-none-any.whl
+files in wheel: 49
+test files in wheel (tests/, test_*.py, conftest.py, _support*): 0
+new modules in wheel:
+tracer_evalschema/cost.py
+tracer_evalschema/pricing.py
+tracer_evalschema/usage.py
+
+# note (2026-10-23T13:12:44Z): the 3 'ruff check .' findings above are all in packages/evalschema/tests/_support_b5.py, a batch 5 helper that qa is writing concurrently (it appeared during this session, after the first batch 4 tooling run, which was all green; it holds no test, is not part of batch 4 and was not edited by schema-architect). mypy counts it as the 96th file. Scoped re-run over everything except that file:
+$ uv run --locked ruff check . --exclude packages/evalschema/tests/_support_b5.py
+All checks passed!
+$ uv run --locked ruff check packages/evalschema/src
+All checks passed!

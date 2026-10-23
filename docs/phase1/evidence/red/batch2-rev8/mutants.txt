@@ -1,0 +1,266 @@
+# Mutants injected into the throwaway revision 8 oracle (outside the repo); the oracle passes all new and changed tests; each mutant must make at least one test fail.
+# format: mutant id | status | first failing tests
+
+A01 endpoint userinfo allowed | caught | test_rejected_credentials_are_not_echoed_in_error_text, test_endpoint_rejects_credentials_in_url, test_credential_errors_have_no_input_in_any_logged_form
+A02 credential names case-sensitive | caught | test_endpoint_rejects_credentials_in_url, test_endpoint_url_credential_params_case_and_encoding, test_endpoint_rejects_wider_credential_names_and_prefixes
+A03 credential names lower not casefold | caught | test_endpoint_parameter_names_percent_decoded_and_casefolded
+A04 credential names not percent-decoded | caught | test_endpoint_url_credential_params_case_and_encoding, test_endpoint_parameter_names_percent_decoded_and_casefolded, test_sip_uri_credential_rules
+A05 malformed percent escape tolerated | caught | test_endpoint_parameter_names_percent_decoded_and_casefolded
+A06 invalid UTF-8 tolerated | caught | test_endpoint_parameter_names_percent_decoded_and_casefolded
+A07 sip password allowed | caught | test_endpoint_rejects_credentials_in_url, test_sip_endpoint_userinfo_rule, test_credential_errors_have_no_input_in_any_logged_form
+A08 sip percent-encoded colon not detected | caught | test_credential_errors_have_no_input_in_any_logged_form, test_sip_uri_credential_rules
+A09 sip user part rejected | caught | test_endpoint_rejects_credentials_in_url, test_sip_endpoint_userinfo_rule, test_endpoint_discriminated_by_transport
+A10 ws scheme case-insensitive | caught | test_endpoint_url_syntax_rules
+A11 sip scheme case-insensitive | caught | test_sip_uri_credential_rules
+A12 fragment allowed | caught | test_endpoint_url_syntax_rules
+A13 ASCII and white space unchecked | caught | test_endpoint_url_syntax_rules
+A14 credential patterns anywhere unchecked | caught | test_credential_errors_have_no_input_in_any_logged_form, test_endpoint_rejects_wider_credential_names_and_prefixes
+A15 patterns checked on undecoded text | caught | test_endpoint_rejects_wider_credential_names_and_prefixes
+A16 set lacks access_token | caught | test_endpoint_rejects_wider_credential_names_and_prefixes, test_endpoint_parameter_names_percent_decoded_and_casefolded, test_url_credential_parameter_names_exact
+A17 set lacks x-goog-signature | caught | test_endpoint_rejects_wider_credential_names_and_prefixes, test_sip_uri_credential_rules, test_url_credential_parameter_names_exact
+A18 set lacks authorization | caught | test_endpoint_rejects_wider_credential_names_and_prefixes, test_sip_uri_credential_rules, test_url_credential_parameter_names_exact
+A19 set lacks x-amz-security-token | caught | test_endpoint_rejects_wider_credential_names_and_prefixes, test_url_credential_parameter_names_exact, test_url_credential_parameter_names_hyphen_underscore_equivalent
+A20 set lacks sig | caught | test_endpoint_rejects_credentials_in_url, test_credential_errors_have_no_input_in_any_logged_form, test_endpoint_rejects_wider_credential_names_and_prefixes
+A21 set lacks private_key | caught | test_endpoint_rejects_wider_credential_names_and_prefixes, test_url_credential_parameter_names_exact, test_url_credential_parameter_names_hyphen_underscore_equivalent
+A22 set lacks password | caught | test_endpoint_rejects_wider_credential_names_and_prefixes, test_sip_uri_credential_rules, test_url_credential_parameter_names_exact
+A23 set lacks x-goog-credential | caught | test_endpoint_rejects_wider_credential_names_and_prefixes, test_url_credential_parameter_names_exact, test_url_credential_parameter_names_hyphen_underscore_equivalent
+A24 credential names matched as substrings | caught | test_endpoint_rejects_credentials_in_url, test_endpoint_rejects_wider_credential_names_and_prefixes, test_url_credential_parameter_names_hyphen_underscore_equivalent
+A25 semicolon is not a separator | caught | test_endpoint_rejects_wider_credential_names_and_prefixes, test_endpoint_parameter_names_percent_decoded_and_casefolded, test_url_credential_parameter_names_exact
+A26 sip headers not checked | caught | test_endpoint_rejects_credentials_in_url, test_endpoint_rejects_wider_credential_names_and_prefixes, test_sip_uri_credential_rules
+A27 sip uri parameters not checked | caught | test_endpoint_rejects_wider_credential_names_and_prefixes, test_sip_uri_credential_rules, test_url_credential_parameter_names_exact
+A28 any @ in url rejected | caught | test_endpoint_rejects_credentials_in_url, test_endpoint_url_syntax_rules
+A29 host not required | caught | test_endpoint_transport_scheme_rules, test_endpoint_url_syntax_rules
+A30 authority runs to the end | caught | test_endpoint_rejects_credentials_in_url, test_endpoint_url_credential_params_case_and_encoding, test_credential_errors_have_no_input_in_any_logged_form
+A31 transport tag is a const | caught | test_endpoint_discriminated_by_transport, test_batch2_models_emit_enum_not_const, test_all_closed_enums_exact
+A32 stack stage open string | caught | test_declared_stack_entry_shape, test_declared_stack_stage_is_exact, test_all_closed_enums_exact
+A33 stack stage gains other | caught | test_declared_stack_stage_is_exact, test_all_closed_enums_exact
+A34 stack stage gains judge | caught | test_declared_stack_stage_is_exact, test_all_closed_enums_exact
+A35 stack stage loses realtime | caught | test_declared_stack_stage_is_exact, test_all_closed_enums_exact
+A36 languages and capabilities may repeat | caught | test_declared_capabilities_unique, test_agent_target_languages_empty_means_undeclared_and_unique
+A37 agent languages distinct by primary | caught | test_agent_target_languages_empty_means_undeclared_and_unique
+A38 AgentTarget gains declared_tier | caught | test_agent_target_has_no_tier_adapter_or_description_field
+A39 AgentTarget gains adapter | caught | test_agent_target_has_no_tier_adapter_or_description_field
+A40 AgentTarget errors echo input | caught | test_rejected_credentials_are_not_echoed_in_error_text, test_hide_input_set_closed_under_embedding, test_credential_errors_have_no_input_in_any_logged_form
+A41 WebSocketEndpoint errors echo input | caught | test_hide_input_set_closed_under_embedding
+A42 SipEndpoint errors echo input | caught | test_hide_input_set_closed_under_embedding
+A43 WebRtcEndpoint errors echo input | caught | test_hide_input_set_closed_under_embedding
+A44 a model embeds an endpoint without hiding | caught | test_hide_input_set_closed_under_embedding
+A45 sip host not required | caught | test_sip_uri_credential_rules
+A46 AgentTarget capabilities not InputKind | caught | test_declared_vs_detected_capabilities_separate, test_all_closed_enums_exact
+A48 fold is ASCII-only | caught | test_endpoint_parameter_names_percent_decoded_and_casefolded
+B01 zero weight accepted | caught | test_rubric_weight_values
+B02 negative weight accepted | caught | test_rubric_weight_values
+B03 duplicate bindings accepted | caught | test_rubric_rejects_duplicate_binding_refs
+B04 no required item accepted | caught | test_rubric_requires_one_required_metric
+B05 disabled binding accepted | caught | test_rubric_rejects_disabled_binding
+B06 disabled rejected only when required | caught | test_rubric_rejects_disabled_binding
+B07 disabled rejected only when unweighted | caught | test_rubric_rejects_disabled_binding
+B08 several evaluators accepted | caught | test_validate_rubric_rejects_bindings_of_more_than_one_evaluator
+B09 same definition twice accepted | caught | test_bound_definition_keys_unique_per_evaluator
+B10 same key twice accepted | caught | test_bound_definition_keys_unique_per_evaluator
+B11 binding params unchecked | caught | test_validate_rubric_checks_binding_params_against_the_definition
+B12 required needs no pass rule | caught | test_required_metric_needs_pass_rule, test_required_boolean_check_with_equals_true_ok, test_rubric_per_turn_share_metric_can_be_required_and_weighted
+B13 weight needs no pass rule | caught | test_rubric_weight_requires_pass_rule
+B14 unresolved binding skipped | caught | test_rubric_unresolved_references_rejected
+B15 unresolved definition skipped | caught | test_rubric_unresolved_references_rejected
+B16 binding version ignored | caught | test_rubric_unresolved_references_rejected
+B17 item binding is a generic ref | caught | test_rubric_item_shape
+B18 item required not strict | caught | test_rubric_item_shape
+B19 weight takes numbers | caught | test_rubric_weight_values
+B20 disabled check after pass-rule check order | caught | test_rubric_rejects_disabled_binding
+B21 weight spelled non-canonically accepted | caught | test_rubric_weight_values
+D01 judge may have implementation_ref | caught | test_judge_only_fields_forbidden_on_other_kinds, test_conditional_field_rules_are_in_the_json_schema
+D02 scorer may have prompt_template | caught | test_judge_only_fields_forbidden_on_other_kinds
+D03 scorer may have prompt_variables | caught | test_judge_only_fields_forbidden_on_other_kinds, test_expected_outcome_variable_definition_shapes, test_conditional_field_rules_are_in_the_json_schema
+D04 scorer may have judge_model_ref | caught | test_judge_only_fields_forbidden_on_other_kinds, test_conditional_field_rules_are_in_the_json_schema
+D05 judge needs no template | caught | test_llm_judge_requires_prompt_template_and_judge_model_ref, test_judge_only_fields_forbidden_on_other_kinds, test_conditional_field_rules_are_in_the_json_schema
+D06 judge needs no prompt_variables | caught | test_judge_only_fields_forbidden_on_other_kinds
+D07 judge needs no model ref | caught | test_llm_judge_requires_prompt_template_and_judge_model_ref, test_judge_only_fields_forbidden_on_other_kinds, test_conditional_field_rules_are_in_the_json_schema
+D08 scorer needs no implementation_ref | caught | test_deterministic_kinds_require_implementation_ref, test_conditional_field_rules_are_in_the_json_schema
+D09 implementation_ref any text | caught | test_implementation_ref_is_namespaced
+D10 implementation_ref namespace may be upper case | caught | test_implementation_ref_is_namespaced
+D11 implementation_ref namespace optional | caught | test_implementation_ref_is_namespaced
+D12 judge_model_ref is a ProviderConfigRef | caught | test_open_value_fields_accept_unseen_provider, test_score_higher_is_better_expressed_with_range_min, test_equals_true_rule_boolean
+D13 stray double braces tolerated | caught | test_prompt_template_rejects_other_double_braces
+D14 declared and used variables unchecked | caught | test_prompt_template_placeholders_declared_equals_used, test_expected_outcome_variable_definition_shapes
+D15 duplicate prompt_variables allowed | caught | test_prompt_template_placeholders_declared_equals_used
+D16 variable names loosened | caught | test_prompt_template_rejects_other_double_braces
+D17 conditional schema dropped | caught | test_conditional_field_rules_are_in_the_json_schema
+D18 schema: judge fields not required | caught | test_conditional_field_rules_are_in_the_json_schema
+D19 schema: scorer fields not forbidden | caught | test_conditional_field_rules_are_in_the_json_schema
+D20 schema: unit not required for numeric | caught | test_conditional_field_rules_are_in_the_json_schema
+D21 schema: rating scale not required | caught | test_conditional_field_rules_are_in_the_json_schema
+F01 unknown placeholder field accepted | caught | test_every_profile_field_is_usable_as_a_placeholder, test_profile_placeholder_unknown_field_rejected, test_malformed_profile_placeholder_rejected
+F02 malformed placeholders tolerated | caught | test_malformed_profile_placeholder_rejected
+F03 shape check is case-sensitive | caught | test_malformed_profile_placeholder_rejected
+F04 shape check allows no white space | caught | test_malformed_profile_placeholder_rejected
+F05 grammar tolerates white space inside | caught | test_malformed_profile_placeholder_rejected
+F07 lint lower instead of casefold | caught | test_profile_lint_folds_unicode_forms
+F08 lint keeps native digits | caught | test_profile_lint_folding_and_token_bounds
+F09 lint keeps white space runs | caught | test_profile_lint_folding_and_token_bounds
+F10 lint without second NFC | caught | test_profile_lint_folds_unicode_forms
+F11 no token bound before | caught | test_profile_lint_folding_and_token_bounds, test_profile_lint_folds_unicode_forms
+F12 no token bound after | caught | test_profile_lint_folding_and_token_bounds, test_profile_lint_folds_unicode_forms
+F13 only the first occurrence is examined | caught | test_profile_lint_folding_and_token_bounds
+F14 bound applies to every edge | caught | test_profile_lint_folding_and_token_bounds
+F15 lint skips values of 2 characters or fewer | caught | test_profile_lint_folding_and_token_bounds
+F16 hits ordered by code point | caught | test_profile_lint_paths_order_and_privacy
+F17 pointer tokens not escaped | caught | test_profile_lint_paths_order_and_privacy
+F18 lint puts the value in the hit | caught | test_literal_profile_value_in_free_text_is_flagged_with_path_not_value, test_profile_value_lint_is_total_on_other_models, test_profile_lint_folding_and_token_bounds
+F19 TestProfile errors echo input | caught | test_hide_input_set_closed_under_embedding, test_test_profile_errors_do_not_echo_values
+F20 lint reads numbers as text | caught | test_profile_lint_folding_and_token_bounds
+F21 lint reads keys as text | caught | test_profile_lint_folding_and_token_bounds
+F22 TestProfileRef ignores extras | caught | test_test_profile_ref_has_no_pii, test_evaluator_references_are_versioned_and_typed
+F23 TestProfileRef gains name | caught | test_test_profile_ref_has_no_pii, test_evaluator_references_are_versioned_and_typed
+F24 dob not x-pii | caught | test_test_profile_pii_marked
+F25 placeholder fields include id | caught | test_profile_placeholder_fields_are_the_profile_data_fields, test_literal_profile_value_in_free_text_is_flagged_with_path_not_value, test_profile_value_lint_is_total_on_other_models
+F26 several hits per path and field | caught | test_literal_profile_value_in_free_text_is_flagged_with_path_not_value, test_profile_value_lint_is_total_on_other_models, test_profile_lint_folding_and_token_bounds
+H01 hyphen and underscore not equal | caught | test_url_credential_parameter_names_hyphen_underscore_equivalent
+H02 separators removed instead of folded | caught | test_url_credential_parameter_names_hyphen_underscore_equivalent
+H03 x-api-key missing from the set | caught | test_url_credential_parameter_names_exact, test_url_credential_parameter_names_hyphen_underscore_equivalent
+H04 x-goog-api-key missing from the set | caught | test_url_credential_parameter_names_exact, test_url_credential_parameter_names_hyphen_underscore_equivalent
+H05 set entries not folded when compared | caught | test_endpoint_rejects_credentials_in_url, test_endpoint_url_credential_params_case_and_encoding, test_endpoint_rejects_wider_credential_names_and_prefixes
+H06 set gains a 26th name | caught | test_url_credential_parameter_names_exact
+H07 set not case-folded | caught | test_url_credential_parameter_names_exact
+J01 Project errors echo input | caught | test_rejected_credentials_are_not_echoed_in_error_text, test_hide_input_set_closed_under_embedding, test_credential_errors_have_no_input_in_any_logged_form
+J02 provider_configs uniqueness unchecked | caught | test_project_provider_configs_unique_per_provider_and_model
+J03 uniqueness includes config_ref | caught | test_project_provider_configs_unique_per_provider_and_model
+J04 uniqueness by provider only | caught | test_project_provider_configs_unique_per_provider_and_model
+K01 binding param names any text | caught | test_metric_binding_params_keys_are_metric_keys
+K02 binding params not I-JSON | caught | test_metric_binding_shape_and_params
+K03 undeclared param allowed | caught | test_binding_params_must_be_declared_and_typed, test_binding_cannot_change_the_pass_rule, test_validate_rubric_checks_binding_params_against_the_definition
+K04 param type unchecked | caught | test_binding_params_must_be_declared_and_typed, test_validate_rubric_checks_binding_params_against_the_definition
+K05 missing required param unchecked | caught | test_binding_params_must_be_declared_and_typed, test_validate_rubric_checks_binding_params_against_the_definition
+K06 default does not make a param optional | caught | test_binding_params_must_be_declared_and_typed, test_validate_rubric_checks_binding_params_against_the_definition
+K07 bool is an integer | caught | test_metric_parameter_shape_and_defaults, test_binding_params_must_be_declared_and_typed, test_validate_rubric_checks_binding_params_against_the_definition
+K08 bool is a number | caught | test_metric_parameter_shape_and_defaults, test_binding_params_must_be_declared_and_typed
+K09 float is an integer | caught | test_metric_parameter_shape_and_defaults, test_binding_params_must_be_declared_and_typed
+K10 int is a boolean | caught | test_metric_parameter_shape_and_defaults, test_binding_params_must_be_declared_and_typed, test_validate_rubric_checks_binding_params_against_the_definition
+K11 any value is a string | caught | test_metric_parameter_shape_and_defaults, test_binding_params_must_be_declared_and_typed
+K12 param error omits the binding id | caught | test_binding_params_must_be_declared_and_typed, test_validate_rubric_checks_binding_params_against_the_definition
+K13 param error omits the key | caught | test_binding_params_must_be_declared_and_typed, test_validate_rubric_checks_binding_params_against_the_definition
+K14 default not validated | caught | test_metric_parameter_shape_and_defaults
+K15 parameter names may repeat | caught | test_metric_parameter_shape_and_defaults
+K16 parameter name any text | caught | test_metric_parameter_shape_and_defaults
+K17 parameter value_type gains float | caught | test_all_closed_enums_exact, test_metric_parameter_shape_and_defaults
+K18 enabled coerced | caught | test_metric_binding_shape_and_params
+K19 json-typed value must be an object | caught | test_metric_parameter_shape_and_defaults, test_binding_params_must_be_declared_and_typed
+K20 undeclared error omits the key | caught | test_binding_params_must_be_declared_and_typed, test_binding_cannot_change_the_pass_rule, test_validate_rubric_checks_binding_params_against_the_definition
+K21 uniqueness ignores evaluator | caught | test_bindings_unique
+K22 uniqueness by (id, version) | caught | test_bindings_unique
+K23 uniqueness ignores disabled bindings | caught | test_bindings_unique
+L01 languages may be empty | caught | test_metric_languages_nonempty_distinct_primary
+L02 primary language duplicates allowed | caught | test_metric_languages_nonempty_distinct_primary
+L03 duplicates by exact tag only | caught | test_metric_languages_nonempty_distinct_primary
+L04 language_independent not accepted | caught | test_metric_languages_accepts_language_independent_value
+L05 languages any string when scalar | caught | test_metric_languages_accepts_language_independent_value
+L06 languages list of free text | caught | test_metric_languages_supported_only, test_metric_languages_accepts_language_independent_value
+N01 unit cer missing | caught | test_all_closed_enums_exact, test_numeric_units_exclude_currency, test_scale_and_unit_domains
+N02 unit usd | caught | test_all_closed_enums_exact, test_numeric_units_exclude_currency, test_scale_and_unit_domains
+N03 unit count missing | caught | test_all_closed_enums_exact, test_numeric_units_exclude_currency, test_metric_ref_text_form_is_display_only
+N04 unit fraction extra | caught | test_all_closed_enums_exact, test_scale_and_unit_domains
+N05 bounds outside domain accepted | caught | test_per_turn_share_bounds_0_1, test_range_bounds_within_value_domain
+N06 upper domain bound unchecked | caught | test_per_turn_share_bounds_0_1, test_range_bounds_within_value_domain
+N07 lower domain bound unchecked | caught | test_per_turn_share_bounds_0_1, test_range_bounds_within_value_domain
+N08 empty integer set accepted | caught | test_range_bounds_within_value_domain
+N09 empty real set accepted | caught | test_range_bounds_within_value_domain
+N10 rating takes reals | caught | test_range_bounds_within_value_domain
+N11 count takes reals | caught | test_range_bounds_within_value_domain
+N12 ratio up to 2 | caught | test_range_bounds_within_value_domain
+N13 percent up to 1000 | caught | test_range_bounds_within_value_domain
+N14 wer capped at 1 | caught | test_range_bounds_within_value_domain
+N15 ms may be negative | caught | test_range_bounds_within_value_domain
+N16 rating domain not applied | caught | test_range_bounds_within_value_domain
+N17 numeric domain not applied | caught | test_range_bounds_within_value_domain
+N18 open lower bound counts as closed | caught | test_range_bounds_within_value_domain
+N19 real interval: equal bounds ok if open | caught | test_range_bounds_within_value_domain
+N20 share bounds unchecked | caught | test_per_turn_share_bounds_0_1, test_range_bounds_within_value_domain
+N21 share may exceed 1 | caught | test_per_turn_share_bounds_0_1, test_range_bounds_within_value_domain
+N22 range domain unchecked for any pass rule | caught | test_range_bounds_within_value_domain
+N23 turn rule ignores unit domain | caught | test_range_bounds_within_value_domain
+N24 turn rule ignores scale | caught | test_range_bounds_within_value_domain
+N25 float bound read exactly | caught | test_pass_rule_range_inclusive_and_exclusive
+N26 EnumScale options any string | caught | test_scale_and_unit_domains
+N27 rating min may equal max | caught | test_scale_and_unit_domains
+N28 numeric needs no unit | caught | test_conditional_field_rules_are_in_the_json_schema
+N29 unit allowed on non-numeric | caught | test_numeric_units_exclude_currency, test_conditional_field_rules_are_in_the_json_schema
+P01 config_ref accepts pasted keys | caught | test_rejected_credentials_are_not_echoed_in_error_text, test_config_ref_shape, test_credential_errors_have_no_input_in_any_logged_form
+P02 config_ref shape unchecked | caught | test_config_ref_shape
+P03 config_ref schema pattern dropped | caught | test_config_ref_shape
+P04 ProviderConfigRef ignores extra | caught | test_provider_ref_shape_and_open_values, test_provider_ref_extra_api_key_rejected, test_rejected_credentials_are_not_echoed_in_error_text
+P05 ProviderConfigRef errors echo input | caught | test_rejected_credentials_are_not_echoed_in_error_text, test_hide_input_set_closed_under_embedding, test_credential_errors_have_no_input_in_any_logged_form
+P06 ModelRef gains config_ref | caught | test_judge_model_ref_is_a_model_ref_without_config_ref
+P07 ModelRef ignores extras | caught | test_judge_model_ref_is_a_model_ref_without_config_ref
+P08 ModelRef provider free text | caught | test_judge_model_ref_is_a_model_ref_without_config_ref
+R01 MetricDefinitionRef takes any kind | caught | test_typed_reference_narrows_the_id_kind[MetricDefinitionRef], test_metric_binding_shape_and_params
+R02 MetricBindingRef takes any kind | caught | test_typed_reference_narrows_the_id_kind[MetricBindingRef], test_rubric_item_shape, test_bindings_unique
+R03 binding.metric is a generic ref | caught | test_metric_binding_shape_and_params
+R04 binding.metric accepts text | caught | test_metric_ref_text_form_is_display_only
+R05 render format differs | caught | test_metric_ref_text_form_is_display_only
+R06 render shows the id | caught | test_metric_ref_text_form_is_display_only
+R07 a parser for the text form exists | caught | test_metric_ref_text_form_is_display_only
+R08 definition ref requires a digest | caught | test_batch2_entity_roundtrip_and_schema_agree[MetricBinding], test_batch2_versioned_entity_digest_is_verified[MetricBinding], test_typed_reference_narrows_the_id_kind[MetricDefinitionRef]
+R09 definition ref gains key | caught | test_typed_reference_narrows_the_id_kind[MetricDefinitionRef], test_metric_ref_text_form_is_display_only
+T-ids-01 PersonaRef id any kind | caught | test_value_objects_have_no_entity_fields
+T-ids-02 value object with an own id | caught | test_value_objects_have_no_entity_fields
+T-ids-03 MetricDefinitionRef id typed as a persona | caught | test_value_objects_have_no_entity_fields
+T-ids-04 value object with schema_version | caught | test_value_objects_have_no_entity_fields
+T-ids-05 MetricBindingRef not narrowed | caught | test_value_objects_have_no_entity_fields
+T-ids-06 PersonaRef not a VersionedRef | caught | test_value_objects_have_no_entity_fields
+T01 range ignores exclusivity | caught | test_pass_rule_range_inclusive_and_exclusive, test_score_higher_is_better_expressed_with_range_min
+T02 range accepts no bound | caught | test_pass_rule_without_direction_rejected, test_range_requires_at_least_one_bound
+T03 range min above max | caught | test_range_requires_at_least_one_bound
+T04 equals_true coerces | caught | test_equals_true_rule_boolean
+T05 pass rule kind fit unchecked | caught | test_pass_rule_kind_matches_value_type, test_per_turn_share_definition_requires_turn_rule
+T06 share counts n/a in denominator | caught | test_per_turn_share_excludes_na_turns_from_denominator
+T07 share rounds half up | caught | test_per_turn_share_excludes_na_turns_from_denominator
+T08 script_sensitive defaults false | caught | test_script_sensitive_required_no_default
+T09 requires duplicates allowed | caught | test_requires_nonempty_unique
+T10 share pass rule may be any kind | caught | test_per_turn_share_pass_rule_must_be_range
+T11 turn_rule optional | caught | test_per_turn_share_definition_requires_turn_rule
+T12 scale unchecked vs value type | caught | test_scale_matches_value_type, test_conditional_field_rules_are_in_the_json_schema
+T13 one_of options not subset-checked | caught | test_one_of_rule_options_subset
+T14 one_of duplicates allowed | caught | test_one_of_rule_options_subset
+T15 counts accept negative | caught | test_per_turn_counts_fields_exact
+T16 requires has no schema minItems | caught | test_requires_nonempty_unique
+T17 metric key any text | caught | test_metric_key_is_a_metric_key
+V01 no upper bound on duration | caught | test_evaluator_max_duration_bounds, test_evaluator_max_duration_schema_is_exact
+V02 zero duration accepted | caught | test_evaluator_max_duration_bounds, test_evaluator_max_duration_schema_is_exact
+V03 duration schema lacks minimum 0 | caught | test_evaluator_max_duration_schema_is_exact
+V04 persona is a generic ref | caught | test_evaluator_references_are_versioned_and_typed
+V05 persona accepts text | caught | test_evaluator_references_are_versioned_and_typed, test_evaluator_references_reject_text_forms
+V06 bindings are generic refs | caught | test_bindings_unique
+V07 bindings may be empty | caught | test_evaluator_requires_at_least_one_binding
+V08 binding listed twice accepted | caught | test_bindings_unique
+V09 scripted index unchecked | caught | test_scripted_turn_index_contiguous
+V10 rank gaps accepted | caught | test_expected_tool_call_order_ranks_contiguous
+V11 ranks must be unique per call | caught | test_expected_tool_call_arguments_rules, test_expected_tool_call_order_ranks_contiguous
+V12 ranks need not start at 0 | caught | test_expected_tool_call_order_ranks_contiguous
+V13 name_only may carry arguments | caught | test_expected_tool_call_arguments_rules
+V14 exact needs no arguments | caught | test_expected_tool_call_arguments_rules
+V15 subset may be empty | caught | test_expected_tool_call_arguments_rules
+V16 argument placeholders unchecked | caught | test_malformed_profile_placeholder_rejected, test_profile_placeholders_in_outcome_and_tool_arguments
+V17 only top-level argument strings checked | caught | test_profile_placeholder_requires_test_profile, test_profile_placeholders_in_outcome_and_tool_arguments
+V18 arguments not I-JSON | caught | test_expected_tool_call_arguments_rules
+V19 expected outcome not placeholder-checked | caught | test_malformed_profile_placeholder_rejected, test_profile_placeholders_in_outcome_and_tool_arguments
+V20 test_profile never required | caught | test_profile_placeholder_requires_test_profile
+V21 outcome placeholder needs no profile | caught | test_profile_placeholder_requires_test_profile
+V22 argument placeholder needs no profile | caught | test_profile_placeholder_requires_test_profile
+V23 scripted turn placeholder needs no profile | caught | test_profile_placeholder_requires_test_profile
+V24 instruction placeholder needs no profile | caught | test_profile_placeholder_requires_test_profile
+V25 tool match open string | caught | test_all_closed_enums_exact, test_expected_tool_call_match_enum
+V26 tool call schema conditions dropped | caught | test_expected_tool_call_arguments_rules
+V27 tool match gains a member | caught | test_all_closed_enums_exact, test_expected_tool_call_match_enum
+V28 instructions not placeholder-checked | caught | test_every_profile_field_is_usable_as_a_placeholder, test_profile_placeholder_unknown_field_rejected, test_evaluator_text_fields_are_verbatim
+V29 scripted turn text not placeholder-checked | caught | test_profile_placeholder_unknown_field_rejected, test_malformed_profile_placeholder_rejected
+V30 argument placeholder check ignores unknown field | caught | test_profile_placeholders_in_outcome_and_tool_arguments
+V31 tool arguments may be a list | caught | test_expected_tool_call_arguments_rules
+V32 persona language free text | caught | test_persona_language_supported_only
+V33 accent unrestricted | caught | test_persona_accent_is_a_human_label
+V34 persona gains emotion | caught | test_persona_has_only_language_and_accent
+V35 PersonaRef takes any kind | caught | test_typed_reference_narrows_the_id_kind[PersonaRef], test_evaluator_references_are_versioned_and_typed
+V36 TestProfileRef accepts text | caught | test_evaluator_references_reject_text_forms
+
+# Dropped as equivalent (no observable difference through the contract):
+F06 lint without the first NFC (UAX #15 canonical caseless matching needs only fold then NFC, so the second NFC carries the rule; F10 removes that one and is caught)
+A47 IPv6 host split at the first colon (the host stays non-empty, so no acceptance or rejection changes)

@@ -1,0 +1,909 @@
+# group: p1-10b-transcript   (batch 3, mode red, qa)
+# date: 2026-10-23T06:24:33Z (UTC)  local: 2026-10-23T11:54:33+0530
+# command: python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_transcript.py    (cwd ~/tracer; pyproject addopts: -ra --strict-markers --strict-config -m 'not private_fixtures and not local_only')
+# interpreter: <scratchpad>/env3.14/bin/python
+# versions: python 3.14.7; pydantic 2.14.1, pydantic-core 2.50.1, pytest 9.1.1, jsonschema 4.26.0, hypothesis 6.170.5, rfc8785 0.1.4
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git status: ## No commits yet on main; 12 untracked/changed entries; 0 staged paths; no commits made
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.14.7, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>/env3.14/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 24 items
+
+packages/evalschema/tests/test_transcript.py::test_turn_seq_required_timing_optional FAILED [  4%]
+packages/evalschema/tests/test_transcript.py::test_turn_seq_unique_within_transcript FAILED [  8%]
+packages/evalschema/tests/test_transcript.py::test_turn_end_ge_start FAILED [ 12%]
+packages/evalschema/tests/test_transcript.py::test_segment_end_ge_start FAILED [ 16%]
+packages/evalschema/tests/test_transcript.py::test_segment_times_within_turn FAILED [ 20%]
+packages/evalschema/tests/test_transcript.py::test_segment_granularity_phrase FAILED [ 25%]
+packages/evalschema/tests/test_transcript.py::test_confidence_in_0_1 FAILED [ 29%]
+packages/evalschema/tests/test_transcript.py::test_timing_source_none_iff_no_timing FAILED [ 33%]
+packages/evalschema/tests/test_transcript.py::test_turn_has_no_started_at_field FAILED [ 37%]
+packages/evalschema/tests/test_transcript.py::test_turn_source_enum_exact FAILED [ 41%]
+packages/evalschema/tests/test_transcript.py::test_transcript_source_names_producer FAILED [ 45%]
+packages/evalschema/tests/test_transcript.py::test_interrupted_none_distinct_from_false FAILED [ 50%]
+packages/evalschema/tests/test_transcript.py::test_role_enum_exact FAILED [ 54%]
+packages/evalschema/tests/test_transcript.py::test_turn_language_observed_any FAILED [ 58%]
+packages/evalschema/tests/test_transcript.py::test_turn_language_raw_verbatim FAILED [ 62%]
+packages/evalschema/tests/test_transcript.py::test_turn_and_segment_bidi_flag_computed_and_verified FAILED [ 66%]
+packages/evalschema/tests/test_transcript.py::test_exchange_shape_and_sources FAILED [ 70%]
+packages/evalschema/tests/test_transcript.py::test_exchange_index_references_existing_exchange FAILED [ 75%]
+packages/evalschema/tests/test_transcript.py::test_timeline_origin_artifact_requires_artifact_ref FAILED [ 79%]
+packages/evalschema/tests/test_transcript.py::test_timeline_origin_required_iff_offsets_present FAILED [ 83%]
+packages/evalschema/tests/test_transcript.py::test_transcript_shape_and_optional_fields FAILED [ 87%]
+packages/evalschema/tests/test_transcript.py::test_transcript_declared_language_shape_and_provenance FAILED [ 91%]
+packages/evalschema/tests/test_transcript.py::test_declared_language_only_on_untagged_imported_transcript FAILED [ 95%]
+packages/evalschema/tests/test_transcript.py::test_long_transcript_50k_turns_under_2s FAILED [100%]
+
+=================================== FAILURES ===================================
+____________________ test_turn_seq_required_timing_optional ____________________
+
+    def test_turn_seq_required_timing_optional() -> None:
+        """ADR 0011 I1: ``seq`` is required (order is always known) and timing is optional: a turn
+        with no start, no end and no wall time is the normal shape of a transcript-only import. The
+        fields that carry meaning have no default either: ``role``, ``source``, ``text``,
+        ``transcript_id``. A bare turn keeps absent optional fields as ``None``."""
+>       turn_model = entity_class3("Turn")
+                     ^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_transcript.py:78: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x105ef7e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+____________________ test_turn_seq_unique_within_transcript ____________________
+
+    def test_turn_seq_unique_within_transcript() -> None:
+        """ADR 0011 I1: ``seq`` is unique within its transcript (``check_transcript``). The same ``seq``
+        in another transcript is fine, and a turn that belongs to another transcript is rejected."""
+>       transcript = make3("Transcript")
+                     ^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_transcript.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:587: in make3
+    model = entity_class3(name)
+            ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x105ef7e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+____________________________ test_turn_end_ge_start ____________________________
+
+    def test_turn_end_ge_start() -> None:
+        """ADR 0002 I6, ADR 0011 I2: ``end_ms >= start_ms`` when both are present. Equal is fine, a
+        single bound is fine, and the offsets are strict non-negative integers."""
+>       turn_model = entity_class3("Turn")
+                     ^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_transcript.py:118: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x105ef7e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+__________________________ test_segment_end_ge_start ___________________________
+
+    def test_segment_end_ge_start() -> None:
+        """ADR 0011 I2: the same rule on ``Segment``."""
+>       segment = registered_class("Segment")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_transcript.py:134: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'Segment'
+
+    def registered_class(name: str) -> Any:
+        """The module-level model class ``name`` of the package, wherever the architect put it.
+    
+        Used for the value objects whose module api-surface 19.4.1 does not fix. A missing class fails
+        the test that needs it (AssertionError), never collection."""
+        found = {model.__name__: model for model in api("registry").model_classes()}
+>       assert name in found, f"{name} is not implemented yet"
+               ^^^^^^^^^^^^^
+E       AssertionError: Segment is not implemented yet
+
+packages/evalschema/tests/_support_b2.py:105: AssertionError
+________________________ test_segment_times_within_turn ________________________
+
+    def test_segment_times_within_turn() -> None:
+        """P-28 (ADR 0011 Decision 2): segments live in ``Turn.segments``; when both a segment and its
+        turn carry times, the segment's range lies inside the turn's range. A segment that starts
+        before the turn or ends after it is rejected; touching the turn's bounds is fine."""
+>       turn_model = entity_class3("Turn")
+                     ^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_transcript.py:149: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x105ef7e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_______________________ test_segment_granularity_phrase ________________________
+
+    def test_segment_granularity_phrase() -> None:
+        """ADR 0011 I6, ADR 0003 I8: granularity is word, phrase or utterance (a Sarvam phrase
+        timestamp is a ``phrase``); anything else is rejected. ``Segment`` is a value object (no
+        identity fields) in ``Turn.segments`` and its text is stored verbatim."""
+>       segment = registered_class("Segment")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_transcript.py:169: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'Segment'
+
+    def registered_class(name: str) -> Any:
+        """The module-level model class ``name`` of the package, wherever the architect put it.
+    
+        Used for the value objects whose module api-surface 19.4.1 does not fix. A missing class fails
+        the test that needs it (AssertionError), never collection."""
+        found = {model.__name__: model for model in api("registry").model_classes()}
+>       assert name in found, f"{name} is not implemented yet"
+               ^^^^^^^^^^^^^
+E       AssertionError: Segment is not implemented yet
+
+packages/evalschema/tests/_support_b2.py:105: AssertionError
+____________________________ test_confidence_in_0_1 ____________________________
+
+    def test_confidence_in_0_1() -> None:
+        """ADR 0011 I6, P-29: a reported confidence lies in [0,1] (``Segment.confidence``,
+        ``Transcript.language_confidence``) and is absent when the source reported none; ``Turn`` has
+        no confidence field of its own."""
+>       segment = registered_class("Segment")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_transcript.py:191: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'Segment'
+
+    def registered_class(name: str) -> Any:
+        """The module-level model class ``name`` of the package, wherever the architect put it.
+    
+        Used for the value objects whose module api-surface 19.4.1 does not fix. A missing class fails
+        the test that needs it (AssertionError), never collection."""
+        found = {model.__name__: model for model in api("registry").model_classes()}
+>       assert name in found, f"{name} is not implemented yet"
+               ^^^^^^^^^^^^^
+E       AssertionError: Segment is not implemented yet
+
+packages/evalschema/tests/_support_b2.py:105: AssertionError
+____________________ test_timing_source_none_iff_no_timing _____________________
+
+    def test_timing_source_none_iff_no_timing() -> None:
+        """ADR 0011 I3: ``timing_source`` is ``none`` if and only if the turn has no ``start_ms`` and no
+        ``end_ms``. A ``wall_time`` is an annotation and never counts as timing, so a turn that has
+        only a wall time has ``timing_source=none``, and a source other than none without offsets is
+        rejected."""
+>       turn_model = entity_class3("Turn")
+                     ^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_transcript.py:218: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x105ef7e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+______________________ test_turn_has_no_started_at_field _______________________
+
+    def test_turn_has_no_started_at_field() -> None:
+        """ADR 0002 I13, ADR 0011 I12: ``Turn.started_at`` is gone; a wall-clock instant is
+        ``wall_time{at, meaning}`` with meaning start, end, logged or unknown. F8 maps to
+        ``meaning=unknown`` without inventing a start."""
+>       turn_model = entity_class3("Turn")
+                     ^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_transcript.py:243: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x105ef7e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_________________________ test_turn_source_enum_exact __________________________
+
+    def test_turn_source_enum_exact() -> None:
+        """ADR 0011 I4, ADR 0003: ``Turn.source`` is exactly our_stt, agent_stt, agent_llm_output,
+        agent_tts_input, agent_context, agent_log, script, human_reference (an ``enum``, never
+        ``const``). The stage is never collapsed or guessed, so other spellings are rejected."""
+>       turn_model = entity_class3("Turn")
+                     ^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_transcript.py:271: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x105ef7e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+____________________ test_transcript_source_names_producer _____________________
+
+    def test_transcript_source_names_producer() -> None:
+        """P-27 (ADR 0011 Decision 1): ``Transcript.source`` names the producer (our_stt, agent_export,
+        agent_telemetry, observer, script, human_reference) while ``Turn.source`` names the pipeline
+        stage of each turn, so one transcript can mix stages (F4: user lines agent_stt, assistant
+        lines agent_context). ``agent_log`` is a stage, not a producer, and is rejected on a
+        transcript."""
+>       transcript_model = entity_class3("Transcript")
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_transcript.py:296: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x105ef7e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+__________________ test_interrupted_none_distinct_from_false ___________________
+
+    def test_interrupted_none_distinct_from_false() -> None:
+        """ADR 0011 I5: ``interrupted`` (and ``Exchange.was_interrupted``) is true, false or ``None``
+        (unknown). ``None`` stays distinct from ``False`` through the default, a JSON round trip and
+        the JSON Schema; absent means unknown, never 'not interrupted'."""
+>       turn_model = entity_class3("Turn")
+                     ^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_transcript.py:323: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x105ef7e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_____________________________ test_role_enum_exact _____________________________
+
+    def test_role_enum_exact() -> None:
+        """ADR 0016 I1, ADR 0003 I2: ``Turn.role`` is exactly caller, agent, unknown. The roles of the
+        removed concepts (ivr, human_agent, transfer) and the common provider names (user, assistant,
+        bot) are rejected; the raw provider label goes through an importer mapping, never the type."""
+>       turn_model = entity_class3("Turn")
+                     ^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_transcript.py:348: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x105ef7e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_______________________ test_turn_language_observed_any ________________________
+
+    def test_turn_language_observed_any() -> None:
+        """ADR 0011 I8, ADR 0005 I20: ``Turn.language`` accepts any well-formed observed tag and
+        never checks support: an excluded language, a romanized tag, ``und``, ``mul``, ``zxx``, an
+        unregistered tag, a private-use tag. Letter case is canonicalized. A malformed tag, a
+        language name or a padded label is rejected by the type (the importer keeps such a label in
+        ``language_raw``)."""
+>       turn_model = entity_class3("Turn")
+                     ^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_transcript.py:374: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x105ef7e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_______________________ test_turn_language_raw_verbatim ________________________
+
+    def test_turn_language_raw_verbatim() -> None:
+        """P-13 (ADR 0005 Decision 3, I12d): ``Turn.language_raw`` keeps the provider's per-turn
+        label code point for code point, whether or not it parsed: underscores, padding, case,
+        non-ASCII, NFC versus NFD, an empty string. It is independent of ``language`` (a turn can
+        carry a raw label and no tag), and a lone surrogate is rejected. The pure helper builds the
+        pair."""
+        language = api("language")
+        nfd = "e" + chr(0x0301)
+        nfc = chr(0x00E9)
+        for raw in (" hi_IN\n", "HI_in", "hindi", NON_ASCII, nfd, nfc, "", "bn\tIN"):
+>           assert _turn(language_raw=raw).language_raw == raw
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_transcript.py:405: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_transcript.py:55: in _turn
+    return make3("Turn", **over)
+           ^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:587: in make3
+    model = entity_class3(name)
+            ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x105ef7e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+____________ test_turn_and_segment_bidi_flag_computed_and_verified _____________
+
+    def test_turn_and_segment_bidi_flag_computed_and_verified() -> None:
+        """Proposed name (ADR 0017 Decision 2, I4; the Turn half of ``test_bidi_flag_computed`` and
+        ``test_bidi_flag_forgery_rejected``): ``contains_bidi_controls`` is computed from ``text`` when
+        omitted, verified when supplied (a forged flag is rejected both ways), always serialized, and
+        set only by U+202A-202E and U+2066-2069 (LRM, RLM and ALM do not set it). The text is stored
+        code point for code point."""
+>       segment = registered_class("Segment")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_transcript.py:426: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'Segment'
+
+    def registered_class(name: str) -> Any:
+        """The module-level model class ``name`` of the package, wherever the architect put it.
+    
+        Used for the value objects whose module api-surface 19.4.1 does not fix. A missing class fails
+        the test that needs it (AssertionError), never collection."""
+        found = {model.__name__: model for model in api("registry").model_classes()}
+>       assert name in found, f"{name} is not implemented yet"
+               ^^^^^^^^^^^^^
+E       AssertionError: Segment is not implemented yet
+
+packages/evalschema/tests/_support_b2.py:105: AssertionError
+_______________________ test_exchange_shape_and_sources ________________________
+
+    def test_exchange_shape_and_sources() -> None:
+        """Proposed name (ADR 0011 Decision 4, P-06): ``Exchange{index, started_at?, duration_ms?,
+        was_interrupted?, source}``: ``index`` is a non-negative integer, ``source`` is exactly
+        audio_alignment, telemetry, observer, inferred_from_turns, ``started_at`` is a UTC instant
+        and ``duration_ms`` an ``Ms``. Pipecat's ``turn_number`` maps to ``Exchange.index``, never to
+        ``Turn.seq``."""
+>       exchange = entity_class3("Exchange")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_transcript.py:459: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x105ef7e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_______________ test_exchange_index_references_existing_exchange _______________
+
+    def test_exchange_index_references_existing_exchange() -> None:
+        """ADR 0011 I11: a turn's ``exchange_index`` must name an existing exchange of the run
+        (``check_transcript`` with the run's exchanges); a turn without one is fine, and the exchange
+        indexes are unique. Without the exchanges argument the references are not checked."""
+>       transcript = make3("Transcript")
+                     ^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_transcript.py:489: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:587: in make3
+    model = entity_class3(name)
+            ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x105ef7e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_____________ test_timeline_origin_artifact_requires_artifact_ref ______________
+
+    def test_timeline_origin_artifact_requires_artifact_ref() -> None:
+        """ADR 0002 Decision 3, I12: ``TimelineOrigin{kind, ref?, started_at?}`` with kind artifact,
+        telemetry or observer. ``kind=artifact`` needs ``ref`` to be an ``art_`` ID (sample 0 of that
+        artifact); telemetry and observer carry the source's trace or session reference as an
+        ``ExternalRef`` (or none) and never an ``art_`` ID. ``started_at`` is a UTC instant."""
+>       origin = registered_class("TimelineOrigin")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_transcript.py:519: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'TimelineOrigin'
+
+    def registered_class(name: str) -> Any:
+        """The module-level model class ``name`` of the package, wherever the architect put it.
+    
+        Used for the value objects whose module api-surface 19.4.1 does not fix. A missing class fails
+        the test that needs it (AssertionError), never collection."""
+        found = {model.__name__: model for model in api("registry").model_classes()}
+>       assert name in found, f"{name} is not implemented yet"
+               ^^^^^^^^^^^^^
+E       AssertionError: TimelineOrigin is not implemented yet
+
+packages/evalschema/tests/_support_b2.py:105: AssertionError
+______________ test_timeline_origin_required_iff_offsets_present _______________
+
+    def test_timeline_origin_required_iff_offsets_present() -> None:
+        """ADR 0002 I11: a transcript's ``timeline_origin`` is required if and only if any of its turns
+        or segments has ``start_ms`` or ``end_ms``, and a ``ToolCallEvent``'s ``timeline_origin`` is
+        required if and only if it has ``offset_ms``. A wall time is not an offset."""
+        origin = _artifact_origin()
+>       timed = make3("Transcript", timeline_origin=origin)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_transcript.py:562: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:587: in make3
+    model = entity_class3(name)
+            ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x105ef7e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+__________________ test_transcript_shape_and_optional_fields ___________________
+
+    def test_transcript_shape_and_optional_fields() -> None:
+        """Proposed name (ADR 0011 Decision 1, ADR 0005 Decisions 2 and 3): the observed language of a
+        transcript is ``detected_language`` (any well-formed tag) with the provider's label kept in
+        ``detected_language_raw`` (verbatim, also when no tag parsed); ``provider`` and ``model`` are
+        open ``MachineKey`` values; ``privacy`` is required; absent optional fields are ``None``; the
+        record round-trips through JSON and its JSON Schema."""
+>       transcript_model = entity_class3("Transcript")
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_transcript.py:612: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x105ef7e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+____________ test_transcript_declared_language_shape_and_provenance ____________
+
+    def test_transcript_declared_language_shape_and_provenance() -> None:
+        """N14 (ADR 0004 Decision 6g, I27): ``Transcript.declared_language`` is a
+        ``LanguageDeclaration{language, source, declared_by, declared_at}``. ``language`` is a
+        SupportedLanguage without a script subtag (``mr-IN`` and ``mr`` are valid, ``mr-Deva-IN`` is
+        rejected, as is any language outside the nine); ``source`` is exactly ``user_declared``
+        (an ``enum``); ``declared_by`` is a MachineKey without ``@``; ``declared_at`` is a required
+        UTC instant. All four are required."""
+>       declaration = registered_class("LanguageDeclaration")
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_transcript.py:660: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'LanguageDeclaration'
+
+    def registered_class(name: str) -> Any:
+        """The module-level model class ``name`` of the package, wherever the architect put it.
+    
+        Used for the value objects whose module api-surface 19.4.1 does not fix. A missing class fails
+        the test that needs it (AssertionError), never collection."""
+        found = {model.__name__: model for model in api("registry").model_classes()}
+>       assert name in found, f"{name} is not implemented yet"
+               ^^^^^^^^^^^^^
+E       AssertionError: LanguageDeclaration is not implemented yet
+
+packages/evalschema/tests/_support_b2.py:105: AssertionError
+_________ test_declared_language_only_on_untagged_imported_transcript __________
+
+    def test_declared_language_only_on_untagged_imported_transcript() -> None:
+        """N14 (ADR 0004 Decision 6g, I28): a declaration is allowed only on an imported transcript
+        (``agent_export``, ``agent_telemetry``, ``observer``, ``human_reference``) that has no
+        transcript-level label: ``detected_language`` and ``detected_language_raw`` are both absent.
+        It is rejected on ``our_stt`` and ``script`` transcripts (our own producer records the tag),
+        and when either label is present, including ``und`` and a raw label that did not parse. It is
+        never an observation: no observed field is filled from it."""
+>       transcript_model = entity_class3("Transcript")
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_transcript.py:726: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x105ef7e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+___________________ test_long_transcript_50k_turns_under_2s ____________________
+
+    def test_long_transcript_50k_turns_under_2s() -> None:
+        """A-05, ADR 0011 Decision 6, P-30 (accepted): a 4 hour transcript of 50,000 timed turns
+        validates, together with the transcript rules (unique ``seq``, the timeline origin), in under
+        2 seconds. The limit is scaled by a calibration loop measured in the same test (floor 2 s), so
+        a slow runner does not fail the test intermittently."""
+>       transcript = make3("Transcript", timeline_origin=_artifact_origin())
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_transcript.py:794: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:587: in make3
+    model = entity_class3(name)
+            ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.transcript'
+import_ = <function _gcd_import at 0x105ef7e20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.transcript'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+- generated xml file: <scratchpad>/junit3/p1-10b-transcript.py3.14.xml -
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_transcript.py::test_turn_seq_required_timing_optional
+FAILED packages/evalschema/tests/test_transcript.py::test_turn_seq_unique_within_transcript
+FAILED packages/evalschema/tests/test_transcript.py::test_turn_end_ge_start
+FAILED packages/evalschema/tests/test_transcript.py::test_segment_end_ge_start
+FAILED packages/evalschema/tests/test_transcript.py::test_segment_times_within_turn
+FAILED packages/evalschema/tests/test_transcript.py::test_segment_granularity_phrase
+FAILED packages/evalschema/tests/test_transcript.py::test_confidence_in_0_1
+FAILED packages/evalschema/tests/test_transcript.py::test_timing_source_none_iff_no_timing
+FAILED packages/evalschema/tests/test_transcript.py::test_turn_has_no_started_at_field
+FAILED packages/evalschema/tests/test_transcript.py::test_turn_source_enum_exact
+FAILED packages/evalschema/tests/test_transcript.py::test_transcript_source_names_producer
+FAILED packages/evalschema/tests/test_transcript.py::test_interrupted_none_distinct_from_false
+FAILED packages/evalschema/tests/test_transcript.py::test_role_enum_exact - M...
+FAILED packages/evalschema/tests/test_transcript.py::test_turn_language_observed_any
+FAILED packages/evalschema/tests/test_transcript.py::test_turn_language_raw_verbatim
+FAILED packages/evalschema/tests/test_transcript.py::test_turn_and_segment_bidi_flag_computed_and_verified
+FAILED packages/evalschema/tests/test_transcript.py::test_exchange_shape_and_sources
+FAILED packages/evalschema/tests/test_transcript.py::test_exchange_index_references_existing_exchange
+FAILED packages/evalschema/tests/test_transcript.py::test_timeline_origin_artifact_requires_artifact_ref
+FAILED packages/evalschema/tests/test_transcript.py::test_timeline_origin_required_iff_offsets_present
+FAILED packages/evalschema/tests/test_transcript.py::test_transcript_shape_and_optional_fields
+FAILED packages/evalschema/tests/test_transcript.py::test_transcript_declared_language_shape_and_provenance
+FAILED packages/evalschema/tests/test_transcript.py::test_declared_language_only_on_untagged_imported_transcript
+FAILED packages/evalschema/tests/test_transcript.py::test_long_transcript_50k_turns_under_2s
+============================== 24 failed in 0.35s ==============================
+# exit status: 1

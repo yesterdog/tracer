@@ -1,0 +1,33 @@
+# group: rubric   (batch 2 group A green run, schema-architect)
+# date: 2026-10-23T04:52:02Z (UTC)  local: 2026-10-23T10:22:02+0530
+# command: python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_rubric.py   (cwd ~/tracer; pyproject addopts apply)
+# interpreter: <scratchpad>/env3.12/bin/python
+# versions: python 3.12.14; pydantic 2.14.1, pydantic-core 2.50.1, pytest 9.1.1, jsonschema 4.26.0, rfc8785 0.1.4
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git status: no commits; 0 staged paths
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.12.14, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>/env3.12/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 15 items
+
+packages/evalschema/tests/test_rubric.py::test_rubric_requires_one_required_metric PASSED [  6%]
+packages/evalschema/tests/test_rubric.py::test_required_metric_needs_pass_rule PASSED [ 13%]
+packages/evalschema/tests/test_rubric.py::test_required_boolean_check_with_equals_true_ok PASSED [ 20%]
+packages/evalschema/tests/test_rubric.py::test_rubric_weight_requires_pass_rule PASSED [ 26%]
+packages/evalschema/tests/test_rubric.py::test_rubric_weight_values PASSED [ 33%]
+packages/evalschema/tests/test_rubric.py::test_rubric_rejects_duplicate_binding_refs PASSED [ 40%]
+packages/evalschema/tests/test_rubric.py::test_rubric_unresolved_references_rejected PASSED [ 46%]
+packages/evalschema/tests/test_rubric.py::test_rubric_per_turn_share_metric_can_be_required_and_weighted PASSED [ 53%]
+packages/evalschema/tests/test_rubric.py::test_rubric_is_versioned_entity PASSED [ 60%]
+packages/evalschema/tests/test_rubric.py::test_rubric_item_shape PASSED  [ 66%]
+packages/evalschema/tests/test_rubric.py::test_rubric_rejects_disabled_binding PASSED [ 73%]
+packages/evalschema/tests/test_rubric.py::test_bound_definition_keys_unique_per_evaluator PASSED [ 80%]
+packages/evalschema/tests/test_rubric.py::test_validate_rubric_rejects_bindings_of_more_than_one_evaluator PASSED [ 86%]
+packages/evalschema/tests/test_rubric.py::test_validate_rubric_checks_binding_params_against_the_definition PASSED [ 93%]
+packages/evalschema/tests/test_rubric.py::test_rubric_unweighted_items_and_no_required_total PASSED [100%]
+
+============================== 15 passed in 0.14s ==============================

@@ -1,0 +1,1417 @@
+# group: p1-06-project-agent-rev9a   (revision 9 group A red run, qa; appended, earlier logs untouched)
+# date: 2026-10-23T04:27:09Z (UTC)  local: 2026-10-23T09:57:09+0530
+# command: python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_project_agent.py   (cwd ~/tracer; pyproject addopts: -ra --strict-markers --strict-config -m 'not private_fixtures and not local_only')
+# interpreter: <scratchpad>/env3.11/bin/python
+# versions: python 3.11.16; pydantic 2.14.1; pytest 9.1.1; jsonschema 4.26.0
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git status: ## No commits yet on main; 12 untracked entries; 0 staged paths; no commits made
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.11.16, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>/env3.11/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 33 items
+
+packages/evalschema/tests/test_project_agent.py::test_secret_field_walk FAILED [  3%]
+packages/evalschema/tests/test_project_agent.py::test_secret_walk_does_not_flag_usage_units FAILED [  6%]
+packages/evalschema/tests/test_project_agent.py::test_provider_ref_shape_and_open_values FAILED [  9%]
+packages/evalschema/tests/test_project_agent.py::test_provider_ref_extra_api_key_rejected FAILED [ 12%]
+packages/evalschema/tests/test_project_agent.py::test_rejected_credentials_are_not_echoed_in_error_text FAILED [ 15%]
+packages/evalschema/tests/test_project_agent.py::test_config_ref_shape FAILED [ 18%]
+packages/evalschema/tests/test_project_agent.py::test_project_is_a_record_of_fact_entity FAILED [ 21%]
+packages/evalschema/tests/test_project_agent.py::test_metadata_secret_value_preserved_but_flagged FAILED [ 24%]
+packages/evalschema/tests/test_project_agent.py::test_endpoint_rejects_credentials_in_url FAILED [ 27%]
+packages/evalschema/tests/test_project_agent.py::test_endpoint_url_credential_params_case_and_encoding FAILED [ 30%]
+packages/evalschema/tests/test_project_agent.py::test_sip_endpoint_userinfo_rule FAILED [ 33%]
+packages/evalschema/tests/test_project_agent.py::test_endpoint_transport_scheme_rules FAILED [ 36%]
+packages/evalschema/tests/test_project_agent.py::test_endpoint_discriminated_by_transport FAILED [ 39%]
+packages/evalschema/tests/test_project_agent.py::test_agent_target_is_a_versioned_entity FAILED [ 42%]
+packages/evalschema/tests/test_project_agent.py::test_agent_target_languages_supported_only FAILED [ 45%]
+packages/evalschema/tests/test_project_agent.py::test_declared_vs_detected_capabilities_separate FAILED [ 48%]
+packages/evalschema/tests/test_project_agent.py::test_declared_stack_entry_shape FAILED [ 51%]
+packages/evalschema/tests/test_project_agent.py::test_project_provider_configs_unique_per_provider_and_model FAILED [ 54%]
+packages/evalschema/tests/test_project_agent.py::test_declared_capabilities_unique FAILED [ 57%]
+packages/evalschema/tests/test_project_agent.py::test_agent_target_languages_empty_means_undeclared_and_unique FAILED [ 60%]
+packages/evalschema/tests/test_project_agent.py::test_declared_stack_stage_is_exact FAILED [ 63%]
+packages/evalschema/tests/test_project_agent.py::test_hide_input_set_closed_under_embedding FAILED [ 66%]
+packages/evalschema/tests/test_project_agent.py::test_credential_errors_have_no_input_in_any_logged_form FAILED [ 69%]
+packages/evalschema/tests/test_project_agent.py::test_endpoint_rejects_wider_credential_names_and_prefixes FAILED [ 72%]
+packages/evalschema/tests/test_project_agent.py::test_endpoint_parameter_names_percent_decoded_and_casefolded FAILED [ 75%]
+packages/evalschema/tests/test_project_agent.py::test_endpoint_url_syntax_rules FAILED [ 78%]
+packages/evalschema/tests/test_project_agent.py::test_sip_uri_credential_rules FAILED [ 81%]
+packages/evalschema/tests/test_project_agent.py::test_agent_target_has_no_tier_adapter_or_description_field FAILED [ 84%]
+packages/evalschema/tests/test_project_agent.py::test_url_credential_parameter_names_exact FAILED [ 87%]
+packages/evalschema/tests/test_project_agent.py::test_url_credential_parameter_names_hyphen_underscore_equivalent FAILED [ 90%]
+packages/evalschema/tests/test_project_agent.py::test_url_credential_pattern_anywhere_rejected FAILED [ 93%]
+packages/evalschema/tests/test_project_agent.py::test_url_high_entropy_segment_accepted FAILED [ 96%]
+packages/evalschema/tests/test_project_agent.py::test_url_pattern_fitting_slug_is_rejected_known_false_positive FAILED [100%]
+
+=================================== FAILURES ===================================
+____________________________ test_secret_field_walk ____________________________
+
+    def test_secret_field_walk() -> None:
+        """No model field, alias or JSON Schema property name matches the credential denylist.
+    
+        The walk includes every batch 2 model (a missing one fails the test); ``metadata`` keys are
+        user-owned data and are not property names."""
+>       models = _walked_models()
+                 ^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_project_agent.py:82: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_project_agent.py:66: in _walked_models
+    cls(module, name)
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.project'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.project'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+__________________ test_secret_walk_does_not_flag_usage_units __________________
+
+    def test_secret_walk_does_not_flag_usage_units() -> None:
+        """The denylist matches whole name components, so usage units and key references pass.
+    
+        Also runs the walk over the batch 2 models, so the check covers P1-06 and not only the matcher.
+        """
+        for unit in (
+            "input_tokens",
+            "output_tokens",
+            "cache_read_input_tokens",
+            "cache_write_input_tokens",
+            "audio_input_seconds",
+            "audio_output_seconds",
+            "input_characters",
+            "token_count",
+            "max_tokens",
+            "key_id",
+            "key_version",
+            "config_ref",
+            "keyring",
+            "monkey",
+        ):
+            assert not secret_like(unit), unit
+        for name in (
+            "api_key",
+            "apiKey",
+            "API_KEY",
+            "apikey",
+            "x_api_key",
+            "client_secret",
+            "secret",
+            "password",
+            "passwd",
+            "private_key",
+            "access_token",
+            "refresh_token",
+            "auth_token",
+            "bearer",
+            "bearer_token",
+            "Authorization",
+            "credential",
+            "credentials",
+        ):
+            assert secret_like(name), name
+>       for model in _walked_models():
+                     ^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_project_agent.py:141: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_project_agent.py:66: in _walked_models
+    cls(module, name)
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.project'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.project'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+___________________ test_provider_ref_shape_and_open_values ____________________
+
+    def test_provider_ref_shape_and_open_values() -> None:
+        """Proposed name. ``ProviderConfigRef`` is exactly ``{provider, model, config_ref}``, all
+        required, no other field, and provider and model are open ``MachineKey`` values."""
+>       model = _provider()
+                ^^^^^^^^^^^
+
+packages/evalschema/tests/test_project_agent.py:152: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_project_agent.py:60: in _provider
+    return cls("provider", "ProviderConfigRef")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.provider'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.provider'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+___________________ test_provider_ref_extra_api_key_rejected ___________________
+
+    def test_provider_ref_extra_api_key_rejected() -> None:
+        """A-04: an unexpected credential field is a validation error, never ignored."""
+>       model = _provider()
+                ^^^^^^^^^^^
+
+packages/evalschema/tests/test_project_agent.py:180: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_project_agent.py:60: in _provider
+    return cls("provider", "ProviderConfigRef")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.provider'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.provider'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+____________ test_rejected_credentials_are_not_echoed_in_error_text ____________
+
+    def test_rejected_credentials_are_not_echoed_in_error_text() -> None:
+        """Proposed name (ADR 0007 is silent; QA responsibility "secret leakage in logs").
+    
+        Pydantic shows the rejected input in ``str(ValidationError)`` unless the model hides it, so a
+        pasted key or a credential URL would be written to logs by the very check that refuses it.
+        The text of the error must not contain the credential."""
+>       model = _provider()
+                ^^^^^^^^^^^
+
+packages/evalschema/tests/test_project_agent.py:212: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_project_agent.py:60: in _provider
+    return cls("provider", "ProviderConfigRef")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.provider'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.provider'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+____________________________ test_config_ref_shape _____________________________
+
+    def test_config_ref_shape() -> None:
+        """P-19: ``config_ref`` is ``<scheme>:<name>``; a value with ``=`` or a known key prefix is
+        rejected, so a pasted key cannot hide in an innocently named field."""
+>       model = _provider()
+                ^^^^^^^^^^^
+
+packages/evalschema/tests/test_project_agent.py:241: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_project_agent.py:60: in _provider
+    return cls("provider", "ProviderConfigRef")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.provider'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.provider'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+___________________ test_project_is_a_record_of_fact_entity ____________________
+
+    def test_project_is_a_record_of_fact_entity() -> None:
+        """Proposed name. ``Project`` (prefix ``prj``) is a plain entity: not versioned, a ``name``
+        label, ``provider_configs`` (default empty) holding ``ProviderConfigRef`` objects."""
+>       project = entity_class("Project")
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_project_agent.py:291: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.project'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.project'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_______________ test_metadata_secret_value_preserved_but_flagged _______________
+
+    def test_metadata_secret_value_preserved_but_flagged() -> None:
+        """A-03: a secret-looking metadata value is kept byte for byte and flagged in the serialized
+        ``metadata_flags`` (ADR 0007 Decision 5 and 5a). Asserted on a real entity, ``Project``."""
+>       project = entity_class("Project")
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_project_agent.py:317: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.project'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.project'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+___________________ test_endpoint_rejects_credentials_in_url ___________________
+
+    def test_endpoint_rejects_credentials_in_url() -> None:
+        """P-20: endpoints reject userinfo and the known credential query parameters; presigned URLs
+        are runtime-only. Parameter names match whole names, not substrings, and an ``@`` in the path
+        is not userinfo."""
+>       target = entity_class("AgentTarget")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_project_agent.py:375: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.agent'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.agent'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+____________ test_endpoint_url_credential_params_case_and_encoding _____________
+
+    def test_endpoint_url_credential_params_case_and_encoding() -> None:
+        """Proposed name (ADR 0007 lists the parameter names only in the spellings below). A
+        credential parameter must not slip through by case or percent-encoding of its name."""
+>       target = entity_class("AgentTarget")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_project_agent.py:398: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.agent'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.agent'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_______________________ test_sip_endpoint_userinfo_rule ________________________
+
+    def test_sip_endpoint_userinfo_rule() -> None:
+        """Proposed name. In a SIP URI the user part is the address (``sip:1001@pbx``), so only a
+        password in the userinfo is a credential (ambiguity: ADR 0007 Decision 6 says "userinfo
+        (user:pass@)" for every URL)."""
+>       target = entity_class("AgentTarget")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_project_agent.py:416: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.agent'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.agent'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_____________________ test_endpoint_transport_scheme_rules _____________________
+
+    def test_endpoint_transport_scheme_rules() -> None:
+        """Proposed name. The URL scheme must fit the transport: ws takes ws or wss, sip takes sip or
+        sips, webrtc takes http or https (its signalling endpoint)."""
+>       target = entity_class("AgentTarget")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_project_agent.py:431: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.agent'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.agent'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+___________________ test_endpoint_discriminated_by_transport ___________________
+
+    def test_endpoint_discriminated_by_transport() -> None:
+        """ADR 0007 I7: the endpoint is a union discriminated by ``transport`` (ws, webrtc, sip);
+        each variant has its own address field and nothing else; the tag is an ``enum`` in the
+        JSON Schema (ADR 0003 Decision 6), and pydantic and JSON Schema agree."""
+>       target = entity_class("AgentTarget")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_project_agent.py:453: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.agent'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.agent'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+___________________ test_agent_target_is_a_versioned_entity ____________________
+
+    def test_agent_target_is_a_versioned_entity() -> None:
+        """Proposed name. ``AgentTarget`` (prefix ``agt``) is versioned for its declared fields."""
+>       target = entity_class("AgentTarget")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_project_agent.py:508: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.agent'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.agent'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+__________________ test_agent_target_languages_supported_only __________________
+
+    def test_agent_target_languages_supported_only() -> None:
+        """Proposed name. ``languages`` holds configured languages: native script, supported regions,
+        canonical case; excluded languages, romanized tags and the mixed alias are rejected."""
+>       assert make("AgentTarget", languages=["HI-in", "pa-Guru-IN", "ml"]).languages == [
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "hi-IN",
+            "pa-Guru-IN",
+            "ml",
+        ]
+
+packages/evalschema/tests/test_project_agent.py:532: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.agent'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.agent'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_______________ test_declared_vs_detected_capabilities_separate ________________
+
+    def test_declared_vs_detected_capabilities_separate() -> None:
+        """P-23: the versioned AgentTarget holds declared capabilities only; what a run detects lives
+        on ``Run`` (``available_inputs``, ``detected_capabilities``) and is never written back.
+    
+        Asserted here: the declared list is a closed ``InputKind`` list, no AgentTarget field or
+        property can hold a detection, and a field named for one is rejected. (The Run side belongs
+        to P1-12.)"""
+>       target = entity_class("AgentTarget")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_project_agent.py:563: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.agent'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.agent'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_______________________ test_declared_stack_entry_shape ________________________
+
+    def test_declared_stack_entry_shape() -> None:
+        """ADR 0012 I15: a declared-stack entry is exactly ``{stage, provider, model}``; ``stage`` is a
+        closed set, ``provider`` and ``model`` are open ``MachineKey`` values."""
+>       entry = cls("agent", "DeclaredStackEntry")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_project_agent.py:607: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.agent'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.agent'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_________ test_project_provider_configs_unique_per_provider_and_model __________
+
+    def test_project_provider_configs_unique_per_provider_and_model() -> None:
+        """Section 19.4.1 and ADR 0007 Decision 1: ``Project.provider_configs`` is unique per
+        ``(provider, model)``, because the run resolves a ``ModelRef`` to the one entry with the same
+        pair; a different ``config_ref`` does not make a second entry. (Name from SCOPE section 5,
+        revision 8, proposed.)"""
+        first = provider_ref()
+        ok = [
+            first,
+            provider_ref(model="saarika:v2", config_ref="env:SARVAM_STT_KEY"),
+            provider_ref(provider="openai", model="saaras:v4", config_ref="env:OPENAI_API_KEY"),
+        ]
+>       assert len(make("Project", provider_configs=ok).provider_configs) == 3
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_project_agent.py:695: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.project'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.project'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+______________________ test_declared_capabilities_unique _______________________
+
+    def test_declared_capabilities_unique() -> None:
+        """Section 19.4 row 4: ``AgentTarget.declared_capabilities`` is a unique list of ``InputKind``
+        (declaration only: no not-applicable logic reads it, ADR 0004 Decision 2); order is kept."""
+        declared = ["spans", "tool_calls", "usage"]
+>       assert make("AgentTarget", declared_capabilities=declared).declared_capabilities == declared
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_project_agent.py:713: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.agent'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.agent'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+________ test_agent_target_languages_empty_means_undeclared_and_unique _________
+
+    def test_agent_target_languages_empty_means_undeclared_and_unique() -> None:
+        """Resolution 12 (ADR 0005 Decision 6): ``AgentTarget.languages`` may be empty, which means "no
+        language declared", never "all languages". Exact duplicates after case canonicalization are
+        rejected; two tags of one primary language are allowed (no logic reads this list), and the
+        metric-only value ``language_independent`` (P-59) is not accepted here."""
+>       assert make("AgentTarget", languages=[]).languages == []
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_project_agent.py:725: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.agent'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.agent'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+______________________ test_declared_stack_stage_is_exact ______________________
+
+    def test_declared_stack_stage_is_exact() -> None:
+        """Resolution 13: ``DeclaredStackEntry.stage`` is exactly ``stt``, ``llm``, ``tts``,
+        ``realtime`` (a subset of the usage-stage set). Evaluation-side stages are never the agent's,
+        and ``other`` would need a raw label that the entry does not have. Proposed name."""
+>       entry = cls("agent", "DeclaredStackEntry")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_project_agent.py:746: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.agent'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.agent'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+__________________ test_hide_input_set_closed_under_embedding __________________
+
+    def test_hide_input_set_closed_under_embedding() -> None:
+        """ADR 0007 Decision 8 (a), (b), (e): every model whose validation can reach a
+        credential-checked field or personal data sets ``hide_input_in_errors=True``, and the set is
+        closed under embedding, because the setting of the outermost model governs (a model that
+        embeds a hiding model but does not hide itself shows the rejected value). Seeds:
+        ``ProviderConfigRef``, ``Project``, ``AgentTarget``, the three endpoint classes,
+        ``TestProfile``. A model that embeds any of them, at any depth, hides too.
+        Models added later (``Artifact``, bundles) fall under the same walk."""
+        registry = api("registry")
+        by_name = {m.__name__: m for m in registry.model_classes()}
+        seeds = (
+            "ProviderConfigRef",
+            "Project",
+            "AgentTarget",
+            "WebSocketEndpoint",
+            "WebRtcEndpoint",
+            "SipEndpoint",
+            "TestProfile",
+        )
+        for name in seeds:
+>           assert name in by_name, f"{name} is not implemented yet"
+E           AssertionError: ProviderConfigRef is not implemented yet
+E           assert 'ProviderConfigRef' in {'MetadataFlag': <class 'tracer_evalschema.base.MetadataFlag'>, 'EntityBase': <class 'tracer_evalschema.base.EntityBase'>, 'VersionedEntity': <class 'tracer_evalschema.base.VersionedEntity'>, 'VersionedRef': <class 'tracer_evalschema.base.VersionedRef'>, ...}
+
+packages/evalschema/tests/test_project_agent.py:779: AssertionError
+___________ test_credential_errors_have_no_input_in_any_logged_form ____________
+
+    def test_credential_errors_have_no_input_in_any_logged_form() -> None:
+        """ADR 0007 Decision 8 (c), (d): custom messages name the rule, never the value, so a rejected
+        credential does not appear in ``str``, ``repr``, ``errors(include_input=False)`` (the form that
+        code which logs errors calls; plain ``errors()`` always carries the input in pydantic) or
+        ``json(include_input=False)``, for the Python and the JSON entry point, nested or not.
+        Proposed name."""
+        samples = _credential_samples()
+>       target = entity_class("AgentTarget")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_project_agent.py:803: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.agent'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.agent'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+__________ test_endpoint_rejects_wider_credential_names_and_prefixes ___________
+
+    def test_endpoint_rejects_wider_credential_names_and_prefixes() -> None:
+        """P-60 (accepted by the owner), the conditional test of SCOPE section 5: the credential
+        parameter names are the P-20 list plus the ADR 0007 Decision 3 names (``apikey``,
+        ``access_token``, ``auth_token``, ``refresh_token``, ``client_secret``, ``password``,
+        ``passwd``, ``secret``, ``bearer``, ``authorization``, ``credential``, ``credentials``,
+        ``private_key``) and the presign names ``x-amz-security-token``, ``x-goog-signature``,
+        ``x-goog-credential``, in the query of ws and webrtc URLs and in the ``;uri-parameters`` and
+        ``?headers`` of SIP. A URL whose percent-decoded text contains a match of a known-credential
+        pattern (ADR 0007 Decision 5a, with its boundary rule) anywhere, including the path and a SIP
+        user part, is rejected too."""
+        for name in (*P20_NAMES, *P60_NAMES):
+            for spelling in (name, name.upper(), name.title()):
+                for endpoint in _urls_with_param(spelling):
+>                   _rejected_endpoint(endpoint)
+
+packages/evalschema/tests/test_project_agent.py:911: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_project_agent.py:674: in _rejected_endpoint
+    assert_rejected(entity_class("AgentTarget"), _target(endpoint=endpoint), field="endpoint")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.agent'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.agent'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+_________ test_endpoint_parameter_names_percent_decoded_and_casefolded _________
+
+    def test_endpoint_parameter_names_percent_decoded_and_casefolded() -> None:
+        """ADR 0007 Decision 6a (parameter names): the query is split at ``&`` and ``;``; a name is the
+        text before the first ``=``, percent-decoded as UTF-8, case-folded with ``str.casefold()`` and
+        compared as a whole name. A malformed escape or invalid UTF-8 rejects the URL. Decoding comes
+        before folding, the order a server applies. The long s (U+017F) folds to ``s``, so it is
+        caught by ``casefold`` and not by ``lower``."""
+        long_s = "%C5%BF"
+        for query in (
+            "%74oken=1",
+            "%54OKEN=1",
+            "to%6Ben=1",
+            "%61pi_key=1",
+            "Api%5FKey=1",
+            "%78-amz-signature=1",
+            "X-Amz-Sig%6Eature=1",
+            "access%5Ftoken=1",
+            f"{long_s}ig=1",
+            f"{long_s}ecret=1",
+            f"{long_s}ignature=1",
+            "token",
+            "TOKEN=",
+            "room=1&%74oken=1",
+            "room=1;Token=1",
+        ):
+>           _rejected_endpoint(ws_endpoint(url=f"{WS}?{query}"))
+
+packages/evalschema/tests/test_project_agent.py:998: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_project_agent.py:674: in _rejected_endpoint
+    assert_rejected(entity_class("AgentTarget"), _target(endpoint=endpoint), field="endpoint")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.agent'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.agent'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+________________________ test_endpoint_url_syntax_rules ________________________
+
+    def test_endpoint_url_syntax_rules() -> None:
+        """ADR 0007 Decision 6a (ws and webrtc): an absolute RFC 3986 URI, ASCII only, with no white
+        space or control characters; the scheme is lower case (``ws``/``wss``, ``http``/``https``); a
+        host is required; any userinfo is rejected, where the authority ends at the first ``/``, ``?``
+        or ``#``, so an ``@`` in the path or the query is not userinfo; a fragment is rejected. Proposed
+        name."""
+        for url in (
+            f"{WS}#room",
+            f"{WS}?room=1#frag",
+            f"{WS}#token=abc",
+            f"wss://{HOST}#top",
+        ):
+>           _rejected_endpoint(ws_endpoint(url=url))
+
+packages/evalschema/tests/test_project_agent.py:1019: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_project_agent.py:674: in _rejected_endpoint
+    assert_rejected(entity_class("AgentTarget"), _target(endpoint=endpoint), field="endpoint")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.agent'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.agent'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+________________________ test_sip_uri_credential_rules _________________________
+
+    def test_sip_uri_credential_rules() -> None:
+        """ADR 0007 Decision 6a (sip): ``sip:``/``sips:`` (lower case) with a host. The user part is the
+        address and is allowed (``sip:1001@pbx``); a password, meaning a ``:`` in the userinfo before
+        ``@`` also when percent-encoded as ``%3A`` (either case), is rejected, while a ``:`` after the
+        host is a port. Parameter names are checked in ``;uri-parameters`` and ``?headers``. Proposed
+        name."""
+        for uri in (
+            "sip:support@pbx.example.com",
+            "sips:+911234567890@gw.example.com",
+            "sip:1001@pbx.example.com;transport=tcp",
+            "sip:support@pbx.example.com:5060",
+            "sip:pbx.example.com:5060",
+            "sip:pbx.example.com",
+            "sips:support@pbx.example.com:5061;transport=tls?Subject=help",
+        ):
+>           assert _accepted_endpoint(sip_endpoint(uri=uri)).uri == uri
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_project_agent.py:1086: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_project_agent.py:678: in _accepted_endpoint
+    return make("AgentTarget", endpoint=endpoint).endpoint
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.agent'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.agent'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+__________ test_agent_target_has_no_tier_adapter_or_description_field __________
+
+    def test_agent_target_has_no_tier_adapter_or_description_field() -> None:
+        """Section 19.4.1 (N11): the plan's ``description``, ``declared_tier`` and ``adapter`` are not
+        fields of ``AgentTarget`` in 0.0.1: an adapter is a provider-specific concern, and a declared
+        tier would be read as availability, which ADR 0004 Decision 2 forbids. They are rejected as
+        unknown fields. Proposed name."""
+>       target = entity_class("AgentTarget")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_project_agent.py:1112: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.agent'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.agent'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+__________________ test_url_credential_parameter_names_exact ___________________
+
+    def test_url_credential_parameter_names_exact() -> None:
+        """ADR 0007 Decision 6b (I11), extended by the accepted N15: ``credentials.
+        URL_CREDENTIAL_PARAMETER_NAMES`` holds exactly 25 case-folded names: the 23 of Decision 6b plus
+        ``x-api-key`` and ``x-goog-api-key`` (no folding of ``-`` and ``_`` maps one to the other
+        names). Each is rejected on every transport, in the query and in SIP parameters and headers.
+        Proposed location of the constant is the documented one (``tracer_evalschema.credentials``);
+        if the documents list a different set, they govern."""
+>       names = api("credentials").URL_CREDENTIAL_PARAMETER_NAMES
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema.credentials' has no attribute 'URL_CREDENTIAL_PARAMETER_NAMES'
+
+packages/evalschema/tests/test_project_agent.py:1174: AttributeError
+_______ test_url_credential_parameter_names_hyphen_underscore_equivalent _______
+
+    def test_url_credential_parameter_names_hyphen_underscore_equivalent() -> None:
+        """N15 (accepted): names are percent-decoded, case-folded and compared with ``-`` and ``_``
+        treated as equal, so ``access-token``, ``api-key``, ``x-api-key``, ``X_Api_Key`` and
+        ``x_amz_signature`` are rejected like ``access_token``. Only ``-`` and ``_`` are equal: other
+        punctuation, a removed separator and longer or shorter names are different names. Proposed
+        name."""
+        swaps = {}
+        for name in URL_CREDENTIAL_NAMES_25:
+            swaps[name] = {
+                name.replace("-", "_"),
+                name.replace("_", "-"),
+                name.replace("-", "_").replace("_", "-"),
+                name.upper().replace("-", "_"),
+                name.title().replace("_", "-"),
+                name.replace("-", "%2D").replace("_", "%5F"),
+                name.replace("_", "%2d").replace("-", "%5f"),
+            }
+        for variants in swaps.values():
+            for variant in sorted(variants):
+                for endpoint in _urls_with_param(variant):
+>                   _rejected_endpoint(endpoint)
+
+packages/evalschema/tests/test_project_agent.py:1204: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_project_agent.py:674: in _rejected_endpoint
+    assert_rejected(entity_class("AgentTarget"), _target(endpoint=endpoint), field="endpoint")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.agent'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.agent'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+________________ test_url_credential_pattern_anywhere_rejected _________________
+
+    def test_url_credential_pattern_anywhere_rejected() -> None:
+        """P-60 (accepted by the owner), ADR 0007 Decision 6b and invariant I12: a URL is rejected if a
+        Decision 5a ``known_credential_prefix`` pattern matches anywhere in it, with the 5a left
+        boundary (the start of the text or after a character outside ``[A-Za-z0-9]``), searched in the
+        URL as written and in the URL percent-decoded once as UTF-8. The places are the authority (a
+        SIP user part, host labels), the path, query names and values, SIP parameters and headers.
+        The error names the rule and the URL part (for example "credential pattern in the path"), and
+        never the value. The ws, webrtc and sip endpoints are covered here; ``Artifact.uri`` has its
+        own test at P1-10a. Proposed message words, as in the ADR example: the message holds
+        ``pattern`` or ``credential``, and one word for the part (``path``, ``query``, ``header``,
+        ``parameter``, ``user`` or ``authority``, ``host`` or ``authority``)."""
+        cases = _pattern_cases()
+        host_safe = {"sk-", "aws", "google", "gitlab", "slack"}
+        # 1. every pattern, at its minimum length, as written, in every place
+        for name, (hits, _misses) in cases.items():
+            for secret in hits:
+                for label, endpoint, words in _placements(secret, host=name in host_safe):
+>                   _assert_pattern_rejected(
+                        f"{name} {label}", endpoint, words, (secret, secret[4:], _percent_all(secret))
+                    )
+
+packages/evalschema/tests/test_project_agent.py:1405: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_project_agent.py:1378: in _assert_pattern_rejected
+    entity_class("AgentTarget"), _target(endpoint=endpoint), field="endpoint"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.agent'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.agent'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+____________________ test_url_high_entropy_segment_accepted ____________________
+
+    def test_url_high_entropy_segment_accepted() -> None:
+        """P-60 (accepted by the owner), ADR 0007 Decision 6b and invariant I12: the
+        ``high_entropy_token`` reason of Decision 5a is not applied to URLs. Metadata keeps and flags
+        such a value, but a URL rule rejects the whole record, and ordinary opaque IDs (recording IDs,
+        CDN paths) look the same, so only the named patterns reject. A long mixed-case run in the path,
+        in a query value, in a SIP user part or parameter and in a host label is accepted, while the
+        same run in a query parameter *name* from the credential set is still rejected by name."""
+        credentials = api("credentials")
+        for segment in HIGH_ENTROPY_SEGMENTS:
+            # the premise: the metadata rule does flag it, and no known pattern matches it
+            assert credentials.credential_reason(segment) == credentials.HIGH_ENTROPY_TOKEN, segment
+            for label, endpoint, _words in _placements(segment, host=False):
+>               assert _accepted_endpoint(endpoint) is not None, (segment, label)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_project_agent.py:1565: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_project_agent.py:678: in _accepted_endpoint
+    return make("AgentTarget", endpoint=endpoint).endpoint
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:355: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.agent'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.agent'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+________ test_url_pattern_fitting_slug_is_rejected_known_false_positive ________
+
+    def test_url_pattern_fitting_slug_is_rejected_known_false_positive() -> None:
+        """ADR 0007 Decision 6b, "Known false positive", documented as a positive/negative pair
+        (proposed name, a second test for the rule of ``test_url_high_entropy_segment_accepted``). A
+        path segment that happens to fit a Decision 5a pattern, such as ``sk-`` followed by 20 or more
+        letters, digits, ``_`` or ``-``, is rejected: refusing is the safe failure, and the message
+        names the rule and the part so that the user can see why. Its neighbours that do not fit a
+        pattern (19 characters, another prefix, an alphanumeric before ``sk-``, a separator inside the
+        run) and a high-entropy run of the same length are accepted."""
+        slug_rejected = "sk-" + "my-product-launch-notes"  # 23 characters after the prefix
+        for endpoint, words in (
+            (ws_endpoint(url=f"{WS}/blog/{slug_rejected}"), ("path",)),
+            (webrtc_endpoint(url=f"https://{HOST}/docs/{slug_rejected}/offer"), ("path",)),
+        ):
+>           _assert_pattern_rejected("slug", endpoint, words, (slug_rejected,))
+
+packages/evalschema/tests/test_project_agent.py:1600: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_project_agent.py:1378: in _assert_pattern_rejected
+    entity_class("AgentTarget"), _target(endpoint=endpoint), field="endpoint"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:112: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:96: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.11.16-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.agent'
+import_ = <function _gcd_import at 0x101a33d80>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.agent'
+
+<frozen importlib._bootstrap>:1140: ModuleNotFoundError
+- generated xml file: <scratchpad>/junit9/p1-06-project-agent-rev9a.py3.11.xml -
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_project_agent.py::test_secret_field_walk
+FAILED packages/evalschema/tests/test_project_agent.py::test_secret_walk_does_not_flag_usage_units
+FAILED packages/evalschema/tests/test_project_agent.py::test_provider_ref_shape_and_open_values
+FAILED packages/evalschema/tests/test_project_agent.py::test_provider_ref_extra_api_key_rejected
+FAILED packages/evalschema/tests/test_project_agent.py::test_rejected_credentials_are_not_echoed_in_error_text
+FAILED packages/evalschema/tests/test_project_agent.py::test_config_ref_shape
+FAILED packages/evalschema/tests/test_project_agent.py::test_project_is_a_record_of_fact_entity
+FAILED packages/evalschema/tests/test_project_agent.py::test_metadata_secret_value_preserved_but_flagged
+FAILED packages/evalschema/tests/test_project_agent.py::test_endpoint_rejects_credentials_in_url
+FAILED packages/evalschema/tests/test_project_agent.py::test_endpoint_url_credential_params_case_and_encoding
+FAILED packages/evalschema/tests/test_project_agent.py::test_sip_endpoint_userinfo_rule
+FAILED packages/evalschema/tests/test_project_agent.py::test_endpoint_transport_scheme_rules
+FAILED packages/evalschema/tests/test_project_agent.py::test_endpoint_discriminated_by_transport
+FAILED packages/evalschema/tests/test_project_agent.py::test_agent_target_is_a_versioned_entity
+FAILED packages/evalschema/tests/test_project_agent.py::test_agent_target_languages_supported_only
+FAILED packages/evalschema/tests/test_project_agent.py::test_declared_vs_detected_capabilities_separate
+FAILED packages/evalschema/tests/test_project_agent.py::test_declared_stack_entry_shape
+FAILED packages/evalschema/tests/test_project_agent.py::test_project_provider_configs_unique_per_provider_and_model
+FAILED packages/evalschema/tests/test_project_agent.py::test_declared_capabilities_unique
+FAILED packages/evalschema/tests/test_project_agent.py::test_agent_target_languages_empty_means_undeclared_and_unique
+FAILED packages/evalschema/tests/test_project_agent.py::test_declared_stack_stage_is_exact
+FAILED packages/evalschema/tests/test_project_agent.py::test_hide_input_set_closed_under_embedding
+FAILED packages/evalschema/tests/test_project_agent.py::test_credential_errors_have_no_input_in_any_logged_form
+FAILED packages/evalschema/tests/test_project_agent.py::test_endpoint_rejects_wider_credential_names_and_prefixes
+FAILED packages/evalschema/tests/test_project_agent.py::test_endpoint_parameter_names_percent_decoded_and_casefolded
+FAILED packages/evalschema/tests/test_project_agent.py::test_endpoint_url_syntax_rules
+FAILED packages/evalschema/tests/test_project_agent.py::test_sip_uri_credential_rules
+FAILED packages/evalschema/tests/test_project_agent.py::test_agent_target_has_no_tier_adapter_or_description_field
+FAILED packages/evalschema/tests/test_project_agent.py::test_url_credential_parameter_names_exact
+FAILED packages/evalschema/tests/test_project_agent.py::test_url_credential_parameter_names_hyphen_underscore_equivalent
+FAILED packages/evalschema/tests/test_project_agent.py::test_url_credential_pattern_anywhere_rejected
+FAILED packages/evalschema/tests/test_project_agent.py::test_url_high_entropy_segment_accepted
+FAILED packages/evalschema/tests/test_project_agent.py::test_url_pattern_fitting_slug_is_rejected_known_false_positive
+============================== 33 failed in 0.56s ==============================

@@ -1,0 +1,1262 @@
+# group: p1-04d-step2-text-and-display-safe   (revision 7 red run)
+# date: 2026-10-22T17:19:21Z (UTC)  local: 2026-10-22T22:49:21+0530
+# command: python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_text_types.py packages/evalschema/tests/test_display_safe.py   (cwd ~/tracer; python = <scratchpad>/env3.12/bin/python; pyproject addopts: -ra --strict-markers --strict-config -m 'not private_fixtures and not local_only')
+# python: Python 3.12.14 (<scratchpad>/env3.12/bin/python)
+# pydantic 2.14.1, pytest 9.1.1, jsonschema 4.26.0
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git status: ## No commits yet on main; 11 untracked/changed entries; nothing staged, no commits made
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.12.14, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>/env3.12/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 38 items
+
+packages/evalschema/tests/test_text_types.py::test_verbatim_nfc_nfd_distinct FAILED [  2%]
+packages/evalschema/tests/test_text_types.py::test_verbatim_preserves_zwj_zwnj[ml] FAILED [  5%]
+packages/evalschema/tests/test_text_types.py::test_verbatim_preserves_zwj_zwnj[hi] FAILED [  7%]
+packages/evalschema/tests/test_text_types.py::test_verbatim_preserves_zwj_zwnj[mr] FAILED [ 10%]
+packages/evalschema/tests/test_text_types.py::test_verbatim_preserves_zwj_zwnj[kn] FAILED [ 13%]
+packages/evalschema/tests/test_text_types.py::test_verbatim_preserves_zwj_zwnj[te] FAILED [ 15%]
+packages/evalschema/tests/test_text_types.py::test_verbatim_text_is_stored_unchanged FAILED [ 18%]
+packages/evalschema/tests/test_text_types.py::test_rejects_lone_surrogate FAILED [ 21%]
+packages/evalschema/tests/test_text_types.py::test_bidi_flag_computed FAILED [ 23%]
+packages/evalschema/tests/test_text_types.py::test_bidi_flag_forgery_rejected FAILED [ 26%]
+packages/evalschema/tests/test_text_types.py::test_bidi_flagged_text_is_the_reusable_verified_flag_object FAILED [ 28%]
+packages/evalschema/tests/test_text_types.py::test_human_label_rejects[U+202A-E] FAILED [ 31%]
+packages/evalschema/tests/test_text_types.py::test_human_label_rejects[U+2066-9] FAILED [ 34%]
+packages/evalschema/tests/test_text_types.py::test_human_label_rejects[LRM] FAILED [ 36%]
+packages/evalschema/tests/test_text_types.py::test_human_label_rejects[RLM] FAILED [ 39%]
+packages/evalschema/tests/test_text_types.py::test_human_label_rejects[ALM] FAILED [ 42%]
+packages/evalschema/tests/test_text_types.py::test_human_label_rejects[ZWSP] FAILED [ 44%]
+packages/evalschema/tests/test_text_types.py::test_human_label_rejects[BOM] FAILED [ 47%]
+packages/evalschema/tests/test_text_types.py::test_human_label_rejects[U+2060] FAILED [ 50%]
+packages/evalschema/tests/test_text_types.py::test_human_label_rejects[C0] FAILED [ 52%]
+packages/evalschema/tests/test_text_types.py::test_human_label_rejects_c1 FAILED [ 55%]
+packages/evalschema/tests/test_text_types.py::test_human_label_rejects_default_ignorables FAILED [ 57%]
+packages/evalschema/tests/test_text_types.py::test_human_label_rejects_variation_selectors_and_tag_characters FAILED [ 60%]
+packages/evalschema/tests/test_text_types.py::test_human_label_rejects_every_default_ignorable_of_unicode_16 FAILED [ 63%]
+packages/evalschema/tests/test_text_types.py::test_human_label_rejects_del_separators_empty_and_edge_whitespace FAILED [ 65%]
+packages/evalschema/tests/test_text_types.py::test_human_label_accepts_zwj_zwnj FAILED [ 68%]
+packages/evalschema/tests/test_text_types.py::test_machine_key_ascii_only FAILED [ 71%]
+packages/evalschema/tests/test_text_types.py::test_machine_key_charset_allows_model_names FAILED [ 73%]
+packages/evalschema/tests/test_text_types.py::test_metric_key_lowercase_snake_case FAILED [ 76%]
+packages/evalschema/tests/test_display_safe.py::test_display_safe_account_number FAILED [ 78%]
+packages/evalschema/tests/test_display_safe.py::test_display_safe_pdi_breakout[x<U+2069><U+202E>y] FAILED [ 81%]
+packages/evalschema/tests/test_display_safe.py::test_display_safe_marks_isolates FAILED [ 84%]
+packages/evalschema/tests/test_display_safe.py::test_display_safe_lrm_rlm_unchanged FAILED [ 86%]
+packages/evalschema/tests/test_display_safe.py::test_display_safe_does_not_mutate_input FAILED [ 89%]
+packages/evalschema/tests/test_display_safe.py::test_display_safe_wraps_plain_text_in_fsi_pdi FAILED [ 92%]
+packages/evalschema/tests/test_display_safe.py::test_display_safe_markers_ascii_and_inert FAILED [ 94%]
+packages/evalschema/tests/test_display_safe.py::test_marker_table_spelling_and_shipped_file FAILED [ 97%]
+packages/evalschema/tests/test_display_safe.py::test_marker_table_json_matches_function FAILED [100%]
+
+=================================== FAILURES ===================================
+________________________ test_verbatim_nfc_nfd_distinct ________________________
+
+    def test_verbatim_nfc_nfd_distinct() -> None:
+>       adapter = _adapter("VerbatimText")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_text_types.py:50: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_text_types.py:43: in _adapter
+    return TypeAdapter(getattr(api("text"), name))
+                               ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________________ test_verbatim_preserves_zwj_zwnj[ml] _____________________
+
+lang = 'ml'
+
+    @pytest.mark.parametrize("lang", ["ml", "hi", "mr", "kn", "te"])
+    def test_verbatim_preserves_zwj_zwnj(lang: str) -> None:
+>       adapter = _adapter("VerbatimText")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_text_types.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_text_types.py:43: in _adapter
+    return TypeAdapter(getattr(api("text"), name))
+                               ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________________ test_verbatim_preserves_zwj_zwnj[hi] _____________________
+
+lang = 'hi'
+
+    @pytest.mark.parametrize("lang", ["ml", "hi", "mr", "kn", "te"])
+    def test_verbatim_preserves_zwj_zwnj(lang: str) -> None:
+>       adapter = _adapter("VerbatimText")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_text_types.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_text_types.py:43: in _adapter
+    return TypeAdapter(getattr(api("text"), name))
+                               ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________________ test_verbatim_preserves_zwj_zwnj[mr] _____________________
+
+lang = 'mr'
+
+    @pytest.mark.parametrize("lang", ["ml", "hi", "mr", "kn", "te"])
+    def test_verbatim_preserves_zwj_zwnj(lang: str) -> None:
+>       adapter = _adapter("VerbatimText")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_text_types.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_text_types.py:43: in _adapter
+    return TypeAdapter(getattr(api("text"), name))
+                               ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________________ test_verbatim_preserves_zwj_zwnj[kn] _____________________
+
+lang = 'kn'
+
+    @pytest.mark.parametrize("lang", ["ml", "hi", "mr", "kn", "te"])
+    def test_verbatim_preserves_zwj_zwnj(lang: str) -> None:
+>       adapter = _adapter("VerbatimText")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_text_types.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_text_types.py:43: in _adapter
+    return TypeAdapter(getattr(api("text"), name))
+                               ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________________ test_verbatim_preserves_zwj_zwnj[te] _____________________
+
+lang = 'te'
+
+    @pytest.mark.parametrize("lang", ["ml", "hi", "mr", "kn", "te"])
+    def test_verbatim_preserves_zwj_zwnj(lang: str) -> None:
+>       adapter = _adapter("VerbatimText")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_text_types.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_text_types.py:43: in _adapter
+    return TypeAdapter(getattr(api("text"), name))
+                               ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____________________ test_verbatim_text_is_stored_unchanged ____________________
+
+    def test_verbatim_text_is_stored_unchanged() -> None:
+        """Proposed name. ADR 0017 Decision 1: no normalization, no stripping, no escaping."""
+>       adapter = _adapter("VerbatimText")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_text_types.py:93: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_text_types.py:43: in _adapter
+    return TypeAdapter(getattr(api("text"), name))
+                               ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_________________________ test_rejects_lone_surrogate __________________________
+
+    def test_rejects_lone_surrogate() -> None:
+>       adapter = _adapter("VerbatimText")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_text_types.py:112: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_text_types.py:43: in _adapter
+    return TypeAdapter(getattr(api("text"), name))
+                               ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+___________________________ test_bidi_flag_computed ____________________________
+
+    def test_bidi_flag_computed() -> None:
+        """P-48: exactly U+202A-U+202E and U+2066-U+2069; LRM, RLM and ALM do not set it."""
+>       flag = api("text").contains_bidi_controls
+               ^^^^^^^^^^^
+
+packages/evalschema/tests/test_text_types.py:135: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________________ test_bidi_flag_forgery_rejected ________________________
+
+    def test_bidi_flag_forgery_rejected() -> None:
+        """A stored flag that disagrees with the text is rejected; an omitted flag is computed."""
+>       model = api("text").BidiFlaggedText
+                ^^^^^^^^^^^
+
+packages/evalschema/tests/test_text_types.py:155: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_________ test_bidi_flagged_text_is_the_reusable_verified_flag_object __________
+
+    def test_bidi_flagged_text_is_the_reusable_verified_flag_object() -> None:
+        """Proposed name. ADR 0017 Decision 2 and ADR 0001 Decision 8 (revision 7): a value object
+        ``{text: VerbatimText, contains_bidi_controls: bool}``; the flag is computed when omitted,
+        verified when supplied (in both directions), always serialized; the text is stored verbatim."""
+>       model = api("text").BidiFlaggedText
+                ^^^^^^^^^^^
+
+packages/evalschema/tests/test_text_types.py:181: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+______________________ test_human_label_rejects[U+202A-E] ______________________
+
+group = 'U+202A-E'
+
+    @pytest.mark.parametrize("group", list(REJECT_GROUPS))
+    def test_human_label_rejects(group: str) -> None:
+>       adapter = _adapter("HumanLabel")
+                  ^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_text_types.py:260: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_text_types.py:43: in _adapter
+    return TypeAdapter(getattr(api("text"), name))
+                               ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+______________________ test_human_label_rejects[U+2066-9] ______________________
+
+group = 'U+2066-9'
+
+    @pytest.mark.parametrize("group", list(REJECT_GROUPS))
+    def test_human_label_rejects(group: str) -> None:
+>       adapter = _adapter("HumanLabel")
+                  ^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_text_types.py:260: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_text_types.py:43: in _adapter
+    return TypeAdapter(getattr(api("text"), name))
+                               ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________________________ test_human_label_rejects[LRM] _________________________
+
+group = 'LRM'
+
+    @pytest.mark.parametrize("group", list(REJECT_GROUPS))
+    def test_human_label_rejects(group: str) -> None:
+>       adapter = _adapter("HumanLabel")
+                  ^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_text_types.py:260: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_text_types.py:43: in _adapter
+    return TypeAdapter(getattr(api("text"), name))
+                               ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________________________ test_human_label_rejects[RLM] _________________________
+
+group = 'RLM'
+
+    @pytest.mark.parametrize("group", list(REJECT_GROUPS))
+    def test_human_label_rejects(group: str) -> None:
+>       adapter = _adapter("HumanLabel")
+                  ^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_text_types.py:260: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_text_types.py:43: in _adapter
+    return TypeAdapter(getattr(api("text"), name))
+                               ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________________________ test_human_label_rejects[ALM] _________________________
+
+group = 'ALM'
+
+    @pytest.mark.parametrize("group", list(REJECT_GROUPS))
+    def test_human_label_rejects(group: str) -> None:
+>       adapter = _adapter("HumanLabel")
+                  ^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_text_types.py:260: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_text_types.py:43: in _adapter
+    return TypeAdapter(getattr(api("text"), name))
+                               ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________________________ test_human_label_rejects[ZWSP] ________________________
+
+group = 'ZWSP'
+
+    @pytest.mark.parametrize("group", list(REJECT_GROUPS))
+    def test_human_label_rejects(group: str) -> None:
+>       adapter = _adapter("HumanLabel")
+                  ^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_text_types.py:260: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_text_types.py:43: in _adapter
+    return TypeAdapter(getattr(api("text"), name))
+                               ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________________________ test_human_label_rejects[BOM] _________________________
+
+group = 'BOM'
+
+    @pytest.mark.parametrize("group", list(REJECT_GROUPS))
+    def test_human_label_rejects(group: str) -> None:
+>       adapter = _adapter("HumanLabel")
+                  ^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_text_types.py:260: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_text_types.py:43: in _adapter
+    return TypeAdapter(getattr(api("text"), name))
+                               ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________________ test_human_label_rejects[U+2060] _______________________
+
+group = 'U+2060'
+
+    @pytest.mark.parametrize("group", list(REJECT_GROUPS))
+    def test_human_label_rejects(group: str) -> None:
+>       adapter = _adapter("HumanLabel")
+                  ^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_text_types.py:260: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_text_types.py:43: in _adapter
+    return TypeAdapter(getattr(api("text"), name))
+                               ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_________________________ test_human_label_rejects[C0] _________________________
+
+group = 'C0'
+
+    @pytest.mark.parametrize("group", list(REJECT_GROUPS))
+    def test_human_label_rejects(group: str) -> None:
+>       adapter = _adapter("HumanLabel")
+                  ^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_text_types.py:260: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_text_types.py:43: in _adapter
+    return TypeAdapter(getattr(api("text"), name))
+                               ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_________________________ test_human_label_rejects_c1 __________________________
+
+    def test_human_label_rejects_c1() -> None:
+>       adapter = _adapter("HumanLabel")
+                  ^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_text_types.py:272: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_text_types.py:43: in _adapter
+    return TypeAdapter(getattr(api("text"), name))
+                               ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_________________ test_human_label_rejects_default_ignorables __________________
+
+    def test_human_label_rejects_default_ignorables() -> None:
+        """P-50: every Default_Ignorable_Code_Point except ZWJ and ZWNJ is rejected, so two labels
+        cannot look identical while differing. (Revision 7: variation selectors and tag characters are
+        in the set; see test_human_label_rejects_variation_selectors_and_tag_characters.)"""
+>       adapter = _adapter("HumanLabel")
+                  ^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_text_types.py:282: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_text_types.py:43: in _adapter
+    return TypeAdapter(getattr(api("text"), name))
+                               ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______ test_human_label_rejects_variation_selectors_and_tag_characters ________
+
+    def test_human_label_rejects_variation_selectors_and_tag_characters() -> None:
+        """SCOPE name (revision 7; ADR 0017 Decision 4; E2 accepted by the user): all variation
+        selectors (U+FE00-FE0F, U+E0100-E01EF, U+180B-180D, U+180F) and all tag characters
+        (U+E0020-E007F, and U+E0001) are Default_Ignorable_Code_Point, so a label rejects them, in
+        Python and JSON mode, at any position."""
+>       adapter = _adapter("HumanLabel")
+                  ^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_text_types.py:341: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_text_types.py:43: in _adapter
+    return TypeAdapter(getattr(api("text"), name))
+                               ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________ test_human_label_rejects_every_default_ignorable_of_unicode_16 ________
+
+    def test_human_label_rejects_every_default_ignorable_of_unicode_16() -> None:
+        """Proposed name. ADR 0017 Decision 4 (revision 7, P-50): every Default_Ignorable_Code_Point
+        of Unicode 16.0.0 except ZWJ and ZWNJ, whether assigned or reserved, is rejected; the
+        neighbours that are format characters but not default-ignorable are accepted."""
+>       adapter = _adapter("HumanLabel")
+                  ^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_text_types.py:369: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_text_types.py:43: in _adapter
+    return TypeAdapter(getattr(api("text"), name))
+                               ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+______ test_human_label_rejects_del_separators_empty_and_edge_whitespace _______
+
+    def test_human_label_rejects_del_separators_empty_and_edge_whitespace() -> None:
+        """SCOPE name (revision 7; ADR 0017 Decision 4). Also rejected: all of category Cc including
+        DEL (U+007F), the line and paragraph separators U+2028/U+2029, the empty string, and a label
+        that begins or ends with white space (``str.isspace()``); a label is never trimmed."""
+>       adapter = _adapter("HumanLabel")
+                  ^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_text_types.py:394: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_text_types.py:43: in _adapter
+    return TypeAdapter(getattr(api("text"), name))
+                               ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+______________________ test_human_label_accepts_zwj_zwnj _______________________
+
+    def test_human_label_accepts_zwj_zwnj() -> None:
+>       adapter = _adapter("HumanLabel")
+                  ^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_text_types.py:440: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_text_types.py:43: in _adapter
+    return TypeAdapter(getattr(api("text"), name))
+                               ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_________________________ test_machine_key_ascii_only __________________________
+
+    def test_machine_key_ascii_only() -> None:
+>       adapter = _adapter("MachineKey")
+                  ^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_text_types.py:462: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_text_types.py:43: in _adapter
+    return TypeAdapter(getattr(api("text"), name))
+                               ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_________________ test_machine_key_charset_allows_model_names __________________
+
+    def test_machine_key_charset_allows_model_names() -> None:
+        """P-49: provider model names are case-sensitive and use / : . @ + -."""
+>       adapter = _adapter("MachineKey")
+                  ^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_text_types.py:491: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_text_types.py:43: in _adapter
+    return TypeAdapter(getattr(api("text"), name))
+                               ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________________ test_metric_key_lowercase_snake_case _____________________
+
+    def test_metric_key_lowercase_snake_case() -> None:
+        """Proposed name. ADR 0017 Decision 5: our own metric keys are lowercase snake_case."""
+>       adapter = _adapter("MetricKey")
+                  ^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_text_types.py:515: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_text_types.py:43: in _adapter
+    return TypeAdapter(getattr(api("text"), name))
+                               ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________________ test_display_safe_account_number _______________________
+
+    def test_display_safe_account_number() -> None:
+>       text = _text()
+               ^^^^^^^
+
+packages/evalschema/tests/test_display_safe.py:43: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_display_safe.py:33: in _text
+    return api("text")
+           ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+______________ test_display_safe_pdi_breakout[x<U+2069><U+202E>y] ______________
+
+raw = 'x\u2069\u202ey'
+
+    @pytest.mark.parametrize("raw", ["x\u2069\u202ey"], ids=["x<U+2069><U+202E>y"])
+    def test_display_safe_pdi_breakout(raw: str) -> None:
+>       text = _text()
+               ^^^^^^^
+
+packages/evalschema/tests/test_display_safe.py:77: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_display_safe.py:33: in _text
+    return api("text")
+           ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________________ test_display_safe_marks_isolates _______________________
+
+    def test_display_safe_marks_isolates() -> None:
+>       text = _text()
+               ^^^^^^^
+
+packages/evalschema/tests/test_display_safe.py:109: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_display_safe.py:33: in _text
+    return api("text")
+           ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________________ test_display_safe_lrm_rlm_unchanged ______________________
+
+    def test_display_safe_lrm_rlm_unchanged() -> None:
+>       text = _text()
+               ^^^^^^^
+
+packages/evalschema/tests/test_display_safe.py:126: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_display_safe.py:33: in _text
+    return api("text")
+           ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+___________________ test_display_safe_does_not_mutate_input ____________________
+
+    def test_display_safe_does_not_mutate_input() -> None:
+>       text = _text()
+               ^^^^^^^
+
+packages/evalschema/tests/test_display_safe.py:141: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_display_safe.py:33: in _text
+    return api("text")
+           ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________________ test_display_safe_wraps_plain_text_in_fsi_pdi _________________
+
+    def test_display_safe_wraps_plain_text_in_fsi_pdi() -> None:
+        """Proposed name. ADR 0017 Decision 3: the whole text is wrapped in FSI ... PDI."""
+>       text = _text()
+               ^^^^^^^
+
+packages/evalschema/tests/test_display_safe.py:159: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_display_safe.py:33: in _text
+    return api("text")
+           ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__________________ test_display_safe_markers_ascii_and_inert ___________________
+
+    def test_display_safe_markers_ascii_and_inert() -> None:
+>       text = _text()
+               ^^^^^^^
+
+packages/evalschema/tests/test_display_safe.py:166: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_display_safe.py:33: in _text
+    return api("text")
+           ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_________________ test_marker_table_spelling_and_shipped_file __________________
+
+    def test_marker_table_spelling_and_shipped_file() -> None:
+        """Proposed name. ADR 0017 Decision 3a (revision 7): the marker spellings are fixed so that a
+        renderer in another language matches; the table is the read-only ``MARKER_TABLE`` and the
+        shipped ``data/bidi_markers.json`` is a generated artifact (exactly ``wrapper`` and
+        ``markers``, no ``_meta``, never edited by hand)."""
+>       text = _text()
+               ^^^^^^^
+
+packages/evalschema/tests/test_display_safe.py:214: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_display_safe.py:33: in _text
+    return api("text")
+           ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+___________________ test_marker_table_json_matches_function ____________________
+
+    def test_marker_table_json_matches_function() -> None:
+>       text = _text()
+               ^^^^^^^
+
+packages/evalschema/tests/test_display_safe.py:233: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_display_safe.py:33: in _text
+    return api("text")
+           ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.text', import_ = <function _gcd_import at 0x1014940e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.text'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+- generated xml file: <scratchpad>/junit7/p1-04d-step2-text-and-display-safe.py3.12.xml -
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_text_types.py::test_verbatim_nfc_nfd_distinct
+FAILED packages/evalschema/tests/test_text_types.py::test_verbatim_preserves_zwj_zwnj[ml]
+FAILED packages/evalschema/tests/test_text_types.py::test_verbatim_preserves_zwj_zwnj[hi]
+FAILED packages/evalschema/tests/test_text_types.py::test_verbatim_preserves_zwj_zwnj[mr]
+FAILED packages/evalschema/tests/test_text_types.py::test_verbatim_preserves_zwj_zwnj[kn]
+FAILED packages/evalschema/tests/test_text_types.py::test_verbatim_preserves_zwj_zwnj[te]
+FAILED packages/evalschema/tests/test_text_types.py::test_verbatim_text_is_stored_unchanged
+FAILED packages/evalschema/tests/test_text_types.py::test_rejects_lone_surrogate
+FAILED packages/evalschema/tests/test_text_types.py::test_bidi_flag_computed
+FAILED packages/evalschema/tests/test_text_types.py::test_bidi_flag_forgery_rejected
+FAILED packages/evalschema/tests/test_text_types.py::test_bidi_flagged_text_is_the_reusable_verified_flag_object
+FAILED packages/evalschema/tests/test_text_types.py::test_human_label_rejects[U+202A-E]
+FAILED packages/evalschema/tests/test_text_types.py::test_human_label_rejects[U+2066-9]
+FAILED packages/evalschema/tests/test_text_types.py::test_human_label_rejects[LRM]
+FAILED packages/evalschema/tests/test_text_types.py::test_human_label_rejects[RLM]
+FAILED packages/evalschema/tests/test_text_types.py::test_human_label_rejects[ALM]
+FAILED packages/evalschema/tests/test_text_types.py::test_human_label_rejects[ZWSP]
+FAILED packages/evalschema/tests/test_text_types.py::test_human_label_rejects[BOM]
+FAILED packages/evalschema/tests/test_text_types.py::test_human_label_rejects[U+2060]
+FAILED packages/evalschema/tests/test_text_types.py::test_human_label_rejects[C0]
+FAILED packages/evalschema/tests/test_text_types.py::test_human_label_rejects_c1
+FAILED packages/evalschema/tests/test_text_types.py::test_human_label_rejects_default_ignorables
+FAILED packages/evalschema/tests/test_text_types.py::test_human_label_rejects_variation_selectors_and_tag_characters
+FAILED packages/evalschema/tests/test_text_types.py::test_human_label_rejects_every_default_ignorable_of_unicode_16
+FAILED packages/evalschema/tests/test_text_types.py::test_human_label_rejects_del_separators_empty_and_edge_whitespace
+FAILED packages/evalschema/tests/test_text_types.py::test_human_label_accepts_zwj_zwnj
+FAILED packages/evalschema/tests/test_text_types.py::test_machine_key_ascii_only
+FAILED packages/evalschema/tests/test_text_types.py::test_machine_key_charset_allows_model_names
+FAILED packages/evalschema/tests/test_text_types.py::test_metric_key_lowercase_snake_case
+FAILED packages/evalschema/tests/test_display_safe.py::test_display_safe_account_number
+FAILED packages/evalschema/tests/test_display_safe.py::test_display_safe_pdi_breakout[x<U+2069><U+202E>y]
+FAILED packages/evalschema/tests/test_display_safe.py::test_display_safe_marks_isolates
+FAILED packages/evalschema/tests/test_display_safe.py::test_display_safe_lrm_rlm_unchanged
+FAILED packages/evalschema/tests/test_display_safe.py::test_display_safe_does_not_mutate_input
+FAILED packages/evalschema/tests/test_display_safe.py::test_display_safe_wraps_plain_text_in_fsi_pdi
+FAILED packages/evalschema/tests/test_display_safe.py::test_display_safe_markers_ascii_and_inert
+FAILED packages/evalschema/tests/test_display_safe.py::test_marker_table_spelling_and_shipped_file
+FAILED packages/evalschema/tests/test_display_safe.py::test_marker_table_json_matches_function
+============================== 38 failed in 0.62s ==============================
+# exit status: 1

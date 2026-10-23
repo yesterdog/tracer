@@ -1,0 +1,494 @@
+# group: p1-07-persona-profile   (batch 2 red run, qa)
+# date: 2026-10-23T02:21:21Z (UTC)  local: 2026-10-23T07:51:21+0530
+# command: python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_persona_profile.py   (cwd ~/tracer; pyproject addopts: -ra --strict-markers --strict-config -m 'not private_fixtures and not local_only')
+# interpreter: <scratchpad>/env3.12/bin/python
+# versions: python 3.12.14; pydantic 2.14.1; pytest 9.1.1; jsonschema 4.26.0
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git status: ## No commits yet on main; 12 untracked/changed entries; 0 staged paths; no commits made
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.12.14, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>/env3.12/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 13 items
+
+packages/evalschema/tests/test_persona_profile.py::test_persona_has_no_codemix_field FAILED [  7%]
+packages/evalschema/tests/test_persona_profile.py::test_persona_language_supported_only FAILED [ 15%]
+packages/evalschema/tests/test_persona_profile.py::test_persona_accent_is_a_human_label FAILED [ 23%]
+packages/evalschema/tests/test_persona_profile.py::test_test_profile_pii_marked FAILED [ 30%]
+packages/evalschema/tests/test_persona_profile.py::test_test_profile_has_no_secret_like_fields FAILED [ 38%]
+packages/evalschema/tests/test_persona_profile.py::test_test_profile_ref_has_no_pii FAILED [ 46%]
+packages/evalschema/tests/test_persona_profile.py::test_test_profile_ref_shape_and_digest FAILED [ 53%]
+packages/evalschema/tests/test_persona_profile.py::test_snapshot_embedded_entity_schemas_carry_no_pii_marker FAILED [ 61%]
+packages/evalschema/tests/test_persona_profile.py::test_policy_documents_low_entropy_digest_limitation FAILED [ 69%]
+packages/evalschema/tests/test_persona_profile.py::test_profile_placeholder_fields_are_the_profile_data_fields FAILED [ 76%]
+packages/evalschema/tests/test_persona_profile.py::test_literal_profile_value_in_free_text_is_flagged_with_path_not_value FAILED [ 84%]
+packages/evalschema/tests/test_persona_profile.py::test_profile_value_lint_is_total_on_other_models FAILED [ 92%]
+packages/evalschema/tests/test_persona_profile.py::test_every_profile_field_is_usable_as_a_placeholder FAILED [100%]
+
+=================================== FAILURES ===================================
+______________________ test_persona_has_no_codemix_field _______________________
+
+    def test_persona_has_no_codemix_field() -> None:
+        """ADR 0005 I19: no mixed-language field or type anywhere (Persona, and by walk every model
+        of the package); a field of that kind is rejected as unknown."""
+>       persona = _persona()
+                  ^^^^^^^^^^
+
+packages/evalschema/tests/test_persona_profile.py:78: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_persona_profile.py:57: in _persona
+    return entity_class("Persona")
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:83: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:77: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.persona'
+import_ = <function _gcd_import at 0x101a740e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.persona'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________________ test_persona_language_supported_only _____________________
+
+    def test_persona_language_supported_only() -> None:
+        """ADR 0005 Decision 6: ``Persona.language`` is a ``SupportedLanguage``: one of the nine
+        languages in native script, regions IN, US, GB, canonical case. Pydantic and JSON Schema
+        agree on the rejected tags."""
+>       persona = _persona()
+                  ^^^^^^^^^^
+
+packages/evalschema/tests/test_persona_profile.py:96: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_persona_profile.py:57: in _persona
+    return entity_class("Persona")
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:83: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:77: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.persona'
+import_ = <function _gcd_import at 0x101a740e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.persona'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________________ test_persona_accent_is_a_human_label _____________________
+
+    def test_persona_accent_is_a_human_label() -> None:
+        """Proposed name (ADR 0005 Consequences: accent is a ``HumanLabel``, not a language tag):
+        optional; a label is never trimmed and has no invisible or control characters, but ZWJ and
+        ZWNJ are kept."""
+>       persona = _persona()
+                  ^^^^^^^^^^
+
+packages/evalschema/tests/test_persona_profile.py:152: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_persona_profile.py:57: in _persona
+    return entity_class("Persona")
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:83: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:77: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.persona'
+import_ = <function _gcd_import at 0x101a740e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.persona'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_________________________ test_test_profile_pii_marked _________________________
+
+    def test_test_profile_pii_marked() -> None:
+        """ADR 0006 Decision 2: every TestProfile data field holds PII and carries the JSON Schema
+        annotation ``x-pii: true`` (validation and serialization mode); no other property does."""
+>       profile = _profile()
+                  ^^^^^^^^^^
+
+packages/evalschema/tests/test_persona_profile.py:192: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_persona_profile.py:61: in _profile
+    return entity_class("TestProfile")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:83: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:77: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.profile'
+import_ = <function _gcd_import at 0x101a740e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.profile'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_________________ test_test_profile_has_no_secret_like_fields __________________
+
+    def test_test_profile_has_no_secret_like_fields() -> None:
+        """Proposed name. A profile holds identity data, not credentials: no data field name matches
+        the credential denylist (ADR 0007 Decision 3)."""
+>       for name in _data_fields(_profile()):
+                                 ^^^^^^^^^^
+
+packages/evalschema/tests/test_persona_profile.py:218: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_persona_profile.py:61: in _profile
+    return entity_class("TestProfile")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:83: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:77: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.profile'
+import_ = <function _gcd_import at 0x101a740e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.profile'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________________ test_test_profile_ref_has_no_pii _______________________
+
+    def test_test_profile_ref_has_no_pii() -> None:
+        """ADR 0006 I2 (C walk): the reference is exactly ``{id, version, content_digest?}``; nothing
+        in its schema is PII-marked or named like a profile field; a dump holds no profile value."""
+>       ref_model = _ref_model()
+                    ^^^^^^^^^^^^
+
+packages/evalschema/tests/test_persona_profile.py:229: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_persona_profile.py:65: in _ref_model
+    return cls("profile", "TestProfileRef")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:77: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.profile'
+import_ = <function _gcd_import at 0x101a740e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.profile'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____________________ test_test_profile_ref_shape_and_digest ____________________
+
+    def test_test_profile_ref_shape_and_digest() -> None:
+        """Proposed name (ADR 0006 Decision 1 and 6, ADR 0009 Decision 4): ``{id, version,
+        content_digest?}``; ``id`` is a ``TestProfileId``; ``version`` is required (>= 1); the digest
+        is optional and is a plain ``sha256-jcs/v1`` or a keyed ``hmac-sha256-jcs/v1`` ContentDigest."""
+>       ref_model = _ref_model()
+                    ^^^^^^^^^^^^
+
+packages/evalschema/tests/test_persona_profile.py:251: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_persona_profile.py:65: in _ref_model
+    return cls("profile", "TestProfileRef")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:77: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.profile'
+import_ = <function _gcd_import at 0x101a740e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.profile'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__________ test_snapshot_embedded_entity_schemas_carry_no_pii_marker ___________
+
+    def test_snapshot_embedded_entity_schemas_carry_no_pii_marker() -> None:
+        """Proposed name (ADR 0006 I1 prepared; the ConfigSnapshot walk itself is P1-12). The
+        entities and references a ConfigSnapshot embeds hold no ``x-pii`` field: Evaluator, Persona,
+        MetricDefinition, MetricBinding, Rubric and TestProfileRef."""
+        for name in ("Evaluator", "Persona", "MetricDefinition", "MetricBinding", "Rubric"):
+>           model = entity_class(name)
+                    ^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_persona_profile.py:309: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:83: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:77: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.evaluator'
+import_ = <function _gcd_import at 0x101a740e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.evaluator'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________ test_policy_documents_low_entropy_digest_limitation ______________
+
+    def test_policy_documents_low_entropy_digest_limitation() -> None:
+        """ADR 0006 Decision 6 / I12, A-26: SCHEMA_POLICY.md states that a plain digest of a
+        low-entropy profile in internal data can be brute-forced, and that shared exports never
+        carry such a plain digest (they drop or key it). Gate-bound: green when P1-20a writes the
+        file."""
+>       text = _policy_text().lower()
+               ^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_persona_profile.py:339: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _policy_text() -> str:
+        candidates = [
+            PACKAGE_DIR / "SCHEMA_POLICY.md",
+            ROOT / "SCHEMA_POLICY.md",
+            ROOT / "docs" / "SCHEMA_POLICY.md",
+        ]
+        for path in candidates:
+            if path.is_file():
+                return path.read_text(encoding="utf-8")
+>       pytest.fail(
+            "SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of "
+            + ", ".join(str(p.relative_to(ROOT)) for p in candidates)
+        )
+E       Failed: SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of packages/evalschema/SCHEMA_POLICY.md, SCHEMA_POLICY.md, docs/SCHEMA_POLICY.md
+
+packages/evalschema/tests/test_persona_profile.py:328: Failed
+_________ test_profile_placeholder_fields_are_the_profile_data_fields __________
+
+    def test_profile_placeholder_fields_are_the_profile_data_fields() -> None:
+        """P-16 / SCOPE P1-07: the set of TestProfile field names usable as ``{{profile.<field>}}``
+        is exactly the TestProfile data fields (not the entity fields), exposed as a frozenset."""
+>       fields = api("profile").profile_placeholder_fields()
+                 ^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_persona_profile.py:356: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.profile'
+import_ = <function _gcd_import at 0x101a740e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.profile'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____ test_literal_profile_value_in_free_text_is_flagged_with_path_not_value ____
+
+    def test_literal_profile_value_in_free_text_is_flagged_with_path_not_value() -> None:
+        """Proposed name (ADR 0006 Decision 9; the snapshot-level ``lint_profile_values_in_free_text``
+        is P1-12 and wraps this seam). A literal value equal to a profile field is reported by JSON
+        Pointer path and field name, never by value; placeholders and clean text give no hit."""
+>       profile_module = api("profile")
+                         ^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_persona_profile.py:372: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.profile'
+import_ = <function _gcd_import at 0x101a740e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.profile'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________ test_profile_value_lint_is_total_on_other_models _______________
+
+    def test_profile_value_lint_is_total_on_other_models() -> None:
+        """Proposed name. The seam walks the JSON-mode dump of any model, so it also works on a
+        Persona or a Rubric, and a profile with no overlapping value gives no hit."""
+>       profile_module = api("profile")
+                         ^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_persona_profile.py:411: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.profile'
+import_ = <function _gcd_import at 0x101a740e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.profile'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________ test_every_profile_field_is_usable_as_a_placeholder ______________
+
+    def test_every_profile_field_is_usable_as_a_placeholder() -> None:
+        """Proposed name. Each name in ``profile_placeholder_fields()`` is accepted inside
+        ``{{profile.<field>}}`` and an unknown name is rejected (the full matrix is in
+        test_evaluator.py)."""
+>       fields = api("profile").profile_placeholder_fields()
+                 ^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_persona_profile.py:424: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.profile'
+import_ = <function _gcd_import at 0x101a740e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.profile'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+- generated xml file: <scratchpad>/junit/p1-07-persona-profile.py3.12.xml -
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_persona_profile.py::test_persona_has_no_codemix_field
+FAILED packages/evalschema/tests/test_persona_profile.py::test_persona_language_supported_only
+FAILED packages/evalschema/tests/test_persona_profile.py::test_persona_accent_is_a_human_label
+FAILED packages/evalschema/tests/test_persona_profile.py::test_test_profile_pii_marked
+FAILED packages/evalschema/tests/test_persona_profile.py::test_test_profile_has_no_secret_like_fields
+FAILED packages/evalschema/tests/test_persona_profile.py::test_test_profile_ref_has_no_pii
+FAILED packages/evalschema/tests/test_persona_profile.py::test_test_profile_ref_shape_and_digest
+FAILED packages/evalschema/tests/test_persona_profile.py::test_snapshot_embedded_entity_schemas_carry_no_pii_marker
+FAILED packages/evalschema/tests/test_persona_profile.py::test_policy_documents_low_entropy_digest_limitation
+FAILED packages/evalschema/tests/test_persona_profile.py::test_profile_placeholder_fields_are_the_profile_data_fields
+FAILED packages/evalschema/tests/test_persona_profile.py::test_literal_profile_value_in_free_text_is_flagged_with_path_not_value
+FAILED packages/evalschema/tests/test_persona_profile.py::test_profile_value_lint_is_total_on_other_models
+FAILED packages/evalschema/tests/test_persona_profile.py::test_every_profile_field_is_usable_as_a_placeholder
+============================== 13 failed in 0.16s ==============================

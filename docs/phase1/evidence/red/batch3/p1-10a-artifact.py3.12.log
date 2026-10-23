@@ -1,0 +1,506 @@
+# group: p1-10a-artifact   (batch 3, mode red, qa)
+# date: 2026-10-23T06:23:18Z (UTC)  local: 2026-10-23T11:53:18+0530
+# command: python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_artifact.py    (cwd ~/tracer; pyproject addopts: -ra --strict-markers --strict-config -m 'not private_fixtures and not local_only')
+# interpreter: <scratchpad>/env3.12/bin/python
+# versions: python 3.12.14; pydantic 2.14.1, pydantic-core 2.50.1, pytest 9.1.1, jsonschema 4.26.0, hypothesis 6.170.5, rfc8785 0.1.4
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git status: ## No commits yet on main; 12 untracked/changed entries; 0 staged paths; no commits made
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.12.14, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>/env3.12/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 14 items
+
+packages/evalschema/tests/test_artifact.py::test_artifact_sha256_hex FAILED [  7%]
+packages/evalschema/tests/test_artifact.py::test_audio_format_fields FAILED [ 14%]
+packages/evalschema/tests/test_artifact.py::test_artifact_uri_rejects_presigned_signature FAILED [ 21%]
+packages/evalschema/tests/test_artifact.py::test_artifact_uri_rejects_wider_credential_names_and_patterns FAILED [ 28%]
+packages/evalschema/tests/test_artifact.py::test_artifact_errors_do_not_echo_uri_credentials FAILED [ 35%]
+packages/evalschema/tests/test_artifact.py::test_channel_role_set_exact FAILED [ 42%]
+packages/evalschema/tests/test_artifact.py::test_channel_map_declared_forbids_confidence FAILED [ 50%]
+packages/evalschema/tests/test_artifact.py::test_channel_map_inferred_requires_method_confidence FAILED [ 57%]
+packages/evalschema/tests/test_artifact.py::test_channel_map_single_agent_channel FAILED [ 64%]
+packages/evalschema/tests/test_artifact.py::test_channel_map_indexes_unique FAILED [ 71%]
+packages/evalschema/tests/test_artifact.py::test_channel_index_within_channels FAILED [ 78%]
+packages/evalschema/tests/test_artifact.py::test_channel_map_artifact_must_be_audio FAILED [ 85%]
+packages/evalschema/tests/test_artifact.py::test_unknown_agent_channel_excludes_agent_audio FAILED [ 92%]
+packages/evalschema/tests/test_artifact.py::test_mono_channel_mixed_excludes_agent_audio FAILED [100%]
+
+=================================== FAILURES ===================================
+___________________________ test_artifact_sha256_hex ___________________________
+
+    def test_artifact_sha256_hex() -> None:
+        """ADR 0012 I7: ``sha256`` is exactly 64 lowercase hexadecimal characters (pydantic and the
+        JSON Schema ``pattern`` agree). Upper case, a wrong length, non-hex text, padding and a
+        trailing newline are rejected; ``size`` is a non-negative integer; ``turn_ref`` is an optional
+        ``turn_`` ID; the record round-trips."""
+>       artifact = entity_class3("Artifact")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_artifact.py:82: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.artifact'
+import_ = <function _gcd_import at 0x1060b80e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.artifact'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+___________________________ test_audio_format_fields ___________________________
+
+    def test_audio_format_fields() -> None:
+        """ADR 0012 I7: ``AudioFormat{container, codec, sample_rate_hz, channels, bits_per_sample}``.
+        ``container`` and ``codec`` are open MachineKeys (an unseen codec is fine), the three numbers
+        are strict positive integers (a float, a boolean, text and zero are rejected), unknown fields
+        are rejected, and ``audio_format`` is optional on an Artifact (a non-audio one has none)."""
+>       fmt = registered_class("AudioFormat")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_artifact.py:126: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'AudioFormat'
+
+    def registered_class(name: str) -> Any:
+        """The module-level model class ``name`` of the package, wherever the architect put it.
+    
+        Used for the value objects whose module api-surface 19.4.1 does not fix. A missing class fails
+        the test that needs it (AssertionError), never collection."""
+        found = {model.__name__: model for model in api("registry").model_classes()}
+>       assert name in found, f"{name} is not implemented yet"
+               ^^^^^^^^^^^^^
+E       AssertionError: AudioFormat is not implemented yet
+
+packages/evalschema/tests/_support_b2.py:105: AssertionError
+________________ test_artifact_uri_rejects_presigned_signature _________________
+
+    def test_artifact_uri_rejects_presigned_signature() -> None:
+        """P-20 (ADR 0007 Decisions 6 and 6b): ``Artifact.uri`` is never a presigned or keyed URL, which
+        is a bearer credential until it expires. Userinfo and the signature parameters of AWS, Google
+        Cloud, CloudFront and Azure SAS are rejected, in any case and when percent-encoded; plain
+        object URIs (https, http, s3, gs) are accepted."""
+        for uri in (
+            f"https://{HOST}/calls/1.wav",
+            f"http://{HOST}/calls/1.wav",
+            f"https://{HOST}/calls/1.wav?version=3&download=1",
+            "s3://recordings-bucket/calls/2026/10/1.wav",
+            "gs://recordings-bucket/calls/2026/10/1.wav",
+            f"https://{HOST}:8443/calls/1.wav",
+        ):
+>           _accept_uri(uri)
+
+packages/evalschema/tests/test_artifact.py:172: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_artifact.py:67: in _accept_uri
+    assert _artifact(uri=uri).uri == uri
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/test_artifact.py:55: in _artifact
+    return make3("Artifact", **over)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:587: in make3
+    model = entity_class3(name)
+            ^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.artifact'
+import_ = <function _gcd_import at 0x1060b80e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.artifact'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________ test_artifact_uri_rejects_wider_credential_names_and_patterns _________
+
+    def test_artifact_uri_rejects_wider_credential_names_and_patterns() -> None:
+        """P-60 and N15 (ADR 0007 Decision 6b; accepted by the owner, revision 9 and 10), the Artifact
+        half: every one of the 25 names of ``credentials.URL_CREDENTIAL_PARAMETER_NAMES`` is rejected
+        in the query of an artifact URI in any letter case, with ``-`` and ``_`` interchangeable and
+        percent-encoded; look-alike names (``tokenizer``, ``access.token``, ``x-api-keys``) are not
+        credential names. A known credential pattern (ADR 0007 Decision 5a, with its boundary rule)
+        anywhere in the URI, as written or percent-decoded once, is rejected, while a high-entropy
+        path segment without a named pattern is accepted."""
+        names = api("credentials").URL_CREDENTIAL_PARAMETER_NAMES
+        assert len(names) == 25
+        for name in sorted(names):
+            spellings = {
+                name,
+                name.upper(),
+                name.title(),
+                name.replace("-", "_"),
+                name.replace("_", "-"),
+                "%" + format(ord(name[0]), "02X") + name[1:],
+            }
+            for spelling in spellings:
+                for uri in _urls_with_param(spelling):
+>                   _reject_uri(uri)
+
+packages/evalschema/tests/test_artifact.py:243: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_artifact.py:63: in _reject_uri
+    assert_rejected3(entity_class3("Artifact"), artifact_doc(uri=uri), field="uri")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.artifact'
+import_ = <function _gcd_import at 0x1060b80e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.artifact'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________ test_artifact_errors_do_not_echo_uri_credentials _______________
+
+    def test_artifact_errors_do_not_echo_uri_credentials() -> None:
+        """Proposed name (ADR 0007 Decision 8 (a), (c), (d)): the error for a rejected URI names the
+        rule and the URL part and never contains the credential, in ``str``, ``repr``,
+        ``errors(include_input=False)`` and ``json(include_input=False)``; ``Artifact`` hides its input
+        in validation errors, and so does every model that embeds an Artifact (the set is closed
+        under embedding)."""
+>       artifact = entity_class3("Artifact")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_artifact.py:298: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b3.py:116: in entity_class3
+    return cls3(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b3.py:110: in cls3
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.artifact'
+import_ = <function _gcd_import at 0x1060b80e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.artifact'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_________________________ test_channel_role_set_exact __________________________
+
+    def test_channel_role_set_exact() -> None:
+        """Proposed name (P-31, ADR 0003 Decision 1, ADR 0012 Decision 5): the channel roles are
+        caller, agent, unknown and mixed (``mixed`` is a mono channel carrying both speakers), and
+        the determination is declared or inferred. The roles of removed concepts are rejected."""
+>       channel_map = registered_class("ChannelMap")
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_artifact.py:335: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'ChannelMap'
+
+    def registered_class(name: str) -> Any:
+        """The module-level model class ``name`` of the package, wherever the architect put it.
+    
+        Used for the value objects whose module api-surface 19.4.1 does not fix. A missing class fails
+        the test that needs it (AssertionError), never collection."""
+        found = {model.__name__: model for model in api("registry").model_classes()}
+>       assert name in found, f"{name} is not implemented yet"
+               ^^^^^^^^^^^^^
+E       AssertionError: ChannelMap is not implemented yet
+
+packages/evalschema/tests/_support_b2.py:105: AssertionError
+_________________ test_channel_map_declared_forbids_confidence _________________
+
+    def test_channel_map_declared_forbids_confidence() -> None:
+        """ADR 0012 I8: a ``declared`` map (the producer's documented layout, for example Pipecat's
+        stereo left=caller right=agent) carries ``method`` naming the declaration and no
+        ``confidence``: a declaration is not a probability, and any confidence, even 1.0 or 0.0, is
+        rejected."""
+>       channel_map = registered_class("ChannelMap")
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_artifact.py:370: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'ChannelMap'
+
+    def registered_class(name: str) -> Any:
+        """The module-level model class ``name`` of the package, wherever the architect put it.
+    
+        Used for the value objects whose module api-surface 19.4.1 does not fix. A missing class fails
+        the test that needs it (AssertionError), never collection."""
+        found = {model.__name__: model for model in api("registry").model_classes()}
+>       assert name in found, f"{name} is not implemented yet"
+               ^^^^^^^^^^^^^
+E       AssertionError: ChannelMap is not implemented yet
+
+packages/evalschema/tests/_support_b2.py:105: AssertionError
+_____________ test_channel_map_inferred_requires_method_confidence _____________
+
+    def test_channel_map_inferred_requires_method_confidence() -> None:
+        """ADR 0012 I9, A-21: an ``inferred`` map (our analysis) needs ``method`` and a ``confidence``
+        in [0,1]; either one missing is rejected, and so is an out-of-range or non-finite
+        confidence."""
+>       channel_map = registered_class("ChannelMap")
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_artifact.py:388: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'ChannelMap'
+
+    def registered_class(name: str) -> Any:
+        """The module-level model class ``name`` of the package, wherever the architect put it.
+    
+        Used for the value objects whose module api-surface 19.4.1 does not fix. A missing class fails
+        the test that needs it (AssertionError), never collection."""
+        found = {model.__name__: model for model in api("registry").model_classes()}
+>       assert name in found, f"{name} is not implemented yet"
+               ^^^^^^^^^^^^^
+E       AssertionError: ChannelMap is not implemented yet
+
+packages/evalschema/tests/_support_b2.py:105: AssertionError
+____________________ test_channel_map_single_agent_channel _____________________
+
+    def test_channel_map_single_agent_channel() -> None:
+        """ADR 0012 I10, A-21: at most one channel of a map has ``role=agent`` (a second AI agent is a
+        separate run). Zero agent channels is valid (the agent is then not identified), and so is
+        one."""
+>       channel_map = registered_class("ChannelMap")
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_artifact.py:417: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'ChannelMap'
+
+    def registered_class(name: str) -> Any:
+        """The module-level model class ``name`` of the package, wherever the architect put it.
+    
+        Used for the value objects whose module api-surface 19.4.1 does not fix. A missing class fails
+        the test that needs it (AssertionError), never collection."""
+        found = {model.__name__: model for model in api("registry").model_classes()}
+>       assert name in found, f"{name} is not implemented yet"
+               ^^^^^^^^^^^^^
+E       AssertionError: ChannelMap is not implemented yet
+
+packages/evalschema/tests/_support_b2.py:105: AssertionError
+_______________________ test_channel_map_indexes_unique ________________________
+
+    def test_channel_map_indexes_unique() -> None:
+        """Proposed name (a reading of ADR 0012 Decision 5, listed as an ambiguity): two entries for
+        one channel index would assign two roles to one channel and are rejected."""
+>       channel_map = registered_class("ChannelMap")
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_artifact.py:453: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'ChannelMap'
+
+    def registered_class(name: str) -> Any:
+        """The module-level model class ``name`` of the package, wherever the architect put it.
+    
+        Used for the value objects whose module api-surface 19.4.1 does not fix. A missing class fails
+        the test that needs it (AssertionError), never collection."""
+        found = {model.__name__: model for model in api("registry").model_classes()}
+>       assert name in found, f"{name} is not implemented yet"
+               ^^^^^^^^^^^^^
+E       AssertionError: ChannelMap is not implemented yet
+
+packages/evalschema/tests/_support_b2.py:105: AssertionError
+______________________ test_channel_index_within_channels ______________________
+
+    def test_channel_index_within_channels() -> None:
+        """ADR 0012 I11: every channel ``index`` is smaller than the ``channels`` count of the
+        artifact's ``AudioFormat`` (``check_channel_map`` with the artifact): a stereo recording has
+        indexes 0 and 1, a mono one only 0."""
+>       check = api("artifact").check_channel_map
+                ^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_artifact.py:470: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.artifact'
+import_ = <function _gcd_import at 0x1060b80e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.artifact'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+___________________ test_channel_map_artifact_must_be_audio ____________________
+
+    def test_channel_map_artifact_must_be_audio() -> None:
+        """ADR 0012 I11: the artifact of a channel map must be audio (it has an ``audio_format``) and
+        must be the artifact the map names."""
+>       check = api("artifact").check_channel_map
+                ^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_artifact.py:493: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.artifact'
+import_ = <function _gcd_import at 0x1060b80e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.artifact'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________ test_unknown_agent_channel_excludes_agent_audio ________________
+
+    def test_unknown_agent_channel_excludes_agent_audio() -> None:
+        """ADR 0004 Decision 5, I9: if no ChannelMap identifies an agent channel, ``agent_audio`` is
+        not available. ``agent_audio_available`` is true iff some map has an agent channel; a Run
+        cannot list ``agent_audio`` in ``available_inputs`` without one (an unknown or inferred-only
+        caller/unknown layout, or no map at all, does not identify the agent), and may omit it even
+        when the agent is identified."""
+>       available = api("artifact").agent_audio_available
+                    ^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_artifact.py:510: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.artifact'
+import_ = <function _gcd_import at 0x1060b80e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.artifact'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_________________ test_mono_channel_mixed_excludes_agent_audio _________________
+
+    def test_mono_channel_mixed_excludes_agent_audio() -> None:
+        """P-31 (ADR 0012 I17): a mono channel carrying both speakers is ``mixed``; it leaves
+        ``agent_audio`` unavailable (the agent *is* on it, but not separable), also next to a caller
+        channel, and a Run cannot claim ``agent_audio`` on that evidence alone. A map with one
+        ``agent`` channel and one ``mixed`` one still identifies the agent."""
+>       available = api("artifact").agent_audio_available
+                    ^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_artifact.py:538: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.artifact'
+import_ = <function _gcd_import at 0x1060b80e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.artifact'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+- generated xml file: <scratchpad>/junit3/p1-10a-artifact.py3.12.xml -
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_artifact.py::test_artifact_sha256_hex
+FAILED packages/evalschema/tests/test_artifact.py::test_audio_format_fields
+FAILED packages/evalschema/tests/test_artifact.py::test_artifact_uri_rejects_presigned_signature
+FAILED packages/evalschema/tests/test_artifact.py::test_artifact_uri_rejects_wider_credential_names_and_patterns
+FAILED packages/evalschema/tests/test_artifact.py::test_artifact_errors_do_not_echo_uri_credentials
+FAILED packages/evalschema/tests/test_artifact.py::test_channel_role_set_exact
+FAILED packages/evalschema/tests/test_artifact.py::test_channel_map_declared_forbids_confidence
+FAILED packages/evalschema/tests/test_artifact.py::test_channel_map_inferred_requires_method_confidence
+FAILED packages/evalschema/tests/test_artifact.py::test_channel_map_single_agent_channel
+FAILED packages/evalschema/tests/test_artifact.py::test_channel_map_indexes_unique
+FAILED packages/evalschema/tests/test_artifact.py::test_channel_index_within_channels
+FAILED packages/evalschema/tests/test_artifact.py::test_channel_map_artifact_must_be_audio
+FAILED packages/evalschema/tests/test_artifact.py::test_unknown_agent_channel_excludes_agent_audio
+FAILED packages/evalschema/tests/test_artifact.py::test_mono_channel_mixed_excludes_agent_audio
+============================== 14 failed in 0.24s ==============================
+# exit status: 1

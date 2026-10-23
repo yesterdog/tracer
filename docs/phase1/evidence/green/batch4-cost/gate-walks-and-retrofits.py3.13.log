@@ -1,0 +1,210 @@
+# group: gate-walks-and-retrofits   (batch 4 green run, schema-architect, SCOPE revision 18)
+# date: 2026-10-23T13:11:56Z (UTC)  local: 2026-10-23T18:41:56+0530
+# command: python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_ids.py packages/evalschema/tests/test_project_agent.py packages/evalschema/tests/test_metric_definition.py packages/evalschema/tests/test_versioning.py   (cwd ~/tracer; pyproject addopts apply)
+# interpreter: <scratchpad>/arch-b4-env3.13/bin/python   (env built with: UV_PROJECT_ENVIRONMENT=<env> uv sync --locked --all-groups --python 3.13)
+# versions: python 3.13.15; pydantic 2.14.1, pydantic-core 2.50.1, pytest 9.1.1, jsonschema 4.26.0, rfc8785 0.1.4, hypothesis 6.170.5
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git status: 0 commits; 0 staged paths
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.13.15, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>/arch-b4-env3.13/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 117 items
+
+packages/evalschema/tests/test_ids.py::test_id_roundtrip_prefixed PASSED [  0%]
+packages/evalschema/tests/test_ids.py::test_id_rejects_wrong_kind PASSED [  1%]
+packages/evalschema/tests/test_ids.py::test_id_rejects_uppercase PASSED  [  2%]
+packages/evalschema/tests/test_ids.py::test_id_rejects_uuid_v4_with_prefix PASSED [  3%]
+packages/evalschema/tests/test_ids.py::test_id_rejects_bare_uuid_on_wire PASSED [  4%]
+packages/evalschema/tests/test_ids.py::test_id_rejects_trailing_newline_and_whitespace PASSED [  5%]
+packages/evalschema/tests/test_ids.py::test_id_is_not_a_str_subclass PASSED [  5%]
+packages/evalschema/tests/test_ids.py::test_id_uuid_property_is_uuid_UUID PASSED [  6%]
+packages/evalschema/tests/test_ids.py::test_from_external_mints_v7_and_records_external_ref PASSED [  7%]
+packages/evalschema/tests/test_ids.py::test_from_external_signature_is_id_type_then_keyword_only_parts PASSED [  8%]
+packages/evalschema/tests/test_ids.py::test_from_external_returns_a_pair_of_typed_id_and_external_ref_for_every_kind PASSED [  9%]
+packages/evalschema/tests/test_ids.py::test_from_external_is_pure PASSED [ 10%]
+packages/evalschema/tests/test_ids.py::test_uuid7_monotonic_10k_same_ms PASSED [ 11%]
+packages/evalschema/tests/test_ids.py::test_uuid7_rfc9562_layout PASSED  [ 11%]
+packages/evalschema/tests/test_ids.py::test_uuid7_layout_matches_stdlib_when_available PASSED [ 12%]
+packages/evalschema/tests/test_ids.py::test_prefix_registry_unique PASSED [ 13%]
+packages/evalschema/tests/test_ids.py::test_prefix_registry_frozen_matches_adr PASSED [ 14%]
+packages/evalschema/tests/test_ids.py::test_new_prefixes_not_confusable PASSED [ 15%]
+packages/evalschema/tests/test_ids.py::test_frozen_registry_confusable_pairs_are_the_known_five PASSED [ 16%]
+packages/evalschema/tests/test_ids.py::test_new_prefix_syntax_is_two_to_six_lowercase_letters PASSED [ 17%]
+packages/evalschema/tests/test_ids.py::test_new_prefix_distance_and_anagram_rule_matches_an_independent_enumeration PASSED [ 17%]
+packages/evalschema/tests/test_ids.py::test_new_prefix_rejects_every_permutation_of_every_registered_prefix PASSED [ 18%]
+packages/evalschema/tests/test_ids.py::test_validate_new_prefix_flags_exactly_the_five_frozen_pairs PASSED [ 19%]
+packages/evalschema/tests/test_ids.py::test_jsonschema_pattern_rejects_wrong_kind PASSED [ 20%]
+packages/evalschema/tests/test_ids.py::test_every_id_reference_field_has_registered_prefix PASSED [ 21%]
+packages/evalschema/tests/test_ids.py::test_every_entity_has_registered_prefix FAILED [ 22%]
+packages/evalschema/tests/test_ids.py::test_value_objects_have_no_entity_fields FAILED [ 23%]
+packages/evalschema/tests/test_ids.py::test_opaque_id_fields_are_exactly_the_adr_allowlist FAILED [ 23%]
+packages/evalschema/tests/test_project_agent.py::test_secret_field_walk PASSED [ 24%]
+packages/evalschema/tests/test_project_agent.py::test_secret_walk_does_not_flag_usage_units PASSED [ 25%]
+packages/evalschema/tests/test_project_agent.py::test_provider_ref_shape_and_open_values PASSED [ 26%]
+packages/evalschema/tests/test_project_agent.py::test_provider_ref_extra_api_key_rejected PASSED [ 27%]
+packages/evalschema/tests/test_project_agent.py::test_rejected_credentials_are_not_echoed_in_error_text PASSED [ 28%]
+packages/evalschema/tests/test_project_agent.py::test_config_ref_shape PASSED [ 29%]
+packages/evalschema/tests/test_project_agent.py::test_project_is_a_record_of_fact_entity PASSED [ 29%]
+packages/evalschema/tests/test_project_agent.py::test_metadata_secret_value_preserved_but_flagged PASSED [ 30%]
+packages/evalschema/tests/test_project_agent.py::test_endpoint_rejects_credentials_in_url PASSED [ 31%]
+packages/evalschema/tests/test_project_agent.py::test_endpoint_url_credential_params_case_and_encoding PASSED [ 32%]
+packages/evalschema/tests/test_project_agent.py::test_sip_endpoint_userinfo_rule PASSED [ 33%]
+packages/evalschema/tests/test_project_agent.py::test_endpoint_transport_scheme_rules PASSED [ 34%]
+packages/evalschema/tests/test_project_agent.py::test_endpoint_discriminated_by_transport PASSED [ 35%]
+packages/evalschema/tests/test_project_agent.py::test_agent_target_is_a_versioned_entity PASSED [ 35%]
+packages/evalschema/tests/test_project_agent.py::test_agent_target_languages_supported_only PASSED [ 36%]
+packages/evalschema/tests/test_project_agent.py::test_declared_vs_detected_capabilities_separate PASSED [ 37%]
+packages/evalschema/tests/test_project_agent.py::test_declared_stack_entry_shape PASSED [ 38%]
+packages/evalschema/tests/test_project_agent.py::test_project_provider_configs_unique_per_provider_and_model PASSED [ 39%]
+packages/evalschema/tests/test_project_agent.py::test_declared_capabilities_unique PASSED [ 40%]
+packages/evalschema/tests/test_project_agent.py::test_agent_target_languages_empty_means_undeclared_and_unique PASSED [ 41%]
+packages/evalschema/tests/test_project_agent.py::test_declared_stack_stage_is_exact PASSED [ 41%]
+packages/evalschema/tests/test_project_agent.py::test_hide_input_set_closed_under_embedding PASSED [ 42%]
+packages/evalschema/tests/test_project_agent.py::test_credential_errors_have_no_input_in_any_logged_form PASSED [ 43%]
+packages/evalschema/tests/test_project_agent.py::test_endpoint_rejects_wider_credential_names_and_prefixes PASSED [ 44%]
+packages/evalschema/tests/test_project_agent.py::test_endpoint_parameter_names_percent_decoded_and_casefolded PASSED [ 45%]
+packages/evalschema/tests/test_project_agent.py::test_endpoint_url_syntax_rules PASSED [ 46%]
+packages/evalschema/tests/test_project_agent.py::test_sip_uri_credential_rules PASSED [ 47%]
+packages/evalschema/tests/test_project_agent.py::test_agent_target_has_no_tier_adapter_or_description_field PASSED [ 47%]
+packages/evalschema/tests/test_project_agent.py::test_url_credential_parameter_names_exact PASSED [ 48%]
+packages/evalschema/tests/test_project_agent.py::test_url_credential_parameter_names_hyphen_underscore_equivalent PASSED [ 49%]
+packages/evalschema/tests/test_project_agent.py::test_url_credential_pattern_anywhere_rejected PASSED [ 50%]
+packages/evalschema/tests/test_project_agent.py::test_url_high_entropy_segment_accepted PASSED [ 51%]
+packages/evalschema/tests/test_project_agent.py::test_url_pattern_fitting_slug_is_rejected_known_false_positive PASSED [ 52%]
+packages/evalschema/tests/test_project_agent.py::test_provider_project_agent_errors_do_not_quote_rejected_values PASSED [ 52%]
+packages/evalschema/tests/test_metric_definition.py::test_input_kind_members_exact PASSED [ 53%]
+packages/evalschema/tests/test_metric_definition.py::test_all_closed_enums_exact PASSED [ 54%]
+packages/evalschema/tests/test_metric_definition.py::test_open_value_fields_accept_unseen_provider PASSED [ 55%]
+packages/evalschema/tests/test_metric_definition.py::test_requires_nonempty_unique PASSED [ 56%]
+packages/evalschema/tests/test_metric_definition.py::test_pass_rule_range_inclusive_and_exclusive PASSED [ 57%]
+packages/evalschema/tests/test_metric_definition.py::test_latency_lower_is_better_expressed_with_range_max PASSED [ 58%]
+packages/evalschema/tests/test_metric_definition.py::test_score_higher_is_better_expressed_with_range_min PASSED [ 58%]
+packages/evalschema/tests/test_metric_definition.py::test_pass_rule_without_direction_rejected PASSED [ 59%]
+packages/evalschema/tests/test_metric_definition.py::test_range_requires_at_least_one_bound PASSED [ 60%]
+packages/evalschema/tests/test_metric_definition.py::test_equals_true_rule_boolean PASSED [ 61%]
+packages/evalschema/tests/test_metric_definition.py::test_one_of_rule_options_subset PASSED [ 62%]
+packages/evalschema/tests/test_metric_definition.py::test_pass_rule_kind_matches_value_type PASSED [ 63%]
+packages/evalschema/tests/test_metric_definition.py::test_script_sensitive_required_no_default PASSED [ 64%]
+packages/evalschema/tests/test_metric_definition.py::test_numeric_units_exclude_currency PASSED [ 64%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_key_is_a_metric_key PASSED [ 65%]
+packages/evalschema/tests/test_metric_definition.py::test_scale_matches_value_type PASSED [ 66%]
+packages/evalschema/tests/test_metric_definition.py::test_llm_judge_requires_prompt_template_and_judge_model_ref PASSED [ 67%]
+packages/evalschema/tests/test_metric_definition.py::test_deterministic_kinds_require_implementation_ref PASSED [ 68%]
+packages/evalschema/tests/test_metric_definition.py::test_prompt_template_placeholders_declared_equals_used PASSED [ 69%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_languages_supported_only PASSED [ 70%]
+packages/evalschema/tests/test_metric_definition.py::test_aggregation_discriminated_by_kind PASSED [ 70%]
+packages/evalschema/tests/test_metric_definition.py::test_per_turn_share_bounds_0_1 PASSED [ 71%]
+packages/evalschema/tests/test_metric_definition.py::test_per_turn_share_definition_requires_turn_rule PASSED [ 72%]
+packages/evalschema/tests/test_metric_definition.py::test_per_turn_share_pass_rule_must_be_range PASSED [ 73%]
+packages/evalschema/tests/test_metric_definition.py::test_per_turn_counts_fields_exact PASSED [ 74%]
+packages/evalschema/tests/test_metric_definition.py::test_per_turn_share_excludes_na_turns_from_denominator PASSED [ 75%]
+packages/evalschema/tests/test_metric_definition.py::test_per_turn_share_not_applicable_when_no_turn_applies PASSED [ 76%]
+packages/evalschema/tests/test_metric_definition.py::test_per_turn_status_no_counted_turn_cases PASSED [ 76%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_binding_shape_and_params PASSED [ 77%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_ref_text_form_is_display_only PASSED [ 78%]
+packages/evalschema/tests/test_metric_definition.py::test_judge_model_ref_is_a_model_ref_without_config_ref PASSED [ 79%]
+packages/evalschema/tests/test_metric_definition.py::test_judge_only_fields_forbidden_on_other_kinds PASSED [ 80%]
+packages/evalschema/tests/test_metric_definition.py::test_implementation_ref_is_namespaced PASSED [ 81%]
+packages/evalschema/tests/test_metric_definition.py::test_prompt_template_rejects_other_double_braces PASSED [ 82%]
+packages/evalschema/tests/test_metric_definition.py::test_expected_outcome_variable_definition_shapes PASSED [ 82%]
+packages/evalschema/tests/test_metric_definition.py::test_conditional_field_rules_are_in_the_json_schema PASSED [ 83%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_parameter_shape_and_defaults PASSED [ 84%]
+packages/evalschema/tests/test_metric_definition.py::test_binding_params_must_be_declared_and_typed PASSED [ 85%]
+packages/evalschema/tests/test_metric_definition.py::test_binding_cannot_change_the_pass_rule PASSED [ 86%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_binding_params_keys_are_metric_keys PASSED [ 87%]
+packages/evalschema/tests/test_metric_definition.py::test_scale_and_unit_domains PASSED [ 88%]
+packages/evalschema/tests/test_metric_definition.py::test_range_bounds_within_value_domain PASSED [ 88%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_languages_nonempty_distinct_primary PASSED [ 89%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_languages_accepts_language_independent_value PASSED [ 90%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_languages_list_or_language_independent PASSED [ 91%]
+packages/evalschema/tests/test_metric_definition.py::test_language_independent_metric_not_script_sensitive PASSED [ 92%]
+packages/evalschema/tests/test_metric_definition.py::test_definition_and_binding_errors_do_not_quote_rejected_values PASSED [ 93%]
+packages/evalschema/tests/test_versioning.py::test_version_int_ge_1 PASSED [ 94%]
+packages/evalschema/tests/test_versioning.py::test_versioned_content_digest_mismatch_rejected PASSED [ 94%]
+packages/evalschema/tests/test_versioning.py::test_ref_requires_version PASSED [ 95%]
+packages/evalschema/tests/test_versioning.py::test_versioned_entity_set_matches_adr PASSED [ 96%]
+packages/evalschema/tests/test_versioning.py::test_bundle_mixed_versions_rejected PASSED [ 97%]
+packages/evalschema/tests/test_versioning.py::test_bundle_rejects_same_id_version_different_digest PASSED [ 98%]
+packages/evalschema/tests/test_versioning.py::test_bundle_rejects_same_record_id_different_content PASSED [ 99%]
+packages/evalschema/tests/test_versioning.py::test_ref_digest_must_match_resolved_entity_in_bundle PASSED [100%]
+
+=================================== FAILURES ===================================
+___________________ test_every_entity_has_registered_prefix ____________________
+
+    def test_every_entity_has_registered_prefix() -> None:
+        registry = api("registry")
+        ids = api("ids")
+        base = api("base")
+        entities = registry.entity_classes()
+>       assert len(ids.ID_PREFIXES) == len(entities) == 26  # `pce` withdrawn in revision 15 (N47)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: assert 26 == 24
+E        +  where 26 = len(mappingproxy({'prj': 'Project', 'agt': 'AgentTarget', 'per': 'Persona', 'tpf': 'TestProfile', 'evl': 'Evaluator', 'met': 'MetricDefinition', 'mbd': 'MetricBinding', 'rub': 'Rubric', 'snap': 'ConfigSnapshot', 'run': 'Run', 'art': 'Artifact', 'tsc': 'Transcript', 'turn': 'Turn', 'exc': 'Exchange', 'tcl': 'ToolCallEvent', 'spn': 'StageSpan', 'res': 'MetricResult', 'vrd': 'RunVerdict', 'dts': 'Dataset', 'dti': 'DatasetItem', 'pcat': 'PricingCatalog', 'use': 'UsageRecord', 'cst': 'CostRecord', 'csum': 'CostSummary', 'rbnd': 'RunBundle', 'exp': 'ExportBundle'}))
+E        +    where mappingproxy({'prj': 'Project', 'agt': 'AgentTarget', 'per': 'Persona', 'tpf': 'TestProfile', 'evl': 'Evaluator', 'met': 'MetricDefinition', 'mbd': 'MetricBinding', 'rub': 'Rubric', 'snap': 'ConfigSnapshot', 'run': 'Run', 'art': 'Artifact', 'tsc': 'Transcript', 'turn': 'Turn', 'exc': 'Exchange', 'tcl': 'ToolCallEvent', 'spn': 'StageSpan', 'res': 'MetricResult', 'vrd': 'RunVerdict', 'dts': 'Dataset', 'dti': 'DatasetItem', 'pcat': 'PricingCatalog', 'use': 'UsageRecord', 'cst': 'CostRecord', 'csum': 'CostSummary', 'rbnd': 'RunBundle', 'exp': 'ExportBundle'}) = <module 'tracer_evalschema.ids' from '~/tracer/packages/evalschema/src/tracer_evalschema/ids.py'>.ID_PREFIXES
+E        +  and   24 = len({'agt': <class 'tracer_evalschema.agent.AgentTarget'>, 'art': <class 'tracer_evalschema.artifact.Artifact'>, 'cst': <class 'tracer_evalschema.cost.CostRecord'>, 'csum': <class 'tracer_evalschema.cost.CostSummary'>, ...})
+
+packages/evalschema/tests/test_ids.py:818: AssertionError
+___________________ test_value_objects_have_no_entity_fields ___________________
+
+    def test_value_objects_have_no_entity_fields() -> None:
+        """Revision 7 (api-surface section 18 N1; ADR 0001 Decision 8 and I14), restated in revision 8
+        (section 19.6 N6) as a rule.
+    
+        A value object carries no identity fields of its own. The only fields of value objects that
+        share an entity field's name are: ``id`` of a ``<Entity>Ref`` typed ``<Entity>Id`` where
+        ``<Entity>`` is a registered entity class name (``TestProfileRef``, ``PricingCatalogRef``,
+        ``PersonaRef``, ``MetricDefinitionRef``, ``MetricBindingRef`` and later ones by the same rule);
+        ``VersionedRef.id`` (a typed ID of any kind); and the ``schema_version`` of the nested model
+        behind ``SealedPayload.aad_fields`` (the version of the sealed plaintext). A ``<Entity>Ref``
+        whose ``id`` is not typed ``<Entity>Id`` is not an exception."""
+        registry = api("registry")
+        base = api("base")
+        ids = api("ids")
+        value_objects = registry.value_object_classes()
+        required = dict.fromkeys([*VALUE_OBJECT_NAMES, *EXPECTED_TYPED_REFS])
+        missing = [name for name in required if name not in value_objects]
+>       assert not missing, f"value objects not implemented yet: {missing}"
+E       AssertionError: value objects not implemented yet: ['SealedPayload', 'RedactionRecord']
+E       assert not ['SealedPayload', 'RedactionRecord']
+
+packages/evalschema/tests/test_ids.py:878: AssertionError
+_____________ test_opaque_id_fields_are_exactly_the_adr_allowlist ______________
+
+    def test_opaque_id_fields_are_exactly_the_adr_allowlist() -> None:
+        """Proposed name. Every field named ``*_id``, ``*_ids`` or ``ref_id`` is a typed ID except
+        exactly ``KeyRef.key_id``, ``ToolCallEvent.external_call_id`` and ``Run.caller_external_id``.
+        ``SealedPayload.aad_fields.subject_id`` is typed. The allowlist is checked per model, so a
+        second ``key_id`` somewhere else would be caught (the by-name skip in
+        test_every_id_reference_field_has_registered_prefix would not)."""
+        registry = api("registry")
+        ids = api("ids")
+        opaque: set[tuple[str, str]] = set()
+        typed_seen: set[tuple[str, str]] = set()
+        for model in registry.model_classes():
+            for name, info in model.model_fields.items():
+                if not (name.endswith(("_id", "_ids")) or name == "ref_id"):
+                    continue
+                leaves = _model_leaves(info.annotation)
+                if any(issubclass(leaf, ids.TypedId) for leaf in leaves):
+                    typed_seen.add((model.__name__, name))
+                else:
+                    opaque.add((model.__name__, name))
+        assert opaque == OPAQUE_ID_FIELDS, (
+            f"opaque *_id fields: unexpected {sorted(opaque - OPAQUE_ID_FIELDS)}, "
+            f"missing {sorted(OPAQUE_ID_FIELDS - opaque)}"
+        )
+        subject = [pair for pair in typed_seen if pair[1] == "subject_id"]
+>       assert subject, "SealedPayload.aad_fields.subject_id must exist and be a typed ID"
+E       AssertionError: SealedPayload.aad_fields.subject_id must exist and be a typed ID
+E       assert []
+
+packages/evalschema/tests/test_ids.py:952: AssertionError
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_ids.py::test_every_entity_has_registered_prefix
+FAILED packages/evalschema/tests/test_ids.py::test_value_objects_have_no_entity_fields
+FAILED packages/evalschema/tests/test_ids.py::test_opaque_id_fields_are_exactly_the_adr_allowlist
+======================== 3 failed, 114 passed in 1.64s =========================

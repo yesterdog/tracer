@@ -1,0 +1,415 @@
+# group: p1-08-rubric   (batch 2 red run, qa)
+# date: 2026-10-23T02:22:20Z (UTC)  local: 2026-10-23T07:52:20+0530
+# command: python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_rubric.py   (cwd ~/tracer; pyproject addopts: -ra --strict-markers --strict-config -m 'not private_fixtures and not local_only')
+# interpreter: ~/tracer/.venv/bin/python
+# versions: python 3.13.15; pydantic 2.14.1; pytest 9.1.1; jsonschema 4.26.0
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git status: ## No commits yet on main; 12 untracked/changed entries; 0 staged paths; no commits made
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.13.15, pytest-9.1.1, pluggy-1.7.0 -- ~/tracer/.venv/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 9 items
+
+packages/evalschema/tests/test_rubric.py::test_rubric_requires_one_required_metric FAILED [ 11%]
+packages/evalschema/tests/test_rubric.py::test_required_metric_needs_pass_rule FAILED [ 22%]
+packages/evalschema/tests/test_rubric.py::test_required_boolean_check_with_equals_true_ok FAILED [ 33%]
+packages/evalschema/tests/test_rubric.py::test_rubric_weight_requires_pass_rule FAILED [ 44%]
+packages/evalschema/tests/test_rubric.py::test_rubric_weight_values FAILED [ 55%]
+packages/evalschema/tests/test_rubric.py::test_rubric_rejects_duplicate_binding_refs FAILED [ 66%]
+packages/evalschema/tests/test_rubric.py::test_rubric_unresolved_references_rejected FAILED [ 77%]
+packages/evalschema/tests/test_rubric.py::test_rubric_per_turn_share_metric_can_be_required_and_weighted FAILED [ 88%]
+packages/evalschema/tests/test_rubric.py::test_rubric_is_versioned_entity FAILED [100%]
+
+=================================== FAILURES ===================================
+___________________ test_rubric_requires_one_required_metric ___________________
+
+    def test_rubric_requires_one_required_metric() -> None:
+        """ADR 0013 I6: a rubric has at least one required item (checked by the model itself)."""
+>       _definitions, bindings = _world(latency_definition(), latency_definition(key="p50_latency"))
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_rubric.py:74: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_rubric.py:39: in _world
+    built_definitions = [make("MetricDefinition", **d) for d in definitions]
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:316: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:83: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:77: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c144a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________________ test_required_metric_needs_pass_rule _____________________
+
+    def test_required_metric_needs_pass_rule() -> None:
+        """ADR 0013 I7: a required item whose definition has no pass rule is rejected, naming the
+        binding; with a pass rule it is accepted; an informational metric may stay in the rubric as
+        not required."""
+>       definitions, bindings = _world(latency_definition(), latency_definition(**INFORMATIONAL))
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_rubric.py:92: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_rubric.py:39: in _world
+    built_definitions = [make("MetricDefinition", **d) for d in definitions]
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:316: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:83: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:77: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c144a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________ test_required_boolean_check_with_equals_true_ok ________________
+
+    def test_required_boolean_check_with_equals_true_ok() -> None:
+        """ADR 0010 I5: a required boolean check (goal completion, the evaluator's expected outcome)
+        with ``equals_true`` satisfies the rule."""
+>       definitions, bindings = _world(
+            judge_definition(),
+            judge_definition(key="expected_outcome_met", pass_rule=equals_true_rule()),
+        )
+
+packages/evalschema/tests/test_rubric.py:102: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_rubric.py:39: in _world
+    built_definitions = [make("MetricDefinition", **d) for d in definitions]
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:316: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:83: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:77: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c144a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____________________ test_rubric_weight_requires_pass_rule _____________________
+
+    def test_rubric_weight_requires_pass_rule() -> None:
+        """P-55: a weight on an item whose metric has no pass rule is rejected (it cannot contribute
+        to the weighted score); weights are allowed on non-required items with a pass rule (P-34);
+        an informational metric stays in the rubric unweighted."""
+>       definitions, bindings = _world(
+            latency_definition(),
+            latency_definition(key="p50_latency"),
+            latency_definition(**INFORMATIONAL),
+        )
+
+packages/evalschema/tests/test_rubric.py:116: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_rubric.py:39: in _world
+    built_definitions = [make("MetricDefinition", **d) for d in definitions]
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:316: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:83: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:77: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c144a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__________________________ test_rubric_weight_values ___________________________
+
+    def test_rubric_weight_values() -> None:
+        """Proposed name. Weights are canonical decimal strings and not negative (ADR 0013 Decision
+        7 says positive, the batch 2 brief says >= 0: zero is deliberately not tested, see
+        api-surface section 19)."""
+>       _definitions, (binding, other) = _world(
+            latency_definition(), latency_definition(key="p50_latency")
+        )
+
+packages/evalschema/tests/test_rubric.py:140: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_rubric.py:39: in _world
+    built_definitions = [make("MetricDefinition", **d) for d in definitions]
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:316: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:83: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:77: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c144a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__________________ test_rubric_rejects_duplicate_binding_refs __________________
+
+    def test_rubric_rejects_duplicate_binding_refs() -> None:
+        """ADR 0009 / the batch 2 brief: a binding appears once in a rubric."""
+>       _definitions, (binding, other) = _world(
+            latency_definition(), latency_definition(key="p50_latency")
+        )
+
+packages/evalschema/tests/test_rubric.py:155: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_rubric.py:39: in _world
+    built_definitions = [make("MetricDefinition", **d) for d in definitions]
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:316: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:83: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:77: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c144a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__________________ test_rubric_unresolved_references_rejected __________________
+
+    def test_rubric_unresolved_references_rejected() -> None:
+        """Proposed name. Validation resolves each item through its binding to its definition; a
+        binding or definition that is not supplied (or has another version) is rejected, naming it."""
+>       definitions, bindings = _world(latency_definition(), latency_definition(key="p50_latency"))
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_rubric.py:168: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_rubric.py:39: in _world
+    built_definitions = [make("MetricDefinition", **d) for d in definitions]
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:316: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:83: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:77: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c144a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________ test_rubric_per_turn_share_metric_can_be_required_and_weighted ________
+
+    def test_rubric_per_turn_share_metric_can_be_required_and_weighted() -> None:
+        """ADR 0013 Decision 8a: a ``per_turn_share`` metric is one check; its pass rule is the range
+        on the share, so it may be required and weighted; without that range it may not."""
+        share = judge_definition(
+            key="polite_turn_share",
+            aggregation={"kind": "per_turn_share", "turn_rule": equals_true_rule()},
+            pass_rule={"kind": "range", "min": 0.8, "inclusive": True},
+        )
+        unruled = {**share, "key": "unruled_turn_share", "pass_rule": None}
+>       definitions, bindings = _world(share, unruled)
+                                ^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_rubric.py:189: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_rubric.py:39: in _world
+    built_definitions = [make("MetricDefinition", **d) for d in definitions]
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:316: in make
+    return entity_class(name).model_validate(build(name, **over))
+           ^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:83: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:77: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.metrics'
+import_ = <function _gcd_import at 0x103c144a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.metrics'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________________ test_rubric_is_versioned_entity ________________________
+
+    def test_rubric_is_versioned_entity() -> None:
+        """Proposed name. Rubric (prefix ``rub``) is versioned (ADR 0009 Decision 5)."""
+>       rubric = entity_class("Rubric")
+                 ^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_rubric.py:201: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support_b2.py:83: in entity_class
+    return cls(module, class_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support_b2.py:77: in cls
+    return getattr(api(module), name)
+                   ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.rubric'
+import_ = <function _gcd_import at 0x103c144a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.rubric'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+- generated xml file: <scratchpad>/junit/p1-08-rubric.py3.13.xml -
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_rubric.py::test_rubric_requires_one_required_metric
+FAILED packages/evalschema/tests/test_rubric.py::test_required_metric_needs_pass_rule
+FAILED packages/evalschema/tests/test_rubric.py::test_required_boolean_check_with_equals_true_ok
+FAILED packages/evalschema/tests/test_rubric.py::test_rubric_weight_requires_pass_rule
+FAILED packages/evalschema/tests/test_rubric.py::test_rubric_weight_values - ...
+FAILED packages/evalschema/tests/test_rubric.py::test_rubric_rejects_duplicate_binding_refs
+FAILED packages/evalschema/tests/test_rubric.py::test_rubric_unresolved_references_rejected
+FAILED packages/evalschema/tests/test_rubric.py::test_rubric_per_turn_share_metric_can_be_required_and_weighted
+FAILED packages/evalschema/tests/test_rubric.py::test_rubric_is_versioned_entity
+============================== 9 failed in 0.17s ===============================

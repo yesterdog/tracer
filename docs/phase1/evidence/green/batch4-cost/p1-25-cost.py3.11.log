@@ -1,0 +1,161 @@
+# group: p1-25-cost   (batch 4 green run, schema-architect, SCOPE revision 18)
+# date: 2026-10-23T13:10:42Z (UTC)  local: 2026-10-23T18:40:42+0530
+# command: python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_cost.py packages/evalschema/tests/test_cost_summary.py packages/evalschema/tests/test_cost_compute.py packages/evalschema/tests/test_cost_import.py   (cwd ~/tracer; pyproject addopts apply)
+# interpreter: <scratchpad>/arch-b4-env3.11/bin/python   (env built with: UV_PROJECT_ENVIRONMENT=<env> uv sync --locked --all-groups --python 3.11)
+# versions: python 3.11.16; pydantic 2.14.1, pydantic-core 2.50.1, pytest 9.1.1, jsonschema 4.26.0, rfc8785 0.1.4, hypothesis 6.170.5
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git status: 0 commits; 0 staged paths
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.11.16, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>/arch-b4-env3.11/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 114 items
+
+packages/evalschema/tests/test_cost.py::test_cost_record_shape_and_enums PASSED [  0%]
+packages/evalschema/tests/test_cost.py::test_basis_enum_exact PASSED     [  1%]
+packages/evalschema/tests/test_cost.py::test_not_available_cost_has_no_basis PASSED [  2%]
+packages/evalschema/tests/test_cost.py::test_cost_amount_nonnegative PASSED [  3%]
+packages/evalschema/tests/test_cost.py::test_reported_basis_requires_reporter PASSED [  4%]
+packages/evalschema/tests/test_cost.py::test_computed_requires_pricing_snapshot PASSED [  5%]
+packages/evalschema/tests/test_cost.py::test_cost_pricing_snapshot_content_digest_named_and_verified PASSED [  6%]
+packages/evalschema/tests/test_cost.py::test_pricing_snapshot_entry_keys_resolve_in_catalog PASSED [  7%]
+packages/evalschema/tests/test_cost.py::test_cost_rounding_fields_exact PASSED [  7%]
+packages/evalschema/tests/test_cost.py::test_reported_non_usd_cost_not_available_raw_preserved PASSED [  8%]
+packages/evalschema/tests/test_cost.py::test_reported_raw_present_iff_currency_na_reason PASSED [  9%]
+packages/evalschema/tests/test_cost.py::test_reported_raw_currency_source_consistent PASSED [ 10%]
+packages/evalschema/tests/test_cost.py::test_unpriced_units_listed_only_with_unit_unpriced PASSED [ 11%]
+packages/evalschema/tests/test_cost.py::test_cost_record_usage_record_ids_rules PASSED [ 12%]
+packages/evalschema/tests/test_cost.py::test_stored_currency_label_consistent_with_reason PASSED [ 13%]
+packages/evalschema/tests/test_cost.py::test_policy_documents_reported_cost_without_usage_limitation FAILED [ 14%]
+packages/evalschema/tests/test_cost.py::test_usage_and_cost_errors_do_not_quote_rejected_values PASSED [ 14%]
+packages/evalschema/tests/test_cost_summary.py::test_cost_exclusion_shape_and_reasons PASSED [ 15%]
+packages/evalschema/tests/test_cost_summary.py::test_cost_summary_shape_and_enums PASSED [ 16%]
+packages/evalschema/tests/test_cost_summary.py::test_cost_summary_total_absent_when_none_included PASSED [ 17%]
+packages/evalschema/tests/test_cost_summary.py::test_completeness_rules[0-covered_flags0-none] PASSED [ 18%]
+packages/evalschema/tests/test_cost_summary.py::test_completeness_rules[0-covered_flags1-none] PASSED [ 19%]
+packages/evalschema/tests/test_cost_summary.py::test_completeness_rules[0-covered_flags2-none] PASSED [ 20%]
+packages/evalschema/tests/test_cost_summary.py::test_completeness_rules[1-covered_flags3-complete] PASSED [ 21%]
+packages/evalschema/tests/test_cost_summary.py::test_completeness_rules[2-covered_flags4-complete] PASSED [ 21%]
+packages/evalschema/tests/test_cost_summary.py::test_completeness_rules[1-covered_flags5-partial] PASSED [ 22%]
+packages/evalschema/tests/test_cost_summary.py::test_completeness_rules[1-covered_flags6-complete] PASSED [ 23%]
+packages/evalschema/tests/test_cost_summary.py::test_completeness_rules[2-covered_flags7-complete] PASSED [ 24%]
+packages/evalschema/tests/test_cost_summary.py::test_completeness_rules[1-covered_flags8-partial] PASSED [ 25%]
+packages/evalschema/tests/test_cost_summary.py::test_completeness_rules[1-covered_flags9-partial] PASSED [ 26%]
+packages/evalschema/tests/test_cost_summary.py::test_completeness_rules[2-covered_flags10-partial] PASSED [ 27%]
+packages/evalschema/tests/test_cost_summary.py::test_cost_summary_single_usd_total_with_exclusions PASSED [ 28%]
+packages/evalschema/tests/test_cost_summary.py::test_usage_record_in_at_most_one_included_cost PASSED [ 28%]
+packages/evalschema/tests/test_cost_summary.py::test_reported_non_usd_and_computed_usd_same_usage_counted_once PASSED [ 29%]
+packages/evalschema/tests/test_cost_summary.py::test_available_reported_preferred_over_computed_duplicate PASSED [ 30%]
+packages/evalschema/tests/test_cost_summary.py::test_cost_exclusion_covered_by_names_included_records_only PASSED [ 31%]
+packages/evalschema/tests/test_cost_summary.py::test_completeness_ignores_covered_exclusions PASSED [ 32%]
+packages/evalschema/tests/test_cost_summary.py::test_check_cost_summary_other_rules PASSED [ 33%]
+packages/evalschema/tests/test_cost_summary.py::test_computed_partially_overlapping_reported_excluded_not_split PASSED [ 34%]
+packages/evalschema/tests/test_cost_summary.py::test_record_without_usage_never_covered_and_input_order_kept PASSED [ 35%]
+packages/evalschema/tests/test_cost_compute.py::test_compute_exact PASSED [ 35%]
+packages/evalschema/tests/test_cost_compute.py::test_compute_multi_unit_and_multi_usage_sum PASSED [ 36%]
+packages/evalschema/tests/test_cost_compute.py::test_billing_increment_and_minimum_applied PASSED [ 37%]
+packages/evalschema/tests/test_cost_compute.py::test_billing_increment_per_billable_event PASSED [ 38%]
+packages/evalschema/tests/test_cost_compute.py::test_compute_scale_overflow_rounds_half_even_and_records PASSED [ 39%]
+packages/evalschema/tests/test_cost_compute.py::test_compute_matches_independent_decimal_property PASSED [ 40%]
+packages/evalschema/tests/test_cost_compute.py::test_compute_is_pure_and_needs_an_explicit_context PASSED [ 41%]
+packages/evalschema/tests/test_cost_compute.py::test_price_resolution_uses_usage_time PASSED [ 42%]
+packages/evalschema/tests/test_cost_compute.py::test_price_resolution_falls_back_to_run_started_at PASSED [ 42%]
+packages/evalschema/tests/test_cost_compute.py::test_price_resolution_without_any_date_is_ambiguous PASSED [ 43%]
+packages/evalschema/tests/test_cost_compute.py::test_unevaluable_applies_when_ambiguous PASSED [ 44%]
+packages/evalschema/tests/test_cost_compute.py::test_no_price_not_available_never_zero PASSED [ 45%]
+packages/evalschema/tests/test_cost_compute.py::test_partial_units_not_available PASSED [ 46%]
+packages/evalschema/tests/test_cost_compute.py::test_missing_billing_rules_not_available PASSED [ 47%]
+packages/evalschema/tests/test_cost_compute.py::test_billing_unknown_gives_billing_rules_missing PASSED [ 48%]
+packages/evalschema/tests/test_cost_compute.py::test_ambiguous_match_not_available PASSED [ 49%]
+packages/evalschema/tests/test_cost_compute.py::test_exact_model_match_no_fuzzy_matching PASSED [ 50%]
+packages/evalschema/tests/test_cost_compute.py::test_agent_cost_not_available_without_reported_usage PASSED [ 50%]
+packages/evalschema/tests/test_cost_compute.py::test_recording_duration_not_accepted_as_agent_stt_usage PASSED [ 51%]
+packages/evalschema/tests/test_cost_compute.py::test_black_box_llm_tokens_not_available PASSED [ 52%]
+packages/evalschema/tests/test_cost_compute.py::test_agent_domain_computed_from_telemetry_usage PASSED [ 53%]
+packages/evalschema/tests/test_cost_compute.py::test_compute_cost_domain_mismatch_rejected PASSED [ 54%]
+packages/evalschema/tests/test_cost_compute.py::test_user_supplied_price_is_computed_with_price_source PASSED [ 55%]
+packages/evalschema/tests/test_cost_compute.py::test_explicit_zero_price_gives_available_zero PASSED [ 56%]
+packages/evalschema/tests/test_cost_compute.py::test_resolve_price_result_shape PASSED [ 57%]
+packages/evalschema/tests/test_cost_compute.py::test_not_available_reason_precedence PASSED [ 57%]
+packages/evalschema/tests/test_cost_compute.py::test_zero_quantity_costs_zero_without_minimum PASSED [ 58%]
+packages/evalschema/tests/test_cost_compute.py::test_applies_when_conditions_all_must_hold PASSED [ 59%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_accepts_usd_variants[USD] PASSED [ 60%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_accepts_usd_variants[usd] PASSED [ 61%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_accepts_usd_variants[Usd] PASSED [ 62%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_accepts_usd_variants[uSD] PASSED [ 63%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_accepts_usd_variants[ USD ] PASSED [ 64%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_accepts_usd_variants[\tusd\n] PASSED [ 64%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_accepts_usd_variants[USD\r\n] PASSED [ 65%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_accepts_usd_variants[ usd] PASSED [ 66%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_accepts_usd_variants[usd  ] PASSED [ 67%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_accepts_usd_variants[\n\nUSD] PASSED [ 68%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_rejects_everything_else[$] PASSED [ 69%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_rejects_everything_else[US$] PASSED [ 70%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_rejects_everything_else[dollars] PASSED [ 71%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_rejects_everything_else[Dollars] PASSED [ 71%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_rejects_everything_else[USD$] PASSED [ 72%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_rejects_everything_else[US dollar] PASSED [ 73%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_rejects_everything_else[usd.] PASSED [ 74%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_rejects_everything_else[USDT] PASSED [ 75%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_rejects_everything_else[U S D] PASSED [ 76%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_rejects_everything_else[US] PASSED [ 77%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_rejects_everything_else[] PASSED [ 78%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_rejects_everything_else[ ] PASSED [ 78%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_rejects_everything_else[EUR] PASSED [ 79%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_rejects_everything_else[inr] PASSED [ 80%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_rejects_everything_else[XXX] PASSED [ 81%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_rejects_everything_else[ABC] PASSED [ 82%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_rejects_everything_else[USD\u200b] PASSED [ 83%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_rejects_everything_else[\uff35\uff33\uff24] PASSED [ 84%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_rejects_everything_else[u\u017fd] PASSED [ 85%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_rejects_everything_else[USD\u0307] PASSED [ 85%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_rejects_everything_else[USD\x00] PASSED [ 86%]
+packages/evalschema/tests/test_cost_import.py::test_normalize_currency_label_rejects_everything_else[\u20b9] PASSED [ 87%]
+packages/evalschema/tests/test_cost_import.py::test_reported_currency_case_variant_normalized_with_warning PASSED [ 88%]
+packages/evalschema/tests/test_cost_import.py::test_reported_currency_symbol_not_normalized PASSED [ 89%]
+packages/evalschema/tests/test_cost_import.py::test_import_non_usd_not_converted_parsed_or_rejected PASSED [ 90%]
+packages/evalschema/tests/test_cost_import.py::test_import_usd_amount_lexeme_normalized_with_warning PASSED [ 91%]
+packages/evalschema/tests/test_cost_import.py::test_reported_cost_without_currency_not_available PASSED [ 92%]
+packages/evalschema/tests/test_cost_import.py::test_documented_currency_contract_requires_citation PASSED [ 92%]
+packages/evalschema/tests/test_cost_import.py::test_reported_amount_unparseable_not_available_raw_kept PASSED [ 93%]
+packages/evalschema/tests/test_cost_import.py::test_payload_currency_label_wins_over_cited_contract PASSED [ 94%]
+packages/evalschema/tests/test_cost_import.py::test_empty_currency_label_is_currency_not_reported PASSED [ 95%]
+packages/evalschema/tests/test_cost_import.py::test_unicode_space_in_currency_label_is_not_usd PASSED [ 96%]
+packages/evalschema/tests/test_cost_import.py::test_currency_not_reported_always_warns PASSED [ 97%]
+packages/evalschema/tests/test_cost_import.py::test_usd_label_against_non_usd_contract_is_currency_conflict PASSED [ 98%]
+packages/evalschema/tests/test_cost_import.py::test_unsupported_currency_warning_raw_and_currency_source_path PASSED [ 99%]
+packages/evalschema/tests/test_cost_import.py::test_import_warning_paths_follow_their_field PASSED [100%]
+
+=================================== FAILURES ===================================
+_________ test_policy_documents_reported_cost_without_usage_limitation _________
+
+    def test_policy_documents_reported_cost_without_usage_limitation() -> None:
+        """P1-20a, N51 remainder (a) (api-surface 23.6 group R item 3; red until SCHEMA_POLICY.md
+        exists, like the two existing policy-document tests): SCHEMA_POLICY.md states that a reported
+        cost without usage records shares no usage in summaries, so a double count with a computed
+        record for the same call is not detected, and that importers must link usage whenever the
+        source identifies it. Gate-bound."""
+        candidates = [
+            PACKAGE_DIR / "SCHEMA_POLICY.md",
+            ROOT / "SCHEMA_POLICY.md",
+            ROOT / "docs" / "SCHEMA_POLICY.md",
+        ]
+        text = ""
+        for path in candidates:
+            if path.is_file():
+                text = path.read_text(encoding="utf-8")
+                break
+        else:
+>           pytest.fail(
+                "SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of "
+                + ", ".join(str(c) for c in candidates)
+            )
+E           Failed: SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of ~/tracer/packages/evalschema/SCHEMA_POLICY.md, ~/tracer/SCHEMA_POLICY.md, ~/tracer/docs/SCHEMA_POLICY.md
+
+packages/evalschema/tests/test_cost.py:824: Failed
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_cost.py::test_policy_documents_reported_cost_without_usage_limitation
+======================== 1 failed, 113 passed in 0.59s =========================

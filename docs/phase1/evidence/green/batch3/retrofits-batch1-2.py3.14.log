@@ -1,0 +1,725 @@
+# group: retrofits-batch1-2   (batch 3 green run, schema-architect)
+# date: 2026-10-23T10:52:03Z (UTC)  local: 2026-10-23T16:22:03+0530
+# command: python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_evaluator.py packages/evalschema/tests/test_persona_profile.py packages/evalschema/tests/test_metric_definition.py packages/evalschema/tests/test_rubric.py packages/evalschema/tests/test_project_agent.py packages/evalschema/tests/test_batch2_entities.py packages/evalschema/tests/test_primitives.py packages/evalschema/tests/test_language.py packages/evalschema/tests/test_ids.py packages/evalschema/tests/test_versioning.py packages/evalschema/tests/test_digest.py packages/evalschema/tests/test_entity_base.py   (cwd ~/tracer; pyproject addopts apply)
+# interpreter: <scratchpad>/arch-b3-env3.14/bin/python
+# versions: python 3.14.7; pydantic 2.14.1, pydantic-core 2.50.1, pytest 9.1.1, jsonschema 4.26.0, rfc8785 0.1.4, hypothesis 6.170.5
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# git status: no commits; 0 staged paths
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.14.7, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>/arch-b3-env3.14/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 441 items
+
+packages/evalschema/tests/test_evaluator.py::test_evaluator_max_duration_bounds PASSED [  0%]
+packages/evalschema/tests/test_evaluator.py::test_scripted_turn_index_contiguous PASSED [  0%]
+packages/evalschema/tests/test_evaluator.py::test_scripted_turn_language_supported PASSED [  0%]
+packages/evalschema/tests/test_evaluator.py::test_scripted_turn_placeholder_stored_unresolved PASSED [  0%]
+packages/evalschema/tests/test_evaluator.py::test_profile_placeholder_unknown_field_rejected FAILED [  1%]
+packages/evalschema/tests/test_evaluator.py::test_expected_tool_call_match_enum PASSED [  1%]
+packages/evalschema/tests/test_evaluator.py::test_bindings_unique PASSED [  1%]
+packages/evalschema/tests/test_evaluator.py::test_evaluator_expected_outcome_required PASSED [  1%]
+packages/evalschema/tests/test_evaluator.py::test_evaluator_references_are_versioned_and_typed PASSED [  2%]
+packages/evalschema/tests/test_evaluator.py::test_evaluator_text_fields_are_verbatim PASSED [  2%]
+packages/evalschema/tests/test_evaluator.py::test_evaluator_max_duration_schema_is_exact PASSED [  2%]
+packages/evalschema/tests/test_evaluator.py::test_evaluator_requires_at_least_one_binding PASSED [  2%]
+packages/evalschema/tests/test_evaluator.py::test_expected_tool_call_arguments_rules PASSED [  2%]
+packages/evalschema/tests/test_evaluator.py::test_expected_tool_call_order_ranks_contiguous PASSED [  3%]
+packages/evalschema/tests/test_evaluator.py::test_malformed_profile_placeholder_rejected FAILED [  3%]
+packages/evalschema/tests/test_evaluator.py::test_profile_placeholder_requires_test_profile PASSED [  3%]
+packages/evalschema/tests/test_evaluator.py::test_profile_placeholders_in_outcome_and_tool_arguments FAILED [  3%]
+packages/evalschema/tests/test_evaluator.py::test_evaluator_references_reject_text_forms PASSED [  4%]
+packages/evalschema/tests/test_evaluator.py::test_definition_models_errors_do_not_echo_input PASSED [  4%]
+packages/evalschema/tests/test_evaluator.py::test_evaluator_errors_do_not_quote_rejected_values PASSED [  4%]
+packages/evalschema/tests/test_persona_profile.py::test_persona_has_no_codemix_field PASSED [  4%]
+packages/evalschema/tests/test_persona_profile.py::test_persona_language_supported_only PASSED [  4%]
+packages/evalschema/tests/test_persona_profile.py::test_persona_accent_is_a_human_label PASSED [  5%]
+packages/evalschema/tests/test_persona_profile.py::test_test_profile_pii_marked PASSED [  5%]
+packages/evalschema/tests/test_persona_profile.py::test_test_profile_has_no_secret_like_fields PASSED [  5%]
+packages/evalschema/tests/test_persona_profile.py::test_test_profile_ref_has_no_pii PASSED [  5%]
+packages/evalschema/tests/test_persona_profile.py::test_test_profile_ref_shape_and_digest PASSED [  6%]
+packages/evalschema/tests/test_persona_profile.py::test_snapshot_embedded_entity_schemas_carry_no_pii_marker PASSED [  6%]
+packages/evalschema/tests/test_persona_profile.py::test_policy_documents_low_entropy_digest_limitation FAILED [  6%]
+packages/evalschema/tests/test_persona_profile.py::test_profile_placeholder_fields_are_the_profile_data_fields PASSED [  6%]
+packages/evalschema/tests/test_persona_profile.py::test_literal_profile_value_in_free_text_is_flagged_with_path_not_value PASSED [  7%]
+packages/evalschema/tests/test_persona_profile.py::test_profile_value_lint_is_total_on_other_models PASSED [  7%]
+packages/evalschema/tests/test_persona_profile.py::test_every_profile_field_is_usable_as_a_placeholder FAILED [  7%]
+packages/evalschema/tests/test_persona_profile.py::test_profile_lint_folding_and_token_bounds PASSED [  7%]
+packages/evalschema/tests/test_persona_profile.py::test_profile_lint_folds_unicode_forms PASSED [  7%]
+packages/evalschema/tests/test_persona_profile.py::test_profile_lint_paths_order_and_privacy PASSED [  8%]
+packages/evalschema/tests/test_persona_profile.py::test_profile_lint_covers_expected_outcome_and_tool_arguments PASSED [  8%]
+packages/evalschema/tests/test_persona_profile.py::test_test_profile_errors_do_not_echo_values PASSED [  8%]
+packages/evalschema/tests/test_persona_profile.py::test_persona_has_only_language_and_accent PASSED [  8%]
+packages/evalschema/tests/test_persona_profile.py::test_persona_and_profile_errors_do_not_quote_rejected_values PASSED [  9%]
+packages/evalschema/tests/test_metric_definition.py::test_input_kind_members_exact PASSED [  9%]
+packages/evalschema/tests/test_metric_definition.py::test_all_closed_enums_exact PASSED [  9%]
+packages/evalschema/tests/test_metric_definition.py::test_open_value_fields_accept_unseen_provider PASSED [  9%]
+packages/evalschema/tests/test_metric_definition.py::test_requires_nonempty_unique PASSED [  9%]
+packages/evalschema/tests/test_metric_definition.py::test_pass_rule_range_inclusive_and_exclusive PASSED [ 10%]
+packages/evalschema/tests/test_metric_definition.py::test_latency_lower_is_better_expressed_with_range_max PASSED [ 10%]
+packages/evalschema/tests/test_metric_definition.py::test_score_higher_is_better_expressed_with_range_min PASSED [ 10%]
+packages/evalschema/tests/test_metric_definition.py::test_pass_rule_without_direction_rejected PASSED [ 10%]
+packages/evalschema/tests/test_metric_definition.py::test_range_requires_at_least_one_bound PASSED [ 11%]
+packages/evalschema/tests/test_metric_definition.py::test_equals_true_rule_boolean PASSED [ 11%]
+packages/evalschema/tests/test_metric_definition.py::test_one_of_rule_options_subset PASSED [ 11%]
+packages/evalschema/tests/test_metric_definition.py::test_pass_rule_kind_matches_value_type PASSED [ 11%]
+packages/evalschema/tests/test_metric_definition.py::test_script_sensitive_required_no_default PASSED [ 12%]
+packages/evalschema/tests/test_metric_definition.py::test_numeric_units_exclude_currency PASSED [ 12%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_key_is_a_metric_key PASSED [ 12%]
+packages/evalschema/tests/test_metric_definition.py::test_scale_matches_value_type PASSED [ 12%]
+packages/evalschema/tests/test_metric_definition.py::test_llm_judge_requires_prompt_template_and_judge_model_ref PASSED [ 12%]
+packages/evalschema/tests/test_metric_definition.py::test_deterministic_kinds_require_implementation_ref PASSED [ 13%]
+packages/evalschema/tests/test_metric_definition.py::test_prompt_template_placeholders_declared_equals_used PASSED [ 13%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_languages_supported_only PASSED [ 13%]
+packages/evalschema/tests/test_metric_definition.py::test_aggregation_discriminated_by_kind PASSED [ 13%]
+packages/evalschema/tests/test_metric_definition.py::test_per_turn_share_bounds_0_1 PASSED [ 14%]
+packages/evalschema/tests/test_metric_definition.py::test_per_turn_share_definition_requires_turn_rule PASSED [ 14%]
+packages/evalschema/tests/test_metric_definition.py::test_per_turn_share_pass_rule_must_be_range PASSED [ 14%]
+packages/evalschema/tests/test_metric_definition.py::test_per_turn_counts_fields_exact PASSED [ 14%]
+packages/evalschema/tests/test_metric_definition.py::test_per_turn_share_excludes_na_turns_from_denominator PASSED [ 14%]
+packages/evalschema/tests/test_metric_definition.py::test_per_turn_share_not_applicable_when_no_turn_applies PASSED [ 15%]
+packages/evalschema/tests/test_metric_definition.py::test_per_turn_status_no_counted_turn_cases PASSED [ 15%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_binding_shape_and_params PASSED [ 15%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_ref_text_form_is_display_only PASSED [ 15%]
+packages/evalschema/tests/test_metric_definition.py::test_judge_model_ref_is_a_model_ref_without_config_ref PASSED [ 16%]
+packages/evalschema/tests/test_metric_definition.py::test_judge_only_fields_forbidden_on_other_kinds PASSED [ 16%]
+packages/evalschema/tests/test_metric_definition.py::test_implementation_ref_is_namespaced PASSED [ 16%]
+packages/evalschema/tests/test_metric_definition.py::test_prompt_template_rejects_other_double_braces PASSED [ 16%]
+packages/evalschema/tests/test_metric_definition.py::test_expected_outcome_variable_definition_shapes PASSED [ 17%]
+packages/evalschema/tests/test_metric_definition.py::test_conditional_field_rules_are_in_the_json_schema PASSED [ 17%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_parameter_shape_and_defaults PASSED [ 17%]
+packages/evalschema/tests/test_metric_definition.py::test_binding_params_must_be_declared_and_typed PASSED [ 17%]
+packages/evalschema/tests/test_metric_definition.py::test_binding_cannot_change_the_pass_rule PASSED [ 17%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_binding_params_keys_are_metric_keys PASSED [ 18%]
+packages/evalschema/tests/test_metric_definition.py::test_scale_and_unit_domains PASSED [ 18%]
+packages/evalschema/tests/test_metric_definition.py::test_range_bounds_within_value_domain PASSED [ 18%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_languages_nonempty_distinct_primary PASSED [ 18%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_languages_accepts_language_independent_value PASSED [ 19%]
+packages/evalschema/tests/test_metric_definition.py::test_metric_languages_list_or_language_independent PASSED [ 19%]
+packages/evalschema/tests/test_metric_definition.py::test_language_independent_metric_not_script_sensitive PASSED [ 19%]
+packages/evalschema/tests/test_metric_definition.py::test_definition_and_binding_errors_do_not_quote_rejected_values PASSED [ 19%]
+packages/evalschema/tests/test_rubric.py::test_rubric_requires_one_required_metric PASSED [ 19%]
+packages/evalschema/tests/test_rubric.py::test_required_metric_needs_pass_rule PASSED [ 20%]
+packages/evalschema/tests/test_rubric.py::test_required_boolean_check_with_equals_true_ok PASSED [ 20%]
+packages/evalschema/tests/test_rubric.py::test_rubric_weight_requires_pass_rule PASSED [ 20%]
+packages/evalschema/tests/test_rubric.py::test_rubric_weight_values PASSED [ 20%]
+packages/evalschema/tests/test_rubric.py::test_rubric_rejects_duplicate_binding_refs PASSED [ 21%]
+packages/evalschema/tests/test_rubric.py::test_rubric_unresolved_references_rejected PASSED [ 21%]
+packages/evalschema/tests/test_rubric.py::test_rubric_per_turn_share_metric_can_be_required_and_weighted PASSED [ 21%]
+packages/evalschema/tests/test_rubric.py::test_rubric_is_versioned_entity PASSED [ 21%]
+packages/evalschema/tests/test_rubric.py::test_rubric_item_shape PASSED  [ 21%]
+packages/evalschema/tests/test_rubric.py::test_rubric_rejects_disabled_binding PASSED [ 22%]
+packages/evalschema/tests/test_rubric.py::test_bound_definition_keys_unique_per_evaluator PASSED [ 22%]
+packages/evalschema/tests/test_rubric.py::test_validate_rubric_rejects_bindings_of_more_than_one_evaluator PASSED [ 22%]
+packages/evalschema/tests/test_rubric.py::test_validate_rubric_checks_binding_params_against_the_definition PASSED [ 22%]
+packages/evalschema/tests/test_rubric.py::test_rubric_unweighted_items_and_no_required_total PASSED [ 23%]
+packages/evalschema/tests/test_rubric.py::test_rubric_errors_do_not_quote_rejected_values PASSED [ 23%]
+packages/evalschema/tests/test_project_agent.py::test_secret_field_walk PASSED [ 23%]
+packages/evalschema/tests/test_project_agent.py::test_secret_walk_does_not_flag_usage_units PASSED [ 23%]
+packages/evalschema/tests/test_project_agent.py::test_provider_ref_shape_and_open_values PASSED [ 24%]
+packages/evalschema/tests/test_project_agent.py::test_provider_ref_extra_api_key_rejected PASSED [ 24%]
+packages/evalschema/tests/test_project_agent.py::test_rejected_credentials_are_not_echoed_in_error_text PASSED [ 24%]
+packages/evalschema/tests/test_project_agent.py::test_config_ref_shape PASSED [ 24%]
+packages/evalschema/tests/test_project_agent.py::test_project_is_a_record_of_fact_entity PASSED [ 24%]
+packages/evalschema/tests/test_project_agent.py::test_metadata_secret_value_preserved_but_flagged PASSED [ 25%]
+packages/evalschema/tests/test_project_agent.py::test_endpoint_rejects_credentials_in_url PASSED [ 25%]
+packages/evalschema/tests/test_project_agent.py::test_endpoint_url_credential_params_case_and_encoding PASSED [ 25%]
+packages/evalschema/tests/test_project_agent.py::test_sip_endpoint_userinfo_rule PASSED [ 25%]
+packages/evalschema/tests/test_project_agent.py::test_endpoint_transport_scheme_rules PASSED [ 26%]
+packages/evalschema/tests/test_project_agent.py::test_endpoint_discriminated_by_transport PASSED [ 26%]
+packages/evalschema/tests/test_project_agent.py::test_agent_target_is_a_versioned_entity PASSED [ 26%]
+packages/evalschema/tests/test_project_agent.py::test_agent_target_languages_supported_only PASSED [ 26%]
+packages/evalschema/tests/test_project_agent.py::test_declared_vs_detected_capabilities_separate PASSED [ 26%]
+packages/evalschema/tests/test_project_agent.py::test_declared_stack_entry_shape PASSED [ 27%]
+packages/evalschema/tests/test_project_agent.py::test_project_provider_configs_unique_per_provider_and_model PASSED [ 27%]
+packages/evalschema/tests/test_project_agent.py::test_declared_capabilities_unique PASSED [ 27%]
+packages/evalschema/tests/test_project_agent.py::test_agent_target_languages_empty_means_undeclared_and_unique PASSED [ 27%]
+packages/evalschema/tests/test_project_agent.py::test_declared_stack_stage_is_exact PASSED [ 28%]
+packages/evalschema/tests/test_project_agent.py::test_hide_input_set_closed_under_embedding PASSED [ 28%]
+packages/evalschema/tests/test_project_agent.py::test_credential_errors_have_no_input_in_any_logged_form PASSED [ 28%]
+packages/evalschema/tests/test_project_agent.py::test_endpoint_rejects_wider_credential_names_and_prefixes PASSED [ 28%]
+packages/evalschema/tests/test_project_agent.py::test_endpoint_parameter_names_percent_decoded_and_casefolded PASSED [ 29%]
+packages/evalschema/tests/test_project_agent.py::test_endpoint_url_syntax_rules PASSED [ 29%]
+packages/evalschema/tests/test_project_agent.py::test_sip_uri_credential_rules PASSED [ 29%]
+packages/evalschema/tests/test_project_agent.py::test_agent_target_has_no_tier_adapter_or_description_field PASSED [ 29%]
+packages/evalschema/tests/test_project_agent.py::test_url_credential_parameter_names_exact PASSED [ 29%]
+packages/evalschema/tests/test_project_agent.py::test_url_credential_parameter_names_hyphen_underscore_equivalent PASSED [ 30%]
+packages/evalschema/tests/test_project_agent.py::test_url_credential_pattern_anywhere_rejected PASSED [ 30%]
+packages/evalschema/tests/test_project_agent.py::test_url_high_entropy_segment_accepted PASSED [ 30%]
+packages/evalschema/tests/test_project_agent.py::test_url_pattern_fitting_slug_is_rejected_known_false_positive PASSED [ 30%]
+packages/evalschema/tests/test_project_agent.py::test_provider_project_agent_errors_do_not_quote_rejected_values PASSED [ 31%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_is_registered_with_its_prefix[Project] PASSED [ 31%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_is_registered_with_its_prefix[AgentTarget] PASSED [ 31%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_is_registered_with_its_prefix[Persona] PASSED [ 31%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_is_registered_with_its_prefix[TestProfile] PASSED [ 31%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_is_registered_with_its_prefix[MetricDefinition] PASSED [ 32%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_is_registered_with_its_prefix[MetricBinding] PASSED [ 32%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_is_registered_with_its_prefix[Rubric] PASSED [ 32%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_is_registered_with_its_prefix[Evaluator] PASSED [ 32%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_roundtrip_and_schema_agree[Project] PASSED [ 33%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_roundtrip_and_schema_agree[AgentTarget] PASSED [ 33%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_roundtrip_and_schema_agree[Persona] PASSED [ 33%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_roundtrip_and_schema_agree[TestProfile] PASSED [ 33%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_roundtrip_and_schema_agree[MetricDefinition] PASSED [ 34%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_roundtrip_and_schema_agree[MetricBinding] PASSED [ 34%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_roundtrip_and_schema_agree[Rubric] PASSED [ 34%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_roundtrip_and_schema_agree[Evaluator] PASSED [ 34%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_rejects_unknown_fields[Project] PASSED [ 34%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_rejects_unknown_fields[AgentTarget] PASSED [ 35%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_rejects_unknown_fields[Persona] PASSED [ 35%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_rejects_unknown_fields[TestProfile] PASSED [ 35%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_rejects_unknown_fields[MetricDefinition] PASSED [ 35%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_rejects_unknown_fields[MetricBinding] PASSED [ 36%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_rejects_unknown_fields[Rubric] PASSED [ 36%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_rejects_unknown_fields[Evaluator] PASSED [ 36%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_checks_schema_version_and_id_kind[Project] PASSED [ 36%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_checks_schema_version_and_id_kind[AgentTarget] PASSED [ 36%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_checks_schema_version_and_id_kind[Persona] PASSED [ 37%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_checks_schema_version_and_id_kind[TestProfile] PASSED [ 37%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_checks_schema_version_and_id_kind[MetricDefinition] PASSED [ 37%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_checks_schema_version_and_id_kind[MetricBinding] PASSED [ 37%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_checks_schema_version_and_id_kind[Rubric] PASSED [ 38%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_entity_checks_schema_version_and_id_kind[Evaluator] PASSED [ 38%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_versioned_entity_digest_is_verified[AgentTarget] PASSED [ 38%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_versioned_entity_digest_is_verified[Persona] PASSED [ 38%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_versioned_entity_digest_is_verified[TestProfile] PASSED [ 39%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_versioned_entity_digest_is_verified[MetricDefinition] PASSED [ 39%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_versioned_entity_digest_is_verified[MetricBinding] PASSED [ 39%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_versioned_entity_digest_is_verified[Rubric] PASSED [ 39%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_versioned_entity_digest_is_verified[Evaluator] PASSED [ 39%]
+packages/evalschema/tests/test_batch2_entities.py::test_project_is_not_versioned PASSED [ 40%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_models_emit_enum_not_const PASSED [ 40%]
+packages/evalschema/tests/test_batch2_entities.py::test_batch2_models_are_all_found_by_the_registry_walk PASSED [ 40%]
+packages/evalschema/tests/test_batch2_entities.py::test_typed_reference_narrows_the_id_kind[PersonaRef] PASSED [ 40%]
+packages/evalschema/tests/test_batch2_entities.py::test_typed_reference_narrows_the_id_kind[MetricDefinitionRef] PASSED [ 41%]
+packages/evalschema/tests/test_batch2_entities.py::test_typed_reference_narrows_the_id_kind[MetricBindingRef] PASSED [ 41%]
+packages/evalschema/tests/test_batch2_entities.py::test_reference_digest_is_optional_and_verified_when_present PASSED [ 41%]
+packages/evalschema/tests/test_primitives.py::test_utc_rejects_naive PASSED [ 41%]
+packages/evalschema/tests/test_primitives.py::test_utc_normalizes_offset_to_Z PASSED [ 41%]
+packages/evalschema/tests/test_primitives.py::test_utc_serialization_canonical_six_digits PASSED [ 42%]
+packages/evalschema/tests/test_primitives.py::test_utc_rejects_leap_second PASSED [ 42%]
+packages/evalschema/tests/test_primitives.py::test_utc_rejects_excess_precision_numbers_and_dates PASSED [ 42%]
+packages/evalschema/tests/test_primitives.py::test_ms_fields_reject_float_and_negative PASSED [ 42%]
+packages/evalschema/tests/test_primitives.py::test_ms_rejects_bool_and_numeric_strings PASSED [ 43%]
+packages/evalschema/tests/test_primitives.py::test_ms_field_names_are_integers_schema PASSED [ 43%]
+packages/evalschema/tests/test_primitives.py::test_decimal_rejects_python_float PASSED [ 43%]
+packages/evalschema/tests/test_primitives.py::test_decimal_rejects_json_number PASSED [ 43%]
+packages/evalschema/tests/test_primitives.py::test_decimal_rejects[1e3] PASSED [ 43%]
+packages/evalschema/tests/test_primitives.py::test_decimal_rejects[NaN] PASSED [ 44%]
+packages/evalschema/tests/test_primitives.py::test_decimal_rejects[Infinity] PASSED [ 44%]
+packages/evalschema/tests/test_primitives.py::test_decimal_rejects[-0] PASSED [ 44%]
+packages/evalschema/tests/test_primitives.py::test_decimal_rejects[+1] PASSED [ 44%]
+packages/evalschema/tests/test_primitives.py::test_decimal_rejects[1.] PASSED [ 45%]
+packages/evalschema/tests/test_primitives.py::test_decimal_rejects[-0.0] PASSED [ 45%]
+packages/evalschema/tests/test_primitives.py::test_decimal_rejects_other_malformed_strings PASSED [ 45%]
+packages/evalschema/tests/test_primitives.py::test_decimal_scale_limit_is_18 PASSED [ 45%]
+packages/evalschema/tests/test_primitives.py::test_decimal_canonical[1.50-1.5] PASSED [ 46%]
+packages/evalschema/tests/test_primitives.py::test_decimal_canonical[2.0-2] PASSED [ 46%]
+packages/evalschema/tests/test_primitives.py::test_decimal_canonical[0.0-0] PASSED [ 46%]
+packages/evalschema/tests/test_primitives.py::test_decimal_canonical[10.500-10.5] PASSED [ 46%]
+packages/evalschema/tests/test_primitives.py::test_decimal_canonical[-1.250--1.25] PASSED [ 46%]
+packages/evalschema/tests/test_primitives.py::test_decimal_canonical[0.150-0.15] PASSED [ 47%]
+packages/evalschema/tests/test_primitives.py::test_decimal_canonical[3-3] PASSED [ 47%]
+packages/evalschema/tests/test_primitives.py::test_decimal_json_schema_is_string_with_canonical_pattern PASSED [ 47%]
+packages/evalschema/tests/test_primitives.py::test_decimal_pattern_is_the_architects_pattern PASSED [ 47%]
+packages/evalschema/tests/test_primitives.py::test_decimal_pydantic_and_json_schema_accept_the_same_set PASSED [ 48%]
+packages/evalschema/tests/test_primitives.py::test_money_rejects_non_usd[usd] PASSED [ 48%]
+packages/evalschema/tests/test_primitives.py::test_money_rejects_non_usd[EUR] PASSED [ 48%]
+packages/evalschema/tests/test_primitives.py::test_money_rejects_non_usd[INR] PASSED [ 48%]
+packages/evalschema/tests/test_primitives.py::test_money_rejects_non_usd[XAF] PASSED [ 48%]
+packages/evalschema/tests/test_primitives.py::test_money_rejects_non_usd[XXX] PASSED [ 49%]
+packages/evalschema/tests/test_primitives.py::test_money_rejects_non_usd[XAU] PASSED [ 49%]
+packages/evalschema/tests/test_primitives.py::test_money_rejects_non_usd[BOV] PASSED [ 49%]
+packages/evalschema/tests/test_primitives.py::test_money_rejects_non_usd[CLF] PASSED [ 49%]
+packages/evalschema/tests/test_primitives.py::test_money_rejects_non_usd[ABC] PASSED [ 50%]
+packages/evalschema/tests/test_primitives.py::test_money_rejects_non_usd[] PASSED [ 50%]
+packages/evalschema/tests/test_primitives.py::test_money_rejects_every_non_usd_iso_code PASSED [ 50%]
+packages/evalschema/tests/test_primitives.py::test_money_currency_required_and_strictly_typed PASSED [ 50%]
+packages/evalschema/tests/test_primitives.py::test_supported_currency_set_is_data_driven PASSED [ 51%]
+packages/evalschema/tests/test_primitives.py::test_closed_value_sets_emit_enum_not_const_in_both_schema_modes PASSED [ 51%]
+packages/evalschema/tests/test_primitives.py::test_no_const_in_generated_schemas PASSED [ 51%]
+packages/evalschema/tests/test_primitives.py::test_load_supported_currencies_rejects_code_missing_from_iso4217 PASSED [ 51%]
+packages/evalschema/tests/test_primitives.py::test_non_usd_error_names_iso_currency[INR] PASSED [ 51%]
+packages/evalschema/tests/test_primitives.py::test_non_usd_error_names_iso_currency[XAF] PASSED [ 52%]
+packages/evalschema/tests/test_primitives.py::test_non_usd_error_names_iso_currency[ABC] PASSED [ 52%]
+packages/evalschema/tests/test_primitives.py::test_money_roundtrip_small PASSED [ 52%]
+packages/evalschema/tests/test_primitives.py::test_money_may_be_negative_but_stays_canonical PASSED [ 52%]
+packages/evalschema/tests/test_primitives.py::test_money_add_exact PASSED [ 53%]
+packages/evalschema/tests/test_primitives.py::test_display_rounding_does_not_mutate_amount PASSED [ 53%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[0.125-2-0.12] PASSED [ 53%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[0.135-2-0.14] PASSED [ 53%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[0.145-2-0.14] PASSED [ 53%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[0.155-2-0.16] PASSED [ 54%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[1.005-2-1.00] PASSED [ 54%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[1.015-2-1.02] PASSED [ 54%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[2.675-2-2.68] PASSED [ 54%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[-0.125-2--0.12] PASSED [ 55%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[-0.135-2--0.14] PASSED [ 55%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[0.5-0-0] PASSED [ 55%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[1.5-0-2] PASSED [ 55%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[2.5-0-2] PASSED [ 56%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[3.5-0-4] PASSED [ 56%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[12.5-0-12] PASSED [ 56%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[13.5-0-14] PASSED [ 56%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[-1.5-0--2] PASSED [ 56%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[-2.5-0--2] PASSED [ 57%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[0.00000015-7-0.0000002] PASSED [ 57%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[0.00000025-7-0.0000002] PASSED [ 57%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[-0.00000015-7--0.0000002] PASSED [ 57%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[0.126-2-0.13] PASSED [ 58%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[0.124-2-0.12] PASSED [ 58%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[12.3456-2-12.35] PASSED [ 58%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[1-2-1.00] PASSED [ 58%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[0-2-0.00] PASSED [ 58%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[0-0-0] PASSED [ 59%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[1.5-4-1.5000] PASSED [ 59%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[7-0-7] PASSED [ 59%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[0.000000000000000001-18-0.000000000000000001] PASSED [ 59%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[0.000000000000000001-2-0.00] PASSED [ 60%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[1000000-2-1000000.00] PASSED [ 60%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[-3-1--3.0] PASSED [ 60%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[123456789012345678.123456789012345678-2-123456789012345678.12] PASSED [ 60%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[123456789012345678.123456789012345678-18-123456789012345678.123456789012345678] PASSED [ 60%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[123456789012345678.123456789012345678-20-123456789012345678.12345678901234567800] PASSED [ 61%]
+packages/evalschema/tests/test_primitives.py::test_money_display_rounds_half_even_with_exact_digits[123456789012345678.125-2-123456789012345678.12] PASSED [ 61%]
+packages/evalschema/tests/test_primitives.py::test_money_display_default_places_and_argument_checks PASSED [ 61%]
+packages/evalschema/tests/test_primitives.py::test_money_add_returns_canonical_amounts PASSED [ 61%]
+packages/evalschema/tests/test_language.py::test_supported_accepts[hi-IN] PASSED [ 62%]
+packages/evalschema/tests/test_language.py::test_supported_accepts[en-US] PASSED [ 62%]
+packages/evalschema/tests/test_language.py::test_supported_accepts[en-GB] PASSED [ 62%]
+packages/evalschema/tests/test_language.py::test_supported_accepts[pa-Guru-IN] PASSED [ 62%]
+packages/evalschema/tests/test_language.py::test_supported_accepts[ml] PASSED [ 63%]
+packages/evalschema/tests/test_language.py::test_supported_accepts[gu-IN] PASSED [ 63%]
+packages/evalschema/tests/test_language.py::test_supported_accepts_every_configured_language_code PASSED [ 63%]
+packages/evalschema/tests/test_language.py::test_canonical_case PASSED   [ 63%]
+packages/evalschema/tests/test_language.py::test_supported_rejects[bn] PASSED [ 63%]
+packages/evalschema/tests/test_language.py::test_supported_rejects[ur] PASSED [ 64%]
+packages/evalschema/tests/test_language.py::test_supported_rejects[or] PASSED [ 64%]
+packages/evalschema/tests/test_language.py::test_supported_rejects[as] PASSED [ 64%]
+packages/evalschema/tests/test_language.py::test_supported_rejects[pa-Arab] PASSED [ 64%]
+packages/evalschema/tests/test_language.py::test_supported_script_allowed_only_if_native PASSED [ 65%]
+packages/evalschema/tests/test_language.py::test_supported_region_outside_vendored_set_rejected PASSED [ 65%]
+packages/evalschema/tests/test_language.py::test_observed_accepts_regions_outside_vendored_set[ta-LK] PASSED [ 65%]
+packages/evalschema/tests/test_language.py::test_observed_accepts_regions_outside_vendored_set[en-AU] PASSED [ 65%]
+packages/evalschema/tests/test_language.py::test_hi_en_rejected_with_codemix_message PASSED [ 65%]
+packages/evalschema/tests/test_language.py::test_codemix_message_applies_to_the_eight_non_english_languages_with_region_EN PASSED [ 66%]
+packages/evalschema/tests/test_language.py::test_en_EN_and_other_pairs_get_the_ordinary_messages PASSED [ 66%]
+packages/evalschema/tests/test_language.py::test_observed_hi_en_is_region_EN PASSED [ 66%]
+packages/evalschema/tests/test_language.py::test_configured_rejects_hi_Latn PASSED [ 66%]
+packages/evalschema/tests/test_language.py::test_observed_accepts_hi_Latn PASSED [ 67%]
+packages/evalschema/tests/test_language.py::test_rejects[und] PASSED     [ 67%]
+packages/evalschema/tests/test_language.py::test_rejects[mul] PASSED     [ 67%]
+packages/evalschema/tests/test_language.py::test_rejects[zxx] PASSED     [ 67%]
+packages/evalschema/tests/test_language.py::test_rejects[hi-x-foo] PASSED [ 68%]
+packages/evalschema/tests/test_language.py::test_rejects[hi-u-nu-deva] PASSED [ 68%]
+packages/evalschema/tests/test_language.py::test_rejects[hi-1901] PASSED [ 68%]
+packages/evalschema/tests/test_language.py::test_observed_accepts_special_and_extension_tags PASSED [ 68%]
+packages/evalschema/tests/test_language.py::test_observed_accepts_bn_IN PASSED [ 68%]
+packages/evalschema/tests/test_language.py::test_observed_accepts_well_formed_unregistered[xq-IN] PASSED [ 69%]
+packages/evalschema/tests/test_language.py::test_observed_accepts_well_formed_unregistered[hi-AA] PASSED [ 69%]
+packages/evalschema/tests/test_language.py::test_observed_accepts_well_formed_unregistered[qaa] PASSED [ 69%]
+packages/evalschema/tests/test_language.py::test_observed_accepts_private_use_only_and_extlang_forms PASSED [ 69%]
+packages/evalschema/tests/test_language.py::test_observed_validation_does_not_read_registry PASSED [ 70%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_malformed[hi_IN] PASSED [ 70%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_malformed[hi--IN] PASSED [ 70%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_malformed[-hi] PASSED [ 70%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_malformed[hi-IN-] PASSED [ 70%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_malformed[] PASSED [ 71%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_other_malformed_forms PASSED [ 71%]
+packages/evalschema/tests/test_language.py::test_observed_primary_subtag_2_3_letters[hindi] PASSED [ 71%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_grandfathered[i-klingon] PASSED [ 71%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_grandfathered[en-GB-oed] PASSED [ 72%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_grandfathered[zh-min-nan] PASSED [ 72%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_grandfathered[art-lojban] PASSED [ 72%]
+packages/evalschema/tests/test_language.py::test_observed_rejects_all_26_grandfathered_tags PASSED [ 72%]
+packages/evalschema/tests/test_language.py::test_observed_grandfathered_is_a_whole_tag_case_insensitive_match PASSED [ 73%]
+packages/evalschema/tests/test_language.py::test_observed_accepts_up_to_three_extlang_subtags PASSED [ 73%]
+packages/evalschema/tests/test_language.py::test_types_do_not_trim_labels PASSED [ 73%]
+packages/evalschema/tests/test_language.py::test_importer_language_name_raw_kept_tag_empty[hindi] PASSED [ 73%]
+packages/evalschema/tests/test_language.py::test_importer_language_name_raw_kept_tag_empty[Hindi] PASSED [ 73%]
+packages/evalschema/tests/test_language.py::test_importer_language_name_raw_kept_tag_empty[\u0939\u093f\u0928\u094d\u0926\u0940] PASSED [ 74%]
+packages/evalschema/tests/test_language.py::test_importer_language_name_raw_kept_tag_empty[English (India)] PASSED [ 74%]
+packages/evalschema/tests/test_language.py::test_importer_language_name_raw_kept_tag_empty[hi in] PASSED [ 74%]
+packages/evalschema/tests/test_language.py::test_detected_language_raw_verbatim PASSED [ 74%]
+packages/evalschema/tests/test_language.py::test_detected_language_raw_kept_when_tag_unparseable PASSED [ 75%]
+packages/evalschema/tests/test_language.py::test_importer_underscore_to_hyphen_with_warning_raw_kept PASSED [ 75%]
+packages/evalschema/tests/test_language.py::test_normalize_language_label_is_pure_and_total PASSED [ 75%]
+packages/evalschema/tests/test_language.py::test_case_only_difference_gives_no_warning PASSED [ 75%]
+packages/evalschema/tests/test_language.py::test_primary_language_equivalence PASSED [ 75%]
+packages/evalschema/tests/test_language.py::test_supported_no_suppress_script_rewrite PASSED [ 76%]
+packages/evalschema/tests/test_ids.py::test_id_roundtrip_prefixed PASSED [ 76%]
+packages/evalschema/tests/test_ids.py::test_id_rejects_wrong_kind PASSED [ 76%]
+packages/evalschema/tests/test_ids.py::test_id_rejects_uppercase PASSED  [ 76%]
+packages/evalschema/tests/test_ids.py::test_id_rejects_uuid_v4_with_prefix PASSED [ 77%]
+packages/evalschema/tests/test_ids.py::test_id_rejects_bare_uuid_on_wire PASSED [ 77%]
+packages/evalschema/tests/test_ids.py::test_id_rejects_trailing_newline_and_whitespace PASSED [ 77%]
+packages/evalschema/tests/test_ids.py::test_id_is_not_a_str_subclass PASSED [ 77%]
+packages/evalschema/tests/test_ids.py::test_id_uuid_property_is_uuid_UUID PASSED [ 78%]
+packages/evalschema/tests/test_ids.py::test_from_external_mints_v7_and_records_external_ref PASSED [ 78%]
+packages/evalschema/tests/test_ids.py::test_from_external_signature_is_id_type_then_keyword_only_parts PASSED [ 78%]
+packages/evalschema/tests/test_ids.py::test_from_external_returns_a_pair_of_typed_id_and_external_ref_for_every_kind PASSED [ 78%]
+packages/evalschema/tests/test_ids.py::test_from_external_is_pure PASSED [ 78%]
+packages/evalschema/tests/test_ids.py::test_uuid7_monotonic_10k_same_ms PASSED [ 79%]
+packages/evalschema/tests/test_ids.py::test_uuid7_rfc9562_layout PASSED  [ 79%]
+packages/evalschema/tests/test_ids.py::test_uuid7_layout_matches_stdlib_when_available PASSED [ 79%]
+packages/evalschema/tests/test_ids.py::test_prefix_registry_unique PASSED [ 79%]
+packages/evalschema/tests/test_ids.py::test_prefix_registry_frozen_matches_adr PASSED [ 80%]
+packages/evalschema/tests/test_ids.py::test_new_prefixes_not_confusable PASSED [ 80%]
+packages/evalschema/tests/test_ids.py::test_frozen_registry_confusable_pairs_are_the_known_five PASSED [ 80%]
+packages/evalschema/tests/test_ids.py::test_new_prefix_syntax_is_two_to_six_lowercase_letters PASSED [ 80%]
+packages/evalschema/tests/test_ids.py::test_new_prefix_distance_and_anagram_rule_matches_an_independent_enumeration PASSED [ 80%]
+packages/evalschema/tests/test_ids.py::test_new_prefix_rejects_every_permutation_of_every_registered_prefix PASSED [ 81%]
+packages/evalschema/tests/test_ids.py::test_validate_new_prefix_flags_exactly_the_five_frozen_pairs PASSED [ 81%]
+packages/evalschema/tests/test_ids.py::test_jsonschema_pattern_rejects_wrong_kind PASSED [ 81%]
+packages/evalschema/tests/test_ids.py::test_every_id_reference_field_has_registered_prefix PASSED [ 81%]
+packages/evalschema/tests/test_ids.py::test_every_entity_has_registered_prefix FAILED [ 82%]
+packages/evalschema/tests/test_ids.py::test_value_objects_have_no_entity_fields FAILED [ 82%]
+packages/evalschema/tests/test_ids.py::test_opaque_id_fields_are_exactly_the_adr_allowlist FAILED [ 82%]
+packages/evalschema/tests/test_versioning.py::test_version_int_ge_1 PASSED [ 82%]
+packages/evalschema/tests/test_versioning.py::test_versioned_content_digest_mismatch_rejected PASSED [ 82%]
+packages/evalschema/tests/test_versioning.py::test_ref_requires_version PASSED [ 83%]
+packages/evalschema/tests/test_versioning.py::test_versioned_entity_set_matches_adr FAILED [ 83%]
+packages/evalschema/tests/test_versioning.py::test_bundle_mixed_versions_rejected PASSED [ 83%]
+packages/evalschema/tests/test_versioning.py::test_bundle_rejects_same_id_version_different_digest PASSED [ 83%]
+packages/evalschema/tests/test_versioning.py::test_bundle_rejects_same_record_id_different_content PASSED [ 84%]
+packages/evalschema/tests/test_versioning.py::test_ref_digest_must_match_resolved_entity_in_bundle PASSED [ 84%]
+packages/evalschema/tests/test_digest.py::test_content_digest_scheme_registered PASSED [ 84%]
+packages/evalschema/tests/test_digest.py::test_unknown_digest_scheme_rejected PASSED [ 84%]
+packages/evalschema/tests/test_digest.py::test_digest_plain_sha256_jcs_golden PASSED [ 85%]
+packages/evalschema/tests/test_digest.py::test_hmac_digest_golden PASSED [ 85%]
+packages/evalschema/tests/test_digest.py::test_digest_key_ref_must_be_absent_for_v1 PASSED [ 85%]
+packages/evalschema/tests/test_digest.py::test_content_digest_has_no_salt_ref_field PASSED [ 85%]
+packages/evalschema/tests/test_digest.py::test_hmac_digest_requires_key_ref PASSED [ 85%]
+packages/evalschema/tests/test_digest.py::test_keyed_digest_unverifiable_without_key_raises PASSED [ 86%]
+packages/evalschema/tests/test_digest.py::test_digest_verification_single_entry_point PASSED [ 86%]
+packages/evalschema/tests/test_digest.py::test_digest_domain_excludes_schema_version_and_nulls PASSED [ 86%]
+packages/evalschema/tests/test_digest.py::test_digest_domain_of_a_versioned_entity PASSED [ 86%]
+packages/evalschema/tests/test_digest.py::test_digest_rejects_non_ijson_values PASSED [ 87%]
+packages/evalschema/tests/test_digest.py::test_digest_domain_removes_content_digest_and_schema_version_at_top_level_only PASSED [ 87%]
+packages/evalschema/tests/test_digest.py::test_digest_domain_removes_nulls_at_every_object_depth_and_keeps_array_nulls PASSED [ 87%]
+packages/evalschema/tests/test_digest.py::test_digest_domain_of_a_model_equals_that_of_its_json_dump PASSED [ 87%]
+packages/evalschema/tests/test_digest.py::test_digest_domain_does_not_modify_its_input PASSED [ 87%]
+packages/evalschema/tests/test_digest.py::test_canonical_bytes_are_the_jcs_of_the_domain PASSED [ 88%]
+packages/evalschema/tests/test_digest.py::test_verify_digest_returns_none_or_raises PASSED [ 88%]
+packages/evalschema/tests/test_digest.py::test_verify_digest_settles_the_key_and_the_scheme_before_hashing_the_content PASSED [ 88%]
+packages/evalschema/tests/test_digest.py::test_content_digest_scheme_is_an_enum_in_both_schema_modes PASSED [ 88%]
+packages/evalschema/tests/test_digest.py::test_key_ref_key_id_is_an_opaque_string_stored_verbatim PASSED [ 89%]
+packages/evalschema/tests/test_entity_base.py::test_entity_base_required_fields PASSED [ 89%]
+packages/evalschema/tests/test_entity_base.py::test_extra_field_forbidden PASSED [ 89%]
+packages/evalschema/tests/test_entity_base.py::test_entity_id_must_match_class_prefix PASSED [ 89%]
+packages/evalschema/tests/test_entity_base.py::test_entity_created_at_is_utc_datetime PASSED [ 90%]
+packages/evalschema/tests/test_entity_base.py::test_schema_version_too_new PASSED [ 90%]
+packages/evalschema/tests/test_entity_base.py::test_schema_version_mismatch_older PASSED [ 90%]
+packages/evalschema/tests/test_entity_base.py::test_schema_version_invalid[1] PASSED [ 90%]
+packages/evalschema/tests/test_entity_base.py::test_schema_version_invalid[v0.0.1] PASSED [ 90%]
+packages/evalschema/tests/test_entity_base.py::test_schema_version_invalid_other_malformed PASSED [ 91%]
+packages/evalschema/tests/test_entity_base.py::test_version_errors_carry_found_and_expected PASSED [ 91%]
+packages/evalschema/tests/test_entity_base.py::test_package_version_equals_schema_version PASSED [ 91%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flags_verified_on_load PASSED [ 91%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_rule_golden PASSED [ 92%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[sk--sk-aaaaaaaaaaaaaaaaaaaa-sk-aaaaaaaaaaaaaaaaaaa] PASSED [ 92%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[sk_live_-sk_live_aaaaaaaaaaaaaaaa-sk_live_aaaaaaaaaaaaaaa] PASSED [ 92%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[rk_test_-rk_test_bbbbbbbbbbbbbbbb-rk_test_bbbbbbbbbbbbbbb] PASSED [ 92%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[sk_test_-sk_test_cccccccccccccccccccc-sk_prod_cccccccccccccccccccc] PASSED [ 92%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[AKIA-AKIAAAAAAAAAAAAAAAAA-AKIAAAAAAAAAAAAAAAA] PASSED [ 93%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[ASIA-ASIA0000000000000000-ASIAaaaaaaaaaaaaaaaa] PASSED [ 93%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[AIza-AIzaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-AIzaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] PASSED [ 93%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[ghp_-ghp_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-ghp_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] PASSED [ 93%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[ghs_-ghs_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-ghx_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] PASSED [ 94%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[github_pat_-github_pat_aaaaaaaaaaaaaaaaaaaaaa-github_pat_aaaaaaaaaaaaaaaaaaaaa] PASSED [ 94%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[glpat--glpat-aaaaaaaaaaaaaaaaaaaa-glpat-aaaaaaaaaaaaaaaaaaa] PASSED [ 94%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[xoxb--xoxb-1111111111-xoxb-111111111] PASSED [ 94%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[xoxs--xoxs-ab-ab-ab-ab--xoxz-1111111111] PASSED [ 95%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[hf_-hf_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-hf_aaaaaaaaaaaaaaaaaaaaaaaaaaaaa] PASSED [ 95%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[jwt-eyJaaaaaaaaaa.eyJbbbbbbbbbb.-eyJaaaaaaaaa.eyJbbbbbbbbbb.] PASSED [ 95%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[pem------BEGIN RSA PRIVATE KEY-----------BEGIN PUBLIC KEY-----] PASSED [ 95%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_known_credential_prefix_patterns[pem2------BEGIN PRIVATE KEY-----------BEGIN private key-----] PASSED [ 95%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_high_entropy_boundaries[32-16-True] PASSED [ 96%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_high_entropy_boundaries[32-30-True] PASSED [ 96%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_high_entropy_boundaries[40-24-True] PASSED [ 96%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_high_entropy_boundaries[64-30-True] PASSED [ 96%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_high_entropy_boundaries[31-16-False] PASSED [ 97%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_high_entropy_boundaries[31-30-False] PASSED [ 97%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_high_entropy_boundaries[32-15-False] PASSED [ 97%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_high_entropy_boundaries[64-15-False] PASSED [ 97%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_high_entropy_boundaries[16-16-False] PASSED [ 97%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_high_entropy_needs_upper_lower_and_digit_in_one_run PASSED [ 98%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_scope_is_string_leaves_of_metadata_only PASSED [ 98%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_pointer_escaping_and_utf16_order PASSED [ 98%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flag_one_flag_per_path_prefix_reason_wins PASSED [ 98%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flags_supplied_list_must_equal_the_computed_list PASSED [ 99%]
+packages/evalschema/tests/test_entity_base.py::test_typed_errors_do_not_derive_from_the_exceptions_pydantic_wraps PASSED [ 99%]
+packages/evalschema/tests/test_entity_base.py::test_schema_version_errors_propagate_unwrapped_through_every_entry_point PASSED [ 99%]
+packages/evalschema/tests/test_entity_base.py::test_digest_errors_propagate_unwrapped_through_every_entry_point PASSED [ 99%]
+packages/evalschema/tests/test_entity_base.py::test_loader_typed_errors_are_not_wrapped_either PASSED [100%]
+
+=================================== FAILURES ===================================
+_______________ test_profile_placeholder_unknown_field_rejected ________________
+
+    def test_profile_placeholder_unknown_field_rejected() -> None:
+        """P-16 (accepted by the user in revision 6): a placeholder that names no TestProfile field
+        is rejected, in scripted turns and in instructions; the message names the field."""
+        turn = cls("evaluator", "ScriptedTurn")
+        fields = api("profile").profile_placeholder_fields()
+        for field in fields:
+            assert turn.model_validate(_turn(0, text="x {{profile." + field + "}} y")).text
+        for unknown in ("shoe_size", "nam", "dob_year", "password", "id", "version"):
+            assert unknown not in fields
+            text = "Hello {{profile." + unknown + "}}"
+>           with pytest.raises(ValidationError, match=unknown):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError: Regex pattern did not match.
+E             Expected regex: 'shoe_size'
+E             Actual message: '1 validation error for ScriptedTurn\ntext\n  Value error, unknown profile placeholder field: a placeholder names a TestProfile field (account_number, dob, name) [type=value_error]\n    For further information visit https://errors.pydantic.dev/2.14/v/value_error'
+
+packages/evalschema/tests/test_evaluator.py:205: AssertionError
+_________________ test_malformed_profile_placeholder_rejected __________________
+
+    def test_malformed_profile_placeholder_rejected() -> None:
+        """Resolution 10 (ADR 0006 Decision 9a): a placeholder is exactly ``{{profile.`` + FIELD +
+        ``}}`` with FIELD matching ``[a-z][a-z0-9_]*`` and no white space inside. Text that looks like
+        a placeholder but is not well formed (``{{ profile.name }}``, ``{{Profile.name}}``,
+        ``{{profile.}}``, ``{{profile.name}``, ``{{profile.name.first}}``) is rejected, because it would
+        reach the simulated caller as literal braces. Everything else is ordinary text, and no Unicode
+        normalization is applied to find placeholders. Applies to scripted turns, instructions, the
+        expected outcome and string arguments (E7). Proposed name."""
+        turn = cls("evaluator", "ScriptedTurn")
+        call = cls("evaluator", "ExpectedToolCall")
+        for text in MALFORMED_PLACEHOLDERS:
+            wrapped = f"Say {text} now"
+            with pytest.raises(ValidationError):
+                turn.model_validate(_turn(0, text=wrapped))
+            with pytest.raises(ValidationError):
+                call.model_validate(_call("arguments_exact", arguments={"value": wrapped}))
+            for field, build_over in _text_places():
+                (
+                    assert_rejected_name(
+                        "Evaluator", test_profile=_profile_ref(), **build_over(wrapped)
+                    ),
+                    (field, text),
+                )
+        ok = "Say {{profile.name}} then {{profile.account_number}}{{profile.dob}}"
+        for text in ORDINARY_BRACES:
+            assert turn.model_validate(_turn(0, text=text)).text == text
+            assert call.model_validate(_call("arguments_exact", arguments={"value": text}))
+            for _field, build_over in _text_places():
+                assert _evaluator(**build_over(f"{text} {ok}"), test_profile=_profile_ref())
+        # an unknown FIELD is still a rejection that names the field (P-16)
+>       with pytest.raises(ValidationError, match="shoe_size"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'shoe_size'
+E         Actual message: '1 validation error for ScriptedTurn\ntext\n  Value error, unknown profile placeholder field: a placeholder names a TestProfile field (account_number, dob, name) [type=value_error]\n    For further information visit https://errors.pydantic.dev/2.14/v/value_error'
+
+packages/evalschema/tests/test_evaluator.py:569: AssertionError
+___________ test_profile_placeholders_in_outcome_and_tool_arguments ____________
+
+    def test_profile_placeholders_in_outcome_and_tool_arguments() -> None:
+        """E7 (accepted by the owner; widens P-16): profile placeholders are also allowed in
+        ``expected_outcome`` and in the string values of ``ExpectedToolCall.arguments`` (at any depth),
+        so that an account number need not be written literally into an evaluator that is copied into
+        every snapshot. They are stored unresolved and obey the same grammar and field check as in
+        instructions. Only string values can hold a placeholder: numbers cannot. Proposed name."""
+        call = cls("evaluator", "ExpectedToolCall")
+        arguments = {
+            "account_number": "{{profile.account_number}}",
+            "customer": {"name": "{{profile.name}}", "tags": ["a", "{{profile.dob}}"]},
+            "limit": 3,
+        }
+        for match in ("arguments_exact", "arguments_subset"):
+            loaded = call.model_validate(_call(match, arguments=arguments))
+            assert loaded.arguments == arguments
+            assert loaded.model_dump(mode="json")["arguments"] == arguments
+        outcome = "The agent greets {{profile.name}} and confirms {{profile.account_number}}."
+        evaluator = _evaluator(
+            expected_outcome=outcome,
+            expected_tool_calls=[_call("arguments_exact", arguments=arguments)],
+            test_profile=_profile_ref(),
+        )
+        assert evaluator.expected_outcome == outcome
+        assert evaluator.expected_tool_calls[0].arguments == arguments
+        dumped = evaluator.model_dump_json()
+        for secret in ("Asha Verma", "1990-04-12", "4400123412"):
+            assert secret not in dumped
+        again = entity_class("Evaluator").model_validate_json(dumped)
+        assert again.expected_outcome == outcome
+        assert again.content_digest == evaluator.content_digest
+        for unknown in ("shoe_size", "nam", "password", "id"):
+            text = "{{profile." + unknown + "}}"
+>           with pytest.raises(ValidationError, match=unknown):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError: Regex pattern did not match.
+E             Expected regex: 'shoe_size'
+E             Actual message: '1 validation error for ExpectedToolCall\narguments\n  unknown profile placeholder field: a placeholder names a TestProfile field (account_number, dob, name) [type=profile_placeholder]'
+
+packages/evalschema/tests/test_evaluator.py:632: AssertionError
+_____________ test_policy_documents_low_entropy_digest_limitation ______________
+
+    def test_policy_documents_low_entropy_digest_limitation() -> None:
+        """ADR 0006 Decision 6 / I12, A-26: SCHEMA_POLICY.md states that a plain digest of a
+        low-entropy profile in internal data can be brute-forced, and that shared exports never
+        carry such a plain digest (they drop or key it). Gate-bound: green when P1-20a writes the
+        file."""
+>       text = _policy_text().lower()
+               ^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_persona_profile.py:346: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _policy_text() -> str:
+        candidates = [
+            PACKAGE_DIR / "SCHEMA_POLICY.md",
+            ROOT / "SCHEMA_POLICY.md",
+            ROOT / "docs" / "SCHEMA_POLICY.md",
+        ]
+        for path in candidates:
+            if path.is_file():
+                return path.read_text(encoding="utf-8")
+>       pytest.fail(
+            "SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of "
+            + ", ".join(str(p.relative_to(ROOT)) for p in candidates)
+        )
+E       Failed: SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of packages/evalschema/SCHEMA_POLICY.md, SCHEMA_POLICY.md, docs/SCHEMA_POLICY.md
+
+packages/evalschema/tests/test_persona_profile.py:335: Failed
+_____________ test_every_profile_field_is_usable_as_a_placeholder ______________
+
+    def test_every_profile_field_is_usable_as_a_placeholder() -> None:
+        """Proposed name. Each name in ``profile_placeholder_fields()`` is accepted inside
+        ``{{profile.<field>}}`` and an unknown name is rejected (the full matrix is in
+        test_evaluator.py). Revision 8 (N8): a placeholder needs a ``test_profile``, so the evaluator
+        references one; the unknown-name rejection is checked with the profile present, so it cannot
+        be a rejection for the missing profile."""
+        fields = api("profile").profile_placeholder_fields()
+        profile = make("TestProfile")
+        reference = _profile_ref_of(profile)
+        for field in fields:
+            text = "Use {{profile." + field + "}} now."
+            assert make("Evaluator", instructions=text, test_profile=reference).instructions == text
+        bad = {
+            **raw_document("Evaluator", test_profile=reference),
+            "instructions": "Use {{profile.unknown_field}}",
+        }
+        caught = assert_rejected(entity_class("Evaluator"), bad, field="instructions")
+>       assert "unknown_field" in str(caught)
+E       AssertionError: assert 'unknown_field' in '1 validation error for Evaluator\ninstructions\n  Value error, unknown profile placeholder field: a placeholder names a TestProfile field (account_number, dob, name) [type=value_error]\n    For further information visit https://errors.pydantic.dev/2.14/v/value_error'
+E        +  where '1 validation error for Evaluator\ninstructions\n  Value error, unknown profile placeholder field: a placeholder names a TestProfile field (account_number, dob, name) [type=value_error]\n    For further information visit https://errors.pydantic.dev/2.14/v/value_error' = str(1 validation error for Evaluator\ninstructions\n  Value error, unknown profile placeholder field: a placeholder names a TestProfile field (account_number, dob, name) [type=value_error]\n    For further information visit https://errors.pydantic.dev/2.14/v/value_error)
+
+packages/evalschema/tests/test_persona_profile.py:453: AssertionError
+___________________ test_every_entity_has_registered_prefix ____________________
+
+    def test_every_entity_has_registered_prefix() -> None:
+        registry = api("registry")
+        ids = api("ids")
+        base = api("base")
+        entities = registry.entity_classes()
+>       assert set(entities) == set(ids.ID_PREFIXES), (
+            "every registered prefix needs exactly one EntityBase subclass and vice versa; "
+            f"missing {sorted(set(ids.ID_PREFIXES) - set(entities))}, "
+            f"unregistered {sorted(set(entities) - set(ids.ID_PREFIXES))}"
+        )
+E       AssertionError: every registered prefix needs exactly one EntityBase subclass and vice versa; missing ['cst', 'csum', 'exp', 'pcat', 'pce', 'rbnd', 'use'], unregistered []
+E       assert {'agt', 'art'...', 'exc', ...} == {'agt', 'art'...', 'dts', ...}
+E         
+E         Extra items in the right set:
+E         'rbnd'
+E         'use'
+E         'exp'
+E         'pcat'
+E         'cst'...
+E         
+E         ...Full output truncated (33 lines hidden), use '-vv' to show
+
+packages/evalschema/tests/test_ids.py:816: AssertionError
+___________________ test_value_objects_have_no_entity_fields ___________________
+
+    def test_value_objects_have_no_entity_fields() -> None:
+        """Revision 7 (api-surface section 18 N1; ADR 0001 Decision 8 and I14), restated in revision 8
+        (section 19.6 N6) as a rule.
+    
+        A value object carries no identity fields of its own. The only fields of value objects that
+        share an entity field's name are: ``id`` of a ``<Entity>Ref`` typed ``<Entity>Id`` where
+        ``<Entity>`` is a registered entity class name (``TestProfileRef``, ``PricingCatalogRef``,
+        ``PersonaRef``, ``MetricDefinitionRef``, ``MetricBindingRef`` and later ones by the same rule);
+        ``VersionedRef.id`` (a typed ID of any kind); and the ``schema_version`` of the nested model
+        behind ``SealedPayload.aad_fields`` (the version of the sealed plaintext). A ``<Entity>Ref``
+        whose ``id`` is not typed ``<Entity>Id`` is not an exception."""
+        registry = api("registry")
+        base = api("base")
+        ids = api("ids")
+        value_objects = registry.value_object_classes()
+        required = dict.fromkeys([*VALUE_OBJECT_NAMES, *EXPECTED_TYPED_REFS])
+        missing = [name for name in required if name not in value_objects]
+>       assert not missing, f"value objects not implemented yet: {missing}"
+E       AssertionError: value objects not implemented yet: ['SealedPayload', 'RedactionRecord', 'UsageQuantity', 'BillingRules', 'PriceProvenance', 'PricingSnapshot', 'ReportedCostRaw', 'CostRounding', 'CostExclusion']
+E       assert not ['SealedPayload', 'RedactionRecord', 'UsageQuantity', 'BillingRules', 'PriceProvenance', 'PricingSnapshot', ...]
+
+packages/evalschema/tests/test_ids.py:874: AssertionError
+_____________ test_opaque_id_fields_are_exactly_the_adr_allowlist ______________
+
+    def test_opaque_id_fields_are_exactly_the_adr_allowlist() -> None:
+        """Proposed name. Every field named ``*_id``, ``*_ids`` or ``ref_id`` is a typed ID except
+        exactly ``KeyRef.key_id``, ``ToolCallEvent.external_call_id`` and ``Run.caller_external_id``.
+        ``SealedPayload.aad_fields.subject_id`` is typed. The allowlist is checked per model, so a
+        second ``key_id`` somewhere else would be caught (the by-name skip in
+        test_every_id_reference_field_has_registered_prefix would not)."""
+        registry = api("registry")
+        ids = api("ids")
+        opaque: set[tuple[str, str]] = set()
+        typed_seen: set[tuple[str, str]] = set()
+        for model in registry.model_classes():
+            for name, info in model.model_fields.items():
+                if not (name.endswith(("_id", "_ids")) or name == "ref_id"):
+                    continue
+                leaves = _model_leaves(info.annotation)
+                if any(issubclass(leaf, ids.TypedId) for leaf in leaves):
+                    typed_seen.add((model.__name__, name))
+                else:
+                    opaque.add((model.__name__, name))
+        assert opaque == OPAQUE_ID_FIELDS, (
+            f"opaque *_id fields: unexpected {sorted(opaque - OPAQUE_ID_FIELDS)}, "
+            f"missing {sorted(OPAQUE_ID_FIELDS - opaque)}"
+        )
+        subject = [pair for pair in typed_seen if pair[1] == "subject_id"]
+>       assert subject, "SealedPayload.aad_fields.subject_id must exist and be a typed ID"
+E       AssertionError: SealedPayload.aad_fields.subject_id must exist and be a typed ID
+E       assert []
+
+packages/evalschema/tests/test_ids.py:948: AssertionError
+____________________ test_versioned_entity_set_matches_adr _____________________
+
+    def test_versioned_entity_set_matches_adr() -> None:
+        registry = api("registry")
+        base = api("base")
+        versioned = {
+            cls.__name__
+            for cls in registry.entity_classes().values()
+            if issubclass(cls, base.VersionedEntity)
+        }
+>       assert versioned == ADR_VERSIONED
+E       AssertionError: assert {'AgentTarget...Persona', ...} == {'AgentTarget...Persona', ...}
+E         
+E         Extra items in the right set:
+E         'PricingCatalog'
+E         
+E         Full diff:
+E           {
+E               'AgentTarget',...
+E         
+E         ...Full output truncated (9 lines hidden), use '-vv' to show
+
+packages/evalschema/tests/test_versioning.py:126: AssertionError
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_evaluator.py::test_profile_placeholder_unknown_field_rejected
+FAILED packages/evalschema/tests/test_evaluator.py::test_malformed_profile_placeholder_rejected
+FAILED packages/evalschema/tests/test_evaluator.py::test_profile_placeholders_in_outcome_and_tool_arguments
+FAILED packages/evalschema/tests/test_persona_profile.py::test_policy_documents_low_entropy_digest_limitation
+FAILED packages/evalschema/tests/test_persona_profile.py::test_every_profile_field_is_usable_as_a_placeholder
+FAILED packages/evalschema/tests/test_ids.py::test_every_entity_has_registered_prefix
+FAILED packages/evalschema/tests/test_ids.py::test_value_objects_have_no_entity_fields
+FAILED packages/evalschema/tests/test_ids.py::test_opaque_id_fields_are_exactly_the_adr_allowlist
+FAILED packages/evalschema/tests/test_versioning.py::test_versioned_entity_set_matches_adr
+======================== 9 failed, 432 passed in 2.41s =========================

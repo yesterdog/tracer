@@ -1,0 +1,635 @@
+# group: p1-04a-ids
+# date: 2026-10-22T16:23:07Z (UTC)  local: 2026-10-22T21:53:07+0530
+# command: .venv/bin/python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_ids.py   (cwd ~/tracer; pyproject addopts: -ra --strict-markers --strict-config -m 'not private_fixtures')
+# python: Python 3.13.15 (~/tracer/.venv/bin/python)
+# uv.lock sha256: ab83aa1248c1f471282a0e905b314c6372e251c51418d9c3c787442fcc464cad
+# git status: ## No commits yet on main; 11 untracked/changed entries; nothing staged, no commits made
+# bidi-ref group installed: python-bidi 0.6.12
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.13.15, pytest-9.1.1, pluggy-1.7.0 -- ~/tracer/.venv/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 20 items
+
+packages/evalschema/tests/test_ids.py::test_id_roundtrip_prefixed FAILED [  5%]
+packages/evalschema/tests/test_ids.py::test_id_rejects_wrong_kind FAILED [ 10%]
+packages/evalschema/tests/test_ids.py::test_id_rejects_uppercase FAILED  [ 15%]
+packages/evalschema/tests/test_ids.py::test_id_rejects_uuid_v4_with_prefix FAILED [ 20%]
+packages/evalschema/tests/test_ids.py::test_id_rejects_bare_uuid_on_wire FAILED [ 25%]
+packages/evalschema/tests/test_ids.py::test_id_rejects_trailing_newline_and_whitespace FAILED [ 30%]
+packages/evalschema/tests/test_ids.py::test_id_is_not_a_str_subclass FAILED [ 35%]
+packages/evalschema/tests/test_ids.py::test_id_uuid_property_is_uuid_UUID FAILED [ 40%]
+packages/evalschema/tests/test_ids.py::test_from_external_mints_v7_and_records_external_ref FAILED [ 45%]
+packages/evalschema/tests/test_ids.py::test_uuid7_monotonic_10k_same_ms FAILED [ 50%]
+packages/evalschema/tests/test_ids.py::test_uuid7_rfc9562_layout FAILED  [ 55%]
+packages/evalschema/tests/test_ids.py::test_uuid7_layout_matches_stdlib_when_available FAILED [ 60%]
+packages/evalschema/tests/test_ids.py::test_prefix_registry_unique FAILED [ 65%]
+packages/evalschema/tests/test_ids.py::test_prefix_registry_frozen_matches_adr FAILED [ 70%]
+packages/evalschema/tests/test_ids.py::test_new_prefixes_not_confusable FAILED [ 75%]
+packages/evalschema/tests/test_ids.py::test_frozen_registry_confusable_pairs_are_the_known_five FAILED [ 80%]
+packages/evalschema/tests/test_ids.py::test_jsonschema_pattern_rejects_wrong_kind FAILED [ 85%]
+packages/evalschema/tests/test_ids.py::test_every_id_reference_field_has_registered_prefix FAILED [ 90%]
+packages/evalschema/tests/test_ids.py::test_every_entity_has_registered_prefix FAILED [ 95%]
+packages/evalschema/tests/test_ids.py::test_value_objects_have_no_entity_fields FAILED [100%]
+
+=================================== FAILURES ===================================
+__________________________ test_id_roundtrip_prefixed __________________________
+
+    def test_id_roundtrip_prefixed() -> None:
+>       ids = api("ids")
+              ^^^^^^^^^^
+
+packages/evalschema/tests/test_ids.py:118: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.ids', import_ = <function _gcd_import at 0x1053b84a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.ids'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__________________________ test_id_rejects_wrong_kind __________________________
+
+    def test_id_rejects_wrong_kind() -> None:
+>       ids = api("ids")
+              ^^^^^^^^^^
+
+packages/evalschema/tests/test_ids.py:140: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.ids', import_ = <function _gcd_import at 0x1053b84a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.ids'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__________________________ test_id_rejects_uppercase ___________________________
+
+    def test_id_rejects_uppercase() -> None:
+>       adapter = _adapter("run")
+                  ^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_ids.py:156: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_ids.py:107: in _adapter
+    return TypeAdapter(_id_class(prefix))
+                       ^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/test_ids.py:103: in _id_class
+    return api("ids").id_type(prefix)
+           ^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.ids', import_ = <function _gcd_import at 0x1053b84a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.ids'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________________ test_id_rejects_uuid_v4_with_prefix ______________________
+
+    def test_id_rejects_uuid_v4_with_prefix() -> None:
+>       adapter = _adapter("run")
+                  ^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_ids.py:174: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_ids.py:107: in _adapter
+    return TypeAdapter(_id_class(prefix))
+                       ^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/test_ids.py:103: in _id_class
+    return api("ids").id_type(prefix)
+           ^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.ids', import_ = <function _gcd_import at 0x1053b84a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.ids'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+______________________ test_id_rejects_bare_uuid_on_wire _______________________
+
+    def test_id_rejects_bare_uuid_on_wire() -> None:
+>       adapter = _adapter("run")
+                  ^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_ids.py:191: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_ids.py:107: in _adapter
+    return TypeAdapter(_id_class(prefix))
+                       ^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/test_ids.py:103: in _id_class
+    return api("ids").id_type(prefix)
+           ^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.ids', import_ = <function _gcd_import at 0x1053b84a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.ids'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________ test_id_rejects_trailing_newline_and_whitespace ________________
+
+    def test_id_rejects_trailing_newline_and_whitespace() -> None:
+        """Proposed name. ``$`` in a regex accepts a trailing newline; an ID must be exact."""
+>       adapter = _adapter("run")
+                  ^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_ids.py:210: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_ids.py:107: in _adapter
+    return TypeAdapter(_id_class(prefix))
+                       ^^^^^^^^^^^^^^^^^
+packages/evalschema/tests/test_ids.py:103: in _id_class
+    return api("ids").id_type(prefix)
+           ^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.ids', import_ = <function _gcd_import at 0x1053b84a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.ids'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________________________ test_id_is_not_a_str_subclass _________________________
+
+    def test_id_is_not_a_str_subclass() -> None:
+        """Proposed name. ADR 0001 Decision 1: the typed ID exposes a uuid.UUID, it is not a str."""
+>       cls = _id_class("run")
+              ^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_ids.py:219: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_ids.py:103: in _id_class
+    return api("ids").id_type(prefix)
+           ^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.ids', import_ = <function _gcd_import at 0x1053b84a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.ids'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+______________________ test_id_uuid_property_is_uuid_UUID ______________________
+
+    def test_id_uuid_property_is_uuid_UUID() -> None:
+        for prefix in ADR_PREFIXES:
+>           value = _id_class(prefix).new()
+                    ^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_ids.py:229: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_ids.py:103: in _id_class
+    return api("ids").id_type(prefix)
+           ^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.ids', import_ = <function _gcd_import at 0x1053b84a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.ids'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________ test_from_external_mints_v7_and_records_external_ref _____________
+
+    def test_from_external_mints_v7_and_records_external_ref() -> None:
+>       ids = api("ids")
+              ^^^^^^^^^^
+
+packages/evalschema/tests/test_ids.py:242: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.ids', import_ = <function _gcd_import at 0x1053b84a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.ids'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________________ test_uuid7_monotonic_10k_same_ms _______________________
+
+    def test_uuid7_monotonic_10k_same_ms() -> None:
+>       ids = api("ids")
+              ^^^^^^^^^^
+
+packages/evalschema/tests/test_ids.py:277: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.ids', import_ = <function _gcd_import at 0x1053b84a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.ids'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__________________________ test_uuid7_rfc9562_layout ___________________________
+
+    def test_uuid7_rfc9562_layout() -> None:
+>       ids = api("ids")
+              ^^^^^^^^^^
+
+packages/evalschema/tests/test_ids.py:303: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.ids', import_ = <function _gcd_import at 0x1053b84a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.ids'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________ test_uuid7_layout_matches_stdlib_when_available ________________
+
+    def test_uuid7_layout_matches_stdlib_when_available() -> None:
+        """Asserts on every Python: against uuid.uuid7() where it exists, and its absence otherwise,
+        so the test is never skipped (ADR 0001 I15)."""
+>       ids = api("ids")
+              ^^^^^^^^^^
+
+packages/evalschema/tests/test_ids.py:326: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.ids', import_ = <function _gcd_import at 0x1053b84a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.ids'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_________________________ test_prefix_registry_unique __________________________
+
+    def test_prefix_registry_unique() -> None:
+>       ids = api("ids")
+              ^^^^^^^^^^
+
+packages/evalschema/tests/test_ids.py:343: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.ids', import_ = <function _gcd_import at 0x1053b84a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.ids'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+___________________ test_prefix_registry_frozen_matches_adr ____________________
+
+    def test_prefix_registry_frozen_matches_adr() -> None:
+>       ids = api("ids")
+              ^^^^^^^^^^
+
+packages/evalschema/tests/test_ids.py:356: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.ids', import_ = <function _gcd_import at 0x1053b84a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.ids'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________________ test_new_prefixes_not_confusable _______________________
+
+    def test_new_prefixes_not_confusable() -> None:
+        """P-03: a prefix added after the frozen table is >= 2 edits from every prefix, no anagrams."""
+>       ids = api("ids")
+              ^^^^^^^^^^
+
+packages/evalschema/tests/test_ids.py:373: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.ids', import_ = <function _gcd_import at 0x1053b84a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.ids'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+___________ test_frozen_registry_confusable_pairs_are_the_known_five ___________
+
+    def test_frozen_registry_confusable_pairs_are_the_known_five() -> None:
+        """Proposed name. ADR 0001 Decision 4/P-03 names three grandfathered one-edit pairs
+        (run/rub, exc/exp, dts/dti), but the frozen table also contains agt/art (one edit) and
+        tsc/cst (anagram). This pins the real set so a sixth pair cannot slip in; the ADR text must be
+        corrected by staff-reviewer (see the QA report)."""
+        pairs = {
+            frozenset((a, b))
+            for a, b in itertools.combinations(ADR_PREFIXES, 2)
+            if _levenshtein(a, b) < 2 or sorted(a) == sorted(b)
+        }
+        assert pairs == {
+            frozenset(p)
+            for p in (("run", "rub"), ("exc", "exp"), ("dts", "dti"), ("agt", "art"), ("tsc", "cst"))
+        }
+>       ids = api("ids")
+              ^^^^^^^^^^
+
+packages/evalschema/tests/test_ids.py:413: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.ids', import_ = <function _gcd_import at 0x1053b84a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.ids'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__________________ test_jsonschema_pattern_rejects_wrong_kind __________________
+
+    def test_jsonschema_pattern_rejects_wrong_kind() -> None:
+        jsonschema = typing.cast(Any, __import__("jsonschema"))
+>       ids = api("ids")
+              ^^^^^^^^^^
+
+packages/evalschema/tests/test_ids.py:422: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.ids', import_ = <function _gcd_import at 0x1053b84a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.ids'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________ test_every_id_reference_field_has_registered_prefix ______________
+
+    def test_every_id_reference_field_has_registered_prefix() -> None:
+>       registry = api("registry")
+                   ^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_ids.py:460: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.registry'
+import_ = <function _gcd_import at 0x1053b84a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.registry'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+___________________ test_every_entity_has_registered_prefix ____________________
+
+    def test_every_entity_has_registered_prefix() -> None:
+>       registry = api("registry")
+                   ^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_ids.py:477: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.registry'
+import_ = <function _gcd_import at 0x1053b84a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.registry'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+___________________ test_value_objects_have_no_entity_fields ___________________
+
+    def test_value_objects_have_no_entity_fields() -> None:
+>       registry = api("registry")
+                   ^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_ids.py:502: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.registry'
+import_ = <function _gcd_import at 0x1053b84a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.registry'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+- generated xml file: <scratchpad>/junit/p1-04a-ids.xml -
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_ids.py::test_id_roundtrip_prefixed - Mo...
+FAILED packages/evalschema/tests/test_ids.py::test_id_rejects_wrong_kind - Mo...
+FAILED packages/evalschema/tests/test_ids.py::test_id_rejects_uppercase - Mod...
+FAILED packages/evalschema/tests/test_ids.py::test_id_rejects_uuid_v4_with_prefix
+FAILED packages/evalschema/tests/test_ids.py::test_id_rejects_bare_uuid_on_wire
+FAILED packages/evalschema/tests/test_ids.py::test_id_rejects_trailing_newline_and_whitespace
+FAILED packages/evalschema/tests/test_ids.py::test_id_is_not_a_str_subclass
+FAILED packages/evalschema/tests/test_ids.py::test_id_uuid_property_is_uuid_UUID
+FAILED packages/evalschema/tests/test_ids.py::test_from_external_mints_v7_and_records_external_ref
+FAILED packages/evalschema/tests/test_ids.py::test_uuid7_monotonic_10k_same_ms
+FAILED packages/evalschema/tests/test_ids.py::test_uuid7_rfc9562_layout - Mod...
+FAILED packages/evalschema/tests/test_ids.py::test_uuid7_layout_matches_stdlib_when_available
+FAILED packages/evalschema/tests/test_ids.py::test_prefix_registry_unique - M...
+FAILED packages/evalschema/tests/test_ids.py::test_prefix_registry_frozen_matches_adr
+FAILED packages/evalschema/tests/test_ids.py::test_new_prefixes_not_confusable
+FAILED packages/evalschema/tests/test_ids.py::test_frozen_registry_confusable_pairs_are_the_known_five
+FAILED packages/evalschema/tests/test_ids.py::test_jsonschema_pattern_rejects_wrong_kind
+FAILED packages/evalschema/tests/test_ids.py::test_every_id_reference_field_has_registered_prefix
+FAILED packages/evalschema/tests/test_ids.py::test_every_entity_has_registered_prefix
+FAILED packages/evalschema/tests/test_ids.py::test_value_objects_have_no_entity_fields
+============================== 20 failed in 0.19s ==============================
+# exit status: 1

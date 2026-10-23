@@ -1,0 +1,1123 @@
+# group: p1-05-base-versioning-digest-loader
+# date: 2026-10-22T16:23:13Z (UTC)  local: 2026-10-22T21:53:13+0530
+# command: .venv/bin/python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_entity_base.py packages/evalschema/tests/test_versioning.py packages/evalschema/tests/test_digest.py packages/evalschema/tests/test_loader.py   (cwd ~/tracer; pyproject addopts: -ra --strict-markers --strict-config -m 'not private_fixtures')
+# python: Python 3.13.15 (~/tracer/.venv/bin/python)
+# uv.lock sha256: ab83aa1248c1f471282a0e905b314c6372e251c51418d9c3c787442fcc464cad
+# git status: ## No commits yet on main; 11 untracked/changed entries; nothing staged, no commits made
+# bidi-ref group installed: python-bidi 0.6.12
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.13.15, pytest-9.1.1, pluggy-1.7.0 -- ~/tracer/.venv/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 36 items
+
+packages/evalschema/tests/test_entity_base.py::test_entity_base_required_fields FAILED [  2%]
+packages/evalschema/tests/test_entity_base.py::test_extra_field_forbidden FAILED [  5%]
+packages/evalschema/tests/test_entity_base.py::test_entity_id_must_match_class_prefix FAILED [  8%]
+packages/evalschema/tests/test_entity_base.py::test_entity_created_at_is_utc_datetime FAILED [ 11%]
+packages/evalschema/tests/test_entity_base.py::test_schema_version_too_new FAILED [ 13%]
+packages/evalschema/tests/test_entity_base.py::test_schema_version_mismatch_older FAILED [ 16%]
+packages/evalschema/tests/test_entity_base.py::test_schema_version_invalid[1] FAILED [ 19%]
+packages/evalschema/tests/test_entity_base.py::test_schema_version_invalid[v0.0.1] FAILED [ 22%]
+packages/evalschema/tests/test_entity_base.py::test_schema_version_invalid_other_malformed FAILED [ 25%]
+packages/evalschema/tests/test_entity_base.py::test_version_errors_carry_found_and_expected FAILED [ 27%]
+packages/evalschema/tests/test_entity_base.py::test_package_version_equals_schema_version FAILED [ 30%]
+packages/evalschema/tests/test_entity_base.py::test_metadata_flags_verified_on_load FAILED [ 33%]
+packages/evalschema/tests/test_versioning.py::test_version_int_ge_1 FAILED [ 36%]
+packages/evalschema/tests/test_versioning.py::test_versioned_content_digest_mismatch_rejected FAILED [ 38%]
+packages/evalschema/tests/test_versioning.py::test_ref_requires_version FAILED [ 41%]
+packages/evalschema/tests/test_versioning.py::test_versioned_entity_set_matches_adr FAILED [ 44%]
+packages/evalschema/tests/test_versioning.py::test_bundle_mixed_versions_rejected FAILED [ 47%]
+packages/evalschema/tests/test_versioning.py::test_bundle_rejects_same_id_version_different_digest FAILED [ 50%]
+packages/evalschema/tests/test_versioning.py::test_bundle_rejects_same_record_id_different_content FAILED [ 52%]
+packages/evalschema/tests/test_versioning.py::test_ref_digest_must_match_resolved_entity_in_bundle FAILED [ 55%]
+packages/evalschema/tests/test_digest.py::test_content_digest_scheme_registered FAILED [ 58%]
+packages/evalschema/tests/test_digest.py::test_unknown_digest_scheme_rejected FAILED [ 61%]
+packages/evalschema/tests/test_digest.py::test_digest_plain_sha256_jcs_golden FAILED [ 63%]
+packages/evalschema/tests/test_digest.py::test_hmac_digest_golden FAILED [ 66%]
+packages/evalschema/tests/test_digest.py::test_digest_key_ref_must_be_absent_for_v1 FAILED [ 69%]
+packages/evalschema/tests/test_digest.py::test_content_digest_has_no_salt_ref_field FAILED [ 72%]
+packages/evalschema/tests/test_digest.py::test_hmac_digest_requires_key_ref FAILED [ 75%]
+packages/evalschema/tests/test_digest.py::test_keyed_digest_unverifiable_without_key_raises FAILED [ 77%]
+packages/evalschema/tests/test_digest.py::test_digest_verification_single_entry_point FAILED [ 80%]
+packages/evalschema/tests/test_digest.py::test_digest_domain_excludes_schema_version_and_nulls FAILED [ 83%]
+packages/evalschema/tests/test_digest.py::test_digest_domain_of_a_versioned_entity FAILED [ 86%]
+packages/evalschema/tests/test_digest.py::test_digest_rejects_non_ijson_values FAILED [ 88%]
+packages/evalschema/tests/test_loader.py::test_strict_loader_duplicate_keys FAILED [ 91%]
+packages/evalschema/tests/test_loader.py::test_strict_loader_models_reject_duplicate_keys FAILED [ 94%]
+packages/evalschema/tests/test_loader.py::test_strict_loader_depth_10k_no_recursionerror FAILED [ 97%]
+packages/evalschema/tests/test_loader.py::test_strict_loader_malformed_json_is_a_plain_error FAILED [100%]
+
+=================================== FAILURES ===================================
+_______________________ test_entity_base_required_fields _______________________
+
+    def test_entity_base_required_fields() -> None:
+>       widget = _widget()
+                 ^^^^^^^^^
+
+packages/evalschema/tests/test_entity_base.py:30: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_entity_base.py:26: in _widget
+    return widget_classes().Widget
+           ^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:75: in widget_classes
+    base = api("base")
+           ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.base', import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.base'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__________________________ test_extra_field_forbidden __________________________
+
+    def test_extra_field_forbidden() -> None:
+>       widget = _widget()
+                 ^^^^^^^^^
+
+packages/evalschema/tests/test_entity_base.py:60: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_entity_base.py:26: in _widget
+    return widget_classes().Widget
+           ^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:75: in widget_classes
+    base = api("base")
+           ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.base', import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.base'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____________________ test_entity_id_must_match_class_prefix ____________________
+
+    def test_entity_id_must_match_class_prefix() -> None:
+        """Proposed name. A Widget (prefix evl) rejects other kinds' IDs and bare UUIDs."""
+>       ids = api("ids")
+              ^^^^^^^^^^
+
+packages/evalschema/tests/test_entity_base.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.ids', import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.ids'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____________________ test_entity_created_at_is_utc_datetime ____________________
+
+    def test_entity_created_at_is_utc_datetime() -> None:
+        """Proposed name. created_at uses UtcDatetime: naive is rejected, offsets become Z."""
+>       widget = _widget()
+                 ^^^^^^^^^
+
+packages/evalschema/tests/test_entity_base.py:82: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_entity_base.py:26: in _widget
+    return widget_classes().Widget
+           ^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:75: in widget_classes
+    base = api("base")
+           ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.base', import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.base'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_________________________ test_schema_version_too_new __________________________
+
+    def test_schema_version_too_new() -> None:
+>       errors = api("errors")
+                 ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_entity_base.py:90: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.errors'
+import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.errors'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+______________________ test_schema_version_mismatch_older ______________________
+
+    def test_schema_version_mismatch_older() -> None:
+>       errors = api("errors")
+                 ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_entity_base.py:106: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.errors'
+import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.errors'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________________________ test_schema_version_invalid[1] ________________________
+
+value = '1'
+
+    @pytest.mark.parametrize("value", ["1", "v0.0.1"])
+    def test_schema_version_invalid(value: str) -> None:
+>       errors = api("errors")
+                 ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_entity_base.py:120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.errors'
+import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.errors'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________________ test_schema_version_invalid[v0.0.1] ______________________
+
+value = 'v0.0.1'
+
+    @pytest.mark.parametrize("value", ["1", "v0.0.1"])
+    def test_schema_version_invalid(value: str) -> None:
+>       errors = api("errors")
+                 ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_entity_base.py:120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.errors'
+import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.errors'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_________________ test_schema_version_invalid_other_malformed __________________
+
+    def test_schema_version_invalid_other_malformed() -> None:
+        """Proposed name. Neighbours of the SCOPE list; ``found`` carries the raw value."""
+>       errors = api("errors")
+                 ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_entity_base.py:131: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.errors'
+import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.errors'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_________________ test_version_errors_carry_found_and_expected _________________
+
+    def test_version_errors_carry_found_and_expected() -> None:
+>       errors = api("errors")
+                 ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_entity_base.py:152: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.errors'
+import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.errors'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__________________ test_package_version_equals_schema_version __________________
+
+    def test_package_version_equals_schema_version() -> None:
+        package = api("")
+>       assert package.SCHEMA_VERSION == package.__version__ == CURRENT_SCHEMA_VERSION
+               ^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalschema' has no attribute 'SCHEMA_VERSION'
+
+packages/evalschema/tests/test_entity_base.py:177: AttributeError
+_____________________ test_metadata_flags_verified_on_load _____________________
+
+    def test_metadata_flags_verified_on_load() -> None:
+        """P-21: secret-looking metadata is preserved byte for byte and flagged in a serialized
+        ``metadata_flags`` list that is recomputed and compared on load."""
+>       widget = _widget()
+                 ^^^^^^^^^
+
+packages/evalschema/tests/test_entity_base.py:187: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_entity_base.py:26: in _widget
+    return widget_classes().Widget
+           ^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:75: in widget_classes
+    base = api("base")
+           ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.base', import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.base'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____________________________ test_version_int_ge_1 _____________________________
+
+    def test_version_int_ge_1() -> None:
+>       widget = _versioned()
+                 ^^^^^^^^^^^^
+
+packages/evalschema/tests/test_versioning.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_versioning.py:35: in _versioned
+    return widget_classes().VersionedWidget
+           ^^^^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:75: in widget_classes
+    base = api("base")
+           ^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.base', import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.base'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________ test_versioned_content_digest_mismatch_rejected ________________
+
+    def test_versioned_content_digest_mismatch_rejected() -> None:
+>       errors = api("errors")
+                 ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_versioning.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.errors'
+import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.errors'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__________________________ test_ref_requires_version ___________________________
+
+    def test_ref_requires_version() -> None:
+>       base = api("base")
+               ^^^^^^^^^^^
+
+packages/evalschema/tests/test_versioning.py:88: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.base', import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.base'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____________________ test_versioned_entity_set_matches_adr _____________________
+
+    def test_versioned_entity_set_matches_adr() -> None:
+>       registry = api("registry")
+                   ^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_versioning.py:119: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.registry'
+import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.registry'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________________ test_bundle_mixed_versions_rejected ______________________
+
+    def test_bundle_mixed_versions_rejected() -> None:
+>       errors = api("errors")
+                 ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_versioning.py:145: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.errors'
+import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.errors'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________ test_bundle_rejects_same_id_version_different_digest _____________
+
+    def test_bundle_rejects_same_id_version_different_digest() -> None:
+>       errors = api("errors")
+                 ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_versioning.py:162: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.errors'
+import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.errors'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________ test_bundle_rejects_same_record_id_different_content _____________
+
+    def test_bundle_rejects_same_record_id_different_content() -> None:
+        """P-47 correction rule: a record of fact is corrected by a new record with a new id."""
+>       errors = api("errors")
+                 ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_versioning.py:187: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.errors'
+import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.errors'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________ test_ref_digest_must_match_resolved_entity_in_bundle _____________
+
+    def test_ref_digest_must_match_resolved_entity_in_bundle() -> None:
+>       errors = api("errors")
+                 ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_versioning.py:204: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.errors'
+import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.errors'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+____________________ test_content_digest_scheme_registered _____________________
+
+    def test_content_digest_scheme_registered() -> None:
+>       digest = _digest()
+                 ^^^^^^^^^
+
+packages/evalschema/tests/test_digest.py:78: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_digest.py:60: in _digest
+    return api("digest")
+           ^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.digest'
+import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.digest'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________________ test_unknown_digest_scheme_rejected ______________________
+
+    def test_unknown_digest_scheme_rejected() -> None:
+>       digest = _digest()
+                 ^^^^^^^^^
+
+packages/evalschema/tests/test_digest.py:96: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_digest.py:60: in _digest
+    return api("digest")
+           ^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.digest'
+import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.digest'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________________ test_digest_plain_sha256_jcs_golden ______________________
+
+    def test_digest_plain_sha256_jcs_golden() -> None:
+>       digest = _digest()
+                 ^^^^^^^^^
+
+packages/evalschema/tests/test_digest.py:118: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_digest.py:60: in _digest
+    return api("digest")
+           ^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.digest'
+import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.digest'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+___________________________ test_hmac_digest_golden ____________________________
+
+    def test_hmac_digest_golden() -> None:
+>       digest = _digest()
+                 ^^^^^^^^^
+
+packages/evalschema/tests/test_digest.py:146: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_digest.py:60: in _digest
+    return api("digest")
+           ^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.digest'
+import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.digest'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__________________ test_digest_key_ref_must_be_absent_for_v1 ___________________
+
+    def test_digest_key_ref_must_be_absent_for_v1() -> None:
+>       digest = _digest()
+                 ^^^^^^^^^
+
+packages/evalschema/tests/test_digest.py:182: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_digest.py:60: in _digest
+    return api("digest")
+           ^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.digest'
+import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.digest'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__________________ test_content_digest_has_no_salt_ref_field ___________________
+
+    def test_content_digest_has_no_salt_ref_field() -> None:
+>       digest = _digest()
+                 ^^^^^^^^^
+
+packages/evalschema/tests/test_digest.py:195: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_digest.py:60: in _digest
+    return api("digest")
+           ^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.digest'
+import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.digest'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+______________________ test_hmac_digest_requires_key_ref _______________________
+
+    def test_hmac_digest_requires_key_ref() -> None:
+>       digest = _digest()
+                 ^^^^^^^^^
+
+packages/evalschema/tests/test_digest.py:221: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_digest.py:60: in _digest
+    return api("digest")
+           ^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.digest'
+import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.digest'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+______________ test_keyed_digest_unverifiable_without_key_raises _______________
+
+    def test_keyed_digest_unverifiable_without_key_raises() -> None:
+>       digest = _digest()
+                 ^^^^^^^^^
+
+packages/evalschema/tests/test_digest.py:241: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_digest.py:60: in _digest
+    return api("digest")
+           ^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.digest'
+import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.digest'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_________________ test_digest_verification_single_entry_point __________________
+
+    def test_digest_verification_single_entry_point() -> None:
+        """No module other than digest.py hashes or compares digests (ADR 0006 Decision 4)."""
+>       digest = _digest()
+                 ^^^^^^^^^
+
+packages/evalschema/tests/test_digest.py:269: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_digest.py:60: in _digest
+    return api("digest")
+           ^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.digest'
+import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.digest'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________ test_digest_domain_excludes_schema_version_and_nulls _____________
+
+    def test_digest_domain_excludes_schema_version_and_nulls() -> None:
+>       digest = _digest()
+                 ^^^^^^^^^
+
+packages/evalschema/tests/test_digest.py:289: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_digest.py:60: in _digest
+    return api("digest")
+           ^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.digest'
+import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.digest'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+___________________ test_digest_domain_of_a_versioned_entity ___________________
+
+    def test_digest_domain_of_a_versioned_entity() -> None:
+        """Proposed name. Same rule, observed through a VersionedEntity (verified on load)."""
+>       digest = _digest()
+                 ^^^^^^^^^
+
+packages/evalschema/tests/test_digest.py:314: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_digest.py:60: in _digest
+    return api("digest")
+           ^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.digest'
+import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.digest'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________________ test_digest_rejects_non_ijson_values _____________________
+
+    def test_digest_rejects_non_ijson_values() -> None:
+>       digest = _digest()
+                 ^^^^^^^^^
+
+packages/evalschema/tests/test_digest.py:335: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_digest.py:60: in _digest
+    return api("digest")
+           ^^^^^^^^^^^^^
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.digest'
+import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.digest'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+______________________ test_strict_loader_duplicate_keys _______________________
+
+    def test_strict_loader_duplicate_keys() -> None:
+>       loader = api("loader")
+                 ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_loader.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.loader'
+import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.loader'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______________ test_strict_loader_models_reject_duplicate_keys ________________
+
+    def test_strict_loader_models_reject_duplicate_keys() -> None:
+        """Proposed name. The model entry point uses the same strict parsing, not pydantic's."""
+>       loader = api("loader")
+                 ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_loader.py:51: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.loader'
+import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.loader'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________________ test_strict_loader_depth_10k_no_recursionerror ________________
+
+    def test_strict_loader_depth_10k_no_recursionerror() -> None:
+>       loader = api("loader")
+                 ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_loader.py:66: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.loader'
+import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.loader'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+______________ test_strict_loader_malformed_json_is_a_plain_error ______________
+
+    def test_strict_loader_malformed_json_is_a_plain_error() -> None:
+        """Proposed name. Syntax errors are ordinary ValueErrors, not depth or duplicate errors."""
+>       loader = api("loader")
+                 ^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_loader.py:97: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/_support.py:32: in api
+    return importlib.import_module("tracer_evalschema" + (f".{name}" if name else ""))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalschema.loader'
+import_ = <function _gcd_import at 0x10385c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalschema.loader'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+- generated xml file: <scratchpad>/junit/p1-05-base-versioning-digest-loader.xml -
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_entity_base.py::test_entity_base_required_fields
+FAILED packages/evalschema/tests/test_entity_base.py::test_extra_field_forbidden
+FAILED packages/evalschema/tests/test_entity_base.py::test_entity_id_must_match_class_prefix
+FAILED packages/evalschema/tests/test_entity_base.py::test_entity_created_at_is_utc_datetime
+FAILED packages/evalschema/tests/test_entity_base.py::test_schema_version_too_new
+FAILED packages/evalschema/tests/test_entity_base.py::test_schema_version_mismatch_older
+FAILED packages/evalschema/tests/test_entity_base.py::test_schema_version_invalid[1]
+FAILED packages/evalschema/tests/test_entity_base.py::test_schema_version_invalid[v0.0.1]
+FAILED packages/evalschema/tests/test_entity_base.py::test_schema_version_invalid_other_malformed
+FAILED packages/evalschema/tests/test_entity_base.py::test_version_errors_carry_found_and_expected
+FAILED packages/evalschema/tests/test_entity_base.py::test_package_version_equals_schema_version
+FAILED packages/evalschema/tests/test_entity_base.py::test_metadata_flags_verified_on_load
+FAILED packages/evalschema/tests/test_versioning.py::test_version_int_ge_1 - ...
+FAILED packages/evalschema/tests/test_versioning.py::test_versioned_content_digest_mismatch_rejected
+FAILED packages/evalschema/tests/test_versioning.py::test_ref_requires_version
+FAILED packages/evalschema/tests/test_versioning.py::test_versioned_entity_set_matches_adr
+FAILED packages/evalschema/tests/test_versioning.py::test_bundle_mixed_versions_rejected
+FAILED packages/evalschema/tests/test_versioning.py::test_bundle_rejects_same_id_version_different_digest
+FAILED packages/evalschema/tests/test_versioning.py::test_bundle_rejects_same_record_id_different_content
+FAILED packages/evalschema/tests/test_versioning.py::test_ref_digest_must_match_resolved_entity_in_bundle
+FAILED packages/evalschema/tests/test_digest.py::test_content_digest_scheme_registered
+FAILED packages/evalschema/tests/test_digest.py::test_unknown_digest_scheme_rejected
+FAILED packages/evalschema/tests/test_digest.py::test_digest_plain_sha256_jcs_golden
+FAILED packages/evalschema/tests/test_digest.py::test_hmac_digest_golden - Mo...
+FAILED packages/evalschema/tests/test_digest.py::test_digest_key_ref_must_be_absent_for_v1
+FAILED packages/evalschema/tests/test_digest.py::test_content_digest_has_no_salt_ref_field
+FAILED packages/evalschema/tests/test_digest.py::test_hmac_digest_requires_key_ref
+FAILED packages/evalschema/tests/test_digest.py::test_keyed_digest_unverifiable_without_key_raises
+FAILED packages/evalschema/tests/test_digest.py::test_digest_verification_single_entry_point
+FAILED packages/evalschema/tests/test_digest.py::test_digest_domain_excludes_schema_version_and_nulls
+FAILED packages/evalschema/tests/test_digest.py::test_digest_domain_of_a_versioned_entity
+FAILED packages/evalschema/tests/test_digest.py::test_digest_rejects_non_ijson_values
+FAILED packages/evalschema/tests/test_loader.py::test_strict_loader_duplicate_keys
+FAILED packages/evalschema/tests/test_loader.py::test_strict_loader_models_reject_duplicate_keys
+FAILED packages/evalschema/tests/test_loader.py::test_strict_loader_depth_10k_no_recursionerror
+FAILED packages/evalschema/tests/test_loader.py::test_strict_loader_malformed_json_is_a_plain_error
+============================== 36 failed in 0.21s ==============================
+# exit status: 1

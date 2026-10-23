@@ -1,0 +1,207 @@
+# Batch 3 revision 13 mutants (qa, 2026-10-23)
+
+Throwaway oracle `oracle11` outside the repository: a correct implementation of api-surface section 22 at revision 13 (rev 11 to 13 decisions N20 to N27, O1 to O9, N41, N42, D1 to D3), built on the real batch 1 and 2 code. One change per mutant (a few use two coordinated edits, marked as a list in the harness). Each mutant is run with `pytest -x` over the WHOLE test tree (`packages/evalschema/tests`, 862 tests) on Python 3.13, with the six tests that are red for every implementation deselected (`test_policy_documents_free_text_lint_limitation`, `test_policy_documents_low_entropy_digest_limitation`, the three gate-bound `test_ids.py` tests and `test_versioned_entity_set_matches_adr`). CAUGHT = at least one test failed (the first failing test is listed); SURVIVED = all passed.
+
+Final run: 174 mutants, 167 caught, 7 survived. The first pass had 15 survivors; eight were closed by strengthening the new tests (listed below) and the final run above was repeated after those edits.
+
+## Survivors
+
+- LB23 | written host not read | SURVIVED |  -- equivalent: the percent-decoded host equals the written host unless an escape is present, and when decoding fails the list holds only the written text; so reading only the last entry gives the same answer
+- LB24 | userinfo not stripped | SURVIVED |  -- not pinned: userinfo in the input of the pure function `is_loopback_uri` (the record rejects userinfo, so the function never sees it from a valid Artifact)
+- LB30 | scheme compared case-sensitively | SURVIVED |  -- not pinned: an upper-case scheme in the input of `is_loopback_uri` (the record rejects an upper-case scheme)
+- F09 | ws accepted | SURVIVED |  -- equivalent in the oracle: adding `ws` to the scheme tuple changes nothing, because the hierarchical check that follows rejects the scheme; the stronger mutant F10 (ws, data and ftp really accepted) is caught
+- F20 | file empty segments rejected | SURVIVED |  -- not pinned: an empty segment inside a `file:///` path (`file:///a//b`); the owner's confirmed rules name only an empty path, query, `.` and `..` segments
+- Q16 | FullMatch default message quotes the value | SURVIVED |  -- equivalent: the default message of `FullMatch` is never raised by a model field (every field passes its own message; the default is used only through `.matches()`)
+- Q18 | currency message quotes the value | SURVIVED |  -- not reachable yet: the currency message belongs to `Money`, which no hiding model of batches 1 to 3 embeds (CostRecord and CostSummary come with P1-24/P1-25); the P1-25 no-echo test must cover it
+
+## Closed after the first pass (the test was strengthened, then the mutant was caught)
+
+- LB14: `http://126.256.0.1/` added to the near misses of `test_artifact_uri_loopback_host_rules` (a non-last part above 255 is not an IPv4 address)
+- LB32: `http://127.0.0.1.0/` added (five dotted parts are not an IPv4 address)
+- F16: `test_artifact_uri_fragment_rejected` read the error type `url_fragment` through `repr(errors())` and so passed whatever the message said; it now reads the messages (`msg`) only
+- F17: same strengthening, for the `file:` form
+- TS9: `test_tool_call_event_source_closed_set` now rejects a document without `source` (required, no default) and checks the JSON Schema `required` list
+- N23h: `test_agent_channel_unknown_only_when_agent_audio_alone_is_missing` gained a case with `requires=[reference_text, agent_audio]` (the channel question last)
+- Q10: `test_rubric_errors_do_not_quote_rejected_values` gained a weight with 19 fractional digits (the scale message)
+- F21: the mutant patch did not apply in the first pass (wrong quoting); fixed and caught
+
+## All mutants
+
+R1a | R1 not enforced | CAUGHT | test_observed_tier_t0_rejected_with_spans
+R1b | R1 also rejects T1 | CAUGHT | test_na_missing_kinds_equal_requires_minus_available
+R1c | R1 error located at available_inputs | CAUGHT | test_observed_tier_t0_rejected_with_spans
+R1d | R1 reads detected_capabilities too | CAUGHT | test_available_inputs_not_derived_from_tier
+R1e | R1 rejects every T0 | CAUGHT | test_unknown_agent_channel_excludes_agent_audio
+R1f | R1 rejects T2 with spans | CAUGHT | test_available_inputs_not_derived_from_tier
+R1g | R1 message does not name spans | CAUGHT | test_observed_tier_t0_rejected_with_spans
+R1h | observed_tier gains T3 | CAUGHT | test_all_closed_enums_exact
+R1i | observed_tier loses T2 | CAUGHT | test_all_closed_enums_exact
+R1j | observed_tier is free text | CAUGHT | test_all_closed_enums_exact
+R1k | observed_tier optional | CAUGHT | test_run_shape_and_enums
+R1l | R1 rejects T0 only when spans is the sole input | CAUGHT | test_observed_tier_t0_rejected_with_spans
+LB01 | localhost not loopback | CAUGHT | test_artifact_uri_loopback_host_rules
+LB02 | *.localhost not loopback | CAUGHT | test_artifact_uri_loopback_host_rules
+LB03 | trailing dot not removed | CAUGHT | test_artifact_uri_loopback_host_rules
+LB04 | all trailing dots removed | CAUGHT | test_artifact_uri_loopback_host_rules
+LB05 | host case not folded | CAUGHT | test_artifact_uri_loopback_host_rules
+LB06 | suffix without dot | CAUGHT | test_artifact_uri_loopback_host_rules
+LB07 | only dotted quads parsed | CAUGHT | test_artifact_uri_loopback_host_rules
+LB08 | hex parts not parsed | CAUGHT | test_artifact_uri_loopback_host_rules
+LB09 | octal parts not parsed | CAUGHT | test_artifact_uri_loopback_host_rules
+LB10 | integer form limited to 255 | CAUGHT | test_artifact_uri_loopback_host_rules
+LB11 | 0/8 counted | CAUGHT | test_artifact_uri_loopback_host_rules
+LB12 | only 127.0.0.1 | CAUGHT | test_artifact_uri_loopback_host_rules
+LB13 | only 127.0/16 | CAUGHT | test_artifact_uri_loopback_host_rules
+LB14 | non-last part above 255 allowed | CAUGHT | test_artifact_uri_loopback_host_rules
+LB15 | ::1 not loopback | CAUGHT | test_artifact_uri_loopback_host_rules
+LB16 | IPv4-mapped not loopback | CAUGHT | test_artifact_uri_loopback_host_rules
+LB17 | any IPv4-mapped loopback | CAUGHT | test_artifact_uri_loopback_host_rules
+LB18 | unspecified :: counted | CAUGHT | test_artifact_uri_loopback_host_rules
+LB19 | 10/8 counted | CAUGHT | test_artifact_uri_loopback_host_rules
+LB20 | 0.0.0.0 counted | CAUGHT | test_artifact_uri_loopback_host_rules
+LB21 | s3 and gs counted | CAUGHT | test_artifact_uri_loopback_host_rules
+LB22 | percent-decoded host not read | CAUGHT | test_artifact_uri_loopback_host_rules
+LB23 | written host not read | SURVIVED | 
+LB24 | userinfo not stripped | SURVIVED | 
+LB25 | port not stripped | CAUGHT | test_artifact_uri_loopback_host_rules
+LB26 | https not loopback | CAUGHT | test_artifact_uri_loopback_host_rules
+LB27 | IPv6 literal host cut at the first colon | CAUGHT | test_artifact_uri_loopback_host_rules
+LB28 | whole fe80::/10 counted | CAUGHT | test_artifact_uri_loopback_host_rules
+LB29 | IPv6 any ::ffff:0:0/96 counted | CAUGHT | test_artifact_uri_loopback_host_rules
+LB30 | scheme compared case-sensitively | SURVIVED | 
+LB31 | private 192.168/16 counted | CAUGHT | test_artifact_uri_loopback_host_rules
+LB32 | five-part dotted name parsed | CAUGHT | test_artifact_uri_loopback_host_rules
+LB33 | decimal part with underscore allowed | CAUGHT | test_artifact_uri_loopback_host_rules
+LB34 | leading-zero decimal parsed as octal only when valid | CAUGHT | test_artifact_uri_loopback_host_rules
+LB35 | loopback rejected on the record | CAUGHT | test_artifact_uri_loopback_host_rules
+LB36 | IPv6 loopback rejected on the record | CAUGHT | test_artifact_uri_loopback_host_rules
+F01 | file:/path accepted | CAUGHT | test_artifact_file_uri_form
+F02 | file host accepted | CAUGHT | test_artifact_file_uri_form
+F03 | file query accepted | CAUGHT | test_artifact_file_uri_form
+F04 | file empty path accepted | CAUGHT | test_artifact_file_uri_form
+F05 | file dot segments accepted | CAUGHT | test_artifact_file_uri_form
+F06 | file .. only | CAUGHT | test_artifact_file_uri_form
+F07 | file fragment accepted | CAUGHT | test_artifact_uri_fragment_rejected
+F08 | file credential pattern not checked | CAUGHT | test_artifact_file_uri_form
+F09 | ws accepted | SURVIVED | 
+F10 | ws accepted for real | CAUGHT | test_artifact_uri_scheme_set_closed
+F11 | s3 without bucket accepted | CAUGHT | test_artifact_uri_scheme_set_closed
+F12 | gs dropped | CAUGHT | test_artifact_uri_rejects_presigned_signature
+F13 | s3 dropped | CAUGHT | test_artifact_uri_rejects_presigned_signature
+F14 | file dropped | CAUGHT | test_artifact_uri_scheme_set_closed
+F15 | http fragment accepted | CAUGHT | test_artifact_uri_fragment_rejected
+F16 | fragment message does not say fragment | CAUGHT | test_artifact_uri_fragment_rejected
+F17 | file fragment message does not say fragment | CAUGHT | test_artifact_uri_fragment_rejected
+F18 | file URI with C: drive rejected | CAUGHT | test_artifact_file_uri_form
+F19 | file path without leading slash form accepted | CAUGHT | test_artifact_file_uri_form
+F20 | file empty segments rejected | SURVIVED | 
+F21 | percent-escaped space in file path rejected | CAUGHT | test_artifact_file_uri_form
+BP1 | bits_per_sample required | CAUGHT | test_audio_format_bits_per_sample_optional
+BP2 | bits_per_sample may be 0 | CAUGHT | test_audio_format_fields
+BP3 | explicit null rejected | CAUGHT | test_audio_format_bits_per_sample_optional
+BP4 | sample_rate_hz optional | CAUGHT | test_audio_format_fields
+BP5 | channels optional | CAUGHT | test_audio_format_fields
+BP6 | codec optional | CAUGHT | test_audio_format_fields
+BP7 | container optional | CAUGHT | test_audio_format_fields
+BP8 | bits_per_sample takes a float | CAUGHT | test_audio_format_fields
+BP9 | bits_per_sample takes a string | CAUGHT | test_audio_format_fields
+CM1 | channel map may have no channel | CAUGHT | test_channel_map_channels_nonempty
+TR1 | derive: turns defaults to () | CAUGHT | test_human_subject_turns_argument_required
+TR2 | check: turns defaults to () | CAUGHT | test_human_subject_turns_argument_required
+TR3 | derive: None means no turns | CAUGHT | test_human_subject_turns_argument_required
+TR4 | check: None means no turns | CAUGHT | test_human_subject_turns_argument_required
+TR5 | derive: default None accepted | CAUGHT | test_human_subject_turns_argument_required
+TR6 | empty turns derive false | CAUGHT | test_human_subject_turns_argument_required
+TR7 | derive keyword renamed | CAUGHT | test_human_subject_turns_argument_required
+TR8 | check: turns ignored | CAUGHT | test_dataset_item_recording_without_run_is_human_subject
+TS1 | source is an open key | CAUGHT | test_tool_call_event_source_closed_set
+TS2 | source gains telemetry | CAUGHT | test_tool_call_event_source_closed_set
+TS3 | source loses observer | CAUGHT | test_tool_call_event_source_closed_set
+TS4 | source loses agent_export | CAUGHT | test_tool_call_event_source_closed_set
+TS5 | source optional | CAUGHT | test_tool_call_event_shape
+TS6 | source loses agent_telemetry | CAUGHT | test_batch3_entity_roundtrip_and_schema_agree[ToolCallEvent]
+TS7 | source gains otel | CAUGHT | test_tool_call_event_source_closed_set
+TS8 | source gains script | CAUGHT | test_tool_call_event_source_closed_set
+TS9 | source defaults to agent_telemetry | CAUGHT | test_tool_call_event_source_closed_set
+E01 | evaluator domain keeps the profile digest | CAUGHT | test_scripted_turn_placeholder_stored_unresolved
+E02 | evaluator domain drops every content_digest | CAUGHT | test_reference_digest_is_optional_and_verified_when_present
+E03 | evaluator domain drops the profile version | CAUGHT | test_scripted_turn_placeholder_stored_unresolved
+E04 | evaluator domain drops the profile id | CAUGHT | test_scripted_turn_placeholder_stored_unresolved
+E05 | evaluator digest over the generic domain | CAUGHT | test_scripted_turn_placeholder_stored_unresolved
+E06 | evaluator domain drops metadata.content_digest | CAUGHT | test_evaluator_digest_excludes_test_profile_digest
+E07 | evaluator domain drops the whole test_profile | CAUGHT | test_scripted_turn_placeholder_stored_unresolved
+E08 | evaluator domain drops the persona digest too | CAUGHT | test_reference_digest_is_optional_and_verified_when_present
+E09 | evaluator domain drops instructions | CAUGHT | test_batch2_entity_roundtrip_and_schema_agree[Evaluator]
+E10 | evaluator domain drops the name | CAUGHT | test_batch2_entity_roundtrip_and_schema_agree[Evaluator]
+E11 | snapshot domain keeps the profile digest | CAUGHT | test_snapshot_digest_independent_of_profile_digest
+E12 | snapshot domain drops the evaluator digest | CAUGHT | test_snapshot_jcs_digest_stable
+E13 | PricingCatalogRef keeps the old field name | CAUGHT | test_pricing_catalog_ref_digest_verified
+E14 | PricingCatalogRef accepts both names | CAUGHT | test_pricing_catalog_ref_digest_verified
+E15 | catalog compared under the old name | CAUGHT | test_pricing_catalog_ref_digest_verified
+E16 | pricing ref digest optional | CAUGHT | test_pricing_catalog_ref_digest_verified
+E17 | pricing ref version may be 0 | CAUGHT | test_pricing_catalog_ref_digest_verified
+E18 | digest mismatch silently ignored for the catalog | CAUGHT | test_pricing_catalog_ref_digest_verified
+E19 | keyed digest compared without checking the key | CAUGHT | test_pricing_catalog_ref_digest_verified
+E20 | pricing ref id any ID | CAUGHT | test_batch3_entity_is_registered_with_its_prefix[ConfigSnapshot]
+N23a | agent_channel_unknown without audio | CAUGHT | test_agent_channel_unknown_only_when_agent_audio_alone_is_missing
+N23b | agent_channel_unknown whenever agent_audio is missing | CAUGHT | test_agent_channel_unknown_only_when_agent_audio_alone_is_missing
+N23c | agent_channel_unknown lists the kind | CAUGHT | test_agent_channel_unknown_only_when_agent_audio_alone_is_missing
+N23d | missing_input carries a language source | CAUGHT | test_agent_channel_unknown_only_when_agent_audio_alone_is_missing
+N23e | missing_input drops agent_audio | CAUGHT | test_agent_channel_unknown_only_when_agent_audio_alone_is_missing
+N23f | missing_input sorts the kinds | CAUGHT | test_agent_channel_unknown_only_when_agent_audio_alone_is_missing
+N23g | known agent channel still unknown | CAUGHT | test_agent_channel_unknown_only_when_agent_audio_alone_is_missing
+N23h | agent channel unknown also when other audio kinds missing | CAUGHT | test_agent_channel_unknown_only_when_agent_audio_alone_is_missing
+N23i | agent_channel_unknown reports a language source | CAUGHT | test_agent_channel_unknown_only_when_agent_audio_alone_is_missing
+N23j | agent_channel_unknown when audio missing and unknown | CAUGHT | test_agent_channel_unknown_only_when_agent_audio_alone_is_missing
+N29a | no read turn is applicable | CAUGHT | test_check_language_without_turns_or_transcripts
+N29b | independent metric reports a source | CAUGHT | test_language_independent_metric_skips_language_check
+N29c | no turns reports observed | CAUGHT | test_check_language_without_turns_or_transcripts
+N29d | empty input reports unsupported_language | CAUGHT | test_check_language_without_turns_or_transcripts
+PC1 | provider_call_ref is a string | CAUGHT | test_transcript_provider_call_ref_is_external_ref
+PC2 | provider_call_ref required | CAUGHT | test_batch3_entity_roundtrip_and_schema_agree[Transcript]
+PC3 | provider_call_ref takes a typed ID | CAUGHT | test_batch3_entity_is_registered_with_its_prefix[Transcript]
+PC4 | provider_call_ref takes a string too | CAUGHT | test_transcript_provider_call_ref_is_external_ref
+PC5 | provider_call_ref missing | CAUGHT | test_transcript_provider_call_ref_is_external_ref
+H01 | Transcript shows its input | CAUGHT | test_hide_input_set_closed_under_embedding
+H02 | Turn shows its input | CAUGHT | test_hide_input_set_closed_under_embedding
+H03 | ToolCallEvent shows its input | CAUGHT | test_event_errors_do_not_quote_rejected_values
+H04 | ConfigSnapshot shows its input | CAUGHT | test_hide_input_set_closed_under_embedding
+H05 | Evaluator shows its input | CAUGHT | test_evaluator_errors_do_not_quote_rejected_values
+H06 | Persona shows its input | CAUGHT | test_definition_models_errors_do_not_echo_input
+H07 | Rubric shows its input | CAUGHT | test_definition_models_errors_do_not_echo_input
+H08 | MetricBinding shows its input | CAUGHT | test_definition_models_errors_do_not_echo_input
+H09 | MetricDefinition shows its input | CAUGHT | test_definition_models_errors_do_not_echo_input
+H10 | ScriptedTurn shows its input | CAUGHT | test_definition_models_errors_do_not_echo_input
+H11 | ExpectedToolCall shows its input | CAUGHT | test_definition_models_errors_do_not_echo_input
+H12 | Segment shows its input | CAUGHT | test_hide_input_set_closed_under_embedding
+H13 | IngestWarning shows its input | CAUGHT | test_event_errors_do_not_quote_rejected_values
+H14 | Run shows its input | CAUGHT | test_caller_external_id_requires_privacy_marker
+H15 | CallerExternalId shows its input | CAUGHT | test_caller_external_id_requires_privacy_marker
+H16 | Artifact shows its input | CAUGHT | test_artifact_file_uri_form
+Q01 | typed ID message quotes the value | CAUGHT | test_artifact_errors_do_not_quote_rejected_values
+Q02 | ClosedSet message quotes the value | CAUGHT | test_artifact_errors_do_not_quote_rejected_values
+Q03 | BCP-47 message quotes the value | CAUGHT | test_evaluator_errors_do_not_quote_rejected_values
+Q04 | MetricKey message quotes the value | CAUGHT | test_definition_and_binding_errors_do_not_quote_rejected_values
+Q05 | MachineKey message quotes the value | CAUGHT | test_artifact_errors_do_not_quote_rejected_values
+Q06 | implementation_ref message quotes the value | CAUGHT | test_definition_and_binding_errors_do_not_quote_rejected_values
+Q07 | DecimalString message quotes the value | CAUGHT | test_rubric_errors_do_not_quote_rejected_values
+Q08 | canonical hint quoted inside a hiding model | CAUGHT | test_rubric_errors_do_not_quote_rejected_values
+Q09 | hiding scope never set | CAUGHT | test_rubric_errors_do_not_quote_rejected_values
+Q10 | decimal scale message quotes the value | CAUGHT | test_rubric_errors_do_not_quote_rejected_values
+Q11 | pass_rule discriminator quotes the tag | CAUGHT | test_definition_and_binding_errors_do_not_quote_rejected_values
+Q12 | aggregation discriminator quotes the tag | CAUGHT | test_definition_and_binding_errors_do_not_quote_rejected_values
+Q13 | endpoint discriminator quotes the tag | CAUGHT | test_provider_project_agent_errors_do_not_quote_rejected_values
+Q14 | UtcDatetime message quotes the value | CAUGHT | test_run_errors_do_not_quote_rejected_values
+Q15 | digest value message quotes the value | CAUGHT | test_snapshot_errors_do_not_quote_rejected_values
+Q16 | FullMatch default message quotes the value | SURVIVED | 
+Q17 | decimal canonical hint quotes the input but not inside hiding | CAUGHT | test_rubric_errors_do_not_quote_rejected_values
+Q18 | currency message quotes the value | SURVIVED | 
+Q19 | ObservedLanguageTag message quotes the value | CAUGHT | test_transcript_turn_and_segment_errors_do_not_quote_rejected_values
+Q20 | ClosedSet in a hiding model quotes the member list only | CAUGHT | test_artifact_errors_do_not_quote_rejected_values
+Q21 | typed ID context carries the value | CAUGHT | test_artifact_errors_do_not_quote_rejected_values
+X01 | bundle ignores a reference digest | CAUGHT | test_reference_digest_is_optional_and_verified_when_present
+X02 | bundle: reference without digest rejected | CAUGHT | test_reference_digest_is_optional_and_verified_when_present
+
+## Rerun of the 470 batch 3 mutants (`../batch3/mutants.txt`) against the new test tree
+
+The same 470 mutants (as patched into the revision 13 oracle, whole test tree, six red-for-everyone tests deselected): 445 caught, 25 not caught. Three of the 25 patches no longer applied because the oracle code they patch changed (T52, E27, E33); re-expressed for the revision 13 code (`TRANSCRIPT privacy optional`, `ingest code is free text`, `tool source accepts the transcript sources`) all three are caught. One (S32, `pricing ref: digest optional`) no longer applies because the field is `content_digest`; its re-expression is E16 above (caught). The 21 that still survive are exactly the survivors already explained in `../batch3/mutants.txt` (A12, U04, U09, U17, U18, R72, R73, L06, L11, L21, L74, S01, S08, S17, S18, S24, S25, S26, S27, S28, S37; equivalent in the oracle or a reading the tests deliberately do not pin). Seven former survivors are now caught. Five because of the new tests: A32 (empty `ChannelMap.channels`, item 7), U15 (fragment, item 16), L29 (no turn and no transcript, item 5), L56 and L57 (`agent_channel_unknown` only when `agent_audio` alone is missing, item 4). Two by existing tests, because the revision 13 oracle code differs from the batch 3 oracle there: U16 (relative URI, now caught by `test_endpoint_url_syntax_rules`) and E34 (`test_every_id_reference_field_has_registered_prefix`). No mutant that was caught before is uncaught now, so the edits to existing tests did not weaken them.
