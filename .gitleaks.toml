@@ -25,3 +25,10 @@ paths = [
   '''^packages/evalschema/tests/test_entity_base\.py$''',
   '''^docs/phase1/evidence/(green|red)/[^/]+/[^/]+\.log$''',
 ]
+
+# The key-reference hardening tests keep a table of deliberately fake key=value samples
+# (for example a short api_key pair); the file holds no real credential.
+[[allowlists]]
+description = "synthetic key=value samples in the key-reference test support module"
+targetRules = ["generic-api-key"]
+paths = ['''^packages/evalschema/tests/_support_b16\.py$''']
