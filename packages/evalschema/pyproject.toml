@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 The Tracer contributors
+[build-system]
+requires = ["hatchling==1.32.4"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tracer-evalschema"
+version = "0.0.1"
+description = "Pydantic models and JSON Schema for Tracer voice-AI evaluation entities."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+dependencies = [
+    "pydantic==2.14.1",
+    "rfc8785==0.1.4",
+]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/tracer_evalschema"]
+
+[tool.hatch.build.targets.sdist]
+# Test-only clean-room UAX #9 reference (P1-04e): never shipped (checked by test_uax9_packaging).
+exclude = ["/tests/support", "/tests/test_uax9_*.py"]
