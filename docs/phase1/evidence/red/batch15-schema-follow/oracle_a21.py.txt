@@ -1,0 +1,16 @@
+"""Scratch oracle for A21: ConfigSnapshot rejects a repeated definition or binding."""
+def pytest_configure(config):
+    from tracer_evalschema import snapshot
+    from tracer_evalschema._validation import Problem, raise_problems
+    cls = snapshot.ConfigSnapshot
+    orig = cls._check_references
+    def checked(self):
+        for field in ("metric_definitions", "metric_bindings"):
+            seen = set()
+            for item in getattr(self, field):
+                key = (str(item.id), item.version)
+                if key in seen:
+                    raise_problems(type(self).__name__, [Problem((field,), "duplicate", "[duplicate] the same record appears twice in this list")])
+                seen.add(key)
+        return orig(self)
+    cls._check_references = checked

@@ -1,0 +1,156 @@
+.....F.................................................................. [ 16%]
+........................................................................ [ 32%]
+........................................................................ [ 48%]
+........................................................................ [ 64%]
+.......................................................F................ [ 81%]
+.FF.................FF.................................................. [ 97%]
+............                                                             [100%]
+=================================== FAILURES ===================================
+__ test_every_difference_between_a_model_and_its_schema_is_claimed_by_a_rule ___
+
+    def test_every_difference_between_a_model_and_its_schema_is_claimed_by_a_rule() -> None:
+        """The register covers everything the engine finds (N12, N38, gate item 2 spirit): each
+        mutation of a sample that the model rejects and the schema accepts matches the claims of at
+        least one row. A model that grows a rule the schema does not state fails here until the rule
+        is emitted or a row with an owner is added."""
+        unclaimed = [
+            s
+            for s in looser_signatures()
+            if not any(_claim_matches(c, s) for r in CODE_ONLY_RULES for c in r.claims)
+        ]
+>       assert not unclaimed, "unclaimed differences:\n  " + "\n  ".join(sorted(unclaimed))
+E       AssertionError: unclaimed differences:
+E           list_repeat|ConfigSnapshot|metric_definitions
+E           list_repeat|ExportBundle|run_bundles.*.snapshot.metric_definitions
+E           list_repeat|RunBundle|snapshot.metric_definitions
+E       assert not ['list_repeat|ConfigSnapshot|metric_definitions', 'list_repeat|ExportBundle|run_bundles.*.snapshot.metric_definitions', 'list_repeat|RunBundle|snapshot.metric_definitions']
+
+packages/evalschema/tests/test_schema_gaps.py:206: AssertionError
+______________ test_invalid_rejected_by_both[ConfigSnapshot-base] ______________
+
+entity = 'ConfigSnapshot', label = 'base'
+
+    @pytest.mark.parametrize(("entity", "label"), VARIANTS, ids=IDS)
+    def test_invalid_rejected_by_both(entity: str, label: str) -> None:
+        """ADR 0008 I14 (SCOPE name ``test_invalid_rejected_by_both``): every mutation of a valid
+        document that the model rejects is also rejected by the exported schema, except a rule listed
+        in ``CODE_ONLY_RULES`` (N12, N38). Mutations: member removed or nulled, wrong JSON type, an
+        unknown member, a string that is not a member of its closed set, near misses of every string
+        (trailing newline, leading space, swapped case, one character short or long), integers
+        negative, above 2**53, fractional or written as 1.0, lists emptied or given a repeat. An
+        unclaimed difference lists the rule it needs: emit the keyword, or add a row with an owner."""
+        looser, _stricter = variant_disagreements(entity, label)
+        unclaimed = [s for s in looser if not claimed(s)]
+>       assert not unclaimed, (
+            "the model rejects, the schema accepts, and no CODE_ONLY_RULES row claims it:\n  "
+            + "\n  ".join(unclaimed)
+        )
+E       AssertionError: the model rejects, the schema accepts, and no CODE_ONLY_RULES row claims it:
+E           list_repeat|ConfigSnapshot|metric_definitions
+E       assert not ['list_repeat|ConfigSnapshot|metric_definitions']
+
+packages/evalschema/tests/test_schema_agreement.py:156: AssertionError
+_____________ test_invalid_rejected_by_both[ExportBundle-internal] _____________
+
+entity = 'ExportBundle', label = 'internal'
+
+    @pytest.mark.parametrize(("entity", "label"), VARIANTS, ids=IDS)
+    def test_invalid_rejected_by_both(entity: str, label: str) -> None:
+        """ADR 0008 I14 (SCOPE name ``test_invalid_rejected_by_both``): every mutation of a valid
+        document that the model rejects is also rejected by the exported schema, except a rule listed
+        in ``CODE_ONLY_RULES`` (N12, N38). Mutations: member removed or nulled, wrong JSON type, an
+        unknown member, a string that is not a member of its closed set, near misses of every string
+        (trailing newline, leading space, swapped case, one character short or long), integers
+        negative, above 2**53, fractional or written as 1.0, lists emptied or given a repeat. An
+        unclaimed difference lists the rule it needs: emit the keyword, or add a row with an owner."""
+        looser, _stricter = variant_disagreements(entity, label)
+        unclaimed = [s for s in looser if not claimed(s)]
+>       assert not unclaimed, (
+            "the model rejects, the schema accepts, and no CODE_ONLY_RULES row claims it:\n  "
+            + "\n  ".join(unclaimed)
+        )
+E       AssertionError: the model rejects, the schema accepts, and no CODE_ONLY_RULES row claims it:
+E           list_repeat|ExportBundle|run_bundles.*.snapshot.metric_definitions
+E       assert not ['list_repeat|ExportBundle|run_bundles.*.snapshot.metric_definitions']
+
+packages/evalschema/tests/test_schema_agreement.py:156: AssertionError
+______________ test_invalid_rejected_by_both[ExportBundle-shared] ______________
+
+entity = 'ExportBundle', label = 'shared'
+
+    @pytest.mark.parametrize(("entity", "label"), VARIANTS, ids=IDS)
+    def test_invalid_rejected_by_both(entity: str, label: str) -> None:
+        """ADR 0008 I14 (SCOPE name ``test_invalid_rejected_by_both``): every mutation of a valid
+        document that the model rejects is also rejected by the exported schema, except a rule listed
+        in ``CODE_ONLY_RULES`` (N12, N38). Mutations: member removed or nulled, wrong JSON type, an
+        unknown member, a string that is not a member of its closed set, near misses of every string
+        (trailing newline, leading space, swapped case, one character short or long), integers
+        negative, above 2**53, fractional or written as 1.0, lists emptied or given a repeat. An
+        unclaimed difference lists the rule it needs: emit the keyword, or add a row with an owner."""
+        looser, _stricter = variant_disagreements(entity, label)
+        unclaimed = [s for s in looser if not claimed(s)]
+>       assert not unclaimed, (
+            "the model rejects, the schema accepts, and no CODE_ONLY_RULES row claims it:\n  "
+            + "\n  ".join(unclaimed)
+        )
+E       AssertionError: the model rejects, the schema accepts, and no CODE_ONLY_RULES row claims it:
+E           list_repeat|ExportBundle|run_bundles.*.snapshot.metric_definitions
+E       assert not ['list_repeat|ExportBundle|run_bundles.*.snapshot.metric_definitions']
+
+packages/evalschema/tests/test_schema_agreement.py:156: AssertionError
+______________ test_invalid_rejected_by_both[RunBundle-t1_human] _______________
+
+entity = 'RunBundle', label = 't1_human'
+
+    @pytest.mark.parametrize(("entity", "label"), VARIANTS, ids=IDS)
+    def test_invalid_rejected_by_both(entity: str, label: str) -> None:
+        """ADR 0008 I14 (SCOPE name ``test_invalid_rejected_by_both``): every mutation of a valid
+        document that the model rejects is also rejected by the exported schema, except a rule listed
+        in ``CODE_ONLY_RULES`` (N12, N38). Mutations: member removed or nulled, wrong JSON type, an
+        unknown member, a string that is not a member of its closed set, near misses of every string
+        (trailing newline, leading space, swapped case, one character short or long), integers
+        negative, above 2**53, fractional or written as 1.0, lists emptied or given a repeat. An
+        unclaimed difference lists the rule it needs: emit the keyword, or add a row with an owner."""
+        looser, _stricter = variant_disagreements(entity, label)
+        unclaimed = [s for s in looser if not claimed(s)]
+>       assert not unclaimed, (
+            "the model rejects, the schema accepts, and no CODE_ONLY_RULES row claims it:\n  "
+            + "\n  ".join(unclaimed)
+        )
+E       AssertionError: the model rejects, the schema accepts, and no CODE_ONLY_RULES row claims it:
+E           list_repeat|RunBundle|snapshot.metric_definitions
+E       assert not ['list_repeat|RunBundle|snapshot.metric_definitions']
+
+packages/evalschema/tests/test_schema_agreement.py:156: AssertionError
+____________ test_invalid_rejected_by_both[RunBundle-t0_simulated] _____________
+
+entity = 'RunBundle', label = 't0_simulated'
+
+    @pytest.mark.parametrize(("entity", "label"), VARIANTS, ids=IDS)
+    def test_invalid_rejected_by_both(entity: str, label: str) -> None:
+        """ADR 0008 I14 (SCOPE name ``test_invalid_rejected_by_both``): every mutation of a valid
+        document that the model rejects is also rejected by the exported schema, except a rule listed
+        in ``CODE_ONLY_RULES`` (N12, N38). Mutations: member removed or nulled, wrong JSON type, an
+        unknown member, a string that is not a member of its closed set, near misses of every string
+        (trailing newline, leading space, swapped case, one character short or long), integers
+        negative, above 2**53, fractional or written as 1.0, lists emptied or given a repeat. An
+        unclaimed difference lists the rule it needs: emit the keyword, or add a row with an owner."""
+        looser, _stricter = variant_disagreements(entity, label)
+        unclaimed = [s for s in looser if not claimed(s)]
+>       assert not unclaimed, (
+            "the model rejects, the schema accepts, and no CODE_ONLY_RULES row claims it:\n  "
+            + "\n  ".join(unclaimed)
+        )
+E       AssertionError: the model rejects, the schema accepts, and no CODE_ONLY_RULES row claims it:
+E           list_repeat|RunBundle|snapshot.metric_definitions
+E       assert not ['list_repeat|RunBundle|snapshot.metric_definitions']
+
+packages/evalschema/tests/test_schema_agreement.py:156: AssertionError
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_schema_gaps.py::test_every_difference_between_a_model_and_its_schema_is_claimed_by_a_rule
+FAILED packages/evalschema/tests/test_schema_agreement.py::test_invalid_rejected_by_both[ConfigSnapshot-base]
+FAILED packages/evalschema/tests/test_schema_agreement.py::test_invalid_rejected_by_both[ExportBundle-internal]
+FAILED packages/evalschema/tests/test_schema_agreement.py::test_invalid_rejected_by_both[ExportBundle-shared]
+FAILED packages/evalschema/tests/test_schema_agreement.py::test_invalid_rejected_by_both[RunBundle-t1_human]
+FAILED packages/evalschema/tests/test_schema_agreement.py::test_invalid_rejected_by_both[RunBundle-t0_simulated]
+6 failed, 438 passed in 151.63s (0:02:31)

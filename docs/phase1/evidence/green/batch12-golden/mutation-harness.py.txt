@@ -1,0 +1,447 @@
+"""Mutation harness for test_golden_fixtures.py (scratch copy only; the repository is never edited)."""
+
+from __future__ import annotations
+
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+from collections.abc import Callable
+from pathlib import Path
+
+SCR = Path(__file__).resolve().parent
+BASE = SCR / "base"
+WORK = SCR / os.environ.get("WORKDIR", "work")
+PY = "~/tracer/.venv/bin/python"
+FIX = "packages/evalschema/tests/fixtures"
+SRC = "packages/evalschema/src/tracer_evalschema"
+TESTS = "packages/evalschema/tests"
+
+Mutation = Callable[[Path], None]
+MUTANTS: dict[str, tuple[str, Mutation]] = {}
+
+
+def mutant(name: str, text: str) -> Callable[[Mutation], Mutation]:
+    def register(fn: Mutation) -> Mutation:
+        MUTANTS[name] = (text, fn)
+        return fn
+
+    return register
+
+
+def edit(root: Path, rel: str, old: str, new: str, count: int = 1) -> None:
+    path = root / rel
+    data = path.read_text(encoding="utf-8")
+    assert old in data, (rel, old[:60])
+    path.write_text(data.replace(old, new, count), encoding="utf-8")
+
+
+def read(root: Path, rel: str) -> str:
+    return (root / rel).read_text(encoding="utf-8")
+
+
+def write(root: Path, rel: str, data: str) -> None:
+    (root / rel).write_text(data, encoding="utf-8")
+
+
+# ---------------------------------------------------------------- fixture mutants
+
+
+@mutant("F01", "change a value in a valid golden fixture (Project minimal name)")
+def _(root: Path) -> None:
+    edit(root, f"{FIX}/golden/Project/valid/minimal.json", "Minimal project", "Other project")
+
+
+@mutant("F02", "re-indent a valid golden fixture with four spaces")
+def _(root: Path) -> None:
+    p = f"{FIX}/golden/Exchange/valid/minimal.json"
+    write(root, p, json.dumps(json.loads(read(root, p)), indent=4) + "\n")
+
+
+@mutant("F03", "delete the AgentTarget SIP maximal fixture (an endpoint alternative)")
+def _(root: Path) -> None:
+    (root / f"{FIX}/golden/AgentTarget/valid/maximal-sip.json").unlink()
+
+
+@mutant("F04", "delete the expected.json of an invalid fixture")
+def _(root: Path) -> None:
+    (root / f"{FIX}/golden/Run/invalid/extra-member.expected.json").unlink()
+
+
+@mutant("F05", "change the expected error path of an invalid fixture")
+def _(root: Path) -> None:
+    edit(root, f"{FIX}/golden/Turn/invalid/role-not-known.expected.json", '"role"', '"source"')
+
+
+@mutant("F06", "flip the schema label rejects -> code_only")
+def _(root: Path) -> None:
+    edit(root, f"{FIX}/golden/Turn/invalid/role-not-known.expected.json", '"rejects"', '"code_only"')
+
+
+@mutant("F07", "flip the schema label code_only -> rejects")
+def _(root: Path) -> None:
+    edit(
+        root,
+        f"{FIX}/golden/AgentTarget/invalid/content-digest-mismatch.expected.json",
+        '"code_only"',
+        '"rejects"',
+    )
+
+
+@mutant("F08", "make an invalid fixture valid (restore the role)")
+def _(root: Path) -> None:
+    edit(root, f"{FIX}/golden/Turn/invalid/role-not-known.json", '"bot"', '"agent"')
+
+
+@mutant("F09", "corrupt the content_digest of a valid versioned fixture")
+def _(root: Path) -> None:
+    p = f"{FIX}/golden/Rubric/valid/maximal.json"
+    data = json.loads(read(root, p))
+    data["content_digest"]["value"] = "0" * 64
+    write(root, p, json.dumps(data, indent=2) + "\n")
+
+
+@mutant("F10", "edit a frozen file (flip a character)")
+def _(root: Path) -> None:
+    edit(root, f"{FIX}/frozen/0.0.1/Project.maximal.json", "Support voice agents", "Support voice agentz")
+
+
+@mutant("F11", "add a secret-shaped string to a valid fixture")
+def _(root: Path) -> None:
+    p = f"{FIX}/golden/Project/valid/maximal.json"
+    data = json.loads(read(root, p))
+    data["metadata"]["source"] = "sk-" + "proj-" + "abcdefghijklmnopqrstuvwxyz0123456789"
+    write(root, p, json.dumps(data, indent=2) + "\n")
+
+
+@mutant("F12", "add an e-mail address of a real domain to a fixture")
+def _(root: Path) -> None:
+    p = f"{FIX}/golden/Project/valid/maximal.json"
+    data = json.loads(read(root, p))
+    data["metadata"]["source"] = "someone" + "@" + "mail.test"
+    write(root, p, json.dumps(data, indent=2) + "\n")
+
+
+@mutant("F13", "add an Indian mobile number to a fixture")
+def _(root: Path) -> None:
+    p = f"{FIX}/golden/Project/valid/maximal.json"
+    data = json.loads(read(root, p))
+    data["metadata"]["source"] = "98" + "76543210"
+    write(root, p, json.dumps(data, indent=2) + "\n")
+
+
+@mutant("F14", "add a real-looking host to a fixture")
+def _(root: Path) -> None:
+    edit(root, f"{FIX}/golden/Artifact/valid/minimal.json", "recordings.example.com", "recordings.acme-corp.in")
+
+
+@mutant("F15", "Indic text in a fixture that the needs_native_review list does not name")
+def _(root: Path) -> None:
+    p = f"{FIX}/golden/Project/valid/minimal.json"
+    edit(root, p, "Minimal project", "\u092a\u094d\u0930\u094b\u091c\u0947\u0915\u094d\u091f")
+
+
+@mutant("F16", "remove the needs_native_review statement from the README")
+def _(root: Path) -> None:
+    edit(root, f"{FIX}/README.md", "needs_native_review", "to_review", count=100)
+
+
+@mutant("F17", "delete the minimal fixture of an entity")
+def _(root: Path) -> None:
+    (root / f"{FIX}/golden/Dataset/valid/minimal.json").unlink()
+
+
+@mutant("F18", "a stray file in the golden tree")
+def _(root: Path) -> None:
+    write(root, f"{FIX}/golden/Project/valid/notes.txt", "scratch\n")
+
+
+@mutant("F19", "unescaped bidi control character in a fixture file")
+def _(root: Path) -> None:
+    p = f"{FIX}/golden/Turn/valid/maximal.json"
+    edit(root, p, "\\u2066", "\u2066", count=100)
+
+
+@mutant("F20", "removing invalid fixtures leaves an entity with two")
+def _(root: Path) -> None:
+    for name in ("extra-member", "missing-name", "wrong-id-kind", "schema-version-newer"):
+        for suffix in (".json", ".expected.json"):
+            (root / f"{FIX}/golden/Project/invalid/{name}{suffix}").unlink()
+
+
+@mutant("F21", "frozen file removed from the frozen directory")
+def _(root: Path) -> None:
+    (root / f"{FIX}/frozen/0.0.1/Turn.minimal.json").unlink()
+
+
+@mutant("F22", "frozen digests.json records another entity digest")
+def _(root: Path) -> None:
+    p = f"{FIX}/frozen/0.0.1/digests.json"
+    data = json.loads(read(root, p))
+    data["files"]["Project.minimal.json"]["entity_digest"]["value"] = "1" * 64
+    write(root, p, json.dumps(data, indent=2) + "\n")
+
+
+@mutant("F23", "a frozen schema.lock that is not the generator's lock")
+def _(root: Path) -> None:
+    write(root, f"{FIX}/frozen/0.0.1/schema.lock", json.dumps({"schema_version": "0.0.1"}) + "\n")
+
+
+@mutant("F24", "fixture says an older schema_version")
+def _(root: Path) -> None:
+    edit(root, f"{FIX}/golden/Exchange/valid/minimal.json", '"schema_version": "0.0.1"', '"schema_version": "0.0.0"')
+
+
+@mutant("F25", "two invalid fixtures state the same defect (copy and paste)")
+def _(root: Path) -> None:
+    src = root / f"{FIX}/golden/Turn/invalid"
+    for suffix in (".json", ".expected.json"):
+        shutil.copy(src / f"role-not-known{suffix}", src / f"role-not-known-again{suffix}")
+
+
+# ---------------------------------------------------------------- generator mutants
+
+
+@mutant("G01", "scope() no longer patches os.urandom (sealed payloads random)")
+def _(root: Path) -> None:
+    edit(root, f"{TESTS}/_support_b9.py", "    os.urandom = fake_urandom\n", "")
+
+
+@mutant("G02", "scope() does not restore ids.uuid7")
+def _(root: Path) -> None:
+    edit(root, f"{TESTS}/_support_b9.py", "        ids.uuid7 = saved_uuid7\n", "")
+
+
+@mutant("G03", "pretty() writes four-space indent")
+def _(root: Path) -> None:
+    edit(root, f"{TESTS}/_support_b9.py", "json.dumps(document, indent=2,", "json.dumps(document, indent=4,")
+
+
+@mutant("G04", "pretty() does not escape invisible characters")
+def _(root: Path) -> None:
+    edit(root, f"{TESTS}/_support_b9.py", "return (_escape_invisible(text) + \"\\n\")", "return (text + \"\\n\")")
+
+
+@mutant("G05", "entity_digest computed over the wrong subject")
+def _(root: Path) -> None:
+    edit(root, f"{TESTS}/_support_b9.py", "digest = api(\"digest\").compute_digest(loaded)", "digest = api(\"digest\").compute_digest({})")
+
+
+@mutant("G06", "ids drawn with the same label for every fixture")
+def _(root: Path) -> None:
+    edit(root, f"{TESTS}/_support_b9.py", "f\"id/{label}\"", "\"id/fixed\"")
+
+
+@mutant("G07", "uuid7 clock moves with wall time")
+def _(root: Path) -> None:
+    edit(root, f"{TESTS}/_support_b9.py", "((_BASE_MS + n) << 80)", "((_BASE_MS + n + __import__('time').time_ns() // 10**9) << 80)")
+
+
+@mutant("G08", "generator iterates entities in a hash order and drops frozen copies")
+def _(root: Path) -> None:
+    edit(root, f"{TESTS}/_support_b9.py", "if name in (\"minimal\", \"maximal\"):", "if name == \"minimal\":")
+
+
+@mutant("G09", "the invalid-fixture check is skipped (wrong expectation not noticed)")
+def _(root: Path) -> None:
+    edit(root, f"{TESTS}/_support_b9.py", "if (path, kind) != (spec.path, spec.kind):", "if False:")
+
+
+@mutant("G10", "generator writes expected.json without the schema label")
+def _(root: Path) -> None:
+    edit(root, f"{TESTS}/_support_b9.py", "\"schema\": \"rejects\" if schema_rejects(spec.entity, document) else \"code_only\",", "\"schema\": \"rejects\",")
+
+
+@mutant("G11", "generator labels every invalid fixture code_only")
+def _(root: Path) -> None:
+    edit(root, f"{TESTS}/_support_b9.py", "return not _schema_validator(entity).is_valid(document)", "return False")
+
+
+@mutant("G12", "generator labels every invalid fixture rejects")
+def _(root: Path) -> None:
+    edit(root, f"{TESTS}/_support_b9.py", "return not _schema_validator(entity).is_valid(document)", "return True")
+
+
+@mutant("G13", "invisible characters other than format characters are not escaped")
+def _(root: Path) -> None:
+    edit(root, f"{TESTS}/_support_b9.py", '_INVISIBLE = frozenset({"Cc", "Cf", "Cs", "Co", "Cn", "Zl", "Zp"})', '_INVISIBLE = frozenset({"Cc"})')
+
+
+# ---------------------------------------------------------------- model mutants (src)
+
+
+@mutant("R01", "drop extra=forbid from EntityBase")
+def _(root: Path) -> None:
+    edit(root, f"{SRC}/base.py", "model_config = ConfigDict(extra=\"forbid\")\n\n    id_prefix: ClassVar[str]", "model_config = ConfigDict(extra=\"ignore\")\n\n    id_prefix: ClassVar[str]")
+
+
+@mutant("R02", "content digest no longer verified on load")
+def _(root: Path) -> None:
+    edit(root, f"{SRC}/base.py", "    verify_digest(subject, digest)\n\n\nclass VersionedEntity", "    return None\n\n\nclass VersionedEntity")
+
+
+@mutant("R03", "Turn: timing_source rule dropped")
+def _(root: Path) -> None:
+    edit(root, f"{SRC}/transcript.py", "if timed and self.timing_source == \"none\":", "if False:")
+
+
+@mutant("R04", "Run: simulated run with human caller accepted")
+def _(root: Path) -> None:
+    edit(root, f"{SRC}/run.py", "if self.mode == \"simulated\" and self.caller_origin == \"human\":", "if False:")
+
+
+@mutant("R05", "bundle: the [tier] under-claim check dropped")
+def _(root: Path) -> None:
+    edit(root, f"{SRC}/bundle.py", "    if stored < computed:\n", "    if False:\n")
+
+
+@mutant("R06", "PrivacyMarker: human-subject without consent accepted")
+def _(root: Path) -> None:
+    edit(root, f"{SRC}/privacy.py", "        if self.human_subject:\n            for name in (\"consent\", \"retention\"):\n                if getattr(self, name) is None:", "        if False:\n            for name in (\"consent\", \"retention\"):\n                if getattr(self, name) is None:")
+
+
+@mutant("R07", "a new optional property on Project (schema grows)")
+def _(root: Path) -> None:
+    edit(root, f"{SRC}/project.py", "    name:", "    nickname: str | None = None\n    name:")
+
+
+@mutant("R08", "a new enum member in the timing sources")
+def _(root: Path) -> None:
+    edit(root, f"{SRC}/transcript.py", "TIMING_SOURCES: Final = (\"audio_alignment\", \"telemetry\", \"observer\", \"none\")", "TIMING_SOURCES: Final = (\"audio_alignment\", \"telemetry\", \"observer\", \"none\", \"gps\")")
+
+
+@mutant("R09", "tighten a model so that a valid maximal fixture is rejected (Persona accent)")
+def _(root: Path) -> None:
+    edit(root, f"{SRC}/persona.py", "    accent: HumanLabel | None = None", "    accent: Annotated[HumanLabel, Field(max_length=2)] | None = None")
+
+
+@mutant("R10", "SupportedLanguage accepts any region (region rule dropped)")
+def _(root: Path) -> None:
+    edit(root, f"{SRC}/language.py", "    if region is not None and region not in _DATA.regions:", "    if False:")
+
+
+@mutant("R11", "Rubric: weights of 0 accepted")
+def _(root: Path) -> None:
+    edit(root, f"{SRC}/rubric.py", "    if Decimal(text) <= 0:", "    if False:")
+
+
+@mutant("R12", "CostSummary: completeness rule dropped")
+def _(root: Path) -> None:
+    edit(root, f"{SRC}/cost.py", "def _expected_completeness(included: Sequence[Any], excluded: Sequence[CostExclusion]) -> str:\n    if not included:", "def _expected_completeness(included: Sequence[Any], excluded: Sequence[CostExclusion]) -> str:\n    return \"complete\"\n    if not included:")
+
+
+@mutant("R13", "remove a union alternative: SipEndpoint no longer an AgentTarget endpoint")
+def _(root: Path) -> None:
+    edit(root, f"{SRC}/agent.py", '    | Annotated[SipEndpoint, Tag("sip")],\n', ",\n")
+
+
+# ---------------------------------------------------------------- coverage script mutants
+
+
+@mutant("C01", "coverage ignores enum members")
+def _(root: Path) -> None:
+    edit(root, "scripts/property_coverage.py", "            if len(members) > 1:", "            if False:")
+
+
+@mutant("C02", "coverage counts a null member as covered")
+def _(root: Path) -> None:
+    edit(root, "scripts/property_coverage.py", "present = prop in as_dict and as_dict[prop] is not None", "present = prop in as_dict")
+
+
+@mutant("C03", "coverage ignores union alternatives")
+def _(root: Path) -> None:
+    edit(root, "scripts/property_coverage.py", "            for index, alternative in enumerate(non_null):", "            for index, alternative in enumerate([]):")
+
+
+@mutant("C04", "coverage ignores boolean values")
+def _(root: Path) -> None:
+    edit(root, "scripts/property_coverage.py", "            for flag in (True, False):", "            for flag in ():")
+
+
+@mutant("C05", "coverage excludes every metadata path (an over-broad exclusion)")
+def _(root: Path) -> None:
+    edit(root, "scripts/property_coverage.py", "r\"\\.metadata_flags\\[\\]\",", "r\"\\.metadata\",")
+
+
+@mutant("C06", "an extra exclusion is added")
+def _(root: Path) -> None:
+    edit(root, "scripts/property_coverage.py", "EXCLUDED: Final[tuple[tuple[str, str], ...]] = (", "EXCLUDED: Final[tuple[tuple[str, str], ...]] = (\n    (r\"\\.privacy\\.consent\", \"easy\"),")
+
+
+@mutant("C07", "coverage walk stops at the first array element only")
+def _(root: Path) -> None:
+    edit(root, "scripts/property_coverage.py", "                for element in elements:", "                for element in elements[:1]:")
+
+
+@mutant("C08", "exit status always 0")
+def _(root: Path) -> None:
+    edit(root, "scripts/property_coverage.py", "    return 0 if all(not r.missing for r in results) else 1", "    return 0")
+
+
+@mutant("C09", "valid_documents reads only minimal.json")
+def _(root: Path) -> None:
+    edit(root, "scripts/property_coverage.py", "for path in sorted(directory.glob(\"*.json\"))", "for path in sorted(directory.glob(\"minimal.json\"))")
+
+
+# ---------------------------------------------------------------- script (generator tool) mutants
+
+
+@mutant("S01", "build script compare() ignores changed files")
+def _(root: Path) -> None:
+    edit(root, "scripts/build_golden_fixtures.py", "elif path.read_bytes() != files[name]:", "elif False:")
+
+
+@mutant("S02", "build script compare() ignores stale files")
+def _(root: Path) -> None:
+    edit(root, "scripts/build_golden_fixtures.py", "    for name in sorted(on_disk - set(files)):\n        problems.append(f\"[stale] {name}\")\n", "")
+
+
+@mutant("S03", "build script write() leaves stale files")
+def _(root: Path) -> None:
+    edit(root, "scripts/build_golden_fixtures.py", "    for name in sorted(existing(root) - set(files)):\n        (root / name).unlink()\n", "")
+
+
+def run(name: str, quiet: bool = True) -> tuple[bool, list[str]]:
+    text, fn = MUTANTS[name]
+    if WORK.exists():
+        shutil.rmtree(WORK)
+    shutil.copytree(BASE, WORK)
+    fn(WORK)
+    env = {
+        **os.environ,
+        "PYTHONPATH": str(WORK / "packages/evalschema/src"),
+        "PYTHONDONTWRITEBYTECODE": "1",
+    }
+    proc = subprocess.run(  # noqa: S603
+        [PY, "-m", "pytest", "-q", "--tb=no", "-p", "no:cacheprovider", "-x" if False else "-q",
+         "-rf", "packages/evalschema/tests/test_golden_fixtures.py"],
+        cwd=WORK,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=600,
+    )
+    failed = [line for line in proc.stdout.splitlines() if line.startswith("FAILED")]
+    errors = [line for line in proc.stdout.splitlines() if line.startswith("ERROR")]
+    killed = proc.returncode != 0
+    return killed, (failed + errors)
+
+
+if __name__ == "__main__":
+    names = sys.argv[1:] or list(MUTANTS)
+    survivors = []
+    for name in names:
+        killed, lines = run(name)
+        text = MUTANTS[name][0]
+        verdict = "KILLED  " if killed else "SURVIVED"
+        print(f"{name} {verdict} {text}")
+        for line in lines[:4]:
+            print("     ", re.sub(r"packages/evalschema/tests/test_golden_fixtures.py::", "", line)[:200])
+        if len(lines) > 4:
+            print(f"      ... {len(lines)} failing in total")
+        if not killed:
+            survivors.append(name)
+        sys.stdout.flush()
+    print("SURVIVORS:", survivors)

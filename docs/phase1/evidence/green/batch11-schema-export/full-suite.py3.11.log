@@ -1,0 +1,74 @@
+# group: full-suite   (batch 11 green run, schema-architect, P1-15 JSON Schema export, SCOPE revision 23)
+# date: 2026-10-23T17:17:07Z (UTC)  local: 2026-10-23T22:47:07+0530
+# command: python -m pytest -p no:cacheprovider -q -rf --tb=line packages/evalschema/tests --ignore=packages/evalschema/tests/test_golden_fixtures.py --ignore=packages/evalschema/tests/test_language_fixtures.py --ignore=packages/evalschema/tests/test_mapping_f2.py --ignore=packages/evalschema/tests/test_mapping_f5.py   (IGN: four untracked test files other agents were writing during this run, not part of this batch)   (cwd ~/tracer; pyproject addopts apply to pytest)
+# interpreter: <scratchpad>/b11/env3.11/bin/python   (env built with: UV_PROJECT_ENVIRONMENT=<env> uv sync --locked --all-groups --python 3.11)
+# versions: python 3.11.16; pydantic 2.14.1, pydantic-core 2.50.1, pytest 9.1.1, jsonschema 4.26.0, rfc8785 0.1.4, hypothesis 6.170.5, cryptography 50.0.2
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# shipped schema.lock sha256: c6796efd2f4fc2f3d3c3e8b3277802883dbf0d09fafd473a317e351dc872cc87
+# git: 10 commits (HEAD 20e9ad3); 0 staged paths; work uncommitted (owner has not confirmed a commit)
+# paths scrubbed: <repo> is the checkout, <tmp> a temporary directory, <scratchpad> the agent scratch area
+# ------------------------------------------------------------------------------
+........................................................................ [  2%]
+........................................................................ [  5%]
+........................................................................ [  7%]
+........................................................................ [ 10%]
+........................................................................ [ 13%]
+........................................................................ [ 15%]
+...........................F............................................ [ 18%]
+........................................................................ [ 20%]
+........................................................................ [ 23%]
+........................................................................ [ 26%]
+........................................................................ [ 28%]
+........................................................................ [ 31%]
+........................................................................ [ 33%]
+........................................................................ [ 36%]
+........................................................................ [ 39%]
+........................................................................ [ 41%]
+........................................................................ [ 44%]
+........................................................................ [ 46%]
+........................................................................ [ 49%]
+........................................................................ [ 52%]
+.....................F.................................................. [ 54%]
+........................................................................ [ 57%]
+........................................................................ [ 60%]
+........................................................................ [ 62%]
+........................................................................ [ 65%]
+........................................................................ [ 67%]
+........................................................................ [ 70%]
+........................................................................ [ 73%]
+........................................................................ [ 75%]
+........................................................................ [ 78%]
+..........F.F........................................................... [ 80%]
+........................................................................ [ 83%]
+........................................................................ [ 86%]
+........................................................................ [ 88%]
+........................................................................ [ 91%]
+......................................F................................. [ 93%]
+........................................................................ [ 96%]
+........................................................................ [ 99%]
+.......................                                                  [100%]
+=================================== FAILURES ===================================
+E   Failed: SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of <repo>/packages/evalschema/SCHEMA_POLICY.md, <repo>/SCHEMA_POLICY.md, <repo>/docs/SCHEMA_POLICY.md
+<repo>/packages/evalschema/tests/test_cost.py:824: Failed: SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of <repo>/packages/evalschema/SCHEMA_POLICY.md, <repo>/SCHEMA_POLICY.md, <repo>/docs/SCHEMA_POLICY.md
+E   Failed: SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of packages/evalschema/SCHEMA_POLICY.md, SCHEMA_POLICY.md, docs/SCHEMA_POLICY.md
+<repo>/packages/evalschema/tests/test_persona_profile.py:335: Failed: SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of packages/evalschema/SCHEMA_POLICY.md, SCHEMA_POLICY.md, docs/SCHEMA_POLICY.md
+E   AssertionError: claims that match nothing (emitted now? delete the row or claim): [('CO-BUNDLE-CROSS-RECORD', 'to_null', '*Bundle', 'results.*.value'), ('CO-DATASET-ITEM-PRIVACY', 'remove', 'DatasetItem', 'privacy'), ('CO-DATASET-ITEM-PRIVACY', 'to_null', 'DatasetItem', 'privacy'), ('CO-RESULT-STATUS-PRESENCE', 'list_empty', 'MetricResult', 'missing_kinds'), ('CO-RESULT-STATUS-PRESENCE', 'remove', 'MetricResult', 'error'), ('CO-RESULT-STATUS-PRESENCE', 'remove', 'MetricResult', 'missing_kinds'), ('CO-RESULT-STATUS-PRESENCE', 'remove', 'MetricResult', 'na_reason'), ('CO-RESULT-STATUS-PRESENCE', 'to_null', 'MetricResult', 'error'), ('CO-RESULT-STATUS-PRESENCE', 'to_null', 'MetricResult', 'na_reason'), ('CO-RESULT-STATUS-PRESENCE', 'to_null', 'MetricResult', 'value'), ('CO-TOOL-RESULT-PAIR', 'remove', '*', 'result_raw'), ('CO-TOOL-RESULT-PAIR', 'to_null', '*', 'result_raw'), ('CO-UNIQUE-ELEMENTS', 'list_repeat', '*', '*')]
+    assert not [('CO-BUNDLE-CROSS-RECORD', 'to_null', '*Bundle', 'results.*.value'), ('CO-DATASET-ITEM-PRIVACY', 'remove', 'DatasetIt...CE', 'remove', 'MetricResult', 'error'), ('CO-RESULT-STATUS-PRESENCE', 'remove', 'MetricResult', 'missing_kinds'), ...]
+<repo>/packages/evalschema/tests/test_schema_gaps.py:217: AssertionError: claims that match nothing (emitted now? delete the row or claim): [('CO-BUNDLE-CROSS-RECORD', 'to_null', '*Bundle', 'results.*.value'), ('CO-DATASET-ITEM-PRIVACY', 'remove', 'DatasetItem', 'privacy'), ('CO-DATASET-ITEM-PRIVACY', 'to_null', 'DatasetItem', 'privacy'), ('CO-RESULT-STATUS-PRESENCE', 'list_empty', 'MetricResult', 'missing_kinds'), ('CO-RESULT-STATUS-PRESENCE', 'remove', 'MetricResult', 'error'), ('CO-RESULT-STATUS-PRESENCE', 'remove', 'MetricResult', 'missing_kinds'), ('CO-RESULT-STATUS-PRESENCE', 'remove', 'MetricResult', 'na_reason'), ('CO-RESULT-STATUS-PRESENCE', 'to_null', 'MetricResult', 'error'), ('CO-RESULT-STATUS-PRESENCE', 'to_null', 'MetricResult', 'na_reason'), ('CO-RESULT-STATUS-PRESENCE', 'to_null', 'MetricResult', 'value'), ('CO-TOOL-RESULT-PAIR', 'remove', '*', 'result_raw'), ('CO-TOOL-RESULT-PAIR', 'to_null', '*', 'result_raw'), ('CO-UNIQUE-ELEMENTS', 'list_repeat', '*', '*')]
+E   AssertionError: CO-UNIQUE-ELEMENTS: the schema rejects the witness, so the rule is emitted now
+    assert False
+     +  where False = is_valid({'id': 'agt_01a169c4-93c8-75ef-90f6-0371a35d604f', 'schema_version': '0.0.1', 'created_at': '2026-10-22T10:00:00.000000Z', 'metadata': {}, ...})
+     +    where is_valid = Validator(schema={'$defs': {'ContentDigest': {'additionalProperties': False, 'description': '``{scheme, v...ble, accep......1:AgentTarget', '$schema': 'https://json...020-12/schema', 'additionalProperties': False, ...}, format_checker=None).is_valid
+     +      where Validator(schema={'$defs': {'ContentDigest': {'additionalProperties': False, 'description': '``{scheme, v...ble, accep......1:AgentTarget', '$schema': 'https://json...020-12/schema', 'additionalProperties': False, ...}, format_checker=None) = schema_validator({'$defs': {'ContentDigest': {'additionalProperties': False, 'description': '``{scheme, value, key_ref?}`` (ADR 0006 De...hema:0.0.1:AgentTarget', '$schema': 'https://json-schema.org/draft/2020-12/schema', 'additionalProperties': False, ...})
+     +        where {'$defs': {'ContentDigest': {'additionalProperties': False, 'description': '``{scheme, value, key_ref?}`` (ADR 0006 De...hema:0.0.1:AgentTarget', '$schema': 'https://json-schema.org/draft/2020-12/schema', 'additionalProperties': False, ...} = rendered_schema('AgentTarget')
+<repo>/packages/evalschema/tests/test_schema_gaps.py:247: AssertionError: CO-UNIQUE-ELEMENTS: the schema rejects the witness, so the rule is emitted now
+E   Failed: SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of packages/evalschema/SCHEMA_POLICY.md, SCHEMA_POLICY.md, docs/SCHEMA_POLICY.md
+<repo>/packages/evalschema/tests/test_snapshot.py:643: Failed: SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of packages/evalschema/SCHEMA_POLICY.md, SCHEMA_POLICY.md, docs/SCHEMA_POLICY.md
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_cost.py::test_policy_documents_reported_cost_without_usage_limitation
+FAILED packages/evalschema/tests/test_persona_profile.py::test_policy_documents_low_entropy_digest_limitation
+FAILED packages/evalschema/tests/test_schema_gaps.py::test_every_claim_still_matches_a_difference
+FAILED packages/evalschema/tests/test_schema_gaps.py::test_witnesses_are_real_gaps
+FAILED packages/evalschema/tests/test_snapshot.py::test_policy_documents_free_text_lint_limitation
+5 failed, 2754 passed in 112.09s (0:01:52)
+# exit status: 1

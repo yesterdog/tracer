@@ -1,0 +1,494 @@
+# Scoped lint, 2026-10-23T18:00:55Z. The full-repo ruff/format/mypy run (below) failed only in files another agent was editing during the run: untracked packages/evalschema/tests/support/mappings/langfuse_otlp.py and pipecat_evals.py (F2/F5 converters) and the modified packages/evalschema/tests/support/mappings/gap_register.py. Re-run without those three files:
+## ruff check
+All checks passed!
+# exit 0
+## ruff format --check
+194 files already formatted
+# exit 0
+## mypy (strict = true in pyproject) on packages/evalschema/src and scripts
+Success: no issues found in 47 source files
+# exit 0
+
+# ---- full-repo run ----
+# lint, default environment (Python 3.14.7), 2026-10-23T18:00:28Z
+## ruff check
+S105 Possible hardcoded password assigned to: "_F5_SECRET"
+   --> packages/evalschema/tests/support/mappings/gap_register.py:534:5
+    |
+532 |   )
+533 |   _F5_SECRET = (
+534 | /     "a harness setting that can carry a credential or an internal address; it is copied "
+535 | |     "nowhere and no warning quotes it"
+    | |______________________________________^
+536 |   )
+537 |   _F5_JUDGE = (
+    |
+
+E501 Line too long (101 > 100)
+ --> packages/evalschema/tests/support/mappings/langfuse_otlp.py:6:101
+  |
+4 | ToolCallEvents, Transcripts and Turns (docs/phase1/api-surface-mappings-2.md section 2).
+5 |
+6 | A Langfuse observation is an OTLP span whose attributes name its type (``langfuse.observation.type``)
+  |                                                                                                     ^
+7 | and carry its input, output, model, usage and cost. Only what the Langfuse and OpenTelemetry
+8 | documentation states is read; nothing is inferred from names. Source pointers are RFC 6901 pointers
+  |
+
+E501 Line too long (101 > 100)
+   --> packages/evalschema/tests/support/mappings/langfuse_otlp.py:748:101
+    |
+746 |         entries.append(("/reported_raw/amount_raw", amount.sources, shown, None))
+747 |         if raw.currency_raw is not None:
+748 |             entries.append(("/reported_raw/currency_raw", anchor, "contract_currency_usd", contract))
+    |                                                                                                     ^
+749 |         entries.append(
+750 |             ("/reported_raw/currency_source", anchor, f"constant:{raw.currency_source}", None)
+    |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> packages/evalschema/tests/support/mappings/pipecat_evals.py:17:1
+   |
+15 |   """
+16 |
+17 | / from __future__ import annotations
+18 | |
+19 | | import re
+20 | | from collections.abc import Mapping, Sequence
+21 | | from dataclasses import dataclass, field
+22 | | from datetime import UTC, datetime
+23 | | from decimal import Decimal
+24 | | from typing import Any
+25 | |
+26 | | from tracer_evalschema import SCHEMA_VERSION
+27 | | from tracer_evalschema.digest import compute_digest
+28 | | from tracer_evalschema.errors import TracerSchemaError
+29 | | from tracer_evalschema.evaluator import Evaluator, evaluator_digest_domain
+30 | | from tracer_evalschema.ijson import check_ijson
+31 | | from tracer_evalschema.ids import EvaluatorId
+32 | | from tracer_evalschema.metrics import MetricBinding, MetricDefinition
+33 | | from tracer_evalschema.rubric import Rubric, validate_rubric
+34 | | from tracer_evalschema.text import MACHINE_KEY_PATTERN, METRIC_KEY_PATTERN
+35 | |
+36 | | from .common import (
+37 | |     Citation,
+38 | |     GapRow,
+39 | |     Leg,
+40 | |     MappingResult,
+41 | |     Recorder,
+42 | |     TableRow,
+43 | |     TraceEntry,
+44 | |     floor_ms,
+45 | |     pointer,
+46 | |     raw_text,
+47 | |     scalar_leaves,
+48 | | )
+   | |_^
+49 |
+50 |   __all__ = ["PROVENANCE_TABLE", "F5Declarations", "map_f5"]
+   |
+help: Organize imports
+   |
+29 | from tracer_evalschema.evaluator import Evaluator, evaluator_digest_domain
+30 + from tracer_evalschema.ids import EvaluatorId
+31 | from tracer_evalschema.ijson import check_ijson
+   - from tracer_evalschema.ids import EvaluatorId
+32 | from tracer_evalschema.metrics import MetricBinding, MetricDefinition
+   |
+
+F401 [*] `decimal.Decimal` imported but unused
+  --> packages/evalschema/tests/support/mappings/pipecat_evals.py:23:21
+   |
+21 | from dataclasses import dataclass, field
+22 | from datetime import UTC, datetime
+23 | from decimal import Decimal
+   |                     ^^^^^^^
+24 | from typing import Any
+   |
+help: Remove unused import: `decimal.Decimal`
+   |
+22 | from datetime import UTC, datetime
+   - from decimal import Decimal
+23 | from typing import Any
+   |
+
+F401 [*] `tracer_evalschema.SCHEMA_VERSION` imported but unused
+  --> packages/evalschema/tests/support/mappings/pipecat_evals.py:26:31
+   |
+24 | from typing import Any
+25 |
+26 | from tracer_evalschema import SCHEMA_VERSION
+   |                               ^^^^^^^^^^^^^^
+27 | from tracer_evalschema.digest import compute_digest
+28 | from tracer_evalschema.errors import TracerSchemaError
+   |
+help: Remove unused import: `tracer_evalschema.SCHEMA_VERSION`
+   |
+25 |
+   - from tracer_evalschema import SCHEMA_VERSION
+26 | from tracer_evalschema.digest import compute_digest
+   |
+
+F401 [*] `tracer_evalschema.digest.compute_digest` imported but unused
+  --> packages/evalschema/tests/support/mappings/pipecat_evals.py:27:38
+   |
+26 | from tracer_evalschema import SCHEMA_VERSION
+27 | from tracer_evalschema.digest import compute_digest
+   |                                      ^^^^^^^^^^^^^^
+28 | from tracer_evalschema.errors import TracerSchemaError
+29 | from tracer_evalschema.evaluator import Evaluator, evaluator_digest_domain
+   |
+help: Remove unused import: `tracer_evalschema.digest.compute_digest`
+   |
+26 | from tracer_evalschema import SCHEMA_VERSION
+   - from tracer_evalschema.digest import compute_digest
+27 | from tracer_evalschema.errors import TracerSchemaError
+   |
+
+F401 [*] `tracer_evalschema.evaluator.evaluator_digest_domain` imported but unused
+  --> packages/evalschema/tests/support/mappings/pipecat_evals.py:29:52
+   |
+27 | from tracer_evalschema.digest import compute_digest
+28 | from tracer_evalschema.errors import TracerSchemaError
+29 | from tracer_evalschema.evaluator import Evaluator, evaluator_digest_domain
+   |                                                    ^^^^^^^^^^^^^^^^^^^^^^^
+30 | from tracer_evalschema.ijson import check_ijson
+31 | from tracer_evalschema.ids import EvaluatorId
+   |
+help: Remove unused import: `tracer_evalschema.evaluator.evaluator_digest_domain`
+   |
+28 | from tracer_evalschema.errors import TracerSchemaError
+   - from tracer_evalschema.evaluator import Evaluator, evaluator_digest_domain
+29 + from tracer_evalschema.evaluator import Evaluator
+30 | from tracer_evalschema.ijson import check_ijson
+   |
+
+F401 [*] `tracer_evalschema.ijson.check_ijson` imported but unused
+  --> packages/evalschema/tests/support/mappings/pipecat_evals.py:30:37
+   |
+28 | from tracer_evalschema.errors import TracerSchemaError
+29 | from tracer_evalschema.evaluator import Evaluator, evaluator_digest_domain
+30 | from tracer_evalschema.ijson import check_ijson
+   |                                     ^^^^^^^^^^^
+31 | from tracer_evalschema.ids import EvaluatorId
+32 | from tracer_evalschema.metrics import MetricBinding, MetricDefinition
+   |
+help: Remove unused import: `tracer_evalschema.ijson.check_ijson`
+   |
+29 | from tracer_evalschema.evaluator import Evaluator, evaluator_digest_domain
+   - from tracer_evalschema.ijson import check_ijson
+30 | from tracer_evalschema.ids import EvaluatorId
+   |
+
+F401 [*] `tracer_evalschema.metrics.MetricBinding` imported but unused
+  --> packages/evalschema/tests/support/mappings/pipecat_evals.py:32:39
+   |
+30 | from tracer_evalschema.ijson import check_ijson
+31 | from tracer_evalschema.ids import EvaluatorId
+32 | from tracer_evalschema.metrics import MetricBinding, MetricDefinition
+   |                                       ^^^^^^^^^^^^^
+33 | from tracer_evalschema.rubric import Rubric, validate_rubric
+34 | from tracer_evalschema.text import MACHINE_KEY_PATTERN, METRIC_KEY_PATTERN
+   |
+help: Remove unused import
+   |
+31 | from tracer_evalschema.ids import EvaluatorId
+   - from tracer_evalschema.metrics import MetricBinding, MetricDefinition
+32 | from tracer_evalschema.rubric import Rubric, validate_rubric
+   |
+
+F401 [*] `tracer_evalschema.metrics.MetricDefinition` imported but unused
+  --> packages/evalschema/tests/support/mappings/pipecat_evals.py:32:54
+   |
+30 | from tracer_evalschema.ijson import check_ijson
+31 | from tracer_evalschema.ids import EvaluatorId
+32 | from tracer_evalschema.metrics import MetricBinding, MetricDefinition
+   |                                                      ^^^^^^^^^^^^^^^^
+33 | from tracer_evalschema.rubric import Rubric, validate_rubric
+34 | from tracer_evalschema.text import MACHINE_KEY_PATTERN, METRIC_KEY_PATTERN
+   |
+help: Remove unused import
+   |
+31 | from tracer_evalschema.ids import EvaluatorId
+   - from tracer_evalschema.metrics import MetricBinding, MetricDefinition
+32 | from tracer_evalschema.rubric import Rubric, validate_rubric
+   |
+
+F401 [*] `tracer_evalschema.rubric.Rubric` imported but unused
+  --> packages/evalschema/tests/support/mappings/pipecat_evals.py:33:38
+   |
+31 | from tracer_evalschema.ids import EvaluatorId
+32 | from tracer_evalschema.metrics import MetricBinding, MetricDefinition
+33 | from tracer_evalschema.rubric import Rubric, validate_rubric
+   |                                      ^^^^^^
+34 | from tracer_evalschema.text import MACHINE_KEY_PATTERN, METRIC_KEY_PATTERN
+   |
+help: Remove unused import
+   |
+32 | from tracer_evalschema.metrics import MetricBinding, MetricDefinition
+   - from tracer_evalschema.rubric import Rubric, validate_rubric
+33 | from tracer_evalschema.text import MACHINE_KEY_PATTERN, METRIC_KEY_PATTERN
+   |
+
+F401 [*] `tracer_evalschema.rubric.validate_rubric` imported but unused
+  --> packages/evalschema/tests/support/mappings/pipecat_evals.py:33:46
+   |
+31 | from tracer_evalschema.ids import EvaluatorId
+32 | from tracer_evalschema.metrics import MetricBinding, MetricDefinition
+33 | from tracer_evalschema.rubric import Rubric, validate_rubric
+   |                                              ^^^^^^^^^^^^^^^
+34 | from tracer_evalschema.text import MACHINE_KEY_PATTERN, METRIC_KEY_PATTERN
+   |
+help: Remove unused import
+   |
+32 | from tracer_evalschema.metrics import MetricBinding, MetricDefinition
+   - from tracer_evalschema.rubric import Rubric, validate_rubric
+33 | from tracer_evalschema.text import MACHINE_KEY_PATTERN, METRIC_KEY_PATTERN
+   |
+
+F401 [*] `.common.TableRow` imported but unused
+  --> packages/evalschema/tests/support/mappings/pipecat_evals.py:42:5
+   |
+40 |     MappingResult,
+41 |     Recorder,
+42 |     TableRow,
+   |     ^^^^^^^^
+43 |     TraceEntry,
+44 |     floor_ms,
+   |
+help: Remove unused import
+   |
+41 |     Recorder,
+   -     TableRow,
+   -     TraceEntry,
+42 |     floor_ms,
+43 |     pointer,
+44 |     raw_text,
+   -     scalar_leaves,
+45 | )
+   |
+
+F401 [*] `.common.TraceEntry` imported but unused
+  --> packages/evalschema/tests/support/mappings/pipecat_evals.py:43:5
+   |
+41 |     Recorder,
+42 |     TableRow,
+43 |     TraceEntry,
+   |     ^^^^^^^^^^
+44 |     floor_ms,
+45 |     pointer,
+   |
+help: Remove unused import
+   |
+41 |     Recorder,
+   -     TableRow,
+   -     TraceEntry,
+42 |     floor_ms,
+43 |     pointer,
+44 |     raw_text,
+   -     scalar_leaves,
+45 | )
+   |
+
+F401 [*] `.common.scalar_leaves` imported but unused
+  --> packages/evalschema/tests/support/mappings/pipecat_evals.py:47:5
+   |
+45 |     pointer,
+46 |     raw_text,
+47 |     scalar_leaves,
+   |     ^^^^^^^^^^^^^
+48 | )
+   |
+help: Remove unused import
+   |
+41 |     Recorder,
+   -     TableRow,
+   -     TraceEntry,
+42 |     floor_ms,
+43 |     pointer,
+44 |     raw_text,
+   -     scalar_leaves,
+45 | )
+   |
+
+F822 Undefined name `PROVENANCE_TABLE` in `__all__`
+  --> packages/evalschema/tests/support/mappings/pipecat_evals.py:50:12
+   |
+48 | )
+49 |
+50 | __all__ = ["PROVENANCE_TABLE", "F5Declarations", "map_f5"]
+   |            ^^^^^^^^^^^^^^^^^^
+51 |
+52 | RETRIEVED = "2026-10-23"
+   |
+
+E501 Line too long (101 > 100)
+   --> packages/evalschema/tests/support/mappings/pipecat_evals.py:391:101
+    |
+389 |     else:
+390 |         rec.warn(
+391 |             "malformed_entry", "a scenario needs turns (scripted) or a persona (simulated)", path=ptr
+    |                                                                                                     ^
+392 |         )
+393 |         return
+    |
+
+SIM108 Use ternary operator `texts = self._simulated_texts() if self.simulated else self._scripted_texts()` instead of `if`-`else`-block
+   --> packages/evalschema/tests/support/mappings/pipecat_evals.py:467:9
+    |
+466 |       def build(self) -> bool:
+467 | /         if self.simulated:
+468 | |             texts = self._simulated_texts()
+469 | |         else:
+470 | |             texts = self._scripted_texts()
+    | |__________________________________________^
+471 |           if texts is None:
+472 |               return False
+    |
+help: Replace `if`-`else`-block with `texts = self._simulated_texts() if self.simulated else self._scripted_texts()`
+    |
+466 |     def build(self) -> bool:
+    -         if self.simulated:
+    -             texts = self._simulated_texts()
+    -         else:
+    -             texts = self._scripted_texts()
+467 +         texts = self._simulated_texts() if self.simulated else self._scripted_texts()
+468 |         if texts is None:
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+E501 Line too long (103 > 100)
+   --> packages/evalschema/tests/support/mappings/pipecat_evals.py:579:101
+    |
+577 |                         model = (config.get("model"), block + "/model")
+578 |                         for pair in (service, model):
+579 |                             if not isinstance(pair[0], str) or _MACHINE_KEY.fullmatch(pair[0]) is None:
+    |                                                                                                     ^^^
+580 |                                 unknown = True
+581 |         if unknown:
+    |
+
+E501 Line too long (114 > 100)
+   --> packages/evalschema/tests/support/mappings/pipecat_evals.py:601:101
+    |
+599 |             )
+600 |             legs = [
+601 |                 Leg("/judge_model_ref/provider", (self.ptr,), "documented_default_judge", DEFAULT_JUDGE_CITATION),
+    |                                                                                                     ^^^^^^^^^^^^^^
+602 |                 Leg("/judge_model_ref/model", (self.ptr,), "documented_default_judge", DEFAULT_JUDGE_CITATION),
+603 |             ]
+    |
+
+E501 Line too long (111 > 100)
+   --> packages/evalschema/tests/support/mappings/pipecat_evals.py:602:101
+    |
+600 |             legs = [
+601 |                 Leg("/judge_model_ref/provider", (self.ptr,), "documented_default_judge", DEFAULT_JUDGE_CITATION),
+602 |                 Leg("/judge_model_ref/model", (self.ptr,), "documented_default_judge", DEFAULT_JUDGE_CITATION),
+    |                                                                                                     ^^^^^^^^^^^
+603 |             ]
+604 |             return _Judge(DEFAULT_JUDGE[0], DEFAULT_JUDGE[1], legs, True)
+    |
+
+Found 22 errors.
+[*] 13 fixable with `--fix` (1 unsafe fix available with `--fix --unsafe-fixes`).
+# exit 1
+## ruff format --check
+unformatted: File would be reformatted
+    --> packages/evalschema/tests/support/mappings/langfuse_otlp.py:748:28
+     |
+747  |         if raw.currency_raw is not None:
+     -             entries.append(("/reported_raw/currency_raw", anchor, "contract_currency_usd", contract))
+748  +             entries.append(
+749  +                 ("/reported_raw/currency_raw", anchor, "contract_currency_usd", contract)
+750  +             )
+751  |         entries.append(
+--------------------------------------------------------------------------------
+1335 |     ),
+     -     _row(
+     -         "ToolCallEvent.source", "constant", "span name", "constant:agent_telemetry", "telemetry"
+     -     ),
+1336 +     _row("ToolCallEvent.source", "constant", "span name", "constant:agent_telemetry", "telemetry"),
+1337 |     _row(
+     |
+
+unformatted: File would be reformatted
+   --> packages/evalschema/tests/support/mappings/pipecat_evals.py:381:31
+    |
+380 |         rec.warn(
+    -             "malformed_entry", "a scenario is scripted (turns) or simulated (persona), not both",
+381 +             "malformed_entry",
+382 +             "a scenario is scripted (turns) or simulated (persona), not both",
+383 |             path=ptr,
+--------------------------------------------------------------------------------
+391 |         rec.warn(
+    -             "malformed_entry", "a scenario needs turns (scripted) or a persona (simulated)", path=ptr
+392 +             "malformed_entry",
+393 +             "a scenario needs turns (scripted) or a persona (simulated)",
+394 +             path=ptr,
+395 |         )
+--------------------------------------------------------------------------------
+402 |         name, name_derivation = f"{file_name}/{scenario_name}", "scenario_qualified_name"
+    -     plan = _Plan(
+    -         ctx, view, ptr, name, Leg("/name", name_sources, name_derivation), simulated
+    -     )
+403 +     plan = _Plan(ctx, view, ptr, name, Leg("/name", name_sources, name_derivation), simulated)
+404 |     if plan.build():
+--------------------------------------------------------------------------------
+553 |             stored, derivation = self.rec.text(value, where)
+    -             texts.append(
+    -                 (stored, [Leg(f"/{field_name}", (where,), derivation or "user_declared")])
+    -             )
+554 +             texts.append((stored, [Leg(f"/{field_name}", (where,), derivation or "user_declared")]))
+555 |         return texts[0], texts[1], "/declared/expected_outcome"
+--------------------------------------------------------------------------------
+577 |                         for pair in (service, model):
+    -                             if not isinstance(pair[0], str) or _MACHINE_KEY.fullmatch(pair[0]) is None:
+578 +                             if (
+579 +                                 not isinstance(pair[0], str)
+580 +                                 or _MACHINE_KEY.fullmatch(pair[0]) is None
+581 +                             ):
+582 |                                 unknown = True
+--------------------------------------------------------------------------------
+602 |             legs = [
+    -                 Leg("/judge_model_ref/provider", (self.ptr,), "documented_default_judge", DEFAULT_JUDGE_CITATION),
+    -                 Leg("/judge_model_ref/model", (self.ptr,), "documented_default_judge", DEFAULT_JUDGE_CITATION),
+603 +                 Leg(
+604 +                     "/judge_model_ref/provider",
+605 +                     (self.ptr,),
+606 +                     "documented_default_judge",
+607 +                     DEFAULT_JUDGE_CITATION,
+608 +                 ),
+609 +                 Leg(
+610 +                     "/judge_model_ref/model",
+611 +                     (self.ptr,),
+612 +                     "documented_default_judge",
+613 +                     DEFAULT_JUDGE_CITATION,
+614 +                 ),
+615 |             ]
+    |
+
+2 files would be reformatted, 195 files already formatted
+# exit 1
+## mypy
+packages/evalschema/tests/support/mappings/pipecat_evals.py:482: error: "_Plan" has no attribute "_script"  [attr-defined]
+packages/evalschema/tests/support/mappings/pipecat_evals.py:484: error: "_Plan" has no attribute "_check"  [attr-defined]
+packages/evalschema/tests/support/mappings/pipecat_evals.py:488: error: "_Plan" has no attribute "_simulated_metrics"; maybe "_simulated_texts"?  [attr-defined]
+packages/evalschema/tests/support/mappings/pipecat_evals.py:489: error: Returning Any from function declared to return "bool"  [no-any-return]
+packages/evalschema/tests/support/mappings/pipecat_evals.py:489: error: "_Plan" has no attribute "_assemble"  [attr-defined]
+packages/evalschema/tests/support/mappings/langfuse_otlp.py:705: error: Argument 1 to "_date" has incompatible type "str | None"; expected "str"  [arg-type]
+packages/evalschema/tests/support/mappings/langfuse_otlp.py:708: error: List item 0 has incompatible type "TypedId"; expected "UsageRecordId"  [list-item]
+Found 7 errors in 2 files (checked 139 source files)
+# exit 1
+## python scripts/check_headers.py
+# exit 0
+## python scripts/guard_private_fixtures.py
+# exit 0
+## python -m tracer_evalschema.schema_export --check
+# exit 0
+## check_licenses
+42 ok, 0 failed
+# exit 0
+## check_licenses --wheel
+2 ok, 0 failed
+# exit 0

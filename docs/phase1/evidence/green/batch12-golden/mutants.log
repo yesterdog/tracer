@@ -1,0 +1,310 @@
+Mutation run for test_golden_fixtures.py (P1-16), 2026-10-23.
+Method: a scratch copy of packages/, scripts/ and pyproject.toml; one mutation per run (a corrupted or
+removed fixture, a mutated generator, a mutated coverage script, or a dropped model rule in the copy of
+src); then the whole of test_golden_fixtures.py (681 tests) is run in the copy. KILLED = at least one
+test fails. The repository itself was never edited. The harness is mutation-harness.py.txt.
+
+Run 1 (63 mutants, code before the last two test additions): 61 killed, 2 survived.
+Survivors of run 1: C04, C05.
+  C04 (the coverage script ignores boolean values) survived because no test removed a fixture that
+      holds the only value of a boolean; fixed by adding two boolean points to
+      test_property_coverage_script_reports_gaps_and_exits_non_zero.
+  C05 (an over-broad exclusion in the coverage script) survived because the exclusion test checked the
+      reasons, not the excluded set; fixed by asserting the exact number of excluded points per entity
+      in test_property_coverage_exclusions_are_the_unreachable_points_and_nothing_else.
+Run 2 (final code): the baseline stays green and C04, C05 and F20 are killed (below).
+
+--- run 1, full output ---
+F01 KILLED   change a value in a valid golden fixture (Project minimal name)
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+      FAILED test_frozen_files_are_byte_copies_of_the_golden_minimal_and_maximal_files
+F02 KILLED   re-indent a valid golden fixture with four spaces
+      FAILED test_golden_valid_fixtures_round_trip_byte_for_byte[Exchange/minimal]
+      FAILED test_golden_json_files_are_strict_utf8_json_in_the_canonical_layout
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+      ... 5 failing in total
+F03 KILLED   delete the AgentTarget SIP maximal fixture (an endpoint alternative)
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+      FAILED test_every_property_covered_by_valid_fixture[AgentTarget]
+      FAILED test_property_coverage_of_all_valid_fixtures_is_100_percent
+      ... 6 failing in total
+F04 KILLED   delete the expected.json of an invalid fixture
+      FAILED test_every_entity_has_minimal_maximal_and_three_invalid_fixtures[Run]
+      FAILED test_golden_invalid_fixtures_are_rejected_with_the_expected_error[Run/extra-member]
+      FAILED test_golden_invalid_fixtures_agree_with_the_json_schemas[Run/extra-member]
+      FAILED test_golden_invalid_fixtures_cover_both_kinds_of_rejection
+      ... 6 failing in total
+F05 KILLED   change the expected error path of an invalid fixture
+      FAILED test_golden_invalid_fixtures_are_rejected_with_the_expected_error[Turn/role-not-known]
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+F06 KILLED   flip the schema label rejects -> code_only
+      FAILED test_golden_invalid_fixtures_agree_with_the_json_schemas[Turn/role-not-known]
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+F07 KILLED   flip the schema label code_only -> rejects
+      FAILED test_golden_invalid_fixtures_agree_with_the_json_schemas[AgentTarget/content-digest-mismatch]
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+F08 KILLED   make an invalid fixture valid (restore the role)
+      FAILED test_golden_invalid_fixtures_are_rejected_with_the_expected_error[Turn/role-not-known]
+      FAILED test_golden_invalid_fixtures_agree_with_the_json_schemas[Turn/role-not-known]
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+F09 KILLED   corrupt the content_digest of a valid versioned fixture
+      FAILED test_golden_valid_fixtures_round_trip_byte_for_byte[Rubric/maximal]
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+      FAILED test_frozen_files_are_byte_copies_of_the_golden_minimal_and_maximal_files
+F10 KILLED   edit a frozen file (flip a character)
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+      FAILED test_frozen_files_are_byte_copies_of_the_golden_minimal_and_maximal_files
+      FAILED test_frozen_digests_record_the_file_hash_and_the_entity_digest
+      ... 5 failing in total
+F11 KILLED   add a secret-shaped string to a valid fixture
+      FAILED test_golden_valid_fixtures_round_trip_byte_for_byte[Project/maximal]
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+      FAILED test_no_secrets_or_personal_data_in_fixtures
+      ... 5 failing in total
+SURVIVORS: []
+F12 KILLED   add an e-mail address of a real domain to a fixture
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+      FAILED test_no_secrets_or_personal_data_in_fixtures
+      FAILED test_frozen_files_are_byte_copies_of_the_golden_minimal_and_maximal_files
+F13 KILLED   add an Indian mobile number to a fixture
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+      FAILED test_no_secrets_or_personal_data_in_fixtures
+      FAILED test_frozen_files_are_byte_copies_of_the_golden_minimal_and_maximal_files
+F14 KILLED   add a real-looking host to a fixture
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+      FAILED test_no_secrets_or_personal_data_in_fixtures
+      FAILED test_frozen_files_are_byte_copies_of_the_golden_minimal_and_maximal_files
+F15 KILLED   Indic text in a fixture that the needs_native_review list does not name
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+      FAILED test_indic_text_is_listed_as_needs_native_review
+      FAILED test_frozen_files_are_byte_copies_of_the_golden_minimal_and_maximal_files
+F16 KILLED   remove the needs_native_review statement from the README
+      FAILED test_fixtures_readme_says_synthetic_and_marks_needs_native_review
+F17 KILLED   delete the minimal fixture of an entity
+      FAILED test_every_entity_has_minimal_maximal_and_three_invalid_fixtures[Dataset]
+      FAILED test_the_minimal_and_maximal_fixtures_of_one_entity_differ
+      FAILED test_golden_minimal_fixture_loads_without_its_null_members[Dataset]
+      FAILED test_golden_files_equal_generator_output
+      ... 6 failing in total
+F18 KILLED   a stray file in the golden tree
+      FAILED test_every_entity_has_minimal_maximal_and_three_invalid_fixtures[Project]
+      FAILED test_the_fixture_trees_hold_json_lock_and_markdown_files_only
+F19 KILLED   unescaped bidi control character in a fixture file
+      FAILED test_golden_valid_fixtures_round_trip_byte_for_byte[Turn/maximal]
+      FAILED test_golden_json_files_are_strict_utf8_json_in_the_canonical_layout
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+      ... 5 failing in total
+F20 KILLED   removing invalid fixtures leaves an entity with two
+      FAILED test_every_entity_has_minimal_maximal_and_three_invalid_fixtures[Project]
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+F21 KILLED   frozen file removed from the frozen directory
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+      FAILED test_frozen_files_are_byte_copies_of_the_golden_minimal_and_maximal_files
+      FAILED test_frozen_digests_record_the_file_hash_and_the_entity_digest
+      ... 6 failing in total
+F22 KILLED   frozen digests.json records another entity digest
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+      FAILED test_frozen_digests_record_the_file_hash_and_the_entity_digest
+SURVIVORS: []
+F23 KILLED   a frozen schema.lock that is not the generator's lock
+      FAILED test_frozen_schema_lock_of_the_release_when_it_exists
+F24 KILLED   fixture says an older schema_version
+      FAILED test_golden_valid_fixtures_round_trip_byte_for_byte[Exchange/minimal]
+      FAILED test_golden_minimal_fixture_loads_without_its_null_members[Exchange]
+      FAILED test_golden_valid_fixtures_are_accepted_by_the_json_schemas[Exchange/minimal]
+      FAILED test_golden_files_equal_generator_output
+      ... 7 failing in total
+F25 KILLED   two invalid fixtures state the same defect (copy and paste)
+      FAILED test_every_entity_has_minimal_maximal_and_three_invalid_fixtures[Turn]
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+G01 KILLED   scope() no longer patches os.urandom (sealed payloads random)
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_golden_generator_is_deterministic_across_processes
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+      FAILED test_the_deterministic_scope_gives_equal_ids_and_restores_the_generators
+G02 KILLED   scope() does not restore ids.uuid7
+      FAILED test_the_deterministic_scope_gives_equal_ids_and_restores_the_generators
+G03 KILLED   pretty() writes four-space indent
+      FAILED test_golden_valid_fixtures_round_trip_byte_for_byte[AgentTarget/maximal-sip]
+      FAILED test_golden_valid_fixtures_round_trip_byte_for_byte[AgentTarget/maximal-webrtc]
+      FAILED test_golden_valid_fixtures_round_trip_byte_for_byte[AgentTarget/maximal]
+      FAILED test_golden_valid_fixtures_round_trip_byte_for_byte[AgentTarget/minimal]
+      ... 140 failing in total
+G04 KILLED   pretty() does not escape invisible characters
+      FAILED test_golden_valid_fixtures_round_trip_byte_for_byte[Turn/maximal]
+      FAILED test_golden_json_files_are_strict_utf8_json_in_the_canonical_layout
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+G05 KILLED   entity_digest computed over the wrong subject
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+      FAILED test_frozen_digests_record_the_file_hash_and_the_entity_digest
+G06 KILLED   ids drawn with the same label for every fixture
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+      FAILED test_the_deterministic_scope_gives_equal_ids_and_restores_the_generators
+G07 KILLED   uuid7 clock moves with wall time
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_golden_generator_is_deterministic_across_processes
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+G08 KILLED   generator iterates entities in a hash order and drops frozen copies
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+SURVIVORS: []
+G09 KILLED   the invalid-fixture check is skipped (wrong expectation not noticed)
+      FAILED test_the_generator_refuses_an_expectation_the_model_does_not_meet
+G10 KILLED   generator writes expected.json without the schema label
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+G11 KILLED   generator labels every invalid fixture code_only
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+G12 KILLED   generator labels every invalid fixture rejects
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+G13 KILLED   invisible characters other than format characters are not escaped
+      FAILED test_golden_valid_fixtures_round_trip_byte_for_byte[Turn/maximal]
+      FAILED test_golden_json_files_are_strict_utf8_json_in_the_canonical_layout
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+R01 KILLED   drop extra=forbid from EntityBase
+      FAILED test_golden_invalid_fixtures_are_rejected_with_the_expected_error[AgentTarget/extra-member]
+      FAILED test_golden_invalid_fixtures_are_rejected_with_the_expected_error[Artifact/extra-member]
+      FAILED test_golden_invalid_fixtures_are_rejected_with_the_expected_error[ConfigSnapshot/extra-member]
+      FAILED test_golden_invalid_fixtures_are_rejected_with_the_expected_error[CostRecord/extra-member]
+      ... 47 failing in total
+R02 KILLED   content digest no longer verified on load
+      FAILED test_golden_invalid_fixtures_are_rejected_with_the_expected_error[AgentTarget/content-digest-mismatch]
+      FAILED test_golden_invalid_fixtures_are_rejected_with_the_expected_error[ConfigSnapshot/content-digest-mismatch]
+      FAILED test_golden_invalid_fixtures_are_rejected_with_the_expected_error[Dataset/content-digest-mismatch]
+      FAILED test_golden_invalid_fixtures_are_rejected_with_the_expected_error[Evaluator/content-digest-mismatch]
+      ... 16 failing in total
+R03 KILLED   Turn: timing_source rule dropped
+      FAILED test_golden_invalid_fixtures_are_rejected_with_the_expected_error[Turn/timing-none-with-offsets]
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_golden_generator_is_deterministic_across_processes
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+      ... 6 failing in total
+R04 KILLED   Run: simulated run with human caller accepted
+      FAILED test_golden_invalid_fixtures_are_rejected_with_the_expected_error[Run/simulated-run-with-human-caller]
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_golden_generator_is_deterministic_across_processes
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+      ... 6 failing in total
+R05 KILLED   bundle: the [tier] under-claim check dropped
+      FAILED test_golden_invalid_fixtures_are_rejected_with_the_expected_error[RunBundle/tier-below-the-evidence]
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_golden_generator_is_deterministic_across_processes
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+      ... 6 failing in total
+R06 KILLED   PrivacyMarker: human-subject without consent accepted
+      FAILED test_golden_valid_fixtures_round_trip_byte_for_byte[Artifact/maximal-consent-not-obtained]
+      FAILED test_golden_valid_fixtures_round_trip_byte_for_byte[Artifact/maximal-consent-unknown]
+      FAILED test_golden_valid_fixtures_round_trip_byte_for_byte[Artifact/maximal]
+      FAILED test_golden_valid_fixtures_round_trip_byte_for_byte[DatasetItem/maximal-consent-not-obtained]
+      ... 40 failing in total
+SURVIVORS: []
+R07 KILLED   a new optional property on Project (schema grows)
+      FAILED test_golden_valid_fixtures_round_trip_byte_for_byte[Project/maximal]
+      FAILED test_golden_valid_fixtures_round_trip_byte_for_byte[Project/minimal]
+      FAILED test_golden_minimal_fixture_loads_without_its_null_members[Project]
+      FAILED test_golden_files_equal_generator_output
+      ... 8 failing in total
+R08 KILLED   a new enum member in the timing sources
+      FAILED test_every_property_covered_by_valid_fixture[Turn]
+      FAILED test_property_coverage_of_all_valid_fixtures_is_100_percent
+      FAILED test_property_coverage_runs_as_a_script_and_prints_100_percent
+R09 KILLED   tighten a model so that a valid maximal fixture is rejected (Persona accent)
+      FAILED test_golden_valid_fixtures_round_trip_byte_for_byte[ConfigSnapshot/maximal-keyed-catalog]
+      FAILED test_golden_valid_fixtures_round_trip_byte_for_byte[ConfigSnapshot/maximal]
+      FAILED test_golden_valid_fixtures_round_trip_byte_for_byte[ConfigSnapshot/minimal]
+      FAILED test_golden_valid_fixtures_round_trip_byte_for_byte[ExportBundle/maximal-benchmark]
+      ... 345 failing in total
+R10 KILLED   SupportedLanguage accepts any region (region rule dropped)
+      FAILED test_golden_invalid_fixtures_are_rejected_with_the_expected_error[Persona/language-region-not-supported]
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_golden_generator_is_deterministic_across_processes
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+      ... 6 failing in total
+R11 KILLED   Rubric: weights of 0 accepted
+      FAILED test_golden_invalid_fixtures_are_rejected_with_the_expected_error[Rubric/weight-zero]
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_golden_generator_is_deterministic_across_processes
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures
+      ... 6 failing in total
+R12 KILLED   CostSummary: completeness rule dropped
+      FAILED test_golden_valid_fixtures_round_trip_byte_for_byte[CostSummary/maximal-none]
+      FAILED test_golden_valid_fixtures_round_trip_byte_for_byte[CostSummary/maximal]
+      FAILED test_golden_valid_fixtures_round_trip_byte_for_byte[CostSummary/minimal]
+      FAILED test_golden_minimal_fixture_loads_without_its_null_members[CostSummary]
+      ... 11 failing in total
+R13 KILLED   remove a union alternative: SipEndpoint no longer an AgentTarget endpoint
+      FAILED test_golden_valid_fixtures_round_trip_byte_for_byte[AgentTarget/maximal-sip]
+      FAILED test_golden_valid_fixtures_are_accepted_by_the_json_schemas[AgentTarget/maximal-sip]
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_golden_generator_is_deterministic_across_processes
+      ... 8 failing in total
+C01 KILLED   coverage ignores enum members
+      FAILED test_property_coverage_of_all_valid_fixtures_is_100_percent
+      FAILED test_property_coverage_script_reports_gaps_and_exits_non_zero
+C02 KILLED   coverage counts a null member as covered
+      FAILED test_property_coverage_script_reports_gaps_and_exits_non_zero
+C03 KILLED   coverage ignores union alternatives
+      FAILED test_property_coverage_script_reports_gaps_and_exits_non_zero
+C04 SURVIVED coverage ignores boolean values
+SURVIVORS: ['C04']
+C05 SURVIVED coverage excludes every metadata path (an over-broad exclusion)
+C06 KILLED   an extra exclusion is added
+      FAILED test_property_coverage_exclusions_are_the_unreachable_points_and_nothing_else
+C07 KILLED   coverage walk stops at the first array element only
+      FAILED test_every_property_covered_by_valid_fixture[AgentTarget]
+      FAILED test_every_property_covered_by_valid_fixture[CostRecord]
+      FAILED test_every_property_covered_by_valid_fixture[CostSummary]
+      FAILED test_every_property_covered_by_valid_fixture[Evaluator]
+      ... 16 failing in total
+C08 KILLED   exit status always 0
+      FAILED test_property_coverage_script_reports_gaps_and_exits_non_zero
+C09 KILLED   valid_documents reads only minimal.json
+      FAILED test_every_property_covered_by_valid_fixture[AgentTarget]
+      FAILED test_every_property_covered_by_valid_fixture[Artifact]
+      FAILED test_every_property_covered_by_valid_fixture[ConfigSnapshot]
+      FAILED test_every_property_covered_by_valid_fixture[CostRecord]
+      ... 28 failing in total
+S01 KILLED   build script compare() ignores changed files
+      FAILED test_golden_generator_check_reports_drift_and_write_repairs_it
+S02 KILLED   build script compare() ignores stale files
+      FAILED test_golden_generator_is_deterministic_across_processes
+      FAILED test_golden_generator_check_reports_drift_and_write_repairs_it
+S03 KILLED   build script write() leaves stale files
+      FAILED test_golden_generator_check_reports_drift_and_write_repairs_it
+SURVIVORS: ['C05']
+
+--- run 2 (final code) ---
+M00 SURVIVED/green no-op baseline on the final code (must stay green)
+C04 KILLED   coverage ignores boolean values
+      FAILED test_property_coverage_script_reports_gaps_and_exits_non_zero
+C05 KILLED   coverage excludes every metadata path (an over-broad exclusion)
+      FAILED test_property_coverage_exclusions_are_the_unreachable_points_and_nothing_else
+F20 KILLED   removing invalid fixtures leaves an entity with two
+      FAILED test_every_entity_has_minimal_maximal_and_three_invalid_fixtures[Project]
+      FAILED test_golden_files_equal_generator_output
+      FAILED test_the_build_script_check_passes_on_the_committed_fixtures

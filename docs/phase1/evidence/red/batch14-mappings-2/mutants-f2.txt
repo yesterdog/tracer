@@ -1,0 +1,62 @@
+# batch 14 mutants, F2: single-change mutants of the throwaway oracle langfuse_otlp.py (scratchpad copy, outside the repo).
+# Each run: test_mapping_f2.py (pytest -x, python 3.14). killed = at least one test failed; the test named is the first that failed.
+# 'incomplete citation accepted' is not listed: import_reported_cost itself treats a citation without URL or date as no contract, so the mutant is equivalent.
+cost contract ignored              killed    test_f2_validates[voice_call]
+USD assumed without a contract     killed    test_f2_cost_without_a_complete_citation_is_currency_not_reported[none]
+float parsing of cost text         killed    test_f2_validates[voice_call]
+exponent amount converted          killed    test_f2_cost_amount_forms_follow_the_import_rules
+missing total summed               killed    test_f2_cost_without_a_total_is_refused_with_a_blocking_gap[no-total-key]
+total absent: no gap               killed    test_f2_cost_without_a_total_is_refused_with_a_blocking_gap[no-total-key]
+total absent: no warning           killed    test_f2_cost_without_a_total_is_refused_with_a_blocking_gap[no-total-key]
+bad cost json: no gap              killed    test_f2_cost_details_that_is_not_a_json_object_is_refused[not
+bad usage json: no warning         killed    test_f2_usage_key_without_a_unit_refuses_the_usage_record
+dynamic gaps non-blocking          killed    test_f2_cost_without_a_total_is_refused_with_a_blocking_gap[no-total-key]
+generic cost wins                  killed    test_f2_cost_details_wins_over_gen_ai_usage_cost
+double cost as repr                killed    test_f2_validates[voice_call]
+reported by provider               killed    test_f2_cost_details_reported_by_telemetry_platform
+cost domain evaluation             killed    test_f2_cost_details_reported_by_telemetry_platform
+cost without usage link            killed    test_f2_cost_details_reported_by_telemetry_platform
+currency entry uncited             killed    test_f2_cost_currency_comes_from_the_cited_documented_contract
+cache not subtracted               killed    test_f2_gen_ai_usage_input_is_gross_of_the_cache_counts
+only cache read subtracted         killed    test_f2_gen_ai_usage_input_is_gross_of_the_cache_counts
+gen_ai beats usage_details         killed    test_f2_langfuse_usage_details_to_usage_record
+unknown usage key dropped          killed    test_f2_usage_key_without_a_unit_refuses_the_usage_record
+repeated unit: later wins          killed    test_f2_two_keys_for_one_unit_are_not_merged
+cached tokens as cache write       killed    test_f2_each_documented_usage_key_maps_to_one_unit[input_cached_tokens-cache_read_input_tokens]
+provider-less usage: no gap        killed    test_f2_usage_without_a_provider_is_refused
+fractional count accepted          killed    test_f2_usage_counts_must_be_non_negative_integers[float]
+cache over input clamped           killed    test_f2_usage_inconsistent_cache_larger_than_input
+every generation is llm            killed    test_f2_embedding_observation_is_a_model_call_with_usage
+text_completion not llm            killed    test_f2_chat_like_operations_are_the_llm_stage[text_completion]
+model fallback removed             killed    test_f2_validates[generic_otel]
+unrecognized type silent           killed    test_f2_observation_type_rules
+model precedence reversed          killed    test_f2_langfuse_usage_details_to_usage_record
+empty model accepted               killed    test_f2_model_attribute_precedence
+start rounded up                   killed    test_f2_cost_details_reported_by_telemetry_platform
+duration rounded                   killed    test_f2_duration_is_floored_never_rounded
+session.id wins                    killed    test_f2_session_id_external_ref
+sessions repeated                  killed    test_f2_session_id_external_ref
+session ref kind                   killed    test_f2_session_id_external_ref
+trace id repeated                  killed    test_f2_session_id_external_ref
+tool completes without output      killed    test_f2_tool_observation_to_tool_call_event
+tool fallback ignores shadows      killed    test_f2_tool_generic_attributes_are_a_fallback_only
+tool fallback removed              killed    test_f2_tool_observation_to_tool_call_event
+tool seq by document order         killed    test_f2_tool_seq_follows_span_start_not_document_order
+any output role accepted           killed    test_f2_output_that_is_not_assistant_text_gives_no_turn[{"role":
+plain output text accepted         killed    test_f2_output_that_is_not_assistant_text_gives_no_turn[plain
+turns in document order            killed    test_f2_turn_seq_follows_span_start_not_document_order
+transcript without turns           killed    test_f2_validates[generic_otel]
+turn source agent_stt              killed    test_f2_generation_output_to_agent_turns
+turn role caller                   killed    test_f2_generation_output_to_agent_turns
+raw includes cost attribute        killed    test_f2_gen_ai_usage_input_is_gross_of_the_cache_counts
+embedding not a model call         killed    test_f2_validates[generic_otel]
+usage stage always llm             killed    test_f2_embedding_observation_is_a_model_call_with_usage
+usage occurred_at missing          killed    test_f2_cost_details_reported_by_telemetry_platform
+usage source provider_reported     killed    test_f2_langfuse_usage_details_to_usage_record
+tool arguments always complete     killed    test_f2_tool_arguments_that_are_not_one_json_object_are_incomplete[array]
+tool incomplete: no warning        killed    test_f2_tool_arguments_that_are_not_one_json_object_are_incomplete[truncated]
+user id as external ref            killed    test_f2_session_id_external_ref
+input of generation copied to raw  killed    test_f2_langfuse_usage_details_to_usage_record
+cost usd label in raw dropped      killed    test_f2_cost_without_a_complete_citation_is_currency_not_reported[none]
+double usage records               killed    test_f2_validates[voice_call]
+58 of 58 killed

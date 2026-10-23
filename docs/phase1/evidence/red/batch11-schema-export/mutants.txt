@@ -1,0 +1,85 @@
+# batch11-schema-export mutation results, 2026-10-23 (run against the final test files)
+#
+# Throwaway oracle: a copy of repository HEAD 20e9ad3 with a new tracer_evalschema/schema_export.py, digest.sha256_hex,
+# the generated schemas/ directory, .gitattributes and a ci.yml step, all outside the repository (session scratch area).
+# Each mutant patches the oracle (the exporter, digest.py or a model module), runs the oracle's --write (as a developer
+# would), then runs test_schema_export.py + test_schema_lock.py, and, if nothing failed, test_schema_gaps.py +
+# test_schema_agreement.py (pytest -x). KILLED = some test failed; the first failing test is shown.
+#
+# name | verdict | first failing test | description
+
+E02_indent4 | KILLED | test_schema_export.py::test_files_are_canonical_json_bytes[AgentTarget] | indent 4
+E04_no_final_newline | KILLED | test_schema_export.py::test_files_are_canonical_json_bytes[AgentTarget] | no final newline
+E38_crlf | KILLED | test_schema_export.py::test_files_are_canonical_json_bytes[AgentTarget] | CRLF line ends
+E01_unsorted_keys | KILLED | test_schema_export.py::test_files_are_canonical_json_bytes[AgentTarget] | object keys not sorted
+E06_draft07 | KILLED | test_schema_export.py::test_export_module_surface | draft-07 $schema
+E07_http_id | KILLED | test_schema_export.py::test_export_module_surface | $id is an https URL
+E53_required_sorted_only_at_root | KILLED | test_schema_export.py::test_required_arrays_are_sorted_and_unique_everywhere | required sorted at the root only
+E10_required_unsorted | KILLED | test_schema_export.py::test_required_arrays_are_sorted_and_unique_everywhere | required arrays unsorted
+E05_no_dialect | KILLED | test_schema_export.py::test_every_file_declares_draft_2020_12_and_is_a_valid_schema | no $schema
+E08_id_wrong_version | KILLED | test_schema_export.py::test_export_module_surface | $id carries version 0.0.2
+E11_suffix | KILLED | test_schema_export.py::test_export_module_surface | file suffix .json
+E39_schema_id_unchecked | KILLED | test_schema_export.py::test_schema_id_helper_follows_the_schema_version | schema_id accepts any name
+E12_lock_lists_itself | KILLED | test_schema_lock.py::test_lock_is_canonical_json_of_version_algorithm_and_one_hash_per_file | lock lists itself
+E13_lock_md5 | KILLED | test_schema_lock.py::test_lock_is_canonical_json_of_version_algorithm_and_one_hash_per_file | lock uses md5
+E14_lock_no_version | KILLED | test_schema_lock.py::test_lock_is_canonical_json_of_version_algorithm_and_one_hash_per_file | lock without schema_version
+E15_lock_timestamp | KILLED | test_schema_lock.py::test_lock_is_canonical_json_of_version_algorithm_and_one_hash_per_file | lock with a timestamp
+E45_lock_hashes_wrong_bytes | KILLED | test_schema_lock.py::test_lock_is_canonical_json_of_version_algorithm_and_one_hash_per_file | lock hashes other bytes
+E40_render_lock_unchecked | KILLED | test_schema_lock.py::test_render_lock_rejects_a_name_that_is_not_a_schema_file | render_lock accepts any name
+E34_sha256_uppercase | KILLED | test_schema_lock.py::test_lock_is_canonical_json_of_version_algorithm_and_one_hash_per_file | sha256_hex upper-case
+E18_no_lock_written | KILLED | test_schema_export.py::test_export_json_schema_writes_exactly_the_rendered_bytes | export writes no lock
+E41_no_parents | KILLED | test_schema_export.py::test_export_json_schema_writes_exactly_the_rendered_bytes | export does not create parents
+E19_check_ignores_extra | KILLED | test_schema_lock.py::test_schema_change_without_version_bump_fails[extra schema file] | check ignores extra files
+E20_check_ignores_changed | KILLED | test_schema_lock.py::test_schema_change_without_version_bump_fails[changed schema file] | check ignores changed files
+E17_stale_kept | KILLED | test_schema_lock.py::test_update_procedure_regenerates_stale_directories_and_is_idempotent | export keeps stale schema files
+E21_check_ignores_missing | KILLED | test_schema_lock.py::test_schema_change_without_version_bump_fails[missing schema file] | check ignores missing files
+E22_check_ignores_lock_content | KILLED | test_schema_lock.py::test_schema_change_without_version_bump_fails[lock hash edited] | check ignores the lock content
+E24_released_ignored | KILLED | test_schema_lock.py::test_released_version_forbids_schema_changes_under_the_same_version | released lock of the current version ignored
+E24b_old_released_unchecked | KILLED | test_schema_lock.py::test_released_version_forbids_schema_changes_under_the_same_version | older released locks not validated
+E25_cli_exit0_on_drift | KILLED | test_schema_lock.py::test_cli_check_exit_codes_and_messages | CLI exits 0 on drift
+E43_default_dir_relative | KILLED | test_schema_lock.py::test_schema_directory_is_the_package_data_directory | default directory relative to cwd
+E26_cli_prints_path | KILLED | test_schema_lock.py::test_cli_check_exit_codes_and_messages | CLI prints a machine path
+E32_drops_an_entity | KILLED | test_schema_export.py::test_one_file_per_entity_and_no_other_file | one entity dropped
+E44_check_message_tag | KILLED | test_schema_lock.py::test_schema_change_without_version_bump_fails[changed schema file] | check line has another tag text
+E33_registry_cached | KILLED | test_schema_export.py::test_render_schemas_reads_the_registry_at_call_time | registry read at import time
+E42_files_reverse_sorted | KILLED | test_schema_export.py::test_file_names_are_class_names_and_safe_on_every_file_system | files returned in reverse order
+E27_cli_mode_optional | KILLED | test_schema_lock.py::test_cli_usage_errors_exit_with_code_2[no-mode] | CLI mode optional
+E28_cwd_in_comment | KILLED | test_schema_export.py::test_output_is_independent_of_hash_seed_time_zone_locale_and_cwd[hashseed-0] | cwd in a $comment
+E29_pydantic_version | KILLED | test_schema_export.py::test_exported_content_is_the_validation_schema_plus_id_and_dialect | pydantic version in a $comment
+E48_pid_in_comment | KILLED | test_schema_export.py::test_output_is_independent_of_hash_seed_time_zone_locale_and_cwd[hashseed-0] | pid in a $comment
+E55_check_nonexistent_crashes | KILLED | test_schema_lock.py::test_cli_check_exit_codes_and_messages | check crashes on a missing directory
+E30_const_for_single_enum | KILLED | test_schema_export.py::test_enum_order_is_the_models_order | single-member enum turned into const
+E31_example_key | KILLED | test_schema_export.py::test_exported_content_is_the_validation_schema_plus_id_and_dialect | examples with an api_key
+E52_extra_keyword | KILLED | test_schema_export.py::test_exported_content_is_the_validation_schema_plus_id_and_dialect | extra keyword x-generated-by
+E54_unused_def | KILLED | test_schema_export.py::test_exported_content_is_the_validation_schema_plus_id_and_dialect | unused $defs entry
+E35_external_ref | KILLED | test_schema_export.py::test_exported_content_is_the_validation_schema_plus_id_and_dialect | external $ref to a URN
+E36_drop_a_def | KILLED | test_schema_export.py::test_enum_order_is_the_models_order | a $defs entry removed (dangling $ref)
+E37_strip_root_allof | KILLED | test_schema_export.py::test_enum_order_is_the_models_order | root allOf stripped
+E51_strip_description | KILLED | test_schema_export.py::test_exported_content_is_the_validation_schema_plus_id_and_dialect | description stripped
+E56_additional_properties_dropped | KILLED | test_schema_export.py::test_exported_content_is_the_validation_schema_plus_id_and_dialect | additionalProperties dropped on Persona
+E57_minitems_dropped | KILLED | test_schema_export.py::test_exported_content_is_the_validation_schema_plus_id_and_dialect | minItems dropped everywhere
+E58_stricter_schema | KILLED | test_schema_export.py::test_exported_content_is_the_validation_schema_plus_id_and_dialect | schema stricter than the model (maximum 0)
+E59_id_pattern_loosened | KILLED | test_schema_export.py::test_exported_content_is_the_validation_schema_plus_id_and_dialect | ID pattern loosened
+E60_uniqueitems_dropped | KILLED | test_schema_export.py::test_exported_content_is_the_validation_schema_plus_id_and_dialect | uniqueItems dropped everywhere
+E61_pattern_unanchored | KILLED | test_schema_export.py::test_exported_content_is_the_validation_schema_plus_id_and_dialect | ID pattern unanchored
+E62_pattern_shorthand | KILLED | test_schema_export.py::test_exported_content_is_the_validation_schema_plus_id_and_dialect | pattern with a shorthand class
+E63_schema_version_pattern | KILLED | test_schema_export.py::test_enum_order_is_the_models_order | schema_version as a pattern, not an enum
+E46_imports_jsonschema | KILLED | test_schema_export.py::test_rendering_imports_no_test_only_package | module imports jsonschema
+M1_turn_rule_not_emitted | KILLED | test_schema_export.py::test_documented_presence_rules_are_emitted_as_if_then[Turn-1] | model: Turn if/then not emitted
+M2_stage_raw_rule_not_emitted | KILLED | test_schema_export.py::test_documented_presence_rules_are_emitted_as_if_then[StageSpan-1] | model: StageSpan if/then not emitted
+M3_closed_set_without_enum | KILLED | test_schema_export.py::test_every_schema_version_property_is_the_one_current_version | model: ClosedSet emits no enum
+M3b_closed_set_const_when_single | KILLED | test_schema_export.py::test_every_schema_version_property_is_the_one_current_version | model: single-member ClosedSet emits const
+E47_imports_hashlib | KILLED | test_schema_lock.py::test_schema_export_does_not_hash_or_compare_digests_itself | module imports hashlib
+M3c_enum_extra_member | KILLED | test_schema_export.py::test_every_schema_version_property_is_the_one_current_version | model: ClosedSet enum has an extra member
+M5_included_unique_items_dropped | KILLED | test_schema_export.py::test_unique_items_are_kept_where_the_models_reject_a_repeat | model: CostSummary.included uniqueItems dropped
+M6_privacy_rule_not_emitted | KILLED | test_schema_export.py::test_documented_presence_rules_are_emitted_as_if_then[PrivacyMarker-1] | model: PrivacyMarker if/then not emitted
+M7_channel_map_rule_not_emitted | KILLED | test_schema_export.py::test_documented_presence_rules_are_emitted_as_if_then[ChannelMap-1] | model: ChannelMap if/then not emitted
+E64_defs_not_sorted_irrelevant_equivalent | SURVIVED |  | EQUIVALENT CONTROL: no change
+M4_range_rule_bound_not_emitted | KILLED | test_schema_gaps.py::test_every_difference_between_a_model_and_its_schema_is_claimed_by_a_rule | model: RangeRule anyOf (needs a bound) not emitted
+
+TOTAL 68 mutants: 67 killed, 1 survived: E64_defs_not_sorted_irrelevant_equivalent
+Survivor E64 is the equivalent control (it changes nothing); it proves the harness does not kill everything.
+An exporter that edits the schema after pydantic (E51 to E63) is mostly caught by the equality-with-the-model test; the model-side
+mutants (M1 to M7) show the differential and the presence-rule tests catch a regression that changes the model's own schema.
+A first run reported E02 as survived: a stale .pyc of the same size and mtime second ran the old code; the harness now sets
+PYTHONDONTWRITEBYTECODE and clears __pycache__ before each mutant.

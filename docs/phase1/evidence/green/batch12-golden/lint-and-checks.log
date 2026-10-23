@@ -1,0 +1,33 @@
+$ uv run ruff check <the six files of P1-16>
+   Building tracer-evalschema @ file://~/tracer/packages/evalschema
+      Built tracer-evalschema @ file://~/tracer/packages/evalschema
+Uninstalled 1 package in 0.54ms
+Installed 1 package in 0.91ms
+All checks passed!
+exit=0
+$ uv run ruff format --check <the six files of P1-16>
+6 files already formatted
+exit=0
+$ uv run ruff check .   (whole repository)
+All checks passed!
+exit=0
+$ uv run ruff format --check .   (whole repository)
+195 files already formatted
+exit=0
+$ uv run mypy   (strict, whole configured file set incl. scripts)
+Success: no issues found in 137 source files
+exit=0
+$ uv run python scripts/check_headers.py
+exit=0
+$ uv run python scripts/guard_private_fixtures.py
+exit=0
+$ uv run python scripts/check_licenses.py
+42 ok, 0 failed
+exit=0
+$ non-ASCII check of the P1-16 code files (test code stays ASCII)
+scripts/property_coverage.py: 0
+scripts/build_golden_fixtures.py: 0
+packages/evalschema/tests/_support_b9.py: 0
+packages/evalschema/tests/_support_b9_valid.py: 0
+packages/evalschema/tests/_support_b9_invalid.py: 0
+packages/evalschema/tests/test_golden_fixtures.py: 0

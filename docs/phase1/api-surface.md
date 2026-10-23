@@ -5,6 +5,8 @@ Scope: tasks P1-04a, P1-04b, P1-04c, P1-04d, P1-05 (and the data/CI contracts of
 Status: the tests under `packages/evalschema/tests/` are written and red. Nothing in `src/` was written by qa.
 If a signature below is wrong for a good reason, escalate to staff-reviewer instead of changing a test.
 
+**Revision 23 (2026-10-23, schema-architect).** qa's JSON Schema export contract (`docs/phase1/api-surface-schema-export.md`) is merged as section 26 (that file now only points here); its readings A1 to A18 were auto-approved as recommended under the owner's standing rule and logged. P1-15 is implemented (26.13): `tracer_evalschema.schema_export` (`render_schemas`, `render_lock`, `export_json_schema`, `check_schema_directory`, `schema_directory`, `schema_id`, `main` and the command line `--write | --check [--dir]`), `digest.sha256_hex`, the committed package data `tracer_evalschema/schemas/` (26 entity schemas and `schema.lock`), `.gitattributes`, the CI drift step; A13 emits `uniqueItems` on every list whose model rejects an exact repeat and the `if`/`then` presence rules of `MetricResult`, `ToolCallEvent.result_complete` and `DatasetItem.privacy`. New findings A19 to A23 in 26.13.
+
 **Revision 22 (2026-10-23, schema-architect).** qa's bundle contract (`docs/phase1/api-surface-bundle.md`) is merged as section 25 (that file now only points here); its readings B1 to B21 were auto-approved on qa's recommendations under the owner's standing rule and logged, and each is marked Decided in 25.9. P1-14 and the export half of P1-27 are implemented (25.13): `bundle.RunBundle`, `ExportBundle`, `WithheldRecord`, `PayloadRedaction`, `ProvenanceRedaction`, `check_run_bundle`, `check_export_bundle`, `evidence_tier`, `check_observed_tier`, the seam keyword `require_resolved`, `privacy.export_human_subject`, `loader.load_bundle` (`DEFAULT_MAX_BUNDLE_BYTES` = 256 MiB), `errors.UnresolvedReferenceError` and `BundleSizeError`. Sections 2, 9 and 10 carry "(rev 22)" pointers. New findings B22 to B27 in 25.13.
 
 **Revision 21 (2026-10-23, schema-architect).** Mapping ambiguity M3 and the qa batch 7 follow-ups A1 to A5 and S-N91, auto-approved and logged, are implemented. `UsageRecord.model` is optional (23.1 row, marked "(rev 21)"); `resolve_price` takes `model: str | None` and answers `no_price_for_model` for `None` (23.1 row); a mixed set of usage with and without a model is `unit_unpriced`; `DigestKeyUnavailable` names the rule and the `key_id` only, the resolver's exception chained (24.4 S-N91 marked Decided, section 24.9). Details in sections 23.11 and 24.9.
@@ -2019,3 +2021,596 @@ show; the 228 mutants test the tests, not the reading. The pinned readings are t
 - **B27. Value-object count.** B20 says ADR 0001 Decision 8 goes from 65 to 68; Decision 8 already named 67 classes after revision 19 (`DekWrap`, `SealedAadFields`; the SCOPE gate text still said 65), so it now names 70, which is exactly what the registry walk finds. Recommendation: use 70 in ADR 0001 and SCOPE gate item 1 (done in revision 22).
 
 **Still open, unchanged:** N19 (`declared_by` in shared exports); B11 (`verify_bundle_digests`, with the key-management work); B13 and B19 (the export builder); B15 (language steps at P1-19); the `SCHEMA_POLICY.md` wording for B3 (sealed artifact `uri`) and the internal profile digest (P1-20a); the code-only rules of this section for the JSON Schema export (N12/N38, P1-15).
+
+## 26. Batch 11 (P1-15): JSON Schema export, `schema.lock` and the register of rules JSON Schema cannot state; API assumed by the tests
+
+Merged in revision 23 (schema-architect, 2026-10-23) from qa's contract `docs/phase1/api-surface-schema-export.md`, which now only points here. The text of 26.1 to 26.12 is qa's as written, with only the headings renumbered: a reference to "section N" or "contract N.M" inside 26.1 to 26.12 means 26.N or 26.N.M here (SCOPE and ADR references are unchanged). The decisions on A1 to A18, the implementation, the details fixed while implementing and the new findings are in 26.13.
+
+This contract was written by qa on 2026-10-23 for the failing tests of P1-15. It is a new file;
+the architect or the lead may merge it into `docs/phase1/api-surface.md` as a numbered section (as
+was done for sealing and the bundles). Readers: schema-architect and dev (implement exactly this),
+staff-reviewer (rules on section 8 and the ambiguities in section 9), the lead.
+
+Status: written and red. Tests (counts in section 11):
+`packages/evalschema/tests/test_schema_export.py`, `test_schema_lock.py`,
+`test_schema_agreement.py`, `test_schema_gaps.py` and the helper
+`packages/evalschema/tests/_support_b8.py` (the register `CODE_ONLY_RULES` lives there). If a name
+or rule below is wrong for a good reason, change the test and this file in the same revision and
+tell qa; do not make a test pass by weakening it.
+
+Sources: ADR 0008 Decisions 7 to 10 and invariants I10 to I14, ADR 0003 Decision 6, ADR 0002
+Decisions 1 and 2, ADR 0007 Decision 3, ADR 0009, SCOPE P1-15 and section 5 (Schema and
+isolation), gate items 2 and 5, api-surface 19.6 N12 and 19.7 N38, section 25.4 (bundle rules).
+Owner decisions applied: OQ1 (the `$id` is a URN, files ship inside the wheel), Q5/Q6 (exact
+version match while 0.0.x, first release 0.0.1), Q9 (CI on Python 3.11 to 3.14).
+
+"P" marks a reading this file pins where the text leaves room. Each is listed in section 9 with a
+recommendation; the lead auto-approves.
+
+### 26.1 What is built
+
+- A module `tracer_evalschema.schema_export` (runtime dependencies: the standard library and
+  pydantic only) that renders one JSON Schema file per registered entity, renders the lock, writes
+  both to a directory, checks a directory for drift, and has a command line.
+- A committed directory `packages/evalschema/src/tracer_evalschema/schemas/` (package data) that
+  holds the generated files and `schema.lock`. It is regenerated, never edited by hand, and CI
+  fails when it differs from the generator's output.
+- The same files in the wheel and in the sdist.
+
+### 26.2 The files (P1-15 "one file per entity plus bundle")
+
+#### 26.2.1 Module surface (P)
+
+```python
+# tracer_evalschema/schema_export.py
+SCHEMA_DIALECT = "https://json-schema.org/draft/2020-12/schema"
+SCHEMA_SUFFIX = ".schema.json"
+LOCK_NAME = "schema.lock"
+
+def schema_id(entity: str) -> str            # "urn:tracer:evalschema:<SCHEMA_VERSION>:<entity>"
+def schema_directory() -> Path               # <package>/schemas (package data, exists in a wheel)
+def render_schemas() -> dict[str, bytes]     # file name -> bytes; pure; sorted by file name
+def render_lock(files: Mapping[str, bytes]) -> bytes
+def export_json_schema(directory: str | os.PathLike[str]) -> list[str]
+def check_schema_directory(directory, *, released_locks: Mapping[str, bytes] | None = None) -> list[str]
+def main(argv: Sequence[str] | None = None) -> int
+```
+
+`tracer_evalschema.digest` gains `sha256_hex(data: bytes) -> str` (lowercase hex SHA-256; a `str`
+argument is a `TypeError`). `render_lock` uses it, because `test_digest_verification_single_entry_point`
+allows no module but `digest.py` to import `hashlib` (section 9, A6).
+
+`render_schemas()` calls `registry.entity_classes()` on every call (no import-time cache) and does
+no I/O. `export_json_schema` and `check_schema_directory` obtain the bytes by calling the
+module-level name `render_schemas()` (so a test can replace it; pinned for testability).
+
+#### 26.2.2 Which files, which names (P)
+
+- One file per entity of `registry.entity_classes()`: exactly `<ClassName>.schema.json`, for example
+  `Run.schema.json`, `RunBundle.schema.json`, `ExportBundle.schema.json`. The set is derived from
+  the registry walk; there is no list in the generator and no count in the tests. The two bundle
+  schemas are the files of the two bundle entities (prefixes `rbnd`, `exp`).
+- Value objects get no file of their own. They are embedded under `$defs` of every entity that uses
+  them. Nine value objects were in no entity schema when this was written; four of them (the
+  sealing types) are reached through `ExportBundle`; the other five are importer or helper types
+  that are never part of a stored document and are listed, with the reason, in
+  `NOT_IN_ANY_ENTITY_SCHEMA` of `test_schema_export.py` (A3). The list cannot rot: a listed name
+  that is now in a file, or no longer a class, fails.
+- File names are ASCII, start with a capital letter, are unique without case, and are listed in
+  sorted order.
+- The lock is `schema.lock` in the same directory (section 3). It is not a schema file and is not
+  returned by `render_schemas()`.
+
+#### 26.2.3 Bytes (P)
+
+Every generated JSON file (schemas and lock) is
+`json.dumps(document, indent=2, sort_keys=True, ensure_ascii=True)` encoded as ASCII, plus one LF.
+That is: object keys sorted at every level, two-space indent, every non-ASCII code point a `\u`
+escape, no BOM, no CR, no tab, no trailing space, one final newline. The tests re-serialize the
+parsed file independently and compare bytes.
+
+Stable ordering (P): in addition, every `required` array of every schema object is sorted and has
+no repeat (it is a set, so reordering fields must not change a byte). `enum`, `anyOf`, `oneOf`,
+`allOf`, `items` keep their declared order: the order of a closed set is its declared order.
+
+#### 26.2.4 Content (P)
+
+An exported schema is `model.model_json_schema(mode="validation")` plus exactly two additions and
+one normalisation, and nothing else (no hidden transform; `description` text is kept):
+
+- `"$schema": "https://json-schema.org/draft/2020-12/schema"` (ADR 0008 Decision 7);
+- `"$id": "urn:tracer:evalschema:<SCHEMA_VERSION>:<ClassName>"` (OQ1). `<ClassName>` equals the file
+  stem and the schema's `title`. No other schema object in the file has an `$id`. `schema_id()`
+  rejects a name that is not a class name (`ValueError` mentioning "entity");
+- `required` arrays sorted (section 2.3).
+
+A file is self-contained: every `$ref` is `#/$defs/<Name>` and resolves inside the file, every
+`$defs` entry is referenced, no `$anchor`, `$dynamicRef`, `$vocabulary` or reference to another
+file's URN. `$defs` names are the class names. The validation-mode and serialization-mode
+schemas of every entity are identical (ADR 0008 I13); the file is that schema.
+
+`schema_version` in every entity file is `{"type": "string", "enum": ["<SCHEMA_VERSION>"]}` and
+required: a file of version V accepts only V (exact match during 0.0.x, Q5).
+
+#### 26.2.5 Vocabulary (P)
+
+Only keywords of JSON Schema 2020-12 and the declared extension `x-pii` (ADR 0006 Decision 2) are used.
+`const` is never used (ADR 0003 Decision 6; a one-member closed set is a one-element `enum`) and
+neither is the OpenAPI keyword `discriminator`. `format` appears only as `date-time`, and then
+always with the canonical-UTC `pattern` (a `format` is an annotation in 2020-12 and `jsonschema`
+without extras does not assert it).
+
+Closed sets: every closed set and every variant tag is `{"type": "string", "enum": [...]}`
+(single-member sets included: `Money.currency`, the `kind` of the pass-rule variants, the
+`transport` of the endpoints, `CostRounding.mode`, `SealedPayload.format` and `alg`, `DekWrap.alg`).
+`CostRounding.scale` and `.exact` are `enum: [18]` and `enum: [false]`.
+
+Typed IDs: every ID `pattern` equals `ids.wire_pattern(prefix)` (`(?:a|b)` for a union), for
+registered prefixes only. Wherever a union has ID-pattern branches the branches name distinct
+prefixes, a nullable ID is `anyOf [<id>, {"type": "null"}]` with the null branch last, and the
+union accepts an ID of exactly the kinds its branches name. `TimelineOrigin.ref` is a `oneOf` of an
+`art_` ID and an `ExternalRef` object (N39).
+
+#### 26.2.6 Patterns (P)
+
+Every `pattern` starts with `^` and ends with `$`, compiles, and uses syntax that means the same in
+ECMA-262, Python and the common Rust and Go engines: no inline flags, named groups, atomic groups,
+possessive quantifiers, lookbehind, `\A`/`\Z`, no shorthand classes (`\d`, `\w`, `\s`, `\b`,
+`\p`: their Unicode meaning differs between engines). Lookahead `(?!...)` is allowed (the language
+tag pattern uses it). The tests evaluate patterns with ECMA semantics for the final `$` (it does
+not match before a trailing newline); Python's `re` does, so the stock `jsonschema` package accepts
+`"abc\n"` for `^[a-z]+$` (S-N90). That is a property of the validator, recorded as
+`CO-PYTHON-DOLLAR-NEWLINE` in the register.
+
+#### 26.2.7 Presence rules (N12, N38)
+
+Presence rules keyed on a closed discriminator are emitted as `allOf` of `if`/`then`, as batches 3
+to 5 did. `test_documented_presence_rules_are_emitted_as_if_then` pins a minimum count per
+definition (`PrivacyMarker` 1, `ChannelMap` 1, `Turn` 1, `ToolCallEvent` 1, `StageSpan` 1,
+`ExpectedToolCall` 3, `MetricDefinition` 6, `UsageQuantity` 1, `UsageRecord` 1,
+`AppliesWhenCondition` 3, `PriceEntry` 1, `ReportedCostRaw` 1, `CostRecord` 11, `CostExclusion` 1,
+`CostSummary` 1, `SealedAadFields` 1); removing a rule fails. Three of them are also checked
+behaviourally on the exported files.
+
+#### 26.2.8 No secrets, no environment
+
+No property name (including `patternProperties` keys and `$defs` names) is secret-like (ADR 0007
+Decision 3 denylist, `input_tokens` and `key_id` allowed); no `examples` or `example`; no `default`,
+enum member or description holds a credential-shaped value. No byte depends on the machine: no
+absolute path, home, temporary directory, `sys.prefix`, Python or pydantic version, host name,
+`site-packages`, object repr or memory address. A fresh interpreter with another hash seed, time
+zone, locale, I/O encoding and working directory renders the same bytes.
+
+### 26.3 `schema.lock` (P)
+
+A canonical JSON file (section 2.3) with exactly three members:
+
+```json
+{
+  "algorithm": "sha256",
+  "files": {"AgentTarget.schema.json": "<64 lowercase hex>", "...": "..."},
+  "schema_version": "0.0.1"
+}
+```
+
+- `files` has one entry per schema file, name -> SHA-256 of the file's bytes. The lock does not list
+  itself and `render_lock` rejects (`ValueError` mentioning "schema file") any name that is not
+  `<Class>.schema.json` (a path, the lock, a lower-case name).
+- `schema_version` is `SCHEMA_VERSION`, which equals the package version.
+- No timestamp, path, tool version or comment. `render_lock` is independent of the order of its
+  argument.
+
+### 26.4 Where the files live and what ships (P)
+
+- Package data directory `tracer_evalschema/schemas/`, committed. `schema_directory()` returns it
+  (next to the package's modules, so it exists in a checkout and in an installed wheel). It holds
+  only `<Class>.schema.json` files and `schema.lock`: no README, no `.py`, no subdirectory.
+- The wheel contains exactly those files under `tracer_evalschema/schemas/`, byte-identical to
+  the generator's output, and no `.py` there. The sdist carries the same files under
+  `src/tracer_evalschema/schemas/`. Not generated at install time (ADR 0008 "Rejected: generate
+  schemas at runtime only").
+- The wheel's `Requires-Dist` stays exactly `pydantic` and `rfc8785`; `jsonschema` and `hypothesis`
+  stay test-only and appear in no wheel metadata.
+- (Revision 25, A25; supersedes the sdist half of revision 24's A23.) Neither archive carries a
+  test file. The sdist holds `src/tracer_evalschema/` (modules, `data/`, `schemas/`), `README.md`,
+  `LICENSE`, `NOTICE`, `pyproject.toml`, and what hatchling always adds (`PKG-INFO`, the
+  `.gitignore` it applies): `[tool.hatch.build.targets.sdist] only-include` in
+  `packages/evalschema/pyproject.toml`. So `tests/` (and with it `tests/fixtures/real`,
+  `tests/fixtures/private`, `tests/support` and the UAX #9 reference) is never in it. The tests
+  run from the git checkout, which has the files they need. A wheel built from the unpacked sdist
+  (`uv build --wheel <sdist dir>`) equals the wheel built from the checkout, and once installed
+  `python -m tracer_evalschema.schema_export --check` exits 0.
+- A root `.gitattributes` marks the shipped directory (or `*.schema.json` and `schema.lock`) `-text`,
+  `binary` or `eol=lf`, so a Windows checkout cannot turn LF into CRLF and break the hashes.
+
+### 26.5 Drift check, update procedure, CLI
+
+#### 26.5.1 Update procedure (the documented way to change a schema)
+
+1. Change the model. 2. Run `uv run python -m tracer_evalschema.schema_export --write`. 3. Review
+the diff of `schemas/` (a reviewer sees real changes only, ADR 0008 Context). 4. While the version
+is unreleased (0.0.1 until the first release) the lock is simply regenerated. After a release the
+schemas of that version are frozen: bump `SCHEMA_VERSION` (and the package version, and add the
+CHANGELOG entry) before `--write`, and record the released lock under
+`tests/fixtures/frozen/<V>/schema.lock`.
+
+`export_json_schema(directory)` creates the directory (parents too), writes every schema file and
+the lock, overwrites what is there, removes a stale `*.schema.json` (an entity that no longer
+exists), leaves other files alone, and returns the sorted names it wrote (schemas and lock). A
+second run changes no byte.
+
+#### 26.5.2 `check_schema_directory(directory, *, released_locks=None) -> list[str]`
+
+Returns an empty list when the directory equals the generator's output. Otherwise one line per
+problem, tagged, with no path of the machine:
+
+| line | meaning |
+| --- | --- |
+| `[changed] <file name>` | the file's bytes differ from the generated ones (exactly this text) |
+| `[missing] <file name>` | a generated file is absent |
+| `[extra] <file name>` | any file that is neither generated nor the lock (a stray schema file, a README) |
+| `[lock] <detail>` | the lock is missing, not parseable, not canonical, or differs from `render_lock(generated)` (wrong hash, wrong version) |
+| `[released] <detail>` | `released_locks` has the current version and the directory's lock bytes differ, or a recorded lock of an older version is not a valid lock of that version |
+
+A file edited together with its lock entry is still `[changed]`: the generator is the reference.
+A missing directory reports every file `[missing]` (no exception). `released_locks` maps a version
+to the bytes of the lock recorded when that version was released; it is how "changing a schema file
+without bumping the version fails CI" (ADR 0008 Decision 7, I11) is stated: a directory consistent
+with the generator but whose lock differs from the released lock of the same version is
+`[released]`.
+
+#### 26.5.3 Command line
+
+`python -m tracer_evalschema.schema_export (--write | --check) [--dir DIR]`. `--dir` defaults to
+`schema_directory()`, found from the package, not from the working directory. `--write`
+regenerates and exits 0. `--check` prints each problem line of 5.2 to stderr and exits 1, or exits 0
+with no output. A usage error (no mode, both modes, an unknown flag, a flag without value) exits 2
+with a usage line. Never a traceback for drift or a missing directory.
+
+#### 26.5.4 CI
+
+`.github/workflows/ci.yml` has a step `uv run --locked python -m tracer_evalschema.schema_export
+--check` (any job). The full test suite fails on the same drift
+(`test_shipped_schemas_match_generated`).
+
+### 26.6 Runtime dependencies (ADR 0008 Decision 10)
+
+`schema_export.py` imports only the standard library, pydantic (and its dependencies) and
+`tracer_evalschema`; it imports neither `hashlib`, `hmac` nor `rfc8785` (hashing goes through
+`digest.sha256_hex`). Rendering in a fresh interpreter imports none of `jsonschema`, `hypothesis`,
+`yaml`, `cryptography`, `pytest`, `referencing`, `rpds`. The runtime dependency list of the
+package stays `pydantic`, `rfc8785`.
+
+### 26.7 Models and schemas agree (ADR 0008 Decision 8, I13, I14)
+
+Sample documents: `_support_b8.sample_variants()` builds, for every registered entity, one or more
+valid documents (one per branch of a conditional rule the batch 2 to 4 helpers can reach: five
+metric definitions, four metric results, a cost record per reason, two tool calls, two runs, two
+bundles of each kind from the batch 7 world, and so on). A new entity needs a sample before
+`test_every_registered_entity_has_sample_documents` passes.
+
+For every sample (all against the exported file):
+
+- the model's own dump (nulls kept) and the original document validate under the schema;
+  `exclude_none` is judged as the model judges it (`MetricResult.value` is required and nullable, so
+  leaving it out is invalid for both); the serialization-mode schema accepts the dump;
+- **the schema is never stricter than the model.** No register: a valid document refused by the
+  file is a bug;
+- **mutation engine.** One change at a time: member removed, set to null, set to another JSON type,
+  unknown member, a string replaced by one outside every set, near misses of every string (trailing
+  newline, leading space, swapped case, one character short, one long), integers negative, 2**53,
+  1.5, written as `1.0`, a list emptied or given a repeat. A kind is applied at most twice at one
+  shape path (list indexes folded) so the bundle documents stay affordable. Whatever the model
+  rejects, the schema must reject, except a rule claimed by a row of `CODE_ONLY_RULES` (section 8);
+- **hypothesis** (derandomized, no example database): an ID or MachineKey edited by one character,
+  or arbitrary text, at a string leaf of any sample, is judged alike by the model and the file.
+
+Patterns are evaluated with ECMA-262 semantics for `$` (section 2.6).
+
+### 26.8 Code-only rules and the register (N12, N38)
+
+Gate item 2 lets `KNOWN_SCHEMA_GAPS` hold only non-blocking mapping gaps (the register of
+`tests/support/mappings/gap_register.py`). The rules JSON Schema cannot state have their own
+register, `CODE_ONLY_RULES` in `_support_b8.py` (the separately named list N12 recommends; A12).
+Each row: `rule_id`, `owner` (a project agent), `nature` (`mutation`, `cross_record`,
+`arithmetic`, `cryptographic`, `validator`), `summary`, `docs` (path and an anchor sentence that must
+still occur), `claims` (kind, entity, path globs that match the mutation differences the rule
+explains) and an optional `witness` (a document the model rejects and the schema accepts). Tests keep
+it honest in both directions (`test_schema_gaps.py`):
+
+- every difference between a model and its schema that the engine finds is claimed by a row;
+- every claim still matches a difference (an emitted rule leaves the register: no stale rows);
+- every row with a witness is a real gap; every row cites documentation that still says it; every
+  ADR or api-surface file that says "code-only" is cited by a row (or listed in `NOT_RULE_BEARING`).
+
+Rows when this was written (owner in brackets; all `schema-architect` unless noted):
+`CO-INTEGRAL-FLOAT` (validator: JSON Schema counts `1.0` as an integer), `CO-IJSON-RANGE`,
+`CO-LABEL-TEXT` (HumanLabel rules), `CO-UNIQUE-ELEMENTS` (**emittable**), `CO-PROMPT-TEMPLATE-VARIABLES`,
+`CO-ONE-OF-SUBSET-OF-SCALE`, `CO-RANGE-BOUNDS-ORDER`, `CO-RUBRIC-ITEM-NEEDS-PASS-RULE`,
+`CO-BINDING-PARAMS-DECLARED`, `CO-RESULT-STATUS-PRESENCE` (**emittable**), `CO-TOOL-RESULT-PAIR`
+(**emittable**), `CO-TOOL-ARGUMENTS-PARSE`, `CO-DATASET-ITEM-PRIVACY` (**emittable**),
+`CO-STORED-CURRENCY-LABEL`, `CO-URL-RULES` (security-licensing), `CO-CONFIG-REF-CREDENTIALS`
+(security-licensing), `CO-PROFILE-PLACEHOLDERS`, `CO-DIGEST-VERIFICATION`, `CO-TURN-TIMING-ORDER`,
+`CO-VERDICT-COUNTS`, `CO-PRICE-ARITHMETIC`, `CO-PRICE-NOTE-NOT-BLANK` (security-licensing),
+`CO-BUNDLE-CROSS-RECORD`, `CO-SUMMARY-CONSISTENCY`, `CO-CROSS-RECORD-CHECKS`,
+`CO-CHANNEL-AGENT-COUNT`, `CO-PER-TURN-SUMMARY`, `CO-PYTHON-DOLLAR-NEWLINE` (qa, validator).
+
+"Emittable" rows are rules JSON Schema 2020-12 can state (`uniqueItems`, `if`/`then` on a closed
+discriminator, `dependentRequired`) and the models do not emit. Each carries the recommendation to
+emit it (A13). They stay rows until emitted; then the stale-claim test names the row to delete.
+
+(Revision 24, A22.) **Long-list uniqueness is a code-only rule, by choice.** On arrays of objects
+`uniqueItems` is not emitted although JSON Schema can state an exact repeat there: no exported
+schema bounds the length of such an array, and a validator compares objects pairwise, so the
+keyword costs time quadratic in a length the document chooses (validator cost, a denial-of-service
+surface for a consumer validating untrusted bundles). The models reject the repeat in linear time.
+The register row is `CO-LONG-LIST-UNIQUENESS` (nature `mutation`); keyed uniqueness stays
+`CO-KEYED-UNIQUENESS` (A20). Arrays of strings keep `uniqueItems` (cheap: sorted or hashed).
+
+### 26.9 Ambiguities and recommendations (the lead auto-approves)
+
+| # | Question | Reading pinned in the tests | Recommendation |
+| --- | --- | --- | --- |
+| A1 | What is `<entity>` in the `$id` and the file name: class name, prefix, snake case? | Class name (`Run`, `RunBundle`) | As pinned: it is the registry name, needs no mapping and is what `$defs` use. |
+| A2 | One file per entity only, or also per value object? | Entities only; value objects in `$defs` | As pinned. A consumer who wants `Money` alone can reference `$defs/Money` of any file. |
+| A3 | Five value objects are in no entity schema (`BidiFlaggedText`, `LanguageLabelWarning`, `LiteralProfileValue`, `ObservedLanguage`, `VersionedRef`). | Listed with a reason in `NOT_IN_ANY_ENTITY_SCHEMA`; the four sealing types must be reached through `ExportBundle` | Keep them out: they are helper and importer types. Revisit if a language binding needs one. |
+| A4 | Key order: sorted (pinned) or the model's field order. | Sorted at every level, `required` sorted | As pinned: byte stability does not depend on the order fields are written in a class. Field order is visible in the Python source. |
+| A5 | `description` text is docstring text and carries internal review ids (about 60 `P-nn` and 40 `Nnn` mentions across 26 files). | Kept as is (no hidden transform) | Keep for 0.0.1; decide at P1-20a whether the public schema should carry them. Not a test matter. |
+| A6 | `hashlib` may be imported only by `digest.py` (existing test). | `digest.sha256_hex(data: bytes) -> str` | As pinned. Alternative: exempt `schema_export.py` in the existing test, which weakens it; not recommended. |
+| A7 | Lock format: JSON (pinned) or `sha256sum` text. | Canonical JSON, three members | As pinned: one parser, `schema_version` is a member, no comment convention to get wrong. |
+| A8 | Where the files live; generated at build time or committed. | Committed package data `tracer_evalschema/schemas/` | As pinned (ADR 0008: static files, locked bytes). |
+| A9 | CLI shape, exit codes, line format. | Section 5.3 and 5.2 | As pinned. Messages are exact only for `[changed]`, `[missing]`, `[extra]` (tag and file name). |
+| A10 | How "without bumping the version" is detected before a release exists. | `released_locks` mapping from `tests/fixtures/frozen/<V>/schema.lock`; empty today | As pinned. Before the first release any change regenerates the lock; after it the lock of the released version is immutable. Needs `tests/fixtures/frozen/` from P1-16/17. |
+| A11 | Testability seam: `check_schema_directory` and `export_json_schema` call the module-level `render_schemas()`. | Pinned | As pinned (two tests replace it to simulate a model change). |
+| A12 | Name of the register (gate item 2 reserves `KNOWN_SCHEMA_GAPS` for non-blocking mapping gaps). | `CODE_ONLY_RULES`, separate object | As pinned; staff-reviewer rules on N12/N38 (open since revision 8). |
+| A13 | Four code-only rows are rules JSON Schema can state (see section 8). | Registered, flagged emittable | Emit all four: `uniqueItems` where the model rejects an exact repeat, `if`/`then` on `MetricResult.status`/`na_reason` (and the other presence rules N38 named), `dependentRequired` for `result_complete`, `if`/`then` for `DatasetItem.privacy`. Cheap, and each leaves the register. (Amended by A22, revision 24: `uniqueItems` only on arrays of strings; see 26.14.) |
+| A14 | The Python `$` quirk (S-N90): ECMA validators reject `"abc\n"`, Python's accepts. | Tests evaluate with ECMA semantics | Leave the schema; say so in `SCHEMA_POLICY.md` (P1-20a). Emitting `\Z` would not be ECMA. |
+| A15 | `1.0` is an integer to JSON Schema, an error to the models. | Row `CO-INTEGRAL-FLOAT` | `SCHEMA_POLICY.md` tells producers to write integers without a fraction. |
+| A16 | The `*_ms` base schema has no `maximum` (ADR 0002 Decision 2) while the model rejects above 2**53 - 1. | Row `CO-IJSON-RANGE` | Leave: ADR 0002 pins the base schema. |
+| A17 | `every property covered by a valid fixture` (SCOPE name). | Not in this batch (section 10) | Do it with the golden fixtures of P1-16, which are fuller than the samples here. |
+| A18 | Cost of the differential over the bundles (about 35 s of the 55 s the four files take). | Mutations capped at two per kind and shape | Keep: it is the only check of the bundle schemas. If CI time ever matters, lower `MAX_PER_SHAPE` in `_support_b8.py` before dropping a variant. |
+
+### 26.10 Not covered here, deferred
+
+- **`test_every_property_covered_by_valid_fixture`** (A17) and the golden fixtures (P1-16, P1-17): the
+  samples of this batch cover each branch of the conditional rules, not every optional property
+  (many optional members are never set; `metadata` is empty everywhere).
+- **Frozen schema locks** (`tests/fixtures/frozen/<V>/schema.lock`): none exist until a release;
+  `test_released_locks_in_the_frozen_fixture_directories_are_immutable` iterates the directory in its
+  body and passes with an empty record, and the negative control proves the mechanism.
+- **Bundle-level code-only rules** beyond what the mutation engine finds on the four bundle samples:
+  `CO-BUNDLE-CROSS-RECORD` claims the signatures found; a new bundle rule that is not claimed fails
+  until it is emitted or added.
+- **Cross-version equality of the lock** is checked by running the suite on 3.11 to 3.14 (the shipped
+  files are the same on every version or the drift test fails there), not by a test that spawns
+  several interpreters.
+- **Validation under a non-Python validator** (Ajv, a Rust or Go validator): no such tool is in the
+  environment. Portability is checked by the syntax rules of section 2.6 only.
+- **OpenAPI / TypeScript / DB generation** from the schemas (ADR 0008 Context): Phase 2.
+
+### 26.11 Test inventory (435 collected: 96 + 38 + 283 + 18; 100 test functions)
+
+All under `packages/evalschema/tests/`. `P` = pinned reading of section 9. The SCOPE section 5 names
+are kept where one exists. The entity list is the registry walk in every parametrized test; the
+sample table has 54 variants for the 26 entities (24 + the two bundles).
+
+**`test_schema_export.py` (96).** Module and file set: `test_export_module_surface`,
+`test_one_file_per_entity_and_no_other_file`, `test_bundle_schemas_are_exported`,
+`test_file_names_are_class_names_and_safe_on_every_file_system`,
+`test_render_schemas_reads_the_registry_at_call_time`, `test_render_schemas_is_pure`,
+`test_export_json_schema_writes_exactly_the_rendered_bytes`,
+`test_exporting_does_not_write_outside_the_target`. Determinism (I10):
+`test_jsonschema_byte_identical_two_runs`,
+`test_output_is_independent_of_hash_seed_time_zone_locale_and_cwd` (x3). Dependencies (Decision 10):
+`test_rendering_imports_no_test_only_package`,
+`test_schema_export_module_imports_only_stdlib_pydantic_and_the_package`. Bytes and order:
+`test_files_are_canonical_json_bytes` (x26), `test_required_arrays_are_sorted_and_unique_everywhere`,
+`test_enum_order_is_the_models_order`, `test_exported_content_is_the_validation_schema_plus_id_and_dialect`,
+`test_validation_eq_serialization_schema` (I13). Identity and dialect (I12, gate item 5):
+`test_schema_ids_are_urns`, `test_schema_id_helper_follows_the_schema_version`,
+`test_every_file_declares_draft_2020_12_and_is_a_valid_schema`,
+`test_the_pinned_dialect_is_the_one_the_adrs_name`,
+`test_every_schema_version_property_is_the_one_current_version`. Vocabulary and references:
+`test_only_known_keywords_are_used`, `test_format_keyword_is_annotation_only_and_always_backed_by_a_pattern`,
+`test_references_are_local_resolvable_and_all_used`,
+`test_every_defined_value_object_name_is_a_model_or_a_primitive`,
+`test_every_value_object_is_in_some_file_or_listed`. Closed sets (ADR 0003 Decision 6):
+`test_no_const_in_exported_schema_files`, `test_single_member_closed_sets_and_variant_tags_are_enums`
+(x13), `test_every_enum_is_a_nonempty_unique_closed_set`. IDs and unions:
+`test_typed_id_patterns_are_the_canonical_wire_pattern`,
+`test_typed_id_patterns_accept_their_own_kind_only`,
+`test_typed_id_unions_have_pattern_branches_that_never_overlap`,
+`test_timeline_origin_ref_is_a_union_of_an_artifact_id_and_an_external_ref`,
+`test_patterns_are_anchored_and_portable`. Presence rules:
+`test_documented_presence_rules_are_emitted_as_if_then` (x16),
+`test_presence_rules_behave_for_privacy_marker_stage_span_and_channel_map`,
+`test_unique_items_are_kept_where_the_models_reject_a_repeat`. Secrets and environment (ADR 0007
+Decision 3):
+`test_no_secret_like_property_names_or_example_keys_in_any_exported_schema`,
+`test_secret_name_detector_still_flags_the_known_names`,
+`test_no_environment_dependent_content_in_the_files`,
+`test_descriptions_are_dedented_text_without_trailing_space`.
+
+**`test_schema_lock.py` (38).** Lock: `test_lock_is_canonical_json_of_version_algorithm_and_one_hash_per_file`,
+`test_lock_does_not_depend_on_the_order_of_the_files_it_is_given`,
+`test_lock_hash_changes_with_exactly_the_changed_file`, `test_render_lock_rejects_a_name_that_is_not_a_schema_file`,
+`test_schema_lock_matches_version` (I11). Shipped directory:
+`test_schema_directory_is_the_package_data_directory`,
+`test_shipped_directory_holds_only_the_schema_files_and_the_lock`, `test_shipped_schemas_match_generated`,
+`test_check_schema_directory_reports_nothing_for_the_shipped_and_a_fresh_directory`. Drift and the
+version rule: `test_schema_change_without_version_bump_fails` (x10 tampers),
+`test_a_model_change_is_drift_until_the_directory_is_regenerated`,
+`test_released_version_forbids_schema_changes_under_the_same_version`,
+`test_released_locks_in_the_frozen_fixture_directories_are_immutable`,
+`test_update_procedure_regenerates_stale_directories_and_is_idempotent`. CLI and CI:
+`test_cli_check_exit_codes_and_messages`, `test_cli_write_then_check`,
+`test_cli_usage_errors_exit_with_code_2` (x4), `test_cli_check_of_the_shipped_directory_passes`,
+`test_ci_workflow_runs_the_drift_check`, `test_gitattributes_keeps_generated_files_byte_stable_on_every_platform`.
+Hashing and dependencies: `test_digest_sha256_hex_helper_matches_hashlib`,
+`test_schema_export_does_not_hash_or_compare_digests_itself`, `test_generator_adds_no_runtime_dependency`.
+Packaging: `test_wheel_ships_the_generated_schemas_byte_for_byte`, `test_sdist_ships_the_same_schemas`,
+`test_wheel_requirements_are_unchanged_by_the_generator`.
+
+**`test_schema_agreement.py` (283).** `test_every_registered_entity_has_sample_documents`;
+per variant (x54 each): `test_sample_documents_are_valid_for_the_model`, `test_roundtrip_valid` (I14),
+`test_serialization_schema_accepts_the_dump_as_well`, `test_schema_is_never_stricter_than_the_model`,
+`test_invalid_rejected_by_both` (I14); `test_required_fields_are_required_in_the_schema`,
+`test_unknown_members_are_rejected_at_every_object_level`,
+`test_sealed_payload_definition_agrees_with_the_model` (x5, one per payload type),
+`test_redaction_record_definition_agrees_with_the_model`; hypothesis:
+`test_exported_id_pattern_agrees_with_the_id_class_on_edited_and_random_ids`,
+`test_exported_machine_key_pattern_agrees_with_the_type`,
+`test_arbitrary_text_at_a_string_leaf_is_judged_alike_by_model_and_schema`,
+`test_hypothesis_settings_are_deterministic`.
+
+**`test_schema_gaps.py` (18).** The register: `test_register_rows_are_complete_and_unique`,
+`test_every_row_cites_documentation_that_still_says_it`, `test_every_document_that_says_code_only_is_cited_by_a_row`,
+`test_register_is_separate_from_the_mapping_known_schema_gaps`,
+`test_emittable_rows_carry_the_recommendation_to_emit`, `test_at_least_one_row_per_documented_family`;
+the ratchet: `test_every_difference_between_a_model_and_its_schema_is_claimed_by_a_rule`,
+`test_every_claim_still_matches_a_difference`, `test_the_schema_is_never_stricter_anywhere`,
+`test_witnesses_are_real_gaps`; self-tests of the engine (green today):
+`test_engine_finds_a_schema_that_is_looser_than_its_model`,
+`test_engine_finds_a_schema_that_is_stricter_than_its_model`,
+`test_engine_reports_nothing_for_an_agreeing_pair`, `test_mutations_are_deterministic_and_cover_every_family`,
+`test_pattern_semantics_are_ecma_for_the_end_anchor`, `test_canonical_dumps_is_stable_and_ascii`,
+`test_claims_match_by_component_globs`, `test_a_row_can_be_built_and_is_immutable`.
+
+SCOPE section 5 names covered: `test_jsonschema_byte_identical_two_runs`, `test_schema_lock_matches_version`,
+`test_schema_change_without_version_bump_fails`, `test_schema_ids_are_urns`,
+`test_validation_eq_serialization_schema`, `test_roundtrip_valid`, `test_invalid_rejected_by_both`; the
+generated-schema half of `test_no_const_in_generated_schemas` (the model-level test exists in
+`test_primitives.py`). Not covered: `test_every_property_covered_by_valid_fixture` (section 10).
+Gate items touched: 2 (no skips, `KNOWN_SCHEMA_GAPS` stays mapping-only) and 5 (2020-12, byte-identical,
+URN `$id`, lock matches the version); the wheel content is the ADR 0008 Decision 7 / OQ1 requirement.
+
+### 26.12 Validation (qa, 2026-10-23)
+
+Evidence in `docs/phase1/evidence/red/batch11-schema-export/`:
+
+- `red-schema-export.py3.11.log` to `3.14.log`: the four files against the repository (HEAD 20e9ad3,
+  where `RunBundle`, `ExportBundle` and the sealing types are in): **435 collected, 306 failed, 129
+  passed on each of 3.11.16, 3.12.14, 3.13.15 and 3.14.7**. `failure-reasons.txt` groups the failures:
+  288 `tracer_evalschema.schema_export` missing, the rest the missing `schemas/` directory,
+  `digest.sha256_hex`, `.gitattributes`, the CI step and the registers' comparison step that raises
+  when nothing could be compared. The 129 that pass need no module (the register and its
+  anchors, the engine self-tests, sample validity, the model-side schema checks).
+- `oracle-green-schema-export.py3.11.log` to `3.14.log`: **435 of 435 pass** on all four versions
+  against a throwaway oracle (a copy of HEAD with a new `schema_export.py`, `digest.sha256_hex`, the
+  generated `schemas/` written on 3.14, a `.gitattributes` and a CI step; kept outside the
+  repository). The files generated on 3.14 pass the drift test on 3.11, 3.12 and 3.13: the bytes are the
+  same on every version.
+- `mutants.txt`: **68 mutants of the oracle, 67 killed, 1 survivor, which is the equivalent control.**
+  Exporter mutants (byte form, identity, lock, export, check, CLI, file set, environment, content,
+  vocabulary, references, imports) and model-side mutants (a presence rule not emitted, a closed set
+  without `enum`, with `const`, with an extra member, a `uniqueItems` dropped, the range-rule bound
+  rule not emitted). The oracle was written by the same author as the tests (shared-author caveat);
+  the mutants are what tests that echo the oracle would not catch.
+- `checks.txt`: `ruff check`, `ruff format --check`, `mypy --strict` (whole project), `check_headers`,
+  `guard_private_fixtures`, `check_licenses`: clean.
+- The whole suite on 3.13 with the new files: 309 failed (the 306 red tests of this batch plus the three
+  policy-document tests that wait for `SCHEMA_POLICY.md`), 2450 passed; no other test changed state.
+
+What was not verified: a non-Python JSON Schema validator (none in the environment); Python 3.15
+(non-blocking leg); Windows line endings (the `.gitattributes` test reads a file, no checkout was
+made on Windows); the CI step beyond its text; the hypothesis tests under other seeds (they are
+derandomized and passed on four interpreters); the register claims after any model change that
+landed after HEAD 20e9ad3.
+
+### 26.13 Revision 23: P1-15 implemented (schema-architect, 2026-10-23)
+
+**Decisions.** A1 to A18 of 26.9 were auto-approved as recommended under the owner's standing rule (decision log "AUTO-APPROVED A1-A18"): every pinned reading of 26.1 to 26.8 stands. A13 (emit the four emittable rows) is implemented below; A14 and A15 wait for `SCHEMA_POLICY.md` (P1-20a); A16 keeps the `*_ms` base schema without a maximum; A17 moves to P1-16; A10 waits for the first release.
+
+**Module.** `tracer_evalschema.schema_export` (standard library, pydantic and the package only; no `hashlib`, `hmac` or `rfc8785`): `SCHEMA_DIALECT`, `SCHEMA_SUFFIX`, `LOCK_NAME`, `LOCK_ALGORITHM` (`"sha256"`, one more constant than 26.2.1 lists), `schema_id`, `schema_directory`, `render_schemas`, `render_lock`, `export_json_schema`, `check_schema_directory`, `main`; command line `python -m tracer_evalschema.schema_export (--write | --check) [--dir DIR]`. `digest.sha256_hex(data: bytes) -> str` is new (anything but `bytes` is a `TypeError`); `digest` stays the only module that imports `hashlib`.
+
+**Shipped files.** `packages/evalschema/src/tracer_evalschema/schemas/` holds 26 `<ClassName>.schema.json` files (about 620 KB) and `schema.lock`, generated with `--write` on the default interpreter (Python 3.14.7) after the A13 changes. The same bytes are generated on 3.11.16, 3.12.14, 3.13.15 and 3.14.7: `--check` exits 0 and `test_shipped_schemas_match_generated` passes on each. `[tool.hatch.build] artifacts` in `packages/evalschema/pyproject.toml` names the files, so an ignore rule cannot drop them; the wheel carries exactly them under `tracer_evalschema/schemas/` and the sdist under `src/tracer_evalschema/schemas/`, byte for byte; the wheel's `Requires-Dist` is still exactly `pydantic==2.14.1` and `rfc8785==0.1.4`. The root `.gitattributes` sets `text eol=lf` on the directory, on `*.schema.json` and on `schema.lock`. CI: the lint job runs `uv run --locked python -m tracer_evalschema.schema_export --check` after the header check.
+
+**A13: the four emittable rules are emitted.** Only `json_schema_extra` changed (in the existing style); no validator, field type, default or message changed, so every model accepts and rejects exactly what it did before (the full suite outside the register tests is unchanged).
+1. **`uniqueItems: true` on every list whose model rejects an exact repeat**, beyond the twelve of `UNIQUE_ITEMS_PROPERTIES`: `metadata_flags` (every entity: the list must equal the flags computed from `metadata`, one per JSON Pointer), `AgentTarget.languages` and `.declared_capabilities`, `ChannelMap.channels`, `Evaluator.metric_bindings` and `.scripted_turns` (index equals position), `OneOfRule.options`, `EnumScale.options`, the list form of `MetricDefinition.languages`, `MetricDefinition.parameters` and `.prompt_variables`, `PriceEntry.applies_when`, `PricingCatalog.entries`, `Project.provider_configs`, `MetricResult.declared_language_transcript_ids`, `Rubric.items`, `UsageRecord.quantities`, `RunVerdict.checks` and `.weighted_excluded`, `CostSummary.excluded`, and the lists of the bundles (`RunBundle`: `pricing_catalogs`, `test_profiles`, the ten record lists, `withheld`; `ExportBundle`: `run_bundles`, `datasets`, `dataset_items`, `sealed_payloads`, `provenance_redactions`). Not emitted where the model accepts an exact repeat: `Evaluator.expected_tool_calls` (ranks may tie), `ConfigSnapshot.metric_definitions` and `.metric_bindings` (see A21), `ExportBundle.payload_redactions` (entries for one subject add up), `AgentTarget.declared_stack`, `Run.channel_maps`, `.external_refs`, `.ingest_warnings`, `Turn.segments`, `JudgeInfo.per_turn`, `MetricResult.evidence_refs`.
+2. **`MetricResult` presence rules** (`results._result_conditions`, seven `if`/`then` rules keyed on `status`, `na_reason` and `language_source`): scored has no `na_reason`, `error` or `missing_kinds`, exactly one of a non-null `value` and a `per_turn`, and a scored `per_turn` counts a turn; not_applicable and error have no `value` or `passed`; not_applicable needs `na_reason`, has no `error`, `scorer` or `judge`, a `per_turn` without counted or undetermined turns, and `missing_kinds` non-empty if and only if `na_reason=missing_input`; error needs `error` and has no `na_reason` or `missing_kinds`; an error `per_turn` has no counted turn, an undetermined turn and `error.code=judge_undetermined`; `declared_language_transcript_ids` non-empty if and only if `language_source=declared`; `missing_input` and `agent_channel_unknown` have no `language_source`. The rules that read the definition or the bundle stay in code (`check_result_against_definition`, `CO-BUNDLE-CROSS-RECORD`).
+3. **`ToolCallEvent`:** a non-null `result_complete` requires a non-null `result_raw`, as a second `if`/`then` rule, not as `dependentRequired` (A19).
+4. **`DatasetItem`:** an item with a non-null `artifact_id` or `transcript_id` requires a privacy marker, and without a `source_run_id` that marker has `human_subject=true` (ADR 0016 Decision 5), as four `if`/`then` rules (`dataset._item_privacy_conditions`).
+
+Every `if` names a property of its own object (as `test_documented_presence_rules_are_emitted_as_if_then` requires). An absent member and `null` are the same to the models, so "has no X" is written `X: {"type": "null"}` (absence passes) and "needs X" is `required` plus a non-null type; an empty and an absent list are the same too (`maxItems: 0`). Beyond the mutation engine, an exhaustive grid of documents compared model and schema on the three changed entities (outside the repository): `MetricResult`, 583,200 documents over status, value, passed, na_reason, missing_kinds, error, per_turn, language_source, declared transcript IDs, judge and scorer: the schema is never stricter and never looser (7,968 valid for both); `ToolCallEvent`, 288 documents: never stricter, looser only for a truncated `arguments_raw` with `arguments_complete=true` (24, `CO-TOOL-ARGUMENTS-PARSE`); `DatasetItem`, 108 documents: identical judgement.
+
+**Register rows qa must now remove** (the stale-claim and witness tests name them; the architect did not edit `_support_b8.py`): the rows `CO-UNIQUE-ELEMENTS` (see A20), `CO-RESULT-STATUS-PRESENCE`, `CO-TOOL-RESULT-PAIR` and `CO-DATASET-ITEM-PRIVACY`; and the claim `("to_null", "*Bundle", "results.*.value")` with its `*.` form from `CO-BUNDLE-CROSS-RECORD` (the other kinds at `results.*.value` stay live). `test_at_least_one_row_per_documented_family` needs the tokens `UNIQUE` and `RESULT-STATUS`; A20 keeps `UNIQUE`, and `RESULT-STATUS` must leave that list. The remaining register rows all still match a difference or carry a witness the schema accepts.
+
+**Details fixed while implementing** (not pinned by tests unless stated):
+1. **`required` is sorted on schema objects only.** Values of `enum`, `const`, `default` and `examples` are data and copied unchanged; a `required` array that names a property twice is a defect of the model and raises `ValueError` (removing the repeat would be a hidden transform).
+2. **`render_schemas` refuses a broken registry** with `ValueError`: two entities with one class name, two file names equal without case, a schema `title` that is not the class name, or a model schema that already sets `$schema` or `$id`.
+3. **Writing.** `export_json_schema` renders and computes the lock before it touches the directory, writes each file through a temporary file in the same directory and an atomic rename, and leaves a file that already holds the right bytes untouched (a second run changes neither a byte nor a modification time). A stale `*.schema.json` is deleted only when it is a file; a directory of that name is left and reported `[extra]`.
+4. **Checking.** Only regular files count: a subdirectory or a symbolic link is `[extra]` (a symlinked generated file is also `[missing]`). `[lock]` lines say what is wrong: not JSON, other members, another algorithm, another version, a missing or malformed hash, not canonical, or per file a missing entry, an entry for a file that is not generated, or another hash. A recorded lock of a released version is validated with the same rules against its own version; under the current version a different on-disk lock (or none) is `[released]`. No line holds a path.
+5. **Command line.** `--write` prints one line to stdout (`wrote 26 schema files and schema.lock`), `--check` prints nothing when clean; an `OSError` exits 1 with `error: cannot access the schema directory: <reason>` (no path, no traceback); `main()` returns argparse's exit status instead of raising `SystemExit` (2 for a usage error, 0 for `--help`).
+
+**Tests.** No test was edited by the architect. On Python 3.11.16, 3.12.14, 3.13.15 and 3.14.7 the four batch 11 files pass 433 of 435; the two failures are the register tests that name the rows above. The full suite fails only those two and the three `SCHEMA_POLICY.md` tests (P1-20a). Logs in `docs/phase1/evidence/green/batch11-schema-export/`.
+
+**New findings (revision 23; each with a recommendation the lead may auto-approve):** (All five decided in revision 24, decision log "AUTO-APPROVED A19-A23"; A22 and A23 implemented: see 26.14.)
+- **A19. `result_complete` as `if`/`then`, not `dependentRequired`.** A13 names `dependentRequired`. That keyword treats a present `null` as present, and the model treats `result_complete: null` as absent, so `{"result_complete": null}` without `result_raw` is valid for the model and would be invalid for the schema (stricter, which 26.7 forbids). Implemented as `if` (`result_complete` is a boolean) `then` (`result_raw` required and a string). Recommendation: accept; the same reading applies to any future "X only with Y" rule on nullable members.
+- **A20. Keyed uniqueness after `CO-UNIQUE-ELEMENTS` goes.** The row also documents uniqueness by key (one entry per `entry_key`, per provider and model, per unit, per primary language, per binding, per channel index, per record ID), which no keyword can state. Recommendation: qa replaces the row with a non-emittable `mutation` row (for example `CO-KEYED-UNIQUENESS`, same anchors) whose witness is `AgentTarget.languages = ["hi-IN", "hi-in"]` (rejected by the case-canonical model check, accepted by `uniqueItems`), keeping the family token `UNIQUE`, and adds the new `uniqueItems` properties of A13 item 1 to `UNIQUE_ITEMS_PROPERTIES` so the ratchet protects them.
+- **A21. Identical repeats inside a `ConfigSnapshot`.** `metric_definitions` and `metric_bindings` accept the same `(id, version)` twice with identical content (the references resolve through a mapping), while a `RunBundle` rejects an identical repeated record (B2). Recommendation: reject an exact repeat in the snapshot model (`[duplicate]`-style message naming the ID), then emit `uniqueItems` there; a model change, so qa writes the test first.
+- **A22. `uniqueItems` on unbounded arrays of objects costs validators quadratic time.** Measured with `jsonschema` 4.26 on the A-05 bundle (4,000 turns, 600 tool calls): the `RunBundle` file validates in 3.63 s, against 0.18 s with every `uniqueItems` removed; the cost grows with the square of the list length (a hostile bundle near the 256 MiB limit could keep a pure-Python or pairwise validator busy for hours), while our models stay linear (A-05). Arrays of strings are cheap (`jsonschema` sorts them, Ajv hashes them). Options: (A) keep as decided in A13; (B) keep `uniqueItems` on short lists and string lists, drop it on the unbounded object arrays of the bundles (`turns`, `exchanges`, `tool_calls`, `spans`, `results`, `usage_records`, `cost_records`, `cost_summaries`, `artifacts`, `transcripts`, `run_bundles`, `dataset_items`, `sealed_payloads`) and on `PricingCatalog.entries`, and claim their `list_repeat` signatures in `CO-BUNDLE-CROSS-RECORD` (record IDs are keyed uniqueness anyway, which `uniqueItems` states only for exact copies). Recommendation: B, and state in `SCHEMA_POLICY.md` that a consumer validating untrusted bundles applies the byte limit first. Implemented: A (the binding A13 text).
+- **A23. The sdist ships the tests.** The sdist carries `tests/` (as before this batch; only `tests/support` and the UAX #9 tests are excluded), while the wheel carries none. Recommendation: decide at P1-21; shipping tests in an sdist is common and lets a downstream packager run them, but the batch 8 to 11 helpers are large.
+- A5 (internal review IDs in `description` text) is unchanged and still to be decided at P1-20a.
+
+### 26.14 Revision 24: A19 to A23 decided; A22 and A23 implemented (schema-architect, 2026-10-23)
+
+**Decisions** (decision log "AUTO-APPROVED A19-A23", binding):
+- **A19** decided as implemented in revision 23: `result_complete` is emitted as `if`/`then`, not `dependentRequired`, because a present `null` is absent to the model. The same reading applies to any later "X only with Y" rule on a nullable member.
+- **A20** decided: qa's register gains the non-emittable row `CO-KEYED-UNIQUENESS` (witness `AgentTarget.languages = ["hi-IN", "hi-in"]`), `CO-UNIQUE-ELEMENTS` leaves, and `UNIQUE_ITEMS_PROPERTIES` lists the properties that carry the keyword (minus the A22 drops). Test-side only.
+- **A21** decided: `ConfigSnapshot` rejects the same metric definition or binding twice (a model change; qa writes the test first, then the model changes). Not implemented in this revision. Open point: see the new finding A24 below. (Implemented in revision 25 with A24, 26.15.)
+- **A22** decided (security; amends A13): no `uniqueItems` on the record lists of `RunBundle` and `ExportBundle`, on `PricingCatalog.entries` or on any other unbounded array of objects; kept on the arrays of strings. The models still reject every repeat in code. Register row `CO-LONG-LIST-UNIQUENESS` (reason: validator cost), see 26.8.
+- **A23** decided: the sdist keeps `tests/` for downstream verification without `tests/fixtures/real` and `tests/fixtures/private`; the wheel stays test-free (P1-21). (Its sdist half is superseded in revision 25 by A25: the sdist ships no tests, 26.15.)
+
+**A22 as implemented.** A walk of the 26 exported files (every array schema in every entity and every `$defs` entry, items resolved through `$ref`) found 56 arrays of objects with `uniqueItems` and 19 arrays of strings with it, and no `maxItems` anywhere, so every array of objects is unbounded in the schema. The keyword is removed from all 56 (only the `json_schema_extra` entries; no validator, type, default or message changed):
+- `RunBundle`: `pricing_catalogs`, `test_profiles`, `artifacts`, `transcripts`, `turns`, `exchanges`, `tool_calls`, `spans`, `results`, `usage_records`, `cost_records`, `cost_summaries`, `withheld` (the `_UniqueList` alias of `bundle.py` is gone);
+- `ExportBundle`: `run_bundles`, `datasets`, `dataset_items`, `sealed_payloads`, `provenance_redactions` (`payload_redactions` never had it);
+- `PricingCatalog.entries`, `PriceEntry.applies_when`;
+- `metadata_flags` of every entity (26; one entry per string leaf of user-owned `metadata`, so as long as the metadata);
+- `ChannelMap.channels`, `CostSummary.excluded`, `Evaluator.metric_bindings` and `.scripted_turns`, `MetricDefinition.parameters`, `Project.provider_configs`, `Rubric.items`, `UsageRecord.quantities`, `RunVerdict.checks` and `.weighted_excluded`.
+
+Kept (19 arrays of strings, 17 property names, exactly qa's `UNIQUE_ITEMS_PROPERTIES`): `AgentTarget.languages` and `.declared_capabilities`, `CostExclusion.covered_by`, `CostRecord.unpriced_units` and `.usage_record_ids`, `CostSummary.included`, `Dataset.item_ids`, `EnumScale.options`, `OneOfRule.options`, `MetricDefinition.languages` (list form), `.prompt_variables` and `.requires`, `MetricResult.declared_language_transcript_ids` and `.missing_kinds`, `PriceEntry.aliases`, `PricingSnapshot.entry_keys`, `RedactionRecord.covers`, `Run.available_inputs` and `.detected_capabilities`. Some of them are long (`item_ids`, `included`, `usage_record_ids`), but strings are cheap: `jsonschema` sorts them (100,000 IDs: 0.44 s), Ajv hashes them.
+
+**Measured** (`jsonschema` 4.26.0, Draft 2020-12, Python 3.14.7, the A-05 bundle of `test_huge_call_bundle_validates_in_calibrated_time`: 4,000 turns, 600 tool calls, 400 usage and cost records; `iter_errors` on `model_dump_json()` output, 0 errors in every run, before and after measured alternately in one session, minimum of three):
+
+| Schema | 4,000 turns | 8,000 turns |
+| --- | --- | --- |
+| `RunBundle`, before (revision 23) | 4.19 s | 35.7 s |
+| `RunBundle`, after | 0.49 s | 0.84 s (16,000: 1.54 s) |
+| `ExportBundle` (internal, one run bundle), before | 4.24 s | |
+| `ExportBundle`, after | 0.49 s | |
+
+For scale: `uniqueItems` alone on 4,000 one-member objects takes 14.6 s in `jsonschema` (pairwise deep comparison). The 3.63 s / 0.18 s of A22 were measured differently; the ratio, not the absolute time, is the finding.
+
+**Regenerated** `tracer_evalschema/schemas/` (26 files, `schema.lock`) with `--write` on Python 3.14.7; `--check` exits 0 on 3.11.16, 3.12.14, 3.13.15 and 3.14.7 (identical bytes). No `schema_version` change (0.0.1 unreleased); no migration (no table).
+
+**A23 as implemented.** `[tool.hatch.build.targets.sdist] exclude` gains `/tests/fixtures/real` and `/tests/fixtures/private` (beside `/tests/support` and `/tests/test_uax9_*.py`). Built with `uv build --package tracer-evalschema`: the sdist holds 673 files, 594 under `tests/` (fixtures: `frozen`, `golden`, `languages`, `synthetic`, `unicode` and `README.md`; none under `real` or `private`), and the 27 schema files byte-identical to the repository; the wheel holds 78 files, no test file, and the same 27 schema files byte-identical.
+
+**New finding (revision 24; recommendation for the lead):**
+- **A24. A21 and A22 meet on `ConfigSnapshot`.** A21 says "then emit `uniqueItems`" on `metric_definitions` and `metric_bindings`; both are arrays of objects with no length bound, which A22 excludes. Recommendation: implement the A21 model check, emit no `uniqueItems` there, and claim their `list_repeat` signatures under `CO-LONG-LIST-UNIQUENESS` (one rule for every array of objects; a snapshot is small in practice, but its length is still the document's choice). Alternative: emit with a `maxItems` bound on both lists (a new model limit, which A21 does not ask for). (Decided in revision 25 as recommended, 26.15.)
+- **A25. The tests in the sdist are not self-contained.** Run from an unpacked sdist (the package's tests against the same code, with the root `pytest` markers passed by hand), 594 tests fail or error (Python 3.14.7). 352 of them fail in the repository too: 345 in the two mapping files whose adapters are not written yet (`test_mapping_f2.py`, `test_mapping_f5.py`, untracked work of another agent that the sdist also picks up), the four red A21 tests and the three `SCHEMA_POLICY.md` tests. The other 242 need files the sdist does not carry: `tests/fixtures/real` (A23: `test_mapping_f1`, `_f3`, `_f4_f7`, `_f6`, `test_mapping_followups`, `test_mapping_no_fabrication`, two of them at collection), `tests/support` (the UAX #9 reference: `test_bidi_conformance`, `test_display_safe`), the repository's `scripts/`, `docs/` and root `pyproject.toml` (`test_golden_fixtures`, `test_data_files`, `test_language_fixtures`, `test_repo_contract`, `test_schema_gaps`, `test_schema_lock`, `test_schema_export`, the policy-document tests). The sdist also has no `pytest` configuration: the root `[tool.pytest.ini_options]` (markers `private_fixtures`, `local_only` and their deselection) is not in it. Recommendation: qa adds a `repository` marker, applied by the conftest to every test that needs a file outside the package, which skips with the reason "needs the repository checkout" when that file is absent, and CI asserts that nothing is skipped for that reason in the repository; dev moves the pytest configuration the tests need into a place the sdist carries (to be checked: a `[tool.pytest.ini_options]` in `packages/evalschema/pyproject.toml` would change the rootdir of repository runs). Until then the sdist's tests are documentation, not a verification a packager can run. (Decided in revision 25 otherwise: the sdist ships no tests and no `repository` marker is added, 26.15.)
+
+### 26.15 Revision 25: A24 and A25 decided; A21 (with A24) and A25 implemented (schema-architect, 2026-10-23)
+
+**Decisions** (decision log "AUTO-APPROVED: A24 ... A25", binding):
+- **A24** decided as recommended (restating A21): `ConfigSnapshot` rejects the same metric definition (same `id` and `version`) or the same binding twice; no `uniqueItems` and no `maxItems` on `metric_definitions` and `metric_bindings`; both lists are covered by `CO-LONG-LIST-UNIQUENESS`.
+- **A25** decided (supersedes the sdist half of A23): the sdist ships no tests (package source with the schemas, `README.md`, `LICENSE`, `NOTICE`, `pyproject.toml`); verification runs from the git checkout; the wheel stays test-free; no `repository` skip marker. Rejected: shipping the tests with a skip marker (it hides failures behind skips). The `private_fixtures`/`local_only` marker configuration stays in the repository-root pytest configuration.
+
+**A21 as implemented.** `ConfigSnapshot._check_repeats` runs in the model validator after the digest check and before the reference checks (which resolve through mappings keyed by `(id, version)`, so a second entry under one key was dropped silently before). For each list it reports every entry whose `(id, version)` an earlier entry already has, whether the two entries are identical or not, as one `ValidationError` (raised through `raise_problems`, so the location survives embedding):
+- type `duplicate`, location `("metric_definitions", i)` or `("metric_bindings", i)` with `i` the position of the repeat;
+- message `duplicate definition: the definition at position i has the id and version of an earlier entry of metric_definitions` (likewise `binding`, `metric_bindings`): the rule and the position, never the record, its ID or its digest (N42); `ConfigSnapshot` hides its input (O4).
+
+The same through `model_validate_json`. The `ConfigSnapshot` docstring names the rule, so the `description` of `ConfigSnapshot` changes in `ConfigSnapshot.schema.json`, `RunBundle.schema.json` and `ExportBundle.schema.json` (no keyword changes; no `uniqueItems` added); `--write` regenerated them and `schema.lock`, and `--check` exits 0 on Python 3.11.16, 3.12.14, 3.13.15 and 3.14.7. No `schema_version` change (0.0.1 unreleased); no migration (no table). Tests: `test_config_snapshot_rejects_the_same_definition_or_binding_twice` (four cases) and the control `test_config_snapshot_accepts_distinct_definitions_and_bindings` pass.
+
+**A25 as implemented.** `[tool.hatch.build.targets.sdist]` drops the `exclude` list for `only-include = ["src/tracer_evalschema", "README.md", "LICENSE", "NOTICE"]`; hatchling always adds `pyproject.toml`, `PKG-INFO` and the `.gitignore` it applies (the repository root's, found by walking up to `.git`). Built with `uv build --package tracer-evalschema` (Python 3.14.7, uv 0.12.18):
+- sdist: 79 files: 73 under `src/tracer_evalschema/` (the 27 schema files byte-identical to the repository; every module identical) plus `.gitignore`, `LICENSE`, `NOTICE`, `PKG-INFO`, `pyproject.toml`, `README.md` (LICENSE, NOTICE, README and pyproject identical to the package's); no path containing `tests`, no `__pycache__` or `.pyc`;
+- wheel: 78 files as in revision 24 (no test file, nothing named `uax9`; the 27 schema files byte-identical; `LICENSE` and `NOTICE` under `.dist-info/licenses/`);
+- `uv build --wheel` on the unpacked sdist: the same 78 files and a byte-identical archive; installed into a fresh virtual environment (only `pydantic`, `rfc8785` and their dependencies beside it), `python -I -m tracer_evalschema.schema_export --check` exits 0 against the installed `schemas/`.
+
+The packaging tests (`test_wheel_ships_the_generated_schemas_byte_for_byte`, `test_sdist_ships_the_same_schemas`, `test_wheel_requirements_are_unchanged_by_the_generator`, `test_uax9_not_in_wheel_or_sdist`, `test_uax9_not_in_wheel_contents_or_dependencies`) pass unchanged. No test asserts that the sdist holds no tests; see the finding A26 below.
+
+**Register changes (qa, landed during this revision; test side only):** `CO-LONG-LIST-UNIQUENESS` cites ADR 0008 (anchor "uniqueness is a code-only rule (register row `CO-LONG-LIST-UNIQUENESS`") and claims `list_repeat` on `metric_definitions` and `metric_bindings` wherever a `ConfigSnapshot` sits; `A21_PENDING` is retired; `PRESENCE_RULES` is pinned; `test_unique_items_is_only_for_arrays_of_scalars` states the A21 reading.
+
+**New findings (revision 25; recommendations for the lead):**
+- **A26. Nothing pins "the sdist ships no tests".** `test_uax9_packaging.py` only forbids the UAX #9 files and `test_schema_lock.py` only compares the schema files, so a later `only-include` edit could ship `tests/` again unnoticed. Recommendation: qa adds a packaging test that the sdist's members are exactly `src/tracer_evalschema/**`, `README.md`, `LICENSE`, `NOTICE`, `pyproject.toml`, `PKG-INFO` and `.gitignore`, and that a wheel built from the unpacked sdist has the same members and bytes as the checkout's wheel.
+- **A27. The sdist carries the repository's `.gitignore`.** Hatchling always adds the ignore file it applies, here the repository root's (it names `packages/evalschema/tests/fixtures/private/` and `.env.*`, no secret). Options: (a) accept it (recommended: it is hatchling's documented behaviour, holds only patterns, and a wheel built from the sdist needs it to skip `__pycache__`); (b) add a package-local `packages/evalschema/.gitignore`, which hatchling would then use instead of the root one, at the cost of a second ignore file that must repeat the Python patterns.
+- **A28. Keyed repeats inside a `ConfigSnapshot`.** The model rejects two entries under one `(id, version)` even when their content differs (with valid digests the second entry has another `content_digest`), with the same `duplicate` error. The JSON Schema cannot state this keyed rule (it is `CO-KEYED-UNIQUENESS` territory), but the register's `CO-KEYED-UNIQUENESS` claims do not list `ConfigSnapshot` lists, because no mutation produces two different records under one key. Recommendation: qa adds a witness or a doc anchor for it under `CO-KEYED-UNIQUENESS`, or records that it is covered by the A21 test only (the test repeats identical entries; a second test with differing content under one key would pin the keyed half).

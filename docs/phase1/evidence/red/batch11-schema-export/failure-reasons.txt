@@ -1,0 +1,106 @@
+# batch11-schema-export: why each red test fails (from red-schema-export.py3.14.log; the other three versions give the same counts)
+
+306 failing tests, grouped by reason:
+
+ 288  tracer_evalschema.schema_export is not written (ModuleNotFoundError)
+        test_export_module_surface x1
+        test_one_file_per_entity_and_no_other_file x1
+        test_bundle_schemas_are_exported x1
+        test_file_names_are_class_names_and_safe_on_every_file_system x1
+        test_render_schemas_reads_the_registry_at_call_time x1
+        test_render_schemas_is_pure x1
+        test_export_json_schema_writes_exactly_the_rendered_bytes x1
+        test_jsonschema_byte_identical_two_runs x1
+        test_schema_export_module_imports_only_stdlib_pydantic_and_the_package x1
+        test_files_are_canonical_json_bytes x26
+        test_required_arrays_are_sorted_and_unique_everywhere x1
+        test_enum_order_is_the_models_order x1
+        test_exported_content_is_the_validation_schema_plus_id_and_dialect x1
+        test_schema_ids_are_urns x1
+        test_schema_id_helper_follows_the_schema_version x1
+        test_every_file_declares_draft_2020_12_and_is_a_valid_schema x1
+        test_every_schema_version_property_is_the_one_current_version x1
+        test_only_known_keywords_are_used x1
+        test_format_keyword_is_annotation_only_and_always_backed_by_a_pattern x1
+        test_references_are_local_resolvable_and_all_used x1
+        test_every_defined_value_object_name_is_a_model_or_a_primitive x1
+        test_every_value_object_is_in_some_file_or_listed x1
+        test_no_const_in_exported_schema_files x1
+        test_single_member_closed_sets_and_variant_tags_are_enums x13
+        test_every_enum_is_a_nonempty_unique_closed_set x1
+        test_typed_id_patterns_are_the_canonical_wire_pattern x1
+        test_typed_id_patterns_accept_their_own_kind_only x1
+        test_typed_id_unions_have_pattern_branches_that_never_overlap x1
+        test_timeline_origin_ref_is_a_union_of_an_artifact_id_and_an_external_ref x1
+        test_patterns_are_anchored_and_portable x1
+        test_documented_presence_rules_are_emitted_as_if_then x16
+        test_unique_items_are_kept_where_the_models_reject_a_repeat x1
+        test_presence_rules_behave_for_privacy_marker_stage_span_and_channel_map x1
+        test_no_secret_like_property_names_or_example_keys_in_any_exported_schema x1
+        test_no_environment_dependent_content_in_the_files x1
+        test_descriptions_are_dedented_text_without_trailing_space x1
+        test_exporting_does_not_write_outside_the_target x1
+        test_lock_is_canonical_json_of_version_algorithm_and_one_hash_per_file x1
+        test_lock_does_not_depend_on_the_order_of_the_files_it_is_given x1
+        test_lock_hash_changes_with_exactly_the_changed_file x1
+        test_render_lock_rejects_a_name_that_is_not_a_schema_file x1
+        test_schema_directory_is_the_package_data_directory x1
+        test_shipped_schemas_match_generated x1
+        test_check_schema_directory_reports_nothing_for_the_shipped_and_a_fresh_directory x1
+        test_schema_change_without_version_bump_fails x10
+        test_a_model_change_is_drift_until_the_directory_is_regenerated x1
+        test_released_version_forbids_schema_changes_under_the_same_version x1
+        test_released_locks_in_the_frozen_fixture_directories_are_immutable x1
+        test_update_procedure_regenerates_stale_directories_and_is_idempotent x1
+        test_cli_check_exit_codes_and_messages x1
+        test_schema_export_does_not_hash_or_compare_digests_itself x1
+        test_wheel_ships_the_generated_schemas_byte_for_byte x1
+        test_sdist_ships_the_same_schemas x1
+        test_roundtrip_valid x54
+        test_schema_is_never_stricter_than_the_model x54
+        test_invalid_rejected_by_both x54
+        test_required_fields_are_required_in_the_schema x1
+        test_unknown_members_are_rejected_at_every_object_level x1
+        test_sealed_payload_definition_agrees_with_the_model x5
+        test_redaction_record_definition_agrees_with_the_model x1
+        test_exported_id_pattern_agrees_with_the_id_class_on_edited_and_random_ids x1
+        test_exported_machine_key_pattern_agrees_with_the_type x1
+        test_arbitrary_text_at_a_string_leaf_is_judged_alike_by_model_and_schema x1
+        test_witnesses_are_real_gaps x1
+   5  AssertionError: Traceback (most recent call last):
+        test_output_is_independent_of_hash_seed_time_zone_locale_and_cwd[hashseed-0]
+        test_output_is_independent_of_hash_seed_time_zone_locale_and_cwd[tz-kolkata-locale-c]
+        test_output_is_independent_of_hash_seed_time_zone_locale_and_cwd[tz-la-hindi-locale-ascii-io]
+        test_rendering_imports_no_test_only_package
+        test_cli_write_then_check
+   4  assert 1 == 2
+        test_cli_usage_errors_exit_with_code_2[no-mode]
+        test_cli_usage_errors_exit_with_code_2[both-modes]
+        test_cli_usage_errors_exit_with_code_2[unknown-flag]
+        test_cli_usage_errors_exit_with_code_2[dir-without-value]
+   1  FileNotFoundError: [Errno 2] No such file or directory: '<repo>/packages/evalschema/src/tracer_evalschema/sc...
+        test_shipped_directory_holds_only_the_schema_files_and_the_lock
+   1  FileNotFoundError: [Errno 2] No such file or directory: '<repo>/packages/evalschema/src/tracer_evalschema/schemas/schema.lock'
+        test_schema_lock_matches_version
+   1  AssertionError: assert (1, 'Tracebac...chema_export') == (0, '')
+        test_cli_check_of_the_shipped_directory_passes
+   1  AssertionError: ['- run: uv run --locked python scripts/guard_private_fixtures.py', '- run: uv sync --locked', '- run: uv run --locked...ked ruff form
+        test_ci_workflow_runs_the_drift_check
+   1  AssertionError: .gitattributes is missing
+        test_gitattributes_keeps_generated_files_byte_stable_on_every_platform
+   1  AttributeError: module 'tracer_evalschema.digest' has no attribute 'sha256_hex'
+        test_digest_sha256_hex_helper_matches_hashlib
+   1  AssertionError: samples that could not be compared against their exported file: ['AgentTarget/base', 'Artifact/human'...
+        test_every_difference_between_a_model_and_its_schema_is_claimed_by_a_rule
+   1  AssertionError: samples that could not be compared against their exported file: ['AgentTarget/base', 'Artifact/human', 'Artifact/synthetic', 'Confi...
+        test_every_claim_still_matches_a_difference
+   1  AssertionError: samples that could not be compared against their exported file: ['AgentTarget/base', 'Artifact/human', 'Artifact/synthetic', 'Config..
+        test_the_schema_is_never_stricter_anywhere
+
+Reading: every failure is a missing deliverable of P1-15: the module (and so the file set, the lock, the CLI and every
+agreement check that reads an exported file), the shipped schemas/ directory, digest.sha256_hex, .gitattributes and the CI step.
+The tests that pass in the red state do not need the module: the register rows and their documentation anchors, the
+self-tests of the mutation engine, of the ECMA pattern validator and of the canonical serializer, the validity of the
+sample documents and their serialization-mode schema (model side only), the hypothesis settings, the wheel-requirements and
+runtime-dependency checks, the model-level validation == serialization schema check, and the mapping-register separation check.
+None fails for a bug of a test: against the oracle all 435 pass on 3.11, 3.12, 3.13 and 3.14.

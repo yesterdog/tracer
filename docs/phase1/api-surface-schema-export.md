@@ -1,0 +1,3 @@
+# API surface: JSON Schema export and `schema.lock` (P1-15), moved
+
+This contract was written by qa on 2026-10-23 and merged into `docs/phase1/api-surface.md` as **section 26** in revision 23 (schema-architect). Its readings A1 to A18 were auto-approved as recommended under the owner's standing rule; the implementation, the register rows that A13 retires and the new findings A19 to A23 are in section 26.13. The register of code-only rules (`CODE_ONLY_RULES`, N12 and N38) is described in section 26.8 and lives in `packages/evalschema/tests/_support_b8.py`. The test inventory is section 26.11 and the red evidence stays in `docs/phase1/evidence/red/batch11-schema-export/`. Edit section 26, not this file.

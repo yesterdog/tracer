@@ -1,0 +1,12 @@
+import json
+def pytest_configure(config):
+    from tracer_evalschema import schema_export as m
+    orig = m.render_schemas
+    def patched(*a, **k):
+        files = orig(*a, **k)
+        out = dict(files)
+        for name, prop in (("RunBundle.schema.json", "turns"), ("PricingCatalog.schema.json", "entries"), ("Rubric.schema.json", "items")):
+            d = json.loads(out[name]); d["properties"][prop]["uniqueItems"] = True
+            out[name] = json.dumps(d, indent=2, sort_keys=True, ensure_ascii=True).encode() + b"\n"
+        return out
+    m.render_schemas = patched

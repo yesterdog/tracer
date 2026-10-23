@@ -1,0 +1,8 @@
+batch16-register: red observed before the architect's A21 model check landed (tail, paths scrubbed)
+1. test_every_document_that_says_code_only_is_cited_by_a_row: FAILED, AssertionError ['docs/adr/0008-schema-versioning-and-compatibility.md'] (green after ADR_0008 row doc added).
+2. After adding ("list_repeat","*",*_deep("metric_definitions")) with the model check absent:
+   FAILED test_every_claim_still_matches_a_difference
+   FAILED test_config_snapshot_rejects_the_same_definition_or_binding_twice[0/1-metric_definitions/metric_bindings] (Failed: DID NOT RAISE ValidationError)
+   5 failed, 18 passed (test_schema_gaps.py)
+3. After the architect's ConfigSnapshot._check_repeats landed: 23 passed (test_schema_gaps.py).
+Not done: a scratch oracle patch (the real change landed first, so the claim was verified against it).

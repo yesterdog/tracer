@@ -1,0 +1,83 @@
+# batch 14 mutants, F5: single-change mutants of the throwaway oracle pipecat_evals.py (scratchpad copy, outside the repo).
+# Each run: test_mapping_f5.py (pytest -x, python 3.14). killed = at least one test failed; the test named is the first that failed.
+# 'ranks with gaps' survives and is equivalent: the oracle numbers a rank only for an expectation that yields a call, so its renumbering helper is redundant; the behavior is pinned by test_f5_calls_without_a_representable_name_are_skipped_with_a_warning.
+instructions = goal only                          killed    test_f5_simulated_scenario_evaluator_fields
+instructions not trimmed                          killed    test_f5_simulated_scenario_evaluator_fields
+single newline join                               killed    test_f5_simulated_scenario_evaluator_fields
+expected outcome trimmed                          killed    test_f5_texts_keep_their_edges
+min_score exclusive                               killed    test_f5_validates[simulated_en.yaml]
+min_score as max                                  killed    test_f5_min_score_to_per_turn_share
+default pass rule without min_score               killed    test_f5_min_score_to_per_turn_share
+judged metric per conversation                    killed    test_f5_validates[simulated_en.yaml]
+min_score metric not required                     killed    test_f5_min_score_to_per_turn_share
+reported-only metric required                     killed    test_f5_validates[simulated_en.yaml]
+measure not required                              killed    test_f5_measure_range_inclusive
+measure bounds exclusive                          killed    test_f5_measure_range_inclusive
+seconds not converted                             killed    test_f5_measure_range_inclusive
+latency as deterministic                          killed    test_f5_each_measure_maps_to_its_definition[latency]
+words need the whole transcript                   killed    test_f5_each_measure_maps_to_its_definition[words]
+turns count in ms                                 killed    test_f5_each_measure_maps_to_its_definition[turns]
+scorer namespace builtin                          killed    test_f5_each_measure_maps_to_its_definition[duration]
+function_calls without expected_tool_calls input  killed    test_f5_each_measure_maps_to_its_definition[function_calls]
+metric calls: one rank each                       killed    test_f5_simulated_scenario_evaluator_fields
+empty args exact                                  killed    test_f5_function_calls_measure_to_expected_tool_calls
+empty call list accepted                          killed    test_f5_empty_call_list_is_refused_with_a_blocking_gap
+empty call list: no warning                       killed    test_f5_empty_call_list_is_refused_with_a_blocking_gap
+unknown measure: no gap                           killed    test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[unknown-measure]
+refusal gaps non-blocking                         killed    test_f5_min_score_outside_zero_one_is_refused[1.5]
+duplicate metric keys allowed                     killed    test_f5_duplicate_metric_names_keep_the_first
+written judge overridden                          killed    test_f5_file_defaults_apply_and_a_scenario_replaces_a_whole_value
+default judge uncited                             killed    test_f5_file_without_a_judge_block_uses_the_documented_default_with_a_citation
+factory judge falls back to default               killed    test_f5_a_judge_that_names_no_model_gives_no_evaluator[factory]
+default judge: no warning                         killed    test_f5_a_scenario_value_replaces_the_file_default_without_merging
+model-only judge gets the default service         killed    test_f5_a_judge_that_names_no_model_gives_no_evaluator[model-only]
+default cap 600                                   killed    test_f5_simulated_scenario_evaluator_fields
+default cap uncited                               killed    test_f5_max_duration_s_to_ms_and_the_documented_default
+default cap: no warning                           killed    test_f5_max_duration_s_to_ms_and_the_documented_default
+cap rounded                                       killed    test_f5_max_duration_s_to_ms_and_the_documented_default
+cap above 4 h accepted                            killed    test_f5_max_duration_s_to_ms_and_the_documented_default
+simulation takes the declared cap                 killed    test_f5_max_duration_s_to_ms_and_the_documented_default
+scripted built without declarations               killed    test_f5_a_scripted_scenario_without_declarations_gives_no_evaluator
+scripted turn index = position                    killed    test_f5_scripted_turns_and_the_script_declarations
+dtmf as a line                                    killed    test_f5_scripted_turns_and_the_script_declarations
+pause texts joined without space                  killed    test_f5_pause_lists_join_the_trimmed_texts
+pause texts not trimmed                           killed    test_f5_pause_lists_join_the_trimmed_texts
+stopped calls expected                            killed    test_f5_expected_tool_calls_from_function_call_expectations
+absent calls expected                             killed    test_f5_calls_without_a_representable_name_are_skipped_with_a_warning
+shorthand ignored                                 killed    test_f5_expected_tool_calls_from_function_call_expectations
+rank per call                                     killed    test_f5_expected_tool_calls_from_function_call_expectations
+rank per turn                                     killed    test_f5_calls_without_a_representable_name_are_skipped_with_a_warning
+ranks with gaps                                   SURVIVED  
+non-json arguments stringified                    killed    test_f5_function_call_args_must_be_json
+anonymous call named any                          killed    test_f5_calls_without_a_representable_name_are_skipped_with_a_warning
+file defaults ignored                             killed    test_f5_file_defaults_apply_and_a_scenario_replaces_a_whole_value
+scenario value merged into the default            killed    test_f5_a_scenario_value_replaces_the_file_default_without_merging
+joiners dropped                                   killed    test_f5_joiners_and_marks_are_preserved
+success joiners dropped                           killed    test_f5_joiners_and_marks_are_preserved
+criterion joiners dropped                         killed    test_f5_joiners_and_marks_are_preserved
+scripted language from speech                     killed    test_f5_the_tts_language_is_not_the_evaluator_language
+persona version 2                                 killed    test_f5_simulated_scenario_evaluator_fields
+deprecated shape silent                           killed    test_f5_deprecated_top_level_scenario_loads_as_one_scenario
+unknown key silent                                killed    test_f5_unknown_keys_are_warned_not_dropped_silently
+scenario with persona and turns accepted          killed    test_f5_scenario_kind_and_name_errors_give_nothing
+outcome check not required                        killed    test_f5_validates[simulated_en.yaml]
+outcome check missing                             killed    test_f5_validates[simulated_en.yaml]
+outcome template wrong                            killed    test_f5_validates[simulated_en.yaml]
+binding disabled                                  killed    test_f5_validates[simulated_en.yaml]
+measured key from measure                         killed    test_f5_measure_range_inclusive
+metric name lower-cased                           killed    test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[name-not-a-key]
+min_score bool accepted                           killed    test_f5_min_score_outside_zero_one_is_refused[True]
+min_score clamped                                 killed    test_f5_min_score_outside_zero_one_is_refused[1.5]
+language from the speech block                    killed    test_f5_the_tts_language_is_not_the_evaluator_language
+judged requires only transcript                   killed    test_f5_min_score_to_per_turn_share
+measure table uncited                             killed    test_f5_each_measure_maps_to_its_definition[duration]
+languages not declared                            killed    test_f5_hindi_scenario_text_is_kept_code_point_for_code_point
+script_sensitive forced false                     killed    test_no_fabricated_values_f5[constructed-defaults]
+secret leaks into a warning                       killed    test_f5_secret_looking_values_in_unmapped_blocks_do_not_leak
+judge extra copied into a gap reason              killed    test_f5_register_rows_are_well_formed_and_non_blocking
+gap rows with unknown owner                       killed    test_f5_scenario_keys_mapped_or_gapped[context]
+event not consumed                                killed    test_f5_every_source_key_of_the_fixtures_is_mapped_or_gapped[scripted_en.yaml]
+scenarios list not consumed                       killed    test_f5_scenario_keys_mapped_or_gapped[scenarios]
+scenario name unqualified                         killed    test_f5_simulated_scenario_evaluator_fields
+pass rule type changed to float                   killed    test_f5_measure_range_inclusive
+78 of 79 killed

@@ -1,0 +1,1458 @@
+# group: batch14-mappings-2 (F2 Langfuse-attributed OTLP, F5 Pipecat Evals scenario YAML); mode red; qa
+# date: 2026-10-23T17:40:20Z (UTC)
+# command: <scratchpad>/b7-env3.13/bin/python -m pytest -p no:cacheprovider -v --tb=line packages/evalschema/tests/test_mapping_f2.py packages/evalschema/tests/test_mapping_f5.py   (cwd <repo>; tracer_evalschema installed from <repo>/packages/evalschema/src)
+# interpreter: 3.13.15   pydantic 2.14.1   pytest 9.1.1   pyyaml 6.0.3   jsonschema 4.26.0   hypothesis 6.170.5
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# code under test: repository working tree; the converters langfuse_otlp.py and pipecat_evals.py do not exist yet (dev writes them), so every test that needs one fails with ModuleNotFoundError; the self-tests and the fixture-only tests pass
+# paths scrubbed: <repo> is the checkout, <scratchpad> the agent scratch area, <tmp> a temporary directory
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.13.15, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>
+hypothesis profile 'default'
+rootdir: <repo>
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 364 items
+
+packages/evalschema/tests/test_mapping_f2.py::test_f2_validates[voice_call] FAILED [  0%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_validates[generic_otel] FAILED [  0%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_details_reported_by_telemetry_platform FAILED [  0%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_currency_comes_from_the_cited_documented_contract FAILED [  1%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_provenance_json_quotes_the_currency_statements FAILED [  1%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_without_a_complete_citation_is_currency_not_reported[none] FAILED [  1%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_without_a_complete_citation_is_currency_not_reported[no-url] FAILED [  1%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_without_a_complete_citation_is_currency_not_reported[no-date] FAILED [  2%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_without_a_complete_citation_is_currency_not_reported[empty-url] FAILED [  2%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_without_a_complete_citation_is_currency_not_reported[empty-date] FAILED [  2%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_without_a_complete_citation_is_currency_not_reported[empty-both] FAILED [  3%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_amount_forms_follow_the_import_rules FAILED [  3%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_double_and_text_forms_of_gen_ai_usage_cost FAILED [  3%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_details_wins_over_gen_ai_usage_cost FAILED [  3%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_without_a_total_is_refused_with_a_blocking_gap[no-total-key] FAILED [  4%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_without_a_total_is_refused_with_a_blocking_gap[empty-object] FAILED [  4%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_without_a_total_is_refused_with_a_blocking_gap[null-total] FAILED [  4%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_details_that_is_not_a_json_object_is_refused[not json] FAILED [  4%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_details_that_is_not_a_json_object_is_refused[[1, 2]] FAILED [  5%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_details_that_is_not_a_json_object_is_refused["x"] FAILED [  5%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_details_that_is_not_a_json_object_is_refused[42] FAILED [  5%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_details_that_is_not_a_json_object_is_refused[] FAILED [  6%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_details_components_are_a_registered_loss FAILED [  6%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_langfuse_usage_details_to_usage_record FAILED [  6%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_each_documented_usage_key_maps_to_one_unit[input-input_tokens] FAILED [  6%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_each_documented_usage_key_maps_to_one_unit[output-output_tokens] FAILED [  7%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_each_documented_usage_key_maps_to_one_unit[cache_read_input_tokens-cache_read_input_tokens] FAILED [  7%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_each_documented_usage_key_maps_to_one_unit[input_cached_tokens-cache_read_input_tokens] FAILED [  7%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_gen_ai_usage_input_is_gross_of_the_cache_counts FAILED [  7%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_gen_ai_usage_without_cache_counts_is_copied FAILED [  8%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_embedding_observation_is_a_model_call_with_usage FAILED [  8%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_usage_inconsistent_cache_larger_than_input FAILED [  8%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_usage_key_without_a_unit_refuses_the_usage_record FAILED [  9%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_two_keys_for_one_unit_are_not_merged FAILED [  9%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_usage_counts_must_be_non_negative_integers[float] FAILED [  9%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_usage_counts_must_be_non_negative_integers[negative] FAILED [  9%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_usage_counts_must_be_non_negative_integers[text] FAILED [ 10%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_usage_counts_must_be_non_negative_integers[bool] FAILED [ 10%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_usage_counts_must_be_non_negative_integers[array] FAILED [ 10%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_usage_counts_must_be_non_negative_integers[not-json] FAILED [ 10%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_usage_without_a_provider_is_refused FAILED [ 11%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_usage_of_one_call_does_not_hide_the_other_calls FAILED [ 11%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_observation_without_usage_has_no_usage_record FAILED [ 11%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_observation_type_rules FAILED [ 12%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_chat_like_operations_are_the_llm_stage[chat] FAILED [ 12%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_chat_like_operations_are_the_llm_stage[text_completion] FAILED [ 12%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_chat_like_operations_are_the_llm_stage[generate_content] FAILED [ 12%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_other_operations_are_not_assumed_to_be_llm[embeddings] FAILED [ 13%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_other_operations_are_not_assumed_to_be_llm[execute_tool] FAILED [ 13%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_other_operations_are_not_assumed_to_be_llm[invoke_agent] FAILED [ 13%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_other_operations_are_not_assumed_to_be_llm[None] FAILED [ 14%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_model_attribute_precedence FAILED [ 14%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_stage_span_times_and_reference FAILED [ 14%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_digits_finer_than_a_microsecond_are_truncated_and_warned FAILED [ 14%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_duration_is_floored_never_rounded FAILED [ 15%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_tool_seq_follows_span_start_not_document_order FAILED [ 15%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_session_id_external_ref FAILED [ 15%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_distinct_session_ids_keep_first_appearance_order FAILED [ 15%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_external_ref_sources_resolve_to_the_values FAILED [ 16%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_user_id_is_never_copied FAILED [ 16%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_tool_observation_to_tool_call_event FAILED [ 16%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_tool_generic_attributes_are_a_fallback_only FAILED [ 17%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_tool_arguments_that_are_not_one_json_object_are_incomplete[truncated] FAILED [ 17%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_tool_arguments_that_are_not_one_json_object_are_incomplete[array] FAILED [ 17%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_tool_arguments_that_are_not_one_json_object_are_incomplete[string] FAILED [ 17%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_tool_arguments_that_are_not_one_json_object_are_incomplete[number] FAILED [ 18%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_tool_arguments_that_are_not_one_json_object_are_incomplete[text] FAILED [ 18%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_tool_arguments_that_are_not_one_json_object_are_incomplete[empty] FAILED [ 18%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_tool_without_input_states_no_arguments FAILED [ 18%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_tool_name_that_is_not_a_machine_key_is_not_stored FAILED [ 19%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_generation_output_to_agent_turns FAILED [ 19%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_output_that_is_not_assistant_text_gives_no_turn[{"role": "user", "content": "x"}] FAILED [ 19%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_output_that_is_not_assistant_text_gives_no_turn[{"content": "x"}] FAILED [ 20%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_output_that_is_not_assistant_text_gives_no_turn[[1]] FAILED [ 20%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_output_that_is_not_assistant_text_gives_no_turn[7] FAILED [ 20%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_output_that_is_not_assistant_text_gives_no_turn[null] FAILED [ 20%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_output_that_is_not_assistant_text_gives_no_turn[plain text] FAILED [ 21%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_output_that_is_not_assistant_text_gives_no_turn[] FAILED [ 21%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_turn_seq_follows_span_start_not_document_order FAILED [ 21%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_unmapped_input_carriers_are_registered_gaps FAILED [ 21%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_completion_start_time_is_not_a_ttfb FAILED [ 22%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_hostile_text_is_data FAILED [ 22%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_secrets_in_unmapped_attributes_do_not_leak FAILED [ 22%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_secret_in_a_failed_json_attribute_is_not_quoted_beyond_the_attribute FAILED [ 23%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_empty_document_maps_to_nothing FAILED [ 23%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_malformed_document_shapes_never_raise[none] FAILED [ 23%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_malformed_document_shapes_never_raise[list] FAILED [ 23%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_malformed_document_shapes_never_raise[text] FAILED [ 24%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_malformed_document_shapes_never_raise[rs-text] FAILED [ 24%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_malformed_document_shapes_never_raise[mixed] FAILED [ 24%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_malformed_document_shapes_never_raise[span-junk] FAILED [ 25%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_malformed_document_shapes_never_raise[attr-junk] FAILED [ 25%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_attribute_values_of_the_wrong_type_never_raise[value0] FAILED [ 25%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_attribute_values_of_the_wrong_type_never_raise[value1] FAILED [ 25%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_attribute_values_of_the_wrong_type_never_raise[value2] FAILED [ 26%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_attribute_values_of_the_wrong_type_never_raise[value3] FAILED [ 26%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_attribute_values_of_the_wrong_type_never_raise[value4] FAILED [ 26%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_attribute_values_of_the_wrong_type_never_raise[5] FAILED [ 26%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_attribute_values_of_the_wrong_type_never_raise[None] FAILED [ 27%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_lone_surrogates_are_replaced_and_flagged FAILED [ 27%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_large_document FAILED [ 27%]
+packages/evalschema/tests/test_mapping_f2.py::test_no_fabricated_values_f2[voice_call] FAILED [ 28%]
+packages/evalschema/tests/test_mapping_f2.py::test_no_fabricated_values_f2[generic_otel] FAILED [ 28%]
+packages/evalschema/tests/test_mapping_f2.py::test_no_fabricated_values_f2[voice_call-no-contract] FAILED [ 28%]
+packages/evalschema/tests/test_mapping_f2.py::test_no_fabricated_values_f2[constructed-forms] FAILED [ 28%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_every_source_field_mapped_or_gapped[voice_call] FAILED [ 29%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_every_source_field_mapped_or_gapped[generic_otel] FAILED [ 29%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_mapping_is_deterministic_and_leaves_its_input_alone[voice_call] FAILED [ 29%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_mapping_is_deterministic_and_leaves_its_input_alone[generic_otel] FAILED [ 29%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[gen_ai.operation.name] FAILED [ 30%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[gen_ai.provider.name] FAILED [ 30%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[gen_ai.request.model] FAILED [ 30%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[gen_ai.response.model] FAILED [ 31%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[gen_ai.tool.call.arguments] FAILED [ 31%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[gen_ai.tool.call.result] FAILED [ 31%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[gen_ai.usage.cache_creation.input_tokens] FAILED [ 31%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[gen_ai.usage.cache_read.input_tokens] FAILED [ 32%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[gen_ai.usage.cost] FAILED [ 32%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[gen_ai.usage.input_tokens] FAILED [ 32%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[gen_ai.usage.output_tokens] FAILED [ 32%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[langfuse.observation.cost_details] FAILED [ 33%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[langfuse.observation.input] FAILED [ 33%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[langfuse.observation.model.name] FAILED [ 33%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[langfuse.observation.output] FAILED [ 34%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[langfuse.observation.type] FAILED [ 34%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[langfuse.observation.usage_details] FAILED [ 34%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[langfuse.session.id] FAILED [ 34%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[llm.model_name] FAILED [ 35%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[model] FAILED [ 35%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[session.id] FAILED [ 35%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[deployment.environment] FAILED [ 35%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[deployment.environment.name] FAILED [ 36%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[gen_ai.completion] FAILED [ 36%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[gen_ai.prompt] FAILED [ 36%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[gen_ai.request.temperature] FAILED [ 37%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[gen_ai.usage.reasoning.output_tokens] FAILED [ 37%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[input.value] FAILED [ 37%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.environment] FAILED [ 37%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.observation.completion_start_time] FAILED [ 38%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.observation.level] FAILED [ 38%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.observation.metadata.*] FAILED [ 38%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.observation.model.parameters] FAILED [ 39%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.observation.prompt.name] FAILED [ 39%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.observation.prompt.version] FAILED [ 39%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.observation.status_message] FAILED [ 39%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.prompt.name] FAILED [ 40%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.prompt.version] FAILED [ 40%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.release] FAILED [ 40%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.trace.input] FAILED [ 40%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.trace.metadata.*] FAILED [ 41%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.trace.name] FAILED [ 41%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.trace.output] FAILED [ 41%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.trace.public] FAILED [ 42%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.trace.tags] FAILED [ 42%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.user.id] FAILED [ 42%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.version] FAILED [ 42%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[llm.invocation_parameters.*] FAILED [ 43%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[llm.token_count.*] FAILED [ 43%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[mlflow.spanInputs] FAILED [ 43%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[mlflow.spanOutputs] FAILED [ 43%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[output.value] FAILED [ 44%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[resource.*] FAILED [ 44%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[scope.name] FAILED [ 44%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[user.id] FAILED [ 45%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_register_rows_are_well_formed_and_non_blocking FAILED [ 45%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_provenance_table_is_well_formed FAILED [ 45%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_fixture_provenance_json[voice_call] PASSED [ 45%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_fixture_provenance_json[generic_otel] PASSED [ 46%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_fixtures_hold_no_secret_or_personal_data PASSED [ 46%]
+packages/evalschema/tests/test_mapping_f2.py::test_f2_converter_module_exports FAILED [ 46%]
+packages/evalschema/tests/test_mapping_f2.py::test_num_is_a_lexeme_not_a_number PASSED [ 46%]
+packages/evalschema/tests/test_mapping_f2.py::test_checker_b11_accepts_a_fully_sourced_record PASSED [ 47%]
+packages/evalschema/tests/test_mapping_f2.py::test_checker_b11_rejects_a_value_without_a_source PASSED [ 47%]
+packages/evalschema/tests/test_mapping_f2.py::test_checker_b11_rejects_a_copy_that_differs_from_its_source PASSED [ 47%]
+packages/evalschema/tests/test_mapping_f2.py::test_checker_b11_rejects_a_wrong_derivation_and_an_unknown_one PASSED [ 48%]
+packages/evalschema/tests/test_mapping_f2.py::test_checker_b11_rejects_a_missing_table_row PASSED [ 48%]
+packages/evalschema/tests/test_mapping_f2.py::test_checker_b11_requires_a_citation_for_a_contract_derivation PASSED [ 48%]
+packages/evalschema/tests/test_mapping_f2.py::test_checker_b11_warning_check_requires_raw_to_be_the_source_value PASSED [ 48%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_validates[simulated_en.yaml] FAILED [ 49%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_validates[scripted_en.yaml] FAILED [ 49%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_validates[simulated_hi.yaml] FAILED [ 49%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_every_evaluator_has_the_expected_outcome_check FAILED [ 50%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_simulated_scenario_evaluator_fields FAILED [ 50%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_file_defaults_apply_and_a_scenario_replaces_a_whole_value FAILED [ 50%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_hindi_scenario_text_is_kept_code_point_for_code_point FAILED [ 50%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_joiners_and_marks_are_preserved FAILED [ 51%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_texts_keep_their_edges FAILED [ 51%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_a_scenario_value_replaces_the_file_default_without_merging FAILED [ 51%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_the_tts_language_is_not_the_evaluator_language FAILED [ 51%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_pause_lists_join_the_trimmed_texts FAILED [ 52%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_min_score_to_per_turn_share FAILED [ 52%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_min_score_bounds_inside_zero_one_are_kept[0] FAILED [ 52%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_min_score_bounds_inside_zero_one_are_kept[0.0] FAILED [ 53%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_min_score_bounds_inside_zero_one_are_kept[0.5] FAILED [ 53%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_min_score_bounds_inside_zero_one_are_kept[1] FAILED [ 53%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_min_score_bounds_inside_zero_one_are_kept[1.0] FAILED [ 53%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_min_score_outside_zero_one_is_refused[1.5] FAILED [ 54%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_min_score_outside_zero_one_is_refused[-0.1] FAILED [ 54%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_min_score_outside_zero_one_is_refused[True] FAILED [ 54%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_min_score_outside_zero_one_is_refused[high] FAILED [ 54%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_min_score_outside_zero_one_is_refused[score4] FAILED [ 55%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_min_score_outside_zero_one_is_refused[2] FAILED [ 55%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_measure_range_inclusive FAILED [ 55%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_each_measure_maps_to_its_definition[duration] FAILED [ 56%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_each_measure_maps_to_its_definition[function_calls] FAILED [ 56%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_each_measure_maps_to_its_definition[latency] FAILED [ 56%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_each_measure_maps_to_its_definition[turns] FAILED [ 56%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_each_measure_maps_to_its_definition[words] FAILED [ 57%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_function_calls_measure_to_expected_tool_calls FAILED [ 57%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_empty_call_list_is_refused_with_a_blocking_gap FAILED [ 57%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[unknown-measure] FAILED [ 57%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[no-bounds] FAILED [ 58%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[text-bound] FAILED [ 58%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[negative-count] FAILED [ 58%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[negative-ms] FAILED [ 59%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[empty-band] FAILED [ 59%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[calls-missing] FAILED [ 59%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[calls-junk] FAILED [ 59%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[both-forms] FAILED [ 60%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[neither-form] FAILED [ 60%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[name-not-a-key] FAILED [ 60%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[name-not-text] FAILED [ 60%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[judged-without-name] FAILED [ 61%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[template-braces] FAILED [ 61%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[empty-criterion] FAILED [ 61%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[metric-not-a-mapping] FAILED [ 62%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[metric-null] FAILED [ 62%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_duplicate_metric_names_keep_the_first FAILED [ 62%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_criterion_text_that_looks_like_instructions_is_data FAILED [ 62%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_file_without_a_judge_block_uses_the_documented_default_with_a_citation FAILED [ 63%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_a_judge_that_names_no_model_gives_no_evaluator[factory] FAILED [ 63%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_a_judge_that_names_no_model_gives_no_evaluator[service-only] FAILED [ 63%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_a_judge_that_names_no_model_gives_no_evaluator[model-only] FAILED [ 64%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_a_judge_that_names_no_model_gives_no_evaluator[service-not-text] FAILED [ 64%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_a_judge_that_names_no_model_gives_no_evaluator[eval-not-a-mapping] FAILED [ 64%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_a_judge_that_names_no_model_gives_no_evaluator[empty] FAILED [ 64%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_a_judge_that_names_no_model_gives_no_evaluator[judge-not-a-mapping] FAILED [ 65%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_max_duration_s_to_ms_and_the_documented_default FAILED [ 65%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scripted_turns_and_the_script_declarations FAILED [ 65%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_expected_tool_calls_from_function_call_expectations FAILED [ 65%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_a_scripted_scenario_without_declarations_gives_no_evaluator FAILED [ 66%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_declared_text_is_used_only_when_the_file_has_none FAILED [ 66%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_function_call_args_must_be_json FAILED [ 66%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_calls_without_a_representable_name_are_skipped_with_a_warning FAILED [ 67%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_deprecated_top_level_scenario_loads_as_one_scenario FAILED [ 67%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_kind_and_name_errors_give_nothing FAILED [ 67%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_unknown_keys_are_warned_not_dropped_silently FAILED [ 67%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_malformed_documents_never_raise[none] FAILED [ 68%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_malformed_documents_never_raise[list] FAILED [ 68%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_malformed_documents_never_raise[text] FAILED [ 68%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_malformed_documents_never_raise[empty] FAILED [ 68%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_malformed_documents_never_raise[name-only] FAILED [ 69%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_malformed_documents_never_raise[scenarios-text] FAILED [ 69%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_malformed_documents_never_raise[scenarios-empty] FAILED [ 69%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_malformed_documents_never_raise[scenario-empty] FAILED [ 70%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_malformed_documents_never_raise[text-fields-junk] FAILED [ 70%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_malformed_documents_never_raise[turns-text] FAILED [ 70%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_malformed_documents_never_raise[turns-junk] FAILED [ 70%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_malformed_documents_never_raise[expect-junk] FAILED [ 71%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_malformed_documents_never_raise[judge-list] FAILED [ 71%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_malformed_documents_never_raise[metrics-not-a-list] FAILED [ 71%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_lone_surrogates_in_text_are_replaced_and_flagged FAILED [ 71%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_secret_looking_values_in_unmapped_blocks_do_not_leak FAILED [ 72%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_large_file FAILED  [ 72%]
+packages/evalschema/tests/test_mapping_f5.py::test_no_fabricated_values_f5[simulated_en.yaml] FAILED [ 72%]
+packages/evalschema/tests/test_mapping_f5.py::test_no_fabricated_values_f5[scripted_en.yaml] FAILED [ 73%]
+packages/evalschema/tests/test_mapping_f5.py::test_no_fabricated_values_f5[simulated_hi.yaml] FAILED [ 73%]
+packages/evalschema/tests/test_mapping_f5.py::test_no_fabricated_values_f5[constructed-measures] FAILED [ 73%]
+packages/evalschema/tests/test_mapping_f5.py::test_no_fabricated_values_f5[constructed-defaults] FAILED [ 73%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_every_source_key_of_the_fixtures_is_mapped_or_gapped[simulated_en.yaml] FAILED [ 74%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_every_source_key_of_the_fixtures_is_mapped_or_gapped[scripted_en.yaml] FAILED [ 74%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_every_source_key_of_the_fixtures_is_mapped_or_gapped[simulated_hi.yaml] FAILED [ 74%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[!include] FAILED [ 75%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[context] FAILED [ 75%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[goal] FAILED [ 75%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.eval.allow_continue] FAILED [ 75%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.eval.endpoint] FAILED [ 76%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.eval.explain_below] FAILED [ 76%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.eval.explainer] FAILED [ 76%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.eval.explainer.endpoint] FAILED [ 76%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.eval.explainer.extra] FAILED [ 77%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.eval.explainer.factory] FAILED [ 77%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.eval.explainer.model] FAILED [ 77%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.eval.explainer.service] FAILED [ 78%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.eval.extra] FAILED [ 78%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.eval.factory] FAILED [ 78%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.eval.model] FAILED [ 78%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.eval.service] FAILED [ 79%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.modality] FAILED [ 79%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.transcription.factory] FAILED [ 79%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.transcription.language] FAILED [ 79%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.transcription.model] FAILED [ 80%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.transcription.padding_secs] FAILED [ 80%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.transcription.service] FAILED [ 80%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[max_duration_s] FAILED [ 81%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[max_silence_s] FAILED [ 81%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[max_turns] FAILED [ 81%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[metrics.calls] FAILED [ 81%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[metrics.calls.args] FAILED [ 82%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[metrics.calls.name] FAILED [ 82%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[metrics.criterion] FAILED [ 82%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[metrics.max_value] FAILED [ 82%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[metrics.measure] FAILED [ 83%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[metrics.min_score] FAILED [ 83%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[metrics.min_value] FAILED [ 83%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[metrics.name] FAILED [ 84%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[name] FAILED [ 84%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[persona] FAILED [ 84%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[runs] FAILED [ 84%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[scenarios] FAILED [ 85%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[simulator.endpoint] FAILED [ 85%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[simulator.extra] FAILED [ 85%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[simulator.factory] FAILED [ 85%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[simulator.model] FAILED [ 86%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[simulator.service] FAILED [ 86%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[stop_on_failure] FAILED [ 86%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[success] FAILED [ 87%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[trigger_disconnect] FAILED [ 87%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.audio] FAILED [ 87%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.dtmf] FAILED [ 87%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.absent] FAILED [ 88%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.args] FAILED [ 88%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.calls] FAILED [ 88%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.calls.args] FAILED [ 89%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.calls.name] FAILED [ 89%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.check_from] FAILED [ 89%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.eval] FAILED [ 89%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.event] FAILED [ 90%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.marker] FAILED [ 90%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.marker_first] FAILED [ 90%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.markers] FAILED [ 90%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.name] FAILED [ 91%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.text_after] FAILED [ 91%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.text_contains] FAILED [ 91%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.text_excludes] FAILED [ 92%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.within_ms] FAILED [ 92%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.image] FAILED [ 92%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.send_after.delay_ms] FAILED [ 92%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.send_after.event] FAILED [ 93%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.user] FAILED [ 93%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.user.pause_ms] FAILED [ 93%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[user.modality] FAILED [ 93%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[user.speech.api_key] FAILED [ 94%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[user.speech.factory] FAILED [ 94%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[user.speech.language] FAILED [ 94%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[user.speech.model] FAILED [ 95%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[user.speech.sample_rate] FAILED [ 95%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[user.speech.service] FAILED [ 95%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[user.speech.speed] FAILED [ 95%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[user.speech.voice] FAILED [ 96%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_static_gap_rows_for_what_the_schema_cannot_hold FAILED [ 96%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_register_rows_are_well_formed_and_non_blocking FAILED [ 96%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_provenance_table_is_well_formed_and_declarations_are_the_only_outside_input FAILED [ 96%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_mapping_is_deterministic_and_leaves_its_input_alone[simulated_en.yaml] FAILED [ 97%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_mapping_is_deterministic_and_leaves_its_input_alone[scripted_en.yaml] FAILED [ 97%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_mapping_is_deterministic_and_leaves_its_input_alone[simulated_hi.yaml] FAILED [ 97%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_fixture_provenance_json[simulated_en.yaml] PASSED [ 98%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_fixture_provenance_json[scripted_en.yaml] PASSED [ 98%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_fixture_provenance_json[simulated_hi.yaml] PASSED [ 98%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_fixtures_hold_no_secret PASSED [ 98%]
+packages/evalschema/tests/test_mapping_f5.py::test_loader_splices_includes_and_reads_only_decimal_integers PASSED [ 99%]
+packages/evalschema/tests/test_mapping_f5.py::test_loader_refuses_an_include_that_leaves_the_fixture_directory PASSED [ 99%]
+packages/evalschema/tests/test_mapping_f5.py::test_f5_key_function_collapses_lists_scenarios_and_free_blocks PASSED [ 99%]
+packages/evalschema/tests/test_mapping_f5.py::test_documented_key_list_covers_the_pipecat_parser_keys PASSED [100%]
+
+=================================== FAILURES ===================================
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   assert 0 == 1
+     +  where 0 = len([])
+<repo>/packages/evalschema/tests/test_mapping_f2.py:512: assert 0 == 1
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   AssertionError: deployment.environment is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: deployment.environment is not registered
+E   AssertionError: deployment.environment.name is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: deployment.environment.name is not registered
+E   AssertionError: gen_ai.completion is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: gen_ai.completion is not registered
+E   AssertionError: gen_ai.prompt is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: gen_ai.prompt is not registered
+E   AssertionError: gen_ai.request.temperature is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: gen_ai.request.temperature is not registered
+E   AssertionError: gen_ai.usage.reasoning.output_tokens is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: gen_ai.usage.reasoning.output_tokens is not registered
+E   AssertionError: input.value is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: input.value is not registered
+E   AssertionError: langfuse.environment is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: langfuse.environment is not registered
+E   AssertionError: langfuse.observation.completion_start_time is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: langfuse.observation.completion_start_time is not registered
+E   AssertionError: langfuse.observation.level is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: langfuse.observation.level is not registered
+E   AssertionError: langfuse.observation.metadata.* is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: langfuse.observation.metadata.* is not registered
+E   AssertionError: langfuse.observation.model.parameters is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: langfuse.observation.model.parameters is not registered
+E   AssertionError: langfuse.observation.prompt.name is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: langfuse.observation.prompt.name is not registered
+E   AssertionError: langfuse.observation.prompt.version is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: langfuse.observation.prompt.version is not registered
+E   AssertionError: langfuse.observation.status_message is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: langfuse.observation.status_message is not registered
+E   AssertionError: langfuse.prompt.name is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: langfuse.prompt.name is not registered
+E   AssertionError: langfuse.prompt.version is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: langfuse.prompt.version is not registered
+E   AssertionError: langfuse.release is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: langfuse.release is not registered
+E   AssertionError: langfuse.trace.input is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: langfuse.trace.input is not registered
+E   AssertionError: langfuse.trace.metadata.* is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: langfuse.trace.metadata.* is not registered
+E   AssertionError: langfuse.trace.name is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: langfuse.trace.name is not registered
+E   AssertionError: langfuse.trace.output is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: langfuse.trace.output is not registered
+E   AssertionError: langfuse.trace.public is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: langfuse.trace.public is not registered
+E   AssertionError: langfuse.trace.tags is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: langfuse.trace.tags is not registered
+E   AssertionError: langfuse.user.id is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: langfuse.user.id is not registered
+E   AssertionError: langfuse.version is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: langfuse.version is not registered
+E   AssertionError: llm.invocation_parameters.* is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: llm.invocation_parameters.* is not registered
+E   AssertionError: llm.token_count.* is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: llm.token_count.* is not registered
+E   AssertionError: mlflow.spanInputs is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: mlflow.spanInputs is not registered
+E   AssertionError: mlflow.spanOutputs is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: mlflow.spanOutputs is not registered
+E   AssertionError: output.value is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: output.value is not registered
+E   AssertionError: resource.* is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: resource.* is not registered
+E   AssertionError: scope.name is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: scope.name is not registered
+E   AssertionError: user.id is not registered
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1535: AssertionError: user.id is not registered
+E   AssertionError: F2 has no gap rows
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f2.py:1541: AssertionError: F2 has no gap rows
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.langfuse_otlp'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   AssertionError: F5:turns.expect.calls.@anonymous
+    assert 0 == 1
+     +  where 0 = len([])
+<repo>/packages/evalschema/tests/test_mapping_f5.py:1270: AssertionError: F5:turns.expect.calls.@anonymous
+E   AssertionError: F5 has no gap rows
+    assert []
+<repo>/packages/evalschema/tests/test_mapping_f5.py:1278: AssertionError: F5 has no gap rows
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+E   ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError: No module named 'tests.support.mappings.pipecat_evals'
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_validates[voice_call]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_validates[generic_otel]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_details_reported_by_telemetry_platform
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_currency_comes_from_the_cited_documented_contract
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_provenance_json_quotes_the_currency_statements
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_without_a_complete_citation_is_currency_not_reported[none]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_without_a_complete_citation_is_currency_not_reported[no-url]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_without_a_complete_citation_is_currency_not_reported[no-date]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_without_a_complete_citation_is_currency_not_reported[empty-url]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_without_a_complete_citation_is_currency_not_reported[empty-date]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_without_a_complete_citation_is_currency_not_reported[empty-both]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_amount_forms_follow_the_import_rules
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_double_and_text_forms_of_gen_ai_usage_cost
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_details_wins_over_gen_ai_usage_cost
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_without_a_total_is_refused_with_a_blocking_gap[no-total-key]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_without_a_total_is_refused_with_a_blocking_gap[empty-object]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_without_a_total_is_refused_with_a_blocking_gap[null-total]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_details_that_is_not_a_json_object_is_refused[not json]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_details_that_is_not_a_json_object_is_refused[[1, 2]]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_details_that_is_not_a_json_object_is_refused["x"]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_details_that_is_not_a_json_object_is_refused[42]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_details_that_is_not_a_json_object_is_refused[]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_cost_details_components_are_a_registered_loss
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_langfuse_usage_details_to_usage_record
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_each_documented_usage_key_maps_to_one_unit[input-input_tokens]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_each_documented_usage_key_maps_to_one_unit[output-output_tokens]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_each_documented_usage_key_maps_to_one_unit[cache_read_input_tokens-cache_read_input_tokens]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_each_documented_usage_key_maps_to_one_unit[input_cached_tokens-cache_read_input_tokens]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_gen_ai_usage_input_is_gross_of_the_cache_counts
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_gen_ai_usage_without_cache_counts_is_copied
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_embedding_observation_is_a_model_call_with_usage
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_usage_inconsistent_cache_larger_than_input
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_usage_key_without_a_unit_refuses_the_usage_record
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_two_keys_for_one_unit_are_not_merged
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_usage_counts_must_be_non_negative_integers[float]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_usage_counts_must_be_non_negative_integers[negative]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_usage_counts_must_be_non_negative_integers[text]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_usage_counts_must_be_non_negative_integers[bool]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_usage_counts_must_be_non_negative_integers[array]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_usage_counts_must_be_non_negative_integers[not-json]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_usage_without_a_provider_is_refused
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_usage_of_one_call_does_not_hide_the_other_calls
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_observation_without_usage_has_no_usage_record
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_observation_type_rules
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_chat_like_operations_are_the_llm_stage[chat]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_chat_like_operations_are_the_llm_stage[text_completion]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_chat_like_operations_are_the_llm_stage[generate_content]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_other_operations_are_not_assumed_to_be_llm[embeddings]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_other_operations_are_not_assumed_to_be_llm[execute_tool]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_other_operations_are_not_assumed_to_be_llm[invoke_agent]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_other_operations_are_not_assumed_to_be_llm[None]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_model_attribute_precedence
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_stage_span_times_and_reference
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_digits_finer_than_a_microsecond_are_truncated_and_warned
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_duration_is_floored_never_rounded
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_tool_seq_follows_span_start_not_document_order
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_session_id_external_ref
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_distinct_session_ids_keep_first_appearance_order
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_external_ref_sources_resolve_to_the_values
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_user_id_is_never_copied
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_tool_observation_to_tool_call_event
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_tool_generic_attributes_are_a_fallback_only
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_tool_arguments_that_are_not_one_json_object_are_incomplete[truncated]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_tool_arguments_that_are_not_one_json_object_are_incomplete[array]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_tool_arguments_that_are_not_one_json_object_are_incomplete[string]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_tool_arguments_that_are_not_one_json_object_are_incomplete[number]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_tool_arguments_that_are_not_one_json_object_are_incomplete[text]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_tool_arguments_that_are_not_one_json_object_are_incomplete[empty]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_tool_without_input_states_no_arguments
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_tool_name_that_is_not_a_machine_key_is_not_stored
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_generation_output_to_agent_turns
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_output_that_is_not_assistant_text_gives_no_turn[{"role": "user", "content": "x"}]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_output_that_is_not_assistant_text_gives_no_turn[{"content": "x"}]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_output_that_is_not_assistant_text_gives_no_turn[[1]]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_output_that_is_not_assistant_text_gives_no_turn[7]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_output_that_is_not_assistant_text_gives_no_turn[null]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_output_that_is_not_assistant_text_gives_no_turn[plain text]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_output_that_is_not_assistant_text_gives_no_turn[]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_turn_seq_follows_span_start_not_document_order
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_unmapped_input_carriers_are_registered_gaps
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_completion_start_time_is_not_a_ttfb
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_hostile_text_is_data
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_secrets_in_unmapped_attributes_do_not_leak
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_secret_in_a_failed_json_attribute_is_not_quoted_beyond_the_attribute
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_empty_document_maps_to_nothing
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_malformed_document_shapes_never_raise[none]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_malformed_document_shapes_never_raise[list]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_malformed_document_shapes_never_raise[text]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_malformed_document_shapes_never_raise[rs-text]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_malformed_document_shapes_never_raise[mixed]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_malformed_document_shapes_never_raise[span-junk]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_malformed_document_shapes_never_raise[attr-junk]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_attribute_values_of_the_wrong_type_never_raise[value0]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_attribute_values_of_the_wrong_type_never_raise[value1]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_attribute_values_of_the_wrong_type_never_raise[value2]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_attribute_values_of_the_wrong_type_never_raise[value3]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_attribute_values_of_the_wrong_type_never_raise[value4]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_attribute_values_of_the_wrong_type_never_raise[5]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_attribute_values_of_the_wrong_type_never_raise[None]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_lone_surrogates_are_replaced_and_flagged
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_large_document
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_no_fabricated_values_f2[voice_call]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_no_fabricated_values_f2[generic_otel]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_no_fabricated_values_f2[voice_call-no-contract]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_no_fabricated_values_f2[constructed-forms]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_every_source_field_mapped_or_gapped[voice_call]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_every_source_field_mapped_or_gapped[generic_otel]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_mapping_is_deterministic_and_leaves_its_input_alone[voice_call]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_mapping_is_deterministic_and_leaves_its_input_alone[generic_otel]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[gen_ai.operation.name]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[gen_ai.provider.name]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[gen_ai.request.model]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[gen_ai.response.model]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[gen_ai.tool.call.arguments]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[gen_ai.tool.call.result]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[gen_ai.usage.cache_creation.input_tokens]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[gen_ai.usage.cache_read.input_tokens]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[gen_ai.usage.cost]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[gen_ai.usage.input_tokens]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[gen_ai.usage.output_tokens]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[langfuse.observation.cost_details]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[langfuse.observation.input]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[langfuse.observation.model.name]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[langfuse.observation.output]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[langfuse.observation.type]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[langfuse.observation.usage_details]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[langfuse.session.id]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[llm.model_name]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[model]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_mapped_attribute_is_named_in_the_provenance_table[session.id]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[deployment.environment]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[deployment.environment.name]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[gen_ai.completion]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[gen_ai.prompt]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[gen_ai.request.temperature]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[gen_ai.usage.reasoning.output_tokens]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[input.value]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.environment]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.observation.completion_start_time]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.observation.level]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.observation.metadata.*]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.observation.model.parameters]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.observation.prompt.name]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.observation.prompt.version]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.observation.status_message]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.prompt.name]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.prompt.version]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.release]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.trace.input]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.trace.metadata.*]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.trace.name]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.trace.output]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.trace.public]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.trace.tags]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.user.id]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[langfuse.version]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[llm.invocation_parameters.*]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[llm.token_count.*]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[mlflow.spanInputs]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[mlflow.spanOutputs]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[output.value]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[resource.*]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[scope.name]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_documented_unmapped_attribute_has_a_non_blocking_gap_row[user.id]
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_register_rows_are_well_formed_and_non_blocking
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_provenance_table_is_well_formed
+FAILED packages/evalschema/tests/test_mapping_f2.py::test_f2_converter_module_exports
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_validates[simulated_en.yaml]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_validates[scripted_en.yaml]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_validates[simulated_hi.yaml]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_every_evaluator_has_the_expected_outcome_check
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_simulated_scenario_evaluator_fields
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_file_defaults_apply_and_a_scenario_replaces_a_whole_value
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_hindi_scenario_text_is_kept_code_point_for_code_point
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_joiners_and_marks_are_preserved
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_texts_keep_their_edges
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_a_scenario_value_replaces_the_file_default_without_merging
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_the_tts_language_is_not_the_evaluator_language
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_pause_lists_join_the_trimmed_texts
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_min_score_to_per_turn_share
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_min_score_bounds_inside_zero_one_are_kept[0]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_min_score_bounds_inside_zero_one_are_kept[0.0]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_min_score_bounds_inside_zero_one_are_kept[0.5]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_min_score_bounds_inside_zero_one_are_kept[1]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_min_score_bounds_inside_zero_one_are_kept[1.0]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_min_score_outside_zero_one_is_refused[1.5]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_min_score_outside_zero_one_is_refused[-0.1]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_min_score_outside_zero_one_is_refused[True]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_min_score_outside_zero_one_is_refused[high]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_min_score_outside_zero_one_is_refused[score4]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_min_score_outside_zero_one_is_refused[2]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_measure_range_inclusive
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_each_measure_maps_to_its_definition[duration]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_each_measure_maps_to_its_definition[function_calls]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_each_measure_maps_to_its_definition[latency]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_each_measure_maps_to_its_definition[turns]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_each_measure_maps_to_its_definition[words]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_function_calls_measure_to_expected_tool_calls
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_empty_call_list_is_refused_with_a_blocking_gap
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[unknown-measure]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[no-bounds]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[text-bound]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[negative-count]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[negative-ms]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[empty-band]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[calls-missing]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[calls-junk]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[both-forms]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[neither-form]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[name-not-a-key]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[name-not-text]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[judged-without-name]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[template-braces]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[empty-criterion]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[metric-not-a-mapping]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_a_metric_the_schema_cannot_hold_is_refused_not_guessed[metric-null]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_duplicate_metric_names_keep_the_first
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_criterion_text_that_looks_like_instructions_is_data
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_file_without_a_judge_block_uses_the_documented_default_with_a_citation
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_a_judge_that_names_no_model_gives_no_evaluator[factory]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_a_judge_that_names_no_model_gives_no_evaluator[service-only]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_a_judge_that_names_no_model_gives_no_evaluator[model-only]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_a_judge_that_names_no_model_gives_no_evaluator[service-not-text]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_a_judge_that_names_no_model_gives_no_evaluator[eval-not-a-mapping]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_a_judge_that_names_no_model_gives_no_evaluator[empty]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_a_judge_that_names_no_model_gives_no_evaluator[judge-not-a-mapping]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_max_duration_s_to_ms_and_the_documented_default
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scripted_turns_and_the_script_declarations
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_expected_tool_calls_from_function_call_expectations
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_a_scripted_scenario_without_declarations_gives_no_evaluator
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_declared_text_is_used_only_when_the_file_has_none
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_function_call_args_must_be_json
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_calls_without_a_representable_name_are_skipped_with_a_warning
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_deprecated_top_level_scenario_loads_as_one_scenario
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_kind_and_name_errors_give_nothing
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_unknown_keys_are_warned_not_dropped_silently
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_malformed_documents_never_raise[none]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_malformed_documents_never_raise[list]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_malformed_documents_never_raise[text]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_malformed_documents_never_raise[empty]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_malformed_documents_never_raise[name-only]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_malformed_documents_never_raise[scenarios-text]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_malformed_documents_never_raise[scenarios-empty]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_malformed_documents_never_raise[scenario-empty]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_malformed_documents_never_raise[text-fields-junk]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_malformed_documents_never_raise[turns-text]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_malformed_documents_never_raise[turns-junk]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_malformed_documents_never_raise[expect-junk]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_malformed_documents_never_raise[judge-list]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_malformed_documents_never_raise[metrics-not-a-list]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_lone_surrogates_in_text_are_replaced_and_flagged
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_secret_looking_values_in_unmapped_blocks_do_not_leak
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_large_file - Mod...
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_no_fabricated_values_f5[simulated_en.yaml]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_no_fabricated_values_f5[scripted_en.yaml]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_no_fabricated_values_f5[simulated_hi.yaml]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_no_fabricated_values_f5[constructed-measures]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_no_fabricated_values_f5[constructed-defaults]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_every_source_key_of_the_fixtures_is_mapped_or_gapped[simulated_en.yaml]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_every_source_key_of_the_fixtures_is_mapped_or_gapped[scripted_en.yaml]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_every_source_key_of_the_fixtures_is_mapped_or_gapped[simulated_hi.yaml]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[!include]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[context]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[goal]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.eval.allow_continue]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.eval.endpoint]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.eval.explain_below]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.eval.explainer]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.eval.explainer.endpoint]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.eval.explainer.extra]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.eval.explainer.factory]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.eval.explainer.model]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.eval.explainer.service]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.eval.extra]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.eval.factory]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.eval.model]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.eval.service]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.modality]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.transcription.factory]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.transcription.language]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.transcription.model]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.transcription.padding_secs]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[judge.transcription.service]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[max_duration_s]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[max_silence_s]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[max_turns]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[metrics.calls]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[metrics.calls.args]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[metrics.calls.name]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[metrics.criterion]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[metrics.max_value]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[metrics.measure]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[metrics.min_score]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[metrics.min_value]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[metrics.name]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[name]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[persona]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[runs]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[scenarios]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[simulator.endpoint]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[simulator.extra]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[simulator.factory]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[simulator.model]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[simulator.service]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[stop_on_failure]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[success]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[trigger_disconnect]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.audio]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.dtmf]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.absent]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.args]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.calls]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.calls.args]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.calls.name]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.check_from]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.eval]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.event]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.marker]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.marker_first]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.markers]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.name]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.text_after]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.text_contains]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.text_excludes]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.expect.within_ms]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.image]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.send_after.delay_ms]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.send_after.event]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.user]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[turns.user.pause_ms]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[user.modality]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[user.speech.api_key]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[user.speech.factory]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[user.speech.language]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[user.speech.model]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[user.speech.sample_rate]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[user.speech.service]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[user.speech.speed]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_scenario_keys_mapped_or_gapped[user.speech.voice]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_static_gap_rows_for_what_the_schema_cannot_hold
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_register_rows_are_well_formed_and_non_blocking
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_provenance_table_is_well_formed_and_declarations_are_the_only_outside_input
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_mapping_is_deterministic_and_leaves_its_input_alone[simulated_en.yaml]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_mapping_is_deterministic_and_leaves_its_input_alone[scripted_en.yaml]
+FAILED packages/evalschema/tests/test_mapping_f5.py::test_f5_mapping_is_deterministic_and_leaves_its_input_alone[simulated_hi.yaml]
+======================== 345 failed, 19 passed in 0.91s ========================

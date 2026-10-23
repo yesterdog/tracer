@@ -1,6 +1,32 @@
 # Architecture Decision Records: Phase 1 (`tracer-evalschema` 0.0.1)
 
-Revision 22, 2026-10-23. Authoritative scope: `docs/phase1/SCOPE.md`.
+Revision 25, 2026-10-23. Authoritative scope: `docs/phase1/SCOPE.md`.
+
+## Changes in revision 25
+- **Decided, auto-approved and logged** (decision log "AUTO-APPROVED: A24 ... A25"; api-surface 26.15):
+  - **A24** (restating A21; ADR 0008 Decision 8, revision 25 text): `ConfigSnapshot` rejects the same metric definition (same `id` and `version`) or the same binding twice, in the model; no `uniqueItems` and no `maxItems` on `metric_definitions` and `metric_bindings`; register row `CO-LONG-LIST-UNIQUENESS`.
+  - **A25** (supersedes the sdist half of A23; ADR 0008 Decision 7, revision 25 text): the sdist ships no tests (package source with the schemas, `README.md`, `LICENSE`, `NOTICE`, `pyproject.toml`); verification runs from the git checkout; the wheel stays test-free; no `repository` skip marker.
+- **Implemented** by schema-architect: A21 with A24 (`ConfigSnapshot._check_repeats`; the `ConfigSnapshot` description in three schema files changes, lock regenerated) and A25 (`only-include` for the sdist; a wheel built from the unpacked sdist equals the checkout's wheel and passes `--check`). No test edited by the architect. qa's register changes land at the same time (ADR 0008 citation and the `metric_definitions`/`metric_bindings` claims on `CO-LONG-LIST-UNIQUENESS`, `A21_PENDING` retired, `PRESENCE_RULES` pinned).
+- New findings **A26** (no test pins a test-free sdist; recommended: an exact-members packaging test), **A27** (the sdist carries the repository's `.gitignore`, which hatchling always adds; recommended: accept) and **A28** (keyed repeats in a `ConfigSnapshot` are rejected but not registered; recommended: a `CO-KEYED-UNIQUENESS` witness or a second A21 test), api-surface 26.15.
+
+## Changes in revision 24
+- **Decided, auto-approved and logged** (decision log "AUTO-APPROVED A19-A23"; api-surface 26.14):
+  - **A19**: `ToolCallEvent.result_complete` with `result_raw` stays an `if`/`then` rule (a present `null` is absent to the model), as implemented in revision 23.
+  - **A20**: the register row `CO-KEYED-UNIQUENESS` replaces `CO-UNIQUE-ELEMENTS` (test side, qa).
+  - **A21**: `ConfigSnapshot` rejects the same metric definition or binding twice (model change after qa's test; not yet implemented).
+  - **A22** (security, amends A13; ADR 0008 Decision 8, revision 24 text): no `uniqueItems` on arrays of objects (the bundle record lists, `PricingCatalog.entries` and every other one; no array of objects has a length bound), kept on arrays of strings; the models still reject repeats; register row `CO-LONG-LIST-UNIQUENESS` (reason: validator cost).
+  - **A23** (ADR 0008 Decision 7, revision 24 text): the sdist keeps `tests/` without `tests/fixtures/real` and `tests/fixtures/private`; the wheel stays test-free.
+- **Implemented** by schema-architect: A22 (56 arrays of objects lose `uniqueItems`; schemas and lock regenerated, identical on Python 3.11 to 3.14; `jsonschema` on the 4,000-turn bundle: 4.2 s before, 0.5 s after) and A23 (hatch sdist excludes). No test edited by the architect.
+- New findings **A24** (A21 and A22 meet on `ConfigSnapshot`; recommended: model check, no `uniqueItems`) and **A25** (the sdist's tests are not self-contained; recommended: a `repository` marker that skips honestly outside a checkout), api-surface 26.14.
+
+## Changes in revision 23
+- **Decided, auto-approved and logged** (decision log "AUTO-APPROVED A1-A18"; qa's contract `docs/phase1/api-surface-schema-export.md` is merged as `docs/phase1/api-surface.md` section 26, the file now only points there):
+  - **A1 to A11** (ADR 0008 Decision 7, revision 23 text): one `<ClassName>.schema.json` per registered entity, value objects in `$defs`; canonical bytes with sorted keys and sorted `required`; URN `$id` with the class name; `schema.lock` as canonical JSON `{algorithm, files, schema_version}`; committed package data `tracer_evalschema/schemas/` shipped in the wheel and the sdist; `digest.sha256_hex` (hashing stays in `digest`); the CLI `--write | --check [--dir]` with exit codes 0, 1, 2; released locks recorded under `tests/fixtures/frozen/<V>/schema.lock` (none yet).
+  - **A12** (ADR 0008 Decision 8, revision 23 text): the rules a schema cannot state live in the test register `CODE_ONLY_RULES`, separate from the mapping `KNOWN_SCHEMA_GAPS` of gate item 2; staff-reviewer still rules on N12/N38.
+  - **A13**: the four emittable rows are emitted (`uniqueItems`; `MetricResult` presence rules on `status`, `na_reason`, `language_source`; `ToolCallEvent.result_complete` with `result_raw`; `DatasetItem.privacy`), with no change of model behaviour.
+  - **A14, A15** go to `SCHEMA_POLICY.md` (P1-20a); **A16** keeps ADR 0002 Decision 2 as is; **A17** moves to P1-16; **A18** keeps the bundle differential.
+- **Implemented** by schema-architect: `tracer_evalschema.schema_export`, the shipped schemas and lock, `.gitattributes`, the CI drift step, the packaging (api-surface 26.13). No test was edited by the architect; two register tests stay red until qa removes the four retired rows (api-surface 26.13 lists them).
+- New findings **A19 to A23** (api-surface 26.13), each with a recommendation: A19 `result_complete` as `if`/`then` instead of `dependentRequired` (null is absent); A20 a non-emittable row for keyed uniqueness; A21 reject identical repeats in a snapshot's definitions and bindings; A22 `uniqueItems` on unbounded object arrays makes validators quadratic (recommended: drop it there); A23 whether the sdist ships the tests.
 
 ## Changes in revision 22
 - **Decided, auto-approved and logged** (decision log "AUTO-APPROVED B1-B21"; `docs/phase1/api-surface.md` section 25.9, each item marked; qa's contract `docs/phase1/api-surface-bundle.md` is merged as section 25):

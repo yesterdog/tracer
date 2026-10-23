@@ -1,0 +1,78 @@
+# group: tooling   (batch 11 green run, schema-architect, P1-15 JSON Schema export, SCOPE revision 23)
+# date: 2026-10-23T17:08:17Z (UTC)  local: 2026-10-23T22:38:17+0530
+# commands: uv run --locked {ruff check, ruff format --check, mypy, python scripts/check_headers.py, python scripts/guard_private_fixtures.py}; uv run --locked --all-groups python scripts/check_licenses.py; hatchling build of packages/evalschema and a listing of the wheel and sdist
+# interpreter: the shared .venv (uv default, Python 3.14.7)
+# note: the whole-repository ruff findings are all in files another agent was creating during this run (untracked tests/_support_b9*.py, tests/_support_b10.py, tests/_support_b11.py, tests/test_language_fixtures.py, scripts/build_golden_fixtures.py, scripts/property_coverage.py); none is a file of this batch
+# paths scrubbed: <repo> is the checkout, <scratchpad> the agent scratch area
+# ------------------------------------------------------------------------------
+## ruff check on the files of this batch
+All checks passed!
+# exit status: 0
+## ruff check (whole repository, for the record; files listed by name)
+   1 [*] 8 fixable with `--fix` (1 unsafe fix available with `--fix --unsafe-fixes`).
+   1 Found 51 errors.
+   7 packages/evalschema/tests/_support_b11.py
+  11 packages/evalschema/tests/_support_b9_invalid.py
+  19 packages/evalschema/tests/_support_b9_valid.py
+   4 packages/evalschema/tests/_support_b9.py
+   7 packages/evalschema/tests/test_language_fixtures.py
+   1 scripts/build_golden_fixtures.py
+   2 scripts/property_coverage.py
+# exit status: 1
+## ruff format --check on the files of this batch
+46 files already formatted
+# exit status: 0
+## mypy (strict, whole project as configured in pyproject.toml)
+packages/evalschema/tests/_support_b11.py:434: note: Error code "name-defined" not covered by "type: ignore[misc]" comment
+packages/evalschema/tests/_support_b10.py:124: error: Argument 1 to "normalize" has incompatible type "str"; expected "Literal['NFC', 'NFD', 'NFKC', 'NFKD']"  [arg-type]
+Found 2 errors in 2 files (checked 134 source files)
+# exit status: 1
+## check_headers
+# exit status: 0
+## guard_private_fixtures
+# exit status: 0
+## check_licenses
+42 ok, 0 failed
+# exit status: 0
+## hatchling build exit status: 0
+## check_licenses on the built wheel
+2 ok, 0 failed
+# exit status: 0
+## wheel and sdist contents
+7fd1d9f93feac1dafa6701dc50fc2e62fae2070630aa33184297f26d91d89348 AgentTarget.schema.json
+ab59d1145498c8a68e3e5044b684ed06c0f2bfeb07c586f64f34400a6653fd69 Artifact.schema.json
+86770418b315112a35eaafb45a46ed4141e52e808e72cca5e881ed18ea5c53d4 ConfigSnapshot.schema.json
+030e2c885b834c1d5dde6cfab3785aa37fcc367ad19077adb378377fdeaa92c2 CostRecord.schema.json
+03e76415c86bd42027516ad7f4186be1462d9e820f54ed426b496503441603a0 CostSummary.schema.json
+5678bc35200b837133e66ae602f4e6742cbcc326c1fce771aaef354c24ddf9d4 Dataset.schema.json
+6056b3be16027bd3039c224c52e1a77e2a5e28926ffd7cb702cd63901e265e19 DatasetItem.schema.json
+b5c6de5a71b4a295215c49c7018dc4bfa495dc99cf679c794b36588531635e09 Evaluator.schema.json
+d4f0de55e48f482e60f61460b4652f63f6429b6bb757f0b299b539b8ff74e515 Exchange.schema.json
+3fe6771aef2a333dee7090e870221b439ffe90fbb3f17d8469dc31e44e3aaf77 ExportBundle.schema.json
+1d9014127058f75d3137710e0bfbca5c188293dce2327fd40605692700a116d6 MetricBinding.schema.json
+66ade67548a2cf2ee6b6bfd780c1aca65be9a8ad41345a9bf028775b4c4702c9 MetricDefinition.schema.json
+47b2483cf5dfc6f2adf0499e2c9a033fa0ba90f334f285197bb286c934c066bb MetricResult.schema.json
+3d532013b708c6e6176e8b2bf1382f14f4596b294e2c38676a46c85255c126c1 Persona.schema.json
+c13d38dfbd3249bdeba646c822188228fce8671885293f71d6320ba9bdacfa70 PricingCatalog.schema.json
+dee37dedcaabf319983ee369a32f070f761a6b5249f364ba5ae2a0a121f9160d Project.schema.json
+9ce5b430688933eef430e8cd001fbe1a8946d8ecb97ade49332de85657eb9763 Rubric.schema.json
+a5bdaaf25b090bdbf76e5dab181b54ef66695f81a367154ac06545922cd163b5 Run.schema.json
+f0d7cd6a5b14caf25f93ad79ba47345860de0da09dec7aeb48c5ed54d49daa6b RunBundle.schema.json
+f725020414769316d838a6ddc0480fa69ffa7be899c8d260541b569b8a754696 RunVerdict.schema.json
+c7e5c96f8915427b6cf25b4d7a9c37976edc5e1c660d2d6b778ed61ffed312a2 StageSpan.schema.json
+ebb172dc51ee38fb712407650d9615e3fe1165d5c82a8fca4037065949ec19f1 TestProfile.schema.json
+9fdca569216812459b84cb8231b2c79bb9ded25fb8493ecf1de45a101d402100 ToolCallEvent.schema.json
+d2c54f4fa78bf5be4270b74ae6e7fd9844daaf5a35b5378dbba0811fced19eab Transcript.schema.json
+89dee2618a830a16e287e0fcd36fe7386514870bf909ca81b84068d1c138abf4 Turn.schema.json
+fe651455a425b8a5ff616f0ee726cf659489776148f494f4803071eaacb90881 UsageRecord.schema.json
+c6796efd2f4fc2f3d3c3e8b3277802883dbf0d09fafd473a317e351dc872cc87 schema.lock
+wheel schemas == shipped directory: True (27 files)
+wheel files under tests/ or named test_*.py: []
+wheel .py under schemas/: []
+Requires-Dist: ['Requires-Dist: pydantic==2.14.1', 'Requires-Dist: rfc8785==0.1.4']
+sdist schemas == shipped directory: True (27 files)
+sdist entries under tests/ (pre-existing policy, see api-surface 26.13 A23): 248
+sdist entries with 'private' in the path: []
+## mypy (strict) on the files of this batch: the source package and the batch 11 tests and helper (the two errors above are in another agent's untracked tests/_support_b10.py and tests/_support_b11.py)
+Success: no issues found in 45 source files
+# exit status: 0

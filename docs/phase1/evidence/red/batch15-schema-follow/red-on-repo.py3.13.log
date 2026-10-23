@@ -1,0 +1,201 @@
+...........FFFF......................................................... [ 16%]
+........................................................................ [ 32%]
+........................................................................ [ 48%]
+........................................................................ [ 64%]
+........................................................................ [ 81%]
+........................................................................ [ 97%]
+............                                                             [100%]
+=================================== FAILURES ===================================
+_ test_config_snapshot_rejects_the_same_definition_or_binding_twice[0-metric_definitions] _
+
+field = 'metric_definitions', index = 0
+
+    @pytest.mark.parametrize("field", ["metric_definitions", "metric_bindings"])
+    @pytest.mark.parametrize("index", [0, 1])
+    def test_config_snapshot_rejects_the_same_definition_or_binding_twice(
+        field: str, index: int
+    ) -> None:
+        """A21 (auto-approved; model change, test first): a ConfigSnapshot whose ``metric_definitions``
+        holds one definition twice (same ``id`` and ``version``), or whose ``metric_bindings`` holds
+        one binding twice, is rejected with a ``ValidationError`` located at that field, through
+        ``model_validate`` and ``model_validate_json``. The references resolve through a mapping, so
+        today the repeat is accepted silently (red until the architect adds the check). The message
+        says what is wrong (it contains ``duplicate``, as the bundle's ``[duplicate]`` does) and does
+        not show the rejected record: neither the text of the repeated definition nor its digest value
+        appears in ``str``, ``repr``, ``errors(include_input=False)`` or
+        ``json(include_input=False)``."""
+        snapshot = entity_class3("ConfigSnapshot")
+        doc = _snapshot_with_repeat(field, index)
+>       error = assert_rejected3(snapshot, doc, field=field)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_schema_gaps.py:333: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model = <class 'tracer_evalschema.snapshot.ConfigSnapshot'>
+doc = {'id': 'snap_01a169da-210b-7484-8506-1d880e1fb745', 'schema_version': '0.0.1', 'created_at': '2026-10-22T10:00:00.000000Z', 'metadata': {}, ...}
+field = 'metric_definitions'
+
+    def assert_rejected3(
+        model: Any, doc: Mapping[str, Any], *, field: str | None = None
+    ) -> ValidationError:
+        """``doc`` fails ``model`` with a ``ValidationError``; a versioned model gets a placeholder
+        digest when the document has none (the digest check is off, so the rejection is about content).
+        With ``field``, some error location must contain that name."""
+        body = dict(doc)
+        versioned = "version" in getattr(model, "model_fields", {})
+        if versioned and "content_digest" not in body:
+            body["content_digest"] = PLACEHOLDER_DIGEST
+>       with _digest_off(), pytest.raises(ValidationError) as caught:
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValidationError
+
+packages/evalschema/tests/_support_b3.py:646: Failed
+_ test_config_snapshot_rejects_the_same_definition_or_binding_twice[0-metric_bindings] _
+
+field = 'metric_bindings', index = 0
+
+    @pytest.mark.parametrize("field", ["metric_definitions", "metric_bindings"])
+    @pytest.mark.parametrize("index", [0, 1])
+    def test_config_snapshot_rejects_the_same_definition_or_binding_twice(
+        field: str, index: int
+    ) -> None:
+        """A21 (auto-approved; model change, test first): a ConfigSnapshot whose ``metric_definitions``
+        holds one definition twice (same ``id`` and ``version``), or whose ``metric_bindings`` holds
+        one binding twice, is rejected with a ``ValidationError`` located at that field, through
+        ``model_validate`` and ``model_validate_json``. The references resolve through a mapping, so
+        today the repeat is accepted silently (red until the architect adds the check). The message
+        says what is wrong (it contains ``duplicate``, as the bundle's ``[duplicate]`` does) and does
+        not show the rejected record: neither the text of the repeated definition nor its digest value
+        appears in ``str``, ``repr``, ``errors(include_input=False)`` or
+        ``json(include_input=False)``."""
+        snapshot = entity_class3("ConfigSnapshot")
+        doc = _snapshot_with_repeat(field, index)
+>       error = assert_rejected3(snapshot, doc, field=field)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_schema_gaps.py:333: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model = <class 'tracer_evalschema.snapshot.ConfigSnapshot'>
+doc = {'id': 'snap_01a169da-2142-77ff-9518-07138fef389a', 'schema_version': '0.0.1', 'created_at': '2026-10-22T10:00:00.000000Z', 'metadata': {}, ...}
+field = 'metric_bindings'
+
+    def assert_rejected3(
+        model: Any, doc: Mapping[str, Any], *, field: str | None = None
+    ) -> ValidationError:
+        """``doc`` fails ``model`` with a ``ValidationError``; a versioned model gets a placeholder
+        digest when the document has none (the digest check is off, so the rejection is about content).
+        With ``field``, some error location must contain that name."""
+        body = dict(doc)
+        versioned = "version" in getattr(model, "model_fields", {})
+        if versioned and "content_digest" not in body:
+            body["content_digest"] = PLACEHOLDER_DIGEST
+>       with _digest_off(), pytest.raises(ValidationError) as caught:
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValidationError
+
+packages/evalschema/tests/_support_b3.py:646: Failed
+_ test_config_snapshot_rejects_the_same_definition_or_binding_twice[1-metric_definitions] _
+
+field = 'metric_definitions', index = 1
+
+    @pytest.mark.parametrize("field", ["metric_definitions", "metric_bindings"])
+    @pytest.mark.parametrize("index", [0, 1])
+    def test_config_snapshot_rejects_the_same_definition_or_binding_twice(
+        field: str, index: int
+    ) -> None:
+        """A21 (auto-approved; model change, test first): a ConfigSnapshot whose ``metric_definitions``
+        holds one definition twice (same ``id`` and ``version``), or whose ``metric_bindings`` holds
+        one binding twice, is rejected with a ``ValidationError`` located at that field, through
+        ``model_validate`` and ``model_validate_json``. The references resolve through a mapping, so
+        today the repeat is accepted silently (red until the architect adds the check). The message
+        says what is wrong (it contains ``duplicate``, as the bundle's ``[duplicate]`` does) and does
+        not show the rejected record: neither the text of the repeated definition nor its digest value
+        appears in ``str``, ``repr``, ``errors(include_input=False)`` or
+        ``json(include_input=False)``."""
+        snapshot = entity_class3("ConfigSnapshot")
+        doc = _snapshot_with_repeat(field, index)
+>       error = assert_rejected3(snapshot, doc, field=field)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_schema_gaps.py:333: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model = <class 'tracer_evalschema.snapshot.ConfigSnapshot'>
+doc = {'id': 'snap_01a169da-2179-735c-b8c1-133b254d1bda', 'schema_version': '0.0.1', 'created_at': '2026-10-22T10:00:00.000000Z', 'metadata': {}, ...}
+field = 'metric_definitions'
+
+    def assert_rejected3(
+        model: Any, doc: Mapping[str, Any], *, field: str | None = None
+    ) -> ValidationError:
+        """``doc`` fails ``model`` with a ``ValidationError``; a versioned model gets a placeholder
+        digest when the document has none (the digest check is off, so the rejection is about content).
+        With ``field``, some error location must contain that name."""
+        body = dict(doc)
+        versioned = "version" in getattr(model, "model_fields", {})
+        if versioned and "content_digest" not in body:
+            body["content_digest"] = PLACEHOLDER_DIGEST
+>       with _digest_off(), pytest.raises(ValidationError) as caught:
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValidationError
+
+packages/evalschema/tests/_support_b3.py:646: Failed
+_ test_config_snapshot_rejects_the_same_definition_or_binding_twice[1-metric_bindings] _
+
+field = 'metric_bindings', index = 1
+
+    @pytest.mark.parametrize("field", ["metric_definitions", "metric_bindings"])
+    @pytest.mark.parametrize("index", [0, 1])
+    def test_config_snapshot_rejects_the_same_definition_or_binding_twice(
+        field: str, index: int
+    ) -> None:
+        """A21 (auto-approved; model change, test first): a ConfigSnapshot whose ``metric_definitions``
+        holds one definition twice (same ``id`` and ``version``), or whose ``metric_bindings`` holds
+        one binding twice, is rejected with a ``ValidationError`` located at that field, through
+        ``model_validate`` and ``model_validate_json``. The references resolve through a mapping, so
+        today the repeat is accepted silently (red until the architect adds the check). The message
+        says what is wrong (it contains ``duplicate``, as the bundle's ``[duplicate]`` does) and does
+        not show the rejected record: neither the text of the repeated definition nor its digest value
+        appears in ``str``, ``repr``, ``errors(include_input=False)`` or
+        ``json(include_input=False)``."""
+        snapshot = entity_class3("ConfigSnapshot")
+        doc = _snapshot_with_repeat(field, index)
+>       error = assert_rejected3(snapshot, doc, field=field)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_schema_gaps.py:333: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model = <class 'tracer_evalschema.snapshot.ConfigSnapshot'>
+doc = {'id': 'snap_01a169da-218f-7141-be9d-25d4404511dc', 'schema_version': '0.0.1', 'created_at': '2026-10-22T10:00:00.000000Z', 'metadata': {}, ...}
+field = 'metric_bindings'
+
+    def assert_rejected3(
+        model: Any, doc: Mapping[str, Any], *, field: str | None = None
+    ) -> ValidationError:
+        """``doc`` fails ``model`` with a ``ValidationError``; a versioned model gets a placeholder
+        digest when the document has none (the digest check is off, so the rejection is about content).
+        With ``field``, some error location must contain that name."""
+        body = dict(doc)
+        versioned = "version" in getattr(model, "model_fields", {})
+        if versioned and "content_digest" not in body:
+            body["content_digest"] = PLACEHOLDER_DIGEST
+>       with _digest_off(), pytest.raises(ValidationError) as caught:
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValidationError
+
+packages/evalschema/tests/_support_b3.py:646: Failed
+============================= slowest 5 durations ==============================
+132.04s call     packages/evalschema/tests/test_schema_gaps.py::test_every_difference_between_a_model_and_its_schema_is_claimed_by_a_rule
+15.42s call     packages/evalschema/tests/test_schema_agreement.py::test_unknown_members_are_rejected_at_every_object_level
+13.22s call     packages/evalschema/tests/test_schema_export.py::test_validating_a_4000_record_bundle_costs_no_more_than_without_the_keyword
+6.46s setup    packages/evalschema/tests/test_schema_lock.py::test_wheel_ships_the_generated_schemas_byte_for_byte
+3.27s call     packages/evalschema/tests/test_schema_lock.py::test_cli_write_then_check
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_schema_gaps.py::test_config_snapshot_rejects_the_same_definition_or_binding_twice[0-metric_definitions]
+FAILED packages/evalschema/tests/test_schema_gaps.py::test_config_snapshot_rejects_the_same_definition_or_binding_twice[0-metric_bindings]
+FAILED packages/evalschema/tests/test_schema_gaps.py::test_config_snapshot_rejects_the_same_definition_or_binding_twice[1-metric_definitions]
+FAILED packages/evalschema/tests/test_schema_gaps.py::test_config_snapshot_rejects_the_same_definition_or_binding_twice[1-metric_bindings]
+4 failed, 440 passed in 201.19s (0:03:21)
+exit=1
