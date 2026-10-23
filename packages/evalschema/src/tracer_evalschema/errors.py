@@ -112,6 +112,17 @@ class RefDigestMismatchError(BundleError):
     """A reference's digest disagrees with the entity it resolves to in the bundle."""
 
 
+class UnresolvedReferenceError(BundleError):
+    """A reference names an ``(id, version)`` that the bundle does not hold, where the seam is
+    asked to require resolution (``check_bundle_consistency(..., require_resolved=True)``; a
+    result's ``metric`` and a verdict check's ``metric_ref`` in a ``RunBundle``, B10)."""
+
+
+class BundleSizeError(BundleError):
+    """A serialized bundle is larger than the loader's limit (``loader.load_bundle``, S-N94). The
+    message names the two sizes and no content."""
+
+
 # ------------------------------------------------------------- raised outside model validation
 
 

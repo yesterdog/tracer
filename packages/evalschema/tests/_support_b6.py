@@ -397,10 +397,19 @@ def wav_fields(data: bytes) -> dict[str, Any]:
 # ------------------------------------------------------------------------------ pointers
 
 
+_PERCENT = re.compile(r"%2[35]")
+
+
 def _unescape(token: str) -> str:
     """RFC 6901 unescaping, after the percent-decoding of ``%23``: a literal '#' inside a key is
-    written ``%23`` because '#' is the chain separator of a source pointer (batch 9, decision 8)."""
-    return token.replace("%23", "#").replace("~1", "/").replace("~0", "~")
+    written ``%23`` because '#' is the chain separator of a source pointer (batch 9, decision 8),
+    and a literal '%' is written ``%25``. Both are decoded in ONE pass, left to right, so
+    ``%2523`` reads as the text ``%23`` and not as ``#``."""
+    return (
+        _PERCENT.sub(lambda m: "#" if m.group(0) == "%23" else "%", token)
+        .replace("~1", "/")
+        .replace("~0", "~")
+    )
 
 
 def _walk(node: Any, pointer: str) -> Any:

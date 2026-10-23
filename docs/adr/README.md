@@ -1,6 +1,18 @@
 # Architecture Decision Records: Phase 1 (`tracer-evalschema` 0.0.1)
 
-Revision 21, 2026-10-23. Authoritative scope: `docs/phase1/SCOPE.md`.
+Revision 22, 2026-10-23. Authoritative scope: `docs/phase1/SCOPE.md`.
+
+## Changes in revision 22
+- **Decided, auto-approved and logged** (decision log "AUTO-APPROVED B1-B21"; `docs/phase1/api-surface.md` section 25.9, each item marked; qa's contract `docs/phase1/api-surface-bundle.md` is merged as section 25):
+  - **B1, B9, B21** (ADR 0006 Decision 8, ADR 0007 Decision 8, ADR 0016 Decision 7): `RunBundle` (`rbnd`, purpose-neutral) and `ExportBundle{purpose}` (`exp`) in `tracer_evalschema.bundle`; both hide their input.
+  - **B2, B5, B10, B11** (ADR 0009 Decision 7, ADR 0008 Decision 3): identical duplicates `[duplicate]`, two contents `ConflictingRecordError`; one result per metric per bundle; the seam keyword `require_resolved` and `UnresolvedReferenceError`; non-comparable digests accepted unverified (`verify_bundle_digests` deferred).
+  - **B3, B16, S-N93, S-N94/B12** (ADR 0015 Decision 7, ADR 0008 Decision 6): how sealed and redacted payloads sit in an export; the exporter replaces a sealed artifact's `uri`; `PAYLOAD_KIND_COVERS`; `loader.load_bundle` with `DEFAULT_MAX_BUNDLE_BYTES` = 256 MiB.
+  - **B4** (ADR 0004 Decision 2a): `RunBundle.withheld: list[WithheldRecord{kind, record_id}]`; over-claims excused by the six provenance kinds; under-claims never.
+  - **B6, B7, B8, B13, B14, B19** (ADR 0016 Decisions 6, 7, 7a, 9, I7, I10): dataset items protect the payloads they reference; benchmark consent of tool calls from the run's markers; `caller_external_id` rejected in every export; `ProvenanceRedaction{item_id, field, reason}`; every artifact is an audio payload; export builder deferred.
+  - **B20** (ADR 0001 Decision 4 table, Decision 8): `WithheldRecord`, `PayloadRedaction`, `ProvenanceRedaction` are value objects; Decision 8 names 70 classes (SCOPE gate item 1).
+  - **B15, B17, B18** recorded as qa wrote them (deferred, unpinned, conservative).
+- **Implemented** by schema-architect: `bundle`, `privacy.export_human_subject`, `loader.load_bundle`, `errors.UnresolvedReferenceError` and `BundleSizeError` (api-surface 25.13). All 346 bundle tests pass on Python 3.11 to 3.14; no test was edited by the architect.
+- New findings **B22 to B27** (api-surface 25.13), each with a recommendation; none blocks P1-15.
 
 ## Changes in revision 21
 - **Decided, auto-approved and logged** (decision log "AUTO-APPROVED mapping ambiguities", "qa batch 7 follow-ups" A1-A5, "AUTO-APPROVED sealing findings"):

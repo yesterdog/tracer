@@ -5,6 +5,8 @@ Scope: tasks P1-04a, P1-04b, P1-04c, P1-04d, P1-05 (and the data/CI contracts of
 Status: the tests under `packages/evalschema/tests/` are written and red. Nothing in `src/` was written by qa.
 If a signature below is wrong for a good reason, escalate to staff-reviewer instead of changing a test.
 
+**Revision 22 (2026-10-23, schema-architect).** qa's bundle contract (`docs/phase1/api-surface-bundle.md`) is merged as section 25 (that file now only points here); its readings B1 to B21 were auto-approved on qa's recommendations under the owner's standing rule and logged, and each is marked Decided in 25.9. P1-14 and the export half of P1-27 are implemented (25.13): `bundle.RunBundle`, `ExportBundle`, `WithheldRecord`, `PayloadRedaction`, `ProvenanceRedaction`, `check_run_bundle`, `check_export_bundle`, `evidence_tier`, `check_observed_tier`, the seam keyword `require_resolved`, `privacy.export_human_subject`, `loader.load_bundle` (`DEFAULT_MAX_BUNDLE_BYTES` = 256 MiB), `errors.UnresolvedReferenceError` and `BundleSizeError`. Sections 2, 9 and 10 carry "(rev 22)" pointers. New findings B22 to B27 in 25.13.
+
 **Revision 21 (2026-10-23, schema-architect).** Mapping ambiguity M3 and the qa batch 7 follow-ups A1 to A5 and S-N91, auto-approved and logged, are implemented. `UsageRecord.model` is optional (23.1 row, marked "(rev 21)"); `resolve_price` takes `model: str | None` and answers `no_price_for_model` for `None` (23.1 row); a mixed set of usage with and without a model is `unit_unpriced`; `DigestKeyUnavailable` names the rule and the `key_id` only, the resolver's exception chained (24.4 S-N91 marked Decided, section 24.9). Details in sections 23.11 and 24.9.
 
 **Revision 20 (2026-10-23, schema-architect).** The cost findings N77 to N82 of section 23.10, auto-approved and logged, are marked Decided there; N78 (repeated `covered_by` IDs rejected) and N82 (importers never raise on text content; lone surrogates replaced by U+FFFD with the warning `text_not_valid_unicode`) are implemented, see the revision 20 paragraph at the end of 23.10 and the rows of `CostExclusion` and `import_reported_cost` in 23.1.
@@ -57,6 +59,7 @@ All derive from `TracerSchemaError(Exception)` unless noted.
 | `DuplicateKeyError`, `DepthLimitExceeded` | `TracerSchemaError` | `DepthLimitExceeded` is not a `RecursionError` |
 | `BundleError` | `TracerSchemaError` | base of the four below |
 | `MixedSchemaVersionError`, `ConflictingVersionError`, `ConflictingRecordError`, `RefDigestMismatchError` | `BundleError` | |
+| `UnresolvedReferenceError`, `BundleSizeError` | `BundleError` | (rev 22) the seam's `require_resolved` and the loader's size limit (section 25.2.1) |
 | `ConfusablePrefixError` | `TracerSchemaError` and `ValueError` (tests accept either) | |
 | `DataFileError` | `ValueError` | a bad vendored or test-supplied data file |
 
@@ -139,11 +142,13 @@ Types (validate to the canonical-case `str`; JSON mode too):
 - two docs with one `(id, version)` and different `content_digest` -> `ConflictingVersionError` (identical duplicates and other versions of the same id are fine);
 - two docs without `version`/`content_digest` (records of fact) with one `id` and different content -> `ConflictingRecordError` (identical duplicates fine);
 - a ref `{id, version, content_digest?}`: version required (else `BundleError`, `ValidationError`, `ValueError` or `KeyError`); when the bundle contains that `(id, version)` and both digests use the same scheme and differ -> `RefDigestMismatchError`; no digest on the ref, no matching entity, or a different version present -> no error.
+- (rev 22) The signature gains the keyword-only `require_resolved=False`; with `True`, a ref whose `(id, version)` no document holds raises `UnresolvedReferenceError`. The module also holds `RunBundle`, `ExportBundle` and the export rules: section 25.
 
 ## 10. `tracer_evalschema.loader` (P1-05)
 
 - `loads_strict(data: str | bytes, *, max_depth: int = <your default, 10_000 must exceed it>) -> Any`: standard JSON value; duplicate object keys (also after unescaping, nested, inside lists) -> `DuplicateKeyError` naming the key; nesting deeper than `max_depth` (arrays and objects, also unterminated input) -> `DepthLimitExceeded`, never `RecursionError`; syntax errors stay plain `ValueError`s (not the two typed errors). `max_depth=5` accepts `[[[1]]]` and rejects six nested arrays; `max_depth=1` accepts `1`.
 - `load_model(model: type[BaseModel], data: str | bytes, *, max_depth: int = ...) -> BaseModel`: strict parse then `model_validate` (so a version error surfaces as its typed error).
+- (rev 22) `load_bundle(model, data, *, max_bytes=DEFAULT_MAX_BUNDLE_BYTES, max_depth=DEFAULT_MAX_DEPTH)` for `RunBundle` and `ExportBundle`, with a size limit checked before parsing (`BundleSizeError`; default 256 MiB): section 25.2.5.
 
 ## 11. `tracer_evalschema.registry` (walks over all models; gate-bound)
 
@@ -1461,3 +1466,556 @@ A throwaway oracle outside the repository passed all 327 collected tests on Pyth
 ### 24.9 Revision 21: S-N91 implemented (schema-architect, 2026-10-23)
 - **S-N91, option A (A4, A5).** `digest._resolve_key` raises `DigestKeyUnavailable("no key available for key '<key_id>': the key resolver failed (the cause is chained, never quoted in this message)") from exc`. The message holds the rule and the `key_id` only: no `repr(exc)`, no text or arguments of the resolver's exception, and not its class name (A4, the strict assertion is kept). `__cause__` is the very exception the resolver raised, so an operator who logs tracebacks with their chain still finds the reason. The other two messages (no resolver; the resolver returned something other than `bytes`) already named only the rule and the scheme or `key_id`. A caller that converts the error into a pydantic `ValueError` (A5) gets a clean `errors()` because the message is clean.
 - **Test.** `test_digest.py::test_digest_key_unavailable_never_echoes_what_a_resolver_says` (qa). No test was edited by the architect.
+
+## 25. Batch 7 (P1-14): RunBundle, ExportBundle and the export rules; the export half of P1-27; API assumed by the tests
+
+Owner: qa (sections 25.1 to 25.12, written 2026-10-23 against SCOPE revision 20 as `docs/phase1/api-surface-bundle.md` and merged here in revision 22; that file now only points here) and schema-architect (the revision 22 decisions, marked "(rev 22)", and section 25.13). Audience: schema-architect, staff-reviewer, the lead. Tests (346 collected: 54, 61, 93, 138): `packages/evalschema/tests/test_bundle.py`, `test_export_rules.py`, `test_bundle_tier.py`, `test_bundle_adversarial.py`; helper `packages/evalschema/tests/_support_b7.py`. If a name or field below is wrong for a good reason, escalate to staff-reviewer; do not change a test.
+
+**(rev 22)** B1 to B21 were auto-approved on qa's recommendations under the owner's standing rule and logged (2026-10-23); each is marked Decided in section 25.9. P1-14 and the export half of P1-27 are implemented (section 25.13). `DEFAULT_MAX_BUNDLE_BYTES` is 256 MiB (B12).
+
+Where the ADRs name a rule but not a shape, a field, a module or a message, this file pins one reading and
+marks it **(P)**. Every (P) is listed in section 25.9 as an ambiguity B1 to B21 with a recommendation, so that the
+lead can auto-approve it under the owner's standing rule. Nothing below overrides a decided item: the owner
+decisions N20 to N26, O1 to O9, D1 to D3 (api-surface 22.12), P-17, P-42, P-44, P-47, P-57, S-N86 to S-N94 are
+binding and the tests assert them.
+
+Conventions of the earlier batches apply: `extra="forbid"`, closed sets emit `enum`, typed errors are not wrapped
+by pydantic, value objects are frozen and carry no entity fields, hiding models, ASCII-only tests, lazy imports
+through `api()` so that a missing name fails one test and never collection.
+
+### 25.1 What the tests cover
+
+P1-14 (`RunBundle`, `ExportBundle{purpose}`, the human-subject export rule and the benchmark consent rule applied
+to the export-time value `export_human_subject()`, the drop-or-key digest rule for shared exports, `file:` URIs
+and loopback hosts, `source_run_id`, `check_observed_tier` and the declaration of withheld records), the export
+half of P1-27 (`export_human_subject`), the bundle halves that api-surface 22.6, 23.4 and 24.3 deferred
+(evidence references, `declared_language_transcript_ids`, scorer `implementation_ref` equality, the cross-record
+rules of N21 and N22, usage membership, the summary against the bundle, the sealed-only-in-ExportBundle
+behaviour, redaction coverage per payload kind), S-N93 (payload kind -> `covers` member), S-N94 (size limit per
+bundle in the loader), the pricing-catalog reference digest in the bundle seam (N26, N52), and the bundle-related
+adversarial cases A-20, A-30, A-31 and the bundle level of A-34 to A-39.
+
+### 25.2 Modules, classes and pinned fields
+
+#### 25.2.1 `tracer_evalschema.errors` (two new typed errors)
+
+| Name | Base | Notes |
+|---|---|---|
+| `UnresolvedReferenceError` | `BundleError` | a reference `{id, version}` that resolves to nothing, when the seam is asked to require resolution (25.5) |
+| `BundleSizeError` | `BundleError` | a serialized bundle larger than the loader's limit (25.2.5) |
+
+#### 25.2.2 `tracer_evalschema.bundle` (the existing seam module gains the models)
+
+`__all__` gains: `EXPORT_PURPOSES`, `WITHHOLDABLE_KINDS`, `PROVENANCE_KINDS`, `PAYLOAD_KIND_COVERS`, `RunBundle`,
+`ExportBundle`, `WithheldRecord`, `PayloadRedaction`, `ProvenanceRedaction`, `check_run_bundle`,
+`check_export_bundle`, `check_observed_tier`, `evidence_tier`. `check_bundle_consistency` keeps every batch 1
+behaviour and gains one keyword (25.5).
+
+Constants:
+
+- `EXPORT_PURPOSES == ("internal", "shared_export", "benchmark")`.
+- `WITHHOLDABLE_KINDS`: exactly `artifact, transcript, turn, exchange, tool_call, span, result, usage_record,
+  cost_record` (P, B4).
+- `PROVENANCE_KINDS`: exactly `transcript, turn, exchange, tool_call, span, usage_record`, a subset of the
+  previous (the kinds of ADR 0004 Decision 2a that carry provenance fields).
+- `PAYLOAD_KIND_COVERS`: the S-N93 map, exactly `{"audio": "audio", "transcript_text": "text", "tool_arguments":
+  "tool_arguments", "tool_result": "tool_result"}`; its values are exactly `privacy.REDACTION_COVERS`; a profile
+  has no entry (a profile is only ever sealed).
+
+Entities (both: `EntityBase`, records of fact, no `version`, no `content_digest`, prefixes `rbnd` and `exp`,
+**hide their input** (ADR 0007 Decision 8: they embed hiding models, so the set closed under embedding makes them
+hide), `extra="forbid"`):
+
+| Name | Fields |
+|---|---|
+| `RunBundle` (`rbnd`) | entity fields plus: `run: Run` (required), `snapshot: ConfigSnapshot` (required), `pricing_catalogs: list[PricingCatalog] = []`, `test_profiles: list[TestProfile] = []`, `artifacts: list[Artifact] = []`, `transcripts: list[Transcript] = []`, `turns: list[Turn] = []`, `exchanges: list[Exchange] = []`, `tool_calls: list[ToolCallEvent] = []`, `spans: list[StageSpan] = []`, `results: list[MetricResult] = []`, `verdict: RunVerdict \| None = None`, `usage_records: list[UsageRecord] = []`, `cost_records: list[CostRecord] = []`, `cost_summaries: list[CostSummary] = []`, `withheld: list[WithheldRecord] = []`. No other member; in particular no sealed payload, no redaction, no purpose. (P, B1)|
+| `ExportBundle` (`exp`) | entity fields plus: `purpose` (closed set, required), `run_bundles: list[RunBundle] = []`, `datasets: list[Dataset] = []`, `dataset_items: list[DatasetItem] = []`, `sealed_payloads: list[SealedPayload] = []`, `payload_redactions: list[PayloadRedaction] = []`, `provenance_redactions: list[ProvenanceRedaction] = []`. No `withheld` member (the declaration is per run, on the run bundle, B4). (P)|
+
+Value objects (frozen, `extra="forbid"`, no entity fields; named in ADR 0001 Decision 8 by the architect):
+
+| Name | Fields and rules |
+|---|---|
+| `WithheldRecord` | `kind` (closed set `WITHHOLDABLE_KINDS`), `record_id` (a typed ID of the kind's class: art, tsc, turn, exc, tcl, spn, res, use, cst; any other ID kind, a bare string or a mismatching kind is a `ValidationError`). Names a kind and an ID, never a value (D3). |
+| `PayloadRedaction` | `subject_id` (`ArtifactId`, `TranscriptId` or `ToolCallEventId`), `redaction: RedactionRecord`. The attachment of S-N89: an export pairs a record with its redaction through this entry. (P, B3) |
+| `ProvenanceRedaction` | `item_id: DatasetItemId`, `field` (closed set `{"source_run_id"}`), `reason` (closed set `{"unresolved_reference"}`). The O9/D2 entry: item, field, reason, never the run ID. A separate small value object; not a `RedactionRecord`; has no `covers`. |
+
+The three id-typed fields (`record_id`, `subject_id`, `item_id`) are typed-ID fields, so the registry walks
+(`test_every_id_reference_field_has_registered_prefix`, the opaque-ID allowlist) apply: a field annotated with a
+union of ID classes validated by one validator, like `EvidenceRef.ref_id`.
+
+#### 25.2.3 Functions of `tracer_evalschema.bundle`
+
+- `check_run_bundle(bundle: RunBundle) -> None` and `check_export_bundle(bundle: ExportBundle) -> None`: the rules
+  of section 25.4. The models run them on load (a model validator, after the fields). They raise `ValueError` with a
+  tagged message (section 25.3), or a typed error (section 25.3.2), and are pure and idempotent. Called on a bundle
+  built with `model_copy(update=...)` they raise the same errors as on load (a test does this).
+- `evidence_tier(records: Iterable[Any]) -> str`: `"T0"`, `"T1"` or `"T2"`, the highest tier any record shows
+  (25.6.1). Any iterable; records of other kinds count as T0.
+- `check_observed_tier(run: Run, records: Iterable[Any], *, withheld: Iterable[WithheldRecord] = ()) -> None`
+  (R2, ADR 0004 Decision 2a): `ValueError` tagged `[tier]` (25.6.2). `withheld` is keyword-only (a third positional
+  argument is a `TypeError`).
+
+#### 25.2.4 `tracer_evalschema.privacy` (P1-27 export half)
+
+`export_human_subject(marker: PrivacyMarker, run: Run, turns: Sequence[Turn]) -> bool`, added to `__all__`.
+Exactly the three parameters, no defaults (O1): omitting `turns`, `None`, a `str` or `bytes` is a `TypeError`;
+`()` and `[]` mean no turns. Returns a `bool` (ADR 0016 Decision 7a): stored `human_subject=false` -> `False`;
+stored true with reason `marked_before_role_evidence` -> `derive_human_subject(run, turns)`; stored true with
+`manual`, `real_person_likeness` or no reason -> `True`. Pure; the marker is never changed.
+
+#### 25.2.5 `tracer_evalschema.loader`
+
+`DEFAULT_MAX_BUNDLE_BYTES: int` (a positive `int` between 64 MiB and 1 GiB; recommended 256 MiB, B12) and
+`load_bundle(model, data, *, max_bytes=DEFAULT_MAX_BUNDLE_BYTES, max_depth=DEFAULT_MAX_DEPTH)`. `model` is
+`RunBundle` or `ExportBundle` (anything else is a `TypeError`, before the data is read). `data` is `str` or
+`bytes`; the size is the length of the UTF-8 bytes (a `str` is measured encoded), checked **before** any
+parsing: more than `max_bytes` raises `BundleSizeError` (exactly `max_bytes` loads), naming the two sizes and no
+content, also for input that is not JSON. `max_bytes` must be an `int` that is not a `bool` and is `>= 0`
+(`ValueError` or `TypeError` otherwise). Everything else is `load_model`: strict parsing (`DuplicateKeyError`,
+`DepthLimitExceeded`, `NaN` is a `ValueError`) and the model's own errors, unwrapped. `load_model` keeps no limit.
+
+### 25.3 Message tags and typed errors
+
+#### 25.3.1 Tags
+
+Every `ValueError` raised by a bundle rule starts with a bracketed tag; `model_validate` turns it into a
+`ValidationError` whose text holds the tag (the tests assert `"[tag]" in text`). The message names records by ID
+and states the rule. **It never quotes a value**: not a turn's text, a tool argument, a URI, a path, a run ID in
+the omitted `source_run_id`, a digest value, a ciphertext, a key, a caller's number. IDs of records of the bundle
+are named. The words after the tag are not pinned, except the ones listed in the last column.
+
+| Tag | Rule | Words pinned |
+|---|---|---|
+| `[snapshot]` | `run.config_snapshot_id` is not the bundle's snapshot ID | names the run's snapshot ID |
+| `[duplicate]` | a record ID appears twice (identical content) in a bundle or across the run bundles of an export; a versioned entity `(id, version)` twice; two sealed payloads of one type for one subject; two dataset items with one ID | |
+| `[membership]` | a usage record's `run_id` is not the bundle's run | names the usage record and the run |
+| `[unresolved]` | a reference by ID resolves to nothing in the bundle and is not declared withheld (turn -> transcript, artifact `turn_ref`, channel map -> artifact, evidence `ref_id`, verdict check `result_id`, cost `usage_record_ids`, result `declared_language_transcript_ids`); a dataset `item_ids` member not in the export | names the dangling ID |
+| `[transcript]` | `check_transcript` failed over the transcript's turns in the bundle | names `seq`, `timeline_origin` or the exchange index as the underlying message does |
+| `[exchange]` | an exchange index used twice | |
+| `[tool_call_seq]` | `check_tool_call_seqs` failed | names the `seq` |
+| `[channel_map]` | `check_channel_map` failed (a channel index beyond the artifact's channels) | |
+| `[declared_language]` | a transcript listed in `declared_language_transcript_ids` has no `declared_language` | |
+| `[result]` | `check_result_against_definition` failed | `implementation_ref` for a scorer mismatch, and the result ID |
+| `[rescoring]` | two results of one metric `(id, version)` in a bundle (B5) | |
+| `[verdict]` | `check_verdict` failed | |
+| `[cost]` | a computed cost record names an `entry_keys` member that no entry of its embedded catalog has | |
+| `[summary]` | `check_cost_summary` failed, or two summaries of one domain | |
+| `[marker]` | an artifact's or transcript's stored marker is looser than the derivation, or stricter without a reason (`check_human_subject_marker`, P-47, A-31) | names the record ID |
+| `[tier]` | R2 (25.6.2) | the stored and the computed tier; for an under-claim also the ID of one evidence record |
+| `[withheld]` | a declared record is in the bundle, or declared twice | names the ID |
+| `[caller_external_id]` | an embedded run carries `caller_external_id` | names the run ID |
+| `[profile_digest]` | a `TestProfileRef.content_digest` that the purpose does not allow (25.4.2) | names the profile ID |
+| `[profile]` | a `TestProfile` in the clear in a shared or benchmark export | |
+| `[uri]` | an artifact with a `file:` URI or a loopback host in a shared or benchmark export | names the artifact, not the URI |
+| `[source_run]` | a dataset item keeps a `source_run_id` that names no run of a shared or benchmark export | names the item, not the run |
+| `[provenance_redaction]` | an omission entry for an item that is absent or still carries the field, or two entries for one item | |
+| `[sealed]` | the subject of a sealed payload is not in the export | names the subject ID; no sealed byte |
+| `[redaction]` | the subject of a payload redaction is not in the export | names the subject ID |
+| `[unprotected]` | a human-subject payload is neither sealed nor redacted in a shared or benchmark export | names the record |
+| `[consent]` | a human-subject payload in a benchmark lacks `consent.status=obtained` | names the record |
+
+#### 25.3.2 Typed errors (unwrapped)
+
+- `ConflictingRecordError` / `ConflictingVersionError` / `MixedSchemaVersionError`: from the seam, over the
+  JSON-mode documents of every record and every embedded entity, and for an export over the records of all its run
+  bundles. Same ID with other content is `ConflictingRecordError`; the check comes before `[duplicate]`.
+- `SchemaVersionTooNew` / `SchemaVersionMismatch`: a record of another schema version, by the record's own model.
+- `RefDigestMismatchError`: a reference whose digest has the scheme and `key_ref` of the entity it resolves to in the
+  bundle and a different value (25.5).
+- `UnresolvedReferenceError`: a result's `metric` or a verdict check's `metric_ref` that no embedded definition
+  `(id, version)` satisfies (25.5).
+- `DigestMismatch`, `DigestKeyUnavailable`, `UnknownDigestScheme`: from the embedded models (a forged snapshot
+  digest, a keyed digest on a model that cannot resolve it, an unregistered scheme).
+
+### 25.4 The rules
+
+#### 25.4.1 `RunBundle` (the unit of a run; purpose-neutral, B9)
+
+In this order (the tests give each document one violation, so the order is not pinned beyond "typed seam errors
+before tagged rules"):
+
+1. The seam over the JSON-mode dumps of the run, the records, the snapshot, the entities embedded in the snapshot
+   (evaluator, persona, rubric, definitions, bindings), the catalogs and the profiles. References offered for
+   optional verification: the evaluator's `TestProfileRef`, the snapshot's `PricingCatalogRef`, and each computed
+   cost record's `pricing_snapshot` mapped to `{id: catalog_id, version, content_digest}` (N26, N52). Then, with
+   `require_resolved=True`: each result's `metric` and each verdict check's `metric_ref`.
+2. `[duplicate]` for repeated IDs (B2); `[snapshot]`; `[membership]`.
+3. `[unresolved]` for the references by ID listed in 25.3.1, **unless the target ID is declared withheld** (25.6.3);
+   `[channel_map]`; `[declared_language]`.
+4. Exchanges, then transcripts, then tool calls: `[exchange]` for an exchange index used twice (checked first, over
+   all exchanges of the bundle, also when no transcript has a turn, so a repeated index is `[exchange]` and never
+   `[transcript]`); for each transcript that has at least one turn in the bundle, `check_transcript(transcript,
+   its turns, exchanges)` -> `[transcript]` (the exchange checks of `check_transcript` are skipped when an
+   `exchange` is declared withheld, unpinned); a transcript with no turn is not checked (a withheld text, an empty
+   call); `[tool_call_seq]`.
+5. Results: `[rescoring]`, `[result]` over the snapshot's definitions (this includes the scorer
+   `implementation_ref` equality of P-61); `[verdict]` if a verdict is present.
+6. Cost: `[cost]` (entry keys, only when the catalog `(catalog_id, version)` is embedded); `[summary]`.
+7. `[marker]` for every artifact and transcript, with the bundle's turns as the evidence.
+8. `[withheld]`; then R2: `check_observed_tier(run, every record, withheld=bundle.withheld)` -> `[tier]`.
+
+Not rules of the bundle: a reference to a catalog, test profile, agent target or project that the bundle does not
+embed is not rejected (it is verified when present); the bundle does not recompute costs, language steps or
+applicability (deferred, section 25.11).
+
+#### 25.4.2 `ExportBundle`
+
+For every purpose:
+
+- `[caller_external_id]` (ADR 0016 Decision 6, I7: it never appears in an ExportBundle) (B8).
+- The seam over every record of every run bundle and the run bundles themselves; `[duplicate]` for a repeated
+  record or run bundle ID; two run bundles of one run with different content raise `ConflictingRecordError`.
+- Sealed payloads (ADR 0015 Decision 7: an `ExportBundle` is the only place for them; accepted at every purpose):
+  the subject of each is in the export (`audio` -> an artifact, `transcript_text` -> a transcript,
+  `tool_arguments` and `tool_result` -> a tool call, `test_profile` -> a `TestProfileRef` of a snapshot of the
+  export with the same `id` and `subject_version`), else `[sealed]`; one sealed payload per `(payload_type,
+  subject_id)`, else `[duplicate]`.
+- Payload redactions: each `subject_id` is an artifact, transcript or tool call of the export, else `[redaction]`.
+  Entries for one subject add up (the union of their `covers`).
+- Datasets: every `Dataset.item_ids` member is a dataset item of the export, else `[unresolved]`; two items with
+  one ID `[duplicate]`.
+- Provenance redactions: each names an item of the export that no longer carries `source_run_id`, and an item has
+  at most one entry, else `[provenance_redaction]`.
+
+`internal`: nothing else is checked, except that every snapshot's `TestProfileRef` carries a plain digest or no
+test profile (`snapshot.check_internal_snapshot`, ADR 0006 Decision 6): a keyed digest or none is
+`[profile_digest]`. Human-subject payloads in the clear, `file:` URIs, loopback hosts, unresolved `source_run_id`,
+test profiles in `test_profiles` are all allowed.
+
+`shared_export` and `benchmark`:
+
+- `[profile]` if a run bundle has a non-empty `test_profiles` (ADR 0006 Decision 7); `[profile_digest]` if a
+  `TestProfileRef.content_digest` is present and its scheme is not `hmac-sha256-jcs/v1` (A-30). An absent digest
+  is accepted. (P-17, ADR 0006 Decision 6.)
+- `[uri]`: an artifact `uri` that starts with `file:` or has a loopback host (`artifact.is_loopback_uri`) (O5, O8).
+- `[source_run]`: an item that keeps `source_run_id` while no run bundle of the export has that run (O9). The
+  exported copy of such an item omits the field and an omission entry (`ProvenanceRedaction`) records it.
+- Human-subject payloads. The **export-time value** of a payload is
+  - artifact, transcript: `export_human_subject(record.privacy, run, run_bundle.turns)`;
+  - tool call (no marker, ADR 0016 Decision 4): `derive_human_subject(run, run_bundle.turns)`;
+  - an item's payload (its `artifact_id`, `transcript_id`): the item's own value, `export_human_subject(
+    item.privacy, source_run, source_run_bundle.turns)` when the item's `source_run_id` names a run bundle of the
+    export, else `True` (no role evidence, ADR 0016 Decision 9). A payload that any such item marks human-subject
+    is protected as if its own marker said so (B6).
+  A payload whose value is true must be **sealed or redacted**:
+  - audio of an artifact: a sealed `audio` payload for it, or a payload redaction whose `covers` has `audio`;
+  - text of a transcript: a payload redaction with `text`. A sealed `transcript_text` payload protects the text
+    only when no turn of that transcript is in the run bundle (the turns were replaced by the seal, B3). A
+    transcript with no turn in the bundle holds no text in the clear and needs nothing;
+  - arguments of a tool call (present when `arguments_raw` or `arguments` is present): a redaction with
+    `tool_arguments`, or a sealed `tool_arguments` payload with both fields absent; the result (present when
+    `result_raw` is present): a redaction with `tool_result`, or a sealed `tool_result` payload with
+    `result_raw` absent. A call without arguments (or without a result) needs no cover for them.
+  A `ProvenanceRedaction` never counts (D2). The redaction map is `PAYLOAD_KIND_COVERS`; each kind separately.
+- `benchmark` only (P-44): every payload whose export-time value is true also has `consent.status ==
+  "obtained"` in its marker (`not_obtained` and `unknown` are `[consent]`, also when the payload is sealed or
+  redacted); the same for a dataset item that has a payload reference. For tool calls, which have no marker, the
+  consent comes from the run's markers: a run with tool calls whose derived value is true needs at least one
+  human-subject artifact or transcript marker with consent obtained and none without (B7).
+- A payload whose export-time value is false is not subject to sealing, redaction or consent, and its stored
+  consent is not consulted (P-57). The stored record is not changed.
+
+### 25.5 The seam (`check_bundle_consistency`)
+
+`check_bundle_consistency(docs, refs=(), *, require_resolved=False)`. With the default, every batch 1 behaviour is
+unchanged (a reference to an `(id, version)` that no document holds, or to another version, is not an error). With
+`require_resolved=True`, a reference whose `(id, version)` no document holds raises
+`UnresolvedReferenceError` naming the ID and version; a resolved reference still has its digest compared (same
+scheme and `key_ref` -> `RefDigestMismatchError` when the values differ; not comparable -> neither a match nor
+an error). `require_resolved` is keyword-only. A digest that cannot be compared without a key is accepted by the
+bundle models and is **not** reported as verified; verifying it needs a key resolver (B11, section 25.11).
+
+### 25.6 Observed tier (R2) and the declaration of withheld records (O3a, D3)
+
+#### 25.6.1 `evidence_tier`
+
+Observer evidence (T2): `Transcript.source == "observer"`, `Turn.timing_source == "observer"`, `Exchange.source ==
+"observer"`, `TimelineOrigin.kind == "observer"` on a transcript or a tool call, `ToolCallEvent.source ==
+"observer"`. Telemetry evidence (T1): the same fields at `agent_telemetry` or `telemetry` (`Transcript.source`,
+`ToolCallEvent.source` use `agent_telemetry`; `Turn.timing_source`, `Exchange.source`, `TimelineOrigin.kind` use
+`telemetry`), any `StageSpan`, and a `UsageRecord` with `domain == "agent_under_test"` and `source == "telemetry"`.
+Everything else is T0, in particular `Turn.source` (a pipeline stage, not a producer), the evaluation domain's
+usage and every other record. The highest tier wins.
+
+#### 25.6.2 `check_observed_tier(run, records, *, withheld=())`
+
+Stored tier = computed tier: accepted. Stored below computed (an under-claim): always `[tier]`, naming the stored
+and the computed tier and the ID of one evidence record; no declaration excuses it, and a declaration never raises
+the computed tier. Stored above computed (an over-claim): `[tier]` unless `withheld` holds at least one entry whose
+kind is in `PROVENANCE_KINDS` (D3). The tests pin the over-claim excuse for each of the six kinds at "T1 over
+quiet records", for the four observer-capable kinds (`transcript, turn, exchange, tool_call`) at "T2 over quiet
+records", and the non-excuse of `artifact`, `result` and `cost_record` at both; whether a declared `span` or
+`usage_record` excuses a T2 over-claim is **not pinned** (B4).
+
+#### 25.6.3 The declaration
+
+`RunBundle.withheld: list[WithheldRecord]` (B4). Explicit, per run (the run bundle is the unit of a run), names
+kinds and IDs. Without it R2 is strict. A declared record must not be in the bundle and is declared once
+(`[withheld]`). A reference by ID to a declared-withheld record is not `[unresolved]` (evidence references, a
+turn's transcript, an artifact's `turn_ref`, a channel map's artifact, declared-language transcripts, a cost
+record's usage records). Declaring never excuses an unprotected payload, a marker, or any other rule.
+A sealed or redacted record keeps its provenance fields readable and counts as present: a redacted transcript is
+there; the metadata record of a sealed artifact, transcript or tool call stays in the export; only the turns
+removed by a sealed `transcript_text` are gone and count through a declaration (B3).
+
+### 25.7 Adversarial cases
+
+| Case | Test (file) |
+|---|---|
+| A-20 (human caller; simulated run with an `unknown`-role turn; no role evidence) x (audio, text, tool arguments, tool result) x (shared, benchmark) | `test_a20_human_subject_payload_unsealed_and_unredacted` (24) (`test_bundle_adversarial.py`) |
+| A-30 plain `sha256-jcs/v1` profile digest in a shared export; disguised keyed form; unknown scheme | `test_a30_plain_digest_of_the_test_profile_in_a_shared_export` |
+| A-31 `human_subject=false` with an unknown role (turn or channel) | `test_a31_human_subject_false_on_a_run_with_an_unknown_role`, `test_run_bundle_rejects_a_marker_looser_than_the_derivation` |
+| A-01/A-02 at bundle level (prompt injection, placeholders, forged redaction or seal JSON, rule tags in text) | `test_prompt_injection_in_transcripts_is_stored_verbatim_and_decides_nothing` |
+| A-03/A-38 no secret in errors or logs | `test_bundle_errors_never_echo_secrets_or_text`, `test_bundle_work_logs_and_prints_nothing`, `test_bundle_models_hide_their_input` |
+| A-05 huge call | `test_huge_call_bundle_validates_in_calibrated_time` |
+| A-35 empty and 4 MiB sealed plaintexts | `test_empty_sealed_plaintext_in_an_export`, `test_an_oversized_bundle_is_refused_before_it_is_parsed` |
+| A-36 hostile JSON shapes | `test_hostile_json_shapes_in_a_bundle_document`, `test_malformed_*` |
+| A-39 non-canonical encodings | `test_noncanonical_sealed_encodings_are_rejected_inside_an_export` |
+| A-44 no shared state | `test_bundle_validation_shares_no_state_between_threads` |
+| empty call; declaration abuse; mutation; Indic text | `test_empty_call_bundle_and_its_tier`, `test_withheld_declaration_cannot_hide_an_unprotected_payload`, `test_bundle_validation_does_not_mutate_its_input_and_is_deterministic`, `test_indic_and_special_text_survives_a_bundle_byte_for_byte` |
+
+### 25.8 Test map
+
+SCOPE section 5 names (binding), all present once: P1-14: `test_bundle_roundtrip_model_json_schema_model`,
+`test_shared_export_human_requires_seal_or_redaction`, `test_benchmark_purpose_human_requires_seal_or_redaction`,
+`test_shared_export_simulated_run_with_unknown_role_requires_seal_or_redaction`,
+`test_internal_bundle_human_allowed`, `test_redaction_covers_all_payload_kinds` (bundle half),
+`test_shared_export_drops_or_keys_profile_digest`,
+`test_shared_export_snapshot_digest_verifies_after_profile_digest_dropped`, `test_export_has_no_digest_key_material`,
+`test_benchmark_rejects_not_obtained_consent`, `test_benchmark_rejects_unknown_consent`,
+`test_shared_export_allows_not_obtained_consent_when_sealed_or_redacted`,
+`test_precautionary_marker_uses_derivation_at_export`, `test_manual_marker_always_honoured_at_export`,
+`test_simulated_precautionary_payload_with_unknown_consent_enters_benchmark`,
+`test_precautionary_marker_human_when_bundle_lacks_role_evidence`,
+`test_precautionary_marker_on_human_caller_run_stays_human`,
+`test_export_rederivation_leaves_stored_marker_unchanged`, `test_bundle_declared_language_transcript_ids_resolve`,
+`test_export_human_subject_turns_argument_required`, `test_shared_and_benchmark_exports_reject_file_uris`,
+`test_export_dataset_item_source_run_id_is_unresolved_provenance`, `test_bundle_observed_tier_equals_evidence_tier`,
+`test_export_declared_withheld_records_and_observed_tier`, `test_shared_and_benchmark_exports_reject_loopback_uris`,
+`test_export_source_run_id_kept_only_where_policy_allows`. (`test_redaction_record_fields` is in
+`test_sealed_payload.py` and unchanged; the P-61 `implementation_ref` equality is
+`test_bundle_scorer_implementation_ref_equals_definition`.)
+
+New names proposed here (binding once the lead accepts this file; listed so SCOPE can place them):
+
+- `test_bundle.py` (36 functions, 54 cases): `test_run_and_export_bundle_are_registered_entities`, `test_records_of_fact_name_no_run_except_usage_records` (N22), `test_every_record_of_a_kind_is_checked_in_the_run_bundle`,
+  `test_bundle_value_objects_shape`, `test_bundle_closed_sets_are_exact_and_emit_enum`,
+  `test_withheld_record_kind_matches_id_kind`, `test_run_bundle_of_a_consistent_run_is_accepted` (6),
+  `test_bundle_models_reject_unknown_and_secret_like_members`, `test_bundle_models_hide_their_input`,
+  `test_run_bundle_rejects_records_of_another_schema_version`,
+  `test_run_bundle_rejects_same_record_id_different_content`, `test_run_bundle_rejects_a_record_listed_twice`,
+  `test_run_bundle_names_its_snapshot`, `test_usage_record_run_membership`,
+  `test_run_bundle_reference_by_id_must_resolve` (10), `test_evidence_ref_resolves_in_run_bundle` (the bundle half of
+  `test_evidence_ref_resolves_in_bundle`), `test_run_bundle_result_is_checked_against_its_definition`,
+  `test_run_bundle_result_metric_must_resolve_to_a_snapshot_definition`, `test_run_bundle_has_one_result_per_metric`,
+  `test_run_bundle_verdict_is_checked_against_rubric_and_results`,
+  `test_run_bundle_transcript_rules_run_over_the_bundles_turns`,
+  `test_run_bundle_tool_call_seq_is_unique_in_the_bundle`, `test_run_bundle_channel_map_is_checked_against_its_artifact`,
+  `test_pricing_catalog_ref_digest_in_the_bundle_seam`, `test_run_bundle_cost_record_names_entries_of_its_catalog`,
+  `test_run_bundle_cost_summary_is_checked_against_the_bundles_records`,
+  `test_run_bundle_cost_summaries_are_checked_per_domain`,
+  `test_run_bundle_verifies_the_digest_of_a_test_profile_reference`,
+  `test_bundle_seam_reference_resolution_is_opt_in`, `test_bundle_loader_size_limit`,
+  `test_bundle_loader_keeps_the_strict_json_rules`, `test_run_bundle_embeds_only_what_the_schema_lists`.
+- `test_export_rules.py` (41 functions, 61 cases): `test_every_record_of_a_kind_is_checked_not_only_the_first` (2), `test_later_items_run_bundles_and_entries_are_checked_too`, `test_internal_export_keeps_a_plain_profile_digest`, `test_export_bundle_accepts_nothing_to_export`,
+  `test_payload_redaction_shape`, `test_export_human_subject_truth_table`, `test_benchmark_consent_of_tool_calls_comes_from_the_run_markers`,
+  `test_provenance_redaction_entries_are_checked` (3), `test_provenance_redaction_never_satisfies_seal_or_redaction` (2),
+  `test_export_dataset_ids_resolve_inside_the_export`, `test_dataset_item_payload_is_protected_when_the_item_is_human_subject`,
+  `test_sealed_payload_accepted_in_export_bundle_and_refused_elsewhere` (the behavioural half of
+  `test_sealed_only_in_export_bundle`), `test_sealed_payload_subject_must_be_in_the_export`, `test_sealed_audio_protects_the_recording`,
+  `test_sealed_text_replaces_the_turns_of_its_transcript`, `test_sealed_tool_payloads_replace_the_clear_fields`,
+  `test_export_bundle_holds_no_caller_identifier` (the ExportBundle half of `test_user_id_not_in_snapshot_or_export`),
+  `test_export_bundle_holds_run_bundles_once`, `test_export_bundle_is_checked_through_the_bundle_functions`.
+- `test_bundle_tier.py` (16 functions, 93 cases): `test_evidence_tier_reads_closed_provenance_fields` (30), `test_every_stage_span_is_telemetry_evidence` (8), `test_each_kind_of_record_carries_the_tier_in_a_bundle` (10), `test_bundle_observed_tier_equals_evidence_tier` (9), `test_evidence_tier_of_many_records_is_the_highest`,
+  `test_check_observed_tier_function`, `test_run_rule_r1_and_bundle_rule_r2_agree`,
+  `test_declaration_of_a_provenance_kind_excuses_an_over_claim` (6), `test_declaration_of_an_observer_capable_kind_excuses_a_t2_over_claim` (4),
+  `test_declaration_of_another_kind_does_not_excuse_an_over_claim` (3), `test_an_under_claim_is_never_excused` (6),
+  `test_check_observed_tier_withheld_argument`, `test_withheld_declaration_must_be_true_and_unique`,
+  `test_withheld_records_excuse_references_to_them` (10), `test_sealed_and_redacted_records_count_for_the_tier`.
+- `test_bundle_adversarial.py` (19 functions, 138 cases): the table in section 25.7 plus `test_malformed_lists_are_validation_errors` (40),
+  `test_malformed_export_lists_are_validation_errors` (48), `test_malformed_documents_are_validation_errors` (10).
+
+### 25.9 Ambiguities and readings (pinned **(P)** in the tests; recommendations for auto-approval)
+
+Numbered B1 to B21 (the batch 7 series; not the N-series of the architect).
+
+- **B1. Decided (revision 22, auto-approved as recommended). Module and shape of the bundle (P).** The ADRs name `RunBundle`, `ExportBundle` and the bundle seam but
+  no fields. Pinned: both in `tracer_evalschema.bundle`; `RunBundle` embeds the run, its snapshot and the lists of
+  section 25.2.2; `ExportBundle` embeds run bundles, datasets, items, sealed payloads and the two kinds of redaction
+  entries. `export_human_subject` lives in `privacy` beside `derive_human_subject`. Recommendation: accept.
+- **B2. Decided (revision 22, auto-approved as recommended). A record listed twice (P).** The seam accepts identical duplicate documents (batch 1: it merges sources);
+  a bundle list that repeats a usage record would count it twice in a total. Pinned: identical duplicates are
+  `[duplicate]`, different content is `ConflictingRecordError`. Recommendation: accept.
+- **B3. Decided (revision 22, auto-approved as recommended). How a sealed or redacted payload sits in the export (P).** A `SealedPayload` has an `aad_fields.subject_id`
+  and a `RedactionRecord` has no ID (S-N89), but the ADRs do not say what happens to the record whose payload is
+  sealed. Pinned: the metadata record (artifact, transcript, tool call) stays in the export; a redaction is a
+  `PayloadRedaction{subject_id, redaction}` entry; a sealed `transcript_text` replaces the turns of the transcript
+  (the turns are not in the bundle, and are declared withheld); a sealed `tool_arguments` or `tool_result` requires
+  the clear fields (`arguments_raw`, `arguments`; `result_raw`) to be absent; a sealed `audio` protects the
+  artifact record. A redacted record keeps its provenance fields and counts as present. Recommendation: accept.
+  Open follow-up (not pinned): an artifact whose audio is sealed still carries its `uri`, which names the
+  plaintext location; recommend that the exporter replace it with the location of the sealed copy and that
+  `SCHEMA_POLICY.md` says so. **(rev 22) Decided with B3:** the export builder replaces the `uri` of an artifact
+  whose audio it seals by the location of the sealed copy; `SCHEMA_POLICY.md` (P1-20a) states it. The schema cannot
+  check it (a URI does not say what it points to), so it is an exporter duty, not a bundle rule.
+- **B4. Decided (revision 22, auto-approved as recommended). Where the withheld declaration lives and what it excuses (P; owner D3 constraints respected).** Pinned: a
+  field `withheld` of the `RunBundle` (explicit, per run, kinds and IDs; the run bundle is the unit of a run and an
+  export embeds it, so a partial export declares in its run bundle and a RunBundle may declare too); nine kinds;
+  under-claim always rejected; over-claim excused by any of the six provenance kinds; a declaration never raises the
+  computed tier; declared records must be absent; references to declared records are excused. Not pinned: whether a
+  declared `span` or `usage_record` should excuse a T2 over-claim although neither can carry observer evidence.
+  Recommendation: keep the pinned reading of D3 (the owner's text lists the six kinds) and, as a later tightening,
+  restrict T2 to `transcript, turn, exchange, tool_call`; the tests hold under both.
+- **B5. Decided (revision 22, auto-approved as recommended). One result per metric per bundle (P).** N33 left open whether a RunBundle may carry a rescoring next to the
+  original. Pinned: no; a second result of one metric is `[rescoring]`; a rescoring is a new RunBundle.
+  Recommendation: accept.
+- **B6. Decided (revision 22, auto-approved as recommended). Dataset item payloads (P).** `DatasetItem.artifact_id`/`transcript_id` need not resolve (like
+  `source_run_id`), but an item that references an artifact or transcript of the export and is human-subject at
+  export time (its own marker, re-derived from its source run when that run is in the export, else true) makes that
+  payload human-subject too (conservative: never looser). Recommendation: accept.
+- **B7. Decided (revision 22, auto-approved as recommended). Consent of tool-call payloads in a benchmark (P).** A tool call has no marker. Pinned: its consent is the
+  consent of the run's human-subject artifacts and transcripts (all obtained, at least one present). A run with
+  tool calls and no marker carrying consent is blocked from a benchmark. Recommendation: accept.
+- **B8. Decided (revision 22, auto-approved as recommended). `caller_external_id` in any export (P).** ADR 0016 Decision 6 says it never appears in an ExportBundle.
+  Pinned: an embedded run that carries it is `[caller_external_id]` at every purpose, including `internal`; the
+  export builder strips it. Recommendation: accept.
+- **B9. Decided (revision 22, auto-approved as recommended). A RunBundle is purpose-neutral (P).** It cannot enforce "plain digest" (internal) or "absent or keyed"
+  (shared) because a shared export embeds run bundles. Pinned: the profile-digest rules, the `test_profiles` ban,
+  the URI rules and the human-subject rules are `ExportBundle` rules. Recommendation: accept.
+- **B10. Decided (revision 22, auto-approved as recommended). Typed or tagged resolution errors (P).** References by ID between records are `[unresolved]`
+  `ValueError`s; versioned references (definitions) use the seam's `UnresolvedReferenceError` through the new
+  `require_resolved` keyword. Recommendation: accept.
+- **B11. Decided (revision 22, auto-approved as recommended). Digests that cannot be compared (P).** `snapshot.check_pricing_catalog_ref` and `cost.check_pricing_snapshot`
+  raise for a keyed digest against a plain one; the models call neither and rely on the seam (not comparable ->
+  accepted, never reported as verified). Verifying a keyed reference needs a key resolver; a function
+  `verify_bundle_digests(bundle, key_resolver)` is deferred (section 25.11). Recommendation: accept; add the function
+  with the key-management work of Phase 2, or in P1-15 if the owner wants it in 0.0.1.
+- **B12. Decided (revision 22, auto-approved as recommended). The size limit (P, S-N94).** `loader.load_bundle`, `BundleSizeError`, default recommended 256 MiB; the tests
+  accept any default between 64 MiB and 1 GiB. Recommendation: 256 MiB (a 4 MiB sealed recording is about 5.6 MiB
+  of JSON; hours of audio need the object store, not the bundle). **(rev 22)** `DEFAULT_MAX_BUNDLE_BYTES = 256 * 1024
+  * 1024`.
+- **B13. Decided (revision 22, auto-approved as recommended). Dropping `source_run_id` from an item whose stored marker is false.** A `DatasetItem` with a payload and no
+  source run and `human_subject=false` is invalid (the model rejects it), so the exported copy of such an item
+  cannot just omit the field; the exporter must also set a human-subject marker (for example `true` with reason
+  `marked_before_role_evidence`). The tests use items whose marker is already true. Recommendation: decide with the
+  export builder; until then an item with a false marker and a source run outside the export cannot be exported to
+  a shared bundle, which is the safe failure.
+- **B14. Decided (revision 22, auto-approved as recommended). Every artifact is a payload (P).** A non-audio artifact is covered like a recording (`covers: audio`)
+  because ADR 0016 Decision 4 puts a marker on every artifact. Recommendation: accept; revisit if a text file kind
+  of artifact is added.
+- **B15. Decided (revision 22, auto-approved as recommended). Language steps are not re-run in the bundle (deferred).** N29 (a) suggested that the bundle re-runs
+  `check_language` over its turns to verify `language_source`. Not pinned: only the declared-language IDs resolve
+  and carry a declaration. Recommendation: defer with applicability to the T-DEG work (P1-19).
+- **B16. Decided (revision 22, auto-approved as recommended). Where the test profile lives (P).** `RunBundle.test_profiles` holds `TestProfile` entities for internal use
+  (so that the profile reference digest can be verified); shared and benchmark exports reject them (`[profile]`)
+  and carry a profile only as a sealed `test_profile` payload whose subject is a reference of a snapshot of the
+  export. Recommendation: accept.
+- **B17. Decided (revision 22, auto-approved as recommended). Unpinned behaviours (listed so that no one reads them as decided).** The order of checks beyond "typed seam
+  errors first"; the exchange-index checks when an exchange is declared withheld; skipping the summary check when a
+  cost record is declared withheld; a verdict whose result is declared withheld; partial turns of a transcript
+  (the `timeline_origin` rule on a transcript with some turns removed); the message words not listed in 3.1.
+  Mutants that change these survive on purpose (section 25.12).
+- **B18. Decided (revision 22, auto-approved as recommended). A stored false marker after the turns were removed.** The marker check (4.1 step 7) uses the turns of the
+  bundle, so removing the turns of a simulated run (a sealed text) can make a stored `human_subject=false` marker
+  "looser than the derivation" (no role evidence). That bundle is rejected, which is conservative (the exporter
+  keeps the turns of a non-human run: it needs no seal). Recommendation: accept.
+- **B19. Decided (revision 22, auto-approved as recommended). The stored record of an item is never edited, the exported copy omits the field.** ADR 0016 Decision 9
+  says so; the tests check the exported copy and the entry. The function that builds the copy is the export
+  builder (deferred); only validation is pinned.
+- **B20. Decided (revision 22, auto-approved as recommended). Registry and gate consequences.** Three new value objects (`WithheldRecord`, `PayloadRedaction`,
+  `ProvenanceRedaction`) need ADR 0001 Decision 8 (the count of named classes, gate item 1, 65 -> 68), the id-typed
+  fields need the walks to accept the unions, and `ExportBundle.purpose`, `WithheldRecord.kind`,
+  `ProvenanceRedaction.field`/`reason` need closed-enum rows (section 25.10).
+- **B21. Decided (revision 22, auto-approved as recommended). Hiding.** `RunBundle` and `ExportBundle` hide their input (they embed hiding models; the closure test
+  requires it). The value objects hold no payload content and do not hide.
+
+### 25.10 Requests to files qa may not edit (existing tests, ADRs, SCOPE, api-surface)
+
+- R1 (`test_ids.py`): `VALUE_OBJECT_NAMES` gains `WithheldRecord`, `PayloadRedaction`, `ProvenanceRedaction`
+  (strengthening; `test_value_objects_have_no_entity_fields` then covers them). `test_every_entity_has_registered_prefix`
+  turns green with `RunBundle` and `ExportBundle` (no edit).
+- R2 (`test_metric_definition.py`, `test_all_closed_enums_exact`): rows for `WithheldRecord.kind` (nine members),
+  `ProvenanceRedaction.field` (`source_run_id`), `ProvenanceRedaction.reason` (`unresolved_reference`);
+  `ExportBundle.purpose` already exists. Strengthening only. This batch asserts the same sets in
+  `test_bundle_closed_sets_are_exact_and_emit_enum`.
+- R3 (`test_project_agent.py`, `test_hide_input_set_closed_under_embedding`): no edit needed (the walk adds
+  `RunBundle` and `ExportBundle` by embedding); the seeds may name them.
+- R4 (`test_sealed_payload.py::test_sealed_only_in_export_bundle`): its structural half becomes meaningful with
+  `ExportBundle` (`holders <= {"ExportBundle"}`); no edit. The behavioural half is
+  `test_sealed_payload_accepted_in_export_bundle_and_refused_elsewhere`.
+- R5 (SCOPE section 5, P1-14 and P1-27 rows, gate item 3): place the new names of section 25.8; ADR 0004 Decision 2a
+  (the declaration shape, B4), ADR 0016 Decisions 7 and 9 (the entry shape, B3, B6, B7, B8), ADR 0015 Decision 7
+  (B3), ADR 0001 Decision 8 (B20), ADR 0008/0009 (the seam keyword, B10) take the pinned readings once accepted.
+- R6 (`test_privacy.py`): its docstring says the export-time functions belong to P1-14; the tests here supply them.
+
+**(rev 22) Status.** R1 and R2 are in the test files (qa, batch 10); `test_value_objects_have_no_entity_fields`,
+`test_all_closed_enums_exact` and `test_every_entity_has_registered_prefix` pass. R3 and R4 needed no edit and pass.
+R5: done in revision 22 (SCOPE revision 22, ADRs 0001, 0004, 0006, 0007, 0008, 0009, 0015, 0016). R6: an optional
+docstring update for qa.
+
+### 25.11 Deferred, and what the tests do not cover
+
+- The export builder: functions that build an exported copy (strip `caller_external_id`, drop `source_run_id` with
+  its entry, replace a record by a sealed payload, set markers, declare withheld records). Only validation is
+  tested.
+- Verification of keyed digests with a key resolver at bundle level (`verify_bundle_digests`, B11); the seam never
+  reports a non-comparable digest as verified.
+- Re-running `check_language`, `applicability` and the cost computation over a bundle (B15); the F8/T-DEG bundles
+  (P1-19); the golden bundle fixtures and the frozen fixtures (P1-16, P1-17); the JSON Schema export and
+  `schema.lock` (P1-15), where the code-only rules of this file (everything in section 25.4 beyond the field types
+  and the closed sets) are `KNOWN_SCHEMA_GAPS`-style entries (N12, N38); `SCHEMA_POLICY.md` wording for the
+  profile digest in internal bundles and the sealed artifact `uri` (B3, P1-20a).
+- Sealing and redaction of `UsageRecord.raw` and `ReportedCostRaw` (api-surface 23.4, 24.3: no sixth payload type);
+  `Persona`, `Evaluator` free text, `IngestWarning.raw`, `Run.ingest_warnings` and `metadata` are not payload kinds
+  of the rule.
+- Database and storage (Phase 2), retention enforcement, `declared_by` in shared exports (N19), the plan fields
+  (N11), per-bundle limits on the number of records (only bytes are limited), bundle-level `Artifact` content
+  checks (hash of the audio against `sha256`), streaming.
+- A `RunBundle` built from model instances rather than documents (pydantic does not revalidate instances; the
+  bundle rules run on them, but a record built with `model_construct` is the caller's responsibility).
+- Real-time behaviour of the huge-call test beyond its calibration (a limit of 60 s scaled by the calibration
+  loop; the oracle needs about half a second).
+
+### 25.12 Validation (qa, 2026-10-23)
+
+Evidence in `docs/phase1/evidence/red/batch8-bundle/`: `red-batch7-files.py3.11.log` to `3.14.log` (the four test
+files against the repository: 346 collected, 346 failed on each of Python 3.11.16, 3.12.14, 3.13.15 and 3.14.7, every
+failure a missing P1-14 name: `RunBundle`, `ExportBundle`, `evidence_tier`, `check_observed_tier`,
+`load_bundle`, `export_human_subject`, `PAYLOAD_KIND_COVERS`, `EXPORT_PURPOSES`, `UnresolvedReferenceError`,
+`BundleSizeError`, the three value objects, the `rbnd` prefix); `oracle-green-batch7-files.py3.1x.log` (346 of 346
+pass against the oracle on all four versions); `oracle-green-full-suite.py3.13.log` (the whole directory against
+the oracle: 22 failures, all of other agents' work in flight, none a batch 7 test; the gate-bound registry tests
+pass); `mutants.txt` (228 mutants of the oracle, 224 caught, 4 survived: 2 unpinned on purpose, 2 equivalent);
+`checks.txt` (ruff, ruff format, mypy --strict, `check_headers`, `guard_private_fixtures`, `check_licenses`: clean
+for the new files).
+
+The oracle is a throwaway implementation of this file outside the repository, built on the real batch 1 to 5 code
+(it lived in the session scratchpad, `oracle15/tracer_evalschema/bundle.py` plus small additions to `privacy`,
+`loader` and `errors`). It was written by the same author as the tests, so a misreading shared by both would not
+show; the 228 mutants test the tests, not the reading. The pinned readings are therefore listed as B1 to B21.
+
+### 25.13 Revision 22: P1-14 and the export half of P1-27 implemented (schema-architect, 2026-10-23)
+
+**Modules.** `tracer_evalschema.bundle`: the seam (`check_bundle_consistency(docs, refs=(), *, require_resolved=False)`), the constants `EXPORT_PURPOSES`, `WITHHOLDABLE_KINDS`, `PROVENANCE_KINDS`, `PAYLOAD_KIND_COVERS` (a read-only mapping whose values are checked against `privacy.REDACTION_COVERS` at import), the value objects `WithheldRecord`, `PayloadRedaction`, `ProvenanceRedaction` (frozen, `extra="forbid"`, not hiding), the entities `RunBundle` (`rbnd`) and `ExportBundle` (`exp`) (`HidingModel`, `extra="forbid"`, records of fact), and `check_run_bundle`, `check_export_bundle`, `evidence_tier`, `check_observed_tier`. `tracer_evalschema.privacy.export_human_subject`. `tracer_evalschema.loader.load_bundle` and `DEFAULT_MAX_BUNDLE_BYTES = 256 * 1024 * 1024`. `tracer_evalschema.errors.UnresolvedReferenceError` and `BundleSizeError` (both `BundleError`). The source imports only the standard library, pydantic (with pydantic-core) and `rfc8785`; the loader imports `bundle` lazily inside `load_bundle`, so `loader` stays light.
+
+**Details fixed while implementing** (each follows from the contract or guards against a wrong input; not pinned by tests unless stated):
+1. **One dump per bundle.** `check_run_bundle` dumps the bundle once (`mode="json"`, by alias) and hands the seam the record documents and the embedded entity documents (snapshot, evaluator, persona, rubric, definitions, bindings, catalogs, profiles) as sub-documents of that dump. The required references (results' `metric`, verdict checks' `metric_ref`) are checked with `require_resolved=True` against the snapshot's definition documents only, so a reference resolves only to a definition the snapshot embeds.
+2. **Every rule is linear in the number of records.** Turns are grouped by transcript once; references resolve against one set of present IDs; summaries are checked against the cost records of their own domain. The A-05 bundle (4,000 turns, 600 tool calls, 400 usage and 400 cost records) validates as a `RunBundle` in a median of 0.11 to 0.15 s and as an internal `ExportBundle` in 0.20 to 0.24 s on Python 3.11 to 3.14 (calibration ratio 1.00, limit 60 s); the whole test `test_huge_call_bundle_validates_in_calibrated_time` takes 0.44 to 0.56 s and `test_bundle_validation_shares_no_state_between_threads` 0.20 to 0.21 s (`docs/phase1/evidence/green/batch8-bundle/timing.py3.1x.log`).
+3. **The export seam covers more than the run bundles' records** (B23 below): the run bundle documents, every record, the snapshot and its embedded entities, the catalogs and profiles of every run bundle, the datasets and the dataset items, plus the optional references of every run bundle. Two run bundles of different runs may share one snapshot (same content), which is accepted; a snapshot or definition ID with two contents across run bundles is a typed seam error.
+4. **`[duplicate]` in an export** covers the run bundle IDs and the records of fact (run, artifacts, ..., verdict) across run bundles, the dataset items, and a dataset `(id, version)` listed twice (B24). Snapshots, catalogs and profiles shared by run bundles are not duplicates.
+5. **Withheld records and the rules that need them** (B17, unpinned; B22 below): the turn -> exchange index rule of `check_transcript` is skipped when any exchange is declared withheld (the uniqueness of the present indexes is still `[exchange]`); a verdict is not recomputed when a result one of its checks names is declared withheld; a cost summary is not checked when a record it names is declared withheld (other summaries are). The references to the withheld records resolve through the declaration.
+6. **Messages.** Every tagged message starts with the tag and names records by ID; the wrapped messages of `check_transcript`, `check_channel_map`, `check_result_against_definition`, `check_verdict`, `check_cost_summary`, `check_human_subject_marker` and `check_internal_snapshot` quote no value (verified by reading each, and by the no-echo tests). `[tier]` names the run, the stored and computed tiers and, for an under-claim, one evidence record. `[uri]` says "file: URI" or "loopback host", never the URI. `[profile_digest]` names the reference ID and the allowed scheme, never the digest. `BundleSizeError` names the two sizes. Inside the bundles the typed-ID message of the value objects names the expected pattern only (ADR 0007 Decision 8 (c)).
+7. **`load_bundle` inputs.** `model` must be exactly `RunBundle` or `ExportBundle` (a subclass is refused); `data` must be `str` or `bytes` (`bytearray` is a `TypeError`); `max_bytes` that is not an `int`, or is a `bool`, is a `TypeError`, a negative one a `ValueError`. A `str` is measured as its UTF-8 bytes with lone surrogates counted as three bytes each (`surrogatepass`), so measuring never raises; parsing then treats the text as `load_model` does.
+8. **`[uri]` scheme test** compares the scheme case-insensitively (the record already requires lower case; a model built without validation is still caught).
+
+**Tests.** No test was edited by the architect. The 346 tests of section 25.8 pass on Python 3.11.16, 3.12.14, 3.13.15 and 3.14.7 (separate environments). The full suite, the timing of the A-05 and A-44 tests and the tool checks are in `docs/phase1/evidence/green/batch8-bundle/` and `docs/HANDOFF.md`; the only failures are the three `SCHEMA_POLICY.md` tests (P1-20a). qa's batch 10 edits (R1, R2) are in place and green.
+
+**New findings (revision 22; each with a recommendation the lead may auto-approve; the implementation follows the recommendation):**
+- **B22. Rules that need a withheld record.** A declared-withheld result makes the verdict unverifiable, and a declared-withheld cost record makes the summaries that name it unverifiable. Options: (A) skip only the rule instances that need the withheld record and accept the bundle (implemented; the references resolve through the declaration, every other rule runs); (B) reject a bundle whose verdict or summary needs a withheld record (the declaration of a result or cost record would then be usable only without a verdict or summary). Recommendation: A, because withholding is legitimate (D3 lists `result` and `cost_record` among the kinds), a rule over an absent input is not applicable rather than failed (the core rule), and an export builder that withholds a result can still keep the verdict the run produced. qa may pin it.
+- **B23. Seam scope of an export.** The contract names the run bundles and their records; the implementation also gives the seam the embedded entities, the datasets, the dataset items and every run bundle's optional references, so a definition `(id, version)` with two digests in two run bundles is `ConflictingVersionError` and a dataset item ID with two contents `ConflictingRecordError` (rather than `[duplicate]`). Recommendation: accept (stricter, same family of errors, nothing valid is refused).
+- **B24. A dataset `(id, version)` listed twice in an export** is `[duplicate]` (B2 applied to the export's own lists). Recommendation: accept.
+- **B25. Benchmark consent of tool calls without a clear payload.** B7 applies to every tool call of a run whose derivation is true, also a call whose arguments and result are absent (sealed or never recorded). Recommendation: keep (conservative; a sealed tool payload is still a payload of the run, and a call without any payload is rare).
+- **B26. Order in an export.** The seam (typed errors) runs before `[caller_external_id]` (contract 25.4.2 lists the caller identifier first). Recommendation: accept (the 25.4.1 principle "typed seam errors first"; no seam message quotes a value, so nothing is leaked by the order).
+- **B27. Value-object count.** B20 says ADR 0001 Decision 8 goes from 65 to 68; Decision 8 already named 67 classes after revision 19 (`DekWrap`, `SealedAadFields`; the SCOPE gate text still said 65), so it now names 70, which is exactly what the registry walk finds. Recommendation: use 70 in ADR 0001 and SCOPE gate item 1 (done in revision 22).
+
+**Still open, unchanged:** N19 (`declared_by` in shared exports); B11 (`verify_bundle_digests`, with the key-management work); B13 and B19 (the export builder); B15 (language steps at P1-19); the `SCHEMA_POLICY.md` wording for B3 (sealed artifact `uri`) and the internal profile digest (P1-20a); the code-only rules of this section for the JSON Schema export (N12/N38, P1-15).

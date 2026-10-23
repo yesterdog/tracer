@@ -19,7 +19,11 @@
   payload was redacted and which payload kinds the redaction covers. Exactly four fields and no
   id (S-N89): an export bundle pairs a payload with its seal or redaction by position (P1-14).
 
-The export-time functions (``export_human_subject``, P-57) belong to the bundles (P1-14).
+- ``export_human_subject(marker, run, turns)``: the human-subject value of a payload at export
+  time (ADR 0016 Decision 7a, P-57, O1): a stored false marker is false; a precautionary marker
+  (``marked_before_role_evidence``) is re-derived from the evidence supplied; any other true marker
+  stays true. Computed in memory; the stored marker is never changed. The export rules that use it
+  are in ``bundle`` (P1-14).
 """
 
 from __future__ import annotations
@@ -48,6 +52,7 @@ __all__ = [
     "RetentionPolicy",
     "check_human_subject_marker",
     "derive_human_subject",
+    "export_human_subject",
     "role_evidence",
 ]
 
@@ -242,3 +247,21 @@ def check_human_subject_marker(marker: PrivacyMarker, run: Run, turns: Sequence[
             "the stored privacy marker is stricter than the derivation (human_subject=true where "
             "it derives false) and needs a human_subject_reason"
         )
+
+
+def export_human_subject(marker: PrivacyMarker, run: Run, turns: Sequence[Turn]) -> bool:
+    """The human-subject value of a payload at export time (ADR 0016 Decision 7a, P-57, O1).
+
+    ``False`` for a stored ``human_subject=false`` (valid only where the derivation is false,
+    ``check_human_subject_marker``); ``derive_human_subject(run, turns)`` for a stored true marker
+    with the reason ``marked_before_role_evidence`` (the evidence is the run and ``turns`` supplied,
+    nothing else); ``True`` for any other stored true marker (``manual``, ``real_person_likeness``
+    or no reason). ``turns`` has no default; ``None`` or anything that is not a sequence raises
+    ``TypeError`` whatever the marker says. Pure: the marker is never changed.
+    """
+    _require_sequence(turns)
+    if not marker.human_subject:
+        return False
+    if marker.human_subject_reason == "marked_before_role_evidence":
+        return derive_human_subject(run, turns)
+    return True

@@ -1,0 +1,328 @@
+# group: tooling   (batch 8 green run, schema-architect, P1-14 bundle + P1-27 export half)
+# date: 2026-10-23T15:53:55Z (UTC)  local: 2026-10-23T21:23:55+0530
+# commands: uv run --locked ruff check . ; ruff format --check . ; mypy ; scripts/check_headers.py ; scripts/guard_private_fixtures.py ; uv run --locked --all-groups scripts/check_licenses.py ; uv build --package tracer-evalschema --out-dir <scratchpad>/b8/dist ; check_licenses.py --wheel --artifacts-only ; wheel listing   (cwd ~/tracer; shared .venv)
+# interpreter: Python 3.14.7
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# ------------------------------------------------------------------------------
+## ruff check
+E501 Line too long (115 > 100)
+  --> packages/evalschema/tests/_support_b8.py:53:101
+   |
+51 | DIALECT = "https://json-schema.org/draft/2020-12/schema"
+52 | SHIPPED_DIR = PACKAGE_DIR / "src" / "tracer_evalschema" / "schemas"
+53 | URN_FORM = re.compile(r"^urn:tracer:evalschema:(?P<version>[0-9]+\.[0-9]+\.[0-9]+):(?P<entity>[A-Z][A-Za-z0-9]*)$")
+   |                                                                                                     ^^^^^^^^^^^^^^^
+54 | FILE_NAME_FORM = re.compile(r"^(?P<entity>[A-Z][A-Za-z0-9]*)\.schema\.json$")
+55 | SHA256_HEX = re.compile(r"^[0-9a-f]{64}$")
+   |
+
+E501 Line too long (111 > 100)
+  --> packages/evalschema/tests/_support_b8.py:78:101
+   |
+77 | # Words in a generated schema that would be environment-dependent or an accident of a repr.
+78 | REPR_LEAKS = (re.compile(r"<[A-Za-z_.]+ object at 0x"), re.compile(r"<class '"), re.compile(r"0x[0-9a-f]{6,}"))
+   |                                                                                                     ^^^^^^^^^^^
+79 |
+80 | # The owners a code-only rule may name (the project agents).
+   |
+
+RUF100 [*] Unused `noqa` directive (non-enabled: `PLC0415`)
+   --> packages/evalschema/tests/_support_b8.py:113:21
+    |
+111 | def sha256_hex(data: bytes) -> str:
+112 |     """Independent check value (the test never asks the module under test for its own digest)."""
+113 |     import hashlib  # noqa: PLC0415 - kept local: the single-entry-point test scans src, not tests
+    |                     ^^^^^^^^^^^^^^^
+114 |
+115 |     return hashlib.sha256(data).hexdigest()
+    |
+help: Remove unused `noqa` directive
+    |
+112 |     """Independent check value (the test never asks the module under test for its own digest)."""
+    -     import hashlib  # noqa: PLC0415 - kept local: the single-entry-point test scans src, not tests
+113 +     import hashlib
+114 |
+    |
+
+RUF100 [*] Unused `noqa` directive (non-enabled: `PLC0415`)
+   --> packages/evalschema/tests/_support_b8.py:231:24
+    |
+229 |     text, never before a trailing newline (Python's ``re`` and so ``jsonschema`` do the latter;
+230 |     S-N90). Anchored patterns are checked by ``test_patterns_are_anchored_and_portable``."""
+231 |     import jsonschema  # noqa: PLC0415 - test-only dependency
+    |                        ^^^^^^^^^^^^^^^
+232 |     from jsonschema import validators  # noqa: PLC0415
+    |
+help: Remove unused `noqa` directive
+    |
+230 |     S-N90). Anchored patterns are checked by ``test_patterns_are_anchored_and_portable``."""
+    -     import jsonschema  # noqa: PLC0415 - test-only dependency
+231 +     import jsonschema
+232 |     from jsonschema import validators  # noqa: PLC0415
+    |
+
+RUF100 [*] Unused `noqa` directive (non-enabled: `PLC0415`)
+   --> packages/evalschema/tests/_support_b8.py:232:40
+    |
+230 |     S-N90). Anchored patterns are checked by ``test_patterns_are_anchored_and_portable``."""
+231 |     import jsonschema  # noqa: PLC0415 - test-only dependency
+232 |     from jsonschema import validators  # noqa: PLC0415
+    |                                        ^^^^^^^^^^^^^^^
+233 |
+234 |     def pattern(validator: Any, value: str, instance: Any, schema: Any) -> Iterator[Any]:
+    |
+help: Remove unused `noqa` directive
+    |
+231 |     import jsonschema  # noqa: PLC0415 - test-only dependency
+    -     from jsonschema import validators  # noqa: PLC0415
+232 +     from jsonschema import validators
+233 |
+    |
+
+E501 Line too long (102 > 100)
+   --> packages/evalschema/tests/_support_b8.py:289:101
+    |
+289 | def _b4(name: str, doc_fn: Callable[..., dict[str, Any]] | None = None, **over: Any) -> SampleBuilder:
+    |                                                                                                     ^^
+290 |     def build() -> dict[str, Any]:
+291 |         model = b4.entity_class4(name)
+    |
+
+E501 Line too long (104 > 100)
+   --> packages/evalschema/tests/_support_b8.py:335:101
+    |
+333 |     return [
+334 |         ("scored", _b3("MetricResult")),
+335 |         ("na_language_not_observed", _b3("MetricResult", **na_base, na_reason="language_not_observed")),
+    |                                                                                                     ^^^^
+336 |         (
+337 |             "na_missing_input",
+    |
+
+E501 Line too long (104 > 100)
+   --> packages/evalschema/tests/_support_b8.py:338:101
+    |
+336 |         (
+337 |             "na_missing_input",
+338 |             _b3("MetricResult", **na_base, na_reason="missing_input", missing_kinds=["reference_text"]),
+    |                                                                                                     ^^^^
+339 |         ),
+340 |         (
+    |
+
+E501 Line too long (103 > 100)
+   --> packages/evalschema/tests/_support_b8.py:349:101
+    |
+347 |                 judge=None,
+348 |                 language_source="observed",
+349 |                 error={"code": "judge_call_failed", "message": "the judge provider returned HTTP 503"},
+    |                                                                                                     ^^^
+350 |             ),
+351 |         ),
+    |
+
+E501 Line too long (102 > 100)
+   --> packages/evalschema/tests/_support_b8.py:385:101
+    |
+383 |             (
+384 |                 "declared",
+385 |                 _b3("Transcript", source="agent_export", declared_language=b3.language_declaration()),
+    |                                                                                                     ^^
+386 |             ),
+387 |         ],
+    |
+
+RUF100 [*] Unused `noqa` directive (non-enabled: `PLC0415`)
+   --> packages/evalschema/tests/_support_b8.py:473:32
+    |
+472 | def _b7() -> Any:
+473 |     from . import _support_b7  # noqa: PLC0415 - imported late: it needs the bundle models
+    |                                ^^^^^^^^^^^^^^^
+474 |
+475 |     return _support_b7
+    |
+help: Remove unused `noqa` directive
+    |
+472 | def _b7() -> Any:
+    -     from . import _support_b7  # noqa: PLC0415 - imported late: it needs the bundle models
+473 +     from . import _support_b7
+474 |
+    |
+
+RUF100 [*] Unused `noqa` directive (non-enabled: `BLE001`)
+   --> packages/evalschema/tests/_support_b8.py:503:24
+    |
+501 |     try:
+502 |         names = set(entity_class_names())
+503 |     except Exception:  # noqa: BLE001 - a broken registry import must fail the tests, not collection
+    |                        ^^^^^^^^^^^^^^
+504 |         names = set()
+505 |     return sorted(names | _BUNDLE_NAMES)
+    |
+help: Remove unused `noqa` directive
+    |
+502 |         names = set(entity_class_names())
+    -     except Exception:  # noqa: BLE001 - a broken registry import must fail the tests, not collection
+503 +     except Exception:
+504 |         names = set()
+    |
+
+E501 Line too long (104 > 100)
+   --> packages/evalschema/tests/_support_b8.py:679:101
+    |
+677 |     base_env.update(env or {})
+678 |     return subprocess.run(  # noqa: S603 - fixed interpreter, code under test, no shell
+679 |         [sys.executable, "-c", program, json.dumps([p for p in sys.path if p]), json.dumps(list(args))],
+    |                                                                                                     ^^^^
+680 |         check=False,
+681 |         capture_output=True,
+    |
+
+E501 Line too long (102 > 100)
+   --> packages/evalschema/tests/_support_b8.py:888:101
+    |
+886 |         ),
+887 |         _set_at(
+888 |             "MetricDefinition", "judge_enum", ("pass_rule", "options"), ["resolved", "no_such_option"]
+    |                                                                                                     ^^
+889 |         ),
+890 |     ),
+    |
+
+Found 14 errors.
+[*] 5 fixable with `--fix`.
+exit 1
+## ruff format --check
+unformatted: File would be reformatted
+    --> packages/evalschema/tests/_support_b8.py:53:23
+     |
+52   | SHIPPED_DIR = PACKAGE_DIR / "src" / "tracer_evalschema" / "schemas"
+     - URN_FORM = re.compile(r"^urn:tracer:evalschema:(?P<version>[0-9]+\.[0-9]+\.[0-9]+):(?P<entity>[A-Z][A-Za-z0-9]*)$")
+53   + URN_FORM = re.compile(
+54   +     r"^urn:tracer:evalschema:(?P<version>[0-9]+\.[0-9]+\.[0-9]+):(?P<entity>[A-Z][A-Za-z0-9]*)$"
+55   + )
+56   | FILE_NAME_FORM = re.compile(r"^(?P<entity>[A-Z][A-Za-z0-9]*)\.schema\.json$")
+--------------------------------------------------------------------------------
+79   | # Words in a generated schema that would be environment-dependent or an accident of a repr.
+     - REPR_LEAKS = (re.compile(r"<[A-Za-z_.]+ object at 0x"), re.compile(r"<class '"), re.compile(r"0x[0-9a-f]{6,}"))
+80   + REPR_LEAKS = (
+81   +     re.compile(r"<[A-Za-z_.]+ object at 0x"),
+82   +     re.compile(r"<class '"),
+83   +     re.compile(r"0x[0-9a-f]{6,}"),
+84   + )
+85   |
+--------------------------------------------------------------------------------
+294  |
+     - def _b4(name: str, doc_fn: Callable[..., dict[str, Any]] | None = None, **over: Any) -> SampleBuilder:
+295  + def _b4(
+296  +     name: str, doc_fn: Callable[..., dict[str, Any]] | None = None, **over: Any
+297  + ) -> SampleBuilder:
+298  |     def build() -> dict[str, Any]:
+--------------------------------------------------------------------------------
+342  |         ("scored", _b3("MetricResult")),
+     -         ("na_language_not_observed", _b3("MetricResult", **na_base, na_reason="language_not_observed")),
+343  |         (
+344  +             "na_language_not_observed",
+345  +             _b3("MetricResult", **na_base, na_reason="language_not_observed"),
+346  +         ),
+347  +         (
+348  |             "na_missing_input",
+     -             _b3("MetricResult", **na_base, na_reason="missing_input", missing_kinds=["reference_text"]),
+349  +             _b3(
+350  +                 "MetricResult",
+351  +                 **na_base,
+352  +                 na_reason="missing_input",
+353  +                 missing_kinds=["reference_text"],
+354  +             ),
+355  |         ),
+--------------------------------------------------------------------------------
+364  |                 language_source="observed",
+     -                 error={"code": "judge_call_failed", "message": "the judge provider returned HTTP 503"},
+365  +                 error={
+366  +                     "code": "judge_call_failed",
+367  +                     "message": "the judge provider returned HTTP 503",
+368  +                 },
+369  |             ),
+--------------------------------------------------------------------------------
+403  |                 "declared",
+     -                 _b3("Transcript", source="agent_export", declared_language=b3.language_declaration()),
+404  +                 _b3(
+405  +                     "Transcript", source="agent_export", declared_language=b3.language_declaration()
+406  +                 ),
+407  |             ),
+--------------------------------------------------------------------------------
+699  |     return subprocess.run(  # noqa: S603 - fixed interpreter, code under test, no shell
+     -         [sys.executable, "-c", program, json.dumps([p for p in sys.path if p]), json.dumps(list(args))],
+700  +         [
+701  +             sys.executable,
+702  +             "-c",
+703  +             program,
+704  +             json.dumps([p for p in sys.path if p]),
+705  +             json.dumps(list(args)),
+706  +         ],
+707  |         check=False,
+--------------------------------------------------------------------------------
+914  |         _set_at(
+     -             "MetricDefinition", "judge_enum", ("pass_rule", "options"), ["resolved", "no_such_option"]
+915  +             "MetricDefinition",
+916  +             "judge_enum",
+917  +             ("pass_rule", "options"),
+918  +             ["resolved", "no_such_option"],
+919  |         ),
+--------------------------------------------------------------------------------
+1170 |
+1171 +
+1172 | def doc_text(relative: str) -> str:
+     |
+
+1 file would be reformatted, 173 files already formatted
+exit 1
+## mypy (strict, pyproject files: src, tests, scripts)
+packages/evalschema/tests/_support_b8.py:231: error: Library stubs not installed for "jsonschema"  [import-untyped]
+packages/evalschema/tests/_support_b8.py:231: note: Hint: "python3 -m pip install types-jsonschema"
+packages/evalschema/tests/_support_b8.py:231: note: (or run "mypy --install-types" to install all missing stub packages)
+packages/evalschema/tests/_support_b8.py:231: note: See https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
+packages/evalschema/tests/_support_b8.py:284: error: Module "packages.evalschema.tests._support_b3" does not explicitly export attribute "seal"  [attr-defined]
+packages/evalschema/tests/_support_b8.py:293: error: Module "packages.evalschema.tests._support_b4" does not explicitly export attribute "seal"  [attr-defined]
+packages/evalschema/tests/_support_b8.py:361: error: Unused "type: ignore" comment  [unused-ignore]
+Found 4 errors in 1 file (checked 121 source files)
+exit 1
+## check_headers
+exit 0
+## guard_private_fixtures
+exit 0
+## check_licenses
+42 ok, 0 failed
+exit 
+## uv build
+Building wheel from source distribution...
+Successfully built <scratchpad>/b8/dist/tracer_evalschema-0.0.1.tar.gz
+Successfully built <scratchpad>/b8/dist/tracer_evalschema-0.0.1-py3-none-any.whl
+exit 
+## check_licenses --wheel --artifacts-only
+2 ok, 0 failed
+exit 
+## wheel contents: test files (expected none) and bundle modules
+files in wheel: 50
+test files in wheel: []
+bundle/loader/errors/privacy present: ['tracer_evalschema/bundle.py', 'tracer_evalschema/errors.py', 'tracer_evalschema/loader.py', 'tracer_evalschema/privacy.py']
+Requires-Dist: ['Requires-Dist: pydantic==2.14.1', 'Requires-Dist: rfc8785==0.1.4']
+
+# ------------------------------------------------------------------------------
+# NOTE: packages/evalschema/tests/_support_b8.py appeared during this run (qa, P1-15 work in flight, untracked; not part of batch 8).
+# The ruff, ruff format and mypy findings above are all in that one file. The same checks excluding it:
+## ruff check --exclude _support_b8.py
+All checks passed!
+exit 0
+## ruff format --check --exclude _support_b8.py
+173 files already formatted
+exit 0
+## mypy (pyproject files) --exclude _support_b8
+Success: no issues found in 120 source files
+exit 0
+## mypy --strict on the source package alone
+Success: no issues found in 39 source files
+exit 0
+# The blank 'exit' lines above for check_licenses, uv build and the wheel scan are a shell artefact (zsh has no PIPESTATUS); exit codes re-measured:
+check_licenses exit 0
+check_licenses --wheel --artifacts-only exit 0

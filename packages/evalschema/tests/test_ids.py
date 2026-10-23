@@ -137,6 +137,10 @@ VALUE_OBJECT_NAMES = [
     "ResultError",
     "JudgeTurnVerdict",
     "WeightedExclusion",
+    # batch 10 (api-surface-bundle B20/R1; ADR 0001 Decision 8 goes from 65 to 68 value objects)
+    "WithheldRecord",
+    "PayloadRedaction",
+    "ProvenanceRedaction",
 ]
 ENTITY_FIELDS = {"id", "schema_version", "created_at", "metadata"}
 # Revisions 7 and 8 (ADR 0001 Decision 8 and I14, api-surface section 18 N1 and section 19.6 N6): a

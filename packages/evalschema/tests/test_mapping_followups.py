@@ -502,3 +502,90 @@ def test_f4_hash_in_a_tool_argument_key_is_percent_encoded() -> None:
     assert entry.sources == ("/1/arguments/a%23b",)
     assert resolve_source(doc, entry.sources[0]) == 1
     check_no_fabrication(result, doc, mapping("pipecat_conversation"))
+
+
+# ============================================================================ 8b: '%' in a key
+
+
+def test_resolver_decodes_percent_escapes_in_one_pass() -> None:
+    """``%25`` is a literal '%' and ``%23`` a '#', decoded in ONE left-to-right pass: the pointer
+    token ``%2523`` is the key text ``%23`` (not ``#``), and ``%25`` alone is ``%``."""
+    doc = {"100%": 1, "%23": 2, "#": 3, "a%b#c": 4}
+    assert resolve_source(doc, "/100%25") == 1
+    assert resolve_source(doc, "/%2523") == 2
+    assert resolve_source(doc, "/%23") == 3
+    assert resolve_source(doc, "/a%25b%23c") == 4
+    inner = json.dumps({"%23": 5, "p%": 6})
+    assert resolve_source({"a": inner}, "/a#/%2523") == 5
+    assert resolve_source({"a": inner}, "/a#/p%25") == 6
+
+
+_PERCENT_KEYS = {"50%": 1, "%23": 2, "c": {"x%y#z": 3, "%2523": 4}}
+_PERCENT_TAILS = {
+    "/arguments/50%": "/50%25",
+    "/arguments/%23": "/%2523",
+    "/arguments/c/x%y#z": "/c/x%25y%23z",
+    "/arguments/c/%2523": "/c/%252523",
+}
+
+
+def test_f1_percent_and_percent_23_in_argument_keys_round_trip_in_chained_sources() -> None:
+    """A key with a literal '%' and a key whose text is ``%23`` (and nested ones): the converter
+    escapes '%' as ``%25`` before '#' as ``%23``, so every chained source pointer resolves, with
+    the independent resolver, to the leaf it cites."""
+    arguments = json.dumps(_PERCENT_KEYS)
+    messages = json.dumps(
+        [
+            {"role": "user", "content": "go"},
+            {
+                "role": "assistant",
+                "content": None,
+                "tool_calls": [
+                    {
+                        "id": "call-1",
+                        "type": "function",
+                        "function": {"name": "act", "arguments": arguments},
+                    }
+                ],
+            },
+        ]
+    )
+    llm = _stage("llm", [("input", messages)], provider="openai", model="m-1")
+    doc = otlp_doc([llm, _turn()])
+    result = run_f1(doc)
+    assert len(result.tool_calls) == 1
+    call = result.tool_calls[0]
+    assert call.arguments == _PERCENT_KEYS
+    entries = {
+        e.field: e
+        for e in result.trace
+        if e.record == str(call.id) and e.field.startswith("/arguments/")
+    }
+    assert set(entries) == set(_PERCENT_TAILS)
+    for field, entry in entries.items():
+        assert len(entry.sources) == 1
+        parts = entry.sources[0].split("#")
+        assert len(parts) == 3, entry.sources[0]
+        assert parts[2] == _PERCENT_TAILS[field]
+        assert resolve_source(doc, entry.sources[0]) == _leaf(call.arguments, field)
+    check_no_fabrication(result, doc, mapping("pipecat_otel"))
+
+
+def test_f4_percent_and_percent_23_in_argument_keys_round_trip() -> None:
+    """The same for the un-chained F4 pointer: '%' is ``%25``, the text ``%23`` is ``%2523``."""
+    doc: list[dict[str, Any]] = [
+        {"role": "user", "content": "go"},
+        {"role": "tool_call", "name": "act", "arguments": _PERCENT_KEYS, "cancelled": False},
+    ]
+    result = run_f4(doc)
+    call = result.tool_calls[0]
+    entries = {
+        e.field: e
+        for e in result.trace
+        if e.record == str(call.id) and e.field.startswith("/arguments/")
+    }
+    assert set(entries) == set(_PERCENT_TAILS)
+    for field, entry in entries.items():
+        assert entry.sources == ("/1/arguments" + _PERCENT_TAILS[field],)
+        assert resolve_source(doc, entry.sources[0]) == _leaf(call.arguments, field)
+    check_no_fabrication(result, doc, mapping("pipecat_conversation"))

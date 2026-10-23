@@ -332,6 +332,24 @@ def _closed_enum_table() -> list[tuple[str, tuple[str, ...], set[str]]]:
         # revision 12 (api-surface 22.9 items 13 and 14): O2 and O3, both decided by the owner
         ("ToolCallEvent", ("source",), {"agent_export", "agent_telemetry", "observer"}),
         ("Run", ("observed_tier",), {"T0", "T1", "T2"}),
+        # batch 10 (api-surface-bundle B20/R2): WITHHOLDABLE_KINDS and the provenance omission sets
+        (
+            "WithheldRecord",
+            ("kind",),
+            {
+                "artifact",
+                "transcript",
+                "turn",
+                "exchange",
+                "tool_call",
+                "span",
+                "result",
+                "usage_record",
+                "cost_record",
+            },
+        ),
+        ("ProvenanceRedaction", ("field",), {"source_run_id"}),
+        ("ProvenanceRedaction", ("reason",), {"unresolved_reference"}),
     ]
 
 
@@ -382,6 +400,10 @@ def test_all_closed_enums_exact() -> None:
         "ExpectedToolCall",
         "SealedPayload",
         "RedactionRecord",
+        # batch 10 strengthening (api-surface-bundle B20/R2): red until P-14 lands them
+        "ExportBundle",
+        "WithheldRecord",
+        "ProvenanceRedaction",
     ):
         assert name in models, f"{name} is not implemented yet"
     checked = 0

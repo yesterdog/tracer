@@ -1,0 +1,73 @@
+.....................................F.................................. [ 64%]
+....................................FF.                                  [100%]
+=================================== FAILURES ===================================
+_________________________ test_all_closed_enums_exact __________________________
+
+    def test_all_closed_enums_exact() -> None:
+        """ADR 0003 I11 (C): every closed set equals the literal table. The batch 2 owners must exist
+        (this test is red until they do); owners of later tasks are checked as soon as they exist, so
+        the test becomes complete without being edited."""
+        registry = api("registry")
+        models = {m.__name__: m for m in registry.model_classes()}
+        for name in (
+            "MetricDefinition",
+            "AgentTarget",
+            "MetricParameter",
+            "DeclaredStackEntry",
+            "ExpectedToolCall",
+            "SealedPayload",
+            "RedactionRecord",
+            # batch 10 strengthening (api-surface-bundle B20/R2): red until P-14 lands them
+            "ExportBundle",
+            "WithheldRecord",
+            "ProvenanceRedaction",
+        ):
+>           assert name in models, f"{name} is not implemented yet"
+E           AssertionError: ExportBundle is not implemented yet
+E           assert 'ExportBundle' in {'WebSocketEndpoint': <class 'tracer_evalschema.agent.WebSocketEndpoint'>, 'WebRtcEndpoint': <class 'tracer_evalschema...tracer_evalschema.agent.SipEndpoint'>, 'DeclaredStackEntry': <class 'tracer_evalschema.agent.DeclaredStackEntry'>, ...}
+
+packages/evalschema/tests/test_metric_definition.py:408: AssertionError
+___________________ test_every_entity_has_registered_prefix ____________________
+
+    def test_every_entity_has_registered_prefix() -> None:
+        registry = api("registry")
+        ids = api("ids")
+        base = api("base")
+        entities = registry.entity_classes()
+>       assert len(ids.ID_PREFIXES) == len(entities) == 26  # `pce` withdrawn in revision 15 (N47)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: assert 26 == 24
+E        +  where 26 = len(mappingproxy({'prj': 'Project', 'agt': 'AgentTarget', 'per': 'Persona', 'tpf': 'TestProfile', 'evl': 'Evaluator', 'met...atalog', 'use': 'UsageRecord', 'cst': 'CostRecord', 'csum': 'CostSummary', 'rbnd': 'RunBundle', 'exp': 'ExportBundle'}))
+E        +    where mappingproxy({'prj': 'Project', 'agt': 'AgentTarget', 'per': 'Persona', 'tpf': 'TestProfile', 'evl': 'Evaluator', 'met...atalog', 'use': 'UsageRecord', 'cst': 'CostRecord', 'csum': 'CostSummary', 'rbnd': 'RunBundle', 'exp': 'ExportBundle'}) = <module 'tracer_evalschema.ids' from '~/tracer/packages/evalschema/src/tracer_evalschema/ids.py'>.ID_PREFIXES
+E        +  and   24 = len({'agt': <class 'tracer_evalschema.agent.AgentTarget'>, 'art': <class 'tracer_evalschema.artifact.Artifact'>, 'cst': <class 'tracer_evalschema.cost.CostRecord'>, 'csum': <class 'tracer_evalschema.cost.CostSummary'>, ...})
+
+packages/evalschema/tests/test_ids.py:822: AssertionError
+___________________ test_value_objects_have_no_entity_fields ___________________
+
+    def test_value_objects_have_no_entity_fields() -> None:
+        """Revision 7 (api-surface section 18 N1; ADR 0001 Decision 8 and I14), restated in revision 8
+        (section 19.6 N6) as a rule.
+    
+        A value object carries no identity fields of its own. The only fields of value objects that
+        share an entity field's name are: ``id`` of a ``<Entity>Ref`` typed ``<Entity>Id`` where
+        ``<Entity>`` is a registered entity class name (``TestProfileRef``, ``PricingCatalogRef``,
+        ``PersonaRef``, ``MetricDefinitionRef``, ``MetricBindingRef`` and later ones by the same rule);
+        ``VersionedRef.id`` (a typed ID of any kind); and the ``schema_version`` of the nested model
+        behind ``SealedPayload.aad_fields`` (the version of the sealed plaintext). A ``<Entity>Ref``
+        whose ``id`` is not typed ``<Entity>Id`` is not an exception."""
+        registry = api("registry")
+        base = api("base")
+        ids = api("ids")
+        value_objects = registry.value_object_classes()
+        required = dict.fromkeys([*VALUE_OBJECT_NAMES, *EXPECTED_TYPED_REFS])
+        missing = [name for name in required if name not in value_objects]
+>       assert not missing, f"value objects not implemented yet: {missing}"
+E       AssertionError: value objects not implemented yet: ['WithheldRecord', 'PayloadRedaction', 'ProvenanceRedaction']
+E       assert not ['WithheldRecord', 'PayloadRedaction', 'ProvenanceRedaction']
+
+packages/evalschema/tests/test_ids.py:882: AssertionError
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_metric_definition.py::test_all_closed_enums_exact
+FAILED packages/evalschema/tests/test_ids.py::test_every_entity_has_registered_prefix
+FAILED packages/evalschema/tests/test_ids.py::test_value_objects_have_no_entity_fields
+3 failed, 108 passed in 1.16s

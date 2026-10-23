@@ -1,0 +1,243 @@
+# Batch 7 (P1-14 bundle and export) mutants (qa, 2026-10-23)
+
+Throwaway oracle `oracle15` outside the repository: the repository src of 2026-10-23 (batch 5 implemented) plus the P1-14 code written to docs/phase1/api-surface-bundle.md: `bundle.py` (RunBundle, ExportBundle, WithheldRecord, PayloadRedaction, ProvenanceRedaction, check_run_bundle, check_export_bundle, check_observed_tier, evidence_tier, the seam keyword `require_resolved`), `privacy.export_human_subject`, `loader.load_bundle`, `errors.UnresolvedReferenceError` and `BundleSizeError`. One change per mutant (the oracle file is patched in place in a private copy and restored). Each mutant is run over `test_bundle.py`, `test_export_rules.py`, `test_bundle_tier.py` and `test_bundle_adversarial.py` (346 tests) on Python 3.13.15 with `-x`; CAUGHT = a test failed (the first is listed), SURVIVED = none failed. Final run on the final tests, four parallel workers.
+
+Final run: 228 mutants, 224 caught, 4 survived, 0 broken patches. The mutants cover: the evidence-tier fields (T), every rule of the run bundle (R), every rule of the export bundle (E), the models, constants and messages (M: closed sets, frozen, hiding, value leaks in messages), the seam keyword and the typed errors (S), the loader (L), `export_human_subject` (P), and, for each loop over records, the variant "only the first record is checked" (F).
+
+## Survivors
+
+- R53 | the cost summary check is skipped when any cost record is declared withheld | SURVIVED | not pinned on purpose (contract B17): the ADR does not say what a summary check does when a record it names is withheld; the oracle skips the check, the tests neither require nor forbid it.
+- R54 | the exchange-index checks of `check_transcript` are not skipped when an exchange is declared withheld | SURVIVED | not pinned on purpose (B17), same reason.
+- R55 | the persona embedded in the snapshot is not offered to the seam | SURVIVED | equivalent in the oracle: `ConfigSnapshot` validates its persona reference itself (batch 3), so the seam finds nothing more.
+- E43 | tool-call consent needs "some" instead of "all" of the run's consent markers | SURVIVED | equivalent in the oracle: a human-subject artifact or transcript whose consent is not obtained is rejected on its own record before the tool-call rule runs, so "all" adds nothing. The contract (4.2) states the rule as "at least one marker with consent obtained and none without".
+
+## All mutants (id | change | result | first failing test)
+
+E01 | caller_external_id allowed in exports | CAUGHT | test_export_rules.py::test_later_items_run_bundles_and_entries_are_checked_too
+E02 | export seam skipped | CAUGHT | test_bundle.py::test_run_bundle_rejects_same_record_id_different_content
+E03 | export duplicates accepted | CAUGHT | test_bundle.py::test_run_bundle_rejects_same_record_id_different_content
+E04 | duplicate sealed accepted | CAUGHT | test_export_rules.py::test_sealed_payload_subject_must_be_in_the_export
+E05 | sealed subject unchecked | CAUGHT | test_export_rules.py::test_sealed_payload_subject_must_be_in_the_export
+E06 | sealed profile version ignored | CAUGHT | test_export_rules.py::test_sealed_payload_subject_must_be_in_the_export
+E07 | sealed profile subject unchecked | CAUGHT | test_export_rules.py::test_sealed_payload_subject_must_be_in_the_export
+E08 | redaction subject unchecked | CAUGHT | test_export_rules.py::test_redaction_covers_all_payload_kinds[shared_export]
+E09 | redaction covers last wins | CAUGHT | test_export_rules.py::test_redaction_covers_all_payload_kinds[shared_export]
+E10 | dataset item duplicates accepted | CAUGHT | test_export_rules.py::test_export_dataset_ids_resolve_inside_the_export
+E11 | dataset item ids unresolved accepted | CAUGHT | test_export_rules.py::test_export_dataset_ids_resolve_inside_the_export
+E12 | provenance duplicates accepted | CAUGHT | test_export_rules.py::test_provenance_redaction_entries_are_checked[internal]
+E13 | provenance entry for absent item accepted | CAUGHT | test_export_rules.py::test_provenance_redaction_entries_are_checked[internal]
+E14 | provenance entry with field kept accepted | CAUGHT | test_export_rules.py::test_provenance_redaction_entries_are_checked[internal]
+E15 | internal profile digest unchecked | CAUGHT | test_export_rules.py::test_internal_export_keeps_a_plain_profile_digest
+E16 | test profile in clear accepted in shared | CAUGHT | test_export_rules.py::test_shared_export_drops_or_keys_profile_digest[shared_export]
+E17 | plain digest accepted in shared | CAUGHT | test_export_rules.py::test_shared_export_drops_or_keys_profile_digest[shared_export]
+E18 | missing digest rejected in shared | CAUGHT | test_export_rules.py::test_shared_export_drops_or_keys_profile_digest[shared_export]
+E19 | file URI accepted in shared | CAUGHT | test_export_rules.py::test_shared_and_benchmark_exports_reject_file_uris[shared_export]
+E20 | loopback accepted in shared | CAUGHT | test_export_rules.py::test_shared_and_benchmark_exports_reject_loopback_uris[shared_export]
+E21 | unresolved source_run_id kept in shared | CAUGHT | test_export_rules.py::test_export_source_run_id_kept_only_where_policy_allows
+E22 | resolved source_run_id rejected | CAUGHT | test_export_rules.py::test_export_source_run_id_kept_only_where_policy_allows
+E23 | item without source run not human | CAUGHT | test_export_rules.py::test_export_dataset_item_source_run_id_is_unresolved_provenance
+E24 | item value ignores re-derivation | CAUGHT | test_export_rules.py::test_export_dataset_item_source_run_id_is_unresolved_provenance
+E25 | item consent unchecked | CAUGHT | test_export_rules.py::test_export_dataset_item_source_run_id_is_unresolved_provenance
+E26 | item needs never recorded | CAUGHT | test_export_rules.py::test_export_dataset_item_source_run_id_is_unresolved_provenance
+E27 | payloadless item considered | CAUGHT | test_export_rules.py::test_dataset_item_payload_is_protected_when_the_item_is_human_subject
+E28 | artifact marker taken as stored | CAUGHT | test_export_rules.py::test_precautionary_marker_uses_derivation_at_export[shared_export]
+E29 | transcript marker taken as stored | CAUGHT | test_export_rules.py::test_precautionary_marker_uses_derivation_at_export[shared_export]
+E30 | item needs ignored for artifacts | CAUGHT | test_export_rules.py::test_export_dataset_item_source_run_id_is_unresolved_provenance
+E31 | item needs ignored for transcripts | CAUGHT | test_export_rules.py::test_dataset_item_payload_is_protected_when_the_item_is_human_subject
+E32 | any sealed payload covers audio | CAUGHT | test_export_rules.py::test_sealed_audio_protects_the_recording
+E33 | audio cover ignores kind | CAUGHT | test_export_rules.py::test_redaction_covers_all_payload_kinds[shared_export]
+E34 | artifact benchmark consent unchecked | CAUGHT | test_export_rules.py::test_benchmark_rejects_unknown_consent
+E35 | transcript benchmark consent unchecked | CAUGHT | test_export_rules.py::test_benchmark_rejects_unknown_consent
+E36 | transcript always clear | CAUGHT | test_export_rules.py::test_sealed_text_replaces_the_turns_of_its_transcript
+E37 | text cover ignores kind | CAUGHT | test_export_rules.py::test_redaction_covers_all_payload_kinds[shared_export]
+E38 | tool calls always protected | CAUGHT | test_export_rules.py::test_shared_export_simulated_run_with_unknown_role_requires_seal_or_redaction[shared_
+E39 | tool calls never protected | CAUGHT | test_export_rules.py::test_shared_export_human_requires_seal_or_redaction
+E40 | argument cover required without arguments | CAUGHT | test_export_rules.py::test_sealed_tool_payloads_replace_the_clear_fields
+E41 | result cover required without result | CAUGHT | test_export_rules.py::test_redaction_covers_all_payload_kinds[shared_export]
+E42 | tool consent unchecked | CAUGHT | test_export_rules.py::test_benchmark_consent_of_tool_calls_comes_from_the_run_markers
+E43 | tool consent needs only some | SURVIVED
+E44 | shared handled like internal | CAUGHT | test_bundle.py::test_bundle_models_hide_their_input
+E45 | sealed arguments cover clear arguments | CAUGHT | test_export_rules.py::test_sealed_tool_payloads_replace_the_clear_fields
+E45b | sealed result covers clear result | CAUGHT | test_export_rules.py::test_sealed_tool_payloads_replace_the_clear_fields
+E46 | sealed text covers clear turns | CAUGHT | test_export_rules.py::test_sealed_text_replaces_the_turns_of_its_transcript
+E47 | consent: unknown passes | CAUGHT | test_export_rules.py::test_manual_marker_always_honoured_at_export[benchmark-manual]
+E48 | consent: any record passes | CAUGHT | test_export_rules.py::test_manual_marker_always_honoured_at_export[benchmark-manual]
+E49 | consent checked in shared too | CAUGHT | test_export_rules.py::test_manual_marker_always_honoured_at_export[shared_export-manual]
+E50 | run consent collects only artifacts (tool consent) | CAUGHT | test_export_rules.py::test_benchmark_consent_of_tool_calls_comes_from_the_run_markers
+E51 | tool arguments of non-clear unsealed | CAUGHT | test_export_rules.py::test_shared_export_human_requires_seal_or_redaction
+E52 | run consent ignores artifacts | CAUGHT | test_export_rules.py::test_benchmark_consent_of_tool_calls_comes_from_the_run_markers
+E53 | result cover mapped to arguments | CAUGHT | test_export_rules.py::test_shared_export_human_requires_seal_or_redaction
+E55 | source_run rule shared only | CAUGHT | test_export_rules.py::test_export_source_run_id_kept_only_where_policy_allows
+E56 | uri rule shared only | CAUGHT | test_export_rules.py::test_shared_and_benchmark_exports_reject_file_uris[benchmark]
+E57 | profile digest rule shared only | CAUGHT | test_export_rules.py::test_shared_export_drops_or_keys_profile_digest[benchmark]
+E58 | profile in clear rule shared only | CAUGHT | test_export_rules.py::test_shared_export_drops_or_keys_profile_digest[benchmark]
+E59 | unprotected rule for artifacts shared only | CAUGHT | test_export_rules.py::test_benchmark_purpose_human_requires_seal_or_redaction
+F01 | uri: only first artifact | CAUGHT | test_export_rules.py::test_every_record_of_a_kind_is_checked_not_only_the_first[shared_export]
+F02 | human artifacts: only first | CAUGHT | test_export_rules.py::test_every_record_of_a_kind_is_checked_not_only_the_first[shared_export]
+F03 | human transcripts: only first | CAUGHT | test_export_rules.py::test_every_record_of_a_kind_is_checked_not_only_the_first[shared_export]
+F04 | tool calls: only first | CAUGHT | test_export_rules.py::test_shared_export_human_requires_seal_or_redaction
+F05 | sealed payloads: only first | CAUGHT | test_export_rules.py::test_sealed_payload_subject_must_be_in_the_export
+F06 | payload redactions: only first | CAUGHT | test_bundle.py::test_bundle_roundtrip_model_json_schema_model
+F07 | markers: only first of each | CAUGHT | test_export_rules.py::test_every_record_of_a_kind_is_checked_not_only_the_first[shared_export]
+F08 | withheld sanity: only first | CAUGHT | test_bundle_tier.py::test_withheld_declaration_must_be_true_and_unique
+F09 | withheld presence: only first | CAUGHT | test_export_rules.py::test_every_record_of_a_kind_is_checked_not_only_the_first[shared_export]
+F10 | cost snapshot entry keys: only first record | CAUGHT | test_bundle.py::test_run_bundle_cost_record_names_entries_of_its_catalog
+F11 | summaries: only first | CAUGHT | test_bundle.py::test_run_bundle_cost_summary_is_checked_against_the_bundles_records
+F12 | results vs definitions: only first | CAUGHT | test_bundle.py::test_bundle_scorer_implementation_ref_equals_definition
+F13 | dataset items provenance: only first | CAUGHT | test_export_rules.py::test_export_source_run_id_kept_only_where_policy_allows
+F14 | item needs: only first | CAUGHT | test_export_rules.py::test_later_items_run_bundles_and_entries_are_checked_too
+F15 | profile/digest/uri: only first run bundle | CAUGHT | test_export_rules.py::test_shared_export_drops_or_keys_profile_digest[shared_export]
+F16 | protection: only first run bundle | CAUGHT | test_export_rules.py::test_every_record_of_a_kind_is_checked_not_only_the_first[shared_export]
+F17 | caller id: only first run bundle | CAUGHT | test_export_rules.py::test_later_items_run_bundles_and_entries_are_checked_too
+F18 | internal digest: only first run bundle | CAUGHT | test_export_rules.py::test_later_items_run_bundles_and_entries_are_checked_too
+F19 | datasets: only first dataset | CAUGHT | test_export_rules.py::test_later_items_run_bundles_and_entries_are_checked_too
+F20 | provenance entries: only first | CAUGHT | test_export_rules.py::test_provenance_redaction_entries_are_checked[internal]
+F21 | exchange uniqueness: only first two | CAUGHT | test_bundle.py::test_every_record_of_a_kind_is_checked_in_the_run_bundle
+F22 | transcripts: only first checked | CAUGHT | test_bundle.py::test_every_record_of_a_kind_is_checked_in_the_run_bundle
+F23 | channel maps: only first | CAUGHT | test_bundle.py::test_every_record_of_a_kind_is_checked_in_the_run_bundle
+F24 | artifacts turn_ref: only first | CAUGHT | test_bundle.py::test_every_record_of_a_kind_is_checked_in_the_run_bundle
+F25 | declared transcript ids: only first result | CAUGHT | test_bundle.py::test_bundle_declared_language_transcript_ids_resolve
+F26 | verdict checks need: only first | CAUGHT | test_bundle.py::test_run_bundle_reference_by_id_must_resolve[last verdict.result_id-<lambda>]
+F27 | cost usage ids: only first | CAUGHT | test_bundle.py::test_every_record_of_a_kind_is_checked_in_the_run_bundle
+F28 | seam: results loop only first (check_result) | CAUGHT | test_bundle.py::test_bundle_scorer_implementation_ref_equals_definition
+F29 | versioned duplicates: only catalogs | CAUGHT | test_bundle.py::test_every_record_of_a_kind_is_checked_in_the_run_bundle
+F30 | versioned duplicates: only profiles | CAUGHT | test_bundle.py::test_run_bundle_rejects_a_record_listed_twice
+F31 | export seam: only first run bundle's records | CAUGHT | test_bundle.py::test_run_bundle_rejects_same_record_id_different_content
+F32 | export duplicates: only first run bundle | CAUGHT | test_bundle.py::test_run_bundle_rejects_same_record_id_different_content
+F33 | sealed profile refs: only first run bundle | CAUGHT | test_export_rules.py::test_later_items_run_bundles_and_entries_are_checked_too
+F34 | artifact index only first run bundle | CAUGHT | test_export_rules.py::test_shared_export_drops_or_keys_profile_digest[shared_export]
+F35 | call index only first run bundle | CAUGHT | test_export_rules.py::test_shared_export_drops_or_keys_profile_digest[shared_export]
+F36 | transcript index only first run bundle | CAUGHT | test_export_rules.py::test_shared_export_drops_or_keys_profile_digest[shared_export]
+F37 | run_by_id only first run bundle | CAUGHT | test_export_rules.py::test_export_source_run_id_kept_only_where_policy_allows
+F38 | tier: only first 10 records read | CAUGHT | test_bundle_tier.py::test_evidence_tier_of_many_records_is_the_highest
+F39 | R2: records without usage records | CAUGHT | test_bundle_tier.py::test_each_kind_of_record_carries_the_tier_in_a_bundle[agent_usage]
+F40 | R2: records without exchanges | CAUGHT | test_bundle_tier.py::test_each_kind_of_record_carries_the_tier_in_a_bundle[exchange_telemetry]
+F41 | R2: records without tool calls | CAUGHT | test_bundle_tier.py::test_each_kind_of_record_carries_the_tier_in_a_bundle[tool_call_telemetry]
+F42 | R2: records without transcripts | CAUGHT | test_bundle.py::test_run_bundle_of_a_consistent_run_is_accepted[T2-human]
+F43 | R2: records without turns | CAUGHT | test_bundle_tier.py::test_each_kind_of_record_carries_the_tier_in_a_bundle[turn_telemetry]
+F44 | R2: records without spans | CAUGHT | test_bundle_tier.py::test_each_kind_of_record_carries_the_tier_in_a_bundle[span]
+L01 | size limit exclusive | CAUGHT | test_bundle.py::test_bundle_loader_size_limit
+L02 | size counted in characters | CAUGHT | test_bundle.py::test_bundle_loader_size_limit
+L03 | size limit ignored | CAUGHT | test_bundle.py::test_bundle_loader_size_limit
+L04 | any model loadable | CAUGHT | test_bundle.py::test_bundle_loader_keeps_the_strict_json_rules
+L05 | default limit tiny | CAUGHT | test_bundle.py::test_bundle_loader_size_limit
+L06 | default limit huge | CAUGHT | test_bundle.py::test_bundle_loader_size_limit
+L07 | max_bytes unvalidated | CAUGHT | test_bundle.py::test_bundle_loader_size_limit
+L08 | max_bytes bool accepted | CAUGHT | test_bundle.py::test_bundle_loader_size_limit
+L09 | depth not forwarded | CAUGHT | test_bundle.py::test_bundle_loader_keeps_the_strict_json_rules
+L10 | loader returns before depth check for bytes (depth ignored) | CAUGHT | test_bundle.py::test_bundle_loader_keeps_the_strict_json_rules
+M01 | kind/id match unchecked | CAUGHT | test_bundle.py::test_withheld_record_kind_matches_id_kind
+M02 | payload redaction subject accepts turns | CAUGHT | test_export_rules.py::test_payload_redaction_shape
+M03 | provenance field set widened | CAUGHT | test_bundle.py::test_bundle_closed_sets_are_exact_and_emit_enum
+M04 | provenance reason set widened | CAUGHT | test_bundle.py::test_bundle_closed_sets_are_exact_and_emit_enum
+M05 | withheld not frozen | CAUGHT | test_bundle.py::test_bundle_value_objects_shape
+M06 | covers map text renamed | CAUGHT | test_export_rules.py::test_redaction_covers_all_payload_kinds[shared_export]
+M07 | covers map has profile | CAUGHT | test_export_rules.py::test_redaction_covers_all_payload_kinds[shared_export]
+M08 | withheld kinds lose cost_record | CAUGHT | test_bundle.py::test_bundle_closed_sets_are_exact_and_emit_enum
+M09 | caller id leaked in message | CAUGHT | test_export_rules.py::test_export_bundle_holds_no_caller_identifier
+M10 | uri leaked in message | CAUGHT | test_export_rules.py::test_shared_and_benchmark_exports_reject_file_uris[shared_export]
+M11 | source run leaked in message | CAUGHT | test_export_rules.py::test_export_source_run_id_kept_only_where_policy_allows
+M12 | digest value leaked in message | CAUGHT | test_export_rules.py::test_shared_export_drops_or_keys_profile_digest[shared_export]
+M13 | ciphertext leaked in message | CAUGHT | test_export_rules.py::test_sealed_payload_subject_must_be_in_the_export
+M14 | RunBundle does not hide | CAUGHT | test_bundle.py::test_bundle_models_hide_their_input
+M15 | ExportBundle does not hide | CAUGHT | test_bundle.py::test_bundle_models_hide_their_input
+M16 | export purposes widened | CAUGHT | test_bundle.py::test_bundle_closed_sets_are_exact_and_emit_enum
+M17 | RunBundle takes sealed payloads | CAUGHT | test_bundle.py::test_run_and_export_bundle_are_registered_entities
+M18 | ExportBundle declares withheld | CAUGHT | test_bundle.py::test_run_and_export_bundle_are_registered_entities
+P01 | stored false not honoured | CAUGHT | test_export_rules.py::test_shared_export_simulated_run_with_unknown_role_requires_seal_or_redaction[shared_
+P02 | precaution always true | CAUGHT | test_export_rules.py::test_precautionary_marker_uses_derivation_at_export[shared_export]
+P03 | every reason re-derives | CAUGHT | test_export_rules.py::test_manual_marker_always_honoured_at_export[shared_export-manual]
+P04 | turns unchecked in export_human_subject | CAUGHT | test_export_rules.py::test_export_human_subject_turns_argument_required
+P05 | stored true without reason re-derives | CAUGHT | test_export_rules.py::test_manual_marker_always_honoured_at_export[shared_export-manual]
+R01 | snapshot name unchecked | CAUGHT | test_bundle.py::test_run_bundle_names_its_snapshot
+R02 | usage membership unchecked | CAUGHT | test_bundle.py::test_bundle_models_hide_their_input
+R03 | record duplicates unchecked | CAUGHT | test_bundle.py::test_run_bundle_rejects_a_record_listed_twice
+R04 | versioned duplicates unchecked | CAUGHT | test_bundle.py::test_run_bundle_rejects_a_record_listed_twice
+R05 | seam call 1 skipped | CAUGHT | test_bundle.py::test_pricing_catalog_ref_digest_in_the_bundle_seam
+R06 | required refs not required | CAUGHT | test_bundle.py::test_run_bundle_result_metric_must_resolve_to_a_snapshot_definition
+R07 | result metric refs not passed | CAUGHT | test_bundle.py::test_run_bundle_result_metric_must_resolve_to_a_snapshot_definition
+R08 | verdict metric refs not passed | CAUGHT | test_bundle.py::test_run_bundle_result_metric_must_resolve_to_a_snapshot_definition
+R09 | test profile ref not passed to seam | CAUGHT | test_bundle.py::test_run_bundle_verifies_the_digest_of_a_test_profile_reference
+R10 | snapshot catalog ref not passed | CAUGHT | test_bundle.py::test_pricing_catalog_ref_digest_in_the_bundle_seam
+R11 | cost snapshot refs not passed | CAUGHT | test_bundle.py::test_pricing_catalog_ref_digest_in_the_bundle_seam
+R12 | cost ref reads wrong version | CAUGHT | test_bundle.py::test_pricing_catalog_ref_digest_in_the_bundle_seam
+R13 | withheld ids do not excuse references | CAUGHT | test_bundle_tier.py::test_withheld_records_excuse_references_to_them[transcript-turn_transcript]
+R14 | references never unresolved | CAUGHT | test_bundle.py::test_every_record_of_a_kind_is_checked_in_the_run_bundle
+R15 | turn transcript unchecked | CAUGHT | test_bundle.py::test_run_bundle_reference_by_id_must_resolve[turn.transcript_id-<lambda>]
+R16 | artifact turn_ref unchecked | CAUGHT | test_bundle.py::test_every_record_of_a_kind_is_checked_in_the_run_bundle
+R17 | channel map artifact unchecked | CAUGHT | test_bundle.py::test_every_record_of_a_kind_is_checked_in_the_run_bundle
+R18 | channel map vs artifact unchecked | CAUGHT | test_bundle.py::test_every_record_of_a_kind_is_checked_in_the_run_bundle
+R19 | withheld evidence refs not excused | CAUGHT | test_export_rules.py::test_sealed_text_replaces_the_turns_of_its_transcript
+R20 | evidence never resolved | CAUGHT | test_bundle.py::test_run_bundle_reference_by_id_must_resolve[evidence.turn-<lambda>]
+R21 | evidence pool without spans | CAUGHT | test_bundle.py::test_run_bundle_of_a_consistent_run_is_accepted[T1-human]
+R22 | evidence pool without artifacts | CAUGHT | test_bundle.py::test_run_bundle_of_a_consistent_run_is_accepted[T0-human]
+R23 | evidence pool without exchanges | CAUGHT | test_bundle.py::test_run_bundle_of_a_consistent_run_is_accepted[T0-human]
+R24 | evidence pool without tool calls | CAUGHT | test_bundle.py::test_run_bundle_of_a_consistent_run_is_accepted[T0-human]
+R25 | evidence pool without turns | CAUGHT | test_bundle.py::test_run_bundle_of_a_consistent_run_is_accepted[T0-human]
+R26 | declared language need unchecked | CAUGHT | test_bundle.py::test_bundle_declared_language_transcript_ids_resolve
+R27 | declared language ids unresolved ok | CAUGHT | test_bundle.py::test_bundle_declared_language_transcript_ids_resolve
+R28 | verdict result need unchecked | CAUGHT | test_bundle.py::test_run_bundle_reference_by_id_must_resolve[verdict.result_id-<lambda>]
+R29 | cost usage need unchecked | CAUGHT | test_bundle.py::test_every_record_of_a_kind_is_checked_in_the_run_bundle
+R30 | exchange index uniqueness unchecked | CAUGHT | test_bundle.py::test_every_record_of_a_kind_is_checked_in_the_run_bundle
+R31 | check_transcript skipped | CAUGHT | test_bundle.py::test_bundle_models_hide_their_input
+R32 | check_transcript without exchanges | CAUGHT | test_bundle.py::test_run_bundle_transcript_rules_run_over_the_bundles_turns
+R33 | turnless transcript checked | CAUGHT | test_bundle.py::test_run_bundle_transcript_rules_run_over_the_bundles_turns
+R34 | tool call seqs unchecked | CAUGHT | test_bundle.py::test_run_bundle_tool_call_seq_is_unique_in_the_bundle
+R35 | rescoring accepted | CAUGHT | test_bundle.py::test_run_bundle_has_one_result_per_metric
+R36 | result vs definition unchecked | CAUGHT | test_bundle.py::test_bundle_scorer_implementation_ref_equals_definition
+R37 | verdict unchecked | CAUGHT | test_bundle.py::test_run_bundle_verdict_is_checked_against_rubric_and_results
+R38 | entry keys unchecked | CAUGHT | test_bundle.py::test_run_bundle_cost_record_names_entries_of_its_catalog
+R39 | cost snapshot catalog required | CAUGHT | test_bundle.py::test_pricing_catalog_ref_digest_in_the_bundle_seam
+R40 | summary domain duplicates accepted | CAUGHT | test_bundle.py::test_run_bundle_cost_summary_is_checked_against_the_bundles_records
+R41 | summary unchecked | CAUGHT | test_bundle.py::test_run_bundle_cost_summary_is_checked_against_the_bundles_records
+R42 | summary checked against all records | CAUGHT | test_bundle.py::test_run_bundle_cost_summaries_are_checked_per_domain
+R43 | markers unchecked | CAUGHT | test_bundle.py::test_run_bundle_rejects_a_marker_looser_than_the_derivation
+R44 | only artifact markers | CAUGHT | test_bundle.py::test_run_bundle_rejects_a_marker_looser_than_the_derivation
+R45 | only transcript markers | CAUGHT | test_bundle_adversarial.py::test_a31_human_subject_false_on_a_run_with_an_unknown_role
+R46 | markers checked without turns | CAUGHT | test_bundle.py::test_run_bundle_rejects_a_marker_looser_than_the_derivation
+R47 | declared-but-present accepted | CAUGHT | test_export_rules.py::test_every_record_of_a_kind_is_checked_not_only_the_first[shared_export]
+R48 | declared twice accepted | CAUGHT | test_bundle_tier.py::test_withheld_declaration_must_be_true_and_unique
+R49 | snapshot definitions not in seam docs | CAUGHT | test_bundle.py::test_bundle_closed_sets_are_exact_and_emit_enum
+R50 | test profiles not in seam docs | CAUGHT | test_bundle.py::test_run_bundle_verifies_the_digest_of_a_test_profile_reference
+R51 | catalogs not in seam docs | CAUGHT | test_bundle.py::test_run_bundle_rejects_a_record_listed_twice
+R52 | records not in seam docs | CAUGHT | test_bundle.py::test_run_bundle_rejects_same_record_id_different_content
+R53 | summary skipped when any cost record withheld (unpinned: expect survive) | SURVIVED
+R54 | exchange withheld does not skip exchange resolution (unpinned: expect survive) | SURVIVED
+R55 | snapshot embedded persona not in docs (equivalent: snapshot checks it) | SURVIVED
+R56 | only the first result metric is required to resolve | CAUGHT | test_bundle.py::test_run_bundle_result_metric_must_resolve_to_a_snapshot_definition
+R57 | only the first verdict check metric_ref is required to resolve | CAUGHT | test_bundle.py::test_run_bundle_result_metric_must_resolve_to_a_snapshot_definition
+R58 | evidence refs: only first checked | CAUGHT | test_bundle.py::test_run_bundle_reference_by_id_must_resolve[evidence.exchange-<lambda>]
+R59 | usage membership: only first usage checked | CAUGHT | test_bundle.py::test_usage_record_run_membership
+R60 | turn transcript resolution: only first turn | CAUGHT | test_bundle.py::test_run_bundle_reference_by_id_must_resolve[last turn.transcript_id-<lambda>]
+S01 | seam: require_resolved ignored | CAUGHT | test_bundle.py::test_run_bundle_result_metric_must_resolve_to_a_snapshot_definition
+S02 | seam: resolution required by default | CAUGHT | test_bundle.py::test_pricing_catalog_ref_digest_in_the_bundle_seam
+S03 | UnresolvedReferenceError not a BundleError | CAUGHT | test_bundle.py::test_run_bundle_result_metric_must_resolve_to_a_snapshot_definition
+S04 | BundleSizeError not a BundleError | CAUGHT | test_bundle.py::test_bundle_loader_size_limit
+T01 | observer evidence never T2 | CAUGHT | test_bundle.py::test_run_bundle_of_a_consistent_run_is_accepted[T2-human]
+T02 | observer evidence shows T1 | CAUGHT | test_bundle.py::test_run_bundle_of_a_consistent_run_is_accepted[T2-human]
+T03 | plain 'telemetry' not read (exchange/turn) | CAUGHT | test_bundle_tier.py::test_evidence_tier_reads_closed_provenance_fields[turn telemetry-<lambda>-T1]
+T04 | transcript timeline_origin kind not read | CAUGHT | test_bundle_tier.py::test_evidence_tier_reads_closed_provenance_fields[transcript origin telemetry-<lambda>
+T05 | tool call timeline_origin kind not read | CAUGHT | test_bundle_tier.py::test_evidence_tier_reads_closed_provenance_fields[call origin telemetry-<lambda>-T1]
+T06 | turn timing_source not read | CAUGHT | test_bundle_tier.py::test_evidence_tier_reads_closed_provenance_fields[turn telemetry-<lambda>-T1]
+T07 | exchange source not read | CAUGHT | test_bundle_tier.py::test_evidence_tier_reads_closed_provenance_fields[exchange telemetry-<lambda>-T1]
+T08 | stage span is no evidence | CAUGHT | test_bundle_tier.py::test_evidence_tier_reads_closed_provenance_fields[any stage span-<lambda>-T1]
+T09 | evaluation usage from telemetry counts | CAUGHT | test_bundle_tier.py::test_evidence_tier_reads_closed_provenance_fields[evaluation usage from telemetry-<lam
+T10 | agent usage of any source counts | CAUGHT | test_bundle_tier.py::test_evidence_tier_reads_closed_provenance_fields[agent usage reported-<lambda>-T0]
+T11 | transcript source not read | CAUGHT | test_bundle.py::test_run_bundle_of_a_consistent_run_is_accepted[T2-human]
+T12 | tool call source not read | CAUGHT | test_bundle_tier.py::test_evidence_tier_reads_closed_provenance_fields[call agent_telemetry-<lambda>-T1]
+T13 | last evidence wins instead of highest | CAUGHT | test_bundle.py::test_run_bundle_of_a_consistent_run_is_accepted[T2-human]
+T14 | any declaration excuses an over-claim | CAUGHT | test_bundle_tier.py::test_declaration_of_another_kind_does_not_excuse_an_over_claim[artifact]
+T15 | artifact is a provenance kind | CAUGHT | test_bundle.py::test_bundle_closed_sets_are_exact_and_emit_enum
+T16 | span not a provenance kind | CAUGHT | test_bundle.py::test_bundle_closed_sets_are_exact_and_emit_enum
+T17 | usage_record not a provenance kind | CAUGHT | test_bundle.py::test_bundle_closed_sets_are_exact_and_emit_enum
+T18 | transcript not a provenance kind | CAUGHT | test_bundle.py::test_bundle_closed_sets_are_exact_and_emit_enum
+T19 | exchange not a provenance kind | CAUGHT | test_bundle.py::test_bundle_closed_sets_are_exact_and_emit_enum
+T20 | tool_call not a provenance kind | CAUGHT | test_bundle.py::test_bundle_closed_sets_are_exact_and_emit_enum
+T21 | turn not a provenance kind | CAUGHT | test_bundle.py::test_bundle_closed_sets_are_exact_and_emit_enum
+T22 | declaration excuses an under-claim | CAUGHT | test_bundle_tier.py::test_an_under_claim_is_never_excused[transcript]
+T23 | bundle ignores its declaration | CAUGHT | test_bundle_tier.py::test_export_declared_withheld_records_and_observed_tier
+T24 | bundle skips R2 | CAUGHT | test_bundle_tier.py::test_bundle_observed_tier_equals_evidence_tier[T0-T1]
+T25 | over-claim never rejected | CAUGHT | test_bundle_tier.py::test_check_observed_tier_function
+T26 | under-claim message omits witness | CAUGHT | test_bundle_tier.py::test_check_observed_tier_function
+T27 | R2 reads only run bundle spans | CAUGHT | test_bundle.py::test_run_bundle_of_a_consistent_run_is_accepted[T2-human]
+T30 | evidence tier: spans considered only when T0 declared (no-op guard) | CAUGHT | test_bundle_tier.py::test_every_stage_span_is_telemetry_evidence[llm]
