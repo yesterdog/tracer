@@ -1,0 +1,819 @@
+# group: changed   (batch 9 mapping follow-ups: A1 pinned reason, covers enum, M3 mapping tests, decisions 1,2,3,5,7,8; mode red; qa)
+# date: 2026-10-23T15:15:56Z (UTC)
+# command: <scratchpad>/venv3.13/bin/python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_mapping_followups.py packages/evalschema/tests/test_mapping_f1.py::test_f1_llm_usage_to_usage_record packages/evalschema/tests/test_mapping_f1.py::test_f1_placeholder_model_is_not_a_model_name packages/evalschema/tests/test_mapping_no_fabrication.py::test_gap_register_has_no_row_for_a_gap_that_no_longer_exists packages/evalschema/tests/test_mapping_no_fabrication.py::test_gap_register_names_the_known_real_data_findings packages/evalschema/tests/test_cost_compute.py::test_mixed_model_and_modelless_usage_is_never_a_partial_sum packages/evalschema/tests/test_sealed_payload.py::test_redaction_covers_each_payload_kind_separately   (cwd ~/tracer; PYTHONPATH=~/tracer/packages/evalschema/src)
+# interpreter: <scratchpad>/venv3.13/bin/python
+# versions: python 3.13.15; pydantic 2.14.1; pytest 9.1.1; jsonschema 4.26.0; hypothesis 6.170.5
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# code under test: repository working tree 2026-10-23 (converters in tests/support/mappings as delivered by dev; qa changed only the checker helpers in _support_b6.py)
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.13.15, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>/venv3.13/bin/python
+hypothesis profile 'default'
+rootdir: ~/tracer
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 48 items
+
+packages/evalschema/tests/test_mapping_followups.py::test_f4_cancelled_status_is_a_cited_documented_derivation FAILED [  2%]
+packages/evalschema/tests/test_mapping_followups.py::test_f4_not_cancelled_flag_is_not_derived_as_cancelled PASSED [  4%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum[values0-0.3] FAILED [  6%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum[values1-1.75] FAILED [  8%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum[values2-0.6] FAILED [ 10%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum[values3-5] FAILED [ 12%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum[values4-0.08] FAILED [ 14%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_character_counts_merge_to_the_integer_sum PASSED [ 16%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_audio_seconds_without_a_complete_citation_is_refused_as_n76[0] PASSED [ 18%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_audio_seconds_without_a_complete_citation_is_refused_as_n76[1] PASSED [ 20%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_audio_seconds_without_a_complete_citation_is_refused_as_n76[2] PASSED [ 22%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_audio_seconds_without_a_complete_citation_is_refused_as_n76[3] PASSED [ 25%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_audio_seconds_without_a_complete_citation_is_refused_as_n76[4] PASSED [ 27%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_placeholder_model_keeps_the_usage_of_every_stage[unknown-llm-usage0-None-None] FAILED [ 29%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_placeholder_model_keeps_the_usage_of_every_stage[unknown-stt-usage1-audio_input_seconds-1.5] FAILED [ 31%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_placeholder_model_keeps_the_usage_of_every_stage[unknown-tts-usage2-input_characters-9] FAILED [ 33%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_placeholder_model_keeps_the_usage_of_every_stage[NOT_GIVEN-llm-usage0-None-None] FAILED [ 35%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_placeholder_model_keeps_the_usage_of_every_stage[NOT_GIVEN-stt-usage1-audio_input_seconds-1.5] FAILED [ 37%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_placeholder_model_keeps_the_usage_of_every_stage[NOT_GIVEN-tts-usage2-input_characters-9] FAILED [ 39%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_usage_span_without_a_provider_is_malformed_and_a_blocking_gap[llm] FAILED [ 41%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_usage_span_without_a_provider_is_malformed_and_a_blocking_gap[stt] FAILED [ 43%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_usage_span_without_a_provider_is_malformed_and_a_blocking_gap[tts] FAILED [ 45%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_span_without_provider_and_without_usage_loses_nothing[llm] PASSED [ 47%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_span_without_provider_and_without_usage_loses_nothing[stt] PASSED [ 50%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_span_without_provider_and_without_usage_loses_nothing[tts] PASSED [ 52%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_provider_less_span_does_not_hide_the_other_calls FAILED [ 54%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_duplicate_turn_number_keeps_the_first_span_and_warns PASSED [ 56%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_turn_span_without_an_integer_number_is_malformed[missing] PASSED [ 58%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_turn_span_without_an_integer_number_is_malformed[text] PASSED [ 60%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_turn_span_without_an_integer_number_is_malformed[empty-text] PASSED [ 62%]
+packages/evalschema/tests/test_mapping_followups.py::test_resolver_reads_a_percent_encoded_hash_in_a_key PASSED [ 64%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_hash_in_a_tool_argument_key_is_percent_encoded_in_chained_sources FAILED [ 66%]
+packages/evalschema/tests/test_mapping_followups.py::test_f4_hash_in_a_tool_argument_key_is_percent_encoded FAILED [ 68%]
+packages/evalschema/tests/test_mapping_f1.py::test_f1_llm_usage_to_usage_record[en] FAILED [ 70%]
+packages/evalschema/tests/test_mapping_f1.py::test_f1_llm_usage_to_usage_record[en_tool] FAILED [ 72%]
+packages/evalschema/tests/test_mapping_f1.py::test_f1_llm_usage_to_usage_record[hi] FAILED [ 75%]
+packages/evalschema/tests/test_mapping_f1.py::test_f1_placeholder_model_is_not_a_model_name[unknown] FAILED [ 77%]
+packages/evalschema/tests/test_mapping_f1.py::test_f1_placeholder_model_is_not_a_model_name[NOT_GIVEN] FAILED [ 79%]
+packages/evalschema/tests/test_mapping_no_fabrication.py::test_gap_register_has_no_row_for_a_gap_that_no_longer_exists[F1:tts.metrics.character_count] FAILED [ 81%]
+packages/evalschema/tests/test_mapping_no_fabrication.py::test_gap_register_names_the_known_real_data_findings[F1:llm.gen_ai.request.top_k] PASSED [ 83%]
+packages/evalschema/tests/test_mapping_no_fabrication.py::test_gap_register_names_the_known_real_data_findings[F1:stt.language] PASSED [ 85%]
+packages/evalschema/tests/test_mapping_no_fabrication.py::test_gap_register_names_the_known_real_data_findings[F1:turn.turn.user_bot_latency_seconds] PASSED [ 87%]
+packages/evalschema/tests/test_mapping_no_fabrication.py::test_gap_register_names_the_known_real_data_findings[F3:response.language_code] PASSED [ 89%]
+packages/evalschema/tests/test_mapping_no_fabrication.py::test_gap_register_names_the_known_real_data_findings[F4:assistant.content] PASSED [ 91%]
+packages/evalschema/tests/test_mapping_no_fabrication.py::test_gap_register_names_the_known_real_data_findings[F4:tool_call.@position] PASSED [ 93%]
+packages/evalschema/tests/test_mapping_no_fabrication.py::test_gap_register_names_the_known_real_data_findings[F7:*.@harness_observed_at_utc] PASSED [ 95%]
+packages/evalschema/tests/test_cost_compute.py::test_mixed_model_and_modelless_usage_is_never_a_partial_sum PASSED [ 97%]
+packages/evalschema/tests/test_sealed_payload.py::test_redaction_covers_each_payload_kind_separately PASSED [100%]
+
+=================================== FAILURES ===================================
+__________ test_f4_cancelled_status_is_a_cited_documented_derivation ___________
+
+    def test_f4_cancelled_status_is_a_cited_documented_derivation() -> None:
+        """Decision 1: ``cancelled: true`` is the observer's documented statement (conversation
+        observer, pipecat-ai 1.13.0), so the status ``cancelled`` is a derivation named
+        ``documented_cancelled_flag``, not a constant the mapping chose. The trace entry of that
+        status names the derivation, points at the ``cancelled`` field and carries a complete
+        citation (https URL, retrieved_at date, statement); the provenance table has the row with the
+        same derivation and a complete citation; no entry and no row uses ``constant:cancelled``.
+        The generic no-fabrication check also passes (it re-computes the derivation)."""
+        doc = _cancel_doc()
+        result = run_f4(doc)
+        module = mapping("pipecat_conversation")
+        cancelled = next(c for c in result.tool_calls if c.status == "cancelled")
+        entry = next(e for e in result.trace if e.record == str(cancelled.id) and e.field == "/status")
+>       assert entry.derivation == "documented_cancelled_flag"
+E       AssertionError: assert 'constant:cancelled' == 'documented_cancelled_flag'
+E         
+E         - documented_cancelled_flag
+E         + constant:cancelled
+
+packages/evalschema/tests/test_mapping_followups.py:134: AssertionError
+__ test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum[values0-0.3] __
+
+values = (0.1, 0.2), total = '0.3'
+
+    @pytest.mark.parametrize(("values", "total"), DECIMAL_CASES)
+    def test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum(
+        values: tuple[float, ...], total: str
+    ) -> None:
+        """Decision 2 (extends N64): with a complete user-cited statement that the repeated
+        ``metrics.audio_seconds`` of one stt span are one billable event, the printed numbers are
+        summed as Decimals (never as floats: 0.1 + 0.2 is exactly 0.3) into ONE quantity
+        ``audio_input_seconds``, a canonical decimal string. The trace entry names the derivation
+        ``merged_one_billable_event``, lists every occurrence as a source and carries the citation;
+        ``raw`` keeps every occurrence in order; no float and no second quantity of that unit; the
+        generic no-fabrication check passes."""
+        span = _repeated("stt", "metrics.audio_seconds", values)
+        doc = otlp_doc([span, _turn()])
+        result = run_f1(doc, one_billable_event=_citation())
+>       assert len(result.usage_records) == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = len(())
+E        +    where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16955-416c-73fc-8635-66081793cd4f'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], index=1, started_at=datetime.datetime(2026, 10, 23, 12, 6, 8, tzinfo=datetime.timezone.utc), duration_ms=2000, was_interrupted=None, source='telemetry'), StageSpan(id=StageSpanId('spn_01a16955-416c-73fc-8635-6608e7751061'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], stage='stt', stage_raw=None, provider='prov', model='model-1', start=datetime.datetime(2026, 10, 23, 12, 6, 8, 500000, tzinfo=datetime.timezone.utc), duration_ms=500, ttfb_ms=None, exchange_index=1, span_ref=ExternalRef(system='otel', kind='span_id', value='c1c1c1c1c1c1c1c1'))), channel_maps=(), external_refs=(ExternalRef(system='otel', kind='trace_id', value='e31c8352ead4fa04648d7a3e0b39e03d'),), external_ref_sources=('/resourceSpans/0/scopeSpans/0/spans/0/traceId',), warnings=(IngestWarning(code='usage_quantities_not_merged', path='/resourceSpans/0/scopeSpans/0/spans/0/attributes/3', ra...-6608e7751061', field='/start', sources=('/resourceSpans/0/scopeSpans/0/spans/0/startTimeUnixNano',), derivation='unix_nano_to_utc_us', citation=None), TraceEntry(record='spn_01a16955-416c-73fc-8635-6608e7751061', field='/duration_ms', sources=('/resourceSpans/0/scopeSpans/0/spans/0/startTimeUnixNano', '/resourceSpans/0/scopeSpans/0/spans/0/endTimeUnixNano'), derivation='ns_interval_to_ms_floor', citation=None), TraceEntry(record='spn_01a16955-416c-73fc-8635-6608e7751061', field='/exchange_index', sources=('/resourceSpans/0/scopeSpans/1/spans/0/attributes/0/value/intValue',), derivation='parent_span_turn_number', citation=None), TraceEntry(record='spn_01a16955-416c-73fc-8635-6608e7751061', field='/span_ref/system', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation='constant:otel', citation=None), TraceEntry(record='spn_01a16955-416c-73fc-8635-6608e7751061', field='/span_ref/kind', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation='constant:span_id', citation=None), TraceEntry(record='spn_01a16955-416c-73fc-8635-6608e7751061', field='/span_ref/value', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation=None, citation=None))).usage_records
+
+packages/evalschema/tests/test_mapping_followups.py:191: AssertionError
+_ test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum[values1-1.75] __
+
+values = (1.25, 0.5), total = '1.75'
+
+    @pytest.mark.parametrize(("values", "total"), DECIMAL_CASES)
+    def test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum(
+        values: tuple[float, ...], total: str
+    ) -> None:
+        """Decision 2 (extends N64): with a complete user-cited statement that the repeated
+        ``metrics.audio_seconds`` of one stt span are one billable event, the printed numbers are
+        summed as Decimals (never as floats: 0.1 + 0.2 is exactly 0.3) into ONE quantity
+        ``audio_input_seconds``, a canonical decimal string. The trace entry names the derivation
+        ``merged_one_billable_event``, lists every occurrence as a source and carries the citation;
+        ``raw`` keeps every occurrence in order; no float and no second quantity of that unit; the
+        generic no-fabrication check passes."""
+        span = _repeated("stt", "metrics.audio_seconds", values)
+        doc = otlp_doc([span, _turn()])
+        result = run_f1(doc, one_billable_event=_citation())
+>       assert len(result.usage_records) == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = len(())
+E        +    where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16955-4177-7528-8500-0c2a56f20323'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], index=1, started_at=datetime.datetime(2026, 10, 23, 12, 6, 8, tzinfo=datetime.timezone.utc), duration_ms=2000, was_interrupted=None, source='telemetry'), StageSpan(id=StageSpanId('spn_01a16955-4177-7528-8500-0c2a57f7834c'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], stage='stt', stage_raw=None, provider='prov', model='model-1', start=datetime.datetime(2026, 10, 23, 12, 6, 8, 500000, tzinfo=datetime.timezone.utc), duration_ms=500, ttfb_ms=None, exchange_index=1, span_ref=ExternalRef(system='otel', kind='span_id', value='c1c1c1c1c1c1c1c1'))), channel_maps=(), external_refs=(ExternalRef(system='otel', kind='trace_id', value='e31c8352ead4fa04648d7a3e0b39e03d'),), external_ref_sources=('/resourceSpans/0/scopeSpans/0/spans/0/traceId',), warnings=(IngestWarning(code='usage_quantities_not_merged', path='/resourceSpans/0/scopeSpans/0/spans/0/attributes/3', ra...-0c2a57f7834c', field='/start', sources=('/resourceSpans/0/scopeSpans/0/spans/0/startTimeUnixNano',), derivation='unix_nano_to_utc_us', citation=None), TraceEntry(record='spn_01a16955-4177-7528-8500-0c2a57f7834c', field='/duration_ms', sources=('/resourceSpans/0/scopeSpans/0/spans/0/startTimeUnixNano', '/resourceSpans/0/scopeSpans/0/spans/0/endTimeUnixNano'), derivation='ns_interval_to_ms_floor', citation=None), TraceEntry(record='spn_01a16955-4177-7528-8500-0c2a57f7834c', field='/exchange_index', sources=('/resourceSpans/0/scopeSpans/1/spans/0/attributes/0/value/intValue',), derivation='parent_span_turn_number', citation=None), TraceEntry(record='spn_01a16955-4177-7528-8500-0c2a57f7834c', field='/span_ref/system', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation='constant:otel', citation=None), TraceEntry(record='spn_01a16955-4177-7528-8500-0c2a57f7834c', field='/span_ref/kind', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation='constant:span_id', citation=None), TraceEntry(record='spn_01a16955-4177-7528-8500-0c2a57f7834c', field='/span_ref/value', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation=None, citation=None))).usage_records
+
+packages/evalschema/tests/test_mapping_followups.py:191: AssertionError
+__ test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum[values2-0.6] __
+
+values = (0.1, 0.2, 0.3), total = '0.6'
+
+    @pytest.mark.parametrize(("values", "total"), DECIMAL_CASES)
+    def test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum(
+        values: tuple[float, ...], total: str
+    ) -> None:
+        """Decision 2 (extends N64): with a complete user-cited statement that the repeated
+        ``metrics.audio_seconds`` of one stt span are one billable event, the printed numbers are
+        summed as Decimals (never as floats: 0.1 + 0.2 is exactly 0.3) into ONE quantity
+        ``audio_input_seconds``, a canonical decimal string. The trace entry names the derivation
+        ``merged_one_billable_event``, lists every occurrence as a source and carries the citation;
+        ``raw`` keeps every occurrence in order; no float and no second quantity of that unit; the
+        generic no-fabrication check passes."""
+        span = _repeated("stt", "metrics.audio_seconds", values)
+        doc = otlp_doc([span, _turn()])
+        result = run_f1(doc, one_billable_event=_citation())
+>       assert len(result.usage_records) == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = len(())
+E        +    where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16955-417f-721d-ba6e-405c9a2df49f'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], index=1, started_at=datetime.datetime(2026, 10, 23, 12, 6, 8, tzinfo=datetime.timezone.utc), duration_ms=2000, was_interrupted=None, source='telemetry'), StageSpan(id=StageSpanId('spn_01a16955-417f-721d-ba6e-405ca25f2675'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], stage='stt', stage_raw=None, provider='prov', model='model-1', start=datetime.datetime(2026, 10, 23, 12, 6, 8, 500000, tzinfo=datetime.timezone.utc), duration_ms=500, ttfb_ms=None, exchange_index=1, span_ref=ExternalRef(system='otel', kind='span_id', value='c1c1c1c1c1c1c1c1'))), channel_maps=(), external_refs=(ExternalRef(system='otel', kind='trace_id', value='e31c8352ead4fa04648d7a3e0b39e03d'),), external_ref_sources=('/resourceSpans/0/scopeSpans/0/spans/0/traceId',), warnings=(IngestWarning(code='usage_quantities_not_merged', path='/resourceSpans/0/scopeSpans/0/spans/0/attributes/3', ra...-405ca25f2675', field='/start', sources=('/resourceSpans/0/scopeSpans/0/spans/0/startTimeUnixNano',), derivation='unix_nano_to_utc_us', citation=None), TraceEntry(record='spn_01a16955-417f-721d-ba6e-405ca25f2675', field='/duration_ms', sources=('/resourceSpans/0/scopeSpans/0/spans/0/startTimeUnixNano', '/resourceSpans/0/scopeSpans/0/spans/0/endTimeUnixNano'), derivation='ns_interval_to_ms_floor', citation=None), TraceEntry(record='spn_01a16955-417f-721d-ba6e-405ca25f2675', field='/exchange_index', sources=('/resourceSpans/0/scopeSpans/1/spans/0/attributes/0/value/intValue',), derivation='parent_span_turn_number', citation=None), TraceEntry(record='spn_01a16955-417f-721d-ba6e-405ca25f2675', field='/span_ref/system', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation='constant:otel', citation=None), TraceEntry(record='spn_01a16955-417f-721d-ba6e-405ca25f2675', field='/span_ref/kind', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation='constant:span_id', citation=None), TraceEntry(record='spn_01a16955-417f-721d-ba6e-405ca25f2675', field='/span_ref/value', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation=None, citation=None))).usage_records
+
+packages/evalschema/tests/test_mapping_followups.py:191: AssertionError
+___ test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum[values3-5] ___
+
+values = (2.5, 2.5), total = '5'
+
+    @pytest.mark.parametrize(("values", "total"), DECIMAL_CASES)
+    def test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum(
+        values: tuple[float, ...], total: str
+    ) -> None:
+        """Decision 2 (extends N64): with a complete user-cited statement that the repeated
+        ``metrics.audio_seconds`` of one stt span are one billable event, the printed numbers are
+        summed as Decimals (never as floats: 0.1 + 0.2 is exactly 0.3) into ONE quantity
+        ``audio_input_seconds``, a canonical decimal string. The trace entry names the derivation
+        ``merged_one_billable_event``, lists every occurrence as a source and carries the citation;
+        ``raw`` keeps every occurrence in order; no float and no second quantity of that unit; the
+        generic no-fabrication check passes."""
+        span = _repeated("stt", "metrics.audio_seconds", values)
+        doc = otlp_doc([span, _turn()])
+        result = run_f1(doc, one_billable_event=_citation())
+>       assert len(result.usage_records) == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = len(())
+E        +    where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16955-4188-7117-b946-edb25cb4399d'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], index=1, started_at=datetime.datetime(2026, 10, 23, 12, 6, 8, tzinfo=datetime.timezone.utc), duration_ms=2000, was_interrupted=None, source='telemetry'), StageSpan(id=StageSpanId('spn_01a16955-4188-7117-b946-edb290fd65af'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], stage='stt', stage_raw=None, provider='prov', model='model-1', start=datetime.datetime(2026, 10, 23, 12, 6, 8, 500000, tzinfo=datetime.timezone.utc), duration_ms=500, ttfb_ms=None, exchange_index=1, span_ref=ExternalRef(system='otel', kind='span_id', value='c1c1c1c1c1c1c1c1'))), channel_maps=(), external_refs=(ExternalRef(system='otel', kind='trace_id', value='e31c8352ead4fa04648d7a3e0b39e03d'),), external_ref_sources=('/resourceSpans/0/scopeSpans/0/spans/0/traceId',), warnings=(IngestWarning(code='usage_quantities_not_merged', path='/resourceSpans/0/scopeSpans/0/spans/0/attributes/3', ra...-edb290fd65af', field='/start', sources=('/resourceSpans/0/scopeSpans/0/spans/0/startTimeUnixNano',), derivation='unix_nano_to_utc_us', citation=None), TraceEntry(record='spn_01a16955-4188-7117-b946-edb290fd65af', field='/duration_ms', sources=('/resourceSpans/0/scopeSpans/0/spans/0/startTimeUnixNano', '/resourceSpans/0/scopeSpans/0/spans/0/endTimeUnixNano'), derivation='ns_interval_to_ms_floor', citation=None), TraceEntry(record='spn_01a16955-4188-7117-b946-edb290fd65af', field='/exchange_index', sources=('/resourceSpans/0/scopeSpans/1/spans/0/attributes/0/value/intValue',), derivation='parent_span_turn_number', citation=None), TraceEntry(record='spn_01a16955-4188-7117-b946-edb290fd65af', field='/span_ref/system', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation='constant:otel', citation=None), TraceEntry(record='spn_01a16955-4188-7117-b946-edb290fd65af', field='/span_ref/kind', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation='constant:span_id', citation=None), TraceEntry(record='spn_01a16955-4188-7117-b946-edb290fd65af', field='/span_ref/value', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation=None, citation=None))).usage_records
+
+packages/evalschema/tests/test_mapping_followups.py:191: AssertionError
+_ test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum[values4-0.08] __
+
+values = (0.07, 0.01), total = '0.08'
+
+    @pytest.mark.parametrize(("values", "total"), DECIMAL_CASES)
+    def test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum(
+        values: tuple[float, ...], total: str
+    ) -> None:
+        """Decision 2 (extends N64): with a complete user-cited statement that the repeated
+        ``metrics.audio_seconds`` of one stt span are one billable event, the printed numbers are
+        summed as Decimals (never as floats: 0.1 + 0.2 is exactly 0.3) into ONE quantity
+        ``audio_input_seconds``, a canonical decimal string. The trace entry names the derivation
+        ``merged_one_billable_event``, lists every occurrence as a source and carries the citation;
+        ``raw`` keeps every occurrence in order; no float and no second quantity of that unit; the
+        generic no-fabrication check passes."""
+        span = _repeated("stt", "metrics.audio_seconds", values)
+        doc = otlp_doc([span, _turn()])
+        result = run_f1(doc, one_billable_event=_citation())
+>       assert len(result.usage_records) == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = len(())
+E        +    where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16955-4193-74c9-bb36-9373f87b7a54'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], index=1, started_at=datetime.datetime(2026, 10, 23, 12, 6, 8, tzinfo=datetime.timezone.utc), duration_ms=2000, was_interrupted=None, source='telemetry'), StageSpan(id=StageSpanId('spn_01a16955-4193-74c9-bb36-9374296af7af'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], stage='stt', stage_raw=None, provider='prov', model='model-1', start=datetime.datetime(2026, 10, 23, 12, 6, 8, 500000, tzinfo=datetime.timezone.utc), duration_ms=500, ttfb_ms=None, exchange_index=1, span_ref=ExternalRef(system='otel', kind='span_id', value='c1c1c1c1c1c1c1c1'))), channel_maps=(), external_refs=(ExternalRef(system='otel', kind='trace_id', value='e31c8352ead4fa04648d7a3e0b39e03d'),), external_ref_sources=('/resourceSpans/0/scopeSpans/0/spans/0/traceId',), warnings=(IngestWarning(code='usage_quantities_not_merged', path='/resourceSpans/0/scopeSpans/0/spans/0/attributes/3', ra...-9374296af7af', field='/start', sources=('/resourceSpans/0/scopeSpans/0/spans/0/startTimeUnixNano',), derivation='unix_nano_to_utc_us', citation=None), TraceEntry(record='spn_01a16955-4193-74c9-bb36-9374296af7af', field='/duration_ms', sources=('/resourceSpans/0/scopeSpans/0/spans/0/startTimeUnixNano', '/resourceSpans/0/scopeSpans/0/spans/0/endTimeUnixNano'), derivation='ns_interval_to_ms_floor', citation=None), TraceEntry(record='spn_01a16955-4193-74c9-bb36-9374296af7af', field='/exchange_index', sources=('/resourceSpans/0/scopeSpans/1/spans/0/attributes/0/value/intValue',), derivation='parent_span_turn_number', citation=None), TraceEntry(record='spn_01a16955-4193-74c9-bb36-9374296af7af', field='/span_ref/system', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation='constant:otel', citation=None), TraceEntry(record='spn_01a16955-4193-74c9-bb36-9374296af7af', field='/span_ref/kind', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation='constant:span_id', citation=None), TraceEntry(record='spn_01a16955-4193-74c9-bb36-9374296af7af', field='/span_ref/value', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation=None, citation=None))).usage_records
+
+packages/evalschema/tests/test_mapping_followups.py:191: AssertionError
+_ test_f1_placeholder_model_keeps_the_usage_of_every_stage[unknown-llm-usage0-None-None] _
+
+stage = 'llm'
+usage = [('gen_ai.usage.input_tokens', 40), ('gen_ai.usage.output_tokens', 5)]
+unit = None, count = None, placeholder = 'unknown'
+
+    @pytest.mark.parametrize(
+        ("stage", "usage", "unit", "count"),
+        [
+            ("llm", [("gen_ai.usage.input_tokens", 40), ("gen_ai.usage.output_tokens", 5)], None, None),
+            ("stt", [("metrics.audio_seconds", 1.5)], "audio_input_seconds", "1.5"),
+            ("tts", [("metrics.character_count", 9)], "input_characters", 9),
+        ],
+    )
+    @pytest.mark.parametrize("placeholder", ["unknown", "NOT_GIVEN"])
+    def test_f1_placeholder_model_keeps_the_usage_of_every_stage(
+        stage: str, usage: list[tuple[str, Any]], unit: str | None, count: Any, placeholder: str
+    ) -> None:
+        """Decision 3 (M3): on an llm, stt or tts span the placeholder model is never stored and the
+        usage is kept with ``model`` None. One UsageRecord, the stage's own quantities, one
+        ``placeholder_value_ignored`` warning, no gap, the placeholder text in no record."""
+        doc = otlp_doc([_stage(stage, usage, model=placeholder), _turn()])
+        result = run_f1(doc)
+>       assert len(result.usage_records) == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = len(())
+E        +    where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16955-41a5-7246-b80a-6f85e46331eb'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], index=1, started_at=datetime.datetime(2026, 10, 23, 12, 6, 8, tzinfo=datetime.timezone.utc), duration_ms=2000, was_interrupted=None, source='telemetry'), StageSpan(id=StageSpanId('spn_01a16955-41a5-7246-b80a-6f866f9d16a8'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], stage='llm', stage_raw=None, provider='prov', model=None, start=datetime.datetime(2026, 10, 23, 12, 6, 8, 500000, tzinfo=datetime.timezone.utc), duration_ms=500, ttfb_ms=None, exchange_index=1, span_ref=ExternalRef(system='otel', kind='span_id', value='c1c1c1c1c1c1c1c1'))), channel_maps=(), external_refs=(ExternalRef(system='otel', kind='trace_id', value='e31c8352ead4fa04648d7a3e0b39e03d'),), external_ref_sources=('/resourceSpans/0/scopeSpans/0/spans/0/traceId',), warnings=(IngestWarning(code='placeholder_value_ignored', path='/resourceSpans/0/scopeSpans/0/spans/0/attributes/1/value/strin...-6f866f9d16a8', field='/start', sources=('/resourceSpans/0/scopeSpans/0/spans/0/startTimeUnixNano',), derivation='unix_nano_to_utc_us', citation=None), TraceEntry(record='spn_01a16955-41a5-7246-b80a-6f866f9d16a8', field='/duration_ms', sources=('/resourceSpans/0/scopeSpans/0/spans/0/startTimeUnixNano', '/resourceSpans/0/scopeSpans/0/spans/0/endTimeUnixNano'), derivation='ns_interval_to_ms_floor', citation=None), TraceEntry(record='spn_01a16955-41a5-7246-b80a-6f866f9d16a8', field='/exchange_index', sources=('/resourceSpans/0/scopeSpans/1/spans/0/attributes/0/value/intValue',), derivation='parent_span_turn_number', citation=None), TraceEntry(record='spn_01a16955-41a5-7246-b80a-6f866f9d16a8', field='/span_ref/system', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation='constant:otel', citation=None), TraceEntry(record='spn_01a16955-41a5-7246-b80a-6f866f9d16a8', field='/span_ref/kind', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation='constant:span_id', citation=None), TraceEntry(record='spn_01a16955-41a5-7246-b80a-6f866f9d16a8', field='/span_ref/value', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation=None, citation=None))).usage_records
+
+packages/evalschema/tests/test_mapping_followups.py:282: AssertionError
+_ test_f1_placeholder_model_keeps_the_usage_of_every_stage[unknown-stt-usage1-audio_input_seconds-1.5] _
+
+stage = 'stt', usage = [('metrics.audio_seconds', 1.5)]
+unit = 'audio_input_seconds', count = '1.5', placeholder = 'unknown'
+
+    @pytest.mark.parametrize(
+        ("stage", "usage", "unit", "count"),
+        [
+            ("llm", [("gen_ai.usage.input_tokens", 40), ("gen_ai.usage.output_tokens", 5)], None, None),
+            ("stt", [("metrics.audio_seconds", 1.5)], "audio_input_seconds", "1.5"),
+            ("tts", [("metrics.character_count", 9)], "input_characters", 9),
+        ],
+    )
+    @pytest.mark.parametrize("placeholder", ["unknown", "NOT_GIVEN"])
+    def test_f1_placeholder_model_keeps_the_usage_of_every_stage(
+        stage: str, usage: list[tuple[str, Any]], unit: str | None, count: Any, placeholder: str
+    ) -> None:
+        """Decision 3 (M3): on an llm, stt or tts span the placeholder model is never stored and the
+        usage is kept with ``model`` None. One UsageRecord, the stage's own quantities, one
+        ``placeholder_value_ignored`` warning, no gap, the placeholder text in no record."""
+        doc = otlp_doc([_stage(stage, usage, model=placeholder), _turn()])
+        result = run_f1(doc)
+>       assert len(result.usage_records) == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = len(())
+E        +    where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16955-41af-700b-9815-94eaff362c0d'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], index=1, started_at=datetime.datetime(2026, 10, 23, 12, 6, 8, tzinfo=datetime.timezone.utc), duration_ms=2000, was_interrupted=None, source='telemetry'), StageSpan(id=StageSpanId('spn_01a16955-41af-700b-9815-94ebf23df172'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], stage='stt', stage_raw=None, provider='prov', model=None, start=datetime.datetime(2026, 10, 23, 12, 6, 8, 500000, tzinfo=datetime.timezone.utc), duration_ms=500, ttfb_ms=None, exchange_index=1, span_ref=ExternalRef(system='otel', kind='span_id', value='c1c1c1c1c1c1c1c1'))), channel_maps=(), external_refs=(ExternalRef(system='otel', kind='trace_id', value='e31c8352ead4fa04648d7a3e0b39e03d'),), external_ref_sources=('/resourceSpans/0/scopeSpans/0/spans/0/traceId',), warnings=(IngestWarning(code='placeholder_value_ignored', path='/resourceSpans/0/scopeSpans/0/spans/0/attributes/1/value/strin...-94ebf23df172', field='/start', sources=('/resourceSpans/0/scopeSpans/0/spans/0/startTimeUnixNano',), derivation='unix_nano_to_utc_us', citation=None), TraceEntry(record='spn_01a16955-41af-700b-9815-94ebf23df172', field='/duration_ms', sources=('/resourceSpans/0/scopeSpans/0/spans/0/startTimeUnixNano', '/resourceSpans/0/scopeSpans/0/spans/0/endTimeUnixNano'), derivation='ns_interval_to_ms_floor', citation=None), TraceEntry(record='spn_01a16955-41af-700b-9815-94ebf23df172', field='/exchange_index', sources=('/resourceSpans/0/scopeSpans/1/spans/0/attributes/0/value/intValue',), derivation='parent_span_turn_number', citation=None), TraceEntry(record='spn_01a16955-41af-700b-9815-94ebf23df172', field='/span_ref/system', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation='constant:otel', citation=None), TraceEntry(record='spn_01a16955-41af-700b-9815-94ebf23df172', field='/span_ref/kind', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation='constant:span_id', citation=None), TraceEntry(record='spn_01a16955-41af-700b-9815-94ebf23df172', field='/span_ref/value', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation=None, citation=None))).usage_records
+
+packages/evalschema/tests/test_mapping_followups.py:282: AssertionError
+_ test_f1_placeholder_model_keeps_the_usage_of_every_stage[unknown-tts-usage2-input_characters-9] _
+
+stage = 'tts', usage = [('metrics.character_count', 9)]
+unit = 'input_characters', count = 9, placeholder = 'unknown'
+
+    @pytest.mark.parametrize(
+        ("stage", "usage", "unit", "count"),
+        [
+            ("llm", [("gen_ai.usage.input_tokens", 40), ("gen_ai.usage.output_tokens", 5)], None, None),
+            ("stt", [("metrics.audio_seconds", 1.5)], "audio_input_seconds", "1.5"),
+            ("tts", [("metrics.character_count", 9)], "input_characters", 9),
+        ],
+    )
+    @pytest.mark.parametrize("placeholder", ["unknown", "NOT_GIVEN"])
+    def test_f1_placeholder_model_keeps_the_usage_of_every_stage(
+        stage: str, usage: list[tuple[str, Any]], unit: str | None, count: Any, placeholder: str
+    ) -> None:
+        """Decision 3 (M3): on an llm, stt or tts span the placeholder model is never stored and the
+        usage is kept with ``model`` None. One UsageRecord, the stage's own quantities, one
+        ``placeholder_value_ignored`` warning, no gap, the placeholder text in no record."""
+        doc = otlp_doc([_stage(stage, usage, model=placeholder), _turn()])
+        result = run_f1(doc)
+>       assert len(result.usage_records) == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = len(())
+E        +    where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16955-41b9-71ec-816e-3519614c9594'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], index=1, started_at=datetime.datetime(2026, 10, 23, 12, 6, 8, tzinfo=datetime.timezone.utc), duration_ms=2000, was_interrupted=None, source='telemetry'), StageSpan(id=StageSpanId('spn_01a16955-41b9-71ec-816e-3519bb019c07'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], stage='tts', stage_raw=None, provider='prov', model=None, start=datetime.datetime(2026, 10, 23, 12, 6, 8, 500000, tzinfo=datetime.timezone.utc), duration_ms=500, ttfb_ms=None, exchange_index=1, span_ref=ExternalRef(system='otel', kind='span_id', value='c1c1c1c1c1c1c1c1'))), channel_maps=(), external_refs=(ExternalRef(system='otel', kind='trace_id', value='e31c8352ead4fa04648d7a3e0b39e03d'),), external_ref_sources=('/resourceSpans/0/scopeSpans/0/spans/0/traceId',), warnings=(IngestWarning(code='placeholder_value_ignored', path='/resourceSpans/0/scopeSpans/0/spans/0/attributes/1/value/strin...-3519bb019c07', field='/start', sources=('/resourceSpans/0/scopeSpans/0/spans/0/startTimeUnixNano',), derivation='unix_nano_to_utc_us', citation=None), TraceEntry(record='spn_01a16955-41b9-71ec-816e-3519bb019c07', field='/duration_ms', sources=('/resourceSpans/0/scopeSpans/0/spans/0/startTimeUnixNano', '/resourceSpans/0/scopeSpans/0/spans/0/endTimeUnixNano'), derivation='ns_interval_to_ms_floor', citation=None), TraceEntry(record='spn_01a16955-41b9-71ec-816e-3519bb019c07', field='/exchange_index', sources=('/resourceSpans/0/scopeSpans/1/spans/0/attributes/0/value/intValue',), derivation='parent_span_turn_number', citation=None), TraceEntry(record='spn_01a16955-41b9-71ec-816e-3519bb019c07', field='/span_ref/system', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation='constant:otel', citation=None), TraceEntry(record='spn_01a16955-41b9-71ec-816e-3519bb019c07', field='/span_ref/kind', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation='constant:span_id', citation=None), TraceEntry(record='spn_01a16955-41b9-71ec-816e-3519bb019c07', field='/span_ref/value', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation=None, citation=None))).usage_records
+
+packages/evalschema/tests/test_mapping_followups.py:282: AssertionError
+_ test_f1_placeholder_model_keeps_the_usage_of_every_stage[NOT_GIVEN-llm-usage0-None-None] _
+
+stage = 'llm'
+usage = [('gen_ai.usage.input_tokens', 40), ('gen_ai.usage.output_tokens', 5)]
+unit = None, count = None, placeholder = 'NOT_GIVEN'
+
+    @pytest.mark.parametrize(
+        ("stage", "usage", "unit", "count"),
+        [
+            ("llm", [("gen_ai.usage.input_tokens", 40), ("gen_ai.usage.output_tokens", 5)], None, None),
+            ("stt", [("metrics.audio_seconds", 1.5)], "audio_input_seconds", "1.5"),
+            ("tts", [("metrics.character_count", 9)], "input_characters", 9),
+        ],
+    )
+    @pytest.mark.parametrize("placeholder", ["unknown", "NOT_GIVEN"])
+    def test_f1_placeholder_model_keeps_the_usage_of_every_stage(
+        stage: str, usage: list[tuple[str, Any]], unit: str | None, count: Any, placeholder: str
+    ) -> None:
+        """Decision 3 (M3): on an llm, stt or tts span the placeholder model is never stored and the
+        usage is kept with ``model`` None. One UsageRecord, the stage's own quantities, one
+        ``placeholder_value_ignored`` warning, no gap, the placeholder text in no record."""
+        doc = otlp_doc([_stage(stage, usage, model=placeholder), _turn()])
+        result = run_f1(doc)
+>       assert len(result.usage_records) == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = len(())
+E        +    where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16955-41c4-747e-99ed-6a6d98efd6ac'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], index=1, started_at=datetime.datetime(2026, 10, 23, 12, 6, 8, tzinfo=datetime.timezone.utc), duration_ms=2000, was_interrupted=None, source='telemetry'), StageSpan(id=StageSpanId('spn_01a16955-41c4-747e-99ed-6a6da0c0e5b9'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], stage='llm', stage_raw=None, provider='prov', model=None, start=datetime.datetime(2026, 10, 23, 12, 6, 8, 500000, tzinfo=datetime.timezone.utc), duration_ms=500, ttfb_ms=None, exchange_index=1, span_ref=ExternalRef(system='otel', kind='span_id', value='c1c1c1c1c1c1c1c1'))), channel_maps=(), external_refs=(ExternalRef(system='otel', kind='trace_id', value='e31c8352ead4fa04648d7a3e0b39e03d'),), external_ref_sources=('/resourceSpans/0/scopeSpans/0/spans/0/traceId',), warnings=(IngestWarning(code='placeholder_value_ignored', path='/resourceSpans/0/scopeSpans/0/spans/0/attributes/1/value/strin...-6a6da0c0e5b9', field='/start', sources=('/resourceSpans/0/scopeSpans/0/spans/0/startTimeUnixNano',), derivation='unix_nano_to_utc_us', citation=None), TraceEntry(record='spn_01a16955-41c4-747e-99ed-6a6da0c0e5b9', field='/duration_ms', sources=('/resourceSpans/0/scopeSpans/0/spans/0/startTimeUnixNano', '/resourceSpans/0/scopeSpans/0/spans/0/endTimeUnixNano'), derivation='ns_interval_to_ms_floor', citation=None), TraceEntry(record='spn_01a16955-41c4-747e-99ed-6a6da0c0e5b9', field='/exchange_index', sources=('/resourceSpans/0/scopeSpans/1/spans/0/attributes/0/value/intValue',), derivation='parent_span_turn_number', citation=None), TraceEntry(record='spn_01a16955-41c4-747e-99ed-6a6da0c0e5b9', field='/span_ref/system', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation='constant:otel', citation=None), TraceEntry(record='spn_01a16955-41c4-747e-99ed-6a6da0c0e5b9', field='/span_ref/kind', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation='constant:span_id', citation=None), TraceEntry(record='spn_01a16955-41c4-747e-99ed-6a6da0c0e5b9', field='/span_ref/value', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation=None, citation=None))).usage_records
+
+packages/evalschema/tests/test_mapping_followups.py:282: AssertionError
+_ test_f1_placeholder_model_keeps_the_usage_of_every_stage[NOT_GIVEN-stt-usage1-audio_input_seconds-1.5] _
+
+stage = 'stt', usage = [('metrics.audio_seconds', 1.5)]
+unit = 'audio_input_seconds', count = '1.5', placeholder = 'NOT_GIVEN'
+
+    @pytest.mark.parametrize(
+        ("stage", "usage", "unit", "count"),
+        [
+            ("llm", [("gen_ai.usage.input_tokens", 40), ("gen_ai.usage.output_tokens", 5)], None, None),
+            ("stt", [("metrics.audio_seconds", 1.5)], "audio_input_seconds", "1.5"),
+            ("tts", [("metrics.character_count", 9)], "input_characters", 9),
+        ],
+    )
+    @pytest.mark.parametrize("placeholder", ["unknown", "NOT_GIVEN"])
+    def test_f1_placeholder_model_keeps_the_usage_of_every_stage(
+        stage: str, usage: list[tuple[str, Any]], unit: str | None, count: Any, placeholder: str
+    ) -> None:
+        """Decision 3 (M3): on an llm, stt or tts span the placeholder model is never stored and the
+        usage is kept with ``model`` None. One UsageRecord, the stage's own quantities, one
+        ``placeholder_value_ignored`` warning, no gap, the placeholder text in no record."""
+        doc = otlp_doc([_stage(stage, usage, model=placeholder), _turn()])
+        result = run_f1(doc)
+>       assert len(result.usage_records) == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = len(())
+E        +    where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16955-41ce-7090-9ec9-11c4d6e7269f'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], index=1, started_at=datetime.datetime(2026, 10, 23, 12, 6, 8, tzinfo=datetime.timezone.utc), duration_ms=2000, was_interrupted=None, source='telemetry'), StageSpan(id=StageSpanId('spn_01a16955-41cf-7382-be84-6ff6d5b0ebb7'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], stage='stt', stage_raw=None, provider='prov', model=None, start=datetime.datetime(2026, 10, 23, 12, 6, 8, 500000, tzinfo=datetime.timezone.utc), duration_ms=500, ttfb_ms=None, exchange_index=1, span_ref=ExternalRef(system='otel', kind='span_id', value='c1c1c1c1c1c1c1c1'))), channel_maps=(), external_refs=(ExternalRef(system='otel', kind='trace_id', value='e31c8352ead4fa04648d7a3e0b39e03d'),), external_ref_sources=('/resourceSpans/0/scopeSpans/0/spans/0/traceId',), warnings=(IngestWarning(code='placeholder_value_ignored', path='/resourceSpans/0/scopeSpans/0/spans/0/attributes/1/value/strin...-6ff6d5b0ebb7', field='/start', sources=('/resourceSpans/0/scopeSpans/0/spans/0/startTimeUnixNano',), derivation='unix_nano_to_utc_us', citation=None), TraceEntry(record='spn_01a16955-41cf-7382-be84-6ff6d5b0ebb7', field='/duration_ms', sources=('/resourceSpans/0/scopeSpans/0/spans/0/startTimeUnixNano', '/resourceSpans/0/scopeSpans/0/spans/0/endTimeUnixNano'), derivation='ns_interval_to_ms_floor', citation=None), TraceEntry(record='spn_01a16955-41cf-7382-be84-6ff6d5b0ebb7', field='/exchange_index', sources=('/resourceSpans/0/scopeSpans/1/spans/0/attributes/0/value/intValue',), derivation='parent_span_turn_number', citation=None), TraceEntry(record='spn_01a16955-41cf-7382-be84-6ff6d5b0ebb7', field='/span_ref/system', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation='constant:otel', citation=None), TraceEntry(record='spn_01a16955-41cf-7382-be84-6ff6d5b0ebb7', field='/span_ref/kind', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation='constant:span_id', citation=None), TraceEntry(record='spn_01a16955-41cf-7382-be84-6ff6d5b0ebb7', field='/span_ref/value', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation=None, citation=None))).usage_records
+
+packages/evalschema/tests/test_mapping_followups.py:282: AssertionError
+_ test_f1_placeholder_model_keeps_the_usage_of_every_stage[NOT_GIVEN-tts-usage2-input_characters-9] _
+
+stage = 'tts', usage = [('metrics.character_count', 9)]
+unit = 'input_characters', count = 9, placeholder = 'NOT_GIVEN'
+
+    @pytest.mark.parametrize(
+        ("stage", "usage", "unit", "count"),
+        [
+            ("llm", [("gen_ai.usage.input_tokens", 40), ("gen_ai.usage.output_tokens", 5)], None, None),
+            ("stt", [("metrics.audio_seconds", 1.5)], "audio_input_seconds", "1.5"),
+            ("tts", [("metrics.character_count", 9)], "input_characters", 9),
+        ],
+    )
+    @pytest.mark.parametrize("placeholder", ["unknown", "NOT_GIVEN"])
+    def test_f1_placeholder_model_keeps_the_usage_of_every_stage(
+        stage: str, usage: list[tuple[str, Any]], unit: str | None, count: Any, placeholder: str
+    ) -> None:
+        """Decision 3 (M3): on an llm, stt or tts span the placeholder model is never stored and the
+        usage is kept with ``model`` None. One UsageRecord, the stage's own quantities, one
+        ``placeholder_value_ignored`` warning, no gap, the placeholder text in no record."""
+        doc = otlp_doc([_stage(stage, usage, model=placeholder), _turn()])
+        result = run_f1(doc)
+>       assert len(result.usage_records) == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = len(())
+E        +    where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16955-41d8-74cc-b6b6-ee9c542a7c6b'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], index=1, started_at=datetime.datetime(2026, 10, 23, 12, 6, 8, tzinfo=datetime.timezone.utc), duration_ms=2000, was_interrupted=None, source='telemetry'), StageSpan(id=StageSpanId('spn_01a16955-41d8-74cc-b6b6-ee9c78b363a3'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], stage='tts', stage_raw=None, provider='prov', model=None, start=datetime.datetime(2026, 10, 23, 12, 6, 8, 500000, tzinfo=datetime.timezone.utc), duration_ms=500, ttfb_ms=None, exchange_index=1, span_ref=ExternalRef(system='otel', kind='span_id', value='c1c1c1c1c1c1c1c1'))), channel_maps=(), external_refs=(ExternalRef(system='otel', kind='trace_id', value='e31c8352ead4fa04648d7a3e0b39e03d'),), external_ref_sources=('/resourceSpans/0/scopeSpans/0/spans/0/traceId',), warnings=(IngestWarning(code='placeholder_value_ignored', path='/resourceSpans/0/scopeSpans/0/spans/0/attributes/1/value/strin...-ee9c78b363a3', field='/start', sources=('/resourceSpans/0/scopeSpans/0/spans/0/startTimeUnixNano',), derivation='unix_nano_to_utc_us', citation=None), TraceEntry(record='spn_01a16955-41d8-74cc-b6b6-ee9c78b363a3', field='/duration_ms', sources=('/resourceSpans/0/scopeSpans/0/spans/0/startTimeUnixNano', '/resourceSpans/0/scopeSpans/0/spans/0/endTimeUnixNano'), derivation='ns_interval_to_ms_floor', citation=None), TraceEntry(record='spn_01a16955-41d8-74cc-b6b6-ee9c78b363a3', field='/exchange_index', sources=('/resourceSpans/0/scopeSpans/1/spans/0/attributes/0/value/intValue',), derivation='parent_span_turn_number', citation=None), TraceEntry(record='spn_01a16955-41d8-74cc-b6b6-ee9c78b363a3', field='/span_ref/system', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation='constant:otel', citation=None), TraceEntry(record='spn_01a16955-41d8-74cc-b6b6-ee9c78b363a3', field='/span_ref/kind', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation='constant:span_id', citation=None), TraceEntry(record='spn_01a16955-41d8-74cc-b6b6-ee9c78b363a3', field='/span_ref/value', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation=None, citation=None))).usage_records
+
+packages/evalschema/tests/test_mapping_followups.py:282: AssertionError
+__ test_f1_usage_span_without_a_provider_is_malformed_and_a_blocking_gap[llm] __
+
+stage = 'llm'
+
+    @pytest.mark.parametrize("stage", sorted(USAGE_BY_STAGE))
+    def test_f1_usage_span_without_a_provider_is_malformed_and_a_blocking_gap(stage: str) -> None:
+        """Decision 5: a span that states usage but names no provider cannot be turned into a
+        UsageRecord (provider is required) and the usage would be lost silently, so: no UsageRecord,
+        exactly one ``malformed_entry`` warning whose path locates the span, and a BLOCKING gap row
+        (ADR 0018 Decision 3, like N76) of fixture F1 under the stage whose key is one of the usage
+        attributes of the span. Nothing raises; every other record is still produced."""
+        doc = otlp_doc([_stage(stage, USAGE_BY_STAGE[stage], provider=None), _turn()])
+        result = run_f1(doc)
+        assert result.usage_records == ()
+        flagged = [w for w in result.warnings if w.code == "malformed_entry"]
+        assert len(flagged) == 1
+        located = resolve_source(doc, flagged[0].path or "")
+        assert located["name"] == stage
+>       assert result.gaps
+E       AssertionError: assert ()
+E        +  where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16955-41e2-76dd-afdd-c35be9ffe787'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], index=1, started_at=datetime.datetime(2026, 10, 23, 12, 6, 8, tzinfo=datetime.timezone.utc), duration_ms=2000, was_interrupted=None, source='telemetry'), StageSpan(id=StageSpanId('spn_01a16955-41e2-76dd-afdd-c35c2b392e75'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], stage='llm', stage_raw=None, provider=None, model='model-1', start=datetime.datetime(2026, 10, 23, 12, 6, 8, 500000, tzinfo=datetime.timezone.utc), duration_ms=500, ttfb_ms=None, exchange_index=1, span_ref=ExternalRef(system='otel', kind='span_id', value='c1c1c1c1c1c1c1c1'))), channel_maps=(), external_refs=(ExternalRef(system='otel', kind='trace_id', value='e31c8352ead4fa04648d7a3e0b39e03d'),), external_ref_sources=('/resourceSpans/0/scopeSpans/0/spans/0/traceId',), warnings=(IngestWarning(code='malformed_entry', path='/resourceSpans/0/scopeSpans/0/spans/0', raw=None, message='usage is n...-c35c2b392e75', field='/start', sources=('/resourceSpans/0/scopeSpans/0/spans/0/startTimeUnixNano',), derivation='unix_nano_to_utc_us', citation=None), TraceEntry(record='spn_01a16955-41e2-76dd-afdd-c35c2b392e75', field='/duration_ms', sources=('/resourceSpans/0/scopeSpans/0/spans/0/startTimeUnixNano', '/resourceSpans/0/scopeSpans/0/spans/0/endTimeUnixNano'), derivation='ns_interval_to_ms_floor', citation=None), TraceEntry(record='spn_01a16955-41e2-76dd-afdd-c35c2b392e75', field='/exchange_index', sources=('/resourceSpans/0/scopeSpans/1/spans/0/attributes/0/value/intValue',), derivation='parent_span_turn_number', citation=None), TraceEntry(record='spn_01a16955-41e2-76dd-afdd-c35c2b392e75', field='/span_ref/system', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation='constant:otel', citation=None), TraceEntry(record='spn_01a16955-41e2-76dd-afdd-c35c2b392e75', field='/span_ref/kind', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation='constant:span_id', citation=None), TraceEntry(record='spn_01a16955-41e2-76dd-afdd-c35c2b392e75', field='/span_ref/value', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation=None, citation=None))).gaps
+
+packages/evalschema/tests/test_mapping_followups.py:319: AssertionError
+__ test_f1_usage_span_without_a_provider_is_malformed_and_a_blocking_gap[stt] __
+
+stage = 'stt'
+
+    @pytest.mark.parametrize("stage", sorted(USAGE_BY_STAGE))
+    def test_f1_usage_span_without_a_provider_is_malformed_and_a_blocking_gap(stage: str) -> None:
+        """Decision 5: a span that states usage but names no provider cannot be turned into a
+        UsageRecord (provider is required) and the usage would be lost silently, so: no UsageRecord,
+        exactly one ``malformed_entry`` warning whose path locates the span, and a BLOCKING gap row
+        (ADR 0018 Decision 3, like N76) of fixture F1 under the stage whose key is one of the usage
+        attributes of the span. Nothing raises; every other record is still produced."""
+        doc = otlp_doc([_stage(stage, USAGE_BY_STAGE[stage], provider=None), _turn()])
+        result = run_f1(doc)
+        assert result.usage_records == ()
+        flagged = [w for w in result.warnings if w.code == "malformed_entry"]
+        assert len(flagged) == 1
+        located = resolve_source(doc, flagged[0].path or "")
+        assert located["name"] == stage
+>       assert result.gaps
+E       AssertionError: assert ()
+E        +  where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16955-41eb-76cc-8bc3-3bf51792c02b'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], index=1, started_at=datetime.datetime(2026, 10, 23, 12, 6, 8, tzinfo=datetime.timezone.utc), duration_ms=2000, was_interrupted=None, source='telemetry'), StageSpan(id=StageSpanId('spn_01a16955-41ec-750f-ad42-25d3554755cb'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], stage='stt', stage_raw=None, provider=None, model='model-1', start=datetime.datetime(2026, 10, 23, 12, 6, 8, 500000, tzinfo=datetime.timezone.utc), duration_ms=500, ttfb_ms=None, exchange_index=1, span_ref=ExternalRef(system='otel', kind='span_id', value='c1c1c1c1c1c1c1c1'))), channel_maps=(), external_refs=(ExternalRef(system='otel', kind='trace_id', value='e31c8352ead4fa04648d7a3e0b39e03d'),), external_ref_sources=('/resourceSpans/0/scopeSpans/0/spans/0/traceId',), warnings=(IngestWarning(code='malformed_entry', path='/resourceSpans/0/scopeSpans/0/spans/0', raw=None, message='usage is n...-25d3554755cb', field='/start', sources=('/resourceSpans/0/scopeSpans/0/spans/0/startTimeUnixNano',), derivation='unix_nano_to_utc_us', citation=None), TraceEntry(record='spn_01a16955-41ec-750f-ad42-25d3554755cb', field='/duration_ms', sources=('/resourceSpans/0/scopeSpans/0/spans/0/startTimeUnixNano', '/resourceSpans/0/scopeSpans/0/spans/0/endTimeUnixNano'), derivation='ns_interval_to_ms_floor', citation=None), TraceEntry(record='spn_01a16955-41ec-750f-ad42-25d3554755cb', field='/exchange_index', sources=('/resourceSpans/0/scopeSpans/1/spans/0/attributes/0/value/intValue',), derivation='parent_span_turn_number', citation=None), TraceEntry(record='spn_01a16955-41ec-750f-ad42-25d3554755cb', field='/span_ref/system', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation='constant:otel', citation=None), TraceEntry(record='spn_01a16955-41ec-750f-ad42-25d3554755cb', field='/span_ref/kind', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation='constant:span_id', citation=None), TraceEntry(record='spn_01a16955-41ec-750f-ad42-25d3554755cb', field='/span_ref/value', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation=None, citation=None))).gaps
+
+packages/evalschema/tests/test_mapping_followups.py:319: AssertionError
+__ test_f1_usage_span_without_a_provider_is_malformed_and_a_blocking_gap[tts] __
+
+stage = 'tts'
+
+    @pytest.mark.parametrize("stage", sorted(USAGE_BY_STAGE))
+    def test_f1_usage_span_without_a_provider_is_malformed_and_a_blocking_gap(stage: str) -> None:
+        """Decision 5: a span that states usage but names no provider cannot be turned into a
+        UsageRecord (provider is required) and the usage would be lost silently, so: no UsageRecord,
+        exactly one ``malformed_entry`` warning whose path locates the span, and a BLOCKING gap row
+        (ADR 0018 Decision 3, like N76) of fixture F1 under the stage whose key is one of the usage
+        attributes of the span. Nothing raises; every other record is still produced."""
+        doc = otlp_doc([_stage(stage, USAGE_BY_STAGE[stage], provider=None), _turn()])
+        result = run_f1(doc)
+        assert result.usage_records == ()
+        flagged = [w for w in result.warnings if w.code == "malformed_entry"]
+        assert len(flagged) == 1
+        located = resolve_source(doc, flagged[0].path or "")
+        assert located["name"] == stage
+>       assert result.gaps
+E       AssertionError: assert ()
+E        +  where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16955-41f5-7697-b579-c8b7db71cf28'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], index=1, started_at=datetime.datetime(2026, 10, 23, 12, 6, 8, tzinfo=datetime.timezone.utc), duration_ms=2000, was_interrupted=None, source='telemetry'), StageSpan(id=StageSpanId('spn_01a16955-41f5-7697-b579-c8b83529ff41'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], stage='tts', stage_raw=None, provider=None, model='model-1', start=datetime.datetime(2026, 10, 23, 12, 6, 8, 500000, tzinfo=datetime.timezone.utc), duration_ms=500, ttfb_ms=None, exchange_index=1, span_ref=ExternalRef(system='otel', kind='span_id', value='c1c1c1c1c1c1c1c1'))), channel_maps=(), external_refs=(ExternalRef(system='otel', kind='trace_id', value='e31c8352ead4fa04648d7a3e0b39e03d'),), external_ref_sources=('/resourceSpans/0/scopeSpans/0/spans/0/traceId',), warnings=(IngestWarning(code='malformed_entry', path='/resourceSpans/0/scopeSpans/0/spans/0', raw=None, message='usage is n...-c8b83529ff41', field='/start', sources=('/resourceSpans/0/scopeSpans/0/spans/0/startTimeUnixNano',), derivation='unix_nano_to_utc_us', citation=None), TraceEntry(record='spn_01a16955-41f5-7697-b579-c8b83529ff41', field='/duration_ms', sources=('/resourceSpans/0/scopeSpans/0/spans/0/startTimeUnixNano', '/resourceSpans/0/scopeSpans/0/spans/0/endTimeUnixNano'), derivation='ns_interval_to_ms_floor', citation=None), TraceEntry(record='spn_01a16955-41f5-7697-b579-c8b83529ff41', field='/exchange_index', sources=('/resourceSpans/0/scopeSpans/1/spans/0/attributes/0/value/intValue',), derivation='parent_span_turn_number', citation=None), TraceEntry(record='spn_01a16955-41f5-7697-b579-c8b83529ff41', field='/span_ref/system', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation='constant:otel', citation=None), TraceEntry(record='spn_01a16955-41f5-7697-b579-c8b83529ff41', field='/span_ref/kind', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation='constant:span_id', citation=None), TraceEntry(record='spn_01a16955-41f5-7697-b579-c8b83529ff41', field='/span_ref/value', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation=None, citation=None))).gaps
+
+packages/evalschema/tests/test_mapping_followups.py:319: AssertionError
+___________ test_f1_provider_less_span_does_not_hide_the_other_calls ___________
+
+    def test_f1_provider_less_span_does_not_hide_the_other_calls() -> None:
+        """The refusal is per span: a second llm span with a provider is still recorded."""
+        bad = _stage("llm", USAGE_BY_STAGE["llm"], provider=None)
+        good = _stage("llm", USAGE_BY_STAGE["llm"], span_id="c2c2c2c2c2c2c2c2")
+        result = run_f1(otlp_doc([bad, good, _turn()]))
+        assert [_quantities(r) for r in result.usage_records] == [
+            {"input_tokens": 40, "output_tokens": 5}
+        ]
+        assert _codes(result).count("malformed_entry") == 1
+>       assert result.gaps
+E       AssertionError: assert ()
+E        +  where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16955-4202-76ee-9ab8-615665814214'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], index=1, started_at=datetime.datetime(2026, 10, 23, 12, 6, 8, tzinfo=datetime.timezone.utc), duration_ms=2000, was_interrupted=None, source='telemetry'), StageSpan(id=StageSpanId('spn_01a16955-4202-76ee-9ab8-615667d316a1'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], stage='llm', stage_raw=None, provider=None, model='model-1', start=datetime.datetime(2026, 10, 23, 12, 6, 8, 500000, tzinfo=datetime.timezone.utc), duration_ms=500, ttfb_ms=None, exchange_index=1, span_ref=ExternalRef(system='otel', kind='span_id', value='c1c1c1c1c1c1c1c1')), StageSpan(id=StageSpanId('spn_01a16955-4202-76ee-9ab8-6156826dc429'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], stage='llm', stage_raw=None, provider='prov', model='model-1', start=datetime.datetime(2026, 10, 23, 12, 6, 8, .../attributes/2/value/intValue',), derivation='constant:input_tokens', citation=None), TraceEntry(record='use_01a16955-4202-76ee-9ab8-61575de8971a', field='/quantities/0/count', sources=('/resourceSpans/0/scopeSpans/0/spans/1/attributes/2/value/intValue',), derivation='otlp_int_to_int', citation=None), TraceEntry(record='use_01a16955-4202-76ee-9ab8-61575de8971a', field='/quantities/1/unit', sources=('/resourceSpans/0/scopeSpans/0/spans/1/attributes/3/value/intValue',), derivation='constant:output_tokens', citation=None), TraceEntry(record='use_01a16955-4202-76ee-9ab8-61575de8971a', field='/quantities/1/count', sources=('/resourceSpans/0/scopeSpans/0/spans/1/attributes/3/value/intValue',), derivation='otlp_int_to_int', citation=None), TraceEntry(record='use_01a16955-4202-76ee-9ab8-61575de8971a', field='/raw/gen_ai.usage.input_tokens', sources=('/resourceSpans/0/scopeSpans/0/spans/1/attributes/2/value/intValue',), derivation='otlp_int_to_int', citation=None), TraceEntry(record='use_01a16955-4202-76ee-9ab8-61575de8971a', field='/raw/gen_ai.usage.output_tokens', sources=('/resourceSpans/0/scopeSpans/0/spans/1/attributes/3/value/intValue',), derivation='otlp_int_to_int', citation=None))).gaps
+
+packages/evalschema/tests/test_mapping_followups.py:351: AssertionError
+__ test_f1_hash_in_a_tool_argument_key_is_percent_encoded_in_chained_sources ___
+
+    def test_f1_hash_in_a_tool_argument_key_is_percent_encoded_in_chained_sources() -> None:
+        """Decision 8: a tool call whose arguments object has a key that contains '#' (and one
+        nested): every source pointer of the argument leaves is chained
+        (``input`` attribute # tool_calls # arguments key path) and spells the '#' of the key as
+        ``%23``, so the pointer has exactly the chain's number of '#' separators and the independent
+        resolver reads the leaf back. The record keeps the key as written (``a#b``). The generic
+        no-fabrication check passes, which resolves every pointer of the result."""
+        arguments = json.dumps({"a#b": 1, "c": {"d#": "x"}, "e": [1, 2]})
+        messages = json.dumps(
+            [
+                {"role": "user", "content": "go"},
+                {
+                    "role": "assistant",
+                    "content": None,
+                    "tool_calls": [
+                        {
+                            "id": "call-1",
+                            "type": "function",
+                            "function": {"name": "act", "arguments": arguments},
+                        }
+                    ],
+                },
+            ]
+        )
+        llm = _stage("llm", [("input", messages)], provider="openai", model="m-1")
+        doc = otlp_doc([llm, _turn()])
+        result = run_f1(doc)
+        assert len(result.tool_calls) == 1
+        call = result.tool_calls[0]
+        assert call.arguments == {"a#b": 1, "c": {"d#": "x"}, "e": [1, 2]}
+        leaf_entries = {
+            e.field: e
+            for e in result.trace
+            if e.record == str(call.id) and e.field.startswith("/arguments/")
+        }
+        assert set(leaf_entries) == {
+            "/arguments/a#b",
+            "/arguments/c/d#",
+            "/arguments/e/0",
+            "/arguments/e/1",
+        }
+        expected_tail = {
+            "/arguments/a#b": "/a%23b",
+            "/arguments/c/d#": "/c/d%23",
+            "/arguments/e/0": "/e/0",
+            "/arguments/e/1": "/e/1",
+        }
+        for field, entry in leaf_entries.items():
+            assert len(entry.sources) == 1
+            parts = entry.sources[0].split("#")
+>           assert len(parts) == 3, entry.sources[0]
+E           AssertionError: /resourceSpans/0/scopeSpans/0/spans/0/attributes/2/value/stringValue#/1/tool_calls/0/function/arguments#/a#b
+E           assert 4 == 3
+E            +  where 4 = len(['/resourceSpans/0/scopeSpans/0/spans/0/attributes/2/value/stringValue', '/1/tool_calls/0/function/arguments', '/a', 'b'])
+
+packages/evalschema/tests/test_mapping_followups.py:475: AssertionError
+____________ test_f4_hash_in_a_tool_argument_key_is_percent_encoded ____________
+
+    def test_f4_hash_in_a_tool_argument_key_is_percent_encoded() -> None:
+        """Decision 8, applied to every pointer ('#' is the chain separator everywhere, so a raw '#'
+        in a key would be read as a separator even in an un-chained pointer): the F4 source pointer
+        of an argument leaf whose key contains '#' spells it ``%23`` and resolves."""
+        doc: list[dict[str, Any]] = [
+            {"role": "user", "content": "go"},
+            {"role": "tool_call", "name": "act", "arguments": {"a#b": 1}, "cancelled": False},
+        ]
+        result = run_f4(doc)
+        call = result.tool_calls[0]
+        entry = next(
+            e for e in result.trace if e.record == str(call.id) and e.field == "/arguments/a#b"
+        )
+>       assert entry.sources == ("/1/arguments/a%23b",)
+E       AssertionError: assert ('/1/arguments/a#b',) == ('/1/arguments/a%23b',)
+E         
+E         At index 0 diff: '/1/arguments/a#b' != '/1/arguments/a%23b'
+E         
+E         Full diff:
+E           (
+E         -     '/1/arguments/a%23b',
+E         ?                    ^^^...
+E         
+E         ...Full output truncated (3 lines hidden), use '-vv' to show
+
+packages/evalschema/tests/test_mapping_followups.py:502: AssertionError
+____________________ test_f1_llm_usage_to_usage_record[en] _____________________
+
+scenario = 'en'
+
+    @SCEN
+    def test_f1_llm_usage_to_usage_record(scenario: str) -> None:
+        """ADR 0014 I23, SCOPE P1-29: each stage span that states usage becomes one UsageRecord of
+        the agent under test (domain agent_under_test, source telemetry, never measured): llm token
+        counts, the stt ``metrics.audio_seconds`` as audio_input_seconds (a canonical decimal string
+        from the printed number, never a float; P, M5). ``occurred_at`` is the span start, the
+        provider and model are the span's, ``raw`` keeps the usage attributes as received, ``run_id``
+        is the one passed in. tts spans of the captures name the Pipecat placeholder model 'unknown'
+        and state a character count: each gives an ``input_characters`` UsageRecord with the model
+        absent (None), never the placeholder (M3 decided: UsageRecord.model is optional; this
+        replaces the earlier reading 'no UsageRecord for a placeholder model')."""
+        doc = f1_doc(scenario)
+        run_id = new_run_id()
+        result = run_f1(doc, run_id=run_id)
+        records = list(result.usage_records)
+        assert records
+        assert all(r.run_id == run_id and r.domain == "agent_under_test" for r in records)
+        assert all(r.source == "telemetry" and r.provider_call_ref is None for r in records)
+        llm_spans = [s for s in spans_named(doc, "llm") if "gen_ai.usage.input_tokens" in attrs(s)]
+        llm_records = sorted((r for r in records if r.stage == "llm"), key=lambda r: str(r.occurred_at))
+        assert len(llm_records) == len(llm_spans)
+        for span in sorted(llm_spans, key=lambda s: int(s["startTimeUnixNano"])):
+            a = attrs(span)
+            match = next(r for r in llm_records if _same_start(r, span))
+            assert match.provider == a["gen_ai.provider.name"]
+            assert match.model == a["gen_ai.request.model"]
+            assert quantities(match) == _expected_llm(a)
+            assert match.raw == {k: v for k, v in a.items() if k.startswith("gen_ai.usage.")}
+        stt_spans = [s for s in spans_named(doc, "stt") if "metrics.audio_seconds" in attrs(s)]
+        stt_records = [r for r in records if r.stage == "stt"]
+        assert len(stt_records) == len(stt_spans)
+        for span in stt_spans:
+            a = attrs(span)
+            match = next(r for r in stt_records if _same_start(r, span))
+            assert quantities(match) == {
+                "audio_input_seconds": str(Decimal(repr(a["metrics.audio_seconds"])))
+            }
+            assert match.raw == {"metrics.audio_seconds": a["metrics.audio_seconds"]}
+        tts_spans = [s for s in spans_named(doc, "tts") if "metrics.character_count" in attrs(s)]
+        assert tts_spans, "the captures state a character count on every tts span"
+        tts_records = [r for r in records if r.stage == "tts"]
+>       assert len(tts_records) == len(tts_spans)
+E       AssertionError: assert 0 == 3
+E        +  where 0 = len([])
+E        +  and   3 = len([{'traceId': '0a19fb962eab6872d5490382f91332ce', 'spanId': 'dd60af6346b13a07', 'name': 'tts', 'kind': 1, ...}, {'traceId': '0a19fb962eab6872d5490382f91332ce', 'spanId': '05f713c1551b8dff', 'name': 'tts', 'kind': 1, ...}, {'traceId': '0a19fb962eab6872d5490382f91332ce', 'spanId': '18677bf1956ee372', 'name': 'tts', 'kind': 1, ...}])
+
+packages/evalschema/tests/test_mapping_f1.py:401: AssertionError
+__________________ test_f1_llm_usage_to_usage_record[en_tool] __________________
+
+scenario = 'en_tool'
+
+    @SCEN
+    def test_f1_llm_usage_to_usage_record(scenario: str) -> None:
+        """ADR 0014 I23, SCOPE P1-29: each stage span that states usage becomes one UsageRecord of
+        the agent under test (domain agent_under_test, source telemetry, never measured): llm token
+        counts, the stt ``metrics.audio_seconds`` as audio_input_seconds (a canonical decimal string
+        from the printed number, never a float; P, M5). ``occurred_at`` is the span start, the
+        provider and model are the span's, ``raw`` keeps the usage attributes as received, ``run_id``
+        is the one passed in. tts spans of the captures name the Pipecat placeholder model 'unknown'
+        and state a character count: each gives an ``input_characters`` UsageRecord with the model
+        absent (None), never the placeholder (M3 decided: UsageRecord.model is optional; this
+        replaces the earlier reading 'no UsageRecord for a placeholder model')."""
+        doc = f1_doc(scenario)
+        run_id = new_run_id()
+        result = run_f1(doc, run_id=run_id)
+        records = list(result.usage_records)
+        assert records
+        assert all(r.run_id == run_id and r.domain == "agent_under_test" for r in records)
+        assert all(r.source == "telemetry" and r.provider_call_ref is None for r in records)
+        llm_spans = [s for s in spans_named(doc, "llm") if "gen_ai.usage.input_tokens" in attrs(s)]
+        llm_records = sorted((r for r in records if r.stage == "llm"), key=lambda r: str(r.occurred_at))
+        assert len(llm_records) == len(llm_spans)
+        for span in sorted(llm_spans, key=lambda s: int(s["startTimeUnixNano"])):
+            a = attrs(span)
+            match = next(r for r in llm_records if _same_start(r, span))
+            assert match.provider == a["gen_ai.provider.name"]
+            assert match.model == a["gen_ai.request.model"]
+            assert quantities(match) == _expected_llm(a)
+            assert match.raw == {k: v for k, v in a.items() if k.startswith("gen_ai.usage.")}
+        stt_spans = [s for s in spans_named(doc, "stt") if "metrics.audio_seconds" in attrs(s)]
+        stt_records = [r for r in records if r.stage == "stt"]
+        assert len(stt_records) == len(stt_spans)
+        for span in stt_spans:
+            a = attrs(span)
+            match = next(r for r in stt_records if _same_start(r, span))
+            assert quantities(match) == {
+                "audio_input_seconds": str(Decimal(repr(a["metrics.audio_seconds"])))
+            }
+            assert match.raw == {"metrics.audio_seconds": a["metrics.audio_seconds"]}
+        tts_spans = [s for s in spans_named(doc, "tts") if "metrics.character_count" in attrs(s)]
+        assert tts_spans, "the captures state a character count on every tts span"
+        tts_records = [r for r in records if r.stage == "tts"]
+>       assert len(tts_records) == len(tts_spans)
+E       AssertionError: assert 0 == 2
+E        +  where 0 = len([])
+E        +  and   2 = len([{'traceId': 'e31c8352ead4fa04648d7a3e0b39e03d', 'spanId': '5c046e4f5391584f', 'name': 'tts', 'kind': 1, ...}, {'traceId': 'e31c8352ead4fa04648d7a3e0b39e03d', 'spanId': '50fd27ca0906c95b', 'name': 'tts', 'kind': 1, ...}])
+
+packages/evalschema/tests/test_mapping_f1.py:401: AssertionError
+____________________ test_f1_llm_usage_to_usage_record[hi] _____________________
+
+scenario = 'hi'
+
+    @SCEN
+    def test_f1_llm_usage_to_usage_record(scenario: str) -> None:
+        """ADR 0014 I23, SCOPE P1-29: each stage span that states usage becomes one UsageRecord of
+        the agent under test (domain agent_under_test, source telemetry, never measured): llm token
+        counts, the stt ``metrics.audio_seconds`` as audio_input_seconds (a canonical decimal string
+        from the printed number, never a float; P, M5). ``occurred_at`` is the span start, the
+        provider and model are the span's, ``raw`` keeps the usage attributes as received, ``run_id``
+        is the one passed in. tts spans of the captures name the Pipecat placeholder model 'unknown'
+        and state a character count: each gives an ``input_characters`` UsageRecord with the model
+        absent (None), never the placeholder (M3 decided: UsageRecord.model is optional; this
+        replaces the earlier reading 'no UsageRecord for a placeholder model')."""
+        doc = f1_doc(scenario)
+        run_id = new_run_id()
+        result = run_f1(doc, run_id=run_id)
+        records = list(result.usage_records)
+        assert records
+        assert all(r.run_id == run_id and r.domain == "agent_under_test" for r in records)
+        assert all(r.source == "telemetry" and r.provider_call_ref is None for r in records)
+        llm_spans = [s for s in spans_named(doc, "llm") if "gen_ai.usage.input_tokens" in attrs(s)]
+        llm_records = sorted((r for r in records if r.stage == "llm"), key=lambda r: str(r.occurred_at))
+        assert len(llm_records) == len(llm_spans)
+        for span in sorted(llm_spans, key=lambda s: int(s["startTimeUnixNano"])):
+            a = attrs(span)
+            match = next(r for r in llm_records if _same_start(r, span))
+            assert match.provider == a["gen_ai.provider.name"]
+            assert match.model == a["gen_ai.request.model"]
+            assert quantities(match) == _expected_llm(a)
+            assert match.raw == {k: v for k, v in a.items() if k.startswith("gen_ai.usage.")}
+        stt_spans = [s for s in spans_named(doc, "stt") if "metrics.audio_seconds" in attrs(s)]
+        stt_records = [r for r in records if r.stage == "stt"]
+        assert len(stt_records) == len(stt_spans)
+        for span in stt_spans:
+            a = attrs(span)
+            match = next(r for r in stt_records if _same_start(r, span))
+            assert quantities(match) == {
+                "audio_input_seconds": str(Decimal(repr(a["metrics.audio_seconds"])))
+            }
+            assert match.raw == {"metrics.audio_seconds": a["metrics.audio_seconds"]}
+        tts_spans = [s for s in spans_named(doc, "tts") if "metrics.character_count" in attrs(s)]
+        assert tts_spans, "the captures state a character count on every tts span"
+        tts_records = [r for r in records if r.stage == "tts"]
+>       assert len(tts_records) == len(tts_spans)
+E       AssertionError: assert 0 == 2
+E        +  where 0 = len([])
+E        +  and   2 = len([{'traceId': 'ad12cc593f1f5cfa86b6e8a2f6614481', 'spanId': '606e1afeaabf5614', 'name': 'tts', 'kind': 1, ...}, {'traceId': 'ad12cc593f1f5cfa86b6e8a2f6614481', 'spanId': 'a91ea43c5679060f', 'name': 'tts', 'kind': 1, ...}])
+
+packages/evalschema/tests/test_mapping_f1.py:401: AssertionError
+____________ test_f1_placeholder_model_is_not_a_model_name[unknown] ____________
+
+placeholder = 'unknown'
+
+    @pytest.mark.parametrize("placeholder", ["unknown", "NOT_GIVEN"])
+    def test_f1_placeholder_model_is_not_a_model_name(placeholder: str) -> None:
+        """P (M3): 'unknown' and 'NOT_GIVEN' are Pipecat's own placeholders for a missing value
+        (``_get_model_name`` and the settings dump). They are never stored as a model: StageSpan.model
+        stays empty and one warning ``placeholder_value_ignored`` quotes the attribute. M3 (decided,
+        replaces the earlier 'usage is not recorded'): UsageRecord.model is optional, so the span's
+        character count is kept as exactly one stage=tts UsageRecord with ``model`` None (not the
+        placeholder), quantity ``input_characters`` 5 and ``raw`` the usage attribute as received; no
+        gap row remains for it."""
+        tts = otlp_span(
+            "tts",
+            "d1d1d1d1d1d1d1d1",
+            parent="a1a1a1a1a1a1a1a1",
+            attrs=[
+                ("gen_ai.provider.name", "kokoro"),
+                ("gen_ai.request.model", placeholder),
+                ("text", "Hello"),
+                ("metrics.character_count", 5),
+            ],
+        )
+        doc = doc_of(tts)
+        result = run_f1(doc)
+        assert [s.model for s in result.stage_spans] == [None]
+>       assert len(result.usage_records) == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = len(())
+E        +    where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16955-4276-7165-a3d5-7399e98a1c81'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], index=1, started_at=datetime.datetime(2026, 10, 23, 12, 6, 8, tzinfo=datetime.timezone.utc), duration_ms=2000, was_interrupted=False, source='telemetry'), StageSpan(id=StageSpanId('spn_01a16955-4276-7165-a3d5-739a8605658e'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], stage='tts', stage_raw=None, provider='kokoro', model=None, start=datetime.datetime(2026, 10, 23, 12, 6, 8, tzinfo=datetime.timezone.utc), duration_ms=500, ttfb_ms=None, exchange_index=1, span_ref=ExternalRef(system='otel', kind='span_id', value='d1d1d1d1d1d1d1d1')), Turn(id=TurnId('turn_01a16955-4276-7165-a3d5-739bec144695'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], transcript_id=TranscriptId('tsc_01a16955-4276-7165-a3d5-739b116164d9'), seq=0, role='agent', start_ms=None, end_ms=None, wall_ti...ns/0/spans/0/startTimeUnixNano',), derivation='order_index', citation=None), TraceEntry(record='turn_01a16955-4276-7165-a3d5-739bec144695', field='/role', sources=('/resourceSpans/0/scopeSpans/0/spans/0/name',), derivation='constant:agent', citation=None), TraceEntry(record='turn_01a16955-4276-7165-a3d5-739bec144695', field='/source', sources=('/resourceSpans/0/scopeSpans/0/spans/0/name',), derivation='constant:agent_tts_input', citation=None), TraceEntry(record='turn_01a16955-4276-7165-a3d5-739bec144695', field='/timing_source', sources=('/resourceSpans/0/scopeSpans/0/spans/0/name',), derivation='constant:none', citation=None), TraceEntry(record='turn_01a16955-4276-7165-a3d5-739bec144695', field='/text', sources=('/resourceSpans/0/scopeSpans/0/spans/0/attributes/2/value/stringValue',), derivation=None, citation=None), TraceEntry(record='turn_01a16955-4276-7165-a3d5-739bec144695', field='/exchange_index', sources=('/resourceSpans/0/scopeSpans/1/spans/0/attributes/0/value/intValue',), derivation='parent_span_turn_number', citation=None), TraceEntry(record='tsc_01a16955-4276-7165-a3d5-739b116164d9', field='/source', sources=(), derivation='constant:agent_telemetry', citation=None))).usage_records
+
+packages/evalschema/tests/test_mapping_f1.py:614: AssertionError
+___________ test_f1_placeholder_model_is_not_a_model_name[NOT_GIVEN] ___________
+
+placeholder = 'NOT_GIVEN'
+
+    @pytest.mark.parametrize("placeholder", ["unknown", "NOT_GIVEN"])
+    def test_f1_placeholder_model_is_not_a_model_name(placeholder: str) -> None:
+        """P (M3): 'unknown' and 'NOT_GIVEN' are Pipecat's own placeholders for a missing value
+        (``_get_model_name`` and the settings dump). They are never stored as a model: StageSpan.model
+        stays empty and one warning ``placeholder_value_ignored`` quotes the attribute. M3 (decided,
+        replaces the earlier 'usage is not recorded'): UsageRecord.model is optional, so the span's
+        character count is kept as exactly one stage=tts UsageRecord with ``model`` None (not the
+        placeholder), quantity ``input_characters`` 5 and ``raw`` the usage attribute as received; no
+        gap row remains for it."""
+        tts = otlp_span(
+            "tts",
+            "d1d1d1d1d1d1d1d1",
+            parent="a1a1a1a1a1a1a1a1",
+            attrs=[
+                ("gen_ai.provider.name", "kokoro"),
+                ("gen_ai.request.model", placeholder),
+                ("text", "Hello"),
+                ("metrics.character_count", 5),
+            ],
+        )
+        doc = doc_of(tts)
+        result = run_f1(doc)
+        assert [s.model for s in result.stage_spans] == [None]
+>       assert len(result.usage_records) == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = len(())
+E        +    where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16955-428b-7419-b063-8a5d8af05c3a'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], index=1, started_at=datetime.datetime(2026, 10, 23, 12, 6, 8, tzinfo=datetime.timezone.utc), duration_ms=2000, was_interrupted=False, source='telemetry'), StageSpan(id=StageSpanId('spn_01a16955-428b-7419-b063-8a5e73a6829e'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], stage='tts', stage_raw=None, provider='kokoro', model=None, start=datetime.datetime(2026, 10, 23, 12, 6, 8, tzinfo=datetime.timezone.utc), duration_ms=500, ttfb_ms=None, exchange_index=1, span_ref=ExternalRef(system='otel', kind='span_id', value='d1d1d1d1d1d1d1d1')), Turn(id=TurnId('turn_01a16955-428b-7419-b063-8a5fa320b5fa'), schema_version='0.0.1', created_at=datetime.datetime(2026, 10, 23, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, metadata_flags=[], transcript_id=TranscriptId('tsc_01a16955-428b-7419-b063-8a5f4a2a5654'), seq=0, role='agent', start_ms=None, end_ms=None, wall_ti...ns/0/spans/0/startTimeUnixNano',), derivation='order_index', citation=None), TraceEntry(record='turn_01a16955-428b-7419-b063-8a5fa320b5fa', field='/role', sources=('/resourceSpans/0/scopeSpans/0/spans/0/name',), derivation='constant:agent', citation=None), TraceEntry(record='turn_01a16955-428b-7419-b063-8a5fa320b5fa', field='/source', sources=('/resourceSpans/0/scopeSpans/0/spans/0/name',), derivation='constant:agent_tts_input', citation=None), TraceEntry(record='turn_01a16955-428b-7419-b063-8a5fa320b5fa', field='/timing_source', sources=('/resourceSpans/0/scopeSpans/0/spans/0/name',), derivation='constant:none', citation=None), TraceEntry(record='turn_01a16955-428b-7419-b063-8a5fa320b5fa', field='/text', sources=('/resourceSpans/0/scopeSpans/0/spans/0/attributes/2/value/stringValue',), derivation=None, citation=None), TraceEntry(record='turn_01a16955-428b-7419-b063-8a5fa320b5fa', field='/exchange_index', sources=('/resourceSpans/0/scopeSpans/1/spans/0/attributes/0/value/intValue',), derivation='parent_span_turn_number', citation=None), TraceEntry(record='tsc_01a16955-428b-7419-b063-8a5f4a2a5654', field='/source', sources=(), derivation='constant:agent_telemetry', citation=None))).usage_records
+
+packages/evalschema/tests/test_mapping_f1.py:614: AssertionError
+_ test_gap_register_has_no_row_for_a_gap_that_no_longer_exists[F1:tts.metrics.character_count] _
+
+key = 'F1:tts.metrics.character_count'
+
+    @pytest.mark.parametrize("key", sorted(RETIRED_ROWS))
+    def test_gap_register_has_no_row_for_a_gap_that_no_longer_exists(key: str) -> None:
+        """A register row names data the mapping loses. When the loss is gone the row must go too:
+        a stale row hides nothing but says the schema still lacks something it now has (and
+        ``KNOWN_SCHEMA_GAPS`` would carry it into P1-16). Both the full register and the
+        non-blocking list are checked."""
+        module = mapping("gap_register")
+>       assert [r for r in module.GAP_REGISTER if r.source_key == key] == [], RETIRED_ROWS[key]
+E       AssertionError: M3: UsageRecord.model is optional, so the tts character count is kept as a UsageRecord with no model and nothing is lost
+E       assert [GapRow(fixtu...a-architect')] == []
+E         
+E         Left contains one more item: GapRow(fixture='F1', source_key='F1:tts.metrics.character_count', classification='non-blocking', kind='lossy', reason=...red (M3). When UsageRecord.model becomes optional the count is kept and this row is removed", owner='schema-architect')
+E         
+E         Full diff:
+E         - []
+E         + [
+E         +     GapRow(...
+E         
+E         ...Full output truncated (12 lines hidden), use '-vv' to show
+
+packages/evalschema/tests/test_mapping_no_fabrication.py:516: AssertionError
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f4_cancelled_status_is_a_cited_documented_derivation
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum[values0-0.3]
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum[values1-1.75]
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum[values2-0.6]
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum[values3-5]
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum[values4-0.08]
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_placeholder_model_keeps_the_usage_of_every_stage[unknown-llm-usage0-None-None]
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_placeholder_model_keeps_the_usage_of_every_stage[unknown-stt-usage1-audio_input_seconds-1.5]
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_placeholder_model_keeps_the_usage_of_every_stage[unknown-tts-usage2-input_characters-9]
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_placeholder_model_keeps_the_usage_of_every_stage[NOT_GIVEN-llm-usage0-None-None]
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_placeholder_model_keeps_the_usage_of_every_stage[NOT_GIVEN-stt-usage1-audio_input_seconds-1.5]
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_placeholder_model_keeps_the_usage_of_every_stage[NOT_GIVEN-tts-usage2-input_characters-9]
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_usage_span_without_a_provider_is_malformed_and_a_blocking_gap[llm]
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_usage_span_without_a_provider_is_malformed_and_a_blocking_gap[stt]
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_usage_span_without_a_provider_is_malformed_and_a_blocking_gap[tts]
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_provider_less_span_does_not_hide_the_other_calls
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_hash_in_a_tool_argument_key_is_percent_encoded_in_chained_sources
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f4_hash_in_a_tool_argument_key_is_percent_encoded
+FAILED packages/evalschema/tests/test_mapping_f1.py::test_f1_llm_usage_to_usage_record[en]
+FAILED packages/evalschema/tests/test_mapping_f1.py::test_f1_llm_usage_to_usage_record[en_tool]
+FAILED packages/evalschema/tests/test_mapping_f1.py::test_f1_llm_usage_to_usage_record[hi]
+FAILED packages/evalschema/tests/test_mapping_f1.py::test_f1_placeholder_model_is_not_a_model_name[unknown]
+FAILED packages/evalschema/tests/test_mapping_f1.py::test_f1_placeholder_model_is_not_a_model_name[NOT_GIVEN]
+FAILED packages/evalschema/tests/test_mapping_no_fabrication.py::test_gap_register_has_no_row_for_a_gap_that_no_longer_exists[F1:tts.metrics.character_count]
+======================== 24 failed, 24 passed in 0.88s =========================

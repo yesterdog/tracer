@@ -1,0 +1,880 @@
+# group: full-suite (excluding the concurrent qa agent's bundle WIP: test_bundle*.py, test_export_rules.py); mode red; qa
+# date: 2026-10-23T15:15:13Z (UTC)
+# command: <scratchpad>/venv3.14/bin/python -m pytest -p no:cacheprovider -q --ignore=packages/evalschema/tests/test_bundle.py --ignore=.../test_bundle_adversarial.py --ignore=.../test_bundle_tier.py --ignore=.../test_export_rules.py   (cwd ~/tracer; PYTHONPATH=~/tracer/packages/evalschema/src)
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# ------------------------------------------------------------------------------
+........................................................................ [  3%]
+........................................................................ [  7%]
+..............................F......................................... [ 10%]
+........................................................................ [ 14%]
+........................................................................ [ 18%]
+........................................................................ [ 21%]
+.........F.............................................................. [ 25%]
+.............................FFF.............FF......................... [ 29%]
+........................................................................ [ 32%]
+........................................................................ [ 36%]
+........................................................................ [ 40%]
+...........................F.FFFFF......FFFFFFFFF...F.....FF............ [ 43%]
+........................................................................ [ 47%]
+........................................................................ [ 51%]
+............F........................................................... [ 54%]
+................................F....................................... [ 58%]
+........................................................................ [ 61%]
+........................................................................ [ 65%]
+........................................................................ [ 69%]
+........................................................................ [ 72%]
+........................................................................ [ 76%]
+........................................................................ [ 80%]
+........................................................................ [ 83%]
+........................................................................ [ 87%]
+..............................................F......................... [ 91%]
+........................................................................ [ 94%]
+........................................................................ [ 98%]
+...............................                                          [100%]
+=================================== FAILURES ===================================
+_________ test_policy_documents_reported_cost_without_usage_limitation _________
+
+    def test_policy_documents_reported_cost_without_usage_limitation() -> None:
+        """P1-20a, N51 remainder (a) (api-surface 23.6 group R item 3; red until SCHEMA_POLICY.md
+        exists, like the two existing policy-document tests): SCHEMA_POLICY.md states that a reported
+        cost without usage records shares no usage in summaries, so a double count with a computed
+        record for the same call is not detected, and that importers must link usage whenever the
+        source identifies it. Gate-bound."""
+        candidates = [
+            PACKAGE_DIR / "SCHEMA_POLICY.md",
+            ROOT / "SCHEMA_POLICY.md",
+            ROOT / "docs" / "SCHEMA_POLICY.md",
+        ]
+        text = ""
+        for path in candidates:
+            if path.is_file():
+                text = path.read_text(encoding="utf-8")
+                break
+        else:
+>           pytest.fail(
+                "SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of "
+                + ", ".join(str(c) for c in candidates)
+            )
+E           Failed: SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of ~/tracer/packages/evalschema/SCHEMA_POLICY.md, ~/tracer/SCHEMA_POLICY.md, ~/tracer/docs/SCHEMA_POLICY.md
+
+packages/evalschema/tests/test_cost.py:824: Failed
+___________________ test_every_entity_has_registered_prefix ____________________
+
+    def test_every_entity_has_registered_prefix() -> None:
+        registry = api("registry")
+        ids = api("ids")
+        base = api("base")
+        entities = registry.entity_classes()
+>       assert len(ids.ID_PREFIXES) == len(entities) == 26  # `pce` withdrawn in revision 15 (N47)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: assert 26 == 24
+E        +  where 26 = len(mappingproxy({'prj': 'Project', 'agt': 'AgentTarget', 'per': 'Persona', 'tpf': 'TestProfile', 'evl': 'Evaluator', 'met...atalog', 'use': 'UsageRecord', 'cst': 'CostRecord', 'csum': 'CostSummary', 'rbnd': 'RunBundle', 'exp': 'ExportBundle'}))
+E        +    where mappingproxy({'prj': 'Project', 'agt': 'AgentTarget', 'per': 'Persona', 'tpf': 'TestProfile', 'evl': 'Evaluator', 'met...atalog', 'use': 'UsageRecord', 'cst': 'CostRecord', 'csum': 'CostSummary', 'rbnd': 'RunBundle', 'exp': 'ExportBundle'}) = <module 'tracer_evalschema.ids' from '~/tracer/packages/evalschema/src/tracer_evalschema/ids.py'>.ID_PREFIXES
+E        +  and   24 = len({'agt': <class 'tracer_evalschema.agent.AgentTarget'>, 'art': <class 'tracer_evalschema.artifact.Artifact'>, 'cst': <class 'tracer_evalschema.cost.CostRecord'>, 'csum': <class 'tracer_evalschema.cost.CostSummary'>, ...})
+
+packages/evalschema/tests/test_ids.py:818: AssertionError
+____________________ test_f1_llm_usage_to_usage_record[en] _____________________
+
+scenario = 'en'
+
+    @SCEN
+    def test_f1_llm_usage_to_usage_record(scenario: str) -> None:
+        """ADR 0014 I23, SCOPE P1-29: each stage span that states usage becomes one UsageRecord of
+        the agent under test (domain agent_under_test, source telemetry, never measured): llm token
+        counts, the stt ``metrics.audio_seconds`` as audio_input_seconds (a canonical decimal string
+        from the printed number, never a float; P, M5). ``occurred_at`` is the span start, the
+        provider and model are the span's, ``raw`` keeps the usage attributes as received, ``run_id``
+        is the one passed in. tts spans of the captures name the Pipecat placeholder model 'unknown'
+        and state a character count: each gives an ``input_characters`` UsageRecord with the model
+        absent (None), never the placeholder (M3 decided: UsageRecord.model is optional; this
+        replaces the earlier reading 'no UsageRecord for a placeholder model')."""
+        doc = f1_doc(scenario)
+        run_id = new_run_id()
+        result = run_f1(doc, run_id=run_id)
+        records = list(result.usage_records)
+        assert records
+        assert all(r.run_id == run_id and r.domain == "agent_under_test" for r in records)
+        assert all(r.source == "telemetry" and r.provider_call_ref is None for r in records)
+        llm_spans = [s for s in spans_named(doc, "llm") if "gen_ai.usage.input_tokens" in attrs(s)]
+        llm_records = sorted((r for r in records if r.stage == "llm"), key=lambda r: str(r.occurred_at))
+        assert len(llm_records) == len(llm_spans)
+        for span in sorted(llm_spans, key=lambda s: int(s["startTimeUnixNano"])):
+            a = attrs(span)
+            match = next(r for r in llm_records if _same_start(r, span))
+            assert match.provider == a["gen_ai.provider.name"]
+            assert match.model == a["gen_ai.request.model"]
+            assert quantities(match) == _expected_llm(a)
+            assert match.raw == {k: v for k, v in a.items() if k.startswith("gen_ai.usage.")}
+        stt_spans = [s for s in spans_named(doc, "stt") if "metrics.audio_seconds" in attrs(s)]
+        stt_records = [r for r in records if r.stage == "stt"]
+        assert len(stt_records) == len(stt_spans)
+        for span in stt_spans:
+            a = attrs(span)
+            match = next(r for r in stt_records if _same_start(r, span))
+            assert quantities(match) == {
+                "audio_input_seconds": str(Decimal(repr(a["metrics.audio_seconds"])))
+            }
+            assert match.raw == {"metrics.audio_seconds": a["metrics.audio_seconds"]}
+        tts_spans = [s for s in spans_named(doc, "tts") if "metrics.character_count" in attrs(s)]
+        assert tts_spans, "the captures state a character count on every tts span"
+        tts_records = [r for r in records if r.stage == "tts"]
+>       assert len(tts_records) == len(tts_spans)
+E       AssertionError: assert 0 == 3
+E        +  where 0 = len([])
+E        +  and   3 = len([{'traceId': '0a19fb962eab6872d5490382f91332ce', 'spanId': 'dd60af6346b13a07', 'name': 'tts', 'kind': 1, ...}, {'trace... 1, ...}, {'traceId': '0a19fb962eab6872d5490382f91332ce', 'spanId': '18677bf1956ee372', 'name': 'tts', 'kind': 1, ...}])
+
+packages/evalschema/tests/test_mapping_f1.py:401: AssertionError
+__________________ test_f1_llm_usage_to_usage_record[en_tool] __________________
+
+scenario = 'en_tool'
+
+    @SCEN
+    def test_f1_llm_usage_to_usage_record(scenario: str) -> None:
+        """ADR 0014 I23, SCOPE P1-29: each stage span that states usage becomes one UsageRecord of
+        the agent under test (domain agent_under_test, source telemetry, never measured): llm token
+        counts, the stt ``metrics.audio_seconds`` as audio_input_seconds (a canonical decimal string
+        from the printed number, never a float; P, M5). ``occurred_at`` is the span start, the
+        provider and model are the span's, ``raw`` keeps the usage attributes as received, ``run_id``
+        is the one passed in. tts spans of the captures name the Pipecat placeholder model 'unknown'
+        and state a character count: each gives an ``input_characters`` UsageRecord with the model
+        absent (None), never the placeholder (M3 decided: UsageRecord.model is optional; this
+        replaces the earlier reading 'no UsageRecord for a placeholder model')."""
+        doc = f1_doc(scenario)
+        run_id = new_run_id()
+        result = run_f1(doc, run_id=run_id)
+        records = list(result.usage_records)
+        assert records
+        assert all(r.run_id == run_id and r.domain == "agent_under_test" for r in records)
+        assert all(r.source == "telemetry" and r.provider_call_ref is None for r in records)
+        llm_spans = [s for s in spans_named(doc, "llm") if "gen_ai.usage.input_tokens" in attrs(s)]
+        llm_records = sorted((r for r in records if r.stage == "llm"), key=lambda r: str(r.occurred_at))
+        assert len(llm_records) == len(llm_spans)
+        for span in sorted(llm_spans, key=lambda s: int(s["startTimeUnixNano"])):
+            a = attrs(span)
+            match = next(r for r in llm_records if _same_start(r, span))
+            assert match.provider == a["gen_ai.provider.name"]
+            assert match.model == a["gen_ai.request.model"]
+            assert quantities(match) == _expected_llm(a)
+            assert match.raw == {k: v for k, v in a.items() if k.startswith("gen_ai.usage.")}
+        stt_spans = [s for s in spans_named(doc, "stt") if "metrics.audio_seconds" in attrs(s)]
+        stt_records = [r for r in records if r.stage == "stt"]
+        assert len(stt_records) == len(stt_spans)
+        for span in stt_spans:
+            a = attrs(span)
+            match = next(r for r in stt_records if _same_start(r, span))
+            assert quantities(match) == {
+                "audio_input_seconds": str(Decimal(repr(a["metrics.audio_seconds"])))
+            }
+            assert match.raw == {"metrics.audio_seconds": a["metrics.audio_seconds"]}
+        tts_spans = [s for s in spans_named(doc, "tts") if "metrics.character_count" in attrs(s)]
+        assert tts_spans, "the captures state a character count on every tts span"
+        tts_records = [r for r in records if r.stage == "tts"]
+>       assert len(tts_records) == len(tts_spans)
+E       AssertionError: assert 0 == 2
+E        +  where 0 = len([])
+E        +  and   2 = len([{'traceId': 'e31c8352ead4fa04648d7a3e0b39e03d', 'spanId': '5c046e4f5391584f', 'name': 'tts', 'kind': 1, ...}, {'traceId': 'e31c8352ead4fa04648d7a3e0b39e03d', 'spanId': '50fd27ca0906c95b', 'name': 'tts', 'kind': 1, ...}])
+
+packages/evalschema/tests/test_mapping_f1.py:401: AssertionError
+____________________ test_f1_llm_usage_to_usage_record[hi] _____________________
+
+scenario = 'hi'
+
+    @SCEN
+    def test_f1_llm_usage_to_usage_record(scenario: str) -> None:
+        """ADR 0014 I23, SCOPE P1-29: each stage span that states usage becomes one UsageRecord of
+        the agent under test (domain agent_under_test, source telemetry, never measured): llm token
+        counts, the stt ``metrics.audio_seconds`` as audio_input_seconds (a canonical decimal string
+        from the printed number, never a float; P, M5). ``occurred_at`` is the span start, the
+        provider and model are the span's, ``raw`` keeps the usage attributes as received, ``run_id``
+        is the one passed in. tts spans of the captures name the Pipecat placeholder model 'unknown'
+        and state a character count: each gives an ``input_characters`` UsageRecord with the model
+        absent (None), never the placeholder (M3 decided: UsageRecord.model is optional; this
+        replaces the earlier reading 'no UsageRecord for a placeholder model')."""
+        doc = f1_doc(scenario)
+        run_id = new_run_id()
+        result = run_f1(doc, run_id=run_id)
+        records = list(result.usage_records)
+        assert records
+        assert all(r.run_id == run_id and r.domain == "agent_under_test" for r in records)
+        assert all(r.source == "telemetry" and r.provider_call_ref is None for r in records)
+        llm_spans = [s for s in spans_named(doc, "llm") if "gen_ai.usage.input_tokens" in attrs(s)]
+        llm_records = sorted((r for r in records if r.stage == "llm"), key=lambda r: str(r.occurred_at))
+        assert len(llm_records) == len(llm_spans)
+        for span in sorted(llm_spans, key=lambda s: int(s["startTimeUnixNano"])):
+            a = attrs(span)
+            match = next(r for r in llm_records if _same_start(r, span))
+            assert match.provider == a["gen_ai.provider.name"]
+            assert match.model == a["gen_ai.request.model"]
+            assert quantities(match) == _expected_llm(a)
+            assert match.raw == {k: v for k, v in a.items() if k.startswith("gen_ai.usage.")}
+        stt_spans = [s for s in spans_named(doc, "stt") if "metrics.audio_seconds" in attrs(s)]
+        stt_records = [r for r in records if r.stage == "stt"]
+        assert len(stt_records) == len(stt_spans)
+        for span in stt_spans:
+            a = attrs(span)
+            match = next(r for r in stt_records if _same_start(r, span))
+            assert quantities(match) == {
+                "audio_input_seconds": str(Decimal(repr(a["metrics.audio_seconds"])))
+            }
+            assert match.raw == {"metrics.audio_seconds": a["metrics.audio_seconds"]}
+        tts_spans = [s for s in spans_named(doc, "tts") if "metrics.character_count" in attrs(s)]
+        assert tts_spans, "the captures state a character count on every tts span"
+        tts_records = [r for r in records if r.stage == "tts"]
+>       assert len(tts_records) == len(tts_spans)
+E       AssertionError: assert 0 == 2
+E        +  where 0 = len([])
+E        +  and   2 = len([{'traceId': 'ad12cc593f1f5cfa86b6e8a2f6614481', 'spanId': '606e1afeaabf5614', 'name': 'tts', 'kind': 1, ...}, {'traceId': 'ad12cc593f1f5cfa86b6e8a2f6614481', 'spanId': 'a91ea43c5679060f', 'name': 'tts', 'kind': 1, ...}])
+
+packages/evalschema/tests/test_mapping_f1.py:401: AssertionError
+____________ test_f1_placeholder_model_is_not_a_model_name[unknown] ____________
+
+placeholder = 'unknown'
+
+    @pytest.mark.parametrize("placeholder", ["unknown", "NOT_GIVEN"])
+    def test_f1_placeholder_model_is_not_a_model_name(placeholder: str) -> None:
+        """P (M3): 'unknown' and 'NOT_GIVEN' are Pipecat's own placeholders for a missing value
+        (``_get_model_name`` and the settings dump). They are never stored as a model: StageSpan.model
+        stays empty and one warning ``placeholder_value_ignored`` quotes the attribute. M3 (decided,
+        replaces the earlier 'usage is not recorded'): UsageRecord.model is optional, so the span's
+        character count is kept as exactly one stage=tts UsageRecord with ``model`` None (not the
+        placeholder), quantity ``input_characters`` 5 and ``raw`` the usage attribute as received; no
+        gap row remains for it."""
+        tts = otlp_span(
+            "tts",
+            "d1d1d1d1d1d1d1d1",
+            parent="a1a1a1a1a1a1a1a1",
+            attrs=[
+                ("gen_ai.provider.name", "kokoro"),
+                ("gen_ai.request.model", placeholder),
+                ("text", "Hello"),
+                ("metrics.character_count", 5),
+            ],
+        )
+        doc = doc_of(tts)
+        result = run_f1(doc)
+        assert [s.model for s in result.stage_spans] == [None]
+>       assert len(result.usage_records) == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = len(())
+E        +    where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16954-ca66-7100-a102-f9a7fd97358c'), schema_versio...6954-ca67-73af-a665-e55d5e5a675f', field='/source', sources=(), derivation='constant:agent_telemetry', citation=None))).usage_records
+
+packages/evalschema/tests/test_mapping_f1.py:614: AssertionError
+___________ test_f1_placeholder_model_is_not_a_model_name[NOT_GIVEN] ___________
+
+placeholder = 'NOT_GIVEN'
+
+    @pytest.mark.parametrize("placeholder", ["unknown", "NOT_GIVEN"])
+    def test_f1_placeholder_model_is_not_a_model_name(placeholder: str) -> None:
+        """P (M3): 'unknown' and 'NOT_GIVEN' are Pipecat's own placeholders for a missing value
+        (``_get_model_name`` and the settings dump). They are never stored as a model: StageSpan.model
+        stays empty and one warning ``placeholder_value_ignored`` quotes the attribute. M3 (decided,
+        replaces the earlier 'usage is not recorded'): UsageRecord.model is optional, so the span's
+        character count is kept as exactly one stage=tts UsageRecord with ``model`` None (not the
+        placeholder), quantity ``input_characters`` 5 and ``raw`` the usage attribute as received; no
+        gap row remains for it."""
+        tts = otlp_span(
+            "tts",
+            "d1d1d1d1d1d1d1d1",
+            parent="a1a1a1a1a1a1a1a1",
+            attrs=[
+                ("gen_ai.provider.name", "kokoro"),
+                ("gen_ai.request.model", placeholder),
+                ("text", "Hello"),
+                ("metrics.character_count", 5),
+            ],
+        )
+        doc = doc_of(tts)
+        result = run_f1(doc)
+        assert [s.model for s in result.stage_spans] == [None]
+>       assert len(result.usage_records) == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = len(())
+E        +    where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16954-ca6f-7429-ae90-98056d3baed3'), schema_versio...6954-ca6f-7429-ae90-9806ca85dfb0', field='/source', sources=(), derivation='constant:agent_telemetry', citation=None))).usage_records
+
+packages/evalschema/tests/test_mapping_f1.py:614: AssertionError
+__________ test_f4_cancelled_status_is_a_cited_documented_derivation ___________
+
+    def test_f4_cancelled_status_is_a_cited_documented_derivation() -> None:
+        """Decision 1: ``cancelled: true`` is the observer's documented statement (conversation
+        observer, pipecat-ai 1.13.0), so the status ``cancelled`` is a derivation named
+        ``documented_cancelled_flag``, not a constant the mapping chose. The trace entry of that
+        status names the derivation, points at the ``cancelled`` field and carries a complete
+        citation (https URL, retrieved_at date, statement); the provenance table has the row with the
+        same derivation and a complete citation; no entry and no row uses ``constant:cancelled``.
+        The generic no-fabrication check also passes (it re-computes the derivation)."""
+        doc = _cancel_doc()
+        result = run_f4(doc)
+        module = mapping("pipecat_conversation")
+        cancelled = next(c for c in result.tool_calls if c.status == "cancelled")
+        entry = next(e for e in result.trace if e.record == str(cancelled.id) and e.field == "/status")
+>       assert entry.derivation == "documented_cancelled_flag"
+E       AssertionError: assert 'constant:cancelled' == 'documented_cancelled_flag'
+E         
+E         - documented_cancelled_flag
+E         + constant:cancelled
+
+packages/evalschema/tests/test_mapping_followups.py:134: AssertionError
+__ test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum[values0-0.3] __
+
+values = (0.1, 0.2), total = '0.3'
+
+    @pytest.mark.parametrize(("values", "total"), DECIMAL_CASES)
+    def test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum(
+        values: tuple[float, ...], total: str
+    ) -> None:
+        """Decision 2 (extends N64): with a complete user-cited statement that the repeated
+        ``metrics.audio_seconds`` of one stt span are one billable event, the printed numbers are
+        summed as Decimals (never as floats: 0.1 + 0.2 is exactly 0.3) into ONE quantity
+        ``audio_input_seconds``, a canonical decimal string. The trace entry names the derivation
+        ``merged_one_billable_event``, lists every occurrence as a source and carries the citation;
+        ``raw`` keeps every occurrence in order; no float and no second quantity of that unit; the
+        generic no-fabrication check passes."""
+        span = _repeated("stt", "metrics.audio_seconds", values)
+        doc = otlp_doc([span, _turn()])
+        result = run_f1(doc, one_billable_event=_citation())
+>       assert len(result.usage_records) == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = len(())
+E        +    where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16954-d296-7063-b89b-e1e70983fbc2'), schema_versio..., field='/span_ref/value', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation=None, citation=None))).usage_records
+
+packages/evalschema/tests/test_mapping_followups.py:191: AssertionError
+_ test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum[values1-1.75] __
+
+values = (1.25, 0.5), total = '1.75'
+
+    @pytest.mark.parametrize(("values", "total"), DECIMAL_CASES)
+    def test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum(
+        values: tuple[float, ...], total: str
+    ) -> None:
+        """Decision 2 (extends N64): with a complete user-cited statement that the repeated
+        ``metrics.audio_seconds`` of one stt span are one billable event, the printed numbers are
+        summed as Decimals (never as floats: 0.1 + 0.2 is exactly 0.3) into ONE quantity
+        ``audio_input_seconds``, a canonical decimal string. The trace entry names the derivation
+        ``merged_one_billable_event``, lists every occurrence as a source and carries the citation;
+        ``raw`` keeps every occurrence in order; no float and no second quantity of that unit; the
+        generic no-fabrication check passes."""
+        span = _repeated("stt", "metrics.audio_seconds", values)
+        doc = otlp_doc([span, _turn()])
+        result = run_f1(doc, one_billable_event=_citation())
+>       assert len(result.usage_records) == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = len(())
+E        +    where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16954-d29c-76e3-a1c7-74438685a86a'), schema_versio..., field='/span_ref/value', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation=None, citation=None))).usage_records
+
+packages/evalschema/tests/test_mapping_followups.py:191: AssertionError
+__ test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum[values2-0.6] __
+
+values = (0.1, 0.2, 0.3), total = '0.6'
+
+    @pytest.mark.parametrize(("values", "total"), DECIMAL_CASES)
+    def test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum(
+        values: tuple[float, ...], total: str
+    ) -> None:
+        """Decision 2 (extends N64): with a complete user-cited statement that the repeated
+        ``metrics.audio_seconds`` of one stt span are one billable event, the printed numbers are
+        summed as Decimals (never as floats: 0.1 + 0.2 is exactly 0.3) into ONE quantity
+        ``audio_input_seconds``, a canonical decimal string. The trace entry names the derivation
+        ``merged_one_billable_event``, lists every occurrence as a source and carries the citation;
+        ``raw`` keeps every occurrence in order; no float and no second quantity of that unit; the
+        generic no-fabrication check passes."""
+        span = _repeated("stt", "metrics.audio_seconds", values)
+        doc = otlp_doc([span, _turn()])
+        result = run_f1(doc, one_billable_event=_citation())
+>       assert len(result.usage_records) == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = len(())
+E        +    where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16954-d2a1-7793-a1de-c2f6102ad2b4'), schema_versio..., field='/span_ref/value', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation=None, citation=None))).usage_records
+
+packages/evalschema/tests/test_mapping_followups.py:191: AssertionError
+___ test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum[values3-5] ___
+
+values = (2.5, 2.5), total = '5'
+
+    @pytest.mark.parametrize(("values", "total"), DECIMAL_CASES)
+    def test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum(
+        values: tuple[float, ...], total: str
+    ) -> None:
+        """Decision 2 (extends N64): with a complete user-cited statement that the repeated
+        ``metrics.audio_seconds`` of one stt span are one billable event, the printed numbers are
+        summed as Decimals (never as floats: 0.1 + 0.2 is exactly 0.3) into ONE quantity
+        ``audio_input_seconds``, a canonical decimal string. The trace entry names the derivation
+        ``merged_one_billable_event``, lists every occurrence as a source and carries the citation;
+        ``raw`` keeps every occurrence in order; no float and no second quantity of that unit; the
+        generic no-fabrication check passes."""
+        span = _repeated("stt", "metrics.audio_seconds", values)
+        doc = otlp_doc([span, _turn()])
+        result = run_f1(doc, one_billable_event=_citation())
+>       assert len(result.usage_records) == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = len(())
+E        +    where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16954-d2a6-72f5-9858-c646193d2290'), schema_versio..., field='/span_ref/value', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation=None, citation=None))).usage_records
+
+packages/evalschema/tests/test_mapping_followups.py:191: AssertionError
+_ test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum[values4-0.08] __
+
+values = (0.07, 0.01), total = '0.08'
+
+    @pytest.mark.parametrize(("values", "total"), DECIMAL_CASES)
+    def test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum(
+        values: tuple[float, ...], total: str
+    ) -> None:
+        """Decision 2 (extends N64): with a complete user-cited statement that the repeated
+        ``metrics.audio_seconds`` of one stt span are one billable event, the printed numbers are
+        summed as Decimals (never as floats: 0.1 + 0.2 is exactly 0.3) into ONE quantity
+        ``audio_input_seconds``, a canonical decimal string. The trace entry names the derivation
+        ``merged_one_billable_event``, lists every occurrence as a source and carries the citation;
+        ``raw`` keeps every occurrence in order; no float and no second quantity of that unit; the
+        generic no-fabrication check passes."""
+        span = _repeated("stt", "metrics.audio_seconds", values)
+        doc = otlp_doc([span, _turn()])
+        result = run_f1(doc, one_billable_event=_citation())
+>       assert len(result.usage_records) == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = len(())
+E        +    where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16954-d2ac-73ef-9add-18b3d9f4cd86'), schema_versio..., field='/span_ref/value', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation=None, citation=None))).usage_records
+
+packages/evalschema/tests/test_mapping_followups.py:191: AssertionError
+_ test_f1_placeholder_model_keeps_the_usage_of_every_stage[unknown-llm-usage0-None-None] _
+
+stage = 'llm'
+usage = [('gen_ai.usage.input_tokens', 40), ('gen_ai.usage.output_tokens', 5)]
+unit = None, count = None, placeholder = 'unknown'
+
+    @pytest.mark.parametrize(
+        ("stage", "usage", "unit", "count"),
+        [
+            ("llm", [("gen_ai.usage.input_tokens", 40), ("gen_ai.usage.output_tokens", 5)], None, None),
+            ("stt", [("metrics.audio_seconds", 1.5)], "audio_input_seconds", "1.5"),
+            ("tts", [("metrics.character_count", 9)], "input_characters", 9),
+        ],
+    )
+    @pytest.mark.parametrize("placeholder", ["unknown", "NOT_GIVEN"])
+    def test_f1_placeholder_model_keeps_the_usage_of_every_stage(
+        stage: str, usage: list[tuple[str, Any]], unit: str | None, count: Any, placeholder: str
+    ) -> None:
+        """Decision 3 (M3): on an llm, stt or tts span the placeholder model is never stored and the
+        usage is kept with ``model`` None. One UsageRecord, the stage's own quantities, one
+        ``placeholder_value_ignored`` warning, no gap, the placeholder text in no record."""
+        doc = otlp_doc([_stage(stage, usage, model=placeholder), _turn()])
+        result = run_f1(doc)
+>       assert len(result.usage_records) == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = len(())
+E        +    where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16954-d2b4-758e-8fe7-91919b8f965a'), schema_versio..., field='/span_ref/value', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation=None, citation=None))).usage_records
+
+packages/evalschema/tests/test_mapping_followups.py:282: AssertionError
+_ test_f1_placeholder_model_keeps_the_usage_of_every_stage[unknown-stt-usage1-audio_input_seconds-1.5] _
+
+stage = 'stt', usage = [('metrics.audio_seconds', 1.5)]
+unit = 'audio_input_seconds', count = '1.5', placeholder = 'unknown'
+
+    @pytest.mark.parametrize(
+        ("stage", "usage", "unit", "count"),
+        [
+            ("llm", [("gen_ai.usage.input_tokens", 40), ("gen_ai.usage.output_tokens", 5)], None, None),
+            ("stt", [("metrics.audio_seconds", 1.5)], "audio_input_seconds", "1.5"),
+            ("tts", [("metrics.character_count", 9)], "input_characters", 9),
+        ],
+    )
+    @pytest.mark.parametrize("placeholder", ["unknown", "NOT_GIVEN"])
+    def test_f1_placeholder_model_keeps_the_usage_of_every_stage(
+        stage: str, usage: list[tuple[str, Any]], unit: str | None, count: Any, placeholder: str
+    ) -> None:
+        """Decision 3 (M3): on an llm, stt or tts span the placeholder model is never stored and the
+        usage is kept with ``model`` None. One UsageRecord, the stage's own quantities, one
+        ``placeholder_value_ignored`` warning, no gap, the placeholder text in no record."""
+        doc = otlp_doc([_stage(stage, usage, model=placeholder), _turn()])
+        result = run_f1(doc)
+>       assert len(result.usage_records) == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = len(())
+E        +    where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16954-d2ba-76e3-8938-c382e30c3f22'), schema_versio..., field='/span_ref/value', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation=None, citation=None))).usage_records
+
+packages/evalschema/tests/test_mapping_followups.py:282: AssertionError
+_ test_f1_placeholder_model_keeps_the_usage_of_every_stage[unknown-tts-usage2-input_characters-9] _
+
+stage = 'tts', usage = [('metrics.character_count', 9)]
+unit = 'input_characters', count = 9, placeholder = 'unknown'
+
+    @pytest.mark.parametrize(
+        ("stage", "usage", "unit", "count"),
+        [
+            ("llm", [("gen_ai.usage.input_tokens", 40), ("gen_ai.usage.output_tokens", 5)], None, None),
+            ("stt", [("metrics.audio_seconds", 1.5)], "audio_input_seconds", "1.5"),
+            ("tts", [("metrics.character_count", 9)], "input_characters", 9),
+        ],
+    )
+    @pytest.mark.parametrize("placeholder", ["unknown", "NOT_GIVEN"])
+    def test_f1_placeholder_model_keeps_the_usage_of_every_stage(
+        stage: str, usage: list[tuple[str, Any]], unit: str | None, count: Any, placeholder: str
+    ) -> None:
+        """Decision 3 (M3): on an llm, stt or tts span the placeholder model is never stored and the
+        usage is kept with ``model`` None. One UsageRecord, the stage's own quantities, one
+        ``placeholder_value_ignored`` warning, no gap, the placeholder text in no record."""
+        doc = otlp_doc([_stage(stage, usage, model=placeholder), _turn()])
+        result = run_f1(doc)
+>       assert len(result.usage_records) == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = len(())
+E        +    where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16954-d2c1-7130-ab56-aa8924d66d14'), schema_versio..., field='/span_ref/value', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation=None, citation=None))).usage_records
+
+packages/evalschema/tests/test_mapping_followups.py:282: AssertionError
+_ test_f1_placeholder_model_keeps_the_usage_of_every_stage[NOT_GIVEN-llm-usage0-None-None] _
+
+stage = 'llm'
+usage = [('gen_ai.usage.input_tokens', 40), ('gen_ai.usage.output_tokens', 5)]
+unit = None, count = None, placeholder = 'NOT_GIVEN'
+
+    @pytest.mark.parametrize(
+        ("stage", "usage", "unit", "count"),
+        [
+            ("llm", [("gen_ai.usage.input_tokens", 40), ("gen_ai.usage.output_tokens", 5)], None, None),
+            ("stt", [("metrics.audio_seconds", 1.5)], "audio_input_seconds", "1.5"),
+            ("tts", [("metrics.character_count", 9)], "input_characters", 9),
+        ],
+    )
+    @pytest.mark.parametrize("placeholder", ["unknown", "NOT_GIVEN"])
+    def test_f1_placeholder_model_keeps_the_usage_of_every_stage(
+        stage: str, usage: list[tuple[str, Any]], unit: str | None, count: Any, placeholder: str
+    ) -> None:
+        """Decision 3 (M3): on an llm, stt or tts span the placeholder model is never stored and the
+        usage is kept with ``model`` None. One UsageRecord, the stage's own quantities, one
+        ``placeholder_value_ignored`` warning, no gap, the placeholder text in no record."""
+        doc = otlp_doc([_stage(stage, usage, model=placeholder), _turn()])
+        result = run_f1(doc)
+>       assert len(result.usage_records) == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = len(())
+E        +    where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16954-d2c8-71d1-9095-a34d25b44906'), schema_versio..., field='/span_ref/value', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation=None, citation=None))).usage_records
+
+packages/evalschema/tests/test_mapping_followups.py:282: AssertionError
+_ test_f1_placeholder_model_keeps_the_usage_of_every_stage[NOT_GIVEN-stt-usage1-audio_input_seconds-1.5] _
+
+stage = 'stt', usage = [('metrics.audio_seconds', 1.5)]
+unit = 'audio_input_seconds', count = '1.5', placeholder = 'NOT_GIVEN'
+
+    @pytest.mark.parametrize(
+        ("stage", "usage", "unit", "count"),
+        [
+            ("llm", [("gen_ai.usage.input_tokens", 40), ("gen_ai.usage.output_tokens", 5)], None, None),
+            ("stt", [("metrics.audio_seconds", 1.5)], "audio_input_seconds", "1.5"),
+            ("tts", [("metrics.character_count", 9)], "input_characters", 9),
+        ],
+    )
+    @pytest.mark.parametrize("placeholder", ["unknown", "NOT_GIVEN"])
+    def test_f1_placeholder_model_keeps_the_usage_of_every_stage(
+        stage: str, usage: list[tuple[str, Any]], unit: str | None, count: Any, placeholder: str
+    ) -> None:
+        """Decision 3 (M3): on an llm, stt or tts span the placeholder model is never stored and the
+        usage is kept with ``model`` None. One UsageRecord, the stage's own quantities, one
+        ``placeholder_value_ignored`` warning, no gap, the placeholder text in no record."""
+        doc = otlp_doc([_stage(stage, usage, model=placeholder), _turn()])
+        result = run_f1(doc)
+>       assert len(result.usage_records) == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = len(())
+E        +    where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16954-d2ce-7197-b8fe-3ea62827d3ef'), schema_versio..., field='/span_ref/value', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation=None, citation=None))).usage_records
+
+packages/evalschema/tests/test_mapping_followups.py:282: AssertionError
+_ test_f1_placeholder_model_keeps_the_usage_of_every_stage[NOT_GIVEN-tts-usage2-input_characters-9] _
+
+stage = 'tts', usage = [('metrics.character_count', 9)]
+unit = 'input_characters', count = 9, placeholder = 'NOT_GIVEN'
+
+    @pytest.mark.parametrize(
+        ("stage", "usage", "unit", "count"),
+        [
+            ("llm", [("gen_ai.usage.input_tokens", 40), ("gen_ai.usage.output_tokens", 5)], None, None),
+            ("stt", [("metrics.audio_seconds", 1.5)], "audio_input_seconds", "1.5"),
+            ("tts", [("metrics.character_count", 9)], "input_characters", 9),
+        ],
+    )
+    @pytest.mark.parametrize("placeholder", ["unknown", "NOT_GIVEN"])
+    def test_f1_placeholder_model_keeps_the_usage_of_every_stage(
+        stage: str, usage: list[tuple[str, Any]], unit: str | None, count: Any, placeholder: str
+    ) -> None:
+        """Decision 3 (M3): on an llm, stt or tts span the placeholder model is never stored and the
+        usage is kept with ``model`` None. One UsageRecord, the stage's own quantities, one
+        ``placeholder_value_ignored`` warning, no gap, the placeholder text in no record."""
+        doc = otlp_doc([_stage(stage, usage, model=placeholder), _turn()])
+        result = run_f1(doc)
+>       assert len(result.usage_records) == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = len(())
+E        +    where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16954-d2d4-73b2-927b-3989fddeaf3f'), schema_versio..., field='/span_ref/value', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation=None, citation=None))).usage_records
+
+packages/evalschema/tests/test_mapping_followups.py:282: AssertionError
+__ test_f1_usage_span_without_a_provider_is_malformed_and_a_blocking_gap[llm] __
+
+stage = 'llm'
+
+    @pytest.mark.parametrize("stage", sorted(USAGE_BY_STAGE))
+    def test_f1_usage_span_without_a_provider_is_malformed_and_a_blocking_gap(stage: str) -> None:
+        """Decision 5: a span that states usage but names no provider cannot be turned into a
+        UsageRecord (provider is required) and the usage would be lost silently, so: no UsageRecord,
+        exactly one ``malformed_entry`` warning whose path locates the span, and a BLOCKING gap row
+        (ADR 0018 Decision 3, like N76) of fixture F1 under the stage whose key is one of the usage
+        attributes of the span. Nothing raises; every other record is still produced."""
+        doc = otlp_doc([_stage(stage, USAGE_BY_STAGE[stage], provider=None), _turn()])
+        result = run_f1(doc)
+        assert result.usage_records == ()
+        flagged = [w for w in result.warnings if w.code == "malformed_entry"]
+        assert len(flagged) == 1
+        located = resolve_source(doc, flagged[0].path or "")
+        assert located["name"] == stage
+>       assert result.gaps
+E       AssertionError: assert ()
+E        +  where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16954-d2d9-765c-8e7b-bdc605595415'), schema_versio..., field='/span_ref/value', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation=None, citation=None))).gaps
+
+packages/evalschema/tests/test_mapping_followups.py:319: AssertionError
+__ test_f1_usage_span_without_a_provider_is_malformed_and_a_blocking_gap[stt] __
+
+stage = 'stt'
+
+    @pytest.mark.parametrize("stage", sorted(USAGE_BY_STAGE))
+    def test_f1_usage_span_without_a_provider_is_malformed_and_a_blocking_gap(stage: str) -> None:
+        """Decision 5: a span that states usage but names no provider cannot be turned into a
+        UsageRecord (provider is required) and the usage would be lost silently, so: no UsageRecord,
+        exactly one ``malformed_entry`` warning whose path locates the span, and a BLOCKING gap row
+        (ADR 0018 Decision 3, like N76) of fixture F1 under the stage whose key is one of the usage
+        attributes of the span. Nothing raises; every other record is still produced."""
+        doc = otlp_doc([_stage(stage, USAGE_BY_STAGE[stage], provider=None), _turn()])
+        result = run_f1(doc)
+        assert result.usage_records == ()
+        flagged = [w for w in result.warnings if w.code == "malformed_entry"]
+        assert len(flagged) == 1
+        located = resolve_source(doc, flagged[0].path or "")
+        assert located["name"] == stage
+>       assert result.gaps
+E       AssertionError: assert ()
+E        +  where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16954-d2f2-7065-869f-bac544bb77e0'), schema_versio..., field='/span_ref/value', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation=None, citation=None))).gaps
+
+packages/evalschema/tests/test_mapping_followups.py:319: AssertionError
+__ test_f1_usage_span_without_a_provider_is_malformed_and_a_blocking_gap[tts] __
+
+stage = 'tts'
+
+    @pytest.mark.parametrize("stage", sorted(USAGE_BY_STAGE))
+    def test_f1_usage_span_without_a_provider_is_malformed_and_a_blocking_gap(stage: str) -> None:
+        """Decision 5: a span that states usage but names no provider cannot be turned into a
+        UsageRecord (provider is required) and the usage would be lost silently, so: no UsageRecord,
+        exactly one ``malformed_entry`` warning whose path locates the span, and a BLOCKING gap row
+        (ADR 0018 Decision 3, like N76) of fixture F1 under the stage whose key is one of the usage
+        attributes of the span. Nothing raises; every other record is still produced."""
+        doc = otlp_doc([_stage(stage, USAGE_BY_STAGE[stage], provider=None), _turn()])
+        result = run_f1(doc)
+        assert result.usage_records == ()
+        flagged = [w for w in result.warnings if w.code == "malformed_entry"]
+        assert len(flagged) == 1
+        located = resolve_source(doc, flagged[0].path or "")
+        assert located["name"] == stage
+>       assert result.gaps
+E       AssertionError: assert ()
+E        +  where () = MappingResult(fixture='F1', records=(Exchange(id=ExchangeId('exc_01a16954-d2f7-7774-a5e8-12bae5509b55'), schema_versio..., field='/span_ref/value', sources=('/resourceSpans/0/scopeSpans/0/spans/0/spanId',), derivation=None, citation=None))).gaps
+
+packages/evalschema/tests/test_mapping_followups.py:319: AssertionError
+___________ test_f1_provider_less_span_does_not_hide_the_other_calls ___________
+
+    def test_f1_provider_less_span_does_not_hide_the_other_calls() -> None:
+        """The refusal is per span: a second llm span with a provider is still recorded."""
+        bad = _stage("llm", USAGE_BY_STAGE["llm"], provider=None)
+        good = _stage("llm", USAGE_BY_STAGE["llm"], span_id="c2c2c2c2c2c2c2c2")
+        result = run_f1(otlp_doc([bad, good, _turn()]))
+        assert [_quantities(r) for r in result.usage_records] == [
+            {"input_tokens": 40, "output_tokens": 5}
+        ]
+        assert _codes(result).count("malformed_entry") == 1
+>       assert result.gaps
+E       assert ([])
+
+packages/evalschema/tests/test_mapping_followups.py:351: AssertionError
+__ test_f1_hash_in_a_tool_argument_key_is_percent_encoded_in_chained_sources ___
+
+    """Decision 8: a tool call whose arguments object has a key that contains '#' (and one
+    nested): every source pointer of the argument leaves is chained
+    (``input`` attribute # tool_calls # arguments key path) and spells the '#' of the key as
+    ``%23``, so the pointer has exactly the chain's number of '#' separators and the independent
+    resolver reads the leaf back. The record keeps the key as written (``a#b``). The generic
+    no-fabrication check passes, which resolves every pointer of the result."""
+    arguments = json.dumps({"a#b": 1, "c": {"d#": "x"}, "e": [1, 2]})
+    messages = json.dumps(
+        [
+            {"role": "user", "content": "go"},
+            {
+                "role": "assistant",
+                "content": None,
+                "tool_calls": [
+                    {
+                        "id": "call-1",
+                        "type": "function",
+                        "function": {"name": "act", "arguments": arguments},
+                    }
+                ],
+            },
+        ]
+    )
+    llm = _stage("llm", [("input", messages)], provider="openai", model="m-1")
+    doc = otlp_doc([llm, _turn()])
+    result = run_f1(doc)
+    assert len(result.tool_calls) == 1
+    call = result.tool_calls[0]
+    assert call.arguments == {"a#b": 1, "c": {"d#": "x"}, "e": [1, 2]}
+    leaf_entries = {
+        e.field: e
+        for e in result.trace
+        if e.record == str(call.id) and e.field.startswith("/arguments/")
+    }
+    assert set(leaf_entries) == {
+        "/arguments/a#b",
+        "/arguments/c/d#",
+        "/arguments/e/0",
+        "/arguments/e/1",
+    }
+    expected_tail = {
+        "/arguments/a#b": "/a%23b",
+        "/arguments/c/d#": "/c/d%23",
+        "/arguments/e/0": "/e/0",
+        "/arguments/e/1": "/e/1",
+    }
+    for field, entry in leaf_entries.items():
+        assert len(entry.sources) == 1
+        parts = entry.sources[0].split("#")
+        assert len(parts) == 3, entry.sources[0]
+>       assert parts[2] == expected_tail[field]
+E       AssertionError: /resourceSpans/0/scopeSpans/0/spans/0/attributes/2/value/stringValue#/1/tool_calls/0/function/arguments#/a#b
+E       assert 4 == 3
+E        +  where 4 = len(['/resourceSpans/0/scopeSpans/0/spans/0/attributes/2/value/stringValue', '/1/tool_calls/0/function/arguments', '/a', 'b'])
+
+packages/evalschema/tests/test_mapping_followups.py:476: AssertionError
+____________ test_f4_hash_in_a_tool_argument_key_is_percent_encoded ____________
+
+    """Decision 8, applied to every pointer ('#' is the chain separator everywhere, so a raw '#'
+    in a key would be read as a separator even in an un-chained pointer): the F4 source pointer
+    of an argument leaf whose key contains '#' spells it ``%23`` and resolves."""
+    doc: list[dict[str, Any]] = [
+        {"role": "user", "content": "go"},
+        {"role": "tool_call", "name": "act", "arguments": {"a#b": 1}, "cancelled": False},
+    ]
+    result = run_f4(doc)
+    call = result.tool_calls[0]
+    entry = next(
+        e for e in result.trace if e.record == str(call.id) and e.field == "/arguments/a#b"
+    )
+    assert entry.sources == ("/1/arguments/a%23b",)
+>   assert resolve_source(doc, entry.sources[0]) == 1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: assert ('/1/arguments/a#b',) == ('/1/arguments/a%23b',)
+E     
+E     At index 0 diff: '/1/arguments/a#b' != '/1/arguments/a%23b'
+E     Use -v to get more diff
+
+packages/evalschema/tests/test_mapping_followups.py:503: AssertionError
+_ test_gap_register_has_no_row_for_a_gap_that_no_longer_exists[F1:tts.metrics.character_count] _
+
+key = 'F1:tts.metrics.character_count'
+
+    @pytest.mark.parametrize("key", sorted(RETIRED_ROWS))
+    def test_gap_register_has_no_row_for_a_gap_that_no_longer_exists(key: str) -> None:
+        """A register row names data the mapping loses. When the loss is gone the row must go too:
+        a stale row hides nothing but says the schema still lacks something it now has (and
+        ``KNOWN_SCHEMA_GAPS`` would carry it into P1-16). Both the full register and the
+        non-blocking list are checked."""
+        module = mapping("gap_register")
+>       assert [r for r in module.GAP_REGISTER if r.source_key == key] == [], RETIRED_ROWS[key]
+E       AssertionError: M3: UsageRecord.model is optional, so the tts character count is kept as a UsageRecord with no model and nothing is lost
+E       assert [GapRow(fixtu...a-architect')] == []
+E         
+E         Left contains one more item: GapRow(fixture='F1', source_key='F1:tts.metrics.character_count', classification='non-blocking', kind='lossy', reason=...red (M3). When UsageRecord.model becomes optional the count is kept and this row is removed", owner='schema-architect')
+E         Use -v to get more diff
+
+packages/evalschema/tests/test_mapping_no_fabrication.py:516: AssertionError
+_____________ test_policy_documents_low_entropy_digest_limitation ______________
+
+    def test_policy_documents_low_entropy_digest_limitation() -> None:
+        """ADR 0006 Decision 6 / I12, A-26: SCHEMA_POLICY.md states that a plain digest of a
+        low-entropy profile in internal data can be brute-forced, and that shared exports never
+        carry such a plain digest (they drop or key it). Gate-bound: green when P1-20a writes the
+        file."""
+>       text = _policy_text().lower()
+               ^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_persona_profile.py:346: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _policy_text() -> str:
+        candidates = [
+            PACKAGE_DIR / "SCHEMA_POLICY.md",
+            ROOT / "SCHEMA_POLICY.md",
+            ROOT / "docs" / "SCHEMA_POLICY.md",
+        ]
+        for path in candidates:
+            if path.is_file():
+                return path.read_text(encoding="utf-8")
+>       pytest.fail(
+            "SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of "
+            + ", ".join(str(p.relative_to(ROOT)) for p in candidates)
+        )
+E       Failed: SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of packages/evalschema/SCHEMA_POLICY.md, SCHEMA_POLICY.md, docs/SCHEMA_POLICY.md
+
+packages/evalschema/tests/test_persona_profile.py:335: Failed
+_______________ test_policy_documents_free_text_lint_limitation ________________
+
+    def test_policy_documents_free_text_lint_limitation() -> None:
+        """P-16 (ADR 0006 Decision 9, I21): SCHEMA_POLICY.md states that the free-text lint can only
+        find
+        values of the profile it is given, that personal data typed into free text that is in no
+        profile cannot be detected and stays the author's responsibility, and (revision 8) that
+        another format of the same value or a part of a value is not found. Gate-bound: green when
+        P1-20a writes the file."""
+>       flat = re.sub(r"\s+", " ", _policy_text().lower())
+                                   ^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_snapshot.py:656: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _policy_text() -> str:
+        candidates = [
+            PACKAGE_DIR / "SCHEMA_POLICY.md",
+            ROOT / "SCHEMA_POLICY.md",
+            ROOT / "docs" / "SCHEMA_POLICY.md",
+        ]
+        for path in candidates:
+            if path.is_file():
+                return path.read_text(encoding="utf-8")
+>       pytest.fail(
+            "SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of "
+            + ", ".join(str(p.relative_to(ROOT)) for p in candidates)
+        )
+E       Failed: SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of packages/evalschema/SCHEMA_POLICY.md, SCHEMA_POLICY.md, docs/SCHEMA_POLICY.md
+
+packages/evalschema/tests/test_snapshot.py:643: Failed
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_cost.py::test_policy_documents_reported_cost_without_usage_limitation
+FAILED packages/evalschema/tests/test_ids.py::test_every_entity_has_registered_prefix
+FAILED packages/evalschema/tests/test_mapping_f1.py::test_f1_llm_usage_to_usage_record[en]
+FAILED packages/evalschema/tests/test_mapping_f1.py::test_f1_llm_usage_to_usage_record[en_tool]
+FAILED packages/evalschema/tests/test_mapping_f1.py::test_f1_llm_usage_to_usage_record[hi]
+FAILED packages/evalschema/tests/test_mapping_f1.py::test_f1_placeholder_model_is_not_a_model_name[unknown]
+FAILED packages/evalschema/tests/test_mapping_f1.py::test_f1_placeholder_model_is_not_a_model_name[NOT_GIVEN]
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f4_cancelled_status_is_a_cited_documented_derivation
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum[values0-0.3]
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum[values1-1.75]
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum[values2-0.6]
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum[values3-5]
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum[values4-0.08]
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_placeholder_model_keeps_the_usage_of_every_stage[unknown-llm-usage0-None-None]
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_placeholder_model_keeps_the_usage_of_every_stage[unknown-stt-usage1-audio_input_seconds-1.5]
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_placeholder_model_keeps_the_usage_of_every_stage[unknown-tts-usage2-input_characters-9]
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_placeholder_model_keeps_the_usage_of_every_stage[NOT_GIVEN-llm-usage0-None-None]
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_placeholder_model_keeps_the_usage_of_every_stage[NOT_GIVEN-stt-usage1-audio_input_seconds-1.5]
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_placeholder_model_keeps_the_usage_of_every_stage[NOT_GIVEN-tts-usage2-input_characters-9]
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_usage_span_without_a_provider_is_malformed_and_a_blocking_gap[llm]
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_usage_span_without_a_provider_is_malformed_and_a_blocking_gap[stt]
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_usage_span_without_a_provider_is_malformed_and_a_blocking_gap[tts]
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_provider_less_span_does_not_hide_the_other_calls
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f1_hash_in_a_tool_argument_key_is_percent_encoded_in_chained_sources
+FAILED packages/evalschema/tests/test_mapping_followups.py::test_f4_hash_in_a_tool_argument_key_is_percent_encoded
+FAILED packages/evalschema/tests/test_mapping_no_fabrication.py::test_gap_register_has_no_row_for_a_gap_that_no_longer_exists[F1:tts.metrics.character_count]
+FAILED packages/evalschema/tests/test_persona_profile.py::test_policy_documents_low_entropy_digest_limitation
+FAILED packages/evalschema/tests/test_snapshot.py::test_policy_documents_free_text_lint_limitation
+28 failed, 1947 passed in 59.60s

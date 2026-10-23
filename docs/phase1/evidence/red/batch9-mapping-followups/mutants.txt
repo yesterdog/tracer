@@ -1,0 +1,21 @@
+# batch 9 mutants: single-change mutants of the throwaway oracle converters (scratchpad copy, outside the repo).
+# Each run: test_mapping_followups.py, test_mapping_f1.py, test_mapping_no_fabrication.py, test_mapping_f4_f7.py (pytest -x). killed = at least one test failed.
+cancelled constant (status via constant:cancelled)          killed
+cancelled no citation on the trace entry                    killed
+cancelled citation without statement                        killed
+cancelled citation with empty url                           killed
+decimal merge sums floats (0.1 + 0.2)                       killed
+merge without any citation                                  killed
+decimal merge refused even with a citation                  killed
+placeholder model stored as model                           killed
+provider-less usage span: no gap row                        killed
+provider-less usage span: non-blocking gap row              killed
+provider-less usage span: no malformed_entry warning        killed
+provider-less span without usage: gap row anyway            killed
+duplicate turn.number keeps the second span                 killed
+duplicate turn.number: no duplicate_turn_number warning     killed
+turn span without number: silent                            killed
+'#' in a key not percent-encoded in chained sources         killed
+model-less usage dropped (old M3 behaviour)                 killed
+stale register row F1:tts.metrics.character_count kept      killed
+18 of 18 killed (mut.py ran 17 mutants; mut2.py re-ran the empty-statement, empty-url and non-blocking-gap mutants individually because the first run could not show they failed for the right reason). Each run stops at the first failure.

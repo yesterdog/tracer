@@ -26,6 +26,7 @@ from .common import (
     pointer,
     raw_text,
     scalar_leaves,
+    source_token_safe,
 )
 
 __all__ = ["PROVENANCE_TABLE", "map_f4"]
@@ -41,6 +42,15 @@ OBSERVER_CITATION = Citation(
         "ConversationObserver (pipecat-ai 1.13.0): each side's turn is what the context "
         "aggregators write to the LLM context, so the stage of both user and assistant turns is "
         "the conversation context."
+    ),
+)
+CANCELLED_CITATION = Citation(
+    url=("https://github.com/pipecat-ai/pipecat/blob/v1.13.0/src/pipecat/evals/conversation.py"),
+    retrieved_at=RETRIEVED,
+    statement=(
+        "Conversation (pipecat-ai 1.13.0): a tool_call message carries cancelled false when "
+        "added, and the observer sets it to true when the call's cancel frame arrives, so true "
+        "means the call was cancelled."
     ),
 )
 _ROLES = {"user": "caller", "assistant": "agent"}
@@ -139,7 +149,7 @@ def _tool_call(rec: Recorder, message: Mapping[str, Any], index: int, seq: int) 
         "arguments",
         arguments,
         *(
-            Leg("/arguments" + leaf, (where + "/arguments" + leaf,), None)
+            Leg("/arguments" + leaf, (where + "/arguments" + source_token_safe(leaf),), None)
             for leaf, _ in scalar_leaves(arguments)
         ),
     )
@@ -148,7 +158,11 @@ def _tool_call(rec: Recorder, message: Mapping[str, Any], index: int, seq: int) 
         True,
         Leg("/arguments_complete", (where + "/arguments",), "source_is_json_object"),
     )
-    draft.set("status", status, Leg("/status", status_sources, f"constant:{status}"))
+    if status == "cancelled":
+        status_leg = Leg("/status", status_sources, "documented_cancelled_flag", CANCELLED_CITATION)
+    else:
+        status_leg = Leg("/status", status_sources, f"constant:{status}")
+    draft.set("status", status, status_leg)
     draft.set("seq", seq, Leg("/seq", (where + "/role",), "order_index"))
     draft.set("source", "observer", Leg("/source", (where + "/role",), "constant:observer"))
     return 1 if rec.commit(draft, where=where) is not None else 0
@@ -224,10 +238,11 @@ PROVENANCE_TABLE: tuple[TableRow, ...] = (
     _row("ToolCallEvent.result_raw", "absent", None, None, "the file holds no tool results"),
     _row(
         "ToolCallEvent.status",
-        "constant",
+        "derivation",
         "cancelled",
-        "constant:cancelled",
-        "cancelled is true",
+        "documented_cancelled_flag",
+        "cancelled is true, which the observer sets when the call is cancelled",
+        CANCELLED_CITATION,
     ),
     _row(
         "ToolCallEvent.status",

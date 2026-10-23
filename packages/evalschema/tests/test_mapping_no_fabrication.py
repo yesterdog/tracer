@@ -478,7 +478,6 @@ REQUIRED_ROWS = {
     "F1:turn.turn.user_bot_latency_seconds": "the pre-computed user-bot latency has no target (M7)",
     "F1:stt.language": "detected-or-configured language is not an observation (M2)",
     "F1:llm.gen_ai.request.top_k": "NOT_GIVEN sentinel, nothing to map",
-    "F1:tts.metrics.character_count": "usage not recorded: the span names no model (M3)",
     "F4:assistant.content": "bot turns with no speech are not in the file (absent_in_source)",
     "F4:tool_call.@position": "the position of a tool call between turns has no target",
     "F7:*.@harness_observed_at_utc": "harness clock, not Pipecat time",
@@ -496,6 +495,26 @@ def test_gap_register_names_the_known_real_data_findings(key: str) -> None:
     assert rows[0].classification in GAP_CLASSES
     if key == "F4:assistant.content":
         assert rows[0].kind == "absent_in_source"
+
+
+# Rows that were registered once and are gone because the gap they named no longer exists.
+RETIRED_ROWS = {
+    "F1:tts.metrics.character_count": (
+        "M3: UsageRecord.model is optional, so the tts character count is kept as a UsageRecord "
+        "with no model and nothing is lost"
+    ),
+}
+
+
+@pytest.mark.parametrize("key", sorted(RETIRED_ROWS))
+def test_gap_register_has_no_row_for_a_gap_that_no_longer_exists(key: str) -> None:
+    """A register row names data the mapping loses. When the loss is gone the row must go too:
+    a stale row hides nothing but says the schema still lacks something it now has (and
+    ``KNOWN_SCHEMA_GAPS`` would carry it into P1-16). Both the full register and the
+    non-blocking list are checked."""
+    module = mapping("gap_register")
+    assert [r for r in module.GAP_REGISTER if r.source_key == key] == [], RETIRED_ROWS[key]
+    assert [r for r in module.KNOWN_SCHEMA_GAPS if r.source_key == key] == []
 
 
 # ============================================================================ tables

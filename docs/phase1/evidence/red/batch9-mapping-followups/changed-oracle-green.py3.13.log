@@ -1,0 +1,66 @@
+# group: changed   (batch 9 mapping follow-ups: A1 pinned reason, covers enum, M3 mapping tests, decisions 1,2,3,5,7,8; mode oracle-green; qa)
+# date: 2026-10-23T15:15:57Z (UTC)
+# command: <scratchpad>/venv3.13/bin/python -m pytest -p no:cacheprovider -v packages/evalschema/tests/test_mapping_followups.py packages/evalschema/tests/test_mapping_f1.py::test_f1_llm_usage_to_usage_record packages/evalschema/tests/test_mapping_f1.py::test_f1_placeholder_model_is_not_a_model_name packages/evalschema/tests/test_mapping_no_fabrication.py::test_gap_register_has_no_row_for_a_gap_that_no_longer_exists packages/evalschema/tests/test_mapping_no_fabrication.py::test_gap_register_names_the_known_real_data_findings packages/evalschema/tests/test_cost_compute.py::test_mixed_model_and_modelless_usage_is_never_a_partial_sum packages/evalschema/tests/test_sealed_payload.py::test_redaction_covers_each_payload_kind_separately   (cwd <scratchpad>/b9/repo (oracle copy); PYTHONPATH=~/tracer/packages/evalschema/src)
+# interpreter: <scratchpad>/venv3.13/bin/python
+# versions: python 3.13.15; pydantic 2.14.1; pytest 9.1.1; jsonschema 4.26.0; hypothesis 6.170.5
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# code under test: scratch copy of the repository whose converters carry a throwaway oracle patch (scratchpad, outside the working tree)
+# ------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.13.15, pytest-9.1.1, pluggy-1.7.0 -- <scratchpad>/venv3.13/bin/python
+hypothesis profile 'default'
+rootdir: <scratchpad>/b9/repo
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collecting ... collected 48 items
+
+packages/evalschema/tests/test_mapping_followups.py::test_f4_cancelled_status_is_a_cited_documented_derivation PASSED [  2%]
+packages/evalschema/tests/test_mapping_followups.py::test_f4_not_cancelled_flag_is_not_derived_as_cancelled PASSED [  4%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum[values0-0.3] PASSED [  6%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum[values1-1.75] PASSED [  8%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum[values2-0.6] PASSED [ 10%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum[values3-5] PASSED [ 12%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_audio_seconds_merge_to_the_exact_decimal_sum[values4-0.08] PASSED [ 14%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_character_counts_merge_to_the_integer_sum PASSED [ 16%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_audio_seconds_without_a_complete_citation_is_refused_as_n76[0] PASSED [ 18%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_audio_seconds_without_a_complete_citation_is_refused_as_n76[1] PASSED [ 20%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_audio_seconds_without_a_complete_citation_is_refused_as_n76[2] PASSED [ 22%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_audio_seconds_without_a_complete_citation_is_refused_as_n76[3] PASSED [ 25%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_repeated_audio_seconds_without_a_complete_citation_is_refused_as_n76[4] PASSED [ 27%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_placeholder_model_keeps_the_usage_of_every_stage[unknown-llm-usage0-None-None] PASSED [ 29%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_placeholder_model_keeps_the_usage_of_every_stage[unknown-stt-usage1-audio_input_seconds-1.5] PASSED [ 31%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_placeholder_model_keeps_the_usage_of_every_stage[unknown-tts-usage2-input_characters-9] PASSED [ 33%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_placeholder_model_keeps_the_usage_of_every_stage[NOT_GIVEN-llm-usage0-None-None] PASSED [ 35%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_placeholder_model_keeps_the_usage_of_every_stage[NOT_GIVEN-stt-usage1-audio_input_seconds-1.5] PASSED [ 37%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_placeholder_model_keeps_the_usage_of_every_stage[NOT_GIVEN-tts-usage2-input_characters-9] PASSED [ 39%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_usage_span_without_a_provider_is_malformed_and_a_blocking_gap[llm] PASSED [ 41%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_usage_span_without_a_provider_is_malformed_and_a_blocking_gap[stt] PASSED [ 43%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_usage_span_without_a_provider_is_malformed_and_a_blocking_gap[tts] PASSED [ 45%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_span_without_provider_and_without_usage_loses_nothing[llm] PASSED [ 47%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_span_without_provider_and_without_usage_loses_nothing[stt] PASSED [ 50%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_span_without_provider_and_without_usage_loses_nothing[tts] PASSED [ 52%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_provider_less_span_does_not_hide_the_other_calls PASSED [ 54%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_duplicate_turn_number_keeps_the_first_span_and_warns PASSED [ 56%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_turn_span_without_an_integer_number_is_malformed[missing] PASSED [ 58%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_turn_span_without_an_integer_number_is_malformed[text] PASSED [ 60%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_turn_span_without_an_integer_number_is_malformed[empty-text] PASSED [ 62%]
+packages/evalschema/tests/test_mapping_followups.py::test_resolver_reads_a_percent_encoded_hash_in_a_key PASSED [ 64%]
+packages/evalschema/tests/test_mapping_followups.py::test_f1_hash_in_a_tool_argument_key_is_percent_encoded_in_chained_sources PASSED [ 66%]
+packages/evalschema/tests/test_mapping_followups.py::test_f4_hash_in_a_tool_argument_key_is_percent_encoded PASSED [ 68%]
+packages/evalschema/tests/test_mapping_f1.py::test_f1_llm_usage_to_usage_record[en] PASSED [ 70%]
+packages/evalschema/tests/test_mapping_f1.py::test_f1_llm_usage_to_usage_record[en_tool] PASSED [ 72%]
+packages/evalschema/tests/test_mapping_f1.py::test_f1_llm_usage_to_usage_record[hi] PASSED [ 75%]
+packages/evalschema/tests/test_mapping_f1.py::test_f1_placeholder_model_is_not_a_model_name[unknown] PASSED [ 77%]
+packages/evalschema/tests/test_mapping_f1.py::test_f1_placeholder_model_is_not_a_model_name[NOT_GIVEN] PASSED [ 79%]
+packages/evalschema/tests/test_mapping_no_fabrication.py::test_gap_register_has_no_row_for_a_gap_that_no_longer_exists[F1:tts.metrics.character_count] PASSED [ 81%]
+packages/evalschema/tests/test_mapping_no_fabrication.py::test_gap_register_names_the_known_real_data_findings[F1:llm.gen_ai.request.top_k] PASSED [ 83%]
+packages/evalschema/tests/test_mapping_no_fabrication.py::test_gap_register_names_the_known_real_data_findings[F1:stt.language] PASSED [ 85%]
+packages/evalschema/tests/test_mapping_no_fabrication.py::test_gap_register_names_the_known_real_data_findings[F1:turn.turn.user_bot_latency_seconds] PASSED [ 87%]
+packages/evalschema/tests/test_mapping_no_fabrication.py::test_gap_register_names_the_known_real_data_findings[F3:response.language_code] PASSED [ 89%]
+packages/evalschema/tests/test_mapping_no_fabrication.py::test_gap_register_names_the_known_real_data_findings[F4:assistant.content] PASSED [ 91%]
+packages/evalschema/tests/test_mapping_no_fabrication.py::test_gap_register_names_the_known_real_data_findings[F4:tool_call.@position] PASSED [ 93%]
+packages/evalschema/tests/test_mapping_no_fabrication.py::test_gap_register_names_the_known_real_data_findings[F7:*.@harness_observed_at_utc] PASSED [ 95%]
+packages/evalschema/tests/test_cost_compute.py::test_mixed_model_and_modelless_usage_is_never_a_partial_sum PASSED [ 97%]
+packages/evalschema/tests/test_sealed_payload.py::test_redaction_covers_each_payload_kind_separately PASSED [100%]
+
+============================== 48 passed in 0.98s ==============================

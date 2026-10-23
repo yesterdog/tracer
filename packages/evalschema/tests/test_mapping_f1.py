@@ -364,8 +364,10 @@ def test_f1_llm_usage_to_usage_record(scenario: str) -> None:
     counts, the stt ``metrics.audio_seconds`` as audio_input_seconds (a canonical decimal string
     from the printed number, never a float; P, M5). ``occurred_at`` is the span start, the
     provider and model are the span's, ``raw`` keeps the usage attributes as received, ``run_id``
-    is the one passed in. tts spans of the captures name the Pipecat placeholder model 'unknown',
-    so they give no UsageRecord (P, M3)."""
+    is the one passed in. tts spans of the captures name the Pipecat placeholder model 'unknown'
+    and state a character count: each gives an ``input_characters`` UsageRecord with the model
+    absent (None), never the placeholder (M3 decided: UsageRecord.model is optional; this
+    replaces the earlier reading 'no UsageRecord for a placeholder model')."""
     doc = f1_doc(scenario)
     run_id = new_run_id()
     result = run_f1(doc, run_id=run_id)
@@ -393,7 +395,19 @@ def test_f1_llm_usage_to_usage_record(scenario: str) -> None:
             "audio_input_seconds": str(Decimal(repr(a["metrics.audio_seconds"])))
         }
         assert match.raw == {"metrics.audio_seconds": a["metrics.audio_seconds"]}
-    assert not [r for r in records if r.stage == "tts"]
+    tts_spans = [s for s in spans_named(doc, "tts") if "metrics.character_count" in attrs(s)]
+    assert tts_spans, "the captures state a character count on every tts span"
+    tts_records = [r for r in records if r.stage == "tts"]
+    assert len(tts_records) == len(tts_spans)
+    for span in tts_spans:
+        a = attrs(span)
+        match = next(r for r in tts_records if _same_start(r, span))
+        assert match.provider == a["gen_ai.provider.name"]
+        assert a["gen_ai.request.model"] == "unknown"
+        assert match.model is None
+        assert quantities(match) == {"input_characters": a["metrics.character_count"]}
+        assert match.raw == {"metrics.character_count": a["metrics.character_count"]}
+    assert '"unknown"' not in json.dumps([r.model_dump(mode="json") for r in records])
     assert all(isinstance(c, (int, str)) for r in records for c in quantities(r).values())
 
 
@@ -578,9 +592,11 @@ def test_f1_tts_with_a_named_model_gives_character_usage() -> None:
 def test_f1_placeholder_model_is_not_a_model_name(placeholder: str) -> None:
     """P (M3): 'unknown' and 'NOT_GIVEN' are Pipecat's own placeholders for a missing value
     (``_get_model_name`` and the settings dump). They are never stored as a model: StageSpan.model
-    stays empty and a warning ``placeholder_value_ignored`` quotes the attribute. A UsageRecord
-    needs a stated model, so the span's usage is not recorded (the loss is a non-blocking gap row
-    in the register, with the schema change that would keep it named in the contract)."""
+    stays empty and one warning ``placeholder_value_ignored`` quotes the attribute. M3 (decided,
+    replaces the earlier 'usage is not recorded'): UsageRecord.model is optional, so the span's
+    character count is kept as exactly one stage=tts UsageRecord with ``model`` None (not the
+    placeholder), quantity ``input_characters`` 5 and ``raw`` the usage attribute as received; no
+    gap row remains for it."""
     tts = otlp_span(
         "tts",
         "d1d1d1d1d1d1d1d1",
@@ -595,7 +611,16 @@ def test_f1_placeholder_model_is_not_a_model_name(placeholder: str) -> None:
     doc = doc_of(tts)
     result = run_f1(doc)
     assert [s.model for s in result.stage_spans] == [None]
-    assert result.usage_records == ()
+    assert len(result.usage_records) == 1
+    usage = result.usage_records[0]
+    assert usage.stage == "tts"
+    assert usage.provider == "kokoro"
+    assert usage.model is None
+    assert quantities(usage) == {"input_characters": 5}
+    assert usage.raw == {"metrics.character_count": 5}
+    assert "model" not in usage.model_dump(mode="json", exclude_none=True)
+    assert result.gaps == ()
+    check_records_valid(result)
     warnings = [w for w in result.warnings if w.code == "placeholder_value_ignored"]
     assert len(warnings) == 1
     assert warnings[0].raw == placeholder

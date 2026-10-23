@@ -13,6 +13,7 @@ that continues inside the text of an attribute is chained with ``#``.
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from decimal import Decimal
@@ -544,21 +545,29 @@ def _usage(rec: Recorder, span: _Span, run_id: Any, merge_citation: Citation | N
         )
 
 
-def _usage_header(rec: Recorder, span: _Span, run_id: Any) -> Draft | None:
-    """The fields every usage record of a span shares, or ``None`` when the span names no provider
-    or no model (a placeholder is no model).
+_USAGE_KEYS = {
+    "llm": tuple(key for key, _ in _TOKEN_UNITS),
+    "stt": ("metrics.audio_seconds",),
+    "tts": ("metrics.character_count",),
+}
 
-    M3 (decided, pending): UsageRecord.model becomes optional. Then a span whose model is
-    missing keeps its usage with the model absent, and this function returns the draft without
-    the model instead of ``None``."""
+
+def _usage_header(rec: Recorder, span: _Span, run_id: Any) -> Draft | None:
+    """The fields every usage record of a span shares, or ``None`` when the span names no
+    provider (the usage it states is then lost: a warning and a blocking gap row per usage key).
+    A missing or placeholder model is left unset (M3)."""
     provider = span.string("gen_ai.provider.name")
     model = _model(rec, span)
     if provider is None:
-        rec.warn(
-            "malformed_entry", "usage is not recorded: the span names no provider", path=span.base
-        )
-        return None
-    if model is None:
+        stated = [key for key in _USAGE_KEYS.get(span.name or "", ()) if span.all(key)]
+        if stated:
+            rec.warn(
+                "malformed_entry",
+                "usage is not recorded: the span names no provider",
+                path=span.base,
+            )
+            for key in stated:
+                rec.gap(_gap(span.name, key, "the span states usage and names no provider"))
         return None
     name_path = f"{span.base}/name"
     draft = Draft(UsageRecord, {"run_id": run_id})
@@ -567,7 +576,8 @@ def _usage_header(rec: Recorder, span: _Span, run_id: Any) -> Draft | None:
     )
     draft.set("stage", span.name, Leg("/stage", (name_path,), "span_name_to_stage"))
     draft.set("provider", provider.value, Leg("/provider", (provider.vptr,)))
-    draft.set("model", model.value, Leg("/model", (model.vptr,)))
+    if model is not None:
+        draft.set("model", model.value, Leg("/model", (model.vptr,)))
     draft.set("source", "telemetry", Leg("/source", (name_path,), "constant:telemetry"))
     _instant(rec, draft, "occurred_at", "/occurred_at", span, span.start, "startTimeUnixNano")
     return draft
@@ -623,7 +633,7 @@ def _single_usage(
     sources = tuple(a.vptr for a in attrs)
     citation: Citation | None = None
     if len(attrs) > 1:
-        if not (integer_unit and _complete(merge_citation)):
+        if not _complete(merge_citation):
             rec.warn(
                 "usage_quantities_not_merged",
                 "the usage attribute is repeated in one span and nothing allows summing it; no "
@@ -638,7 +648,11 @@ def _single_usage(
                 )
             )
             return
-        count: Any = sum(int(a.integer() or 0) for a in attrs)
+        count: Any
+        if integer_unit:
+            count = sum(int(a.integer() or 0) for a in attrs)
+        else:
+            count = _canonical_decimal(sum((Decimal(repr(a.number())) for a in attrs), Decimal(0)))
         derivation, citation = "merged_one_billable_event", merge_citation
     elif integer_unit:
         count, derivation = attrs[0].integer(), "otlp_int_to_int"
@@ -661,12 +675,25 @@ def _single_usage(
     rec.commit(header, where=span.base)
 
 
+_DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
+
+
 def _complete(citation: Citation | None) -> bool:
-    return citation is not None and bool(citation.url) and bool(citation.retrieved_at)
+    return (
+        citation is not None
+        and citation.url is not None
+        and citation.url.startswith("https://")
+        and _DATE.fullmatch(citation.retrieved_at or "") is not None
+        and bool(citation.statement.strip())
+    )
 
 
 def _decimal_string(number: float) -> str:
-    text = format(Decimal(repr(number)), "f")
+    return _canonical_decimal(Decimal(repr(number)))
+
+
+def _canonical_decimal(value: Decimal) -> str:
+    text = format(value, "f")
     return text.rstrip("0").rstrip(".") if "." in text else text
 
 

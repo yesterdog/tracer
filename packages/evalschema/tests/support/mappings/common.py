@@ -45,6 +45,7 @@ __all__ = [
     "pointer",
     "raw_text",
     "scalar_leaves",
+    "source_token_safe",
     "unix_nano_to_utc_us",
 ]
 
@@ -151,9 +152,16 @@ def pointer(*tokens: str | int) -> str:
     return "".join("/" + _token(str(t)) for t in tokens)
 
 
+def source_token_safe(pointer_text: str) -> str:
+    """A pointer of the record side as a part of a source pointer: '#' separates the parts of a
+    chain, so a '#' inside a key is written ``%23`` and a literal '%' is written ``%25``."""
+    return pointer_text.replace("%", "%25").replace("#", "%23")
+
+
 def chain(*parts: str) -> str:
-    """A source pointer that continues inside a JSON text: ``ptr#ptr2#ptr3``."""
-    return "#".join(parts)
+    """A source pointer that continues inside a JSON text: ``ptr#ptr2#ptr3``. The parts after
+    the first are encoded with ``source_token_safe``; the first is already a source pointer."""
+    return "#".join((parts[0], *(source_token_safe(p) for p in parts[1:]))) if parts else ""
 
 
 def scalar_leaves(value: Any) -> Iterator[tuple[str, Any]]:

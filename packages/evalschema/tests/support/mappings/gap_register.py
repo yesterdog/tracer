@@ -47,14 +47,6 @@ GAP_REGISTER: tuple[GapRow, ...] = (
         "told from the configured value and is not stored as an observed tag (M2)",
     ),
     _row(
-        "F1:tts.metrics.character_count",
-        "lossy",
-        "schema-architect",
-        "the tts span names the Pipecat placeholder model 'unknown', and UsageRecord.model is "
-        "required, so no usage record is built and the character count is not stored (M3). When "
-        "UsageRecord.model becomes optional the count is kept and this row is removed",
-    ),
-    _row(
         "F1:llm.gen_ai.request.top_k",
         "unmapped",
         "dev",

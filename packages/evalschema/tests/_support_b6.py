@@ -130,6 +130,7 @@ CITATION_DERIVATIONS: frozenset[str] = frozenset(
         "merged_one_billable_event",
         "placeholder_sentinel_ignored",
         "documented_conversation_stage",
+        "documented_cancelled_flag",
     }
 )
 
@@ -397,7 +398,9 @@ def wav_fields(data: bytes) -> dict[str, Any]:
 
 
 def _unescape(token: str) -> str:
-    return token.replace("~1", "/").replace("~0", "~")
+    """RFC 6901 unescaping, after the percent-decoding of ``%23``: a literal '#' inside a key is
+    written ``%23`` because '#' is the chain separator of a source pointer (batch 9, decision 8)."""
+    return token.replace("%23", "#").replace("~1", "/").replace("~0", "~")
 
 
 def _walk(node: Any, pointer: str) -> Any:
@@ -473,11 +476,15 @@ def _seconds_to_ms_floor(args: tuple[Any, ...]) -> int:
     return int((_decimal_of(args[0]) * 1000).to_integral_value(rounding=ROUND_FLOOR))
 
 
-def _float_to_decimal_string(args: tuple[Any, ...]) -> str:
-    text = format(_decimal_of(args[0]), "f")
+def _canonical_decimal(value: Decimal) -> str:
+    text = format(value, "f")
     if "." in text:
         text = text.rstrip("0").rstrip(".")
     return text
+
+
+def _float_to_decimal_string(args: tuple[Any, ...]) -> str:
+    return _canonical_decimal(_decimal_of(args[0]))
 
 
 def _gross_minus_cache(args: tuple[Any, ...]) -> int:
@@ -500,6 +507,13 @@ def _channel_role(expected_channels: int, role: str) -> Callable[[tuple[Any, ...
 def _wav_codec(args: tuple[Any, ...]) -> str:
     assert args == (1, 16), "only 16-bit integer PCM is mapped"
     return "pcm_s16le"
+
+
+def _cancelled_flag(args: tuple[Any, ...]) -> str:
+    """AMB-1 (batch 9): ``cancelled: true`` is the observer's documented statement that the call
+    was cancelled; any other value is not a cancellation and is never derived from here."""
+    assert args == (True,), "documented only for the boolean true"
+    return "cancelled"
 
 
 def _provider_from_endpoint(args: tuple[Any, ...]) -> str:
@@ -543,6 +557,7 @@ DERIVATIONS: dict[str, Callable[[tuple[Any, ...]], Any] | None] = {
     "lone_surrogate_replaced": lambda a: _SURROGATES.sub("\ufffd", str(a[0])),
     "documented_start_of_turn": lambda a: "start",
     "documented_conversation_stage": lambda a: "agent_context",
+    "documented_cancelled_flag": _cancelled_flag,
     "iso_offset_to_utc_us": _iso_to_utc_us,
     "tool_status_from_context_message": None,
     "source_is_json_object": None,
@@ -560,6 +575,11 @@ def _derive(name: str, sources: tuple[Any, ...], target: Any) -> tuple[bool, Any
         expected = name.removeprefix("constant:")
         return (str(target) == expected, expected)
     assert name in DERIVATIONS, f"derivation {name!r} is not in the pinned set"
+    if name == "merged_one_billable_event" and isinstance(target, str):
+        # AMB-2 (batch 9): a Decimal unit (audio seconds) is the exact decimal sum of the printed
+        # numbers, stored as a canonical decimal string; a count unit stays an integer sum.
+        total = sum((_decimal_of(x) for x in sources), Decimal(0))
+        return (_canonical_decimal(total) == target, _canonical_decimal(total))
     fn = DERIVATIONS[name]
     if fn is None:
         return (True, target)

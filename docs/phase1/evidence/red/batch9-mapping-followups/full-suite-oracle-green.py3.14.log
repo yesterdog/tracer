@@ -1,0 +1,399 @@
+# group: full-suite (oracle copy, same exclusions as the red log); mode oracle-green; qa
+# date: 2026-10-23T15:18:32Z (UTC)
+# command: <scratchpad>/venv3.14/bin/python -m pytest -p no:cacheprovider -q (bundle files ignored)   (cwd <scratchpad>/b9/repo, a copy of the repository whose converters carry a throwaway oracle patch; PYTHONPATH=~/tracer/packages/evalschema/src)
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# note: the 8 test_repo_contract.py failures are an artifact of the scratch copy (it has no .github, .gitignore, LICENSE tree); the other 4 are the known registry (RunBundle/ExportBundle) and 3 policy-doc tests. Every test of this batch passes.
+# ------------------------------------------------------------------------------
+........................................................................ [  3%]
+........................................................................ [  7%]
+..............................F......................................... [ 10%]
+........................................................................ [ 14%]
+........................................................................ [ 18%]
+........................................................................ [ 21%]
+.........F.............................................................. [ 25%]
+........................................................................ [ 29%]
+........................................................................ [ 32%]
+........................................................................ [ 36%]
+........................................................................ [ 40%]
+........................................................................ [ 43%]
+........................................................................ [ 47%]
+........................................................................ [ 51%]
+........................................................................ [ 54%]
+................................F....................................... [ 58%]
+........................................................................ [ 61%]
+........................................................................ [ 65%]
+......................................FFFFF.FF....F..................... [ 69%]
+........................................................................ [ 72%]
+........................................................................ [ 76%]
+........................................................................ [ 80%]
+........................................................................ [ 83%]
+........................................................................ [ 87%]
+..............................................F......................... [ 91%]
+........................................................................ [ 94%]
+........................................................................ [ 98%]
+...............................                                          [100%]
+=================================== FAILURES ===================================
+_________ test_policy_documents_reported_cost_without_usage_limitation _________
+
+    def test_policy_documents_reported_cost_without_usage_limitation() -> None:
+        """P1-20a, N51 remainder (a) (api-surface 23.6 group R item 3; red until SCHEMA_POLICY.md
+        exists, like the two existing policy-document tests): SCHEMA_POLICY.md states that a reported
+        cost without usage records shares no usage in summaries, so a double count with a computed
+        record for the same call is not detected, and that importers must link usage whenever the
+        source identifies it. Gate-bound."""
+        candidates = [
+            PACKAGE_DIR / "SCHEMA_POLICY.md",
+            ROOT / "SCHEMA_POLICY.md",
+            ROOT / "docs" / "SCHEMA_POLICY.md",
+        ]
+        text = ""
+        for path in candidates:
+            if path.is_file():
+                text = path.read_text(encoding="utf-8")
+                break
+        else:
+>           pytest.fail(
+                "SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of "
+                + ", ".join(str(c) for c in candidates)
+            )
+E           Failed: SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of <scratchpad>/b9/repo/packages/evalschema/SCHEMA_POLICY.md, <scratchpad>/b9/repo/SCHEMA_POLICY.md, <scratchpad>/b9/repo/docs/SCHEMA_POLICY.md
+
+packages/evalschema/tests/test_cost.py:824: Failed
+___________________ test_every_entity_has_registered_prefix ____________________
+
+    def test_every_entity_has_registered_prefix() -> None:
+        registry = api("registry")
+        ids = api("ids")
+        base = api("base")
+        entities = registry.entity_classes()
+>       assert len(ids.ID_PREFIXES) == len(entities) == 26  # `pce` withdrawn in revision 15 (N47)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: assert 26 == 24
+E        +  where 26 = len(mappingproxy({'prj': 'Project', 'agt': 'AgentTarget', 'per': 'Persona', 'tpf': 'TestProfile', 'evl': 'Evaluator', 'met...atalog', 'use': 'UsageRecord', 'cst': 'CostRecord', 'csum': 'CostSummary', 'rbnd': 'RunBundle', 'exp': 'ExportBundle'}))
+E        +    where mappingproxy({'prj': 'Project', 'agt': 'AgentTarget', 'per': 'Persona', 'tpf': 'TestProfile', 'evl': 'Evaluator', 'met...atalog', 'use': 'UsageRecord', 'cst': 'CostRecord', 'csum': 'CostSummary', 'rbnd': 'RunBundle', 'exp': 'ExportBundle'}) = <module 'tracer_evalschema.ids' from '~/tracer/packages/evalschema/src/tracer_evalschema/ids.py'>.ID_PREFIXES
+E        +  and   24 = len({'agt': <class 'tracer_evalschema.agent.AgentTarget'>, 'art': <class 'tracer_evalschema.artifact.Artifact'>, 'cst': <class 'tracer_evalschema.cost.CostRecord'>, 'csum': <class 'tracer_evalschema.cost.CostSummary'>, ...})
+
+packages/evalschema/tests/test_ids.py:818: AssertionError
+_____________ test_policy_documents_low_entropy_digest_limitation ______________
+
+    def test_policy_documents_low_entropy_digest_limitation() -> None:
+        """ADR 0006 Decision 6 / I12, A-26: SCHEMA_POLICY.md states that a plain digest of a
+        low-entropy profile in internal data can be brute-forced, and that shared exports never
+        carry such a plain digest (they drop or key it). Gate-bound: green when P1-20a writes the
+        file."""
+>       text = _policy_text().lower()
+               ^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_persona_profile.py:346: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _policy_text() -> str:
+        candidates = [
+            PACKAGE_DIR / "SCHEMA_POLICY.md",
+            ROOT / "SCHEMA_POLICY.md",
+            ROOT / "docs" / "SCHEMA_POLICY.md",
+        ]
+        for path in candidates:
+            if path.is_file():
+                return path.read_text(encoding="utf-8")
+>       pytest.fail(
+            "SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of "
+            + ", ".join(str(p.relative_to(ROOT)) for p in candidates)
+        )
+E       Failed: SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of packages/evalschema/SCHEMA_POLICY.md, SCHEMA_POLICY.md, docs/SCHEMA_POLICY.md
+
+packages/evalschema/tests/test_persona_profile.py:335: Failed
+_______________________ test_license_and_notice_present ________________________
+
+    def test_license_and_notice_present() -> None:
+        for base in (ROOT, PACKAGE_DIR):
+>           text = (base / "LICENSE").read_text(encoding="utf-8")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_repo_contract.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+~/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:787: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('<scratchpad>/b9/repo/LICENSE')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '<scratchpad>/b9/repo/LICENSE'
+
+~/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:771: FileNotFoundError
+___________________ test_spdx_headers_present_on_all_sources ___________________
+
+    def test_spdx_headers_present_on_all_sources() -> None:
+        """Gate item 9. Proposed name: not in SCOPE section 5, which only lists the files."""
+        proc = subprocess.run(  # noqa: S603
+            [sys.executable, str(ROOT / "scripts" / "check_headers.py")],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+>       assert proc.returncode == 0, proc.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "<scratchpad>/b9/repo/scripts/check_headers.py", line 41, in <module>
+E             sys.exit(main())
+E                      ~~~~^^
+E           File "<scratchpad>/b9/repo/scripts/check_headers.py", line 34, in main
+E             missing = [p for p in candidate_files(root) if not has_header(p)]
+E                                   ~~~~~~~~~~~~~~~^^^^^^
+E           File "<scratchpad>/b9/repo/scripts/check_headers.py", line 17, in candidate_files
+E             out = subprocess.run(
+E                   ~~~~~~~~~~~~~~^
+E                 ["git", "ls-files", "-z", "--cached", "--others", "--exclude-standard"],
+E                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E             ...<2 lines>...
+E                 capture_output=True,
+E                 ^^^^^^^^^^^^^^^^^^^^
+E             ).stdout
+E             ^
+E           File "~/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 578, in run
+E             raise CalledProcessError(retcode, process.args,
+E                                      output=stdout, stderr=stderr)
+E         subprocess.CalledProcessError: Command '['git', 'ls-files', '-z', '--cached', '--others', '--exclude-standard']' returned non-zero exit status 128.
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['<tmp>/73928893-1b12-4695-9662-eacdb4afd744/scratch...t\', \'ls-files\', \'-z\', \'--cached\', \'--others\', \'--exclude-standard\']\' returned non-zero exit status 128.\n').returncode
+
+packages/evalschema/tests/test_repo_contract.py:121: AssertionError
+_______________ test_ci_matrix_required_311_314_nonblocking_315 ________________
+
+    def test_ci_matrix_required_311_314_nonblocking_315() -> None:
+>       workflow = _workflow()
+                   ^^^^^^^^^^^
+
+packages/evalschema/tests/test_repo_contract.py:128: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_repo_contract.py:39: in _workflow
+    data = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:787: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('<scratchpad>/b9/repo/.github/workflows/ci.yml')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '<scratchpad>/b9/repo/.github/workflows/ci.yml'
+
+~/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:771: FileNotFoundError
+__________________________ test_actions_pinned_by_sha __________________________
+
+    def test_actions_pinned_by_sha() -> None:
+>       uses = _all_uses(_workflow())
+                         ^^^^^^^^^^^
+
+packages/evalschema/tests/test_repo_contract.py:146: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_repo_contract.py:39: in _workflow
+    data = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:787: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('<scratchpad>/b9/repo/.github/workflows/ci.yml')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '<scratchpad>/b9/repo/.github/workflows/ci.yml'
+
+~/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:771: FileNotFoundError
+____________________ test_uv_lock_committed_and_sync_locked ____________________
+
+    def test_uv_lock_committed_and_sync_locked() -> None:
+        """The lock exists, is not ignored, and every uv call in CI is --locked.
+    
+        Committed-ness itself cannot be asserted while the repository has no commits (the user has
+        not asked for any); "not ignored" is the strongest check available.
+        """
+        lock = ROOT / "uv.lock"
+        assert lock.is_file()
+        ignored = subprocess.run(  # noqa: S603
+            [GIT, "check-ignore", "-q", "uv.lock"], cwd=ROOT, check=False
+        )
+>       assert ignored.returncode == 1, "uv.lock is git-ignored"
+E       AssertionError: uv.lock is git-ignored
+E       assert 128 == 1
+E        +  where 128 = CompletedProcess(args=['/usr/bin/git', 'check-ignore', '-q', 'uv.lock'], returncode=128).returncode
+
+packages/evalschema/tests/test_repo_contract.py:178: AssertionError
+----------------------------- Captured stderr call -----------------------------
+fatal: not a git repository (or any of the parent directories): .git
+______________________ test_ci_uv_version_pinned_exactly _______________________
+
+    def test_ci_uv_version_pinned_exactly() -> None:
+        """Proposed name (SCOPE section 4: 'pin uv version and action SHAs')."""
+>       workflow = _workflow()
+                   ^^^^^^^^^^^
+
+packages/evalschema/tests/test_repo_contract.py:203: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_repo_contract.py:39: in _workflow
+    data = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:787: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('<scratchpad>/b9/repo/.github/workflows/ci.yml')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '<scratchpad>/b9/repo/.github/workflows/ci.yml'
+
+~/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:771: FileNotFoundError
+________ test_ci_required_test_jobs_sync_locked_groups_without_bidi_ref ________
+
+    def test_ci_required_test_jobs_sync_locked_groups_without_bidi_ref() -> None:
+        """The required 3.11-3.14 jobs sync the locked groups before pytest; no job references the
+        removed bidi-ref group (python-bidi was removed on the owner's approval, 2026-10-22)."""
+>       workflow = _workflow()
+                   ^^^^^^^^^^^
+
+packages/evalschema/tests/test_repo_contract.py:218: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalschema/tests/test_repo_contract.py:39: in _workflow
+    data = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:787: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('<scratchpad>/b9/repo/.github/workflows/ci.yml')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '<scratchpad>/b9/repo/.github/workflows/ci.yml'
+
+~/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:771: FileNotFoundError
+_______________________ test_private_fixtures_gitignored _______________________
+
+    def test_private_fixtures_gitignored() -> None:
+>       assert PRIVATE_PREFIX in (ROOT / ".gitignore").read_text(encoding="utf-8").splitlines()
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_repo_contract.py:315: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+~/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:787: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('<scratchpad>/b9/repo/.gitignore')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '<scratchpad>/b9/repo/.gitignore'
+
+~/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:771: FileNotFoundError
+_______________ test_policy_documents_free_text_lint_limitation ________________
+
+    def test_policy_documents_free_text_lint_limitation() -> None:
+        """P-16 (ADR 0006 Decision 9, I21): SCHEMA_POLICY.md states that the free-text lint can only
+        find
+        values of the profile it is given, that personal data typed into free text that is in no
+        profile cannot be detected and stays the author's responsibility, and (revision 8) that
+        another format of the same value or a part of a value is not found. Gate-bound: green when
+        P1-20a writes the file."""
+>       flat = re.sub(r"\s+", " ", _policy_text().lower())
+                                   ^^^^^^^^^^^^^^
+
+packages/evalschema/tests/test_snapshot.py:656: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _policy_text() -> str:
+        candidates = [
+            PACKAGE_DIR / "SCHEMA_POLICY.md",
+            ROOT / "SCHEMA_POLICY.md",
+            ROOT / "docs" / "SCHEMA_POLICY.md",
+        ]
+        for path in candidates:
+            if path.is_file():
+                return path.read_text(encoding="utf-8")
+>       pytest.fail(
+            "SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of "
+            + ", ".join(str(p.relative_to(ROOT)) for p in candidates)
+        )
+E       Failed: SCHEMA_POLICY.md does not exist yet (P1-20a); expected at one of packages/evalschema/SCHEMA_POLICY.md, SCHEMA_POLICY.md, docs/SCHEMA_POLICY.md
+
+packages/evalschema/tests/test_snapshot.py:643: Failed
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_cost.py::test_policy_documents_reported_cost_without_usage_limitation
+FAILED packages/evalschema/tests/test_ids.py::test_every_entity_has_registered_prefix
+FAILED packages/evalschema/tests/test_persona_profile.py::test_policy_documents_low_entropy_digest_limitation
+FAILED packages/evalschema/tests/test_repo_contract.py::test_license_and_notice_present
+FAILED packages/evalschema/tests/test_repo_contract.py::test_spdx_headers_present_on_all_sources
+FAILED packages/evalschema/tests/test_repo_contract.py::test_ci_matrix_required_311_314_nonblocking_315
+FAILED packages/evalschema/tests/test_repo_contract.py::test_actions_pinned_by_sha
+FAILED packages/evalschema/tests/test_repo_contract.py::test_uv_lock_committed_and_sync_locked
+FAILED packages/evalschema/tests/test_repo_contract.py::test_ci_uv_version_pinned_exactly
+FAILED packages/evalschema/tests/test_repo_contract.py::test_ci_required_test_jobs_sync_locked_groups_without_bidi_ref
+FAILED packages/evalschema/tests/test_repo_contract.py::test_private_fixtures_gitignored
+FAILED packages/evalschema/tests/test_snapshot.py::test_policy_documents_free_text_lint_limitation
+12 failed, 1963 passed in 41.73s
