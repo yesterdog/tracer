@@ -1,7 +1,9 @@
 # tracer-evalschema
 
 Pydantic v2 models and JSON Schema (draft 2020-12) for Tracer evaluation entities.
-Status: 0.0.1, scaffold only.
+Status: 0.0.1, unreleased (Phase 1 in progress). The rules, limitations and non-guarantees are in
+`SCHEMA_POLICY.md` and the release notes in `CHANGELOG.md`, both next to this file in the
+repository and in the sdist (not in the wheel).
 
 ## JSON Schema files
 
@@ -26,7 +28,8 @@ and `ConfigSnapshot.metric_bindings`: the model rejects a definition or binding 
 (same `id` and `version`); the schema does not.
 
 Neither the wheel nor the sdist carries tests. The sdist holds the package source (with the
-schema files and `schema.lock`), this README, `LICENSE`, `NOTICE` and `pyproject.toml`; building
-the wheel from it gives the same wheel. The tests need files that live only in the repository
-(captured provider fixtures, test support code, scripts and docs), so run them from a git
-checkout.
+schema files and `schema.lock`), this README, `SCHEMA_POLICY.md`, `CHANGELOG.md`, `LICENSE`,
+`NOTICE` and `pyproject.toml` (hatchling also adds `PKG-INFO` and the repository's `.gitignore`);
+building the wheel from it gives the same wheel. The tests need files that live only in the
+repository (captured provider fixtures, test support code, scripts and docs), so run them from a
+git checkout.

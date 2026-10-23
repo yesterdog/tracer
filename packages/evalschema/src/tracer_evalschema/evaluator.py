@@ -16,6 +16,11 @@ outcome, scripted turn text and every string value of expected tool-call argumen
 They are stored unresolved, unknown fields and malformed placeholders are rejected, and an
 evaluator with any placeholder must reference a ``test_profile`` (N8).
 
+``Evaluator.expected_tool_calls_exhaustive`` (F5-2, owner decision) says whether the expected
+tool calls are the only calls allowed: ``None`` not stated, ``True`` any other call is a failure
+(with an empty list: the agent must call nothing), ``False`` stated and not exhaustive. An empty
+list with ``None`` or ``False`` is no expectation about tool calls.
+
 The Evaluator's digest domain is the generic one minus ``test_profile.content_digest``
 (``evaluator_digest_domain``, N20 decided by the owner): dropping or keying the profile digest in
 a shared export leaves the evaluator's digest, and the snapshot's, verifiable.
@@ -202,7 +207,17 @@ def evaluator_digest_domain(doc: Mapping[str, Any]) -> dict[str, Any]:
 class Evaluator(HidingModel, VersionedEntity):
     """One test of an agent (prefix ``evl``; ADR 0010 Decision 8, ADR 0013 Decision 2).
 
-    Its ``content_digest`` is computed over ``evaluator_digest_domain`` (N20).
+    ``expected_tool_calls`` lists the tool calls the agent is expected to make; an empty list on
+    its own states no expectation. ``expected_tool_calls_exhaustive`` (F5-2) says whether calls
+    outside that list are allowed: ``null`` (the default) means not stated; ``true`` means a tool
+    call other than the expected ones is a failure, so with an empty list the agent must call
+    nothing; ``false`` means stated and not exhaustive (other calls are allowed). Only a JSON
+    boolean or ``null`` is accepted (no ``0``, ``1`` or ``"true"``). The flag is part of the
+    evaluator's content, so it is covered by ``content_digest``.
+
+    Its ``content_digest`` is computed over the generic digest domain minus the one path
+    ``test_profile.content_digest`` (N20), so dropping or keying the profile digest in a shared
+    export leaves the evaluator's digest verifiable.
     """
 
     id_prefix: ClassVar[str] = "evl"
@@ -225,6 +240,9 @@ class Evaluator(HidingModel, VersionedEntity):
     expected_tool_calls: Annotated[list[ExpectedToolCall], AfterValidator(_contiguous_ranks)] = (
         Field(default_factory=list)
     )
+    expected_tool_calls_exhaustive: Annotated[bool, Strict()] | None = None
+    """``None``: not stated; ``True``: any tool call outside ``expected_tool_calls`` is a failure
+    (an empty list then means the agent must call nothing); ``False``: explicitly not exhaustive."""
     max_duration_ms: MaxDurationMs
 
     def digest_subject(self) -> dict[str, Any]:

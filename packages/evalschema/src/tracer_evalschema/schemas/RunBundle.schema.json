@@ -1051,7 +1051,7 @@
           }
         }
       ],
-      "description": "A cost of one domain (prefix ``cst``; a record of fact). See the module docstring.",
+      "description": "A cost of one domain (prefix ``cst``; a record of fact; ADR 0014 Decisions 12 to 16).\n\n``status=available``: an ``amount`` (USD, >= 0) and a ``basis``, with no ``na_reason``, no\n``reported_raw`` and no ``unpriced_units``. ``basis=reported`` names ``reported_by`` and has no\n``pricing_snapshot`` and no ``rounding``. ``basis=computed`` has the ``pricing_snapshot`` it\nused, names no reporter, lists the usage records it priced, and carries ``rounding`` only when\nthe amount was rounded (P-35).\n\n``status=not_available``: an ``na_reason`` and nothing that could read as a cost (no\n``amount``, ``basis``, ``reported_by``, ``pricing_snapshot`` or ``rounding``; never an amount\nof 0). ``reported_raw`` keeps a reported source's values verbatim and is present exactly for\nthe four reasons ``unsupported_currency``, ``currency_not_reported``, ``amount_unparseable``\nand ``currency_conflict`` (N51). ``unpriced_units`` is non-empty exactly when the reason is\n``unit_unpriced``. ``usage_record_ids`` has no repeats and follows the reason (N67): empty for\n``no_usage`` and ``usage_not_reported``, non-empty for ``no_price_for_model``,\n``unit_unpriced``, ``billing_rules_missing`` and ``ambiguous_price``.",
       "properties": {
         "amount": {
           "anyOf": [
@@ -1448,7 +1448,7 @@
     },
     "Evaluator": {
       "additionalProperties": false,
-      "description": "One test of an agent (prefix ``evl``; ADR 0010 Decision 8, ADR 0013 Decision 2).\n\nIts ``content_digest`` is computed over ``evaluator_digest_domain`` (N20).",
+      "description": "One test of an agent (prefix ``evl``; ADR 0010 Decision 8, ADR 0013 Decision 2).\n\n``expected_tool_calls`` lists the tool calls the agent is expected to make; an empty list on\nits own states no expectation. ``expected_tool_calls_exhaustive`` (F5-2) says whether calls\noutside that list are allowed: ``null`` (the default) means not stated; ``true`` means a tool\ncall other than the expected ones is a failure, so with an empty list the agent must call\nnothing; ``false`` means stated and not exhaustive (other calls are allowed). Only a JSON\nboolean or ``null`` is accepted (no ``0``, ``1`` or ``\"true\"``). The flag is part of the\nevaluator's content, so it is covered by ``content_digest``.\n\nIts ``content_digest`` is computed over the generic digest domain minus the one path\n``test_profile.content_digest`` (N20), so dropping or keying the profile digest in a shared\nexport leaves the evaluator's digest verifiable.",
       "properties": {
         "content_digest": {
           "$ref": "#/$defs/ContentDigest"
@@ -1470,6 +1470,18 @@
           },
           "title": "Expected Tool Calls",
           "type": "array"
+        },
+        "expected_tool_calls_exhaustive": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Tool Calls Exhaustive"
         },
         "id": {
           "pattern": "^evl_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
@@ -3587,7 +3599,7 @@
           }
         }
       ],
-      "description": "One price of a catalog version (ADR 0014 Decision 11; a value object since revision 15).\nSee the module docstring.",
+      "description": "One price of a catalog version (ADR 0014 Decision 11; a value object since revision 15).\n\nThe entry lives inside its catalog version (N47) and is named by the author-assigned\n``entry_key``, unique within that version (N61). ``price`` and the billing ``minimum`` are USD\nmoney >= 0 (P-38); ``unit_quantity`` and the billing ``increment`` are positive canonical\ndecimals. ``billing`` is the literal ``\"unknown\"`` or billing rules whose two parts are each a\nvalue or the literal ``\"none\"``. ``aliases`` are distinct and never the entry's own ``model``\n(N72). ``applies_when`` is absent or a non-empty list of conditions of distinct kinds that must\nall hold (N49). The effective range is half-open, ``[effective_from, effective_to)``.\n``price_source`` says whether the price comes from the catalog or from the user, and a\n``user_supplied`` price needs ``provenance.note``.",
       "properties": {
         "aliases": {
           "items": {
@@ -3714,7 +3726,7 @@
     },
     "PriceProvenance": {
       "additionalProperties": false,
-      "description": "Where a price came from (ADR 0014 Decision 11). See the module docstring.",
+      "description": "Where a price came from (ADR 0014 Decision 11).\n\n``kind`` is an open machine key. ``url`` is an absolute ``http`` or ``https`` URL of a public\nprice page (a fragment is allowed); it carries no credentials: userinfo, a credential parameter\nname in the query or the fragment, a known credential pattern anywhere, and a loopback host\nare rejected (ADR 0007 Decision 6e; N50, N66). A present ``note`` is never empty or white space\nonly (N71).",
       "properties": {
         "kind": {
           "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
@@ -3763,7 +3775,7 @@
     },
     "PricingCatalog": {
       "additionalProperties": false,
-      "description": "A version of a pricing catalog (prefix ``pcat``; versioned, ADR 0009). See the module\ndocstring.",
+      "description": "A version of a pricing catalog (prefix ``pcat``; versioned, ADR 0009).\n\n``entries`` is non-empty. Each ``entry_key`` appears once, and the effective ranges of entries\nwith one key ``(provider, model, unit, applies_when)`` (``applies_when`` compared as a set) do\nnot overlap; ranges are half-open ``[effective_from, effective_to)`` (N48, N49). Entries of\ndifferent keys that can match one usage are accepted; the price resolver answers\n``ambiguous_price`` for them. The digest is the generic domain, so it covers every field of\nevery entry (D4).",
       "properties": {
         "content_digest": {
           "$ref": "#/$defs/ContentDigest"
@@ -4319,7 +4331,7 @@
     },
     "Run": {
       "additionalProperties": false,
-      "description": "A run (prefix ``run``; a record of fact, ADR 0009 Decision 5). See the module docstring.",
+      "description": "A run (prefix ``run``; a record of fact, ADR 0009 Decision 5).\n\nIt names the project, the agent target, and the configuration snapshot it ran with. ``mode``\nand ``caller_origin`` are both required, and a ``simulated`` run never has a ``human`` caller.\n``started_at`` is the start of the run and never the ingest time; absent when not known.\n``caller_external_id`` is the caller's transport identifier with its own privacy marker.\n``detected_capabilities`` (what the run detected) and ``available_inputs`` (what evidence it\nholds) are separate lists. ``agent_audio`` in ``available_inputs`` needs a channel map that\nidentifies the agent's channel (ADR 0004 Decision 5). ``observed_tier`` is closed and required\nand is for display and filtering only; ``spans`` in ``available_inputs`` with\n``observed_tier=T0`` is rejected, because stage spans come only from agent telemetry or an\nobserver (rule R1, O3a; ``detected_capabilities`` is not read for it).",
       "properties": {
         "agent_target": {
           "$ref": "#/$defs/AgentTargetRef"
@@ -5758,7 +5770,7 @@
           }
         }
       ],
-      "description": "One usage bucket of a billable call (ADR 0014 Decision 9). See the module docstring.",
+      "description": "One usage bucket of a billable call (ADR 0014 Decision 9).\n\n``unit`` is one of eight disjoint buckets (``input_tokens`` is uncached input). For the token,\ncharacter and request units ``count`` is a strict integer >= 0; for the two audio-seconds\nunits (``audio_input_seconds``, ``audio_output_seconds``) it is a canonical decimal string\n>= 0 (a JSON number is rejected, so seconds are never a float). Zero is known usage of nothing\n(N45 (b)); no quantity is negative (N45 (a)).",
       "properties": {
         "count": {
           "anyOf": [
@@ -5824,7 +5836,7 @@
           }
         }
       ],
-      "description": "The usage of one billable call (prefix ``use``; a record of fact, ADR 0009 Decision 5).\n\nSee the module docstring. A correction is a new record with a new ID.",
+      "description": "The usage of one billable call (prefix ``use``; a record of fact, ADR 0009 Decision 5).\n\n``run_id`` names the run (the only record of fact that does, N22). ``model`` absent or\n``null`` means the source did not report a model: a placeholder such as ``\"unknown\"`` is never\nstored as a model, and a usage without a model is never priced (M3). ``occurred_at`` is the\ninstant of the billable event as the source states it, never filled with the ingest time, the\nrun start or the current time (N43). ``quantities`` is non-empty with at most one quantity per\nunit; the units are disjoint and never summed (N44). ``raw`` is the source payload, an I-JSON\nobject kept verbatim and never interpreted. Usage of the ``agent_under_test`` domain is never\n``source=measured`` (P-39): we never make the agent's billable calls. A correction is a new\nrecord with a new ID.",
       "properties": {
         "created_at": {
           "format": "date-time",

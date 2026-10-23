@@ -5,13 +5,8 @@ and 9; P1-13).
 
 - ``Dataset`` (``dts``, versioned): a ``name`` and the ordered, unique ``item_ids`` of its items.
   Membership is inside the version's digest, so adding or removing an item is a new version (N25).
-- ``DatasetItem`` (``dti``, a record of fact): the configured ``language`` of the item (intent,
-  never an observation or a declaration), an optional recording (``artifact_id``) and transcript
-  (``transcript_id``), the optional ``source_run_id`` (provenance only, never run membership; O7),
-  and a ``privacy`` marker, required when the item holds a recording or a transcript. With a
-  payload and no source run there is no role evidence, so the derivation is human-subject and a
-  ``human_subject=false`` marker is rejected (ADR 0016 Decision 5). No mixed-language field exists
-  (ADR 0005).
+- ``DatasetItem`` (``dti``, a record of fact): its fields and privacy rules are stated in its
+  class docstring, which is also its JSON Schema ``description`` (finding A29).
 """
 
 from __future__ import annotations
@@ -83,7 +78,16 @@ def _item_privacy_conditions(schema: dict[str, Any]) -> None:
 
 class DatasetItem(EntityBase):
     """One item of a dataset (prefix ``dti``; a record of fact). It names no dataset: a Dataset
-    version lists its items (N25). See the module docstring for the privacy rules."""
+    version lists its items (N25).
+
+    ``language`` is the configured language of the item (intent, never an observation or a
+    declaration). ``artifact_id`` (a recording) and ``transcript_id`` are optional.
+    ``source_run_id`` is provenance only, never run membership (O7). A ``privacy`` marker is
+    required when the item holds a recording or a transcript; with such a payload and no source
+    run there is no role evidence, so the item is treated as human-subject and a
+    ``human_subject=false`` marker is rejected (ADR 0016 Decision 5). No mixed-language field
+    exists (ADR 0005).
+    """
 
     model_config = ConfigDict(json_schema_extra=_item_privacy_conditions)
 

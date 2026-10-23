@@ -2,20 +2,12 @@
 # Copyright 2026 The Tracer contributors
 """Usage records: what was consumed in one billable call (ADR 0014 Decisions 8 and 9; P1-23).
 
-- ``UsageQuantity{unit, count}``: one disjoint bucket of usage. ``unit`` is one of the eight
-  ``USAGE_UNITS``. For the token, character and request units ``count`` is a strict integer
-  >= 0; for the two audio-seconds units it is a canonical ``DecimalString`` >= 0 (a number is
-  rejected, so seconds are never a float). Zero is known usage of nothing (N45 (b)); no quantity
-  is negative (N45 (a)).
-- ``UsageRecord`` (``use``, a record of fact): ``run_id`` (the only record of fact that names its
-  run, N22), ``domain``, ``stage``, ``provider``, ``model?`` (absent or ``None``: the source did
-  not report a model; a placeholder such as ``"unknown"`` is never stored as a model, and a
-  usage without a model is never priced, M3), ``provider_call_ref?``,
-  ``occurred_at?`` (the instant of the billable event as the source states it, never filled with
-  the ingest time, the run start or now; N43), ``quantities`` (non-empty, one quantity per unit,
-  N44), ``source`` and ``raw?`` (the source payload, an I-JSON object kept verbatim and never
-  interpreted). ``agent_under_test`` usage with ``source=measured`` is rejected (P-39): we never
-  make the agent's billable calls.
+- ``UsageQuantity{unit, count}``: one disjoint bucket of usage, with the count type set by the
+  unit.
+- ``UsageRecord`` (``use``, a record of fact): the usage of one billable call.
+
+The rules of each model are stated in its class docstring, which is also its JSON Schema
+``description`` (finding A29).
 
 ``UsageRecord`` hides its input in validation errors and no message inside it quotes a rejected
 value (N60; ADR 0007 Decision 8). No float is used anywhere in this module (ADR 0014 Decision
@@ -103,7 +95,14 @@ def _quantity_conditions(schema: dict[str, Any]) -> None:
 
 
 class UsageQuantity(BaseModel):
-    """One usage bucket of a billable call (ADR 0014 Decision 9). See the module docstring."""
+    """One usage bucket of a billable call (ADR 0014 Decision 9).
+
+    ``unit`` is one of eight disjoint buckets (``input_tokens`` is uncached input). For the token,
+    character and request units ``count`` is a strict integer >= 0; for the two audio-seconds
+    units (``audio_input_seconds``, ``audio_output_seconds``) it is a canonical decimal string
+    >= 0 (a JSON number is rejected, so seconds are never a float). Zero is known usage of nothing
+    (N45 (b)); no quantity is negative (N45 (a)).
+    """
 
     model_config = ConfigDict(extra="forbid", frozen=True, json_schema_extra=_quantity_conditions)
 
@@ -174,7 +173,15 @@ def _usage_conditions(schema: dict[str, Any]) -> None:
 class UsageRecord(HidingModel, EntityBase):
     """The usage of one billable call (prefix ``use``; a record of fact, ADR 0009 Decision 5).
 
-    See the module docstring. A correction is a new record with a new ID.
+    ``run_id`` names the run (the only record of fact that does, N22). ``model`` absent or
+    ``null`` means the source did not report a model: a placeholder such as ``"unknown"`` is never
+    stored as a model, and a usage without a model is never priced (M3). ``occurred_at`` is the
+    instant of the billable event as the source states it, never filled with the ingest time, the
+    run start or the current time (N43). ``quantities`` is non-empty with at most one quantity per
+    unit; the units are disjoint and never summed (N44). ``raw`` is the source payload, an I-JSON
+    object kept verbatim and never interpreted. Usage of the ``agent_under_test`` domain is never
+    ``source=measured`` (P-39): we never make the agent's billable calls. A correction is a new
+    record with a new ID.
     """
 
     model_config = ConfigDict(json_schema_extra=_usage_conditions)

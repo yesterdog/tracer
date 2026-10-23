@@ -3,24 +3,13 @@
 """Pricing catalogs and their entries (ADR 0014 Decisions 3, 10, 10a and 11, ADR 0007 Decision
 6e, ADR 0009 Decision 5; P1-24).
 
-- ``PricingCatalog`` (``pcat``, versioned and digested): ``entries`` (non-empty) and
-  ``published_at``. Each ``entry_key`` appears once, and effective ranges under one key
-  ``(provider, model, unit, applies_when)`` (``applies_when`` compared as a set) must not overlap;
-  ranges are half-open ``[effective_from, effective_to)`` (N48, N49). Entries of different keys
-  that can match one usage are accepted; the resolver answers ``ambiguous_price`` for them. The
-  digest is the generic domain, so it covers every field of every entry (D4).
-- ``PriceEntry``: a value object inside its catalog version (N47), named by the author-assigned
-  ``entry_key`` (N61, a ``MachineKey`` scoped by the catalog reference). ``price`` and the
-  billing ``minimum`` are USD ``Money`` >= 0 (P-38); ``unit_quantity`` and the billing
-  ``increment`` are positive canonical decimals; ``billing`` is the literal ``"unknown"`` or a
-  ``BillingRules`` whose two parts are each a value or the literal ``"none"``; ``aliases`` are
-  distinct and never the entry's own ``model`` (N72); ``applies_when`` is absent or a non-empty
-  list of conditions of distinct kinds that must all hold (N49); ``price_source`` says whether
-  the price is ours or the user's, and a ``user_supplied`` price needs ``provenance.note``.
-- ``PriceProvenance{kind, url?, retrieved_at, note?}``: ``kind`` is an open ``MachineKey``,
-  ``url`` follows ``url_rules.check_price_source_url`` (credentials, fragment parameter names,
-  loopback hosts; N50, N66), a present ``note`` is never empty or white space only
-  (``str.isspace()``, N71).
+- ``PricingCatalog`` (``pcat``, versioned and digested): ``entries`` and ``published_at``.
+- ``PriceEntry``: one price, a value object inside its catalog version (N47).
+- ``PriceProvenance{kind, url?, retrieved_at, note?}``: where a price came from; ``url`` follows
+  ``url_rules.check_price_source_url`` (N50, N66).
+
+The rules of these three models are stated in their class docstrings, which are also their JSON
+Schema ``description`` (finding A29).
 - ``AppliesWhenCondition{kind, value}``: ``context_tokens_gt``/``context_tokens_le`` take an
   integer >= 0, ``batch`` a boolean and ``region`` a ``MachineKey`` (P-37, N49).
 - ``check_catalog_succession(previous, next)``: P-24 (N47 remainder, N65, N72, D18).
@@ -139,7 +128,14 @@ PriceSourceUrl = Annotated[str, UrlRule(check_price_source_url, PRICE_SOURCE_URL
 
 
 class PriceProvenance(HidingModel):
-    """Where a price came from (ADR 0014 Decision 11). See the module docstring."""
+    """Where a price came from (ADR 0014 Decision 11).
+
+    ``kind`` is an open machine key. ``url`` is an absolute ``http`` or ``https`` URL of a public
+    price page (a fragment is allowed); it carries no credentials: userinfo, a credential parameter
+    name in the query or the fragment, a known credential pattern anywhere, and a loopback host
+    are rejected (ADR 0007 Decision 6e; N50, N66). A present ``note`` is never empty or white space
+    only (N71).
+    """
 
     model_config = ConfigDict(extra="forbid", frozen=True, hide_input_in_errors=True)
 
@@ -308,7 +304,17 @@ def _entry_conditions(schema: dict[str, Any]) -> None:
 
 class PriceEntry(HidingModel):
     """One price of a catalog version (ADR 0014 Decision 11; a value object since revision 15).
-    See the module docstring."""
+
+    The entry lives inside its catalog version (N47) and is named by the author-assigned
+    ``entry_key``, unique within that version (N61). ``price`` and the billing ``minimum`` are USD
+    money >= 0 (P-38); ``unit_quantity`` and the billing ``increment`` are positive canonical
+    decimals. ``billing`` is the literal ``"unknown"`` or billing rules whose two parts are each a
+    value or the literal ``"none"``. ``aliases`` are distinct and never the entry's own ``model``
+    (N72). ``applies_when`` is absent or a non-empty list of conditions of distinct kinds that must
+    all hold (N49). The effective range is half-open, ``[effective_from, effective_to)``.
+    ``price_source`` says whether the price comes from the catalog or from the user, and a
+    ``user_supplied`` price needs ``provenance.note``.
+    """
 
     model_config = ConfigDict(
         extra="forbid",
@@ -394,8 +400,15 @@ def _overlap_key(entry: PriceEntry) -> tuple[Hashable, ...]:
 
 
 class PricingCatalog(HidingModel, VersionedEntity):
-    """A version of a pricing catalog (prefix ``pcat``; versioned, ADR 0009). See the module
-    docstring."""
+    """A version of a pricing catalog (prefix ``pcat``; versioned, ADR 0009).
+
+    ``entries`` is non-empty. Each ``entry_key`` appears once, and the effective ranges of entries
+    with one key ``(provider, model, unit, applies_when)`` (``applies_when`` compared as a set) do
+    not overlap; ranges are half-open ``[effective_from, effective_to)`` (N48, N49). Entries of
+    different keys that can match one usage are accepted; the price resolver answers
+    ``ambiguous_price`` for them. The digest is the generic domain, so it covers every field of
+    every entry (D4).
+    """
 
     id_prefix: ClassVar[str] = "pcat"
 

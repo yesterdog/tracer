@@ -42,7 +42,10 @@ packages = ["src/tracer_evalschema"]
 [tool.hatch.build.targets.sdist]
 # The sdist ships no tests (A25, superseding the sdist half of A23; ADR 0008 Decision 7). It
 # holds the package source with the committed schemas and lock, README.md, LICENSE and NOTICE
-# (also named by license-files above) and this pyproject.toml (always added by hatchling). The
+# (also named by license-files above), SCHEMA_POLICY.md and CHANGELOG.md (the policy and the
+# release notes describe the distributed package, A30) and this pyproject.toml (always added by
+# hatchling; hatchling also adds PKG-INFO and the repository's .gitignore, A27). The policy and
+# the changelog are sdist-only: the wheel carries the package code and data only. The
 # tests need the repository (tests/fixtures/real, tests/support, scripts/, docs/, the root
 # pyproject.toml), so verification runs from the git checkout. The wheel stays test-free (P1-21).
 # Neither archive ever carries the test-only clean-room UAX #9 reference (P1-04e), the captured
@@ -52,4 +55,6 @@ only-include = [
     "README.md",
     "LICENSE",
     "NOTICE",
+    "SCHEMA_POLICY.md",
+    "CHANGELOG.md",
 ]

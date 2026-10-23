@@ -530,7 +530,7 @@
   "$id": "urn:tracer:evalschema:0.0.1:Run",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "A run (prefix ``run``; a record of fact, ADR 0009 Decision 5). See the module docstring.",
+  "description": "A run (prefix ``run``; a record of fact, ADR 0009 Decision 5).\n\nIt names the project, the agent target, and the configuration snapshot it ran with. ``mode``\nand ``caller_origin`` are both required, and a ``simulated`` run never has a ``human`` caller.\n``started_at`` is the start of the run and never the ingest time; absent when not known.\n``caller_external_id`` is the caller's transport identifier with its own privacy marker.\n``detected_capabilities`` (what the run detected) and ``available_inputs`` (what evidence it\nholds) are separate lists. ``agent_audio`` in ``available_inputs`` needs a channel map that\nidentifies the agent's channel (ADR 0004 Decision 5). ``observed_tier`` is closed and required\nand is for display and filtering only; ``spans`` in ``available_inputs`` with\n``observed_tier=T0`` is rejected, because stage spans come only from agent telemetry or an\nobserver (rule R1, O3a; ``detected_capabilities`` is not read for it).",
   "properties": {
     "agent_target": {
       "$ref": "#/$defs/AgentTargetRef"

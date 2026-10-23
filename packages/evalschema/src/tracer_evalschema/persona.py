@@ -3,9 +3,10 @@
 """Persona: who the simulated caller is (ADR 0005, ADR 0009, ADR 0012).
 
 ``Persona`` (``per``, versioned) holds ``language`` (a configured language: native script only,
-one language, no code-mix in 0.0.1) and an optional ``accent`` label (a ``HumanLabel``, not a
-language tag). The plan's further persona fields are not adopted in 0.0.1 (api-surface 19.6
-N11). ``PersonaRef`` is the typed ``{id, version, content_digest?}`` reference to a persona.
+one language, no mixed-language input in 0.0.1) and an optional ``accent`` label (a
+``HumanLabel``, not a language tag). The plan's further persona fields are not adopted in 0.0.1
+(api-surface 19.6 N11). ``PersonaRef`` is the typed ``{id, version, content_digest?}`` reference
+to a persona.
 
 ``Persona`` hides its input in validation errors (ADR 0007 Decision 8 (b), finding N41 decided by
 the owner): its accent is user-typed text.

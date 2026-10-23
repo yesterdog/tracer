@@ -45,6 +45,8 @@ jobs:
       - run: uv run --locked python scripts/check_headers.py
       # Generated JSON Schema files and schema.lock must equal the generator's output (P1-15).
       - run: uv run --locked python -m tracer_evalschema.schema_export --check
+      # Generated field reference docs/schema/*.md must equal the rendering of those files (P1-20a).
+      - run: uv run --locked python scripts/generate_field_docs.py --check
 
   licenses:
     name: license scan

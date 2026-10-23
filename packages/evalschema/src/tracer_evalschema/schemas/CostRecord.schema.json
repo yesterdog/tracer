@@ -638,7 +638,7 @@
       }
     }
   ],
-  "description": "A cost of one domain (prefix ``cst``; a record of fact). See the module docstring.",
+  "description": "A cost of one domain (prefix ``cst``; a record of fact; ADR 0014 Decisions 12 to 16).\n\n``status=available``: an ``amount`` (USD, >= 0) and a ``basis``, with no ``na_reason``, no\n``reported_raw`` and no ``unpriced_units``. ``basis=reported`` names ``reported_by`` and has no\n``pricing_snapshot`` and no ``rounding``. ``basis=computed`` has the ``pricing_snapshot`` it\nused, names no reporter, lists the usage records it priced, and carries ``rounding`` only when\nthe amount was rounded (P-35).\n\n``status=not_available``: an ``na_reason`` and nothing that could read as a cost (no\n``amount``, ``basis``, ``reported_by``, ``pricing_snapshot`` or ``rounding``; never an amount\nof 0). ``reported_raw`` keeps a reported source's values verbatim and is present exactly for\nthe four reasons ``unsupported_currency``, ``currency_not_reported``, ``amount_unparseable``\nand ``currency_conflict`` (N51). ``unpriced_units`` is non-empty exactly when the reason is\n``unit_unpriced``. ``usage_record_ids`` has no repeats and follows the reason (N67): empty for\n``no_usage`` and ``usage_not_reported``, non-empty for ``no_price_for_model``,\n``unit_unpriced``, ``billing_rules_missing`` and ``ambiguous_price``.",
   "properties": {
     "amount": {
       "anyOf": [

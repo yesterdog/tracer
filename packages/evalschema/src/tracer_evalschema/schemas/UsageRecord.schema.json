@@ -82,7 +82,7 @@
           }
         }
       ],
-      "description": "One usage bucket of a billable call (ADR 0014 Decision 9). See the module docstring.",
+      "description": "One usage bucket of a billable call (ADR 0014 Decision 9).\n\n``unit`` is one of eight disjoint buckets (``input_tokens`` is uncached input). For the token,\ncharacter and request units ``count`` is a strict integer >= 0; for the two audio-seconds\nunits (``audio_input_seconds``, ``audio_output_seconds``) it is a canonical decimal string\n>= 0 (a JSON number is rejected, so seconds are never a float). Zero is known usage of nothing\n(N45 (b)); no quantity is negative (N45 (a)).",
       "properties": {
         "count": {
           "anyOf": [
@@ -150,7 +150,7 @@
       }
     }
   ],
-  "description": "The usage of one billable call (prefix ``use``; a record of fact, ADR 0009 Decision 5).\n\nSee the module docstring. A correction is a new record with a new ID.",
+  "description": "The usage of one billable call (prefix ``use``; a record of fact, ADR 0009 Decision 5).\n\n``run_id`` names the run (the only record of fact that does, N22). ``model`` absent or\n``null`` means the source did not report a model: a placeholder such as ``\"unknown\"`` is never\nstored as a model, and a usage without a model is never priced (M3). ``occurred_at`` is the\ninstant of the billable event as the source states it, never filled with the ingest time, the\nrun start or the current time (N43). ``quantities`` is non-empty with at most one quantity per\nunit; the units are disjoint and never summed (N44). ``raw`` is the source payload, an I-JSON\nobject kept verbatim and never interpreted. Usage of the ``agent_under_test`` domain is never\n``source=measured`` (P-39): we never make the agent's billable calls. A correction is a new\nrecord with a new ID.",
   "properties": {
     "created_at": {
       "format": "date-time",

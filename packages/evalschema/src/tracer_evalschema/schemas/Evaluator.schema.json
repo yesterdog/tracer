@@ -349,7 +349,7 @@
   "$id": "urn:tracer:evalschema:0.0.1:Evaluator",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "One test of an agent (prefix ``evl``; ADR 0010 Decision 8, ADR 0013 Decision 2).\n\nIts ``content_digest`` is computed over ``evaluator_digest_domain`` (N20).",
+  "description": "One test of an agent (prefix ``evl``; ADR 0010 Decision 8, ADR 0013 Decision 2).\n\n``expected_tool_calls`` lists the tool calls the agent is expected to make; an empty list on\nits own states no expectation. ``expected_tool_calls_exhaustive`` (F5-2) says whether calls\noutside that list are allowed: ``null`` (the default) means not stated; ``true`` means a tool\ncall other than the expected ones is a failure, so with an empty list the agent must call\nnothing; ``false`` means stated and not exhaustive (other calls are allowed). Only a JSON\nboolean or ``null`` is accepted (no ``0``, ``1`` or ``\"true\"``). The flag is part of the\nevaluator's content, so it is covered by ``content_digest``.\n\nIts ``content_digest`` is computed over the generic digest domain minus the one path\n``test_profile.content_digest`` (N20), so dropping or keying the profile digest in a shared\nexport leaves the evaluator's digest verifiable.",
   "properties": {
     "content_digest": {
       "$ref": "#/$defs/ContentDigest"
@@ -371,6 +371,18 @@
       },
       "title": "Expected Tool Calls",
       "type": "array"
+    },
+    "expected_tool_calls_exhaustive": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Expected Tool Calls Exhaustive"
     },
     "id": {
       "pattern": "^evl_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",

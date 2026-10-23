@@ -5,12 +5,9 @@ P1-25).
 
 Models:
 
-- ``CostRecord`` (``cst``, a record of fact): ``available`` with an ``amount`` (USD, >= 0) and a
-  ``basis`` (``reported`` with ``reported_by``, or ``computed`` with a ``pricing_snapshot`` and,
-  only when the amount was rounded, ``rounding``), or ``not_available`` with an ``na_reason``
-  and nothing that could read as a cost. ``reported_raw`` keeps a reported source's values
-  verbatim for the four currency and amount reasons. ``usage_record_ids`` has no repeats and
-  follows the reason (N51, N67). ``unpriced_units`` is non-empty iff ``unit_unpriced``.
+- ``CostRecord`` (``cst``, a record of fact): one cost of one domain, ``available`` or
+  ``not_available``; its rules are stated in its class docstring, which is also its JSON Schema
+  ``description`` (finding A29).
 - ``PricingSnapshot{catalog_id, version, content_digest, entry_keys}``,
   ``CostRounding{scale: 18, mode: half_even, exact: false}``, ``ReportedCostRaw{reported_by,
   amount_raw, currency_raw?, currency_source}``.
@@ -412,7 +409,23 @@ def _record_conditions(schema: dict[str, Any]) -> None:
 
 
 class CostRecord(HidingModel, EntityBase):
-    """A cost of one domain (prefix ``cst``; a record of fact). See the module docstring."""
+    """A cost of one domain (prefix ``cst``; a record of fact; ADR 0014 Decisions 12 to 16).
+
+    ``status=available``: an ``amount`` (USD, >= 0) and a ``basis``, with no ``na_reason``, no
+    ``reported_raw`` and no ``unpriced_units``. ``basis=reported`` names ``reported_by`` and has no
+    ``pricing_snapshot`` and no ``rounding``. ``basis=computed`` has the ``pricing_snapshot`` it
+    used, names no reporter, lists the usage records it priced, and carries ``rounding`` only when
+    the amount was rounded (P-35).
+
+    ``status=not_available``: an ``na_reason`` and nothing that could read as a cost (no
+    ``amount``, ``basis``, ``reported_by``, ``pricing_snapshot`` or ``rounding``; never an amount
+    of 0). ``reported_raw`` keeps a reported source's values verbatim and is present exactly for
+    the four reasons ``unsupported_currency``, ``currency_not_reported``, ``amount_unparseable``
+    and ``currency_conflict`` (N51). ``unpriced_units`` is non-empty exactly when the reason is
+    ``unit_unpriced``. ``usage_record_ids`` has no repeats and follows the reason (N67): empty for
+    ``no_usage`` and ``usage_not_reported``, non-empty for ``no_price_for_model``,
+    ``unit_unpriced``, ``billing_rules_missing`` and ``ambiguous_price``.
+    """
 
     model_config = ConfigDict(json_schema_extra=_record_conditions)
 

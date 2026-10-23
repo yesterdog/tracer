@@ -315,7 +315,7 @@
       }
     }
   ],
-  "description": "One item of a dataset (prefix ``dti``; a record of fact). It names no dataset: a Dataset\nversion lists its items (N25). See the module docstring for the privacy rules.",
+  "description": "One item of a dataset (prefix ``dti``; a record of fact). It names no dataset: a Dataset\nversion lists its items (N25).\n\n``language`` is the configured language of the item (intent, never an observation or a\ndeclaration). ``artifact_id`` (a recording) and ``transcript_id`` are optional.\n``source_run_id`` is provenance only, never run membership (O7). A ``privacy`` marker is\nrequired when the item holds a recording or a transcript; with such a payload and no source\nrun there is no role evidence, so the item is treated as human-subject and a\n``human_subject=false`` marker is rejected (ADR 0016 Decision 5). No mixed-language field\nexists (ADR 0005).",
   "properties": {
     "artifact_id": {
       "anyOf": [

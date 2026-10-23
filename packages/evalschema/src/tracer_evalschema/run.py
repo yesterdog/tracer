@@ -3,18 +3,9 @@
 """Run: one execution of an evaluator against an agent, or one imported recording (ADR 0004
 Decisions 2 and 2a, ADR 0009 Decision 5, ADR 0012 Decision 6, ADR 0016 Decisions 2 and 6; P1-12).
 
-- ``Run`` (``run``, a record of fact): the project, the agent target (``AgentTargetRef``), the
-  configuration snapshot, ``mode`` and ``caller_origin`` (both required; ``simulated`` mode
-  implies a simulated caller), ``started_at`` (never the ingest time), the caller's transport
-  identifier (``CallerExternalId``, with its own privacy marker), what the run detected and what
-  evidence it holds (``detected_capabilities``, ``available_inputs``; separate lists), the channel
-  maps, the ``observed_tier`` (closed and required, display and filter only), foreign identifiers
-  and ingest warnings.
-- Rules on the record: ``agent_audio`` in ``available_inputs`` needs a channel map that identifies
-  the agent (ADR 0004 Decision 5); R1 (O3a): ``spans`` in ``available_inputs`` with
-  ``observed_tier=T0`` is rejected, because StageSpans come only from telemetry or an observer
-  (``detected_capabilities`` is not read). R2, the tier computed from the records' provenance, is
-  a bundle check (P1-14).
+- ``Run`` (``run``, a record of fact): its fields and record rules are stated in its class
+  docstring, which is also its JSON Schema ``description`` (finding A29). R2, the tier computed
+  from the records' provenance, is a bundle check (P1-14).
 
 The Run and ``CallerExternalId`` hide their input in validation errors (a caller identifier may be
 a phone number) and no message inside them quotes a rejected value (ADR 0007 Decision 8).
@@ -82,7 +73,19 @@ InputKinds = Annotated[list[InputKind], Field(json_schema_extra={"uniqueItems": 
 
 
 class Run(HidingModel, EntityBase):
-    """A run (prefix ``run``; a record of fact, ADR 0009 Decision 5). See the module docstring."""
+    """A run (prefix ``run``; a record of fact, ADR 0009 Decision 5).
+
+    It names the project, the agent target, and the configuration snapshot it ran with. ``mode``
+    and ``caller_origin`` are both required, and a ``simulated`` run never has a ``human`` caller.
+    ``started_at`` is the start of the run and never the ingest time; absent when not known.
+    ``caller_external_id`` is the caller's transport identifier with its own privacy marker.
+    ``detected_capabilities`` (what the run detected) and ``available_inputs`` (what evidence it
+    holds) are separate lists. ``agent_audio`` in ``available_inputs`` needs a channel map that
+    identifies the agent's channel (ADR 0004 Decision 5). ``observed_tier`` is closed and required
+    and is for display and filtering only; ``spans`` in ``available_inputs`` with
+    ``observed_tier=T0`` is rejected, because stage spans come only from agent telemetry or an
+    observer (rule R1, O3a; ``detected_capabilities`` is not read for it).
+    """
 
     id_prefix: ClassVar[str] = "run"
 
