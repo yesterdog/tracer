@@ -120,7 +120,13 @@ def _to_utc(value: Any) -> datetime:
 
 
 def _format_instant(value: datetime) -> str:
-    return value.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+    # Explicit zero padding: strftime("%Y") is platform dependent for years below 1000
+    # (glibc writes "1", macOS writes "0001"), and the output must match UTC_DATETIME_PATTERN.
+    utc = value.astimezone(UTC)
+    return (
+        f"{utc.year:04d}-{utc.month:02d}-{utc.day:02d}"
+        f"T{utc.hour:02d}:{utc.minute:02d}:{utc.second:02d}.{utc.microsecond:06d}Z"
+    )
 
 
 class _UtcDatetimeRule:
