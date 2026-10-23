@@ -1,0 +1,963 @@
+{
+  "id": "rbnd_01a168a1-da33-7dd9-a6ab-c0c9033d7243",
+  "schema_version": "0.0.1",
+  "created_at": "2026-10-22T10:00:00.000000Z",
+  "metadata": {
+    "source": "golden fixture",
+    "labels": [
+      "synthetic"
+    ]
+  },
+  "metadata_flags": [],
+  "run": {
+    "id": "run_01a168a1-da14-7357-8290-7a8e5193a732",
+    "schema_version": "0.0.1",
+    "created_at": "2026-10-22T10:00:00.000000Z",
+    "metadata": {},
+    "metadata_flags": [],
+    "project_id": "prj_01a168a1-da15-7ea0-a4a5-41c7d2a42c3f",
+    "agent_target": {
+      "id": "agt_01a168a1-da16-74bb-b265-37afd02631f5",
+      "version": 1,
+      "content_digest": null
+    },
+    "config_snapshot_id": "snap_01a168a1-da11-76e0-9fc2-18da14c88d8f",
+    "mode": "recorded",
+    "caller_origin": "human",
+    "started_at": "2026-10-22T09:59:00.000000Z",
+    "caller_external_id": null,
+    "detected_capabilities": [],
+    "channel_maps": [
+      {
+        "artifact_id": "art_01a168a1-da12-7409-b5a2-2da5a0aa1d86",
+        "channels": [
+          {
+            "index": 0,
+            "role": "caller"
+          },
+          {
+            "index": 1,
+            "role": "agent"
+          }
+        ],
+        "determination": "declared",
+        "method": "pipecat_audio_buffer_processor_stereo",
+        "confidence": null
+      }
+    ],
+    "available_inputs": [
+      "audio",
+      "agent_audio",
+      "transcript",
+      "tool_calls",
+      "tool_results",
+      "usage"
+    ],
+    "observed_tier": "T0",
+    "external_refs": [],
+    "ingest_warnings": []
+  },
+  "snapshot": {
+    "id": "snap_01a168a1-da11-76e0-9fc2-18da14c88d8f",
+    "schema_version": "0.0.1",
+    "created_at": "2026-10-22T10:00:00.000000Z",
+    "metadata": {},
+    "metadata_flags": [],
+    "content_digest": {
+      "scheme": "sha256-jcs/v1",
+      "value": "221d64ebb00536dffccafe32ceed6400e35f168c477df4b4ce00f222d58a1244",
+      "key_ref": null
+    },
+    "evaluator": {
+      "id": "evl_01a168a1-da01-73ef-9a96-173cb71b08c8",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "version": 1,
+      "content_digest": {
+        "scheme": "sha256-jcs/v1",
+        "value": "1a7ab7b48634cdf0e371d80074655865e68caca0a555ae61305a9f7cd215b778",
+        "key_ref": null
+      },
+      "name": "Refund request",
+      "language": "hi-IN",
+      "instructions": "Greet {{profile.name}} and ask for a refund.",
+      "expected_outcome": "The agent starts a refund and gives a reference number.",
+      "persona": {
+        "id": "per_01a168a1-da00-7303-87cc-f1fc75277be9",
+        "version": 1,
+        "content_digest": null
+      },
+      "test_profile": {
+        "id": "tpf_01a168a1-da0a-75bf-b9bc-c5fa33c1666b",
+        "version": 1,
+        "content_digest": {
+          "scheme": "sha256-jcs/v1",
+          "value": "62df956a59410e753171600277b382772ecb13fa7788af970355aeecd401cdf7",
+          "key_ref": null
+        }
+      },
+      "metric_bindings": [
+        {
+          "id": "mbd_01a168a1-da04-7197-afce-934313d6bf54",
+          "version": 1,
+          "content_digest": null
+        },
+        {
+          "id": "mbd_01a168a1-da07-7beb-b44b-2cfe8f98efcf",
+          "version": 1,
+          "content_digest": null
+        }
+      ],
+      "scripted_turns": [],
+      "expected_tool_calls": [],
+      "max_duration_ms": 300000
+    },
+    "persona": {
+      "id": "per_01a168a1-da00-7303-87cc-f1fc75277be9",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "version": 1,
+      "content_digest": {
+        "scheme": "sha256-jcs/v1",
+        "value": "16f85c9037eefcdfb892a8c63899e4f6af7c34baa1e8c07d6a50355ec1c0ca2d",
+        "key_ref": null
+      },
+      "language": "hi-IN",
+      "accent": "Delhi"
+    },
+    "metric_definitions": [
+      {
+        "id": "met_01a168a1-da02-7511-b8bc-82e94c79409e",
+        "schema_version": "0.0.1",
+        "created_at": "2026-10-22T10:00:00.000000Z",
+        "metadata": {},
+        "metadata_flags": [],
+        "version": 1,
+        "content_digest": {
+          "scheme": "sha256-jcs/v1",
+          "value": "321c20aeaebed10455a31ddc265aa54691132443476479cf486ec7abb5113eef",
+          "key_ref": null
+        },
+        "key": "goal_completion",
+        "kind": "llm_judge",
+        "value_type": "boolean",
+        "scale": null,
+        "unit": null,
+        "requires": [
+          "transcript"
+        ],
+        "languages": [
+          "en",
+          "hi"
+        ],
+        "script_sensitive": false,
+        "aggregation": {
+          "kind": "per_conversation"
+        },
+        "pass_rule": {
+          "kind": "equals_true"
+        },
+        "parameters": [],
+        "implementation_ref": null,
+        "prompt_template": "Expected: {{expected_outcome}}\nTranscript:\n{{transcript}}",
+        "prompt_variables": [
+          "expected_outcome",
+          "transcript"
+        ],
+        "judge_model_ref": {
+          "provider": "openai",
+          "model": "gpt-4.1"
+        }
+      },
+      {
+        "id": "met_01a168a1-da03-7a46-857a-38b4a9dab179",
+        "schema_version": "0.0.1",
+        "created_at": "2026-10-22T10:00:00.000000Z",
+        "metadata": {},
+        "metadata_flags": [],
+        "version": 1,
+        "content_digest": {
+          "scheme": "sha256-jcs/v1",
+          "value": "5e312d89a3a4ccbe15261f0746c392ca4c375361c9d7750f17328b5be5a8420f",
+          "key_ref": null
+        },
+        "key": "p95_latency",
+        "kind": "latency",
+        "value_type": "numeric",
+        "scale": null,
+        "unit": "ms",
+        "requires": [
+          "turn_timing"
+        ],
+        "languages": [
+          "en",
+          "hi"
+        ],
+        "script_sensitive": false,
+        "aggregation": {
+          "kind": "per_conversation"
+        },
+        "pass_rule": {
+          "kind": "range",
+          "min": null,
+          "max": 800,
+          "inclusive": true
+        },
+        "parameters": [],
+        "implementation_ref": "builtin:p95_latency",
+        "prompt_template": null,
+        "prompt_variables": null,
+        "judge_model_ref": null
+      }
+    ],
+    "metric_bindings": [
+      {
+        "id": "mbd_01a168a1-da04-7197-afce-934313d6bf54",
+        "schema_version": "0.0.1",
+        "created_at": "2026-10-22T10:00:00.000000Z",
+        "metadata": {},
+        "metadata_flags": [],
+        "version": 1,
+        "content_digest": {
+          "scheme": "sha256-jcs/v1",
+          "value": "6e6d6ae870f05b801a8fbad329ab293a4958d2d5770e3b276cd459cccd565f2c",
+          "key_ref": null
+        },
+        "evaluator_id": "evl_01a168a1-da01-73ef-9a96-173cb71b08c8",
+        "metric": {
+          "id": "met_01a168a1-da02-7511-b8bc-82e94c79409e",
+          "version": 1,
+          "content_digest": null
+        },
+        "params": {},
+        "enabled": true
+      },
+      {
+        "id": "mbd_01a168a1-da07-7beb-b44b-2cfe8f98efcf",
+        "schema_version": "0.0.1",
+        "created_at": "2026-10-22T10:00:00.000000Z",
+        "metadata": {},
+        "metadata_flags": [],
+        "version": 1,
+        "content_digest": {
+          "scheme": "sha256-jcs/v1",
+          "value": "1c459a6c37fa4843ec47a37b58ae5d88a101de5ce0af74790dde6b12136196bb",
+          "key_ref": null
+        },
+        "evaluator_id": "evl_01a168a1-da01-73ef-9a96-173cb71b08c8",
+        "metric": {
+          "id": "met_01a168a1-da03-7a46-857a-38b4a9dab179",
+          "version": 1,
+          "content_digest": null
+        },
+        "params": {},
+        "enabled": true
+      }
+    ],
+    "rubric": {
+      "id": "rub_01a168a1-da0e-72c3-a638-5377bd40d8db",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "version": 1,
+      "content_digest": {
+        "scheme": "sha256-jcs/v1",
+        "value": "4585ef7d09d178a4a12103df1b1271f4a67728043a61f1c0e9ec911d3fef3860",
+        "key_ref": null
+      },
+      "items": [
+        {
+          "binding": {
+            "id": "mbd_01a168a1-da04-7197-afce-934313d6bf54",
+            "version": 1,
+            "content_digest": null
+          },
+          "required": true,
+          "weight": null
+        },
+        {
+          "binding": {
+            "id": "mbd_01a168a1-da07-7beb-b44b-2cfe8f98efcf",
+            "version": 1,
+            "content_digest": null
+          },
+          "required": true,
+          "weight": "5"
+        }
+      ]
+    },
+    "pricing_catalog": {
+      "id": "pcat_01a168a1-da10-7d62-abae-e1962c861ee6",
+      "version": 1,
+      "content_digest": {
+        "scheme": "sha256-jcs/v1",
+        "value": "e362c0f113382dc8065ae73f12560c6f273500f7a58f88ca92e98b7ceb0e0421",
+        "key_ref": null
+      }
+    }
+  },
+  "pricing_catalogs": [
+    {
+      "id": "pcat_01a168a1-da10-7d62-abae-e1962c861ee6",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "version": 1,
+      "content_digest": {
+        "scheme": "sha256-jcs/v1",
+        "value": "e362c0f113382dc8065ae73f12560c6f273500f7a58f88ca92e98b7ceb0e0421",
+        "key_ref": null
+      },
+      "entries": [
+        {
+          "entry_key": "price-00001",
+          "provider": "openai",
+          "model": "gpt-4.1",
+          "aliases": [],
+          "unit": "input_tokens",
+          "unit_quantity": "1000000",
+          "price": {
+            "amount": "0.15",
+            "currency": "USD"
+          },
+          "billing": {
+            "increment": "none",
+            "minimum": "none"
+          },
+          "effective_from": "2026-01-01T00:00:00.000000Z",
+          "effective_to": null,
+          "applies_when": null,
+          "price_source": "catalog",
+          "provenance": {
+            "kind": "provider_price_page",
+            "url": "https://example.com/pricing",
+            "retrieved_at": "2026-10-01T00:00:00.000000Z",
+            "note": null
+          }
+        }
+      ],
+      "published_at": "2026-10-01T00:00:00.000000Z"
+    }
+  ],
+  "test_profiles": [
+    {
+      "id": "tpf_01a168a1-da0a-75bf-b9bc-c5fa33c1666b",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "version": 1,
+      "content_digest": {
+        "scheme": "sha256-jcs/v1",
+        "value": "62df956a59410e753171600277b382772ecb13fa7788af970355aeecd401cdf7",
+        "key_ref": null
+      },
+      "name": "Asha Verma",
+      "dob": "1990-04-12",
+      "account_number": "4400123412"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "art_01a168a1-da12-7409-b5a2-2da5a0aa1d86",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "uri": "https://recordings.example.com/calls/2026/10/call-0001.wav",
+      "sha256": "abababababababababababababababababababababababababababababababab",
+      "size": 1234567,
+      "audio_format": {
+        "container": "wav",
+        "codec": "pcm_s16le",
+        "sample_rate_hz": 16000,
+        "channels": 2,
+        "bits_per_sample": 16
+      },
+      "turn_ref": null,
+      "privacy": {
+        "human_subject": true,
+        "human_subject_reason": null,
+        "consent": {
+          "status": "obtained",
+          "reference": "consent-form-2026-10-01",
+          "recorded_at": "2026-10-01T09:00:00.000000Z"
+        },
+        "retention": {
+          "retain_until": "2027-10-01T00:00:00.000000Z",
+          "policy_ref": "policy:retain-12-months",
+          "delete_on_expiry": true
+        }
+      }
+    }
+  ],
+  "transcripts": [
+    {
+      "id": "tsc_01a168a1-da13-7cde-aef5-3ecbd58c9305",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "source": "our_stt",
+      "provider": null,
+      "model": null,
+      "detected_language": null,
+      "detected_language_raw": null,
+      "language_confidence": null,
+      "declared_language": null,
+      "timeline_origin": null,
+      "provider_call_ref": null,
+      "privacy": {
+        "human_subject": true,
+        "human_subject_reason": null,
+        "consent": {
+          "status": "obtained",
+          "reference": "consent-form-2026-10-01",
+          "recorded_at": "2026-10-01T09:00:00.000000Z"
+        },
+        "retention": {
+          "retain_until": "2027-10-01T00:00:00.000000Z",
+          "policy_ref": "policy:retain-12-months",
+          "delete_on_expiry": true
+        }
+      }
+    }
+  ],
+  "turns": [
+    {
+      "id": "turn_01a168a1-da1c-7c6b-844f-036b56b86e89",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "transcript_id": "tsc_01a168a1-da13-7cde-aef5-3ecbd58c9305",
+      "seq": 0,
+      "role": "caller",
+      "start_ms": null,
+      "end_ms": null,
+      "wall_time": null,
+      "timing_source": "none",
+      "source": "agent_stt",
+      "text": "turn 0 text",
+      "segments": null,
+      "language": null,
+      "language_raw": null,
+      "interrupted": null,
+      "exchange_index": 0,
+      "contains_bidi_controls": false
+    },
+    {
+      "id": "turn_01a168a1-da1d-7b9c-a2dc-84e64de3d94d",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "transcript_id": "tsc_01a168a1-da13-7cde-aef5-3ecbd58c9305",
+      "seq": 1,
+      "role": "agent",
+      "start_ms": null,
+      "end_ms": null,
+      "wall_time": null,
+      "timing_source": "none",
+      "source": "agent_llm_output",
+      "text": "turn 1 text",
+      "segments": null,
+      "language": null,
+      "language_raw": null,
+      "interrupted": null,
+      "exchange_index": 0,
+      "contains_bidi_controls": false
+    },
+    {
+      "id": "turn_01a168a1-da1e-79b2-8f3a-94222567491f",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "transcript_id": "tsc_01a168a1-da13-7cde-aef5-3ecbd58c9305",
+      "seq": 2,
+      "role": "caller",
+      "start_ms": null,
+      "end_ms": null,
+      "wall_time": null,
+      "timing_source": "none",
+      "source": "agent_stt",
+      "text": "turn 2 text",
+      "segments": null,
+      "language": null,
+      "language_raw": null,
+      "interrupted": null,
+      "exchange_index": 1,
+      "contains_bidi_controls": false
+    },
+    {
+      "id": "turn_01a168a1-da1f-716e-9009-17a06d52bdb3",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "transcript_id": "tsc_01a168a1-da13-7cde-aef5-3ecbd58c9305",
+      "seq": 3,
+      "role": "agent",
+      "start_ms": null,
+      "end_ms": null,
+      "wall_time": null,
+      "timing_source": "none",
+      "source": "agent_llm_output",
+      "text": "turn 3 text",
+      "segments": null,
+      "language": null,
+      "language_raw": null,
+      "interrupted": null,
+      "exchange_index": 1,
+      "contains_bidi_controls": false
+    }
+  ],
+  "exchanges": [
+    {
+      "id": "exc_01a168a1-da1a-7891-9cfb-1885e3186f55",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "index": 0,
+      "started_at": null,
+      "duration_ms": null,
+      "was_interrupted": null,
+      "source": "telemetry"
+    },
+    {
+      "id": "exc_01a168a1-da1b-75bb-98ed-65541cbbc6d3",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "index": 1,
+      "started_at": null,
+      "duration_ms": null,
+      "was_interrupted": null,
+      "source": "telemetry"
+    }
+  ],
+  "tool_calls": [
+    {
+      "id": "tcl_01a168a1-da20-73cd-a329-80ed9f8ace41",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "name": "lookup_account",
+      "arguments_raw": "{\"city\": \"Pune\"}",
+      "arguments": {
+        "city": "Pune"
+      },
+      "arguments_complete": true,
+      "result_raw": "{\"ok\": true}",
+      "result_complete": true,
+      "status": "completed",
+      "result_error": false,
+      "seq": 0,
+      "offset_ms": null,
+      "timeline_origin": null,
+      "source": "agent_telemetry",
+      "external_call_id": "call_8f3a2c"
+    },
+    {
+      "id": "tcl_01a168a1-da21-77bf-a8ae-0f7ee3f10161",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "name": "issue_refund",
+      "arguments_raw": "{\"city\": \"Pune\"}",
+      "arguments": {
+        "city": "Pune"
+      },
+      "arguments_complete": true,
+      "result_raw": "{\"ok\": true}",
+      "result_complete": true,
+      "status": "completed",
+      "result_error": false,
+      "seq": 1,
+      "offset_ms": null,
+      "timeline_origin": null,
+      "source": "agent_telemetry",
+      "external_call_id": "call_8f3a2c"
+    }
+  ],
+  "spans": [
+    {
+      "id": "spn_01a168a1-da22-71b8-a9f0-9980722fe440",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "stage": "stt",
+      "stage_raw": null,
+      "provider": "sarvam",
+      "model": "saaras:v4",
+      "start": "2026-10-22T10:00:01.000000Z",
+      "duration_ms": 350,
+      "ttfb_ms": 120,
+      "exchange_index": null,
+      "span_ref": {
+        "system": "otel",
+        "kind": "span_id",
+        "value": "00f067aa0ba902b7"
+      }
+    },
+    {
+      "id": "spn_01a168a1-da23-7207-970f-7be99292baa6",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "stage": "llm",
+      "stage_raw": null,
+      "provider": "sarvam",
+      "model": "gpt-4.1",
+      "start": "2026-10-22T10:00:01.000000Z",
+      "duration_ms": 350,
+      "ttfb_ms": 120,
+      "exchange_index": null,
+      "span_ref": {
+        "system": "otel",
+        "kind": "span_id",
+        "value": "00f067aa0ba902b7"
+      }
+    }
+  ],
+  "results": [
+    {
+      "id": "res_01a168a1-da24-78ed-91f8-4d02220e33a9",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "metric": {
+        "id": "met_01a168a1-da02-7511-b8bc-82e94c79409e",
+        "version": 1,
+        "content_digest": {
+          "scheme": "sha256-jcs/v1",
+          "value": "321c20aeaebed10455a31ddc265aa54691132443476479cf486ec7abb5113eef",
+          "key_ref": null
+        }
+      },
+      "status": "scored",
+      "value": true,
+      "passed": true,
+      "na_reason": null,
+      "missing_kinds": [],
+      "error": null,
+      "per_turn": null,
+      "scorer": null,
+      "judge": {
+        "model_ref": {
+          "provider": "openai",
+          "model": "gpt-4.1"
+        },
+        "prompt_sha256": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+        "params": {
+          "temperature": 0
+        },
+        "per_turn": [],
+        "confidence": null,
+        "reported_model": null
+      },
+      "language_source": "observed",
+      "declared_language_transcript_ids": [],
+      "evidence_refs": [
+        {
+          "kind": "turn",
+          "ref_id": "turn_01a168a1-da1d-7b9c-a2dc-84e64de3d94d",
+          "start_ms": null,
+          "end_ms": null
+        },
+        {
+          "kind": "exchange",
+          "ref_id": "exc_01a168a1-da1a-7891-9cfb-1885e3186f55",
+          "start_ms": null,
+          "end_ms": null
+        },
+        {
+          "kind": "tool_call",
+          "ref_id": "tcl_01a168a1-da20-73cd-a329-80ed9f8ace41",
+          "start_ms": null,
+          "end_ms": null
+        },
+        {
+          "kind": "artifact_range",
+          "ref_id": "art_01a168a1-da12-7409-b5a2-2da5a0aa1d86",
+          "start_ms": 100,
+          "end_ms": 900
+        },
+        {
+          "kind": "span",
+          "ref_id": "spn_01a168a1-da22-71b8-a9f0-9980722fe440",
+          "start_ms": null,
+          "end_ms": null
+        }
+      ]
+    },
+    {
+      "id": "res_01a168a1-da25-7819-a0ec-7d8eef3de063",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "metric": {
+        "id": "met_01a168a1-da03-7a46-857a-38b4a9dab179",
+        "version": 1,
+        "content_digest": null
+      },
+      "status": "scored",
+      "value": 420,
+      "passed": true,
+      "na_reason": null,
+      "missing_kinds": [],
+      "error": null,
+      "per_turn": null,
+      "scorer": {
+        "implementation_ref": "builtin:p95_latency",
+        "version": "1.4.2"
+      },
+      "judge": null,
+      "language_source": "observed",
+      "declared_language_transcript_ids": [],
+      "evidence_refs": []
+    }
+  ],
+  "verdict": {
+    "id": "vrd_01a168a1-da26-701c-add7-9cb303d7cbc3",
+    "schema_version": "0.0.1",
+    "created_at": "2026-10-22T10:00:00.000000Z",
+    "metadata": {},
+    "metadata_flags": [],
+    "required_total": 2,
+    "passed": 2,
+    "failed": 0,
+    "not_applicable": 0,
+    "errored": 0,
+    "status": "pass",
+    "checks": [
+      {
+        "binding_id": "mbd_01a168a1-da04-7197-afce-934313d6bf54",
+        "metric_ref": {
+          "id": "met_01a168a1-da02-7511-b8bc-82e94c79409e",
+          "version": 1,
+          "content_digest": null
+        },
+        "outcome": "passed",
+        "result_id": "res_01a168a1-da24-78ed-91f8-4d02220e33a9"
+      },
+      {
+        "binding_id": "mbd_01a168a1-da07-7beb-b44b-2cfe8f98efcf",
+        "metric_ref": {
+          "id": "met_01a168a1-da03-7a46-857a-38b4a9dab179",
+          "version": 1,
+          "content_digest": null
+        },
+        "outcome": "passed",
+        "result_id": "res_01a168a1-da25-7819-a0ec-7d8eef3de063"
+      }
+    ],
+    "weighted_score": "1",
+    "weight_coverage": "1",
+    "weighted_excluded": []
+  },
+  "usage_records": [
+    {
+      "id": "use_01a168a1-da27-765f-8dd3-4512da3704c8",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "run_id": "run_01a168a1-da14-7357-8290-7a8e5193a732",
+      "domain": "evaluation",
+      "stage": "judge",
+      "provider": "openai",
+      "model": "gpt-4.1",
+      "provider_call_ref": null,
+      "occurred_at": null,
+      "quantities": [
+        {
+          "unit": "input_tokens",
+          "count": 1000
+        },
+        {
+          "unit": "output_tokens",
+          "count": 200
+        }
+      ],
+      "source": "provider_reported",
+      "raw": null
+    },
+    {
+      "id": "use_01a168a1-da29-79db-a468-9f2128742598",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "run_id": "run_01a168a1-da14-7357-8290-7a8e5193a732",
+      "domain": "evaluation",
+      "stage": "sim_caller_llm",
+      "provider": "openai",
+      "model": "gpt-4.1",
+      "provider_call_ref": null,
+      "occurred_at": null,
+      "quantities": [
+        {
+          "unit": "input_tokens",
+          "count": 1000000
+        }
+      ],
+      "source": "provider_reported",
+      "raw": null
+    },
+    {
+      "id": "use_01a168a1-da31-7044-8c29-785e40398474",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "run_id": "run_01a168a1-da14-7357-8290-7a8e5193a732",
+      "domain": "agent_under_test",
+      "stage": "llm",
+      "provider": "openai",
+      "model": "gpt-4.1",
+      "provider_call_ref": null,
+      "occurred_at": null,
+      "quantities": [
+        {
+          "unit": "input_tokens",
+          "count": 500
+        }
+      ],
+      "source": "telemetry",
+      "raw": null
+    }
+  ],
+  "cost_records": [
+    {
+      "id": "cst_01a168a1-da2b-7a5e-966a-c0cc43866eac",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "domain": "evaluation",
+      "usage_record_ids": [
+        "use_01a168a1-da27-765f-8dd3-4512da3704c8"
+      ],
+      "status": "available",
+      "amount": {
+        "amount": "1.5",
+        "currency": "USD"
+      },
+      "basis": "reported",
+      "reported_by": "provider",
+      "pricing_snapshot": null,
+      "rounding": null,
+      "na_reason": null,
+      "unpriced_units": [],
+      "reported_raw": null
+    },
+    {
+      "id": "cst_01a168a1-da2d-76bd-95e5-ed1fb8e72cf8",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "domain": "evaluation",
+      "usage_record_ids": [
+        "use_01a168a1-da29-79db-a468-9f2128742598"
+      ],
+      "status": "available",
+      "amount": {
+        "amount": "0.15",
+        "currency": "USD"
+      },
+      "basis": "computed",
+      "reported_by": null,
+      "pricing_snapshot": {
+        "catalog_id": "pcat_01a168a1-da10-7d62-abae-e1962c861ee6",
+        "version": 1,
+        "content_digest": {
+          "scheme": "sha256-jcs/v1",
+          "value": "e362c0f113382dc8065ae73f12560c6f273500f7a58f88ca92e98b7ceb0e0421",
+          "key_ref": null
+        },
+        "entry_keys": [
+          "price-00001"
+        ]
+      },
+      "rounding": null,
+      "na_reason": null,
+      "unpriced_units": [],
+      "reported_raw": null
+    }
+  ],
+  "cost_summaries": [
+    {
+      "id": "csum_01a168a1-da2f-7dea-99df-4b441878c025",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "domain": "evaluation",
+      "total": {
+        "amount": "1.65",
+        "currency": "USD"
+      },
+      "included": [
+        "cst_01a168a1-da2b-7a5e-966a-c0cc43866eac",
+        "cst_01a168a1-da2d-76bd-95e5-ed1fb8e72cf8"
+      ],
+      "excluded": [],
+      "completeness": "complete"
+    }
+  ],
+  "withheld": [
+    {
+      "kind": "artifact",
+      "record_id": "art_01a168a1-da34-761a-ab35-a2aa7be06cb7"
+    },
+    {
+      "kind": "transcript",
+      "record_id": "tsc_01a168a1-da35-7dfd-8b67-e4f8c571a1f6"
+    },
+    {
+      "kind": "turn",
+      "record_id": "turn_01a168a1-da36-77ee-9382-c851458d985d"
+    },
+    {
+      "kind": "exchange",
+      "record_id": "exc_01a168a1-da37-770d-925b-74e080e8ad9f"
+    },
+    {
+      "kind": "tool_call",
+      "record_id": "tcl_01a168a1-da38-70f1-8781-6586f0e39132"
+    },
+    {
+      "kind": "span",
+      "record_id": "spn_01a168a1-da39-759e-933b-63b824400aa7"
+    },
+    {
+      "kind": "result",
+      "record_id": "res_01a168a1-da3a-7f7f-8ffd-f01060e46290"
+    },
+    {
+      "kind": "usage_record",
+      "record_id": "use_01a168a1-da3b-7a19-9794-d5d5f529ce7f"
+    },
+    {
+      "kind": "cost_record",
+      "record_id": "cst_01a168a1-da3c-7fad-aff3-c35f96444a19"
+    }
+  ]
+}

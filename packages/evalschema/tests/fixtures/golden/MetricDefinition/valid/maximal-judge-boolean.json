@@ -1,0 +1,62 @@
+{
+  "id": "met_01a168a1-da00-7b28-886b-2daa58fa9afb",
+  "schema_version": "0.0.1",
+  "created_at": "2026-10-23T12:00:00.000000Z",
+  "metadata": {
+    "source": "golden fixture",
+    "labels": [
+      "synthetic",
+      "regression"
+    ],
+    "nested": {
+      "rank": 3,
+      "ratio": 0.5,
+      "flag": true,
+      "none": null
+    }
+  },
+  "metadata_flags": [],
+  "version": 1,
+  "content_digest": {
+    "scheme": "sha256-jcs/v1",
+    "value": "4bf631f07030c316cc41321c7fcd12dc16e473dc1a64e40191d7b71f8be73095",
+    "key_ref": null
+  },
+  "key": "goal_completion",
+  "kind": "llm_judge",
+  "value_type": "boolean",
+  "scale": null,
+  "unit": null,
+  "requires": [
+    "transcript",
+    "agent_transcript"
+  ],
+  "languages": [
+    "en-IN",
+    "hi-IN"
+  ],
+  "script_sensitive": false,
+  "aggregation": {
+    "kind": "per_turn_share",
+    "turn_rule": {
+      "kind": "equals_true"
+    }
+  },
+  "pass_rule": {
+    "kind": "range",
+    "min": 1,
+    "max": null,
+    "inclusive": true
+  },
+  "parameters": [],
+  "implementation_ref": null,
+  "prompt_template": "Expected: {{expected_outcome}}\nTranscript:\n{{transcript}}\nAnswer with a number from 1 to 5.",
+  "prompt_variables": [
+    "expected_outcome",
+    "transcript"
+  ],
+  "judge_model_ref": {
+    "provider": "openai",
+    "model": "gpt-4.1"
+  }
+}

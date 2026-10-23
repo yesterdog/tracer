@@ -1,0 +1,122 @@
+{
+  "id": "met_01a168a1-da00-7f63-befe-a16cefa5b77d",
+  "schema_version": "0.0.1",
+  "created_at": "2026-10-23T12:00:00.000000Z",
+  "metadata": {
+    "source": "golden fixture",
+    "labels": [
+      "synthetic",
+      "regression"
+    ],
+    "nested": {
+      "rank": 3,
+      "ratio": 0.5,
+      "flag": true,
+      "none": null
+    }
+  },
+  "metadata_flags": [],
+  "version": 2,
+  "content_digest": {
+    "scheme": "sha256-jcs/v1",
+    "value": "60b949d5565e474ff629b90ad9cfcde75672907b000cf462c357da1bd9f8eaf3",
+    "key_ref": null
+  },
+  "key": "politeness_share",
+  "kind": "llm_judge",
+  "value_type": "rating",
+  "scale": {
+    "min": 1,
+    "max": 5
+  },
+  "unit": null,
+  "requires": [
+    "audio",
+    "agent_audio",
+    "transcript",
+    "agent_transcript",
+    "turn_timing",
+    "tool_calls",
+    "tool_results",
+    "spans",
+    "usage",
+    "reference_text",
+    "expected_tool_calls"
+  ],
+  "languages": [
+    "en-IN",
+    "hi-IN",
+    "mr-IN",
+    "te-IN",
+    "ta-IN",
+    "kn-IN",
+    "ml-IN",
+    "pa-Guru-IN",
+    "gu-IN"
+  ],
+  "script_sensitive": true,
+  "aggregation": {
+    "kind": "per_turn_share",
+    "turn_rule": {
+      "kind": "range",
+      "min": 4,
+      "max": 5,
+      "inclusive": true
+    }
+  },
+  "pass_rule": {
+    "kind": "range",
+    "min": 0.8,
+    "max": 1,
+    "inclusive": true
+  },
+  "parameters": [
+    {
+      "name": "percentile",
+      "value_type": "integer",
+      "default": 95
+    },
+    {
+      "name": "threshold",
+      "value_type": "number",
+      "default": 0.5
+    },
+    {
+      "name": "locale_name",
+      "value_type": "string",
+      "default": "Pune"
+    },
+    {
+      "name": "strict",
+      "value_type": "boolean",
+      "default": false
+    },
+    {
+      "name": "options",
+      "value_type": "json",
+      "default": {
+        "window": [
+          1,
+          2,
+          3
+        ],
+        "mode": "fast"
+      }
+    },
+    {
+      "name": "no_default",
+      "value_type": "string",
+      "default": null
+    }
+  ],
+  "implementation_ref": null,
+  "prompt_template": "Expected: {{expected_outcome}}\nTranscript:\n{{transcript}}\nAnswer with a number from 1 to 5.",
+  "prompt_variables": [
+    "expected_outcome",
+    "transcript"
+  ],
+  "judge_model_ref": {
+    "provider": "openai",
+    "model": "gpt-4.1"
+  }
+}

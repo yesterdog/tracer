@@ -1,0 +1,246 @@
+{
+  "id": "snap_01a168a1-da11-784f-8b47-df6689c645bf",
+  "schema_version": "0.0.1",
+  "created_at": "2026-10-22T10:00:00.000000Z",
+  "metadata": {
+    "source": "golden fixture",
+    "labels": [
+      "synthetic"
+    ],
+    "n": 3
+  },
+  "metadata_flags": [],
+  "content_digest": {
+    "scheme": "sha256-jcs/v1",
+    "value": "0000000000000000000000000000000000000000000000000000000000000000",
+    "key_ref": null
+  },
+  "evaluator": {
+    "id": "evl_01a168a1-da01-7ae0-b498-4410f944ca34",
+    "schema_version": "0.0.1",
+    "created_at": "2026-10-22T10:00:00.000000Z",
+    "metadata": {},
+    "metadata_flags": [],
+    "version": 1,
+    "content_digest": {
+      "scheme": "sha256-jcs/v1",
+      "value": "547e03d301fc50cd0e95bae2dcbeb265279a72193d54c87dd007bbc44d316970",
+      "key_ref": null
+    },
+    "name": "Refund request",
+    "language": "hi-IN",
+    "instructions": "Greet {{profile.name}} and ask for a refund.",
+    "expected_outcome": "The agent starts a refund and gives a reference number.",
+    "persona": {
+      "id": "per_01a168a1-da00-7c1b-a756-9a9be6354d86",
+      "version": 1,
+      "content_digest": null
+    },
+    "test_profile": {
+      "id": "tpf_01a168a1-da0a-7d54-91ea-98fbd43352d8",
+      "version": 1,
+      "content_digest": null
+    },
+    "metric_bindings": [
+      {
+        "id": "mbd_01a168a1-da04-7e5f-8b52-e392bed41937",
+        "version": 1,
+        "content_digest": null
+      },
+      {
+        "id": "mbd_01a168a1-da07-73d5-bc26-6e3e22dca781",
+        "version": 1,
+        "content_digest": null
+      }
+    ],
+    "scripted_turns": [],
+    "expected_tool_calls": [],
+    "max_duration_ms": 300000
+  },
+  "persona": {
+    "id": "per_01a168a1-da00-7c1b-a756-9a9be6354d86",
+    "schema_version": "0.0.1",
+    "created_at": "2026-10-22T10:00:00.000000Z",
+    "metadata": {},
+    "metadata_flags": [],
+    "version": 1,
+    "content_digest": {
+      "scheme": "sha256-jcs/v1",
+      "value": "c2cb8f15c4143bd67ac619c6aa689698cb26615ac6f5e709bc23a58edeacd297",
+      "key_ref": null
+    },
+    "language": "hi-IN",
+    "accent": "Delhi"
+  },
+  "metric_definitions": [
+    {
+      "id": "met_01a168a1-da02-7d28-8dee-5cc23ef570e0",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "version": 1,
+      "content_digest": {
+        "scheme": "sha256-jcs/v1",
+        "value": "6bd4e53375358b0fe76577dfe9e7cc3c9d72492bf5e24d5a8143e583db3ef74a",
+        "key_ref": null
+      },
+      "key": "goal_completion",
+      "kind": "llm_judge",
+      "value_type": "boolean",
+      "scale": null,
+      "unit": null,
+      "requires": [
+        "transcript"
+      ],
+      "languages": [
+        "en",
+        "hi"
+      ],
+      "script_sensitive": false,
+      "aggregation": {
+        "kind": "per_conversation"
+      },
+      "pass_rule": {
+        "kind": "equals_true"
+      },
+      "parameters": [],
+      "implementation_ref": null,
+      "prompt_template": "Expected: {{expected_outcome}}\nTranscript:\n{{transcript}}",
+      "prompt_variables": [
+        "expected_outcome",
+        "transcript"
+      ],
+      "judge_model_ref": {
+        "provider": "openai",
+        "model": "gpt-4.1"
+      }
+    },
+    {
+      "id": "met_01a168a1-da03-7550-8c5a-7c9f7fbd095e",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "version": 1,
+      "content_digest": {
+        "scheme": "sha256-jcs/v1",
+        "value": "a06dec4e65649769f5fb423503a4e6b179b29a7529c849499ef8f2ea7e652baf",
+        "key_ref": null
+      },
+      "key": "p95_latency",
+      "kind": "latency",
+      "value_type": "numeric",
+      "scale": null,
+      "unit": "ms",
+      "requires": [
+        "turn_timing"
+      ],
+      "languages": [
+        "en",
+        "hi"
+      ],
+      "script_sensitive": false,
+      "aggregation": {
+        "kind": "per_conversation"
+      },
+      "pass_rule": {
+        "kind": "range",
+        "min": null,
+        "max": 800,
+        "inclusive": true
+      },
+      "parameters": [],
+      "implementation_ref": "builtin:p95_latency",
+      "prompt_template": null,
+      "prompt_variables": null,
+      "judge_model_ref": null
+    }
+  ],
+  "metric_bindings": [
+    {
+      "id": "mbd_01a168a1-da04-7e5f-8b52-e392bed41937",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "version": 1,
+      "content_digest": {
+        "scheme": "sha256-jcs/v1",
+        "value": "c3208c19b854dd89c14205f8702cda533f7458d0a64c9e2d8478f71f73e9c3ca",
+        "key_ref": null
+      },
+      "evaluator_id": "evl_01a168a1-da01-7ae0-b498-4410f944ca34",
+      "metric": {
+        "id": "met_01a168a1-da02-7d28-8dee-5cc23ef570e0",
+        "version": 1,
+        "content_digest": null
+      },
+      "params": {},
+      "enabled": true
+    },
+    {
+      "id": "mbd_01a168a1-da07-73d5-bc26-6e3e22dca781",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "version": 1,
+      "content_digest": {
+        "scheme": "sha256-jcs/v1",
+        "value": "b7681c59fcfbc871de3a7e16e3895f6029f149efdac7a37de277ebb5786b06da",
+        "key_ref": null
+      },
+      "evaluator_id": "evl_01a168a1-da01-7ae0-b498-4410f944ca34",
+      "metric": {
+        "id": "met_01a168a1-da03-7550-8c5a-7c9f7fbd095e",
+        "version": 1,
+        "content_digest": null
+      },
+      "params": {},
+      "enabled": true
+    }
+  ],
+  "rubric": {
+    "id": "rub_01a168a1-da0e-7aed-9cd7-2c0e84e29334",
+    "schema_version": "0.0.1",
+    "created_at": "2026-10-22T10:00:00.000000Z",
+    "metadata": {},
+    "metadata_flags": [],
+    "version": 1,
+    "content_digest": {
+      "scheme": "sha256-jcs/v1",
+      "value": "8cdf12cc230fe0a7a145eeccdc1c11f34b81f5bfffbaefa84f555e708350dcb4",
+      "key_ref": null
+    },
+    "items": [
+      {
+        "binding": {
+          "id": "mbd_01a168a1-da04-7e5f-8b52-e392bed41937",
+          "version": 1,
+          "content_digest": null
+        },
+        "required": true,
+        "weight": null
+      },
+      {
+        "binding": {
+          "id": "mbd_01a168a1-da07-73d5-bc26-6e3e22dca781",
+          "version": 1,
+          "content_digest": null
+        },
+        "required": true,
+        "weight": "5"
+      }
+    ]
+  },
+  "pricing_catalog": {
+    "id": "pcat_01a168a1-da10-7490-8b52-80854f5f771d",
+    "version": 2,
+    "content_digest": {
+      "scheme": "sha256-jcs/v1",
+      "value": "652f55016243bf1b9f1bbea46d5749ef892dbe394e46de9d66ab1aacf0b4af57",
+      "key_ref": null
+    }
+  }
+}

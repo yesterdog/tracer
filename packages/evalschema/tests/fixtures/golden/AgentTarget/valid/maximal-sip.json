@@ -1,0 +1,72 @@
+{
+  "id": "agt_01a168a1-da00-733a-8a71-355044d98033",
+  "schema_version": "0.0.1",
+  "created_at": "2026-10-23T12:00:00.000000Z",
+  "metadata": {
+    "source": "golden fixture",
+    "labels": [
+      "synthetic",
+      "regression"
+    ],
+    "nested": {
+      "rank": 3,
+      "ratio": 0.5,
+      "flag": true,
+      "none": null
+    }
+  },
+  "metadata_flags": [],
+  "version": 3,
+  "content_digest": {
+    "scheme": "sha256-jcs/v1",
+    "value": "045545a0467e04e8683cab4cbd326d78631dd549c22115ef533671508993e300",
+    "key_ref": null
+  },
+  "name": "SIP agent",
+  "endpoint": {
+    "transport": "sip",
+    "uri": "sip:support@pbx.example.com"
+  },
+  "languages": [
+    "hi-IN",
+    "en-IN",
+    "mr-IN",
+    "ta-IN",
+    "pa-Guru-IN"
+  ],
+  "declared_capabilities": [
+    "audio",
+    "agent_audio",
+    "transcript",
+    "agent_transcript",
+    "turn_timing",
+    "tool_calls",
+    "tool_results",
+    "spans",
+    "usage",
+    "reference_text",
+    "expected_tool_calls"
+  ],
+  "declared_stack": [
+    {
+      "stage": "stt",
+      "provider": "sarvam",
+      "model": "saaras:v4"
+    },
+    {
+      "stage": "llm",
+      "provider": "openai",
+      "model": "gpt-4.1"
+    },
+    {
+      "stage": "tts",
+      "provider": "sarvam",
+      "model": "bulbul:v2"
+    },
+    {
+      "stage": "realtime",
+      "provider": "openai",
+      "model": "gpt-realtime"
+    }
+  ]
+}

@@ -1,0 +1,959 @@
+{
+  "id": "exp_01a168a1-da33-71bd-8ff1-748dc7bb4093",
+  "schema_version": "0.0.1",
+  "created_at": "2026-10-22T10:00:00.000000Z",
+  "metadata": {},
+  "metadata_flags": [],
+  "purpose": "benchmark",
+  "run_bundles": [
+    {
+      "id": "rbnd_01a168a1-da32-767b-a931-7e2f1d758120",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "run": {
+        "id": "run_01a168a1-da13-7602-9bba-6beac5e4fbcf",
+        "schema_version": "0.0.1",
+        "created_at": "2026-10-22T10:00:00.000000Z",
+        "metadata": {},
+        "metadata_flags": [],
+        "project_id": "prj_01a168a1-da14-78b3-829b-add4581c7dec",
+        "agent_target": {
+          "id": "agt_01a168a1-da15-7256-be07-14f8f7b833a8",
+          "version": 1,
+          "content_digest": null
+        },
+        "config_snapshot_id": "snap_01a168a1-da10-7912-b540-59aedf31da94",
+        "mode": "recorded",
+        "caller_origin": "human",
+        "started_at": "2026-10-22T09:59:00.000000Z",
+        "caller_external_id": null,
+        "detected_capabilities": [],
+        "channel_maps": [
+          {
+            "artifact_id": "art_01a168a1-da11-71bf-8766-d582ff7a77ea",
+            "channels": [
+              {
+                "index": 0,
+                "role": "caller"
+              },
+              {
+                "index": 1,
+                "role": "agent"
+              }
+            ],
+            "determination": "declared",
+            "method": "pipecat_audio_buffer_processor_stereo",
+            "confidence": null
+          }
+        ],
+        "available_inputs": [
+          "audio",
+          "agent_audio",
+          "transcript",
+          "tool_calls",
+          "tool_results",
+          "usage",
+          "spans"
+        ],
+        "observed_tier": "T1",
+        "external_refs": [],
+        "ingest_warnings": []
+      },
+      "snapshot": {
+        "id": "snap_01a168a1-da10-7912-b540-59aedf31da94",
+        "schema_version": "0.0.1",
+        "created_at": "2026-10-22T10:00:00.000000Z",
+        "metadata": {},
+        "metadata_flags": [],
+        "content_digest": {
+          "scheme": "sha256-jcs/v1",
+          "value": "a02336f984c9f2619ce7ea5bf5ed105a7b63a339ed9d1b2b2d6838c56b0f5630",
+          "key_ref": null
+        },
+        "evaluator": {
+          "id": "evl_01a168a1-da01-7300-83c1-816768e5c512",
+          "schema_version": "0.0.1",
+          "created_at": "2026-10-22T10:00:00.000000Z",
+          "metadata": {},
+          "metadata_flags": [],
+          "version": 1,
+          "content_digest": {
+            "scheme": "sha256-jcs/v1",
+            "value": "0ed5dbaa33d9788f1ab1f2240c4498fc1fb3a10e0821734338ef278b9328173e",
+            "key_ref": null
+          },
+          "name": "Refund request",
+          "language": "hi-IN",
+          "instructions": "Ask for a refund of the last order and stay polite.",
+          "expected_outcome": "The agent starts a refund and gives a reference number.",
+          "persona": {
+            "id": "per_01a168a1-da00-78ce-b842-671bd12de9de",
+            "version": 1,
+            "content_digest": null
+          },
+          "test_profile": null,
+          "metric_bindings": [
+            {
+              "id": "mbd_01a168a1-da04-7fda-a713-cf74446f4ac2",
+              "version": 1,
+              "content_digest": null
+            },
+            {
+              "id": "mbd_01a168a1-da07-73f7-bd61-54c6cff5b8a7",
+              "version": 1,
+              "content_digest": null
+            }
+          ],
+          "scripted_turns": [],
+          "expected_tool_calls": [],
+          "max_duration_ms": 300000
+        },
+        "persona": {
+          "id": "per_01a168a1-da00-78ce-b842-671bd12de9de",
+          "schema_version": "0.0.1",
+          "created_at": "2026-10-22T10:00:00.000000Z",
+          "metadata": {},
+          "metadata_flags": [],
+          "version": 1,
+          "content_digest": {
+            "scheme": "sha256-jcs/v1",
+            "value": "b88e09f3eae2209f6f42e12272f34cd586d7c19e4dab0c43a453d5bcc55851f2",
+            "key_ref": null
+          },
+          "language": "hi-IN",
+          "accent": "Delhi"
+        },
+        "metric_definitions": [
+          {
+            "id": "met_01a168a1-da02-7099-a86b-02cb50eaebdf",
+            "schema_version": "0.0.1",
+            "created_at": "2026-10-22T10:00:00.000000Z",
+            "metadata": {},
+            "metadata_flags": [],
+            "version": 1,
+            "content_digest": {
+              "scheme": "sha256-jcs/v1",
+              "value": "06b5dbc960f1bb3c948d94772ee6d315d9cd1fb6b7a04d3bf974d2da94b9cf41",
+              "key_ref": null
+            },
+            "key": "goal_completion",
+            "kind": "llm_judge",
+            "value_type": "boolean",
+            "scale": null,
+            "unit": null,
+            "requires": [
+              "transcript"
+            ],
+            "languages": [
+              "en",
+              "hi"
+            ],
+            "script_sensitive": false,
+            "aggregation": {
+              "kind": "per_conversation"
+            },
+            "pass_rule": {
+              "kind": "equals_true"
+            },
+            "parameters": [],
+            "implementation_ref": null,
+            "prompt_template": "Expected: {{expected_outcome}}\nTranscript:\n{{transcript}}",
+            "prompt_variables": [
+              "expected_outcome",
+              "transcript"
+            ],
+            "judge_model_ref": {
+              "provider": "openai",
+              "model": "gpt-4.1"
+            }
+          },
+          {
+            "id": "met_01a168a1-da03-7b12-92e7-8951875d16e3",
+            "schema_version": "0.0.1",
+            "created_at": "2026-10-22T10:00:00.000000Z",
+            "metadata": {},
+            "metadata_flags": [],
+            "version": 1,
+            "content_digest": {
+              "scheme": "sha256-jcs/v1",
+              "value": "3a656682749531ed4a7d6046cfe64be9586bd5957b257fd947a9187d448fac06",
+              "key_ref": null
+            },
+            "key": "p95_latency",
+            "kind": "latency",
+            "value_type": "numeric",
+            "scale": null,
+            "unit": "ms",
+            "requires": [
+              "turn_timing"
+            ],
+            "languages": [
+              "en",
+              "hi"
+            ],
+            "script_sensitive": false,
+            "aggregation": {
+              "kind": "per_conversation"
+            },
+            "pass_rule": {
+              "kind": "range",
+              "min": null,
+              "max": 800,
+              "inclusive": true
+            },
+            "parameters": [],
+            "implementation_ref": "builtin:p95_latency",
+            "prompt_template": null,
+            "prompt_variables": null,
+            "judge_model_ref": null
+          }
+        ],
+        "metric_bindings": [
+          {
+            "id": "mbd_01a168a1-da04-7fda-a713-cf74446f4ac2",
+            "schema_version": "0.0.1",
+            "created_at": "2026-10-22T10:00:00.000000Z",
+            "metadata": {},
+            "metadata_flags": [],
+            "version": 1,
+            "content_digest": {
+              "scheme": "sha256-jcs/v1",
+              "value": "11676726fd55c78567379fa4c7aa46055f2ceae997404a88b162475ee8c986c3",
+              "key_ref": null
+            },
+            "evaluator_id": "evl_01a168a1-da01-7300-83c1-816768e5c512",
+            "metric": {
+              "id": "met_01a168a1-da02-7099-a86b-02cb50eaebdf",
+              "version": 1,
+              "content_digest": null
+            },
+            "params": {},
+            "enabled": true
+          },
+          {
+            "id": "mbd_01a168a1-da07-73f7-bd61-54c6cff5b8a7",
+            "schema_version": "0.0.1",
+            "created_at": "2026-10-22T10:00:00.000000Z",
+            "metadata": {},
+            "metadata_flags": [],
+            "version": 1,
+            "content_digest": {
+              "scheme": "sha256-jcs/v1",
+              "value": "e4e3801934c32b663e249e42f4ac3ca9d276f301575bb92b2f356e77db52ba29",
+              "key_ref": null
+            },
+            "evaluator_id": "evl_01a168a1-da01-7300-83c1-816768e5c512",
+            "metric": {
+              "id": "met_01a168a1-da03-7b12-92e7-8951875d16e3",
+              "version": 1,
+              "content_digest": null
+            },
+            "params": {},
+            "enabled": true
+          }
+        ],
+        "rubric": {
+          "id": "rub_01a168a1-da0d-7bff-860f-8c8ce512a521",
+          "schema_version": "0.0.1",
+          "created_at": "2026-10-22T10:00:00.000000Z",
+          "metadata": {},
+          "metadata_flags": [],
+          "version": 1,
+          "content_digest": {
+            "scheme": "sha256-jcs/v1",
+            "value": "9dc09b6d692b450ac2ea9e1ddd5fb8d36baa8c9e07ee429f4db6b87e63a5bb70",
+            "key_ref": null
+          },
+          "items": [
+            {
+              "binding": {
+                "id": "mbd_01a168a1-da04-7fda-a713-cf74446f4ac2",
+                "version": 1,
+                "content_digest": null
+              },
+              "required": true,
+              "weight": null
+            },
+            {
+              "binding": {
+                "id": "mbd_01a168a1-da07-73f7-bd61-54c6cff5b8a7",
+                "version": 1,
+                "content_digest": null
+              },
+              "required": true,
+              "weight": "5"
+            }
+          ]
+        },
+        "pricing_catalog": {
+          "id": "pcat_01a168a1-da0f-7de8-a9f8-9b48ecbbbe30",
+          "version": 1,
+          "content_digest": {
+            "scheme": "sha256-jcs/v1",
+            "value": "88b97c834da20beb44bd773c000f8e1ee577718209f6de25a15043f48664d1d9",
+            "key_ref": null
+          }
+        }
+      },
+      "pricing_catalogs": [
+        {
+          "id": "pcat_01a168a1-da0f-7de8-a9f8-9b48ecbbbe30",
+          "schema_version": "0.0.1",
+          "created_at": "2026-10-22T10:00:00.000000Z",
+          "metadata": {},
+          "metadata_flags": [],
+          "version": 1,
+          "content_digest": {
+            "scheme": "sha256-jcs/v1",
+            "value": "88b97c834da20beb44bd773c000f8e1ee577718209f6de25a15043f48664d1d9",
+            "key_ref": null
+          },
+          "entries": [
+            {
+              "entry_key": "price-00001",
+              "provider": "openai",
+              "model": "gpt-4.1",
+              "aliases": [],
+              "unit": "input_tokens",
+              "unit_quantity": "1000000",
+              "price": {
+                "amount": "0.15",
+                "currency": "USD"
+              },
+              "billing": {
+                "increment": "none",
+                "minimum": "none"
+              },
+              "effective_from": "2026-01-01T00:00:00.000000Z",
+              "effective_to": null,
+              "applies_when": null,
+              "price_source": "catalog",
+              "provenance": {
+                "kind": "provider_price_page",
+                "url": "https://example.com/pricing",
+                "retrieved_at": "2026-10-01T00:00:00.000000Z",
+                "note": null
+              }
+            }
+          ],
+          "published_at": "2026-10-01T00:00:00.000000Z"
+        }
+      ],
+      "test_profiles": [],
+      "artifacts": [
+        {
+          "id": "art_01a168a1-da11-71bf-8766-d582ff7a77ea",
+          "schema_version": "0.0.1",
+          "created_at": "2026-10-22T10:00:00.000000Z",
+          "metadata": {},
+          "metadata_flags": [],
+          "uri": "https://recordings.example.com/calls/2026/10/call-0001.wav",
+          "sha256": "abababababababababababababababababababababababababababababababab",
+          "size": 1234567,
+          "audio_format": {
+            "container": "wav",
+            "codec": "pcm_s16le",
+            "sample_rate_hz": 16000,
+            "channels": 2,
+            "bits_per_sample": 16
+          },
+          "turn_ref": null,
+          "privacy": {
+            "human_subject": true,
+            "human_subject_reason": null,
+            "consent": {
+              "status": "not_obtained",
+              "reference": "consent-form-2026-10-01",
+              "recorded_at": "2026-10-01T09:00:00.000000Z"
+            },
+            "retention": {
+              "retain_until": "2027-10-01T00:00:00.000000Z",
+              "policy_ref": "policy:retain-12-months",
+              "delete_on_expiry": true
+            }
+          }
+        }
+      ],
+      "transcripts": [
+        {
+          "id": "tsc_01a168a1-da12-76bd-89bf-de9027292463",
+          "schema_version": "0.0.1",
+          "created_at": "2026-10-22T10:00:00.000000Z",
+          "metadata": {},
+          "metadata_flags": [],
+          "source": "our_stt",
+          "provider": null,
+          "model": null,
+          "detected_language": null,
+          "detected_language_raw": null,
+          "language_confidence": null,
+          "declared_language": null,
+          "timeline_origin": null,
+          "provider_call_ref": null,
+          "privacy": {
+            "human_subject": true,
+            "human_subject_reason": null,
+            "consent": {
+              "status": "not_obtained",
+              "reference": "consent-form-2026-10-01",
+              "recorded_at": "2026-10-01T09:00:00.000000Z"
+            },
+            "retention": {
+              "retain_until": "2027-10-01T00:00:00.000000Z",
+              "policy_ref": "policy:retain-12-months",
+              "delete_on_expiry": true
+            }
+          }
+        }
+      ],
+      "turns": [
+        {
+          "id": "turn_01a168a1-da1b-7f49-84ae-3262abd2df54",
+          "schema_version": "0.0.1",
+          "created_at": "2026-10-22T10:00:00.000000Z",
+          "metadata": {},
+          "metadata_flags": [],
+          "transcript_id": "tsc_01a168a1-da12-76bd-89bf-de9027292463",
+          "seq": 0,
+          "role": "caller",
+          "start_ms": null,
+          "end_ms": null,
+          "wall_time": null,
+          "timing_source": "none",
+          "source": "agent_stt",
+          "text": "turn 0 text",
+          "segments": null,
+          "language": null,
+          "language_raw": null,
+          "interrupted": null,
+          "exchange_index": 0,
+          "contains_bidi_controls": false
+        },
+        {
+          "id": "turn_01a168a1-da1c-76f5-9562-ec6ab140090b",
+          "schema_version": "0.0.1",
+          "created_at": "2026-10-22T10:00:00.000000Z",
+          "metadata": {},
+          "metadata_flags": [],
+          "transcript_id": "tsc_01a168a1-da12-76bd-89bf-de9027292463",
+          "seq": 1,
+          "role": "agent",
+          "start_ms": null,
+          "end_ms": null,
+          "wall_time": null,
+          "timing_source": "none",
+          "source": "agent_llm_output",
+          "text": "turn 1 text",
+          "segments": null,
+          "language": null,
+          "language_raw": null,
+          "interrupted": null,
+          "exchange_index": 0,
+          "contains_bidi_controls": false
+        },
+        {
+          "id": "turn_01a168a1-da1d-7461-8d6e-00707e5ed854",
+          "schema_version": "0.0.1",
+          "created_at": "2026-10-22T10:00:00.000000Z",
+          "metadata": {},
+          "metadata_flags": [],
+          "transcript_id": "tsc_01a168a1-da12-76bd-89bf-de9027292463",
+          "seq": 2,
+          "role": "caller",
+          "start_ms": null,
+          "end_ms": null,
+          "wall_time": null,
+          "timing_source": "none",
+          "source": "agent_stt",
+          "text": "turn 2 text",
+          "segments": null,
+          "language": null,
+          "language_raw": null,
+          "interrupted": null,
+          "exchange_index": 1,
+          "contains_bidi_controls": false
+        },
+        {
+          "id": "turn_01a168a1-da1e-75f7-bee8-7985312255d2",
+          "schema_version": "0.0.1",
+          "created_at": "2026-10-22T10:00:00.000000Z",
+          "metadata": {},
+          "metadata_flags": [],
+          "transcript_id": "tsc_01a168a1-da12-76bd-89bf-de9027292463",
+          "seq": 3,
+          "role": "agent",
+          "start_ms": null,
+          "end_ms": null,
+          "wall_time": null,
+          "timing_source": "none",
+          "source": "agent_llm_output",
+          "text": "turn 3 text",
+          "segments": null,
+          "language": null,
+          "language_raw": null,
+          "interrupted": null,
+          "exchange_index": 1,
+          "contains_bidi_controls": false
+        }
+      ],
+      "exchanges": [
+        {
+          "id": "exc_01a168a1-da19-7570-8191-c32fa7f550e6",
+          "schema_version": "0.0.1",
+          "created_at": "2026-10-22T10:00:00.000000Z",
+          "metadata": {},
+          "metadata_flags": [],
+          "index": 0,
+          "started_at": null,
+          "duration_ms": null,
+          "was_interrupted": null,
+          "source": "telemetry"
+        },
+        {
+          "id": "exc_01a168a1-da1a-7105-8aa1-a8763f92c7d9",
+          "schema_version": "0.0.1",
+          "created_at": "2026-10-22T10:00:00.000000Z",
+          "metadata": {},
+          "metadata_flags": [],
+          "index": 1,
+          "started_at": null,
+          "duration_ms": null,
+          "was_interrupted": null,
+          "source": "telemetry"
+        }
+      ],
+      "tool_calls": [
+        {
+          "id": "tcl_01a168a1-da1f-7c6d-97dd-9bf35250ba19",
+          "schema_version": "0.0.1",
+          "created_at": "2026-10-22T10:00:00.000000Z",
+          "metadata": {},
+          "metadata_flags": [],
+          "name": "lookup_account",
+          "arguments_raw": "{\"city\": \"Pune\"}",
+          "arguments": {
+            "city": "Pune"
+          },
+          "arguments_complete": true,
+          "result_raw": "{\"ok\": true}",
+          "result_complete": true,
+          "status": "completed",
+          "result_error": false,
+          "seq": 0,
+          "offset_ms": null,
+          "timeline_origin": null,
+          "source": "agent_telemetry",
+          "external_call_id": "call_8f3a2c"
+        },
+        {
+          "id": "tcl_01a168a1-da20-7ac5-aba8-acd6f0896b76",
+          "schema_version": "0.0.1",
+          "created_at": "2026-10-22T10:00:00.000000Z",
+          "metadata": {},
+          "metadata_flags": [],
+          "name": "issue_refund",
+          "arguments_raw": "{\"city\": \"Pune\"}",
+          "arguments": {
+            "city": "Pune"
+          },
+          "arguments_complete": true,
+          "result_raw": "{\"ok\": true}",
+          "result_complete": true,
+          "status": "completed",
+          "result_error": false,
+          "seq": 1,
+          "offset_ms": null,
+          "timeline_origin": null,
+          "source": "agent_telemetry",
+          "external_call_id": "call_8f3a2c"
+        }
+      ],
+      "spans": [
+        {
+          "id": "spn_01a168a1-da21-78aa-82c6-555fce7100f7",
+          "schema_version": "0.0.1",
+          "created_at": "2026-10-22T10:00:00.000000Z",
+          "metadata": {},
+          "metadata_flags": [],
+          "stage": "stt",
+          "stage_raw": null,
+          "provider": "sarvam",
+          "model": "saaras:v4",
+          "start": "2026-10-22T10:00:01.000000Z",
+          "duration_ms": 350,
+          "ttfb_ms": 120,
+          "exchange_index": null,
+          "span_ref": {
+            "system": "otel",
+            "kind": "span_id",
+            "value": "00f067aa0ba902b7"
+          }
+        },
+        {
+          "id": "spn_01a168a1-da22-7d02-ae89-8548ebe04318",
+          "schema_version": "0.0.1",
+          "created_at": "2026-10-22T10:00:00.000000Z",
+          "metadata": {},
+          "metadata_flags": [],
+          "stage": "llm",
+          "stage_raw": null,
+          "provider": "sarvam",
+          "model": "gpt-4.1",
+          "start": "2026-10-22T10:00:01.000000Z",
+          "duration_ms": 350,
+          "ttfb_ms": 120,
+          "exchange_index": null,
+          "span_ref": {
+            "system": "otel",
+            "kind": "span_id",
+            "value": "00f067aa0ba902b7"
+          }
+        }
+      ],
+      "results": [
+        {
+          "id": "res_01a168a1-da23-77b8-84c2-d07e89512163",
+          "schema_version": "0.0.1",
+          "created_at": "2026-10-22T10:00:00.000000Z",
+          "metadata": {},
+          "metadata_flags": [],
+          "metric": {
+            "id": "met_01a168a1-da02-7099-a86b-02cb50eaebdf",
+            "version": 1,
+            "content_digest": {
+              "scheme": "sha256-jcs/v1",
+              "value": "06b5dbc960f1bb3c948d94772ee6d315d9cd1fb6b7a04d3bf974d2da94b9cf41",
+              "key_ref": null
+            }
+          },
+          "status": "scored",
+          "value": true,
+          "passed": true,
+          "na_reason": null,
+          "missing_kinds": [],
+          "error": null,
+          "per_turn": null,
+          "scorer": null,
+          "judge": {
+            "model_ref": {
+              "provider": "openai",
+              "model": "gpt-4.1"
+            },
+            "prompt_sha256": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+            "params": {
+              "temperature": 0
+            },
+            "per_turn": [],
+            "confidence": null,
+            "reported_model": null
+          },
+          "language_source": "observed",
+          "declared_language_transcript_ids": [],
+          "evidence_refs": [
+            {
+              "kind": "turn",
+              "ref_id": "turn_01a168a1-da1c-76f5-9562-ec6ab140090b",
+              "start_ms": null,
+              "end_ms": null
+            },
+            {
+              "kind": "exchange",
+              "ref_id": "exc_01a168a1-da19-7570-8191-c32fa7f550e6",
+              "start_ms": null,
+              "end_ms": null
+            },
+            {
+              "kind": "tool_call",
+              "ref_id": "tcl_01a168a1-da1f-7c6d-97dd-9bf35250ba19",
+              "start_ms": null,
+              "end_ms": null
+            },
+            {
+              "kind": "artifact_range",
+              "ref_id": "art_01a168a1-da11-71bf-8766-d582ff7a77ea",
+              "start_ms": 100,
+              "end_ms": 900
+            },
+            {
+              "kind": "span",
+              "ref_id": "spn_01a168a1-da21-78aa-82c6-555fce7100f7",
+              "start_ms": null,
+              "end_ms": null
+            }
+          ]
+        },
+        {
+          "id": "res_01a168a1-da24-7ed0-be29-92b13737f44f",
+          "schema_version": "0.0.1",
+          "created_at": "2026-10-22T10:00:00.000000Z",
+          "metadata": {},
+          "metadata_flags": [],
+          "metric": {
+            "id": "met_01a168a1-da03-7b12-92e7-8951875d16e3",
+            "version": 1,
+            "content_digest": null
+          },
+          "status": "scored",
+          "value": 420,
+          "passed": true,
+          "na_reason": null,
+          "missing_kinds": [],
+          "error": null,
+          "per_turn": null,
+          "scorer": {
+            "implementation_ref": "builtin:p95_latency",
+            "version": "1.4.2"
+          },
+          "judge": null,
+          "language_source": "observed",
+          "declared_language_transcript_ids": [],
+          "evidence_refs": []
+        }
+      ],
+      "verdict": {
+        "id": "vrd_01a168a1-da25-7540-80f6-52d4eb4c5f47",
+        "schema_version": "0.0.1",
+        "created_at": "2026-10-22T10:00:00.000000Z",
+        "metadata": {},
+        "metadata_flags": [],
+        "required_total": 2,
+        "passed": 2,
+        "failed": 0,
+        "not_applicable": 0,
+        "errored": 0,
+        "status": "pass",
+        "checks": [
+          {
+            "binding_id": "mbd_01a168a1-da04-7fda-a713-cf74446f4ac2",
+            "metric_ref": {
+              "id": "met_01a168a1-da02-7099-a86b-02cb50eaebdf",
+              "version": 1,
+              "content_digest": null
+            },
+            "outcome": "passed",
+            "result_id": "res_01a168a1-da23-77b8-84c2-d07e89512163"
+          },
+          {
+            "binding_id": "mbd_01a168a1-da07-73f7-bd61-54c6cff5b8a7",
+            "metric_ref": {
+              "id": "met_01a168a1-da03-7b12-92e7-8951875d16e3",
+              "version": 1,
+              "content_digest": null
+            },
+            "outcome": "passed",
+            "result_id": "res_01a168a1-da24-7ed0-be29-92b13737f44f"
+          }
+        ],
+        "weighted_score": "1",
+        "weight_coverage": "1",
+        "weighted_excluded": []
+      },
+      "usage_records": [
+        {
+          "id": "use_01a168a1-da26-733e-9791-e739dbcf6456",
+          "schema_version": "0.0.1",
+          "created_at": "2026-10-22T10:00:00.000000Z",
+          "metadata": {},
+          "metadata_flags": [],
+          "run_id": "run_01a168a1-da13-7602-9bba-6beac5e4fbcf",
+          "domain": "evaluation",
+          "stage": "judge",
+          "provider": "openai",
+          "model": "gpt-4.1",
+          "provider_call_ref": null,
+          "occurred_at": null,
+          "quantities": [
+            {
+              "unit": "input_tokens",
+              "count": 1000
+            },
+            {
+              "unit": "output_tokens",
+              "count": 200
+            }
+          ],
+          "source": "provider_reported",
+          "raw": null
+        },
+        {
+          "id": "use_01a168a1-da28-79d6-b309-7b01557e39a7",
+          "schema_version": "0.0.1",
+          "created_at": "2026-10-22T10:00:00.000000Z",
+          "metadata": {},
+          "metadata_flags": [],
+          "run_id": "run_01a168a1-da13-7602-9bba-6beac5e4fbcf",
+          "domain": "evaluation",
+          "stage": "sim_caller_llm",
+          "provider": "openai",
+          "model": "gpt-4.1",
+          "provider_call_ref": null,
+          "occurred_at": null,
+          "quantities": [
+            {
+              "unit": "input_tokens",
+              "count": 1000000
+            }
+          ],
+          "source": "provider_reported",
+          "raw": null
+        },
+        {
+          "id": "use_01a168a1-da30-771f-9253-602462d55ada",
+          "schema_version": "0.0.1",
+          "created_at": "2026-10-22T10:00:00.000000Z",
+          "metadata": {},
+          "metadata_flags": [],
+          "run_id": "run_01a168a1-da13-7602-9bba-6beac5e4fbcf",
+          "domain": "agent_under_test",
+          "stage": "llm",
+          "provider": "openai",
+          "model": "gpt-4.1",
+          "provider_call_ref": null,
+          "occurred_at": null,
+          "quantities": [
+            {
+              "unit": "input_tokens",
+              "count": 500
+            }
+          ],
+          "source": "telemetry",
+          "raw": null
+        }
+      ],
+      "cost_records": [
+        {
+          "id": "cst_01a168a1-da2a-7f35-b24f-fa6507e47b49",
+          "schema_version": "0.0.1",
+          "created_at": "2026-10-22T10:00:00.000000Z",
+          "metadata": {},
+          "metadata_flags": [],
+          "domain": "evaluation",
+          "usage_record_ids": [
+            "use_01a168a1-da26-733e-9791-e739dbcf6456"
+          ],
+          "status": "available",
+          "amount": {
+            "amount": "1.5",
+            "currency": "USD"
+          },
+          "basis": "reported",
+          "reported_by": "provider",
+          "pricing_snapshot": null,
+          "rounding": null,
+          "na_reason": null,
+          "unpriced_units": [],
+          "reported_raw": null
+        },
+        {
+          "id": "cst_01a168a1-da2c-79dd-8142-960e1c9bb55f",
+          "schema_version": "0.0.1",
+          "created_at": "2026-10-22T10:00:00.000000Z",
+          "metadata": {},
+          "metadata_flags": [],
+          "domain": "evaluation",
+          "usage_record_ids": [
+            "use_01a168a1-da28-79d6-b309-7b01557e39a7"
+          ],
+          "status": "available",
+          "amount": {
+            "amount": "0.15",
+            "currency": "USD"
+          },
+          "basis": "computed",
+          "reported_by": null,
+          "pricing_snapshot": {
+            "catalog_id": "pcat_01a168a1-da0f-7de8-a9f8-9b48ecbbbe30",
+            "version": 1,
+            "content_digest": {
+              "scheme": "sha256-jcs/v1",
+              "value": "88b97c834da20beb44bd773c000f8e1ee577718209f6de25a15043f48664d1d9",
+              "key_ref": null
+            },
+            "entry_keys": [
+              "price-00001"
+            ]
+          },
+          "rounding": null,
+          "na_reason": null,
+          "unpriced_units": [],
+          "reported_raw": null
+        }
+      ],
+      "cost_summaries": [
+        {
+          "id": "csum_01a168a1-da2e-71de-8e72-01a814a487b7",
+          "schema_version": "0.0.1",
+          "created_at": "2026-10-22T10:00:00.000000Z",
+          "metadata": {},
+          "metadata_flags": [],
+          "domain": "evaluation",
+          "total": {
+            "amount": "1.65",
+            "currency": "USD"
+          },
+          "included": [
+            "cst_01a168a1-da2a-7f35-b24f-fa6507e47b49",
+            "cst_01a168a1-da2c-79dd-8142-960e1c9bb55f"
+          ],
+          "excluded": [],
+          "completeness": "complete"
+        }
+      ],
+      "withheld": []
+    }
+  ],
+  "datasets": [],
+  "dataset_items": [],
+  "sealed_payloads": [],
+  "payload_redactions": [
+    {
+      "subject_id": "art_01a168a1-da11-71bf-8766-d582ff7a77ea",
+      "redaction": {
+        "method": "ner_mask",
+        "tool_ref": "redactor 1.4.2",
+        "performed_at": "2026-10-22T10:00:00.000000Z",
+        "covers": [
+          "audio"
+        ]
+      }
+    },
+    {
+      "subject_id": "tsc_01a168a1-da12-76bd-89bf-de9027292463",
+      "redaction": {
+        "method": "ner_mask",
+        "tool_ref": "redactor 1.4.2",
+        "performed_at": "2026-10-22T10:00:00.000000Z",
+        "covers": [
+          "text"
+        ]
+      }
+    },
+    {
+      "subject_id": "tcl_01a168a1-da1f-7c6d-97dd-9bf35250ba19",
+      "redaction": {
+        "method": "ner_mask",
+        "tool_ref": "redactor 1.4.2",
+        "performed_at": "2026-10-22T10:00:00.000000Z",
+        "covers": [
+          "tool_arguments",
+          "tool_result"
+        ]
+      }
+    },
+    {
+      "subject_id": "tcl_01a168a1-da20-7ac5-aba8-acd6f0896b76",
+      "redaction": {
+        "method": "ner_mask",
+        "tool_ref": "redactor 1.4.2",
+        "performed_at": "2026-10-22T10:00:00.000000Z",
+        "covers": [
+          "tool_arguments",
+          "tool_result"
+        ]
+      }
+    }
+  ],
+  "provenance_redactions": []
+}

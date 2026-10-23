@@ -1,0 +1,58 @@
+{
+  "id": "met_01a168a1-da00-739d-aac4-465674c81043",
+  "schema_version": "0.0.1",
+  "created_at": "2026-10-23T12:00:00.000000Z",
+  "metadata": {
+    "source": "golden fixture",
+    "labels": [
+      "synthetic",
+      "regression"
+    ],
+    "nested": {
+      "rank": 3,
+      "ratio": 0.5,
+      "flag": true,
+      "none": null
+    }
+  },
+  "metadata_flags": [],
+  "version": 1,
+  "content_digest": {
+    "scheme": "sha256-jcs/v1",
+    "value": "f72a41dcf1a78816c8ae1896c1fd4c74ed7df14fe54dab6b5761ea95dcfebfd0",
+    "key_ref": null
+  },
+  "key": "silence_ratio",
+  "kind": "deterministic",
+  "value_type": "numeric",
+  "scale": null,
+  "unit": "ratio",
+  "requires": [
+    "audio"
+  ],
+  "languages": [
+    "en-IN",
+    "hi-IN"
+  ],
+  "script_sensitive": false,
+  "aggregation": {
+    "kind": "per_turn_share",
+    "turn_rule": {
+      "kind": "range",
+      "min": null,
+      "max": 0.3,
+      "inclusive": true
+    }
+  },
+  "pass_rule": {
+    "kind": "range",
+    "min": 0.9,
+    "max": null,
+    "inclusive": true
+  },
+  "parameters": [],
+  "implementation_ref": "builtin:silence_ratio",
+  "prompt_template": null,
+  "prompt_variables": null,
+  "judge_model_ref": null
+}

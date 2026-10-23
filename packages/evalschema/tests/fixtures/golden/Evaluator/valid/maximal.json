@@ -1,0 +1,114 @@
+{
+  "id": "evl_01a168a1-da05-7ce3-9892-99f5fd30d1d1",
+  "schema_version": "0.0.1",
+  "created_at": "2026-10-23T12:00:00.000000Z",
+  "metadata": {
+    "source": "golden fixture",
+    "labels": [
+      "synthetic",
+      "regression"
+    ],
+    "nested": {
+      "rank": 3,
+      "ratio": 0.5,
+      "flag": true,
+      "none": null
+    }
+  },
+  "metadata_flags": [],
+  "version": 2,
+  "content_digest": {
+    "scheme": "sha256-jcs/v1",
+    "value": "4a499ae77d48d09a1735f2d2b8d251e4164b6c6214dc8f14c270e4b865c76c18",
+    "key_ref": null
+  },
+  "name": "रिफंड अनुरोध",
+  "language": "hi-IN",
+  "instructions": "आप ग्राहक हैं। {{profile.name}} के नाम से पहचान दें और खाता {{profile.account_number}} का रिफंड मांगें।",
+  "expected_outcome": "एजेंट रिफंड शुरू करता है और संदर्भ संख्या देता है।",
+  "persona": {
+    "id": "per_01a168a1-da00-77f4-af5b-934f4d22e796",
+    "version": 2,
+    "content_digest": {
+      "scheme": "sha256-jcs/v1",
+      "value": "5e815286bca594454b291f3b0350ec22aab6de20b6d9efeec67d604f6bce65ee",
+      "key_ref": null
+    }
+  },
+  "test_profile": {
+    "id": "tpf_01a168a1-da01-726f-b34d-7b946fe9b498",
+    "version": 3,
+    "content_digest": {
+      "scheme": "sha256-jcs/v1",
+      "value": "1900eab6c028483d7126599ee6f50de0d27907b5c65fa90524580b4b0f9852b0",
+      "key_ref": null
+    }
+  },
+  "metric_bindings": [
+    {
+      "id": "mbd_01a168a1-da02-7bb8-b917-9f72991227e6",
+      "version": 1,
+      "content_digest": {
+        "scheme": "sha256-jcs/v1",
+        "value": "2557a7f63fd2aa33f7880e8f787f08959054a9fde0c5fd14341dedca6aff58d9",
+        "key_ref": null
+      }
+    },
+    {
+      "id": "mbd_01a168a1-da03-725b-9ffa-4c63828e4c3d",
+      "version": 1,
+      "content_digest": {
+        "scheme": "hmac-sha256-jcs/v1",
+        "value": "bfe08c0f4b5eca4efa9e3ec2ac9962d0c5e181aab9de1d6def90b852548ccec9",
+        "key_ref": {
+          "key_id": "profile-hmac-1",
+          "key_version": "2",
+          "provider_hint": "local-kms"
+        }
+      }
+    },
+    {
+      "id": "mbd_01a168a1-da04-7fdb-86a4-3d88cfbcda85",
+      "version": 1,
+      "content_digest": null
+    }
+  ],
+  "scripted_turns": [
+    {
+      "index": 0,
+      "text": "नमस्ते",
+      "language": "hi-IN"
+    },
+    {
+      "index": 1,
+      "text": "My name is {{profile.name}}",
+      "language": "en-IN"
+    }
+  ],
+  "expected_tool_calls": [
+    {
+      "name": "lookup_account",
+      "match": "name_only",
+      "arguments": null,
+      "order_index": 0
+    },
+    {
+      "name": "issue_refund",
+      "match": "arguments_exact",
+      "arguments": {
+        "account": "{{profile.account_number}}",
+        "amount": 499
+      },
+      "order_index": 1
+    },
+    {
+      "name": "send_sms",
+      "match": "arguments_subset",
+      "arguments": {
+        "template": "refund_started"
+      },
+      "order_index": 2
+    }
+  ],
+  "max_duration_ms": 900000
+}

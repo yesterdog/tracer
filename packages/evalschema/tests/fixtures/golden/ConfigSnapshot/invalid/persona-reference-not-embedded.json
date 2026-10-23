@@ -1,0 +1,244 @@
+{
+  "id": "snap_01a168a1-da11-74e6-b62a-f079774b075a",
+  "schema_version": "0.0.1",
+  "created_at": "2026-10-22T10:00:00.000000Z",
+  "metadata": {
+    "source": "golden fixture",
+    "labels": [
+      "synthetic"
+    ],
+    "n": 3
+  },
+  "metadata_flags": [],
+  "evaluator": {
+    "id": "evl_01a168a1-da01-700a-bdac-a8ad1d67b2c8",
+    "schema_version": "0.0.1",
+    "created_at": "2026-10-22T10:00:00.000000Z",
+    "metadata": {},
+    "metadata_flags": [],
+    "version": 1,
+    "name": "Refund request",
+    "language": "hi-IN",
+    "instructions": "Greet {{profile.name}} and ask for a refund.",
+    "expected_outcome": "The agent starts a refund and gives a reference number.",
+    "persona": {
+      "id": "per_01a168a1-da12-7422-b250-9308e942363c",
+      "version": 1,
+      "content_digest": null
+    },
+    "test_profile": {
+      "id": "tpf_01a168a1-da0a-7e2f-af06-a9a80b3bbaad",
+      "version": 1,
+      "content_digest": null
+    },
+    "metric_bindings": [
+      {
+        "id": "mbd_01a168a1-da04-7323-98b8-5e9bd2fe476c",
+        "version": 1,
+        "content_digest": null
+      },
+      {
+        "id": "mbd_01a168a1-da07-7b0d-a301-a447da711022",
+        "version": 1,
+        "content_digest": null
+      }
+    ],
+    "scripted_turns": [],
+    "expected_tool_calls": [],
+    "max_duration_ms": 300000,
+    "content_digest": {
+      "scheme": "sha256-jcs/v1",
+      "value": "df7171acb5df0065c8dfd995fb7eeb900a4b6b936e8d8106d8f684ded145e5c3"
+    }
+  },
+  "persona": {
+    "id": "per_01a168a1-da00-7f07-86ed-2eb99a1c3972",
+    "schema_version": "0.0.1",
+    "created_at": "2026-10-22T10:00:00.000000Z",
+    "metadata": {},
+    "metadata_flags": [],
+    "version": 1,
+    "content_digest": {
+      "scheme": "sha256-jcs/v1",
+      "value": "003506acc43e227e106c4eb5c0f8f95614237d2d2b6168cc6eacff540d867227",
+      "key_ref": null
+    },
+    "language": "hi-IN",
+    "accent": "Delhi"
+  },
+  "metric_definitions": [
+    {
+      "id": "met_01a168a1-da02-7186-9de2-91d9ea2e9300",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "version": 1,
+      "content_digest": {
+        "scheme": "sha256-jcs/v1",
+        "value": "5a09193a221380b20c8150b36d35c99b61b91e36a6b0c520707e21892005bb13",
+        "key_ref": null
+      },
+      "key": "goal_completion",
+      "kind": "llm_judge",
+      "value_type": "boolean",
+      "scale": null,
+      "unit": null,
+      "requires": [
+        "transcript"
+      ],
+      "languages": [
+        "en",
+        "hi"
+      ],
+      "script_sensitive": false,
+      "aggregation": {
+        "kind": "per_conversation"
+      },
+      "pass_rule": {
+        "kind": "equals_true"
+      },
+      "parameters": [],
+      "implementation_ref": null,
+      "prompt_template": "Expected: {{expected_outcome}}\nTranscript:\n{{transcript}}",
+      "prompt_variables": [
+        "expected_outcome",
+        "transcript"
+      ],
+      "judge_model_ref": {
+        "provider": "openai",
+        "model": "gpt-4.1"
+      }
+    },
+    {
+      "id": "met_01a168a1-da03-7fe0-8da4-6122ce0373c6",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "version": 1,
+      "content_digest": {
+        "scheme": "sha256-jcs/v1",
+        "value": "bbf43530534f577546a68f5aabd72a2c3821f1c9161f5321759a3f9d7fbcb288",
+        "key_ref": null
+      },
+      "key": "p95_latency",
+      "kind": "latency",
+      "value_type": "numeric",
+      "scale": null,
+      "unit": "ms",
+      "requires": [
+        "turn_timing"
+      ],
+      "languages": [
+        "en",
+        "hi"
+      ],
+      "script_sensitive": false,
+      "aggregation": {
+        "kind": "per_conversation"
+      },
+      "pass_rule": {
+        "kind": "range",
+        "min": null,
+        "max": 800,
+        "inclusive": true
+      },
+      "parameters": [],
+      "implementation_ref": "builtin:p95_latency",
+      "prompt_template": null,
+      "prompt_variables": null,
+      "judge_model_ref": null
+    }
+  ],
+  "metric_bindings": [
+    {
+      "id": "mbd_01a168a1-da04-7323-98b8-5e9bd2fe476c",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "version": 1,
+      "content_digest": {
+        "scheme": "sha256-jcs/v1",
+        "value": "4d9f23c00e31d8a6b4440fdf30323013f8e39b0ca599f40772d53f735c0fc859",
+        "key_ref": null
+      },
+      "evaluator_id": "evl_01a168a1-da01-700a-bdac-a8ad1d67b2c8",
+      "metric": {
+        "id": "met_01a168a1-da02-7186-9de2-91d9ea2e9300",
+        "version": 1,
+        "content_digest": null
+      },
+      "params": {},
+      "enabled": true
+    },
+    {
+      "id": "mbd_01a168a1-da07-7b0d-a301-a447da711022",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "version": 1,
+      "content_digest": {
+        "scheme": "sha256-jcs/v1",
+        "value": "94d33cef2c493d77c5e8de4d6f0aa34a62b84bce8ceffb3a4f6105d165e1da6a",
+        "key_ref": null
+      },
+      "evaluator_id": "evl_01a168a1-da01-700a-bdac-a8ad1d67b2c8",
+      "metric": {
+        "id": "met_01a168a1-da03-7fe0-8da4-6122ce0373c6",
+        "version": 1,
+        "content_digest": null
+      },
+      "params": {},
+      "enabled": true
+    }
+  ],
+  "rubric": {
+    "id": "rub_01a168a1-da0e-75ff-a14a-8a55e190611f",
+    "schema_version": "0.0.1",
+    "created_at": "2026-10-22T10:00:00.000000Z",
+    "metadata": {},
+    "metadata_flags": [],
+    "version": 1,
+    "content_digest": {
+      "scheme": "sha256-jcs/v1",
+      "value": "77e6d604bf844f99c26b1fd1afbfbe4f6ce70fccb35f242827eabd9edd02077e",
+      "key_ref": null
+    },
+    "items": [
+      {
+        "binding": {
+          "id": "mbd_01a168a1-da04-7323-98b8-5e9bd2fe476c",
+          "version": 1,
+          "content_digest": null
+        },
+        "required": true,
+        "weight": null
+      },
+      {
+        "binding": {
+          "id": "mbd_01a168a1-da07-7b0d-a301-a447da711022",
+          "version": 1,
+          "content_digest": null
+        },
+        "required": true,
+        "weight": "5"
+      }
+    ]
+  },
+  "pricing_catalog": {
+    "id": "pcat_01a168a1-da10-7deb-8504-9ee47bab41b0",
+    "version": 2,
+    "content_digest": {
+      "scheme": "sha256-jcs/v1",
+      "value": "652f55016243bf1b9f1bbea46d5749ef892dbe394e46de9d66ab1aacf0b4af57",
+      "key_ref": null
+    }
+  },
+  "content_digest": {
+    "scheme": "sha256-jcs/v1",
+    "value": "47bf562358687f6437c9335b64179fa35d02608f632d3d54f1380b411d86cf4d"
+  }
+}

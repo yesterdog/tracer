@@ -1,0 +1,274 @@
+{
+  "id": "rbnd_01a168a1-da13-7367-961d-09ddc8ec52a2",
+  "schema_version": "0.0.1",
+  "created_at": "2026-10-23T12:00:00.000000Z",
+  "metadata": {},
+  "metadata_flags": [],
+  "run": {
+    "id": "run_01a168a1-da12-7898-ba39-b5836674cc72",
+    "schema_version": "0.0.1",
+    "created_at": "2026-10-23T12:00:00.000000Z",
+    "metadata": {},
+    "metadata_flags": [],
+    "project_id": "prj_01a168a1-da10-7127-a401-f9eddb781a6c",
+    "agent_target": {
+      "id": "agt_01a168a1-da11-7fa4-be4d-1ec1cf4929ab",
+      "version": 1,
+      "content_digest": null
+    },
+    "config_snapshot_id": "snap_01a168a1-da0f-70ff-a4ef-c5953b47695b",
+    "mode": "simulated",
+    "caller_origin": "simulated",
+    "started_at": null,
+    "caller_external_id": null,
+    "detected_capabilities": [],
+    "channel_maps": [],
+    "available_inputs": [],
+    "observed_tier": "T0",
+    "external_refs": [],
+    "ingest_warnings": []
+  },
+  "snapshot": {
+    "id": "snap_01a168a1-da0f-70ff-a4ef-c5953b47695b",
+    "schema_version": "0.0.1",
+    "created_at": "2026-10-22T10:00:00.000000Z",
+    "metadata": {},
+    "metadata_flags": [],
+    "content_digest": {
+      "scheme": "sha256-jcs/v1",
+      "value": "0b8af6d662c6f997fb151a201c1600983356d5e6480a001ebb6b6a81210ec902",
+      "key_ref": null
+    },
+    "evaluator": {
+      "id": "evl_01a168a1-da01-7803-a63d-96cf47f0e965",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "version": 1,
+      "content_digest": {
+        "scheme": "sha256-jcs/v1",
+        "value": "38f1f45fcf73691dece94cb5adabb63e90b49218dfad09586c21c0f2fec45b4e",
+        "key_ref": null
+      },
+      "name": "Refund request",
+      "language": "hi-IN",
+      "instructions": "Ask for a refund of the last order and stay polite.",
+      "expected_outcome": "The agent starts a refund and gives a reference number.",
+      "persona": {
+        "id": "per_01a168a1-da00-7189-83ff-30d64861c174",
+        "version": 1,
+        "content_digest": null
+      },
+      "test_profile": null,
+      "metric_bindings": [
+        {
+          "id": "mbd_01a168a1-da04-75a9-9cd7-49726d9935d9",
+          "version": 1,
+          "content_digest": null
+        },
+        {
+          "id": "mbd_01a168a1-da07-75ce-af4a-7969d4e04b9c",
+          "version": 1,
+          "content_digest": null
+        }
+      ],
+      "scripted_turns": [],
+      "expected_tool_calls": [],
+      "max_duration_ms": 300000
+    },
+    "persona": {
+      "id": "per_01a168a1-da00-7189-83ff-30d64861c174",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "version": 1,
+      "content_digest": {
+        "scheme": "sha256-jcs/v1",
+        "value": "b0dc9d11470ebee393ac2522d82652792ae361f92083cb9a2182fa8e6c341763",
+        "key_ref": null
+      },
+      "language": "hi-IN",
+      "accent": "Delhi"
+    },
+    "metric_definitions": [
+      {
+        "id": "met_01a168a1-da02-784b-8417-289db8169099",
+        "schema_version": "0.0.1",
+        "created_at": "2026-10-22T10:00:00.000000Z",
+        "metadata": {},
+        "metadata_flags": [],
+        "version": 1,
+        "content_digest": {
+          "scheme": "sha256-jcs/v1",
+          "value": "6a7c36b43051503a06c40092c394bc49ea83c829f4ad1dd911adfa1b1c51e478",
+          "key_ref": null
+        },
+        "key": "goal_completion",
+        "kind": "llm_judge",
+        "value_type": "boolean",
+        "scale": null,
+        "unit": null,
+        "requires": [
+          "transcript"
+        ],
+        "languages": [
+          "en",
+          "hi"
+        ],
+        "script_sensitive": false,
+        "aggregation": {
+          "kind": "per_conversation"
+        },
+        "pass_rule": {
+          "kind": "equals_true"
+        },
+        "parameters": [],
+        "implementation_ref": null,
+        "prompt_template": "Expected: {{expected_outcome}}\nTranscript:\n{{transcript}}",
+        "prompt_variables": [
+          "expected_outcome",
+          "transcript"
+        ],
+        "judge_model_ref": {
+          "provider": "openai",
+          "model": "gpt-4.1"
+        }
+      },
+      {
+        "id": "met_01a168a1-da03-76d7-9557-0659850da36b",
+        "schema_version": "0.0.1",
+        "created_at": "2026-10-22T10:00:00.000000Z",
+        "metadata": {},
+        "metadata_flags": [],
+        "version": 1,
+        "content_digest": {
+          "scheme": "sha256-jcs/v1",
+          "value": "a21a2de3a323a7be3b485d660f1a243cdb33f6d5e090ce0c0d26458e465c9aa6",
+          "key_ref": null
+        },
+        "key": "p95_latency",
+        "kind": "latency",
+        "value_type": "numeric",
+        "scale": null,
+        "unit": "ms",
+        "requires": [
+          "turn_timing"
+        ],
+        "languages": [
+          "en",
+          "hi"
+        ],
+        "script_sensitive": false,
+        "aggregation": {
+          "kind": "per_conversation"
+        },
+        "pass_rule": {
+          "kind": "range",
+          "min": null,
+          "max": 800,
+          "inclusive": true
+        },
+        "parameters": [],
+        "implementation_ref": "builtin:p95_latency",
+        "prompt_template": null,
+        "prompt_variables": null,
+        "judge_model_ref": null
+      }
+    ],
+    "metric_bindings": [
+      {
+        "id": "mbd_01a168a1-da04-75a9-9cd7-49726d9935d9",
+        "schema_version": "0.0.1",
+        "created_at": "2026-10-22T10:00:00.000000Z",
+        "metadata": {},
+        "metadata_flags": [],
+        "version": 1,
+        "content_digest": {
+          "scheme": "sha256-jcs/v1",
+          "value": "2bf9d9d01587945555667035fc0d60cb51f099dfc7e87e5454b2c69e096fd8d9",
+          "key_ref": null
+        },
+        "evaluator_id": "evl_01a168a1-da01-7803-a63d-96cf47f0e965",
+        "metric": {
+          "id": "met_01a168a1-da02-784b-8417-289db8169099",
+          "version": 1,
+          "content_digest": null
+        },
+        "params": {},
+        "enabled": true
+      },
+      {
+        "id": "mbd_01a168a1-da07-75ce-af4a-7969d4e04b9c",
+        "schema_version": "0.0.1",
+        "created_at": "2026-10-22T10:00:00.000000Z",
+        "metadata": {},
+        "metadata_flags": [],
+        "version": 1,
+        "content_digest": {
+          "scheme": "sha256-jcs/v1",
+          "value": "07e2e4607f43e0307862ac5fefb7bb8090e11268380f34397f06f33a9dbcb821",
+          "key_ref": null
+        },
+        "evaluator_id": "evl_01a168a1-da01-7803-a63d-96cf47f0e965",
+        "metric": {
+          "id": "met_01a168a1-da03-76d7-9557-0659850da36b",
+          "version": 1,
+          "content_digest": null
+        },
+        "params": {},
+        "enabled": true
+      }
+    ],
+    "rubric": {
+      "id": "rub_01a168a1-da0d-7b05-beb2-23a159799ddf",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "version": 1,
+      "content_digest": {
+        "scheme": "sha256-jcs/v1",
+        "value": "1a78ebd34a304ded6254e1b606f945b52b2a31e6b2c1f3b2b9b4ff3f279ae5b1",
+        "key_ref": null
+      },
+      "items": [
+        {
+          "binding": {
+            "id": "mbd_01a168a1-da04-75a9-9cd7-49726d9935d9",
+            "version": 1,
+            "content_digest": null
+          },
+          "required": true,
+          "weight": null
+        },
+        {
+          "binding": {
+            "id": "mbd_01a168a1-da07-75ce-af4a-7969d4e04b9c",
+            "version": 1,
+            "content_digest": null
+          },
+          "required": true,
+          "weight": "5"
+        }
+      ]
+    },
+    "pricing_catalog": null
+  },
+  "pricing_catalogs": [],
+  "test_profiles": [],
+  "artifacts": [],
+  "transcripts": [],
+  "turns": [],
+  "exchanges": [],
+  "tool_calls": [],
+  "spans": [],
+  "results": [],
+  "verdict": null,
+  "usage_records": [],
+  "cost_records": [],
+  "cost_summaries": [],
+  "withheld": [],
+  "unexpected_member": 1
+}

@@ -1,0 +1,148 @@
+{
+  "id": "run_01a168a1-da06-7f01-895d-094920fdb604",
+  "schema_version": "0.0.1",
+  "created_at": "2026-10-23T12:00:00.000000Z",
+  "metadata": {
+    "source": "golden fixture",
+    "labels": [
+      "synthetic",
+      "regression"
+    ],
+    "nested": {
+      "rank": 3,
+      "ratio": 0.5,
+      "flag": true,
+      "none": null
+    }
+  },
+  "metadata_flags": [],
+  "project_id": "prj_01a168a1-da00-7882-8b1f-7397ea7eb1c8",
+  "agent_target": {
+    "id": "agt_01a168a1-da01-71d6-8737-744dada3465a",
+    "version": 3,
+    "content_digest": {
+      "scheme": "sha256-jcs/v1",
+      "value": "613ee6f29efb3cebae74d6c5b43293f8ace3539c11e90f52ff0b25204e4010b3",
+      "key_ref": null
+    }
+  },
+  "config_snapshot_id": "snap_01a168a1-da02-72a7-81bb-1e1d550de54c",
+  "mode": "recorded",
+  "caller_origin": "human",
+  "started_at": "2026-10-23T11:59:00.000000Z",
+  "caller_external_id": {
+    "value": "caller-0001",
+    "privacy": {
+      "human_subject": true,
+      "human_subject_reason": "marked_before_role_evidence",
+      "consent": {
+        "status": "unknown",
+        "reference": "none-recorded",
+        "recorded_at": "2026-10-23T12:00:00.000000Z"
+      },
+      "retention": {
+        "retain_until": "2027-01-01T00:00:00.000000Z",
+        "policy_ref": "policy:default",
+        "delete_on_expiry": true
+      }
+    }
+  },
+  "detected_capabilities": [
+    "audio",
+    "agent_audio",
+    "transcript",
+    "agent_transcript",
+    "turn_timing",
+    "tool_calls",
+    "tool_results",
+    "spans",
+    "usage",
+    "reference_text",
+    "expected_tool_calls"
+  ],
+  "channel_maps": [
+    {
+      "artifact_id": "art_01a168a1-da03-79e1-833f-47480c4bffb2",
+      "channels": [
+        {
+          "index": 0,
+          "role": "caller"
+        },
+        {
+          "index": 1,
+          "role": "agent"
+        }
+      ],
+      "determination": "declared",
+      "method": "pipecat_audio_buffer_processor_stereo",
+      "confidence": null
+    },
+    {
+      "artifact_id": "art_01a168a1-da04-779c-bf13-7f734a28498a",
+      "channels": [
+        {
+          "index": 0,
+          "role": "mixed"
+        }
+      ],
+      "determination": "inferred",
+      "method": "energy_correlation",
+      "confidence": 0.9
+    },
+    {
+      "artifact_id": "art_01a168a1-da05-7274-8fc5-1f72c674de7e",
+      "channels": [
+        {
+          "index": 0,
+          "role": "unknown"
+        },
+        {
+          "index": 1,
+          "role": "unknown"
+        }
+      ],
+      "determination": "inferred",
+      "method": "voice_activity_overlap",
+      "confidence": 0.4
+    }
+  ],
+  "available_inputs": [
+    "audio",
+    "agent_audio",
+    "transcript",
+    "agent_transcript",
+    "turn_timing",
+    "tool_calls",
+    "tool_results",
+    "usage",
+    "reference_text",
+    "expected_tool_calls"
+  ],
+  "observed_tier": "T0",
+  "external_refs": [
+    {
+      "system": "voicera",
+      "kind": "call_id",
+      "value": "6a3e0a70-61cf-4a61-9f0e-0c2a1d3b9c11"
+    },
+    {
+      "system": "twilio",
+      "kind": "call_sid",
+      "value": "CA0000000000000000000000000000000"
+    }
+  ],
+  "ingest_warnings": [
+    {
+      "code": "language_label_normalized",
+      "path": "/detected_language",
+      "raw": "hi_IN",
+      "message": "an underscore was replaced by a hyphen"
+    },
+    {
+      "code": "timestamp_truncated",
+      "path": null,
+      "raw": null,
+      "message": "kept 6 digits"
+    }
+  ]
+}

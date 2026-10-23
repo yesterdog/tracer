@@ -1,0 +1,145 @@
+{
+  "id": "run_01a168a1-da06-77d0-8816-fa60b8a845bd",
+  "schema_version": "0.0.1",
+  "created_at": "2026-10-23T12:00:00.000000Z",
+  "metadata": {
+    "source": "golden fixture",
+    "labels": [
+      "synthetic",
+      "regression"
+    ],
+    "nested": {
+      "rank": 3,
+      "ratio": 0.5,
+      "flag": true,
+      "none": null
+    }
+  },
+  "metadata_flags": [],
+  "project_id": "prj_01a168a1-da00-759a-9ee8-ae220da49bdb",
+  "agent_target": {
+    "id": "agt_01a168a1-da01-74e6-a17c-e91ba7852d12",
+    "version": 3,
+    "content_digest": {
+      "scheme": "hmac-sha256-jcs/v1",
+      "value": "613ee6f29efb3cebae74d6c5b43293f8ace3539c11e90f52ff0b25204e4010b3",
+      "key_ref": {
+        "key_id": "profile-hmac-1",
+        "key_version": "2",
+        "provider_hint": "local-kms"
+      }
+    }
+  },
+  "config_snapshot_id": "snap_01a168a1-da02-7503-ba45-92b14ebb9b0d",
+  "mode": "simulated",
+  "caller_origin": "simulated",
+  "started_at": "2026-10-23T11:59:00.000000Z",
+  "caller_external_id": {
+    "value": "caller-0001",
+    "privacy": {
+      "human_subject": false,
+      "human_subject_reason": null,
+      "consent": null,
+      "retention": null
+    }
+  },
+  "detected_capabilities": [
+    "audio",
+    "agent_audio",
+    "transcript",
+    "agent_transcript",
+    "turn_timing",
+    "tool_calls",
+    "tool_results",
+    "spans",
+    "usage",
+    "reference_text",
+    "expected_tool_calls"
+  ],
+  "channel_maps": [
+    {
+      "artifact_id": "art_01a168a1-da03-785a-838a-3be80f135f23",
+      "channels": [
+        {
+          "index": 0,
+          "role": "caller"
+        },
+        {
+          "index": 1,
+          "role": "agent"
+        }
+      ],
+      "determination": "declared",
+      "method": "pipecat_audio_buffer_processor_stereo",
+      "confidence": null
+    },
+    {
+      "artifact_id": "art_01a168a1-da04-726b-8db8-2696206f33ee",
+      "channels": [
+        {
+          "index": 0,
+          "role": "mixed"
+        }
+      ],
+      "determination": "inferred",
+      "method": "energy_correlation",
+      "confidence": 0.9
+    },
+    {
+      "artifact_id": "art_01a168a1-da05-7ffc-a2ef-07b8870ddcd8",
+      "channels": [
+        {
+          "index": 0,
+          "role": "unknown"
+        },
+        {
+          "index": 1,
+          "role": "unknown"
+        }
+      ],
+      "determination": "inferred",
+      "method": "voice_activity_overlap",
+      "confidence": 0.4
+    }
+  ],
+  "available_inputs": [
+    "audio",
+    "agent_audio",
+    "transcript",
+    "agent_transcript",
+    "turn_timing",
+    "tool_calls",
+    "tool_results",
+    "spans",
+    "usage",
+    "reference_text",
+    "expected_tool_calls"
+  ],
+  "observed_tier": "T1",
+  "external_refs": [
+    {
+      "system": "voicera",
+      "kind": "call_id",
+      "value": "6a3e0a70-61cf-4a61-9f0e-0c2a1d3b9c11"
+    },
+    {
+      "system": "twilio",
+      "kind": "call_sid",
+      "value": "CA0000000000000000000000000000000"
+    }
+  ],
+  "ingest_warnings": [
+    {
+      "code": "language_label_normalized",
+      "path": "/detected_language",
+      "raw": "hi_IN",
+      "message": "an underscore was replaced by a hyphen"
+    },
+    {
+      "code": "timestamp_truncated",
+      "path": null,
+      "raw": null,
+      "message": "kept 6 digits"
+    }
+  ]
+}

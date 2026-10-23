@@ -1,0 +1,228 @@
+{
+  "id": "snap_01a168a1-da0f-7f1b-a27c-b61a16f15db9",
+  "schema_version": "0.0.1",
+  "created_at": "2026-10-22T10:00:00.000000Z",
+  "metadata": {},
+  "metadata_flags": [],
+  "content_digest": {
+    "scheme": "sha256-jcs/v1",
+    "value": "d3dda5a100d2bab5f0af9f7b0ddd93b5bce4e43aa6391517a035f548f40593f0",
+    "key_ref": null
+  },
+  "evaluator": {
+    "id": "evl_01a168a1-da01-726c-a8e6-7954350006a7",
+    "schema_version": "0.0.1",
+    "created_at": "2026-10-22T10:00:00.000000Z",
+    "metadata": {},
+    "metadata_flags": [],
+    "version": 1,
+    "content_digest": {
+      "scheme": "sha256-jcs/v1",
+      "value": "0806b7e4db45e91cf45316dc8a2865be1a4043557b43275aba2adc8dc86db057",
+      "key_ref": null
+    },
+    "name": "Refund request",
+    "language": "hi-IN",
+    "instructions": "Ask for a refund of the last order and stay polite.",
+    "expected_outcome": "The agent starts a refund and gives a reference number.",
+    "persona": {
+      "id": "per_01a168a1-da00-7be8-9958-2619786dcf7d",
+      "version": 1,
+      "content_digest": null
+    },
+    "test_profile": null,
+    "metric_bindings": [
+      {
+        "id": "mbd_01a168a1-da04-78ab-a81c-4ac26a0e9a9c",
+        "version": 1,
+        "content_digest": null
+      },
+      {
+        "id": "mbd_01a168a1-da07-7e90-ab84-3328f9edd61a",
+        "version": 1,
+        "content_digest": null
+      }
+    ],
+    "scripted_turns": [],
+    "expected_tool_calls": [],
+    "max_duration_ms": 300000
+  },
+  "persona": {
+    "id": "per_01a168a1-da00-7be8-9958-2619786dcf7d",
+    "schema_version": "0.0.1",
+    "created_at": "2026-10-22T10:00:00.000000Z",
+    "metadata": {},
+    "metadata_flags": [],
+    "version": 1,
+    "content_digest": {
+      "scheme": "sha256-jcs/v1",
+      "value": "b5862025e2e309a30f5a635bdd385bca266bd3b192622d0e9c3c4bdbd3c4ac9b",
+      "key_ref": null
+    },
+    "language": "hi-IN",
+    "accent": "Delhi"
+  },
+  "metric_definitions": [
+    {
+      "id": "met_01a168a1-da02-7336-993c-e9489c910989",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "version": 1,
+      "content_digest": {
+        "scheme": "sha256-jcs/v1",
+        "value": "645e8ba19f6a05ec34cc773f841ffec2aaada2d99d72ff1a9ca5194320d6aa85",
+        "key_ref": null
+      },
+      "key": "goal_completion",
+      "kind": "llm_judge",
+      "value_type": "boolean",
+      "scale": null,
+      "unit": null,
+      "requires": [
+        "transcript"
+      ],
+      "languages": [
+        "en",
+        "hi"
+      ],
+      "script_sensitive": false,
+      "aggregation": {
+        "kind": "per_conversation"
+      },
+      "pass_rule": {
+        "kind": "equals_true"
+      },
+      "parameters": [],
+      "implementation_ref": null,
+      "prompt_template": "Expected: {{expected_outcome}}\nTranscript:\n{{transcript}}",
+      "prompt_variables": [
+        "expected_outcome",
+        "transcript"
+      ],
+      "judge_model_ref": {
+        "provider": "openai",
+        "model": "gpt-4.1"
+      }
+    },
+    {
+      "id": "met_01a168a1-da03-754e-b7e1-c418572df891",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "version": 1,
+      "content_digest": {
+        "scheme": "sha256-jcs/v1",
+        "value": "83926e2de940e8e95fa0c6d87c5342118001b70ee90583e0fe2d745cbb24c910",
+        "key_ref": null
+      },
+      "key": "p95_latency",
+      "kind": "latency",
+      "value_type": "numeric",
+      "scale": null,
+      "unit": "ms",
+      "requires": [
+        "turn_timing"
+      ],
+      "languages": [
+        "en",
+        "hi"
+      ],
+      "script_sensitive": false,
+      "aggregation": {
+        "kind": "per_conversation"
+      },
+      "pass_rule": {
+        "kind": "range",
+        "min": null,
+        "max": 800,
+        "inclusive": true
+      },
+      "parameters": [],
+      "implementation_ref": "builtin:p95_latency",
+      "prompt_template": null,
+      "prompt_variables": null,
+      "judge_model_ref": null
+    }
+  ],
+  "metric_bindings": [
+    {
+      "id": "mbd_01a168a1-da04-78ab-a81c-4ac26a0e9a9c",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "version": 1,
+      "content_digest": {
+        "scheme": "sha256-jcs/v1",
+        "value": "3a90be50816406d43e1534a45eb49de77c347ac22d0d6342f2a371273ea7b4bb",
+        "key_ref": null
+      },
+      "evaluator_id": "evl_01a168a1-da01-726c-a8e6-7954350006a7",
+      "metric": {
+        "id": "met_01a168a1-da02-7336-993c-e9489c910989",
+        "version": 1,
+        "content_digest": null
+      },
+      "params": {},
+      "enabled": true
+    },
+    {
+      "id": "mbd_01a168a1-da07-7e90-ab84-3328f9edd61a",
+      "schema_version": "0.0.1",
+      "created_at": "2026-10-22T10:00:00.000000Z",
+      "metadata": {},
+      "metadata_flags": [],
+      "version": 1,
+      "content_digest": {
+        "scheme": "sha256-jcs/v1",
+        "value": "76e8776a53d0adacde3127b07657ef0e320f115d5032e23fef29d371a4d2f4a7",
+        "key_ref": null
+      },
+      "evaluator_id": "evl_01a168a1-da01-726c-a8e6-7954350006a7",
+      "metric": {
+        "id": "met_01a168a1-da03-754e-b7e1-c418572df891",
+        "version": 1,
+        "content_digest": null
+      },
+      "params": {},
+      "enabled": true
+    }
+  ],
+  "rubric": {
+    "id": "rub_01a168a1-da0d-7704-abea-15036789e461",
+    "schema_version": "0.0.1",
+    "created_at": "2026-10-22T10:00:00.000000Z",
+    "metadata": {},
+    "metadata_flags": [],
+    "version": 1,
+    "content_digest": {
+      "scheme": "sha256-jcs/v1",
+      "value": "5005ff860959c5462144b3cb155662dacb1e7e2d94dcbedcec6b34bd91afd8f6",
+      "key_ref": null
+    },
+    "items": [
+      {
+        "binding": {
+          "id": "mbd_01a168a1-da04-78ab-a81c-4ac26a0e9a9c",
+          "version": 1,
+          "content_digest": null
+        },
+        "required": true,
+        "weight": null
+      },
+      {
+        "binding": {
+          "id": "mbd_01a168a1-da07-7e90-ab84-3328f9edd61a",
+          "version": 1,
+          "content_digest": null
+        },
+        "required": true,
+        "weight": "5"
+      }
+    ]
+  },
+  "pricing_catalog": null
+}
