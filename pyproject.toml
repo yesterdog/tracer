@@ -1,0 +1,77 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 The Tracer contributors
+[project]
+name = "tracer-workspace"
+version = "0.0.1"
+description = "Workspace root for Tracer (not published)."
+requires-python = ">=3.11"
+license = "Apache-2.0"
+dependencies = []
+
+[dependency-groups]
+# Test-only dependencies; never part of runtime metadata (see docs/security/license-policy.toml).
+test = [
+    "cryptography==50.0.2",
+    "jsonschema==4.26.0",  # no [format] extra: its extras are not audited
+    "hypothesis==6.170.5",
+    "pyyaml==6.0.3",
+]
+dev = [
+    "tracer-evalschema",
+    { include-group = "test" },
+    "pytest==9.1.1",
+    "ruff==0.17.1",
+    "mypy==2.4.0",
+    "pre-commit==4.7.0",
+    "hatchling==1.32.4",  # build backend, pinned here so it is locked and license-scanned
+]
+
+[tool.uv]
+package = false
+required-version = ">=0.12.18"
+default-groups = ["dev"]
+# Fail instead of compiling C/Rust extensions on a clean machine. PyYAML is left out on purpose:
+# it has no CPython 3.15 wheel yet, and the 3.15 leg is non-blocking.
+no-build-package = [
+    "cffi",
+    "cryptography",
+    "librt",
+    "pydantic-core",
+    "rpds-py",
+]
+
+[tool.uv.workspace]
+members = ["packages/*"]
+
+[tool.uv.sources]
+tracer-evalschema = { workspace = true }
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["packages/evalschema/src", "packages/evalschema/tests", "scripts"]
+extend-exclude = ["packages/evalschema/tests/fixtures/private"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "C4", "PT", "RUF", "S"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**" = ["S101"]
+"scripts/*" = ["S603", "S607"]
+
+[tool.mypy]
+strict = true
+python_version = "3.11"
+files = ["packages/evalschema/src", "packages/evalschema/tests", "scripts"]
+exclude = ["packages/evalschema/tests/fixtures/"]
+mypy_path = "packages/evalschema/src"
+explicit_package_bases = true
+namespace_packages = true
+
+[tool.pytest.ini_options]
+testpaths = ["packages/evalschema/tests"]
+addopts = "-ra --strict-markers --strict-config -m 'not private_fixtures and not local_only'"
+markers = [
+    "private_fixtures: needs the gitignored private fixtures; deselected by default (run locally with -m private_fixtures)",
+    "local_only: needs a local-only resource not available in CI; deselected by default (run locally with -m local_only)",
+]

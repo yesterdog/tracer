@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 The Tracer contributors
+repos:
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: ruff check
+        entry: uv run --locked ruff check
+        language: system
+        types: [python]
+      - id: ruff-format
+        name: ruff format --check
+        entry: uv run --locked ruff format --check
+        language: system
+        types: [python]
+      - id: mypy
+        name: mypy --strict
+        entry: uv run --locked mypy
+        language: system
+        pass_filenames: false
+        types: [python]
+      - id: spdx-headers
+        name: SPDX header check
+        entry: uv run --locked python scripts/check_headers.py
+        language: system
+        pass_filenames: false
+      - id: private-fixture-guard
+        name: private fixture guard
+        entry: uv run --locked python scripts/guard_private_fixtures.py
+        language: system
+        pass_filenames: false
+        always_run: true
