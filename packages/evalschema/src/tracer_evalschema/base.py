@@ -21,6 +21,7 @@ from pydantic import BaseModel, ConfigDict, Field, Strict, model_validator
 
 from tracer_evalschema import SCHEMA_VERSION
 from tracer_evalschema._constraints import ClosedSet
+from tracer_evalschema._hiding import HidingModel
 from tracer_evalschema.credentials import (
     HIGH_ENTROPY_TOKEN,
     KNOWN_CREDENTIAL_PREFIX,
@@ -205,6 +206,11 @@ class VersionedEntity(EntityBase):
     ``digest_subject``.
     """
 
+    # Every versioned entity embeds a ContentDigest (and so a KeyRef) and hides its input (ADR 0007
+    # Decision 8 (b), P1-21 C3b). The flag only (A10): the hiding context comes from HidingModel,
+    # which every concrete subclass lists first among its bases.
+    model_config = ConfigDict(hide_input_in_errors=True)
+
     version: Version
     content_digest: ContentDigest
 
@@ -218,14 +224,16 @@ class VersionedEntity(EntityBase):
         return self
 
 
-class VersionedRef(BaseModel):
+class VersionedRef(HidingModel):
     """A reference to one version of a versioned entity (ADR 0009 Decision 4).
 
     ``id`` is the typed ID of the referenced entity (any registered kind) and ``version`` is
     required; ``content_digest`` is optional (shared exports may drop it).
     """
 
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    # Embeds a ContentDigest (and so a KeyRef), so it hides its input (ADR 0007 Decision 8 (b),
+    # P1-21 C3b closure rule).
+    model_config = ConfigDict(extra="forbid", frozen=True, hide_input_in_errors=True)
 
     id: TypedId
     version: Version

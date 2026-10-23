@@ -50,7 +50,8 @@ tracer-evalschema = { workspace = true }
 line-length = 100
 target-version = "py311"
 src = ["packages/evalschema/src", "packages/evalschema/tests", "scripts"]
-extend-exclude = ["packages/evalschema/tests/fixtures/private"]
+# Evidence scripts under docs/phase1/evidence are records of one-off runs, not maintained code.
+extend-exclude = ["packages/evalschema/tests/fixtures/private", "docs/phase1/evidence"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "SIM", "C4", "PT", "RUF", "S"]

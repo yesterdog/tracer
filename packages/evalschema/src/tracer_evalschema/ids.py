@@ -24,6 +24,7 @@ from pydantic import BaseModel, ConfigDict, GetCoreSchemaHandler, GetJsonSchemaH
 from pydantic.json_schema import JsonSchemaValue
 from pydantic_core import CoreSchema, PydanticCustomError, core_schema
 
+from tracer_evalschema._constraints import echoed
 from tracer_evalschema._hiding import values_hidden
 from tracer_evalschema.errors import ConfusablePrefixError
 from tracer_evalschema.text import VerbatimText
@@ -170,7 +171,7 @@ class TypedId:
     def parse(cls, wire: str) -> Self:
         """Parse the wire form of this kind (``ValueError`` if it is not exactly that form)."""
         if type(wire) is not str or _WIRE_REGEX[cls.prefix].fullmatch(wire) is None:
-            raise ValueError(f"{wire!r} is not a {cls.__name__} ({wire_pattern(cls.prefix)})")
+            raise ValueError(f"{echoed(wire)} is not a {cls.__name__} ({wire_pattern(cls.prefix)})")
         return cls(uuid.UUID(wire.partition("_")[2]))
 
     def __str__(self) -> str:
@@ -232,7 +233,7 @@ class TypedId:
             raise PydanticCustomError(
                 "typed_id",
                 "{value} is not a valid ID of this kind (expected {pattern})",
-                {"value": repr(wire), "pattern": cls._schema_pattern()},
+                {"value": echoed(wire), "pattern": cls._schema_pattern()},
             )
         return kind(uuid.UUID(wire.partition("_")[2]))
 
@@ -359,7 +360,7 @@ def id_type(prefix: str) -> type[TypedId]:
     try:
         return _ID_TYPES[prefix]
     except KeyError:
-        raise KeyError(f"unregistered ID prefix {prefix!r}") from None
+        raise KeyError(f"unregistered ID prefix {echoed(prefix)}") from None
 
 
 # ------------------------------------------------------------------------- new prefixes (P-03)
@@ -385,7 +386,7 @@ def validate_new_prefix(prefix: str, existing: Mapping[str, str] | None = None) 
     (``ConfusablePrefixError`` otherwise). ``existing`` defaults to ``ID_PREFIXES``.
     """
     if not isinstance(prefix, str) or PREFIX_SYNTAX.fullmatch(prefix) is None:
-        raise ValueError(f"an ID prefix is 2-6 lowercase ASCII letters: {prefix!r}")
+        raise ValueError(f"an ID prefix is 2-6 lowercase ASCII letters: {echoed(prefix)}")
     registry = ID_PREFIXES if existing is None else existing
     if prefix in registry:
         raise ConfusablePrefixError(f"prefix {prefix!r} is already registered ({registry[prefix]})")

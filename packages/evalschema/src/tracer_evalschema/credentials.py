@@ -6,6 +6,14 @@ The rule decides which documents load (``metadata_flags`` are verified on load),
 the schema version: changing it is a schema change. It uses pattern and integer logic only, so
 any language computes the same result. The credential patterns are our definition; whether they
 match each vendor's current key format is not verified.
+
+Three uses:
+
+- ``credential_reason``: the ``metadata_flags`` rule (known prefix, then high entropy).
+- ``contains_credential_pattern``: the known-prefix rule alone (URLs, ``config_ref``).
+- ``key_ref_looks_like_credential``: the rule of a key manager's name for a key (``KeyRef.key_id``
+  and ``key_version``, P1-21 finding C3b): a known prefix anywhere, any ``=``, or a high-entropy
+  run inside one segment of the name split at ``/`` and ``:`` (A5).
 """
 
 from __future__ import annotations
@@ -15,11 +23,14 @@ import re
 __all__ = [
     "CREDENTIAL_PATTERNS",
     "HIGH_ENTROPY_TOKEN",
+    "KEY_REF_SEGMENT_SEPARATORS",
     "KNOWN_CREDENTIAL_PREFIX",
     "URL_CREDENTIAL_PARAMETER_NAMES",
     "contains_credential_pattern",
     "credential_reason",
     "is_credential_parameter_name",
+    "is_high_entropy_text",
+    "key_ref_looks_like_credential",
 ]
 
 KNOWN_CREDENTIAL_PREFIX = "known_credential_prefix"
@@ -60,6 +71,13 @@ def _is_high_entropy(run: str) -> bool:
     )
 
 
+def is_high_entropy_text(text: str) -> bool:
+    """True iff a maximal run of ``[A-Za-z0-9+/=_-]`` in ``text`` is high entropy: at least 32
+    characters, an upper-case letter, a lower-case letter and a digit, and at least 16 distinct
+    characters (the ``high_entropy_token`` reason without the known-prefix rule)."""
+    return any(_is_high_entropy(run.group()) for run in _TOKEN_RUN.finditer(text))
+
+
 def contains_credential_pattern(text: str) -> bool:
     """True iff ``text`` contains a match of ``CREDENTIAL_PATTERNS`` at a boundary.
 
@@ -79,9 +97,37 @@ def credential_reason(text: str) -> str | None:
     """
     if contains_credential_pattern(text):
         return KNOWN_CREDENTIAL_PREFIX
-    if any(_is_high_entropy(run.group()) for run in _TOKEN_RUN.finditer(text)):
+    if is_high_entropy_text(text):
         return HIGH_ENTROPY_TOKEN
     return None
+
+
+# ------------------------------------------------------------------ key names (KeyRef, C3b)
+
+KEY_REF_SEGMENT_SEPARATORS = "/:"
+"""The characters that split a key name into segments for the high-entropy rule (A5)."""
+
+_KEY_REF_SEGMENT_SPLIT = re.compile("[" + re.escape(KEY_REF_SEGMENT_SEPARATORS) + "]")
+
+
+def key_ref_looks_like_credential(text: str) -> bool:
+    """True iff a key manager's name for a key (``KeyRef.key_id`` or ``key_version``) has the
+    shape of key material rather than of a name (P1-21 finding C3b, ADR 0007 Decision 4):
+
+    - a match of ``CREDENTIAL_PATTERNS`` at a boundary anywhere in the text (also after ``/``,
+      ``:`` or ``_``);
+    - any ``=`` (a ``key=value`` pair or base64 padding; A2);
+    - a high-entropy run (``is_high_entropy_text``) inside one segment of the text split at
+      ``/`` and ``:`` (A5), so a path-like name (a GCP KMS resource name, an ARN, a URN) whose
+      whole text is long, mixed case and holds digits stays a name, while a pasted token in any
+      one segment is rejected.
+
+    40 hexadecimal digits in one letter case (an OpenPGP v4 fingerprint, a SHA-1 thumbprint) are
+    a name (A1): they hold no upper-case and lower-case letter together.
+    """
+    if contains_credential_pattern(text) or "=" in text:
+        return True
+    return any(is_high_entropy_text(segment) for segment in _KEY_REF_SEGMENT_SPLIT.split(text))
 
 
 # ------------------------------------------------------- credential parameter names in URLs

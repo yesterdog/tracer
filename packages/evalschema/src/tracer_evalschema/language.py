@@ -39,7 +39,7 @@ from pydantic.json_schema import JsonSchemaValue
 from pydantic_core import CoreSchema, PydanticCustomError, core_schema
 
 from tracer_evalschema import SCHEMA_VERSION
-from tracer_evalschema._constraints import ClosedSet
+from tracer_evalschema._constraints import ClosedSet, echoed
 from tracer_evalschema._hiding import values_hidden
 from tracer_evalschema.data_loader import package_data
 from tracer_evalschema.errors import DataFileError
@@ -192,7 +192,7 @@ def _not_a_tag(value: str) -> PydanticCustomError:
         "language_tag",
         "{value} is not a well-formed BCP-47 language tag (RFC 5646; primary subtag of 2-3 "
         "letters; grandfathered tags are not accepted)",
-        {"value": repr(value)},
+        {"value": echoed(value)},
     )
 
 
@@ -261,7 +261,7 @@ def _validate_supported(value: str) -> str:
         raise _not_a_tag(value)
     hidden = values_hidden()
     # Inside a model that hides its input no part of the tag is quoted (ADR 0007 Decision 8 (c)).
-    tag = "" if hidden else f"{value!r}: "
+    tag = "" if hidden else f"{echoed(value)}: "
     language = parsed.language.lower()
     configured = ", ".join(_DATA.scripts)
     if parsed.extlang is not None or language not in _DATA.scripts:
@@ -355,7 +355,7 @@ def _without_script(tag: str) -> str:
         if values_hidden():
             raise _rejected("a declared language names no script subtag (language and region only)")
         raise _rejected(
-            f"{tag!r}: a declared language names no script subtag (language and region only)"
+            f"{echoed(tag)}: a declared language names no script subtag (language and region only)"
         )
     return tag
 

@@ -48,7 +48,7 @@ from pydantic import (
 from pydantic.json_schema import JsonSchemaValue
 from pydantic_core import CoreSchema, PydanticCustomError, core_schema
 
-from tracer_evalschema._constraints import ClosedSet, FullMatch
+from tracer_evalschema._constraints import ClosedSet, FullMatch, echoed
 from tracer_evalschema._hiding import HidingModel, values_hidden
 from tracer_evalschema._validation import Problem, raise_problems
 from tracer_evalschema.base import VersionedEntity, VersionedRef
@@ -104,7 +104,7 @@ def _unique(what: str) -> Callable[[list[T]], list[T]]:
             if value in seen:
                 if values_hidden():
                     raise ValueError(f"{what} lists one value twice (again at position {position})")
-                raise ValueError(f"{what} lists {value!r} twice")
+                raise ValueError(f"{what} lists {echoed(value)} twice")
             seen.add(value)
         return values
 
@@ -344,7 +344,7 @@ UNITS: Final = tuple(UNIT_DOMAINS)
 def _range_problem(rule: RangeRule, domain: _Domain) -> str | None:
     for name, bound in (("min", rule.min), ("max", rule.max)):
         if bound is not None and not domain.contains(as_decimal(bound)):
-            shown = "" if values_hidden() else f" {bound!r}"
+            shown = "" if values_hidden() else f" {echoed(bound)}"
             return f"the range {name}{shown} lies outside the domain of {domain.label}"
     if not domain.admits(rule):
         return f"no value of {domain.label} passes this range"
@@ -493,7 +493,7 @@ class MetricParameter(BaseModel):
     @model_validator(mode="after")
     def _default_fits(self) -> MetricParameter:
         if self.default is not None and not value_fits(self.value_type, self.default):
-            named = "the parameter" if values_hidden() else f"parameter {self.name!r}"
+            named = "the parameter" if values_hidden() else f"parameter {echoed(self.name)}"
             raise_problems(
                 type(self).__name__,
                 [
@@ -524,8 +524,8 @@ def _distinct_primary_languages(tags: list[str]) -> list[str]:
             )
         if primary in seen:
             raise ValueError(
-                f"languages lists {seen[primary]!r} and {tag!r}, which share the primary "
-                f"language {primary!r}; coverage is decided by primary language"
+                f"languages lists {echoed(seen[primary])} and {echoed(tag)}, which share the "
+                f"primary language {echoed(primary)}; coverage is decided by primary language"
             )
         seen[primary] = tag
     return tags
@@ -902,7 +902,7 @@ def check_binding_params(binding: MetricBinding, definition: MetricDefinition) -
     hidden = values_hidden()  # inside a model that hides its input: no parameter names (N42)
 
     def named(name: str) -> str:
-        return "a parameter" if hidden else f"parameter {name!r}"
+        return "a parameter" if hidden else f"parameter {echoed(name)}"
 
     problems: list[str] = []
     for key, value in binding.params.items():

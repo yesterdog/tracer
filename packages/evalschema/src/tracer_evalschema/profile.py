@@ -24,6 +24,7 @@ from typing import Annotated, Any, ClassVar
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from tracer_evalschema._constraints import echoed
 from tracer_evalschema._hiding import HidingModel, values_hidden
 from tracer_evalschema.base import VersionedEntity, VersionedRef, json_string_leaves
 from tracer_evalschema.ids import TestProfileId
@@ -97,7 +98,7 @@ def profile_placeholders(text: str) -> list[str]:
                 "lowercase field name and no white space, for example {{profile.name}}"
             )
         if field not in known:
-            named = "" if values_hidden() else f" {field!r}"
+            named = "" if values_hidden() else f" {echoed(field)}"
             raise ValueError(
                 f"unknown profile placeholder field{named}: a placeholder names a TestProfile "
                 f"field ({', '.join(sorted(known))})"

@@ -27,7 +27,8 @@ from typing import Annotated, Any, ClassVar, Final, NamedTuple
 
 from pydantic import BaseModel, ConfigDict, Field, Strict, model_validator
 
-from tracer_evalschema._constraints import ClosedSet
+from tracer_evalschema._constraints import ClosedSet, echoed
+from tracer_evalschema._hiding import HidingModel
 from tracer_evalschema._validation import Problem, raise_problems
 from tracer_evalschema.base import EntityBase
 from tracer_evalschema.ids import MetricBindingId, MetricResultId
@@ -60,11 +61,13 @@ SCALE: Final = 18
 Count = Annotated[int, Strict(), Field(ge=0, le=MAX_SAFE_INTEGER)]
 
 
-class VerdictCheck(BaseModel):
+class VerdictCheck(HidingModel):
     """One required rubric binding and the outcome of its result (ADR 0013 Decisions 2 and 3).
     ``metric_ref`` is the binding's ``metric`` reference, never text."""
 
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    # Embeds a ContentDigest (and so a KeyRef), so it hides its input (ADR 0007 Decision 8 (b),
+    # P1-21 C3b closure rule).
+    model_config = ConfigDict(extra="forbid", frozen=True, hide_input_in_errors=True)
 
     binding_id: MetricBindingId
     metric_ref: MetricDefinitionRef
@@ -87,7 +90,7 @@ def _status_of(passed: int, failed: int, total: int) -> str:
     return "pass" if passed == total else "inconclusive"
 
 
-class RunVerdict(EntityBase):
+class RunVerdict(HidingModel, EntityBase):
     """The verdict of a run (prefix ``vrd``; ADR 0013). A record of fact without ``run_id``: the
     RunBundle is the unit of a run (N22)."""
 
@@ -236,7 +239,7 @@ def compute_weighted_score(items: Iterable[tuple[Any, str, str]]) -> WeightedSco
     for binding_id, weight_text, outcome in items:
         weight = _weight(weight_text)
         if outcome not in CHECK_OUTCOMES:
-            raise ValueError(f"unknown check outcome {outcome!r}")
+            raise ValueError(f"unknown check outcome {echoed(outcome)}")
         total += weight
         if outcome in EXCLUDED_OUTCOMES:
             excluded.append(WeightedExclusion(binding_id=binding_id, outcome=outcome))

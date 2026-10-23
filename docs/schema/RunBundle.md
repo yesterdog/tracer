@@ -5,7 +5,7 @@
 - Schema file: `RunBundle.schema.json` (package data `tracer_evalschema/schemas/`)
 - `$id`: `urn:tracer:evalschema:0.0.1:RunBundle`
 - Schema version: `0.0.1`
-- SHA-256 of the schema file (as in `schema.lock`): `1f78b0c2c7de786000a535d84683929dd50c8da889429cf9b6d271dfe46541e4`
+- SHA-256 of the schema file (as in `schema.lock`): `ce38ee12524988406bca3d603da4b76deac3fb32d8e3ee05ee6c880b1ed821d9`
 - ID prefix: `rbnd`
 - Versioned (has `version`): no
 

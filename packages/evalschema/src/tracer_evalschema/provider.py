@@ -12,6 +12,10 @@
 ``provider`` and ``model`` are open values (``MachineKey``): unseen providers are accepted.
 ``ProviderConfigRef`` hides its input in validation errors, and the ``config_ref`` messages name
 the rule only, so a pasted key is never echoed (ADR 0007 Decision 8).
+
+``config_ref`` is rejected (``config_ref_credential``) when the whole text holds a known
+credential pattern or when the name part after the first ``:`` holds a high-entropy run, for
+every scheme (ADR 0007 Decision 1; P1-21 finding m6, A6). One message for both, nothing quoted.
 """
 
 from __future__ import annotations
@@ -23,7 +27,7 @@ from pydantic_core import PydanticCustomError
 
 from tracer_evalschema._constraints import FullMatch
 from tracer_evalschema._hiding import HidingModel
-from tracer_evalschema.credentials import contains_credential_pattern
+from tracer_evalschema.credentials import contains_credential_pattern, is_high_entropy_text
 from tracer_evalschema.text import MACHINE_KEY_PATTERN, MachineKey
 
 __all__ = ["CONFIG_REF_PATTERN", "ConfigRef", "ModelRef", "ProviderConfigRef"]
@@ -47,11 +51,16 @@ _QuietMachineKey = Annotated[
 
 
 def _no_credential_pattern(value: str) -> str:
-    if contains_credential_pattern(value):
+    """The known-prefix rule on the whole text (the scheme part included) and the high-entropy
+    rule on the name part, whatever the scheme (m6, A6). Runs after the pattern, so the text is
+    ``<scheme>:<name>`` with a non-empty name and no ``=``."""
+    name = value.partition(":")[2]
+    if contains_credential_pattern(value) or is_high_entropy_text(name):
         raise PydanticCustomError(
             "config_ref_credential",
-            "config_ref matches a known credential pattern (ADR 0007 Decision 5a): store a "
-            "reference to the key (for example env:NAME), never the key",
+            "config_ref looks like a credential (a known credential pattern, or a high-entropy "
+            "name after the scheme; ADR 0007 Decisions 1 and 5a): store a reference to the key "
+            "(for example env:NAME), never the key",
         )
     return value
 

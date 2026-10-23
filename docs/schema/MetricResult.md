@@ -5,7 +5,7 @@
 - Schema file: `MetricResult.schema.json` (package data `tracer_evalschema/schemas/`)
 - `$id`: `urn:tracer:evalschema:0.0.1:MetricResult`
 - Schema version: `0.0.1`
-- SHA-256 of the schema file (as in `schema.lock`): `07725be7c2d04c567e1217130f7fff9a87b8cdd670d800384b81e24e47391522`
+- SHA-256 of the schema file (as in `schema.lock`): `8a741b7c7b37a7aa7800ce481ccdd405f0a4cc4b8b3a0b438c6906ff184abc7d`
 - ID prefix: `res`
 - Versioned (has `version`): no
 
@@ -26,6 +26,13 @@ Rules on the result alone (each reported at the field it is about):
 - ``declared_language_transcript_ids`` non-empty if and only if ``language_source=declared``;
 - ``language_source`` is absent when the language steps did not run (``missing_input``,
   ``agent_channel_unknown``).
+
+``transcript_ids`` (optional, additive in 0.0.1) names the transcripts the result read (ADR
+0004 Decision 6d): ``None`` (absent and ``null`` are the same) lets a bundle derive them; a
+list has at least one element, names each transcript once and keeps the producer's order. No
+rule of the result alone reads it; ``check_run_bundle`` resolves it (``[unresolved]``), requires
+it when the bundle holds several transcripts and the metric reads transcripts or is language
+dependent, and re-runs ``applicability`` over the transcripts it names (``[applicability]``).
 
 ## Fields
 
@@ -48,6 +55,7 @@ Rules on the result alone (each reported at the field it is about):
 | `schema_version` | yes | one of `"0.0.1"` |  |  |
 | `scorer` | no | [ScorerInfo](value-objects.md#scorerinfo) or `null` | `null` |  |
 | `status` | yes | one of `"scored"`, `"not_applicable"`, `"error"` |  |  |
+| `transcript_ids` | no | array of `string` (pattern `^tsc_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`) (at least 1 items; no repeated items (`uniqueItems`)) or `null` | `null` |  |
 | `value` | yes | `boolean` or `integer` (minimum -9007199254740991; maximum 2**53 - 1) or `number` or `string` or `null` |  |  |
 
 Members not listed above are rejected (`additionalProperties: false`).

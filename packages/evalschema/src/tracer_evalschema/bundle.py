@@ -47,6 +47,18 @@ The observed tier
 an under-claim is always rejected, an over-claim only excused by a declared record of a kind that
 carries provenance fields (D3, ``PROVENANCE_KINDS``); a declaration never raises the computed tier.
 
+The applicability re-run
+------------------------
+The last rule of ``check_run_bundle`` (``[applicability]``, ADR 0004 Decision 9, B15) re-runs
+``results.applicability`` for every stored result, with the definition the bundle's snapshot
+embeds, over the transcripts the result read (``MetricResult.transcript_ids``; derived when the
+bundle holds one transcript or none, required when it holds several and the metric reads
+transcripts or is language dependent) and their turns limited by role (ADR 0004 Decision 6d). It
+rejects any difference in the status class, ``na_reason``, ``missing_kinds``, ``language_source``
+or ``declared_language_transcript_ids``, naming the result's ID, its position ``results[<i>]`` and
+the first field that differs. A run that lists ``agent_transcript`` and holds turns has an agent
+turn (T-A4). A withheld transcript or turn leaves only the run-level reasons to judge (B22).
+
 The functions hold no module-level mutable state; the rules read their arguments only.
 """
 
@@ -68,7 +80,7 @@ from pydantic import (
 from pydantic.json_schema import JsonSchemaValue
 from pydantic_core import CoreSchema, PydanticCustomError, core_schema
 
-from tracer_evalschema._constraints import ClosedSet
+from tracer_evalschema._constraints import ClosedSet, echoed, echoed_text
 from tracer_evalschema._hiding import HidingModel, values_hidden
 from tracer_evalschema._validation import Problem, raise_problems
 from tracer_evalschema.artifact import Artifact, check_channel_map, is_loopback_uri
@@ -99,6 +111,7 @@ from tracer_evalschema.ids import (
     UsageRecordId,
     wire_pattern,
 )
+from tracer_evalschema.metrics import LANGUAGE_INDEPENDENT, MetricDefinition
 from tracer_evalschema.pricing import PricingCatalog
 from tracer_evalschema.privacy import (
     REDACTION_COVERS,
@@ -109,7 +122,13 @@ from tracer_evalschema.privacy import (
     export_human_subject,
 )
 from tracer_evalschema.profile import TestProfile
-from tracer_evalschema.results import MetricResult, check_result_against_definition
+from tracer_evalschema.results import (
+    Applicability,
+    MetricResult,
+    applicability,
+    check_result_against_definition,
+    strongest_na_reason,
+)
 from tracer_evalschema.run import Run
 from tracer_evalschema.sealed import SealedPayload
 from tracer_evalschema.snapshot import ConfigSnapshot, check_internal_snapshot
@@ -152,7 +171,7 @@ def _comparable(left: dict[str, Any], right: dict[str, Any]) -> bool:
 def _require_id(doc: Mapping[str, Any], what: str) -> str:
     identity = doc.get("id")
     if not isinstance(identity, str):
-        raise BundleError(f"{what} without a string id: {identity!r}")
+        raise BundleError(f"{what} without a string id: {echoed(identity)}")
     return identity
 
 
@@ -165,7 +184,7 @@ def check_bundle_consistency(
     """Raise a ``BundleError`` subclass if the documents cannot belong to one bundle (see the
     module docstring). ``require_resolved`` is keyword-only: with it, a reference whose ``(id,
     version)`` no document holds raises ``UnresolvedReferenceError`` naming the ID and version."""
-    versions = {repr(doc.get("schema_version")) for doc in docs}
+    versions = {echoed(doc.get("schema_version")) for doc in docs}
     if len(versions) > 1:
         raise MixedSchemaVersionError(
             f"a bundle holds one schema_version, found {', '.join(sorted(versions))}"
@@ -180,15 +199,16 @@ def check_bundle_consistency(
             digest = _digest_fields(doc.get("content_digest"))
             if key in versioned and versioned[key] != digest:
                 raise ConflictingVersionError(
-                    f"{identity} version {doc['version']!r} appears with two content digests"
+                    f"{echoed_text(identity)} version {echoed(doc['version'])} appears with two "
+                    "content digests"
                 )
             versioned[key] = digest
         else:
             content = digest_domain(doc)
             if identity in records and records[identity] != content:
                 raise ConflictingRecordError(
-                    f"record {identity} appears with two different contents; a correction "
-                    "is a new record with a new id"
+                    f"record {echoed_text(identity)} appears with two different contents; a "
+                    "correction is a new record with a new id"
                 )
             records[identity] = content
 
@@ -196,12 +216,13 @@ def check_bundle_consistency(
         identity = _require_id(ref, "reference")
         version = ref.get("version")
         if not isinstance(version, int) or isinstance(version, bool):
-            raise BundleError(f"reference to {identity} has no integer version")
+            raise BundleError(f"reference to {echoed_text(identity)} has no integer version")
         key = (identity, version)
         if key not in versioned:
             if require_resolved:
                 raise UnresolvedReferenceError(
-                    f"reference to {identity} version {version} resolves to nothing in the bundle"
+                    f"reference to {echoed_text(identity)} version {version} resolves to nothing "
+                    "in the bundle"
                 )
             continue
         ref_digest = _digest_fields(ref.get("content_digest"))
@@ -210,8 +231,8 @@ def check_bundle_consistency(
             continue
         if _comparable(ref_digest, entity_digest) and ref_digest != entity_digest:
             raise RefDigestMismatchError(
-                f"reference to {identity} version {version} carries a digest that does "
-                "not match the entity in the bundle"
+                f"reference to {echoed_text(identity)} version {version} carries a digest that "
+                "does not match the entity in the bundle"
             )
 
 
@@ -305,7 +326,7 @@ class _TypedIdUnion:
         raise PydanticCustomError(
             "typed_id",
             "{value} is not the ID of {what} ({pattern})",
-            {"value": repr(value), "what": self.what, "pattern": self.pattern},
+            {"value": echoed(value), "what": self.what, "pattern": self.pattern},
         )
 
     def __get_pydantic_core_schema__(
@@ -677,6 +698,8 @@ def _check_references(bundle: RunBundle, present: set[TypedId], withheld: set[Ty
             need(evidence.ref_id, result.id, "an evidence reference")
         for transcript_id in result.declared_language_transcript_ids:
             need(transcript_id, result.id, "declared_language_transcript_ids")
+        for transcript_id in result.transcript_ids or ():
+            need(transcript_id, result.id, "transcript_ids")
     if bundle.verdict is not None:
         for check in bundle.verdict.checks:
             need(check.result_id, bundle.verdict.id, "a check's result_id")
@@ -836,12 +859,189 @@ def _check_declaration(bundle: RunBundle, present: set[TypedId]) -> None:
             )
 
 
+_RUN_LEVEL_REASONS: Final = ("missing_input", "agent_channel_unknown")
+"""The not-applicable reasons decided from the run alone, before any language step (ADR 0004
+Decisions 3 to 5)."""
+_TRANSCRIPT_KINDS: Final = ("transcript", "agent_transcript")
+_LANGUAGE_RECORD_KINDS: Final = frozenset({"transcript", "turn"})
+"""Withheld kinds that take away what the language steps read, so those steps cannot be re-run."""
+
+
+def _applicability_error(position: int, result: MetricResult, field: str) -> ValueError:
+    """The ``[applicability]`` error: the result's ID and position and the one field that differs,
+    never a value."""
+    return ValueError(
+        f"[applicability] result {result.id} (results[{position}]): {field} differs from the "
+        "re-run of applicability over the run and the transcripts and turns the result read"
+    )
+
+
+def _needs_transcript_ids(definition: MetricDefinition) -> bool:
+    """T-A3: the metric reads transcripts (``requires`` names a transcript kind) or depends on a
+    language (its language may come from a transcript, ADR 0004 Decision 6d). Decided on the
+    definition, never on the stored outcome."""
+    return (
+        any(kind in _TRANSCRIPT_KINDS for kind in definition.requires)
+        or definition.languages != LANGUAGE_INDEPENDENT
+    )
+
+
+def _transcripts_read(
+    position: int,
+    result: MetricResult,
+    definition: MetricDefinition,
+    held: Mapping[TypedId, Transcript],
+) -> list[Transcript]:
+    """The transcripts ``result`` read (api-surface-applicability.md 3.2): the held transcripts
+    its ``transcript_ids`` name, in that order (a withheld one is not held and so not read);
+    without ids, the only transcript, or none. With several and no ids the ids are required for
+    a metric that needs transcripts."""
+    if result.transcript_ids is not None:
+        return [held[i] for i in result.transcript_ids if i in held]
+    if len(held) <= 1:
+        return list(held.values())
+    if _needs_transcript_ids(definition):
+        raise ValueError(
+            f"[applicability] result {result.id} (results[{position}]): transcript_ids required "
+            "when the bundle holds several transcripts"
+        )
+    return []
+
+
+def _turns_read(
+    definition: MetricDefinition, turns: Sequence[Turn], transcripts: Sequence[Transcript]
+) -> list[Turn]:
+    """The turns of ``transcripts`` limited to the role the input kind names (ADR 0004 Decision
+    6d): the agent turns for ``agent_transcript``, every turn for ``transcript``, none for a
+    metric that reads no transcript input. Bundle order."""
+    names = {transcript.id for transcript in transcripts}
+    if "agent_transcript" in definition.requires:
+        return [t for t in turns if t.transcript_id in names and t.role == "agent"]
+    if "transcript" in definition.requires:
+        return [t for t in turns if t.transcript_id in names]
+    return []
+
+
+def _run_level_answer(definition: MetricDefinition, run: Run) -> Applicability | None:
+    """The answer of ``applicability`` when it is decided from the run alone (``missing_input``
+    or ``agent_channel_unknown``), else ``None``."""
+    answer = applicability(definition, run)
+    return answer if answer.na_reason in _RUN_LEVEL_REASONS else None
+
+
+def _per_turn_answer(
+    definition: MetricDefinition, run: Run, turns: Sequence[Turn], transcripts: Sequence[Transcript]
+) -> Applicability:
+    """A ``per_turn_share`` metric with no run-level reason and at least one read turn: the
+    language steps on each turn on its own (ADR 0004 Decision 6e, ADR 0010 Decision 3). Scored
+    when any turn applies, else the strongest of the turns' reasons. ``declared`` if any turn used
+    a declaration, else ``observed`` if any turn had an effective language (also a turn that was
+    then not applicable); the declared transcripts are the sorted union."""
+    answers = [
+        applicability(definition, run, turns=[turn], transcripts=transcripts) for turn in turns
+    ]
+    reasons = [answer.na_reason for answer in answers]
+    reason = None
+    if None not in reasons:
+        reason = strongest_na_reason(r for r in reasons if r is not None)
+    declared = sorted({i for a in answers for i in a.declared_language_transcript_ids}, key=str)
+    source = None
+    if declared:
+        source = "declared"
+    elif any(answer.language_source is not None for answer in answers):
+        source = "observed"
+    return Applicability(reason, [], source, declared)
+
+
+def _same_ids(left: Iterable[TypedId], right: Iterable[TypedId]) -> bool:
+    return [str(i) for i in left] == [str(i) for i in right]
+
+
+def _compare_applicability(position: int, result: MetricResult, expected: Applicability) -> None:
+    """The stored result against the re-run, the first difference reported, in the order status
+    class, ``na_reason``, ``missing_kinds`` (order of ``requires``), ``language_source``,
+    ``declared_language_transcript_ids``. An ``error`` result is exempt from the status class and
+    has no reason or kinds, except that a run-level reason forbids it (ADR 0004 I3: an error is
+    for a metric whose inputs existed); its language provenance is compared."""
+    if result.status == "error":
+        if expected.na_reason in _RUN_LEVEL_REASONS:
+            raise _applicability_error(position, result, "status")
+    else:
+        if (result.status == "not_applicable") != (expected.na_reason is not None):
+            raise _applicability_error(position, result, "status")
+        if result.na_reason != expected.na_reason:
+            raise _applicability_error(position, result, "na_reason")
+        if list(result.missing_kinds) != list(expected.missing_kinds):
+            raise _applicability_error(position, result, "missing_kinds")
+    if result.language_source != expected.language_source:
+        raise _applicability_error(position, result, "language_source")
+    if not _same_ids(
+        result.declared_language_transcript_ids, expected.declared_language_transcript_ids
+    ):
+        raise _applicability_error(position, result, "declared_language_transcript_ids")
+
+
+def _check_agent_turn(bundle: RunBundle, withheld_kinds: set[str]) -> None:
+    """T-A4: a run that lists ``agent_transcript`` has an agent turn, judged only when the bundle
+    holds turns and declares no turn withheld (a withheld turn may be the agent turn)."""
+    run = bundle.run
+    if (
+        "agent_transcript" not in run.available_inputs
+        or not bundle.turns
+        or "turn" in withheld_kinds
+        or any(turn.role == "agent" for turn in bundle.turns)
+    ):
+        return
+    raise ValueError(
+        f"[applicability] run {run.id} lists agent_transcript in available_inputs, but no turn of "
+        "the bundle has the role agent"
+    )
+
+
+def _check_applicability(bundle: RunBundle, withheld_kinds: set[str]) -> None:
+    """``[applicability]`` (step 9, the last rule; ADR 0004 Decision 9, B15): every stored result
+    against ``results.applicability`` re-run over the bundle, with the definition the snapshot
+    embeds, the run, and the transcripts and turns the result read.
+
+    What cannot be re-run is skipped and nothing else (B22): with a ``transcript`` or ``turn``
+    declared withheld, and for a per-turn metric that reads no turn (T-B4), only the run-level
+    reasons are judged (a run-level answer must be stored exactly; any other answer must not
+    carry a run-level reason) and the language outcome is accepted as stored. A withheld result
+    is not there to check. The per-turn counts are not compared (T-B16).
+    """
+    _check_agent_turn(bundle, withheld_kinds)
+    run = bundle.run
+    definitions = {(d.id, d.version): d for d in bundle.snapshot.metric_definitions}
+    held = {transcript.id: transcript for transcript in bundle.transcripts}
+    language_known = not (withheld_kinds & _LANGUAGE_RECORD_KINDS)
+    for position, result in enumerate(bundle.results):
+        definition = definitions.get((result.metric.id, result.metric.version))
+        if definition is None:  # pragma: no cover - the seam resolved every metric reference
+            raise UnresolvedReferenceError(
+                f"result {result.id} names metric {result.metric.id} version "
+                f"{result.metric.version}, which the snapshot does not embed"
+            )
+        transcripts = _transcripts_read(position, result, definition, held)
+        expected = _run_level_answer(definition, run)
+        if expected is None and language_known:
+            turns = _turns_read(definition, bundle.turns, transcripts)
+            if definition.aggregation.kind != "per_turn_share":
+                expected = applicability(definition, run, turns=turns, transcripts=transcripts)
+            elif turns:
+                expected = _per_turn_answer(definition, run, turns, transcripts)
+        if expected is not None:
+            _compare_applicability(position, result, expected)
+        elif result.na_reason in _RUN_LEVEL_REASONS:
+            raise _applicability_error(position, result, "na_reason")
+
+
 def check_run_bundle(bundle: RunBundle) -> None:
     """The rules of a ``RunBundle`` (api-surface.md 25.4.1), in this order: the seam (typed
     errors), ``[duplicate]``, ``[snapshot]``, ``[membership]``, references by ID
     (``[unresolved]``, ``[channel_map]``, ``[declared_language]``), ``[exchange]``,
     ``[transcript]``, ``[tool_call_seq]``, ``[rescoring]``, ``[result]``, ``[verdict]``,
-    ``[cost]``, ``[summary]``, ``[marker]``, ``[withheld]`` and R2 (``[tier]``). Pure and
+    ``[cost]``, ``[summary]``, ``[marker]``, ``[withheld]``, R2 (``[tier]``) and last
+    ``[applicability]`` (the re-run of ``results.applicability`` per result). Pure and
     idempotent; the models run it on load."""
     _run_bundle_seam(bundle)
     _check_unique_records(bundle)
@@ -868,6 +1068,7 @@ def check_run_bundle(bundle: RunBundle) -> None:
     _check_markers(bundle)
     _check_declaration(bundle, present)
     check_observed_tier(run, records, withheld=bundle.withheld)
+    _check_applicability(bundle, withheld_kinds)
 
 
 # ================================================================================ export bundle

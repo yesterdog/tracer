@@ -40,7 +40,7 @@ from pydantic import (
 from pydantic.json_schema import JsonSchemaValue
 from pydantic_core import CoreSchema, PydanticCustomError, core_schema
 
-from tracer_evalschema._constraints import ClosedSet
+from tracer_evalschema._constraints import ClosedSet, echoed
 from tracer_evalschema._hiding import HidingModel, values_hidden
 from tracer_evalschema._validation import Problem, raise_problems
 from tracer_evalschema.base import EntityBase
@@ -284,7 +284,7 @@ def _evidence_id(value: Any) -> TypedId:
     raise PydanticCustomError(
         "evidence_id",
         "{value} is not the ID of a turn, exchange, tool call, span or artifact ({pattern})",
-        {"value": repr(value), "pattern": EVIDENCE_ID_PATTERN},
+        {"value": echoed(value), "pattern": EVIDENCE_ID_PATTERN},
     )
 
 

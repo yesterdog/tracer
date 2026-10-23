@@ -65,6 +65,33 @@ First version. Everything below is new, so there is no change class and no migra
 - Nine configured languages, native script only; observed language tags are never rejected.
 - Shared and benchmark exports need sealed or redacted human-subject payloads; benchmarks also
   need obtained consent.
+- A run bundle re-checks every stored result against its run: its last rule (`[applicability]`)
+  re-runs `results.applicability` with the snapshot's definition over the transcripts and turns
+  the result read and rejects a difference in the status class, `na_reason`, `missing_kinds`,
+  `language_source` or `declared_language_transcript_ids`; a run that lists `agent_transcript`
+  and holds turns needs an agent turn (ADR 0004 Decision 9). The optional
+  `MetricResult.transcript_ids` (added during 0.0.1 development; additive, so `SCHEMA_VERSION`
+  stays and the lock was regenerated) names the transcripts a result read; it is required when a
+  bundle holds several transcripts and the metric reads transcripts or is language dependent.
+  Producers that wrote such bundles before must add it, and must store each result as
+  `applicability` decides it.
+- Security hardening from the P1-21 audit (added during 0.0.1 development; code-only rules, so
+  no schema file, lock, golden fixture or field document changed and `SCHEMA_VERSION` stays).
+  They tighten rules, so documents that relied on the looser behaviour are rejected; producers
+  must fix such data, nothing is converted:
+  - `KeyRef.key_id` and `key_version` reject credential-shaped values (a known key prefix, any
+    `=`, a high-entropy segment split at `/` and `:`) with error type `key_ref_credential` and
+    no quoted value; `KeyRef`, `ContentDigest` and every model that embeds them or a `DekWrap`
+    hide their input in validation errors.
+  - A key for `hmac-sha256-jcs/v1` has at least 32 bytes in `compute_digest` and
+    `verify_digest`; a shorter key raises the new `errors.WeakDigestKeyError` (a `ValueError`
+    and a `DigestKeyUnavailable`).
+  - `DigestKeyUnavailable` no longer names the key id.
+  - A sealed payload's digest key must have a `key_id` other than the KEK's, whatever the
+    versions (the same `key_id` with another `key_version` was accepted before).
+  - `ProviderConfigRef.config_ref` rejects a high-entropy name part after any scheme.
+  - Messages outside hiding models quote at most 64 code points of a rejected value, then
+    `...`.
 - Limitations and non-guarantees: `SCHEMA_POLICY.md`.
 
 ### Not in this release

@@ -367,7 +367,7 @@ _KEYED_SCHEMES: Final = tuple(name for name, scheme in DIGEST_SCHEMES.items() if
 
 def _payload_conditions(schema: dict[str, Any]) -> None:
     """``plaintext_digest`` is absent, ``null`` or of a keyed scheme (P-42). Key separation from
-    ``dek_wrap.kek_ref`` compares two objects and is a code rule only."""
+    ``dek_wrap.kek_ref`` compares two key ids and is a code rule only."""
     schema["allOf"] = [
         {
             "properties": {
@@ -432,7 +432,7 @@ class SealedPayload(HidingModel):
                     ("plaintext_digest", "key_ref"),
                     "key_separation",
                     "the digest key must not be the key-encryption key named by dek_wrap.kek_ref "
-                    "(same key_id and key_version)",
+                    "(the same key_id names the same key, whatever key_version says)",
                 )
             )
         raise_problems(type(self).__name__, problems)
@@ -440,7 +440,10 @@ class SealedPayload(HidingModel):
 
 
 def _same_key(left: KeyRef, right: KeyRef) -> bool:
-    return left.key_id == right.key_id and left.key_version == right.key_version
+    """m2 (P1-21, stricter than before): two references name the same key when their ``key_id``
+    strings are equal, compared verbatim (case, white space and Unicode normalization count, S-10);
+    ``key_version`` is not compared, since a version of one key is still that key."""
+    return left.key_id == right.key_id
 
 
 # ---------------------------------------------------------------------------------- the AAD

@@ -39,7 +39,7 @@ from pydantic import (
 from pydantic.json_schema import JsonSchemaValue
 from pydantic_core import CoreSchema, PydanticCustomError, core_schema
 
-from tracer_evalschema._constraints import ClosedSet
+from tracer_evalschema._constraints import ClosedSet, echoed
 from tracer_evalschema._hiding import HidingModel
 from tracer_evalschema._validation import Problem, raise_problems
 from tracer_evalschema.base import VersionedEntity
@@ -507,9 +507,9 @@ def check_catalog_succession(previous: PricingCatalog, next: PricingCatalog) -> 
         known = before.get(entry.entry_key)
         if known is not None and known != _content(entry):
             raise ValueError(
-                f"entry {entry.entry_key!r} of catalog {next.id} version {next.version} reuses a "
-                f"key of version {previous.version} for different content; a changed price gets "
-                "a new entry_key (P-24)"
+                f"entry {echoed(entry.entry_key)} of catalog {next.id} version {next.version} "
+                f"reuses a key of version {previous.version} for different content; a changed "
+                "price gets a new entry_key (P-24)"
             )
     for entry in next.entries:
         if entry.entry_key in before:
@@ -518,7 +518,8 @@ def check_catalog_succession(previous: PricingCatalog, next: PricingCatalog) -> 
         for old_key, old_content in before.items():
             if old_content == content:
                 raise ValueError(
-                    f"entry {entry.entry_key!r} of catalog {next.id} version {next.version} has "
-                    f"the content of entry {old_key!r} of version {previous.version} under a new "
-                    "key; an unchanged price keeps its entry_key (P-24)"
+                    f"entry {echoed(entry.entry_key)} of catalog {next.id} version "
+                    f"{next.version} has the content of entry {echoed(old_key)} of version "
+                    f"{previous.version} under a new key; an unchanged price keeps its "
+                    "entry_key (P-24)"
                 )

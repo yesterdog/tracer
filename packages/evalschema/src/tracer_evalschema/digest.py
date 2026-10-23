@@ -16,6 +16,17 @@ member whose value is ``null`` at any depth (array elements are kept, ``null`` i
 
 ``sha256_hex`` is the plain SHA-256 of a byte string, for callers that hash files rather than
 documents (the ``schema.lock`` of ``schema_export``); it keeps ``hashlib`` in this module.
+
+Key rules (P1-21 findings C3 and m1, code-only):
+
+- ``KeyRef.key_id`` and ``key_version`` name a key, never hold one: a credential-shaped value
+  (``credentials.key_ref_looks_like_credential``) is rejected with the error type
+  ``key_ref_credential`` and a message that quotes no part of it. ``KeyRef`` and
+  ``ContentDigest`` hide their input in validation errors (ADR 0007 Decision 8).
+- A key for ``hmac-sha256-jcs/v1`` has at least ``MIN_KEYED_DIGEST_KEY_BYTES`` (32) bytes, in
+  ``compute_digest`` and for the key a resolver returns to ``verify_digest``
+  (``WeakDigestKeyError``, a ``ValueError`` and a ``DigestKeyUnavailable``).
+- ``DigestKeyUnavailable`` names the failure kind only, never the key id (C3a).
 """
 
 from __future__ import annotations
@@ -28,21 +39,25 @@ from types import MappingProxyType
 from typing import Annotated, Any, NoReturn
 
 import rfc8785
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import AfterValidator, BaseModel, ConfigDict, Field, model_validator
+from pydantic_core import PydanticCustomError
 
-from tracer_evalschema._constraints import ClosedSet, FullMatch
-from tracer_evalschema._hiding import values_hidden
+from tracer_evalschema._constraints import ClosedSet, FullMatch, echoed
+from tracer_evalschema._hiding import HidingModel, values_hidden
+from tracer_evalschema.credentials import key_ref_looks_like_credential
 from tracer_evalschema.errors import (
     DigestKeyUnavailable,
     DigestMismatch,
     NonIJsonValueError,
     UnknownDigestScheme,
+    WeakDigestKeyError,
 )
 from tracer_evalschema.text import MachineKey, VerbatimText
 
 __all__ = [
     "DIGEST_SCHEMES",
     "KEYED_SCHEME",
+    "MIN_KEYED_DIGEST_KEY_BYTES",
     "PLAIN_SCHEME",
     "ContentDigest",
     "DigestScheme",
@@ -57,6 +72,8 @@ __all__ = [
 
 PLAIN_SCHEME = "sha256-jcs/v1"
 KEYED_SCHEME = "hmac-sha256-jcs/v1"
+MIN_KEYED_DIGEST_KEY_BYTES = 32
+"""The shortest key a keyed scheme accepts (the HMAC-SHA-256 output size, RFC 2104 section 3)."""
 
 
 @dataclass(frozen=True)
@@ -81,7 +98,7 @@ def _unknown_scheme(value: str, registered: tuple[str, ...]) -> NoReturn:
     if values_hidden():  # inside a model that hides its input: the rule, not the value
         raise UnknownDigestScheme(f"unknown digest scheme (registered: {', '.join(registered)})")
     raise UnknownDigestScheme(
-        f"unknown digest scheme {value!r} (registered: {', '.join(registered)})"
+        f"unknown digest scheme {echoed(value)} (registered: {', '.join(registered)})"
     )
 
 
@@ -92,25 +109,49 @@ HexDigest = Annotated[
 ]
 
 
-class KeyRef(BaseModel):
+def _not_key_material(value: str) -> str:
+    """The C3b rule of a key name: the message names the rule and the field only (the location
+    says which field), the same for every rejected value, and carries no context."""
+    if key_ref_looks_like_credential(value):
+        raise PydanticCustomError(
+            "key_ref_credential",
+            "the key reference looks like a credential (a known key prefix, a high-entropy "
+            "segment or a '=' character; ADR 0007 Decision 4): store the key manager's name for "
+            "the key, never key material",
+        )
+    return value
+
+
+KeyName = Annotated[VerbatimText, Field(min_length=1), AfterValidator(_not_key_material)]
+"""A key manager's name for a key or a key version: non-empty, stored as given, never
+credential-shaped (``credentials.key_ref_looks_like_credential``)."""
+
+
+class KeyRef(HidingModel):
     """Names a key held by a key manager; never carries key material (ADR 0007 Decision 4).
 
     ``key_id`` is the key manager's own name for the key, an opaque string stored as given
     (ADR 0001 I12), not one of our typed IDs.
     """
 
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    # P1-21 C3b (code-only; the docstring above is the schema description and is unchanged):
+    # key_id and key_version reject a credential-shaped value (error type key_ref_credential,
+    # nothing quoted), and the model hides its input in every validation error. provider_hint
+    # has no credential rule (A8): it is a MachineKey.
+    model_config = ConfigDict(extra="forbid", frozen=True, hide_input_in_errors=True)
 
-    key_id: Annotated[VerbatimText, Field(min_length=1)]
-    key_version: Annotated[VerbatimText, Field(min_length=1)] | None = None
+    key_id: KeyName
+    key_version: KeyName | None = None
     provider_hint: MachineKey | None = None
 
 
-class ContentDigest(BaseModel):
+class ContentDigest(HidingModel):
     """``{scheme, value, key_ref?}`` (ADR 0006 Decision 3). An unregistered scheme raises
     ``UnknownDigestScheme`` (not wrapped by pydantic): it is never "unverifiable, accept"."""
 
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    # It embeds KeyRef and so hides its input (ADR 0007 Decision 8 (b), P1-21 C3b): a rejected
+    # scheme or value is not quoted (the registered scheme names are listed).
+    model_config = ConfigDict(extra="forbid", frozen=True, hide_input_in_errors=True)
 
     scheme: Annotated[str, ClosedSet(tuple(DIGEST_SCHEMES), _unknown_scheme)]
     value: HexDigest
@@ -190,6 +231,15 @@ def _hex_digest(scheme: str, payload: bytes, key: bytes | None) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
+def _check_key_length(scheme: str, key: bytes) -> None:
+    """m1: a keyed scheme's key has at least ``MIN_KEYED_DIGEST_KEY_BYTES`` bytes. The message
+    names the rule and the scheme only (no length, bytes or text of the key)."""
+    if len(key) < MIN_KEYED_DIGEST_KEY_BYTES:
+        raise WeakDigestKeyError(
+            f"the key of scheme {scheme} must be at least {MIN_KEYED_DIGEST_KEY_BYTES} bytes"
+        )
+
+
 def compute_digest(
     obj: BaseModel | Mapping[str, Any],
     *,
@@ -200,7 +250,9 @@ def compute_digest(
     """Digest ``obj`` with a registered scheme.
 
     The plain scheme takes no key; the keyed scheme needs both the key bytes and the ``KeyRef``
-    that names them (``ValueError`` otherwise). The key itself is never part of the result.
+    that names them (``ValueError`` otherwise), the key must be ``bytes`` (``TypeError``) of at
+    least 32 bytes (``WeakDigestKeyError``, a ``ValueError``). The key itself is never part of the
+    result.
     """
     if scheme not in DIGEST_SCHEMES:
         _unknown_scheme(scheme, tuple(DIGEST_SCHEMES))
@@ -209,6 +261,7 @@ def compute_digest(
             raise ValueError(f"scheme {scheme} needs both key and key_ref")
         if not isinstance(key, bytes):
             raise TypeError("key must be bytes")
+        _check_key_length(scheme, key)
     elif key is not None or key_ref is not None:
         raise ValueError(f"scheme {scheme} takes no key and no key_ref")
     value = _hex_digest(scheme, canonical_bytes(obj), key)
@@ -225,14 +278,16 @@ def _resolve_key(
     try:
         key = key_resolver(digest.key_ref)
     except Exception as exc:  # any resolver failure means "no key", never success
-        # S-N91: the message names the rule and the key_id only; the resolver's error (text,
-        # arguments, class) is never quoted and stays reachable as the chained cause
+        # C3a (reverses S-N91's key_id naming): the message names the failure kind only, never a
+        # field of the KeyRef; the resolver's error (text, arguments, class) is never quoted and
+        # stays reachable as the chained cause
         raise DigestKeyUnavailable(
-            f"no key available for key {digest.key_ref.key_id!r}: the key resolver failed (the "
-            "cause is chained, never quoted in this message)"
+            "no key available: the key resolver failed (the cause is chained, never quoted in "
+            "this message)"
         ) from exc
     if not isinstance(key, bytes):
-        raise DigestKeyUnavailable(f"no key available for key {digest.key_ref.key_id!r}")
+        raise DigestKeyUnavailable("no key available: the key resolver returned no key bytes")
+    _check_key_length(digest.scheme, key)
     return key
 
 
@@ -248,8 +303,9 @@ def verify_digest(
     ``UnknownDigestScheme`` for an unregistered scheme (also on a model built with
     ``model_construct``), ``DigestKeyUnavailable`` when a keyed digest has no resolver or the
     resolver fails or returns no key (the resolver is asked once, only for keyed digests),
-    then ``NonIJsonValueError`` for content outside I-JSON and ``DigestMismatch`` for a
-    mismatch. The comparison is constant-time.
+    ``WeakDigestKeyError`` (a ``DigestKeyUnavailable`` and a ``ValueError``) when the key it
+    returns is shorter than 32 bytes, then ``NonIJsonValueError`` for content outside I-JSON and
+    ``DigestMismatch`` for a mismatch. The comparison is constant-time.
     """
     if digest.scheme not in DIGEST_SCHEMES:
         _unknown_scheme(digest.scheme, tuple(DIGEST_SCHEMES))

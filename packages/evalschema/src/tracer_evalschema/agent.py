@@ -26,7 +26,7 @@ from typing import Annotated, Any, ClassVar, Final
 
 from pydantic import AfterValidator, BaseModel, ConfigDict, Discriminator, Field, Tag
 
-from tracer_evalschema._constraints import ClosedSet
+from tracer_evalschema._constraints import ClosedSet, echoed
 from tracer_evalschema._hiding import HidingModel, values_hidden
 from tracer_evalschema.base import VersionedEntity, VersionedRef
 from tracer_evalschema.ids import AgentTargetId
@@ -127,7 +127,7 @@ def _no_repeats(what: str) -> Any:
             if value in seen:
                 if values_hidden():
                     raise ValueError(f"{what} lists one value twice (again at position {position})")
-                raise ValueError(f"{what} lists {value!r} twice")
+                raise ValueError(f"{what} lists {echoed(value)} twice")
             seen.add(value)
         return values
 

@@ -15,7 +15,7 @@ from typing import Annotated, Any, ClassVar
 
 from pydantic import AfterValidator, ConfigDict, Field, model_validator
 
-from tracer_evalschema._hiding import values_hidden
+from tracer_evalschema._hiding import HidingModel, values_hidden
 from tracer_evalschema._validation import Problem, raise_problems
 from tracer_evalschema.base import EntityBase, VersionedEntity
 from tracer_evalschema.ids import ArtifactId, DatasetItemId, RunId, TranscriptId
@@ -37,7 +37,7 @@ def _unique_items(ids: list[DatasetItemId]) -> list[DatasetItemId]:
     return ids
 
 
-class Dataset(VersionedEntity):
+class Dataset(HidingModel, VersionedEntity):
     """A versioned set of dataset items (prefix ``dts``; ADR 0009 Decision 5, N25)."""
 
     id_prefix: ClassVar[str] = "dts"

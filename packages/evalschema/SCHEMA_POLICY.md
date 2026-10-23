@@ -67,6 +67,20 @@ exported schema must be claimed by a row, and every claim must still match a dif
 item 2). The register in the tests is authoritative; the list below is a reader's summary of
 the rows present on 2026-10-24.
 
+The P1-21 security audit added these code-only rules (revision 30); none changes a schema file,
+the schema lock, a golden fixture or a field document, because a content check and
+`hide_input_in_errors` are invisible to JSON Schema:
+
+- `KeyRef.key_id` and `key_version` reject a credential-shaped value (section 9), wherever a
+  `KeyRef` sits (`ContentDigest.key_ref`, `DekWrap.kek_ref`, both key references of a
+  `SealedPayload`). This rule has its own register row, `CO-KEY-REF-CREDENTIALS`.
+- `ProviderConfigRef.config_ref` runs the high-entropy rule on the name part after the scheme,
+  for every scheme (row `CO-CONFIG-REF-CREDENTIALS`, section 11).
+- Key separation in a `SealedPayload` compares `key_id` only (section 9).
+- A keyed digest key has at least 32 bytes (section 6): a rule on a function argument, not on a
+  document.
+- Messages outside hiding models quote at most 64 code points of a rejected value (section 11).
+
 ### 2.3 Where the exported schema is looser than the models
 
 Each family below is a set of documents the JSON Schema accepts and the models reject:
@@ -87,13 +101,14 @@ Each family below is a set of documents the JSON Schema accepts and the models r
 | `CO-STORED-CURRENCY-LABEL` | a stored currency label that contradicts its `na_reason` |
 | `CO-URL-RULES` | credential parameter names and credential patterns in URLs, loopback hosts where refused, fragments, percent-encoding errors |
 | `CO-CONFIG-REF-CREDENTIALS` | a `config_ref` that holds a credential instead of naming one |
+| `CO-KEY-REF-CREDENTIALS` | a `KeyRef` `key_id` or `key_version` that holds a credential instead of naming a key |
 | `CO-PROFILE-PLACEHOLDERS` | unknown or malformed profile placeholders, and placeholders without a test profile |
 | `CO-DIGEST-VERIFICATION` | a `content_digest` that does not match the document |
 | `CO-TURN-TIMING-ORDER` | `end_ms < start_ms` and the other turn timing rules |
 | `CO-VERDICT-COUNTS` | verdict counts that do not add up, or a status that does not follow from them |
 | `CO-PRICE-ARITHMETIC` | price ranges out of order or overlapping, negative prices, minimums, amounts and totals |
 | `CO-PRICE-NOTE-NOT-BLANK` | a price provenance `note` made only of white space |
-| `CO-BUNDLE-CROSS-RECORD` | bundle rules that read several records (references, tiers, results against definitions, export protection rules) |
+| `CO-BUNDLE-CROSS-RECORD` | bundle rules that read several records (references, tiers, results against definitions, the applicability re-run of every result against the run, export protection rules) |
 | `CO-SUMMARY-CONSISTENCY` | cost summaries inconsistent with their records |
 | `CO-CROSS-RECORD-CHECKS` | the `check_*` functions, contiguous indexes and ranks, reference resolution |
 | `CO-CHANNEL-AGENT-COUNT` | more than one agent channel, or a channel index outside the audio's channels |
@@ -226,6 +241,39 @@ extrapolate.
 - Importers never fill a field by guessing: an absent source value stays absent (or uses the
   explicit `unknown` member of a closed set) with an ingest warning (ADR 0018 Decision 2).
 
+### 4.1 Bundle checks: every result is re-checked against its run (ADR 0004 Decision 9)
+
+A `RunBundle` (alone or inside an `ExportBundle`) does not take a stored result's applicability
+on trust. Its last rule, tagged `[applicability]`, re-runs `results.applicability` for every
+result with the metric definition the bundle's snapshot embeds, over the run and the
+transcripts and turns the result read, and rejects the bundle when the stored result differs in
+the status class (`not_applicable` or not), `na_reason`, `missing_kinds` (in the order of
+`requires`), `language_source` or `declared_language_transcript_ids`. So a result that claims a
+score for an input the run does not have, or `not_applicable` for an input it has, or an
+observed language where none was observed, does not load.
+
+- **Which transcripts a result read.** `MetricResult.transcript_ids` (optional) names them. A
+  bundle with one transcript derives it and a bundle with none reads none; a bundle with several
+  requires the field on every result of a metric that reads transcripts or is language
+  dependent (`transcript_ids required when the bundle holds several transcripts`). The turns
+  read are those of the named transcripts, only the agent turns for `agent_transcript`.
+- **Error results.** An `error` result is not compared on the status class, except that an
+  `error` where the run lacks an input (`missing_input`, `agent_channel_unknown`) is rejected:
+  an error is for a metric whose inputs existed. Its language provenance is compared.
+- **Agent turns.** A run that lists `agent_transcript` and whose bundle holds turns has at least
+  one agent turn, unless a turn is declared withheld.
+- **Withheld records.** With a transcript or turn declared withheld the language steps cannot be
+  re-run, so only the run-level reasons are judged and the language outcome is accepted as
+  stored; the same holds for a per-turn metric that reads no turn. Other withheld kinds take
+  nothing away.
+- **Not re-checked.** The value itself, the per-turn counts against the turns, and whether an
+  `agent_transcript` metric named a transcript that has agent turns. The message names the
+  result's ID, its position `results[<index>]` and the first field that differs; it never
+  quotes a text, a tag or a reason value.
+
+The JSON Schema cannot express any of this (it reads several records); it is part of the
+register row `CO-BUNDLE-CROSS-RECORD`.
+
 ## 5. Verdict, weighted score and per-turn share (ADR 0013, ADR 0010)
 
 - **Headline.** `render_headline()` returns exactly `"{passed}/{required_total} required checks
@@ -278,7 +326,16 @@ extrapolate.
 - **One verification entry point.** `digest.verify_digest(obj, digest, *, key_resolver=None)`
   returns `None` on a match and raises otherwise (`DigestMismatch`, `UnknownDigestScheme`,
   `DigestKeyUnavailable`, `NonIJsonValueError`). A keyed digest without an available key raises
-  `DigestKeyUnavailable`; it never reports success.
+  `DigestKeyUnavailable`; it never reports success. Its message names the failure kind only (no
+  resolver, the resolver failed, the resolver returned no key bytes), never the `key_id`,
+  `key_version` or `provider_hint`; a resolver's exception is chained as `__cause__` and nothing
+  of it (text, arguments, class name) is quoted.
+- **Key length.** A key for `hmac-sha256-jcs/v1` has at least 32 bytes, in `compute_digest` and
+  for the key a resolver returns to `verify_digest`. A shorter key raises `WeakDigestKeyError`,
+  which is both a `ValueError` and a `DigestKeyUnavailable`; on the verify side it is raised
+  before any content is hashed, so a short key is never reported as `DigestMismatch`. The message
+  says `at least 32 bytes` and names the scheme, never key bytes or the key id. A key that is not
+  `bytes` (a `bytearray` included) is still a `TypeError`.
 - **Where each scheme may be used.** Internal data (snapshots, runs, run bundles, `internal`
   exports) carries the profile digest `TestProfileRef.content_digest` as a **plain** SHA-256
   digest (an `internal` export requires it). In a **shared export** or a benchmark export
@@ -387,7 +444,23 @@ extrapolate.
   One sealed payload per `(payload_type, subject_id)`, and its subject must be in the export.
 - **Digest rule.** `plaintext_digest` is absent or keyed (`hmac-sha256-jcs/v1`) for every payload
   type; a plain digest is rejected. A present digest requires a JSON-object plaintext. Its
-  `key_ref` must not name the key-encryption key.
+  `key_ref` must not name the key-encryption key: the two references name the same key when
+  their `key_id` strings are equal, whatever their `key_version` values (a version of a key is
+  still that key). `key_id` is compared verbatim: case, trailing white space and NFC against NFD
+  make different ids. The error is `key_separation` at `plaintext_digest.key_ref` and quotes no
+  key id.
+- **Key names are never key material.** `KeyRef.key_id` and `key_version` reject a
+  credential-shaped value with the error type `key_ref_credential`, at the field, with one
+  message for every rejected value that quotes no part of it. Rejected: a known credential prefix
+  (ADR 0007 Decision 5a) anywhere in the value, also after `/`, `:` or `_`; any `=` (a
+  `key=value` pair or base64 padding); a high-entropy run (32 or more of `[A-Za-z0-9+/=_-]` with
+  an upper-case letter, a lower-case letter and a digit, 16 distinct characters) inside one
+  segment of the value split at `/` and `:`. Accepted and stored verbatim: vault names, KMS
+  aliases and ARNs, GCP KMS resource names, URN-like ids, UUIDs, 32 or 40 hexadecimal digits in
+  one letter case (a 40-digit OpenPGP fingerprint is a key name), long names without a digit and
+  non-ASCII names. `provider_hint` has no credential rule (it is a machine key). `KeyRef`,
+  `ContentDigest` and every model that embeds a `KeyRef`, a `ContentDigest` or a `DekWrap` hide
+  their input in validation errors (section 11).
 - **What a sealed payload replaces.** The metadata record of the subject stays in the export. A
   sealed `transcript_text` replaces the transcript's turns, which are then absent and declared
   withheld. A sealed `tool_arguments` or `tool_result` payload protects only when the clear fields
@@ -398,8 +471,6 @@ extrapolate.
   what it points to), so a correct export depends on the exporter doing it (decision B3).
 - The package contains no cryptography. The reference seal and unseal are test-only (the
   `cryptography` package is a test dependency); production key management is outside Phase 1.
-- Known gap (S-N83): `KeyRef.key_id` and `key_version` have no value check. A key pasted as their
-  value would be stored and exported in clear. Revisit at the P1-21 security audit.
 
 ## 10. Cost (ADR 0014)
 
@@ -436,8 +507,11 @@ extrapolate.
 - **No secret-bearing fields.** No model has a field meant to hold a credential. Providers are
   referenced as `ProviderConfigRef{provider, model, config_ref}`, where `config_ref` names a
   secret (`env:NAME`, `keyring:...`, `vault:...`) that a runtime outside the schema resolves; a
-  value with `=` or a known key prefix is rejected. Keys for sealing and keyed digests are named
-  by `KeyRef`. Unknown fields such as `api_key` are rejected on every model, and a contract test
+  value with `=` or a known key prefix is rejected, and so is a name part (after the scheme, for
+  every scheme) with a high-entropy run. Upper-case environment variable names such as
+  `env:OPENAI_API_KEY`, lower-case names and paths such as `vault:secret/data/tracer/sarvam`
+  stay valid. Keys for sealing and keyed digests are named by `KeyRef`, whose `key_id` and
+  `key_version` reject credential-shaped values (section 9). Unknown fields such as `api_key` are rejected on every model, and a contract test
   fails on any property name from the credential denylist.
 - **URLs.** Endpoint, artifact and price-provenance URLs reject userinfo, 25 credential query
   parameter names (compared percent-decoded, case-folded, with `-` equal to `_`) and known
@@ -457,9 +531,29 @@ extrapolate.
   credential-checked field or holds personal data or user-typed text hides its input in
   validation errors (`hide_input_in_errors`), and the set is closed under embedding; inside those
   models no message or error context quotes a rejected value, only the field location and the
-  rule. Bundle and export messages name records by ID and the rule, never a value.
-  `DigestKeyUnavailable` names the rule and the `key_id` only; a key resolver's exception is
-  chained, never quoted.
+  rule. The set includes `KeyRef`, `ContentDigest`, `VersionedRef` and its subclasses, and
+  every model that embeds one of them or a `DekWrap`, inherited fields included. Bundle and
+  export messages name records by ID and the rule, never a value. `DigestKeyUnavailable` names
+  the failure kind only, never a key id; a key resolver's exception is chained, never quoted.
+- **Echoed values are bounded.** Outside a model that hides its input, a message may quote a
+  rejected value (a pattern or closed-set mismatch, a typed ID, a language tag, a UTC instant, a
+  decimal string, an unknown digest scheme from an unvalidated record, a schema version, a
+  duplicate JSON key). Up to 64 code points the quote is the value's `repr`; a longer value is
+  cut to its first 64 code points followed by three ASCII dots `...`. The size of a message
+  therefore does not grow with the size of the invalid value.
+- **Network locations are not vetted for reachability (SSRF).** The schema accepts private
+  address ranges and link-local addresses in `SipEndpoint`, `WebSocketEndpoint`,
+  `WebRtcEndpoint` and `Artifact.uri` values, by design: a test target or a recording store is
+  often on a private network, and a schema cannot know where a name will resolve. Any consumer that fetches or dials such a value from an untrusted bundle must
+  resolve the name itself and deny private, loopback and link-local ranges (after every
+  redirect and DNS answer), apply rate limits and offer a TLS-only option. This is a Phase 2
+  requirement on every fetcher and dialer.
+- **Phase 2 requirements from the P1-21 audit.** Every ingest, exporter and CLI entry point that
+  loads an `ExportBundle` must pass `expected_purpose` (required there; the library default
+  `None` stays for library callers, section 8). The judge runner must isolate untrusted text in
+  prompts: fixed delimiters around every untrusted variable, an untrusted-variable tag the
+  prompt names, output validated against a schema before use, and a size cap on every untrusted
+  input and on the output.
 - **Logging.** `ValidationError.errors()` always contains the input, whatever the configuration.
   Code that logs or returns validation errors must call `errors(include_input=False)` (or
   `json(include_input=False)`).
@@ -531,8 +625,10 @@ mapping adapters of Phase 1 are test support code, not part of the package.
   of price notes (`str.isspace()`) and of label edges. The default-ignorable set of labels is
   pinned to Unicode 16.0.0 in the code and does not follow the runtime. **Python 3.15 is not
   verified**: its CI leg is non-blocking, and no 3.15 run is recorded **(unverified)**.
-- **The CI workflow** is defined but has not run on a hosted CI service; every result above comes
-  from local runs **(unverified on CI)**.
+- **The CI workflow** has run on GitHub Actions for the jobs that existed before revision 30.
+  The secret-scanner job (gitleaks, pinned by checksum) and the dependency-audit job (pip-audit
+  on `uv export`) are new and are **unverified until they run on GitHub**. The multi-version
+  results above come from local runs.
 - **Interoperability with other languages.** No non-Python JSON Schema validator was run against
   the schema files; portability rests on the pattern syntax rules of section 2.5
   **(unverified)**. Digests use the `rfc8785` Python package; agreement with JCS
@@ -551,7 +647,7 @@ mapping adapters of Phase 1 are test support code, not part of the package.
 ## 16. Statements in this file that are not verified
 
 - Python 3.15 behaviour (section 15).
-- Results on a hosted CI service (section 15).
+- Results of the new secret-scanner and dependency-audit CI jobs (section 15).
 - Validation by non-Python JSON Schema validators; JCS and AES-GCM interoperability with other
   languages (section 15).
 - The match of the credential patterns with current vendor key formats and presigned-URL forms

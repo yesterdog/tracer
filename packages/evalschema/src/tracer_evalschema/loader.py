@@ -25,6 +25,7 @@ from typing import Any, NoReturn, TypeVar
 
 from pydantic import BaseModel
 
+from tracer_evalschema._constraints import echoed
 from tracer_evalschema.errors import BundleSizeError, DepthLimitExceeded, DuplicateKeyError
 
 __all__ = [
@@ -67,7 +68,7 @@ def _object_without_duplicates(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     result: dict[str, Any] = {}
     for key, value in pairs:
         if key in result:
-            raise DuplicateKeyError(f"duplicate JSON object key {key!r}")
+            raise DuplicateKeyError(f"duplicate JSON object key {echoed(key)}")
         result[key] = value
     return result
 

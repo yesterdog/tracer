@@ -18,7 +18,7 @@ from typing import Annotated, ClassVar, Final
 
 from pydantic import AfterValidator, ConfigDict, Field, model_validator
 
-from tracer_evalschema._constraints import ClosedSet
+from tracer_evalschema._constraints import ClosedSet, echoed
 from tracer_evalschema._hiding import HidingModel, values_hidden
 from tracer_evalschema._validation import Problem, raise_problems
 from tracer_evalschema.agent import AgentTargetRef
@@ -51,7 +51,7 @@ def _unique_kinds(what: str) -> Callable[[list[str]], list[str]]:
             if kind in seen:
                 if values_hidden():
                     raise ValueError(f"{what} lists one input kind twice (again at {position})")
-                raise ValueError(f"{what} lists {kind!r} twice")
+                raise ValueError(f"{what} lists {echoed(kind)} twice")
             seen.add(kind)
         return kinds
 

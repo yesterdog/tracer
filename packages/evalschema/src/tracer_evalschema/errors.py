@@ -6,15 +6,19 @@ Pydantic v2 turns only ``ValueError``, ``AssertionError`` and ``PydanticCustomEr
 validator into a ``ValidationError``. Every error below that derives from ``TracerSchemaError`` and
 not from ``ValueError`` therefore propagates as itself out of ``model_validate``,
 ``model_validate_json``, ``TypeAdapter.validate_*`` and the strict loader, also from nested
-models. Such an error carries no pydantic location, so its message names the offending value.
+models. Such an error carries no pydantic location, so its message names the offending value,
+cut to 64 code points and ``...`` when longer (``_constraints.echoed``, P1-21 finding m4), except
+where the value may be secret: ``DigestKeyUnavailable`` names the rule only, never a key id.
 
-``ConfusablePrefixError`` and ``DataFileError`` are ``ValueError``s on purpose: they are raised by
-``ids.validate_new_prefix()`` and the data loaders, never inside model validation.
+``ConfusablePrefixError``, ``DataFileError`` and ``WeakDigestKeyError`` are ``ValueError``s on
+purpose: they are raised by ``ids.validate_new_prefix()``, the data loaders and
+``digest.compute_digest``/``verify_digest`` with a caller's key, never inside model validation.
 """
 
 from __future__ import annotations
 
 from tracer_evalschema import SCHEMA_VERSION
+from tracer_evalschema._constraints import echoed
 
 
 class TracerSchemaError(Exception):
@@ -36,7 +40,7 @@ class SchemaVersionError(TracerSchemaError):
         self.expected = expected
 
     def __str__(self) -> str:
-        return f"{self._problem}: found {self.found!r}, expected {self.expected!r}"
+        return f"{self._problem}: found {echoed(self.found)}, expected {self.expected!r}"
 
     _problem = "unreadable schema_version"
 
@@ -67,7 +71,17 @@ class UnknownDigestScheme(TracerSchemaError):
 
 
 class DigestKeyUnavailable(TracerSchemaError):
-    """A keyed digest cannot be checked: no key resolver, or the resolver gave no key."""
+    """A keyed digest cannot be checked: no key resolver, or the resolver gave no key.
+
+    The message names the failure kind only, never the ``key_id``, ``key_version`` or
+    ``provider_hint`` of the ``KeyRef`` (P1-21 finding C3a) and nothing of a resolver's exception,
+    which stays reachable as ``__cause__``."""
+
+
+class WeakDigestKeyError(DigestKeyUnavailable, ValueError):
+    """A key for a keyed digest scheme (``hmac-sha256-jcs/v1``) is shorter than 32 bytes
+    (P1-21 finding m1). A ``DigestKeyUnavailable`` (no usable key) and a ``ValueError`` (a bad
+    argument). The message names the rule and the scheme, never key material or the key id."""
 
 
 class DigestMismatch(TracerSchemaError):

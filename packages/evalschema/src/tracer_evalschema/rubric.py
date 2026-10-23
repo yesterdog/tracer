@@ -24,9 +24,10 @@ from collections.abc import Sequence
 from decimal import Decimal
 from typing import Annotated, ClassVar
 
-from pydantic import AfterValidator, BaseModel, ConfigDict, Field, Strict, WithJsonSchema
+from pydantic import AfterValidator, ConfigDict, Field, Strict, WithJsonSchema
 from pydantic_core import PydanticCustomError
 
+from tracer_evalschema._constraints import echoed
 from tracer_evalschema._hiding import HidingModel, values_hidden
 from tracer_evalschema.base import VersionedEntity
 from tracer_evalschema.digest import ContentDigest
@@ -68,10 +69,12 @@ PositiveDecimalString = Annotated[
 """A canonical decimal string strictly greater than 0."""
 
 
-class RubricItem(BaseModel):
+class RubricItem(HidingModel):
     """One check of a rubric: a binding, whether it is required, and an optional weight."""
 
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    # Embeds a ContentDigest (and so a KeyRef), so it hides its input (ADR 0007 Decision 8 (b),
+    # P1-21 C3b closure rule).
+    model_config = ConfigDict(extra="forbid", frozen=True, hide_input_in_errors=True)
 
     binding: MetricBindingRef
     required: Annotated[bool, Strict()]
@@ -186,7 +189,7 @@ def validate_rubric(
             )
         reached[definition.id] = binding.id
         if definition.key in keys:
-            key = "one key" if values_hidden() else f"the key {definition.key!r}"
+            key = "one key" if values_hidden() else f"the key {echoed(definition.key)}"
             raise ValueError(
                 f"bindings {keys[definition.key]} and {binding.id} resolve to two definitions "
                 f"with {key} (definition {definition.id}); keys are unique per evaluator"

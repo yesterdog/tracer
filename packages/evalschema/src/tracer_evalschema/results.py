@@ -7,7 +7,8 @@ ADR 0010 Decisions 3, 3a, 4a, 5, 5a and 6; P1-11).
   (``metric``, a ``MetricDefinitionRef``; no ``run_id`` and no binding, N22, N33). ``status`` is
   ``scored``, ``not_applicable`` (with ``na_reason``) or ``error`` (with ``error``); a missing
   input is never 0 or false (ADR 0004). A ``per_turn_share`` metric scores through ``per_turn``
-  (``PerTurnSummary``, P-58) and has no ``value``.
+  (``PerTurnSummary``, P-58) and has no ``value``. ``transcript_ids`` (optional) names the
+  transcripts the result read, for a bundle that holds several (ADR 0004 Decision 9).
 - ``ResultError``, ``ScorerInfo`` (P-61), ``JudgeTurnVerdict`` and ``JudgeInfo`` (P-62),
   ``PerTurnSummary``: value objects.
 - ``missing_inputs``, ``strongest_na_reason``, ``effective_language``, ``check_language`` and
@@ -40,6 +41,7 @@ from pydantic.json_schema import JsonSchemaValue
 from pydantic_core import CoreSchema, PydanticCustomError, core_schema
 
 from tracer_evalschema._constraints import ClosedSet, FullMatch
+from tracer_evalschema._hiding import HidingModel
 from tracer_evalschema._validation import Problem, raise_problems
 from tracer_evalschema.artifact import Confidence, agent_audio_available
 from tracer_evalschema.base import EntityBase
@@ -269,6 +271,14 @@ def _unique_sorted_ids(ids: list[TranscriptId]) -> list[TranscriptId]:
     return ids
 
 
+def _unique_read_ids(ids: list[TranscriptId]) -> list[TranscriptId]:
+    """``transcript_ids`` names each transcript once; the order is the producer's and is kept."""
+    texts = [str(i) for i in ids]
+    if len(set(texts)) != len(texts):
+        raise ValueError("transcript_ids lists one transcript twice")
+    return ids
+
+
 def _unique_kinds(kinds: list[str]) -> list[str]:
     if len(set(kinds)) != len(kinds):
         raise ValueError("missing_kinds lists one input kind twice")
@@ -408,7 +418,7 @@ def _result_conditions(schema: dict[str, Any]) -> None:
     schema["allOf"] = copy.deepcopy(rules)  # no node is shared between rules or calls
 
 
-class MetricResult(EntityBase):
+class MetricResult(HidingModel, EntityBase):
     """The result of one metric on one run (prefix ``res``; ADR 0004, ADR 0010 Decision 5).
 
     Rules on the result alone (each reported at the field it is about):
@@ -424,6 +434,13 @@ class MetricResult(EntityBase):
     - ``declared_language_transcript_ids`` non-empty if and only if ``language_source=declared``;
     - ``language_source`` is absent when the language steps did not run (``missing_input``,
       ``agent_channel_unknown``).
+
+    ``transcript_ids`` (optional, additive in 0.0.1) names the transcripts the result read (ADR
+    0004 Decision 6d): ``None`` (absent and ``null`` are the same) lets a bundle derive them; a
+    list has at least one element, names each transcript once and keeps the producer's order. No
+    rule of the result alone reads it; ``check_run_bundle`` resolves it (``[unresolved]``), requires
+    it when the bundle holds several transcripts and the metric reads transcripts or is language
+    dependent, and re-runs ``applicability`` over the transcripts it names (``[applicability]``).
     """
 
     model_config = ConfigDict(json_schema_extra=_result_conditions)
@@ -451,6 +468,14 @@ class MetricResult(EntityBase):
         Field(json_schema_extra={"uniqueItems": True}),
     ] = Field(default_factory=list)
     evidence_refs: list[EvidenceRef] = Field(default_factory=list)
+    transcript_ids: (
+        Annotated[
+            list[TranscriptId],
+            AfterValidator(_unique_read_ids),
+            Field(min_length=1, json_schema_extra={"uniqueItems": True}),
+        ]
+        | None
+    ) = None
 
     @model_validator(mode="after")
     def _status_rules(self) -> MetricResult:

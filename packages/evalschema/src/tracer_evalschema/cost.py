@@ -58,7 +58,7 @@ from pydantic import (
     model_validator,
 )
 
-from tracer_evalschema._constraints import ClosedSet
+from tracer_evalschema._constraints import ClosedSet, echoed
 from tracer_evalschema._hiding import HidingModel
 from tracer_evalschema._validation import Problem, raise_problems
 from tracer_evalschema.base import SCHEMA_VERSION, EntityBase, Version
@@ -190,12 +190,14 @@ EntryKeys = Annotated[
 ]
 
 
-class PricingSnapshot(BaseModel):
+class PricingSnapshot(HidingModel):
     """The catalog version and the entries a computed cost used (ADR 0014 Decision 12, O6, N61):
     ``(catalog_id, version, content_digest)`` names one catalog version and ``entry_keys`` the
     entries used, by their catalog-scoped ``entry_key`` (non-empty, distinct)."""
 
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    # Embeds a ContentDigest (and so a KeyRef), so it hides its input (ADR 0007 Decision 8 (b),
+    # P1-21 C3b closure rule).
+    model_config = ConfigDict(extra="forbid", frozen=True, hide_input_in_errors=True)
 
     catalog_id: PricingCatalogId
     version: Version
@@ -1379,8 +1381,8 @@ def import_reported_cost(
                 "currency_contract_conflict",
                 label,
                 currency_source_path,
-                f"the payload currency label {label!r} disagrees with the cited API contract, "
-                f"which states {cited.currency}; the payload label is kept",
+                f"the payload currency label {echoed(label)} disagrees with the cited API "
+                f"contract, which states {cited.currency}; the payload label is kept",
             )
             if label_usd:
                 return raw_record("currency_conflict", "payload", label)

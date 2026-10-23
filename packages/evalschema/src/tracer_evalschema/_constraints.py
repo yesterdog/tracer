@@ -16,6 +16,12 @@ Both accept only real ``str`` values (strict: no coercion from numbers, bytes or
 Inside a model that hides its input (``_hiding.values_hidden()``) neither quotes the rejected
 value, in the message or in the error context (ADR 0007 Decision 8 (c), finding N42): the message
 names the rule and the expected form only.
+
+Outside such a model a rejected value is quoted through ``echoed`` (or ``echoed_text`` where a
+message puts the text between its own quotes), the one helper every echo site of the package uses
+(P1-21 finding m4, A3): up to ``ECHO_LIMIT`` (64) code points the quote is exactly ``repr(value)``;
+a longer value is cut to its first 64 code points followed by the three ASCII dots ``...``, so an
+invalid value of any size gives a message of bounded size.
 """
 
 from __future__ import annotations
@@ -30,6 +36,32 @@ from pydantic.json_schema import JsonSchemaValue
 from pydantic_core import CoreSchema, PydanticCustomError, core_schema
 
 from tracer_evalschema._hiding import values_hidden
+
+ECHO_LIMIT = 64
+"""The most code points of a rejected value that a message quotes (P1-21 finding m4)."""
+
+ECHO_ELLIPSIS = "..."
+"""What follows a cut value: three ASCII dots (A7), never U+2026."""
+
+
+def echoed_text(text: str) -> str:
+    """``text`` unchanged up to ``ECHO_LIMIT`` code points, else its first ``ECHO_LIMIT`` code
+    points followed by ``ECHO_ELLIPSIS``. For a message that quotes the text itself."""
+    if len(text) <= ECHO_LIMIT:
+        return text
+    return text[:ECHO_LIMIT] + ECHO_ELLIPSIS
+
+
+def echoed(value: object) -> str:
+    """The quote of a rejected value in a message or an error context: ``repr(value)`` for a
+    string of up to ``ECHO_LIMIT`` code points, else ``repr`` of its first ``ECHO_LIMIT`` code
+    points followed by ``ECHO_ELLIPSIS`` (the dots stay outside the quotes, so a reader sees where
+    the value was cut). Any other value is quoted by ``repr`` cut the same way."""
+    if isinstance(value, str):
+        if len(value) <= ECHO_LIMIT:
+            return repr(value)
+        return repr(value[:ECHO_LIMIT]) + ECHO_ELLIPSIS
+    return echoed_text(repr(value))
 
 
 def _anchored_body(pattern: str) -> str:
@@ -77,7 +109,7 @@ class FullMatch:
             context: dict[str, object] = {"pattern": self.pattern}
             message = self.quiet_message
             if self.echo_value and not values_hidden():
-                context["value"] = repr(value)
+                context["value"] = echoed(value)
                 message = self.message
             raise PydanticCustomError(self.error_type, message, context)
         return value
@@ -104,7 +136,7 @@ def _default_reject(value: str, values: tuple[str, ...]) -> NoReturn:
             "closed_set", "the value is not one of {allowed}", {"allowed": values}
         )
     raise PydanticCustomError(
-        "closed_set", "{value} is not one of {allowed}", {"value": repr(value), "allowed": values}
+        "closed_set", "{value} is not one of {allowed}", {"value": echoed(value), "allowed": values}
     )
 
 

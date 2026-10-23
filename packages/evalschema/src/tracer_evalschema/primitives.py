@@ -36,7 +36,7 @@ from pydantic.json_schema import JsonSchemaValue
 from pydantic_core import CoreSchema, PydanticCustomError, core_schema
 
 from tracer_evalschema import SCHEMA_VERSION
-from tracer_evalschema._constraints import ClosedSet
+from tracer_evalschema._constraints import ClosedSet, echoed, echoed_text
 from tracer_evalschema._hiding import values_hidden
 from tracer_evalschema.data_loader import package_data, read_json_file
 from tracer_evalschema.errors import DataFileError
@@ -73,7 +73,7 @@ def _invalid_instant(value: object, why: str) -> PydanticCustomError:
     if values_hidden():
         return PydanticCustomError("utc_datetime", "not a UTC instant: {why}", {"why": why})
     return PydanticCustomError(
-        "utc_datetime", "{value} is not a UTC instant: {why}", {"value": repr(value), "why": why}
+        "utc_datetime", "{value} is not a UTC instant: {why}", {"value": echoed(value), "why": why}
     )
 
 
@@ -193,17 +193,17 @@ def _check_decimal(text: str) -> str:
             raise PydanticCustomError(
                 "decimal_not_canonical",
                 'decimal "{value}" is not in canonical form; write "{canonical}"',
-                {"value": text, "canonical": canonical},
+                {"value": echoed_text(text), "canonical": echoed_text(canonical)},
             )
         raise PydanticCustomError(
             "decimal_scale",
             'decimal "{value}" has more than {max_scale} fractional digits',
-            {"value": text, "max_scale": _DECIMAL_MAX_SCALE},
+            {"value": echoed_text(text), "max_scale": _DECIMAL_MAX_SCALE},
         )
     raise PydanticCustomError(
         "decimal_string",
         "{value} is not a decimal string (canonical form {pattern})",
-        {"value": repr(text), "pattern": DECIMAL_PATTERN},
+        {"value": echoed(text), "pattern": DECIMAL_PATTERN},
     )
 
 
@@ -313,7 +313,7 @@ def _currency_set(codes: Sequence[str]) -> ClosedSet:
         raise PydanticCustomError(
             "currency_not_iso4217",
             "currency {code} is not an ISO 4217 code; only {only}",
-            {"code": repr(value), "only": only},
+            {"code": echoed(value), "only": only},
         )
 
     return ClosedSet(tuple(codes), reject)

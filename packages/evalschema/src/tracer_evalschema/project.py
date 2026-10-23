@@ -15,6 +15,7 @@ from typing import Annotated, ClassVar
 
 from pydantic import AfterValidator, ConfigDict, Field
 
+from tracer_evalschema._constraints import echoed
 from tracer_evalschema._hiding import HidingModel, values_hidden
 from tracer_evalschema.base import EntityBase
 from tracer_evalschema.provider import ProviderConfigRef
@@ -34,8 +35,8 @@ def _unique_provider_models(configs: list[ProviderConfigRef]) -> list[ProviderCo
             )
         if pair in seen:
             raise ValueError(
-                f"provider_configs holds two entries for provider {config.provider!r} and model "
-                f"{config.model!r}; a run resolves a model to exactly one entry"
+                f"provider_configs holds two entries for provider {echoed(config.provider)} and "
+                f"model {echoed(config.model)}; a run resolves a model to exactly one entry"
             )
         seen.add(pair)
     return configs
