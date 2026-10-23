@@ -635,10 +635,74 @@ _F5_ROWS: dict[str, tuple[str, str, str]] = {
     ),
 }
 
+# ---- F8: transcript export of a voice platform ------------------------------------------------
+
+_F8_ROWS: tuple[tuple[str, str, str, str], ...] = (
+    (
+        "F8:assistant.text",
+        "lossy",
+        "schema-architect",
+        "One logged assistant line may concatenate several utterances (repeated prompts plus a "
+        "closing message); it stays one Turn, so turn-level metrics on F8 measure the logged "
+        "agent message, not the utterance.",
+    ),
+    (
+        "F8:@turn_timing",
+        "absent_in_source",
+        "schema-architect",
+        "The one timestamp per line may be a start, an end or a log time and is kept as "
+        "wall_time with meaning unknown; no start_ms, end_ms or offset exists, so latency and "
+        "talk-time metrics are missing_input.",
+    ),
+    (
+        "F8:@language_tag",
+        "absent_in_source",
+        "indic-linguistics",
+        "The export carries no language label; detected_language and detected_language_raw "
+        "stay absent, and only a user declaration (N14) lifts language_not_observed for "
+        "metrics that are not script-sensitive.",
+    ),
+    (
+        "F8:@audio",
+        "absent_in_source",
+        "schema-architect",
+        "The export has no audio and no artifact reference, so audio metrics and WER are "
+        "missing_input.",
+    ),
+    (
+        "F8:@confidence",
+        "absent_in_source",
+        "schema-architect",
+        "The export has no confidence value of any kind, so none is stored and none is invented.",
+    ),
+    (
+        "F8:@tool_calls",
+        "absent_in_source",
+        "schema-architect",
+        "The export has no tool calls or tool results, so no ToolCallEvent is made and tool "
+        "metrics are missing_input.",
+    ),
+    (
+        "F8:@end_of_call_reason",
+        "absent_in_source",
+        "schema-architect",
+        "The export does not say how the call ended; nothing is inferred from the closing "
+        "message or the last timestamp.",
+    ),
+    (
+        "F8:@filename",
+        "unmapped",
+        "dev",
+        "The file name carries local time (IST) while the content is UTC; the importer takes "
+        "text, not a file name, and never derives a time from the name.",
+    ),
+)
+
 GAP_REGISTER: tuple[GapRow, ...] = (
     *_BASE_GAP_REGISTER,
     *(_row(key, kind, owner, reason) for key, kind, owner, reason in _F2_ROWS),
     *(_row(f"F5:{key}", kind, owner, reason) for key, (kind, owner, reason) in _F5_ROWS.items()),
+    *(_row(key, kind, owner, reason) for key, kind, owner, reason in _F8_ROWS),
 )
 
 KNOWN_SCHEMA_GAPS: tuple[GapRow, ...] = tuple(

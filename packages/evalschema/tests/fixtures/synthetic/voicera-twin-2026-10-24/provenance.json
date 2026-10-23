@@ -1,0 +1,36 @@
+{
+  "source": "Hand-written synthetic public twin of the F8 VoicEra transcript export. Written only from the structure documented in docs/phase1/SCOPE.md (Format of F8) and docs/adr/0018-real-sample-mapping-policy.md (Decision 6). No real call, person or text was read, copied or adapted; the dialogue is invented (a made-up library opening-hours helpline).",
+  "retrieval_date": "2026-10-24",
+  "method": "synthetic_hand_written_twin",
+  "synthetic_public_twin": true,
+  "tags": ["synthetic_public_twin", "needs_native_review"],
+  "scenario": {
+    "id": "library_opening_hours",
+    "language": "mr (Devanagari) with Latin-script fragments inside one user turn"
+  },
+  "indic_verified": "needs_native_review",
+  "software": {
+    "vendor_export_version": "unknown: the export is the user's report of VoicEra's standard export and is not verified in VoicEra documentation (ADR 0018 Decision 6)",
+    "generator": "none: typed by hand and checked with the F8 parser of the tests"
+  },
+  "structure_documented": {
+    "line_1": "call_id=<uuid>",
+    "line_2": "---",
+    "message_lines": "[ISO-8601 UTC timestamp with milliseconds and +00:00] assistant|user: text",
+    "one_timestamp_per_line": true,
+    "no_audio_confidence_language_tag_tool_calls_or_end_reason": true,
+    "assistant_line_may_concatenate_utterances": "the last assistant line repeats one prompt and adds a closing message",
+    "turns_may_mix_scripts": "one user line holds Devanagari and Latin-script words",
+    "file_name_carries_local_time_ist": "the file name is the first line's time in IST (UTC+05:30); content is UTC; the name is never used for timing"
+  },
+  "command": "none (hand-written)",
+  "license": "Apache-2.0 for the hand-written fixture",
+  "pii_status": "synthetic_no_personal_data",
+  "non_derivation_statement": "The twin was built from the documented structure only. CI cannot prove that it shares no text with the real call (it never sees the real call); the local-only test test_no_private_text_in_committable_files checks word 8-grams when the real file is present, and review attention covers the rest.",
+  "files": {
+    "call_2026-10-24_11-01-07_c0ffee01.txt": {
+      "description": "F8 VoicEra-style transcript export, 10 message lines (5 assistant, 5 user), LF line endings, final newline, no BOM",
+      "sha256": "a89b9ec09945ed127e8f269512699fd4fa1fd8efb3f8cbfd227914a0b2055dc3"
+    }
+  }
+}

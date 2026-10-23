@@ -1,0 +1,57 @@
+# batch22-f8 local-only tests run against STAND-IN files (invented English text with the documented structure, written by qa in scratch copies of the repository; NOT the real call file, which was never opened)
+# command: <scratchpad>/b22-env3.12/bin/python -m pytest -p no:cacheprovider -q -m private_fixtures --tb=short -rA packages/evalschema/tests/test_mapping_f8.py   (cwd: scratch copy with the oracle converter and a stand-in under tests/fixtures/private/voicera/)
+# date: 2026-10-23T20:21:56Z (UTC)
+# the stand-in contains the marker word ZQXUNIQUE in three lines; the output below must never show it
+
+=== stand-in: none
+SKIPPED [3] packages/evalschema/tests/test_mapping_f8.py:1695: no real file under tests/fixtures/private/voicera/ (expected in CI)
+SKIPPED [1] packages/evalschema/tests/test_mapping_f8.py:1779: no real file under tests/fixtures/private/voicera/ (expected in CI)
+4 skipped, 135 deselected in 0.32s
+
+=== stand-in: ok
+PASSED packages/evalschema/tests/test_mapping_f8.py::test_f8_real_file_maps_without_fabrication[file-0]
+PASSED packages/evalschema/tests/test_mapping_f8.py::test_f8_real_file_converter_is_silent[file-0]
+PASSED packages/evalschema/tests/test_mapping_f8.py::test_f8_twin_matches_real_structure[file-0]
+PASSED packages/evalschema/tests/test_mapping_f8.py::test_no_private_text_in_committable_files
+4 passed, 135 deselected in 4.88s
+
+=== stand-in: crlf
+file 0: structure differs from the twin in: line_ending
+PASSED packages/evalschema/tests/test_mapping_f8.py::test_f8_real_file_maps_without_fabrication[file-0]
+PASSED packages/evalschema/tests/test_mapping_f8.py::test_f8_real_file_converter_is_silent[file-0]
+PASSED packages/evalschema/tests/test_mapping_f8.py::test_no_private_text_in_committable_files
+FAILED packages/evalschema/tests/test_mapping_f8.py::test_f8_twin_matches_real_structure[file-0]
+1 failed, 3 passed, 135 deselected in 4.51s
+
+=== stand-in: blank
+file 0: structure differs from the twin in: blank_lines
+PASSED packages/evalschema/tests/test_mapping_f8.py::test_f8_real_file_maps_without_fabrication[file-0]
+PASSED packages/evalschema/tests/test_mapping_f8.py::test_f8_real_file_converter_is_silent[file-0]
+PASSED packages/evalschema/tests/test_mapping_f8.py::test_no_private_text_in_committable_files
+FAILED packages/evalschema/tests/test_mapping_f8.py::test_f8_twin_matches_real_structure[file-0]
+1 failed, 3 passed, 135 deselected in 4.53s
+
+=== stand-in: label
+file 0: structure differs from the twin in: speaker_labels
+PASSED packages/evalschema/tests/test_mapping_f8.py::test_f8_real_file_maps_without_fabrication[file-0]
+PASSED packages/evalschema/tests/test_mapping_f8.py::test_f8_real_file_converter_is_silent[file-0]
+PASSED packages/evalschema/tests/test_mapping_f8.py::test_no_private_text_in_committable_files
+FAILED packages/evalschema/tests/test_mapping_f8.py::test_f8_twin_matches_real_structure[file-0]
+1 failed, 3 passed, 135 deselected in 4.58s
+
+=== stand-in: ts
+file 0: structure differs from the twin in: timestamp_shapes
+PASSED packages/evalschema/tests/test_mapping_f8.py::test_f8_real_file_maps_without_fabrication[file-0]
+PASSED packages/evalschema/tests/test_mapping_f8.py::test_f8_real_file_converter_is_silent[file-0]
+PASSED packages/evalschema/tests/test_mapping_f8.py::test_no_private_text_in_committable_files
+FAILED packages/evalschema/tests/test_mapping_f8.py::test_f8_twin_matches_real_structure[file-0]
+1 failed, 3 passed, 135 deselected in 4.57s
+
+=== stand-in: plant
+__________________ test_no_private_text_in_committable_files ___________________
+1 committable file(s) share word 8-grams with the real file (46 grams checked, 17 files skipped): docs/leak.md (9)
+PASSED packages/evalschema/tests/test_mapping_f8.py::test_f8_real_file_maps_without_fabrication[file-0]
+PASSED packages/evalschema/tests/test_mapping_f8.py::test_f8_real_file_converter_is_silent[file-0]
+PASSED packages/evalschema/tests/test_mapping_f8.py::test_f8_twin_matches_real_structure[file-0]
+FAILED packages/evalschema/tests/test_mapping_f8.py::test_no_private_text_in_committable_files
+1 failed, 3 passed, 135 deselected in 5.13s
