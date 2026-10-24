@@ -38,6 +38,7 @@ __all__ = [
     "StoreSchemaVersionMismatch",
     "StoreSchemaVersionTooNew",
     "StoreValueOutOfRange",
+    "UnsafeEngine",
     "UnsupportedServerEncoding",
     "UnsupportedSqliteVersion",
 ]
@@ -49,6 +50,17 @@ class StoreError(Exception):
 
 class StoreConfigurationError(StoreError):
     """The URL or an option is not supported."""
+
+
+class UnsafeEngine(StoreConfigurationError):
+    """The Engine does not hide bound parameters (rule: ``hide_parameters=True``), so a database
+    error could show a stored value. Use the Engine of ``create_store_engine``."""
+
+    def __init__(self) -> None:
+        super().__init__(
+            "the engine does not hide bound parameters (rule: hide_parameters=True); "
+            "use the Engine of create_store_engine"
+        )
 
 
 class StoreConnectionError(StoreError):

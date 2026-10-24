@@ -42,6 +42,7 @@ from .errors import (
     StoreSchemaVersionMismatch,
     StoreSchemaVersionTooNew,
     StoreValueOutOfRange,
+    UnsafeEngine,
     UnsupportedServerEncoding,
     UnsupportedSqliteVersion,
 )
@@ -116,6 +117,7 @@ __all__ = [
     "StoreSchemaVersionMismatch",
     "StoreSchemaVersionTooNew",
     "StoreValueOutOfRange",
+    "UnsafeEngine",
     "UnsupportedServerEncoding",
     "UnsupportedSqliteVersion",
     "UuidCol",

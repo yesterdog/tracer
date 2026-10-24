@@ -610,6 +610,7 @@ def test_repository_functions_and_signatures(evaldb: ModuleType) -> None:
         "store_run_bundle": [
             ("engine", "POSITIONAL_OR_KEYWORD"),
             ("bundle", "POSITIONAL_OR_KEYWORD"),
+            ("repair_members", "KEYWORD_ONLY"),
         ],
         "store_export": [
             ("engine", "POSITIONAL_OR_KEYWORD"),
@@ -674,6 +675,7 @@ def test_repository_functions_and_signatures(evaldb: ModuleType) -> None:
         }
         want_defaults = {
             "load_run_bundle": {"allow_incomplete": False},
+            "store_run_bundle": {"repair_members": False},
             "find_by_external_ref": {"run_id": None},
         }
         assert defaults == want_defaults.get(name, {}), name

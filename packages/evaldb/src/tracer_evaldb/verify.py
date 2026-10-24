@@ -32,7 +32,7 @@ from tracer_evalschema.errors import DigestMismatch
 from tracer_evalschema.ids import RunBundleId
 
 from . import codecs
-from .errors import StoreIntegrityError
+from .errors import StoreIntegrityError, UnsafeEngine
 from .repository import _MEMBERS, _PAIR_CHUNK
 from .schema import metadata
 from .tables import ENTITY_TABLES
@@ -424,6 +424,8 @@ def verify_database(engine: Engine) -> VerifyReport:
     """
     if not isinstance(engine, Engine):
         raise TypeError("the first argument must be the Engine of create_store_engine")
+    if engine.hide_parameters is not True:
+        raise UnsafeEngine
     reader: Engine = engine
     if engine.dialect.name == "postgresql":
         reader = engine.execution_options(isolation_level="REPEATABLE READ")

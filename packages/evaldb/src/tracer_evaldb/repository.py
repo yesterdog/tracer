@@ -25,12 +25,13 @@ reference.
 from __future__ import annotations
 
 import contextlib
+import functools
 import re
 import uuid
-from collections.abc import Iterator, Mapping, Sequence
+from collections.abc import Callable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from types import MappingProxyType
-from typing import Any, cast
+from typing import Any, TypeVar, cast
 
 import sqlalchemy as sa
 from sqlalchemy.engine import Connection, Engine
@@ -103,6 +104,7 @@ from .errors import (
     RecordOwnershipConflict,
     ReimportConflict,
     StoreConstraintViolation,
+    UnsafeEngine,
 )
 from .schema import metadata
 
@@ -262,6 +264,8 @@ _EXPORT_LIMIT = loader.DEFAULT_MAX_BUNDLE_BYTES
 def _engine(engine: object) -> Engine:
     if not isinstance(engine, Engine):
         raise TypeError("the first argument must be the Engine of create_store_engine")
+    if engine.hide_parameters is not True:
+        raise UnsafeEngine
     return engine
 
 
@@ -349,6 +353,28 @@ def _writing(engine: Engine) -> Iterator[Connection]:
             yield connection
     except sa.exc.IntegrityError as error:
         raise translate_integrity_error(error) from None
+
+
+_F = TypeVar("_F", bound=Callable[..., Any])
+
+
+def _typed_refusals(function: _F) -> _F:
+    """Leave no exception hanging on a ``StoreConstraintViolation``.
+
+    The error is raised ``from None``, but inside a ``with`` block Python still sets its
+    ``__context__`` to the database error being handled; a reader that walks the attribute would
+    reach it. The database error is scrubbed at its source (``engine``); this cuts the link.
+    """
+
+    @functools.wraps(function)
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
+        try:
+            return function(*args, **kwargs)
+        except StoreConstraintViolation as error:
+            error.__context__ = None
+            raise
+
+    return cast(_F, wrapper)
 
 
 # -------------------------------------------------------------------------------- the plan
@@ -492,6 +518,7 @@ def _store_root(engine: Engine, table: str, model: EntityBase) -> StoreResult:
     return _store_plan(engine, plan, root)
 
 
+@_typed_refusals
 def store_project(engine: Engine, project: Project) -> StoreResult:
     """Insert a project, or do nothing for an equal one; other content under the ID is a
     ``ConflictingRecordError``."""
@@ -501,6 +528,7 @@ def store_project(engine: Engine, project: Project) -> StoreResult:
     return _store_root(engine, "project", _revalidated(project, Project))
 
 
+@_typed_refusals
 def store_dataset_item(engine: Engine, item: DatasetItem) -> StoreResult:
     """Insert a dataset item. It may name an artifact, a transcript or a run that is not stored."""
     _engine(engine)
@@ -509,6 +537,7 @@ def store_dataset_item(engine: Engine, item: DatasetItem) -> StoreResult:
     return _store_root(engine, "dataset_item", _revalidated(item, DatasetItem))
 
 
+@_typed_refusals
 def store_definition(engine: Engine, definition: VersionedEntity) -> StoreResult:
     """Insert one of the nine versioned entities, or do nothing for an equal one; other content
     under the same ``(id, version)`` is a ``ConflictingVersionError``."""
@@ -540,6 +569,7 @@ def _internal(snapshot: ConfigSnapshot) -> None:
         raise InternalSnapshotRefused(snapshot.id) from None
 
 
+@_typed_refusals
 def store_snapshot(engine: Engine, snapshot: ConfigSnapshot) -> StoreResult:
     """Insert a snapshot with the definitions it embeds, in one transaction. A definition that is
     stored and equal is shared; a different one under the same ``(id, version)`` is a
@@ -632,13 +662,97 @@ def _check_bundle_members(connection: Connection, root: _Item) -> None:
         raise _conflict("run_bundle", root)
 
 
-def store_run_bundle(engine: Engine, bundle: RunBundle) -> StoreResult:
+_ABSENT_CHECKED = frozenset(
+    {
+        "pricing_catalog",
+        "test_profile",
+        "persona",
+        "rubric",
+        "evaluator",
+        "metric_definition",
+        "metric_binding",
+    }
+)
+
+
+def _listed_members(connection: Connection, run: _Item) -> set[tuple[Any, ...]]:
+    """``(table, ID, version)`` of every member that a stored bundle or the stored snapshot of this
+    run lists. If one of them is absent from its table it was deleted: the audit holds no ID, so
+    listing is what tells a deleted record from a new one."""
+    run_id = run.encoded.row["id"]
+    bundles, members = _table("run_bundle"), _table("run_bundle_member")
+    listed: set[tuple[Any, ...]] = {
+        (kind, record_id, version)
+        for kind, record_id, version in connection.execute(
+            sa.select(members.c.kind, members.c.record_id, members.c.record_version)
+            .join(bundles, bundles.c.id == members.c.bundle_id)
+            .where(
+                bundles.c.run_id == run_id, members.c.kind.in_(("pricing_catalog", "test_profile"))
+            )
+        )
+    }
+    snapshot_id = connection.execute(
+        sa.select(_table("run").c.config_snapshot_id).where(_table("run").c.id == run_id)
+    ).scalar_one_or_none()
+    if snapshot_id is None:
+        return listed
+    snapshot_members, profile_refs = _table("snapshot_member"), _table("snapshot_profile_ref")
+    listed.update(
+        (kind, definition_id, version)
+        for kind, definition_id, version in connection.execute(
+            sa.select(
+                snapshot_members.c.kind, snapshot_members.c.def_id, snapshot_members.c.def_version
+            ).where(snapshot_members.c.snapshot_id == snapshot_id)
+        )
+    )
+    listed.update(
+        ("test_profile", profile_id, version)
+        for profile_id, version in connection.execute(
+            sa.select(profile_refs.c.profile_id, profile_refs.c.profile_version).where(
+                profile_refs.c.snapshot_id == snapshot_id
+            )
+        )
+    )
+    return listed
+
+
+def _without_deleted_members(
+    connection: Connection, run: _Item, fresh: dict[str, list[_Item]]
+) -> dict[str, list[_Item]]:
+    """Drop the members the stored run lists and the database no longer holds (ADR 0020, batch C
+    A6 revoked): a deleted test profile or definition is not brought back by storing a bundle."""
+    if not _ABSENT_CHECKED.intersection(fresh):
+        return fresh
+    listed = _listed_members(connection, run)
+    kept: dict[str, list[_Item]] = {}
+    for table, items in fresh.items():
+        remaining = (
+            [item for item in items if (table, *item.key) not in listed]
+            if table in _ABSENT_CHECKED
+            else items
+        )
+        if remaining:
+            kept[table] = remaining
+    return kept
+
+
+@_typed_refusals
+def store_run_bundle(
+    engine: Engine, bundle: RunBundle, *, repair_members: bool = False
+) -> StoreResult:
     """Store a run bundle and everything it lists in one transaction (the write unit, ADR 0022).
 
     Records of fact whose IDs are stored are shared, not inserted again: a rescoring bundle inserts
     only its new rows. The run's project must be stored.
+
+    When the run is already stored, a member it lists that is no longer in the database (a test
+    profile, a pricing catalog or a definition removed by ``delete_test_profile`` or
+    ``delete_definition``) is not inserted again. ``repair_members=True`` inserts them again, with
+    no ``deletion_audit`` row; it is an explicit act of restoring deleted data.
     """
     _engine(engine)
+    if type(repair_members) is not bool:
+        raise TypeError("repair_members must be a bool")
     if type(bundle) is not RunBundle:
         raise TypeError("store_run_bundle takes a RunBundle")
     valid = loader.load_bundle(RunBundle, bundle.model_dump_json())
@@ -656,6 +770,9 @@ def store_run_bundle(engine: Engine, bundle: RunBundle) -> StoreResult:
             raise ProjectNotStored(project_id)
         _check_reimport(connection, run)
         fresh = _settle(connection, plan)
+        run_is_stored = run.key not in {item.key for item in fresh.get("run", ())}
+        if run_is_stored and not repair_members:
+            fresh = _without_deleted_members(connection, run, fresh)
         if "run_bundle" not in fresh:
             _check_bundle_members(connection, root)
         inserted = _insert(connection, fresh)
@@ -915,6 +1032,7 @@ def _lock_and_verify(connection: Connection, export: _Item) -> None:
                 raise ExportReferenceNotStored(kind, id_type(record_uuid))
 
 
+@_typed_refusals
 def store_export(
     engine: Engine, export: ExportBundle | str | bytes, *, expected_purpose: str
 ) -> StoreResult:

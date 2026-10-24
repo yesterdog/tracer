@@ -8,11 +8,15 @@ host, database name, file path) never reaches an exception, a repr or a log reco
 Both engines hide bound parameters in errors (ADR 0019 Decision 18). pg8000 reports every server
 error, constraint violations included, as a ``DatabaseError`` (``IntegrityError`` for 23505 only);
 the Postgres engine raises every SQLSTATE of class 23 as ``sqlalchemy.exc.IntegrityError`` (what
-SQLite raises natively) and drops the fields of the server's error that quote the failing row.
+SQLite raises natively) and drops the fields of the server's error that quote the failing row, in
+the whole chain of exceptions. Both engines raise their integrity errors without bound parameters
+(``params`` is ``None``). A new SQLite file is created with mode 0600.
 """
 
 from __future__ import annotations
 
+import contextlib
+import os
 import sqlite3
 from typing import Any
 
@@ -89,15 +93,51 @@ def is_integrity_sqlstate(code: object) -> bool:
     )
 
 
+def _scrub_chain(error: BaseException) -> None:
+    """Keep only the safe fields in every server error reachable from ``error``.
+
+    pg8000 raises its typed error while handling the raw ``DatabaseError`` of the server, so the
+    raw error (with the detail "Failing row contains ...") is the ``__context__`` of ``orig``.
+    """
+    seen: set[int] = set()
+    pending: list[BaseException] = [error]
+    while pending:
+        link = pending.pop()
+        if id(link) in seen:
+            continue
+        seen.add(id(link))
+        if link.args and isinstance(link.args[0], dict):
+            fields = link.args[0]
+            link.args = ({name: fields[name] for name in _SAFE_ERROR_FIELDS if name in fields},)
+        pending.extend(next_ for next_ in (link.__cause__, link.__context__) if next_ is not None)
+
+
 def _translate_integrity(context: ExceptionContext) -> Exception | None:
     original = context.original_exception
     if original is None or not is_integrity_sqlstate(sqlstate_of(original)):
         return None
-    fields = original.args[0]
-    scrubbed = type(original)({name: fields[name] for name in _SAFE_ERROR_FIELDS if name in fields})
-    return sa.exc.IntegrityError(
-        context.statement, context.parameters, scrubbed, hide_parameters=True
-    )
+    _scrub_chain(original)
+    # params=None: the bound values are the stored text; ``hide_parameters`` alone hides them from
+    # the message only, not from the attribute.
+    return sa.exc.IntegrityError(context.statement, None, original, hide_parameters=True)
+
+
+def _drop_integrity_params(context: ExceptionContext) -> Exception | None:
+    original = context.original_exception
+    if not isinstance(original, sqlite3.IntegrityError):
+        return None
+    return sa.exc.IntegrityError(context.statement, None, original, hide_parameters=True)
+
+
+def _create_private_file(url: URL) -> None:
+    """Create a new database file readable by its owner only (``0600`` under any umask that allows
+    it). A file that exists is not touched; ``:memory:`` and ``file:`` URIs make no file."""
+    path = url.database
+    if not path or path == ":memory:" or path.startswith("file:"):
+        return
+    # an existing file, or one that cannot be created: the first connection reports it
+    with contextlib.suppress(OSError):
+        os.close(os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600))
 
 
 def _probe(engine: Engine) -> Connection:
@@ -113,7 +153,9 @@ def _sqlite_engine(url: URL, busy_timeout_ms: int) -> Engine:
         raise UnsupportedSqliteVersion(
             f"SQLite {sqlite3.sqlite_version} is too old; 3.37 or newer is required"
         )
+    _create_private_file(url)
     engine = sa.create_engine(url, hide_parameters=True)
+    event.listen(engine, "handle_error", _drop_integrity_params)
 
     @event.listens_for(engine, "connect")
     def _configure(dbapi_connection: Any, _record: Any) -> None:

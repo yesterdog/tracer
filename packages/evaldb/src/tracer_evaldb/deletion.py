@@ -13,6 +13,7 @@ from __future__ import annotations
 import contextlib
 import datetime as dt
 import json
+import re
 import uuid
 from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass
@@ -28,7 +29,7 @@ from tracer_evalschema.text import _check_label
 
 from .engine import BEGIN_OPTION
 from .errors import RecordNotStored, SnapshotInUse
-from .repository import _engine, _uuid_of, translate_integrity_error
+from .repository import _engine, _typed_refusals, _uuid_of, translate_integrity_error
 from .schema import metadata
 
 __all__ = [
@@ -81,6 +82,10 @@ class DeletionResult:
     audit_uuid: uuid.UUID
 
 
+# A machine label, not a person's name: the audit row is content-free and kept for good.
+_ACTOR_RULE = re.compile(r"[A-Za-z0-9][A-Za-z0-9._:-]{0,127}")
+
+
 def _check_actor_and_reason(actor: object, reason: object) -> tuple[str, str]:
     if not isinstance(actor, str):
         raise TypeError("actor must be a str")
@@ -94,6 +99,8 @@ def _check_actor_and_reason(actor: object, reason: object) -> tuple[str, str]:
         _check_label(actor)
     except ValueError:
         raise ValueError("actor is not a valid label: no control, separator or invisible") from None
+    if _ACTOR_RULE.fullmatch(actor) is None:
+        raise ValueError("actor must match [A-Za-z0-9][A-Za-z0-9._:-]{0,127}")
     flagged = credential_reason(actor)
     if flagged is not None:
         raise ValueError(f"actor looks like a credential (rule: {flagged})")
@@ -225,6 +232,7 @@ def _cascade_run(deletion: _Deletion, run_uuid: uuid.UUID, snapshot_uuid: Any) -
         deletion.counts["config_snapshot"] += 1
 
 
+@_typed_refusals
 def delete_run(engine: Engine, run_id: Any, *, actor: str, reason: str) -> DeletionResult:
     """Delete a run, its run-owned rows, the dataset items and exports that carry its content and
     its snapshot when no other run uses it."""
@@ -246,6 +254,7 @@ def delete_run(engine: Engine, run_id: Any, *, actor: str, reason: str) -> Delet
     return deletion.result("run")
 
 
+@_typed_refusals
 def delete_project(engine: Engine, project_id: Any, *, actor: str, reason: str) -> DeletionResult:
     """Delete a project and, with the cascades of ``delete_run``, every run of it."""
     _engine(engine)
@@ -278,6 +287,7 @@ def delete_project(engine: Engine, project_id: Any, *, actor: str, reason: str) 
     return deletion.result("project")
 
 
+@_typed_refusals
 def delete_test_profile(
     engine: Engine, profile_id: Any, *, actor: str, reason: str
 ) -> DeletionResult:
@@ -301,6 +311,7 @@ def delete_test_profile(
     return deletion.result("test_profile")
 
 
+@_typed_refusals
 def delete_definition(
     engine: Engine, kind: str, definition_id: Any, *, actor: str, reason: str
 ) -> DeletionResult:
@@ -322,6 +333,7 @@ def delete_definition(
     return deletion.result(kind)
 
 
+@_typed_refusals
 def delete_dataset_item(engine: Engine, item_id: Any, *, actor: str, reason: str) -> DeletionResult:
     """Delete a dataset item and the exports that embed it."""
     _engine(engine)
@@ -346,6 +358,7 @@ def delete_dataset_item(engine: Engine, item_id: Any, *, actor: str, reason: str
     return deletion.result("dataset_item")
 
 
+@_typed_refusals
 def delete_export(engine: Engine, export_id: Any, *, actor: str, reason: str) -> DeletionResult:
     """Delete an export and its link rows; what it carried stays."""
     _engine(engine)
@@ -363,6 +376,7 @@ def delete_export(engine: Engine, export_id: Any, *, actor: str, reason: str) ->
     return deletion.result("export_bundle")
 
 
+@_typed_refusals
 def delete_snapshot(engine: Engine, snapshot_id: Any, *, actor: str, reason: str) -> DeletionResult:
     """Delete a snapshot that no run references (``SnapshotInUse`` otherwise)."""
     _engine(engine)
