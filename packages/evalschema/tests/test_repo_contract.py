@@ -292,9 +292,11 @@ def test_test_only_deps_absent_from_runtime_metadata() -> None:
 def test_license_exceptions_exact() -> None:
     policy = _toml(POLICY)
     exceptions = {e["name"]: e for e in policy["exceptions"]}
-    assert set(exceptions) == {"hypothesis", "pathspec"}
+    assert set(exceptions) == {"hypothesis", "pathspec", "certifi"}  # Phase 3 spec change (P3-02)
     assert exceptions["hypothesis"]["spdx"] == "MPL-2.0"
     assert exceptions["pathspec"]["spdx"] == "MPL-2.0"
+    assert exceptions["certifi"]["spdx"] == "MPL-2.0"
+    assert exceptions["certifi"]["groups"] == ["dev"]
     assert set(exceptions["hypothesis"]["groups"]) <= {"dev", "test"}
     assert exceptions["pathspec"]["groups"] == ["dev"]
     locked = _lock_packages()

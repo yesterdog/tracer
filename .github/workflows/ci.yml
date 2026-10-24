@@ -63,6 +63,9 @@ jobs:
       - run: uv run --locked --all-groups python scripts/check_licenses.py
       - run: uv build --package tracer-evalschema --out-dir dist
       - run: uv build --package tracer-evaldb --out-dir dist
+      - run: uv build --package tracer-evalcore --out-dir dist
+      - run: uv build --package tracer-evalproviders --out-dir dist
+      - run: uv build --package tracer-cli --out-dir dist
       - run: uv run --locked --all-groups python scripts/check_licenses.py --wheel dist --artifacts-only
 
   test:
@@ -246,6 +249,28 @@ jobs:
           echo "TRACER_TEST_POSTGRES_SQL_ASCII_URL=postgresql+pg8000://postgres:${PG_PASSWORD}@127.0.0.1:5432/tracer_ascii" >> "$GITHUB_ENV"
       - run: uv lock --resolution lowest-direct
       - run: uv run --locked --resolution lowest-direct --all-groups pytest -m "not private_fixtures and not local_only" packages/evaldb/tests --deselect packages/evaldb/tests/test_evaldb_scaffold.py::test_evaldb_locked_closure_is_the_reviewed_one --deselect packages/evaldb/tests/test_evaldb_licenses.py
+
+  # Every direct dependency of the Phase 3 packages at the lower bound of its range. The only
+  # third-party range of Phase 3 is the one on the HTTP client; its lowest-direct resolution is its
+  # highest one today (the lower bound is the newest stable release), so no job is named for it:
+  # this leg lowers every direct dependency of the workspace together and runs the three Phase 3
+  # test directories (docs/security/P3-02-licenses.md section 8). The lock of this throwaway
+  # checkout is re-resolved first; every uv call stays --locked. Deselected: the tests that compare
+  # the installed versions or the closure with the committed uv.lock, which cannot hold after the
+  # deliberate downgrade (they run in every other leg).
+  test-oldest-phase3-deps:
+    name: test (lowest-direct phase 3 deps, py3.11)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+        with:
+          version: ${{ env.UV_VERSION }}
+          python-version: "3.11"
+      - run: uv lock --resolution lowest-direct
+      - run: uv run --locked --resolution lowest-direct --all-groups pytest packages/evalcore/tests packages/evalproviders/tests packages/cli/tests --deselect packages/evalcore/tests/test_phase3_licenses.py --deselect packages/evalcore/tests/test_phase3_scaffold.py::test_phase3_locked_closures_are_the_reviewed_ones
 
   secrets:
     name: secret scan (gitleaks)

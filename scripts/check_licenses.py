@@ -35,6 +35,12 @@ ROOT_PROJECT = "tracer-workspace"
 RUNTIME_PROJECT = "tracer-evalschema"
 EVALDB_PROJECT = "tracer-evaldb"
 EVALDB_EXTRA = "postgres"
+# Phase 3 packages: project name -> key of the [runtime.<key>] policy table.
+PHASE3_PROJECTS = {
+    "tracer-evalcore": "evalcore",
+    "tracer-evalproviders": "evalproviders",
+    "tracer-cli": "cli",
+}
 MAX_LICENSE_FILE_BYTES = 1_000_000
 MAX_ARTIFACT_METADATA_BYTES = 10_000_000
 _REQ_NAME_RE = re.compile(r"^\s*([A-Za-z0-9][A-Za-z0-9._-]*)")
@@ -78,6 +84,8 @@ class Policy:
     evaldb_closure: frozenset[str]
     evaldb_extras: frozenset[str]
     evaldb_requires_dist: frozenset[str]
+    phase3_closure: dict[str, frozenset[str]]
+    phase3_requires_dist: dict[str, frozenset[str]]
     overrides: list[dict[str, Any]]
     exceptions: list[dict[str, Any]]
 
@@ -93,6 +101,14 @@ class Policy:
             evaldb_closure=frozenset(norm_name(n) for n in evaldb.get("closure", [])),
             evaldb_extras=frozenset(norm_name(n) for n in evaldb.get("extras_postgres", [])),
             evaldb_requires_dist=frozenset(evaldb.get("requires_dist", [])),
+            phase3_closure={
+                project: frozenset(norm_name(n) for n in runtime.get(key, {}).get("closure", []))
+                for project, key in PHASE3_PROJECTS.items()
+            },
+            phase3_requires_dist={
+                project: frozenset(runtime.get(key, {}).get("requires_dist", []))
+                for project, key in PHASE3_PROJECTS.items()
+            },
             overrides=list(data.get("overrides", [])),
             exceptions=list(data.get("exceptions", [])),
         )
@@ -502,6 +518,7 @@ def runtime_findings(lock: Lock, policy: Policy, runtime: set[str]) -> list[Find
             )
         )
     out.extend(evaldb_findings(lock, policy))
+    out.extend(phase3_findings(lock, policy))
     lp = lock.packages.get(norm_name(RUNTIME_PROJECT))
     if lp is not None:
         for r in lp.requires_dist:
@@ -556,6 +573,39 @@ def evaldb_findings(lock: Lock, policy: Policy) -> list[Finding]:
     return out
 
 
+def phase3_findings(lock: Lock, policy: Policy) -> list[Finding]:
+    """The Phase 3 packages: each closure is frozen and every non-workspace range is bounded."""
+    out: list[Finding] = []
+    workspace = {
+        k
+        for k, p in lock.packages.items()
+        if "workspace" in p.source or "virtual" in p.source or "editable" in p.source
+    }
+    for project in PHASE3_PROJECTS:
+        lp = lock.packages.get(norm_name(project))
+        wanted = policy.phase3_closure.get(project)
+        if lp is None or not wanted:
+            continue
+
+        def fail(note: str, project: str = project, version: str = lp.version) -> None:
+            out.append(Finding(project, version, "?", "FAIL", note))
+
+        got = lock.closure([project]) - workspace
+        if got != wanted:
+            fail(
+                f"runtime closure changed: extra {sorted(got - wanted)}, "
+                f"missing {sorted(wanted - got)}"
+            )
+        for r in lp.requires_dist:
+            if norm_name(r["name"]) in workspace:
+                continue  # pinned exactly in pyproject (the schema version of the data)
+            if r.get("extra"):
+                fail(f"extra dependency {r['name']}")
+            elif not re.fullmatch(r">=\d+(\.\d+)*,<\d+(\.\d+)*", str(r.get("specifier", ""))):
+                fail(f"runtime dependency {r['name']} not declared as a bounded range (>=X,<Y)")
+    return out
+
+
 def _open_artifact(path: Path) -> tuple[list[str], Callable[[str], bytes]]:
     if path.suffix == ".whl":
         z = zipfile.ZipFile(path)
@@ -595,8 +645,15 @@ def check_artifact(path: Path, policy: Policy) -> list[Finding]:
     if verdict.klass != ALLOWED:
         fail(f"artifact license {CLASS_NAMES[verdict.klass]}: {verdict.declared}")
     requires = {_normal_requirement(r) for r in meta.get_all("Requires-Dist") or []}
-    is_evaldb = norm_name(str(meta.get("Name", ""))) == norm_name(EVALDB_PROJECT)
-    wanted_dist = policy.evaldb_requires_dist if is_evaldb else policy.runtime_requires_dist
+    wheel_name = norm_name(str(meta.get("Name", "")))
+    is_evaldb = wheel_name == norm_name(EVALDB_PROJECT)
+    phase3 = {norm_name(n): d for n, d in policy.phase3_requires_dist.items()}
+    if is_evaldb:
+        wanted_dist = policy.evaldb_requires_dist
+    elif wheel_name in phase3:
+        wanted_dist = phase3[wheel_name]
+    else:
+        wanted_dist = policy.runtime_requires_dist
     wanted = {_normal_requirement(r) for r in wanted_dist}
     if wanted_dist and requires != wanted:
         fail(f"Requires-Dist {sorted(requires)} != policy {sorted(wanted)}")

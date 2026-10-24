@@ -130,6 +130,41 @@ reproduced exactly.
     Sarvam merge the channels (Tracer never downmixes); a phrase time past the end of its chunk
     gives no Segment for that chunk and a Run `IngestWarning`; a failed attempt makes no
     UsageRecord; error class names are provider-neutral (`Stt...`), and qa pins the spelling.
+- **D8. Batch A contract decisions (lead, 2026-10-25; decision log "PHASE 3 BATCH A (qa
+  a7bb1f577f075daae) DELIVERED"; contract `docs/phase3/api-surface-batch-a.md`).** Auto-approved.
+  - **Usage seconds (ADR 0024 rules 7 and 13, Ambiguity 7).** "Duration = frames/rate as an exact
+    Decimal" (P3-03) cannot hold: 1/24000 has no finite decimal expansion and a `DecimalString`
+    holds at most 18 fractional digits. The chunker's `exact_seconds(frames, rate)` returns
+    `Decimal | None` and is never rounded; `UsageRecord.audio_input_seconds` is rounded half to even
+    to 18 fractional digits, stated in `UsageRecord.metadata["tracer.audio_seconds_rounding"]`
+    (`half_even_18` or `exact`); the exact frames and rate stay in the chunk plan
+    (`Transcript.metadata["tracer.chunk_plan"]`, format `tracer.chunk_plan/1`, integers only). Test
+    added to P3-09: `test_usage_audio_seconds_rounded_half_even_18_digits_and_stated`. BACKLOG BL-194.
+  - **VoicEra reader deviation from F8 (P3-04).** A `call_id` that holds a control or bidi character is
+    always refused, with code `call_id_unsafe_characters`, even with `accept_warnings=True`, and the
+    value is never echoed; the F8 test mapper keeps such an id and warns. On every other input the
+    reader equals F8 (38 differential inputs). The reader refuses by default any warning code outside
+    the four that do not drop content, and takes decoded text (file decoding is P3-22's).
+  - **Chunker (P3-05; ADR 0024 rule 7).** A window holds `W = rate * max_chunk_ms // 1000` samples;
+    the candidate cut frames are the whole 20 ms frames, counted from the window start, that lie
+    inside its last `search_ms`; parameters that leave no candidate frame raise
+    `ChunkerParameterError` (never a silent fixed cut). The stereo opt-in is the parameter
+    `accept_provider_downmix` (default `False`): chunks keep their channels unchanged and the
+    provider merges them; three or more channels are always refused.
+  - **WAV reader (P3-03).** `DEFAULT_MAX_WAV_BYTES` is 1 GiB (1,073,741,824 bytes), a technical cap
+    checked before reading; a reader never sizes its read buffer from the cap. The extensible format
+    tag 0xFFFE is refused, the RIFF size field is ignored, and zero frames are valid.
+  - **Two named spec changes of earlier tests (extensions only, no assertion removed; the dev report
+    holds the before and after).** `test_license_exceptions_exact`
+    (`packages/evalschema/tests/test_repo_contract.py`): the exception set becomes `hypothesis`,
+    `pathspec` and `certifi`, with certifi's `spdx` `MPL-2.0` and `groups` `["dev"]` (P3-02 called
+    the test unchanged, which cannot hold with the certifi exception the same row requires).
+    `test_ci_sqlite_runs_on_every_python_leg` (`packages/evaldb/tests/test_evaldb_ci.py`): its
+    testpaths extend the two earlier directories with `packages/evalcore/tests`,
+    `packages/evalproviders/tests` and `packages/cli/tests`.
+  - **Known test limits** (BACKLOG): the SIGALRM-guarded chunker tests run on POSIX only (BL-195);
+    the httpx lower-bound leg tests the same version as the lock until a release other than 0.28.1
+    exists (BL-196); the sparse-file test needs a file system with sparse files (BL-197).
 
 ---
 
@@ -357,7 +392,7 @@ No cut list (owner rule): if a task slips, the date moves.
 | P3-06 | dev | Request and response models; the mr-only language map (send `unknown`; record any returned tag through `normalize_language_label`); configured language other than mr refused (BL-162); explicit `model` field always sent | Tested against the 2026-10-23 captures. | `test_sarvam_request_sends_unknown_language_and_explicit_model`, `test_sarvam_request_never_sends_forced_code_in_base_case`, `test_sarvam_response_models_parse_all_captures`, `test_sarvam_configured_language_other_than_mr_refused`, `test_sarvam_response_rejects_wrong_types_and_oversize_body` (adversarial) | 5 |
 | P3-07 | dev | HTTP client: httpx with an injected transport; connect/read timeouts; bounded retries on 429, 5xx and transport errors, with deterministic backoff and a bounded `Retry-After`; no retry on 4xx; error taxonomy from `err_*` captures; sequential calls; response-size cap; fixed `https://api.sarvam.ai` (no URL override; tests inject a transport, not a URL); all-or-nothing transcript | | `test_sarvam_retries_429_and_503_then_succeeds`, `test_sarvam_gives_up_after_bounded_retries`, `test_sarvam_does_not_retry_400_403`, `test_sarvam_error_taxonomy_matches_captures`, `test_sarvam_honours_bounded_retry_after`, `test_sarvam_partial_chunk_failure_yields_no_transcript`, `test_sarvam_base_url_not_overridable` | 7 |
 | P3-08 | dev+SL | Key handling: `SARVAM_API_KEY` from the environment or `--env-file` (reads only that variable); a redacting key wrapper; the key never appears in exceptions, `repr`, logs (httpx logger included), the call log, records, the store or the report | Canary key test over every output channel. | `test_key_never_in_exception_str_repr_or_chain`, `test_key_never_in_logs_at_debug`, `test_key_never_in_call_log_store_or_report`, `test_env_file_reads_only_named_variable`, `test_missing_key_refuses_before_any_request` | 5 |
-| P3-09 | dev | Mapping to records. Transcript (`our_stt`, provider `sarvam`, model as requested, `timeline_origin` artifact). One Turn per non-empty chunk (role `unknown`, source `our_stt`, language observed per chunk, `language_probability` in `Turn.metadata`, phrase Segments offset by the chunk start, timing `audio_alignment` from the phrase times, F3 floor rule). Empty chunks give no Turn (Q16). One UsageRecord per chunk (`evaluation`, `stt`, `measured`, `audio_input_seconds` decimal, `requests` 1, `provider_call_ref` request_id, `occurred_at` from the HTTP `Date` header, `raw` null). | | `test_stt_transcript_maps_one_turn_per_nonempty_chunk`, `test_empty_chunk_makes_no_turn_and_is_counted`, `test_stt_turn_language_is_observed_from_unknown_request`, `test_stt_segments_offset_by_chunk_start`, `test_usage_record_per_chunk_measured_seconds_exact`, `test_usage_raw_never_holds_transcript_text`, `test_detected_language_set_only_when_all_chunks_agree`, `test_stt_phrase_time_outside_chunk_gives_no_segment_and_a_warning` (added 2026-10-25, Decisions D7) | 6 |
+| P3-09 | dev | Mapping to records. Transcript (`our_stt`, provider `sarvam`, model as requested, `timeline_origin` artifact). One Turn per non-empty chunk (role `unknown`, source `our_stt`, language observed per chunk, `language_probability` in `Turn.metadata`, phrase Segments offset by the chunk start, timing `audio_alignment` from the phrase times, F3 floor rule). Empty chunks give no Turn (Q16). One UsageRecord per chunk (`evaluation`, `stt`, `measured`, `audio_input_seconds` decimal, `requests` 1, `provider_call_ref` request_id, `occurred_at` from the HTTP `Date` header, `raw` null). | | `test_stt_transcript_maps_one_turn_per_nonempty_chunk`, `test_empty_chunk_makes_no_turn_and_is_counted`, `test_stt_turn_language_is_observed_from_unknown_request`, `test_stt_segments_offset_by_chunk_start`, `test_usage_record_per_chunk_measured_seconds_exact`, `test_usage_raw_never_holds_transcript_text`, `test_detected_language_set_only_when_all_chunks_agree`, `test_stt_phrase_time_outside_chunk_gives_no_segment_and_a_warning` (added 2026-10-25, Decisions D7), `test_usage_audio_seconds_rounded_half_even_18_digits_and_stated` (added 2026-10-25, Decisions D8) | 6 |
 | P3-10 | dev | Cost through the evalschema pricing functions: no catalog gives `not_available`; an optional user USD catalog file (with `note`) gives `computed`; INR is never converted; CostSummary | | `test_cost_not_available_without_usd_catalog`, `test_cost_computed_with_user_usd_catalog`, `test_cost_never_zero_when_unpriced`, `test_inr_price_never_converted` | 4 |
 | P3-11 | dev | Local call log (JSONL, git-ignored location; timestamp, chunk index, bytes, audio seconds, status, elapsed, request_id; no text, no key) and pre-send estimate `tracer score --dry-run` (chunks, audio seconds, calls; cost only from a user-supplied price) | | `test_call_log_has_no_text_no_key`, `test_dry_run_sends_nothing_and_prints_plan`, `test_call_log_written_before_and_after_each_send` | 4 |
 

@@ -65,6 +65,71 @@ requires_dist = [
     "pg8000>=1.31.5,<2; extra == 'postgres'",
 ]
 
+[runtime.evalcore]
+# Runtime closure of tracer-evalcore (docs/security/P3-02-licenses.md). Workspace packages are
+# excluded. Standard library plus tracer-evalschema only; a new third-party dependency is a
+# conscious edit.
+closure = [
+    "annotated-types",
+    "pydantic",
+    "pydantic-core",
+    "rfc8785",
+    "typing-extensions",
+    "typing-inspection",
+]
+requires_dist = ["tracer-evalschema==0.0.1"]
+
+[runtime.evalproviders]
+# Runtime closure of tracer-evalproviders: the evalschema closure plus httpx and its dependencies.
+# certifi is MPL-2.0 (see [[exceptions]]); sniffio is not required by the locked anyio.
+closure = [
+    "annotated-types",
+    "anyio",
+    "certifi",
+    "h11",
+    "httpcore",
+    "httpx",
+    "idna",
+    "pydantic",
+    "pydantic-core",
+    "rfc8785",
+    "typing-extensions",
+    "typing-inspection",
+]
+requires_dist = [
+    "tracer-evalschema==0.0.1",
+    "tracer-evalcore==0.0.1",
+    "httpx>=0.28.1,<1",
+]
+
+[runtime.cli]
+# Runtime closure of tracer-cli: the union of the evalschema, evaldb base and httpx closures. No
+# extra is declared (the Postgres driver is not part of the command line).
+closure = [
+    "alembic",
+    "annotated-types",
+    "anyio",
+    "certifi",
+    "h11",
+    "httpcore",
+    "httpx",
+    "idna",
+    "mako",
+    "markupsafe",
+    "pydantic",
+    "pydantic-core",
+    "rfc8785",
+    "sqlalchemy",
+    "typing-extensions",
+    "typing-inspection",
+]
+requires_dist = [
+    "tracer-evalschema==0.0.1",
+    "tracer-evalcore==0.0.1",
+    "tracer-evalproviders==0.0.1",
+    "tracer-evaldb==0.0.1",
+]
+
 # ---------------------------------------------------------------------------------------------
 # Rejected: packages considered and refused. Recorded so that nobody adds them without a decision.
 # ---------------------------------------------------------------------------------------------
@@ -78,6 +143,16 @@ reason = "Copyleft (LGPL-3.0-only); the Postgres driver is pg8000 (BSD-3-Clause)
 name = "psycopg-binary"
 spdx = "LGPL-3.0-only"
 reason = "The binary distribution of psycopg, with the same LGPL-3.0-only licence."
+
+[[rejected]]
+name = "sarvamai"
+spdx = "none declared"
+reason = "PyPI declares no licence (license and license_expression null, no classifier). The Sarvam adapter uses the documented REST interface through httpx. See docs/security/P3-02-licenses.md."
+
+[[rejected]]
+name = "requests"
+spdx = "Apache-2.0"
+reason = "Not a licence rejection: a second HTTP stack beside the decided httpx that adds charset_normalizer and urllib3. See docs/security/P3-02-licenses.md."
 
 # ---------------------------------------------------------------------------------------------
 # Exceptions: copyleft licenses allowed by name, version and dependency group.
@@ -104,6 +179,17 @@ license_file = "licenses/LICENSE"
 license_file_sha256 = "fab3dd6bdab226f1c08630b1dd917e11fcb4ec5e1e020e2c16f83a0a13863e85"
 decided_by = "project owner (sign-off for audit finding E1)"
 reason = "Transitive dev tool dependency (mypy, hatchling); used unmodified, never vendored."
+
+[[exceptions]]
+name = "certifi"
+version = "2026.10.23"
+spdx = "MPL-2.0"
+scope = "runtime"  # dependency of httpx and httpcore in tracer-evalproviders and tracer-cli
+groups = ["dev"]   # the checker's reachability group; the 'scope' text is documentary only
+license_file = "licenses/LICENSE"
+license_file_sha256 = "e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7"
+decided_by = "project owner (standing rule: do not dwell on copyleft; accepted by name 2026-10-25)"
+reason = "File-level weak copyleft. Used unmodified as a transitive dependency of httpx and httpcore, never vendored or copied into a tracer wheel and never named in a tracer Requires-Dist. Every version bump re-triggers review."
 
 # ---------------------------------------------------------------------------------------------
 # Overrides: metadata is empty, non-SPDX or classifier-only; the license file was read by a human.

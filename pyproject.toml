@@ -19,6 +19,10 @@ test = [
 dev = [
     "tracer-evalschema",
     "tracer-evaldb[postgres]",  # pg8000 must be installed for the Postgres job
+    # In dev so that certifi (httpx closure) is reachable from group dev (license-policy exception).
+    "tracer-evalcore",
+    "tracer-evalproviders",
+    "tracer-cli",
     { include-group = "test" },
     "pytest==9.1.1",
     "ruff==0.17.1",
@@ -47,6 +51,9 @@ members = ["packages/*"]
 [tool.uv.sources]
 tracer-evalschema = { workspace = true }
 tracer-evaldb = { workspace = true }
+tracer-evalcore = { workspace = true }
+tracer-evalproviders = { workspace = true }
+tracer-cli = { workspace = true }
 
 [tool.ruff]
 line-length = 100
@@ -56,6 +63,12 @@ src = [
     "packages/evalschema/tests",
     "packages/evaldb/src",
     "packages/evaldb/tests",
+    "packages/evalcore/src",
+    "packages/evalcore/tests",
+    "packages/evalproviders/src",
+    "packages/evalproviders/tests",
+    "packages/cli/src",
+    "packages/cli/tests",
     "scripts",
 ]
 # Evidence scripts under docs/phase1/evidence are records of one-off runs, not maintained code.
@@ -76,15 +89,27 @@ files = [
     "packages/evalschema/tests",
     "packages/evaldb/src",
     "packages/evaldb/tests",
+    "packages/evalcore/src",
+    "packages/evalcore/tests",
+    "packages/evalproviders/src",
+    "packages/evalproviders/tests",
+    "packages/cli/src",
+    "packages/cli/tests",
     "scripts",
 ]
 exclude = ["packages/evalschema/tests/fixtures/"]
-mypy_path = "packages/evalschema/src:packages/evaldb/src"
+mypy_path = "packages/evalschema/src:packages/evaldb/src:packages/evalcore/src:packages/evalproviders/src:packages/cli/src"
 explicit_package_bases = true
 namespace_packages = true
 
 [tool.pytest.ini_options]
-testpaths = ["packages/evalschema/tests", "packages/evaldb/tests"]
+testpaths = [
+    "packages/evalschema/tests",
+    "packages/evaldb/tests",
+    "packages/evalcore/tests",
+    "packages/evalproviders/tests",
+    "packages/cli/tests",
+]
 addopts = "-ra --strict-markers --strict-config -m 'not private_fixtures and not local_only and not postgres'"
 markers = [
     "private_fixtures: needs the gitignored private fixtures; deselected by default (run locally with -m private_fixtures)",

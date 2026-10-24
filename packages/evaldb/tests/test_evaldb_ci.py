@@ -227,7 +227,13 @@ def test_ci_postgres_password_not_literal() -> None:
 def test_ci_sqlite_runs_on_every_python_leg() -> None:
     pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     ini = pyproject["tool"]["pytest"]["ini_options"]
-    assert ini["testpaths"] == ["packages/evalschema/tests", "packages/evaldb/tests"]
+    assert ini["testpaths"] == [  # Phase 3 spec change (P3-01): three more test directories
+        "packages/evalschema/tests",
+        "packages/evaldb/tests",
+        "packages/evalcore/tests",
+        "packages/evalproviders/tests",
+        "packages/cli/tests",
+    ]
     marker_match = re.search(r"-m\s+'([^']*)'", ini["addopts"])
     assert marker_match, ini["addopts"]
     terms = marker_match.group(1).split(" and ")
