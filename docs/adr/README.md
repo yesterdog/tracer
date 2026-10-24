@@ -3,9 +3,9 @@
 Revision 33, 2026-10-24. Authoritative scope: `docs/phase1/SCOPE.md`.
 
 ## Changes in revision 33
-- **Phase 1 re-gate conditions C2, C6, C9 and C10** (staff-reviewer re-gate on `fc21e1a`: PASS WITH CONDITIONS; the lead's conditions auto-approved and logged, decision log "PHASE 1 RE-GATE" and "ARCHITECT batch 28 REPORT VERIFIED"; SCOPE "Changes in revision 33"):
+- **Phase 1 re-gate conditions C2, C6, C9 and C10** (staff-reviewer re-gate on `3949e16`: PASS WITH CONDITIONS; the lead's conditions auto-approved and logged, decision log "PHASE 1 RE-GATE" and "ARCHITECT batch 28 REPORT VERIFIED"; SCOPE "Changes in revision 33"):
   - **ADR 0010 Decision 3 (C10, N-R3):** a `per_turn_share` metric implies a transcript input; a metric that reads no transcript reads no turn and stores no `per_turn` summary (a bundle rejects one at `per_turn.total_turns`, P-C6). `MetricDefinition` does not reject such a definition in 0.0.1; whether "a transcript implies a turn" becomes a run rule stays open (export builder, B13/B19).
-  - **ADR 0001 Decision 5 (C6):** the prefix table is recorded as unchanged since `fa5a76d` through the Phase 1 gate commit (revision 31 said through `1a32d53`); no commit after `1a32d53` touches `ids.py` or `test_ids.py`.
+  - **ADR 0001 Decision 5 (C6):** the prefix table is recorded as unchanged since `fa5a76d` through the Phase 1 gate commit (revision 31 said through `7c2fe48`); no commit after `7c2fe48` touches `ids.py` or `test_ids.py`.
   - **C9 (no ADR text):** the run-level reasons `missing_input` and `agent_channel_unknown` (ADR 0004 Decisions 3 to 5) have one definition, `results._RUN_LEVEL_NA_REASONS`; `bundle._RUN_LEVEL_REASONS` is an alias of it. Behaviour unchanged.
 - **N83 implemented (re-gate condition C2;** qa tests first, `test_cost_import_n83.py`, red evidence `docs/phase1/evidence/red/batch28-n83/`; decision log "N83 tests DELIVERED"): ADR 0014 Decision 12c step 0, I56 and "Decided items (revision 33)"; ADR 0012 Decision 7.
 - **ADR 0006 Decision 6 (P1-21 re-audit A1, auto-approved):** the shared-export "no plain digest" rule covers the test-profile digest only (`[profile_digest]`); `Artifact.sha256` (also for audio of a human subject), the other versioned-reference digests and the snapshot digests stay plain by design.
@@ -23,7 +23,7 @@ Revision 33, 2026-10-24. Authoritative scope: `docs/phase1/SCOPE.md`.
 
 ## Changes in revision 31
 - **Phase 1 gate findings, decided by the lead (auto-approved and logged; SCOPE "Changes in revision 31"):**
-  - **ADR 0001 Decision 5 (m4):** the freeze of the prefix registry is recorded: frozen at the Phase 1 gate on 2026-10-24; the table of 26 prefixes is unchanged since its first commit `fa5a76d` (2026-10-23) through `1a32d53`.
+  - **ADR 0001 Decision 5 (m4):** the freeze of the prefix registry is recorded: frozen at the Phase 1 gate on 2026-10-24; the table of 26 prefixes is unchanged since its first commit `fa5a76d` (2026-10-23) through `7c2fe48`.
   - **ADR 0003 Decision 2 (m2):** `ExternalRef.system` is `VerbatimText`, as the code has it, not `MachineKey`; it names another system in that system's spelling and is part of the verbatim re-import key (ADR 0001 Decision 7, P-02). Closes the open question on the `ExternalRef` field types.
   - **ADR 0006 I23 (M2):** the test name is `test_profile_placeholders_in_outcome_and_tool_arguments`, the name the test carries (the revision 9 text used a longer spelling).
   - **ADR 0018 Decision 1 (m1):** the provenance method set adds `synthetic_hand_written_twin` (the public F8 twin); gate item 13 follows.

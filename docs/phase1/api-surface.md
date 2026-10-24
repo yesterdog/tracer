@@ -2620,7 +2620,7 @@ URN `$id`, lock matches the version); the wheel content is the ADR 0008 Decision
 
 Evidence in `docs/phase1/evidence/red/batch11-schema-export/`:
 
-- `red-schema-export.py3.11.log` to `3.14.log`: the four files against the repository (HEAD 20e9ad3,
+- `red-schema-export.py3.11.log` to `3.14.log`: the four files against the repository (HEAD 1b44cfb,
   where `RunBundle`, `ExportBundle` and the sealing types are in): **435 collected, 306 failed, 129
   passed on each of 3.11.16, 3.12.14, 3.13.15 and 3.14.7**. `failure-reasons.txt` groups the failures:
   288 `tracer_evalschema.schema_export` missing, the rest the missing `schemas/` directory,
@@ -2647,7 +2647,7 @@ What was not verified: a non-Python JSON Schema validator (none in the environme
 (non-blocking leg); Windows line endings (the `.gitattributes` test reads a file, no checkout was
 made on Windows); the CI step beyond its text; the hypothesis tests under other seeds (they are
 derandomized and passed on four interpreters); the register claims after any model change that
-landed after HEAD 20e9ad3.
+landed after HEAD 1b44cfb.
 
 ### 26.13 Revision 23: P1-15 implemented (schema-architect, 2026-10-23)
 

@@ -237,8 +237,12 @@ def test_runtime_deps_license_allowlist() -> None:
     policy = _toml(POLICY)
     project = _toml(PACKAGE_DIR / "pyproject.toml")["project"]
     declared = list(project["dependencies"])
-    assert declared == policy["runtime"]["requires_dist"] == ["pydantic==2.14.1", "rfc8785==0.1.4"]
-    assert all(re.fullmatch(r"[A-Za-z0-9_.-]+==\d+(\.\d+)*", d) for d in declared)
+    assert (
+        declared
+        == policy["runtime"]["requires_dist"]
+        == ["pydantic>=2.11,<3", "rfc8785>=0.1.4,<0.2"]
+    )
+    assert all(re.fullmatch(r"[A-Za-z0-9_.-]+>=\d+(\.\d+)*,<\d+(\.\d+)*", d) for d in declared)
     assert _runtime_closure() == {_norm(n) for n in policy["runtime"]["closure"]}
     allowed = set(policy["allowlist"]["spdx"])
     assert not any(re.search(r"GPL|MPL|SSPL|BUSL|CC-BY-NC", s) for s in allowed)

@@ -478,14 +478,14 @@ def runtime_findings(lock: Lock, policy: Policy, runtime: set[str]) -> list[Find
                         RUNTIME_PROJECT, lp.version, "?", "FAIL", f"extra dependency {r['name']}"
                     )
                 )
-            elif not str(r.get("specifier", "")).startswith("=="):
+            elif not re.fullmatch(r">=\d+(\.\d+)*,<\d+(\.\d+)*", str(r.get("specifier", ""))):
                 out.append(
                     Finding(
                         RUNTIME_PROJECT,
                         lp.version,
                         "?",
                         "FAIL",
-                        f"runtime dependency {r['name']} not pinned with ==",
+                        f"runtime dependency {r['name']} not declared as a bounded range (>=X,<Y)",
                     )
                 )
     return out

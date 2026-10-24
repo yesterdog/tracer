@@ -97,6 +97,24 @@ jobs:
       - run: uv sync --locked --all-groups
       - run: uv run --locked --all-groups pytest
 
+  # The declared range is pydantic>=2.11,<3: this leg runs the whole suite on the oldest pydantic the
+  # range allows. Only test_runtime_deps_license_allowlist is deselected: it compares the installed
+  # versions with uv.lock by design, so it cannot pass after the deliberate downgrade; it runs in
+  # every other test leg.
+  test-oldest-deps:
+    name: test (oldest pydantic)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+        with:
+          version: ${{ env.UV_VERSION }}
+          python-version: "3.12"
+      - run: uv sync --locked --all-groups
+      - run: uv run --locked --all-groups --with "pydantic==2.11.0" pytest --deselect packages/evalschema/tests/test_repo_contract.py::test_runtime_deps_license_allowlist
+
   secrets:
     name: secret scan (gitleaks)
     runs-on: ubuntu-latest

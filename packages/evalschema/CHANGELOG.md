@@ -128,14 +128,11 @@ released.
   glibc does not zero-pad `%Y` for years below 1000, so on Linux an instant in year 1 was
   written as `1-01-01T...` and failed the type's own pattern (macOS pads, which hid the bug
   locally; the hosted Linux CI legs 3.11 to 3.13 caught it). Fixed in two steps: the shipped
-  serializer formats the year explicitly with four digits (`58a9857`), and the test-side
-  converters and helpers that used the same `strftime` pattern do the same (`1a32d53`). The
+  serializer formats the year explicitly with four digits (`d15410f`), and the test-side
+  converters and helpers that used the same `strftime` pattern do the same (`7c2fe48`). The
   output on macOS is unchanged byte for byte, and no schema file or lock changed. Hosted run
-  40043294681 at `1a32d53` passed every job on Linux, 3.11 to 3.15.
-- **Runtime pins.** The exact pins `pydantic==2.14.1` and `rfc8785==0.1.4` keep results
-  reproducible, but they conflict with consumers that pin a range (for example `pipecat-ai`
-  requires `pydantic>=2.10.6,<3`). Whether to relax them is an owner decision before anything
-  is published to PyPI.
+  40043294681 at `7c2fe48` passed every job on Linux, 3.11 to 3.15.
+- **Runtime dependency ranges.** The package declares `pydantic>=2.11,<3` and `rfc8785>=0.1.4,<0.2` (it was pinned exactly during development). The suite passes on pydantic 2.11.0, the oldest version of the range (a CI leg runs it), and on the locked 2.14.1; pydantic 2.10.x is excluded because it renders a different character in one generated schema description. `pipecat-ai` 1.13.0 (`pydantic>=2.10.6,<3`) installs next to it. Each release below 3 is expected to keep working but is verified only on the versions CI runs.
 
 ### Not in this release
 

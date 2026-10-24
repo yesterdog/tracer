@@ -651,7 +651,7 @@ mapping adapters of Phase 1 are test support code, not part of the package.
   of price notes (`str.isspace()`) and of label edges. The default-ignorable set of labels is
   pinned to Unicode 16.0.0 in the code and does not follow the runtime. **Python 3.15** has run
   on GitHub Actions as a release candidate (CPython 3.15.0rc2 on hosted Linux: the full suite
-  passed, 8374 tests, at commits `2653212` and `1a32d53`, 2026-10-24). Its leg stays non-blocking, and no final
+  passed, 8374 tests, at commits `13b03c2` and `7c2fe48`, 2026-10-24). Its leg stays non-blocking, and no final
   3.15 release has been tested **(unverified)**.
 - **The CI workflow** runs on GitHub Actions (hosted Linux). The required test legs are Python
   3.11 to 3.14; hosted Linux, not a local macOS run, is the authority for whether they pass (a
