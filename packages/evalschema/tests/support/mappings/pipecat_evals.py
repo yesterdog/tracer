@@ -42,6 +42,7 @@ from .common import (
     TableRow,
     TraceEntry,
     floor_ms,
+    format_utc_instant,
     pointer,
     raw_text,
     scalar_leaves,
@@ -353,7 +354,7 @@ def _canonical_time(created_at: str) -> str:
         return created_at
     if moment.tzinfo is None:
         return created_at
-    return moment.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+    return format_utc_instant(moment.astimezone(UTC))
 
 
 class _View:

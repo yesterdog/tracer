@@ -18,12 +18,22 @@ paths = ['''^packages/evalschema/tests/fixtures/(real|synthetic)/[^/]+(/[^/]+)?/
 
 # The credential-shape table in the placeholder tests holds PEM header lines only (no key
 # material); the evidence logs under docs/phase1/evidence echo those test lines on a failure.
+# The allowlist needs both the path and the match shape (condition = "AND"). The match must
+# start with a PEM private-key header followed by a quote, a dash or a bracket (as the echoed
+# table row, label line and test id are), and no line of it may hold a run of more than 40
+# base64 characters. A pasted key body is made of such runs (PEM lines are 64 or 76 characters),
+# so it does not fit and is still reported.
 [[allowlists]]
 description = "PEM header literals in the credential-shape test and its echoed output"
+condition = "AND"
 targetRules = ["private-key"]
+regexTarget = "match"
 paths = [
   '''^packages/evalschema/tests/test_entity_base\.py$''',
   '''^docs/phase1/evidence/(green|red)/[^/]+/[^/]+\.log$''',
+]
+regexes = [
+  '''(?i)\A-----BEGIN (?:RSA )?PRIVATE KEY-----['"\]-](?:[A-Za-z0-9+/=]{0,40}[^A-Za-z0-9+/=\n])*[A-Za-z0-9+/=]{0,40}(?:\n(?:[A-Za-z0-9+/=]{0,40}[^A-Za-z0-9+/=\n])*[A-Za-z0-9+/=]{0,40})*\z''',
 ]
 
 # The key-reference hardening tests keep a table of deliberately fake key=value samples

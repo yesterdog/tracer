@@ -23,8 +23,8 @@ from .common import GapRow
 __all__ = ["GAP_REGISTER", "KNOWN_SCHEMA_GAPS"]
 
 
-def _row(key: str, kind: str, owner: str, reason: str) -> GapRow:
-    return GapRow(key.split(":", 1)[0], key, "non-blocking", kind, reason, owner)
+def _row(key: str, classification: str, kind: str, owner: str, reason: str) -> GapRow:
+    return GapRow(key.split(":", 1)[0], key, classification, kind, reason, owner)
 
 
 _TELEMETRY_CONFIG = (
@@ -36,6 +36,7 @@ _BASE_GAP_REGISTER: tuple[GapRow, ...] = (
     # ---- F1: Pipecat OTel spans -----------------------------------------------------------
     _row(
         "F1:turn.turn.user_bot_latency_seconds",
+        "non-blocking",
         "unmapped",
         "staff-reviewer",
         "Pipecat's pre-computed user-bot latency has no target field; latency metrics compute "
@@ -44,6 +45,7 @@ _BASE_GAP_REGISTER: tuple[GapRow, ...] = (
     ),
     _row(
         "F1:stt.language",
+        "non-blocking",
         "unmapped",
         "indic-linguistics",
         "Pipecat documents the attribute as 'Detected or configured language', so it cannot be "
@@ -51,20 +53,34 @@ _BASE_GAP_REGISTER: tuple[GapRow, ...] = (
     ),
     _row(
         "F1:llm.gen_ai.request.top_k",
+        "non-blocking",
         "unmapped",
         "dev",
         "the value is Pipecat's NOT_GIVEN sentinel (a setting that was not given); there is "
         "nothing to map, and the sentinel is never stored",
     ),
-    _row("F1:llm.gen_ai.request.temperature", "unmapped", "schema-architect", _TELEMETRY_CONFIG),
-    _row("F1:llm.gen_ai.request.max_tokens", "unmapped", "schema-architect", _TELEMETRY_CONFIG),
-    _row("F1:llm.param.*", "unmapped", "schema-architect", _TELEMETRY_CONFIG),
-    _row("F1:stt.settings.*", "unmapped", "schema-architect", _TELEMETRY_CONFIG),
-    _row("F1:tts.settings.*", "unmapped", "schema-architect", _TELEMETRY_CONFIG),
-    _row("F1:tts.voice_id", "unmapped", "schema-architect", _TELEMETRY_CONFIG),
-    _row("F1:stt.vad_enabled", "unmapped", "schema-architect", _TELEMETRY_CONFIG),
+    _row(
+        "F1:llm.gen_ai.request.temperature",
+        "non-blocking",
+        "unmapped",
+        "schema-architect",
+        _TELEMETRY_CONFIG,
+    ),
+    _row(
+        "F1:llm.gen_ai.request.max_tokens",
+        "non-blocking",
+        "unmapped",
+        "schema-architect",
+        _TELEMETRY_CONFIG,
+    ),
+    _row("F1:llm.param.*", "non-blocking", "unmapped", "schema-architect", _TELEMETRY_CONFIG),
+    _row("F1:stt.settings.*", "non-blocking", "unmapped", "schema-architect", _TELEMETRY_CONFIG),
+    _row("F1:tts.settings.*", "non-blocking", "unmapped", "schema-architect", _TELEMETRY_CONFIG),
+    _row("F1:tts.voice_id", "non-blocking", "unmapped", "schema-architect", _TELEMETRY_CONFIG),
+    _row("F1:stt.vad_enabled", "non-blocking", "unmapped", "schema-architect", _TELEMETRY_CONFIG),
     _row(
         "F1:llm.gen_ai.system_instructions",
+        "non-blocking",
         "unmapped",
         "schema-architect",
         "the agent's system prompt is agent configuration, not a record of the run; it can hold "
@@ -72,6 +88,7 @@ _BASE_GAP_REGISTER: tuple[GapRow, ...] = (
     ),
     _row(
         "F1:llm.tools",
+        "non-blocking",
         "unmapped",
         "schema-architect",
         "the tool definitions offered to the model are agent configuration; the calls that were "
@@ -79,12 +96,14 @@ _BASE_GAP_REGISTER: tuple[GapRow, ...] = (
     ),
     _row(
         "F1:llm.tool_count",
+        "non-blocking",
         "unmapped",
         "schema-architect",
         "the number of tool definitions is agent configuration, not a call that was made",
     ),
     _row(
         "F1:llm.input",
+        "non-blocking",
         "lossy",
         "schema-architect",
         "the LLM context is read only to recover tool calls and their results; the rest of the "
@@ -92,54 +111,63 @@ _BASE_GAP_REGISTER: tuple[GapRow, ...] = (
     ),
     _row(
         "F1:llm.stream",
+        "non-blocking",
         "unmapped",
         "schema-architect",
         "whether the service streamed has no target field and no MVP-1 metric uses it",
     ),
     _row(
         "F1:*.gen_ai.operation.name",
+        "non-blocking",
         "unmapped",
         "dev",
         "restates the span name (stt, chat, tts), which already gives the stage",
     ),
     _row(
         "F1:*.gen_ai.output.type",
+        "non-blocking",
         "unmapped",
         "dev",
         "text or speech output type of the service; the stage already says it",
     ),
     _row(
         "F1:turn.turn.type",
+        "non-blocking",
         "unmapped",
         "dev",
         "Pipecat's turn type label (conversation) has no target field",
     ),
     _row(
         "F1:conversation.conversation.type",
+        "non-blocking",
         "unmapped",
         "dev",
         "the conversation type label (voice) has no target field",
     ),
     _row(
         "F1:conversation.capture.scenario",
+        "non-blocking",
         "unmapped",
         "qa",
         "a label the capture harness adds to name its scenario; it is not Pipecat data",
     ),
     _row(
         "F1:conversation.@startTimeUnixNano",
+        "non-blocking",
         "unmapped",
         "schema-architect",
         "the whole-call span start has no target; run timing comes from the run record",
     ),
     _row(
         "F1:conversation.@endTimeUnixNano",
+        "non-blocking",
         "unmapped",
         "schema-architect",
         "the whole-call span end has no target; run timing comes from the run record",
     ),
     _row(
         "F1:turn.@endTimeUnixNano",
+        "non-blocking",
         "lossy",
         "schema-architect",
         "the turn span interval is not stored; Exchange.duration_ms comes from "
@@ -147,24 +175,28 @@ _BASE_GAP_REGISTER: tuple[GapRow, ...] = (
     ),
     _row(
         "F1:*.@kind",
+        "non-blocking",
         "unmapped",
         "dev",
         "the OpenTelemetry span kind is always internal here and has no target field",
     ),
     _row(
         "F1:*.@status",
+        "non-blocking",
         "unmapped",
         "dev",
         "the OpenTelemetry span status has no target field; the captures hold no error status",
     ),
     _row(
         "F1:*.@events",
+        "non-blocking",
         "unmapped",
         "dev",
         "span events have no target field; the captures hold none",
     ),
     _row(
         "F1:resource.*",
+        "non-blocking",
         "unmapped",
         "dev",
         "OpenTelemetry resource attributes (SDK version, service name) describe the exporter, not "
@@ -172,6 +204,7 @@ _BASE_GAP_REGISTER: tuple[GapRow, ...] = (
     ),
     _row(
         "F1:scope.name",
+        "non-blocking",
         "unmapped",
         "dev",
         "the instrumentation scope name (pipecat, pipecat.turn) only groups spans",
@@ -179,6 +212,7 @@ _BASE_GAP_REGISTER: tuple[GapRow, ...] = (
     # ---- F3: Sarvam STT REST --------------------------------------------------------------
     _row(
         "F3:response.language_code",
+        "non-blocking",
         "lossy",
         "indic-linguistics",
         "for a forced request the label is the request echoed back and is not stored (a forced "
@@ -187,6 +221,7 @@ _BASE_GAP_REGISTER: tuple[GapRow, ...] = (
     ),
     _row(
         "F3:response.error.message",
+        "non-blocking",
         "lossy",
         "security-licensing",
         "the provider's error message may repeat the request, so it is not copied; the error "
@@ -194,6 +229,7 @@ _BASE_GAP_REGISTER: tuple[GapRow, ...] = (
     ),
     _row(
         "F3:meta.elapsed_s",
+        "non-blocking",
         "unmapped",
         "schema-architect",
         "the client-measured duration of the call has no target field; Transcript carries no "
@@ -201,6 +237,7 @@ _BASE_GAP_REGISTER: tuple[GapRow, ...] = (
     ),
     _row(
         "F3:meta.headers.*",
+        "non-blocking",
         "unmapped",
         "dev",
         "HTTP response headers (date, security headers, the request id repeated) have no target "
@@ -208,18 +245,21 @@ _BASE_GAP_REGISTER: tuple[GapRow, ...] = (
     ),
     _row(
         "F3:request.auth",
+        "non-blocking",
         "unmapped",
         "security-licensing",
         "a note about the authentication header (never its value); it must not be copied",
     ),
     _row(
         "F3:request.content_type",
+        "non-blocking",
         "unmapped",
         "dev",
         "the transport content type of the request has no target field",
     ),
     _row(
         "F3:request.file.*",
+        "non-blocking",
         "unmapped",
         "dev",
         "the file name, clip path, hash and size describe the audio the caller sent; the caller "
@@ -227,6 +267,7 @@ _BASE_GAP_REGISTER: tuple[GapRow, ...] = (
     ),
     _row(
         "F3:request.form_fields.with_timestamps",
+        "non-blocking",
         "unmapped",
         "dev",
         "the request option is redundant with the presence of response.timestamps, which is "
@@ -234,6 +275,7 @@ _BASE_GAP_REGISTER: tuple[GapRow, ...] = (
     ),
     _row(
         "F3:request.requested_at_utc",
+        "non-blocking",
         "unmapped",
         "dev",
         "the harness time of the request has no target; Transcript carries no creation time "
@@ -242,6 +284,7 @@ _BASE_GAP_REGISTER: tuple[GapRow, ...] = (
     # ---- F4: Pipecat conversation.json ----------------------------------------------------
     _row(
         "F4:assistant.content",
+        "non-blocking",
         "absent_in_source",
         "schema-architect",
         "a bot turn in which the bot said nothing is not in the file (Pipecat defines it as no "
@@ -249,6 +292,7 @@ _BASE_GAP_REGISTER: tuple[GapRow, ...] = (
     ),
     _row(
         "F4:tool_call.@position",
+        "non-blocking",
         "absent_in_source",
         "schema-architect",
         "where a tool call sits between turns has no target field; the file orders messages but "
@@ -257,12 +301,14 @@ _BASE_GAP_REGISTER: tuple[GapRow, ...] = (
     # ---- F6: AudioBufferProcessor WAV -----------------------------------------------------
     _row(
         "F6:wav.fmt/byte_rate",
+        "non-blocking",
         "unmapped",
         "dev",
         "derivable from the sample rate, channels and bits per sample, which are mapped",
     ),
     _row(
         "F6:wav.fmt/block_align",
+        "non-blocking",
         "unmapped",
         "dev",
         "derivable from the channels and bits per sample, which are mapped",
@@ -270,42 +316,49 @@ _BASE_GAP_REGISTER: tuple[GapRow, ...] = (
     # ---- F7: Pipecat turn events ----------------------------------------------------------
     _row(
         "F7:*.@harness_observed_at_utc",
+        "non-blocking",
         "unmapped",
         "qa",
         "the capture harness clock, not Pipecat's: it is never a turn time or an ordering key",
     ),
     _row(
         "F7:*.@seq",
+        "non-blocking",
         "unmapped",
         "qa",
         "the capture harness sequence number; the order of the file is used instead",
     ),
     _row(
         "F7:*.@source",
+        "non-blocking",
         "unmapped",
         "qa",
         "the name the capture harness gives the observer that emitted the event",
     ),
     _row(
         "F7:on_user_turn_started.payload.strategy",
+        "non-blocking",
         "unmapped",
         "schema-architect",
         "the name of the turn-start strategy has no target field",
     ),
     _row(
         "F7:on_user_turn_stopped.payload.strategy",
+        "non-blocking",
         "unmapped",
         "schema-architect",
         "the name of the turn-stop strategy has no target field",
     ),
     _row(
         "F7:on_user_turn_stopped.payload.message.user_id",
+        "non-blocking",
         "unmapped",
         "schema-architect",
         "the user id of the message has no target field; the captures hold null",
     ),
     _row(
         "F7:on_user_turn_started.@event",
+        "non-blocking",
         "unmapped",
         "schema-architect",
         "the event has no payload besides the strategy and no Pipecat time, so it states no "
@@ -313,6 +366,7 @@ _BASE_GAP_REGISTER: tuple[GapRow, ...] = (
     ),
     _row(
         "F7:on_assistant_turn_started.@event",
+        "non-blocking",
         "unmapped",
         "schema-architect",
         "the event has no payload and no Pipecat time, so it states no instant that a Turn or "
@@ -320,6 +374,7 @@ _BASE_GAP_REGISTER: tuple[GapRow, ...] = (
     ),
     _row(
         "F7:bot_started_speaking.@event",
+        "non-blocking",
         "unmapped",
         "schema-architect",
         "the event carries no Pipecat time (only the harness clock), so it states no instant "
@@ -327,6 +382,7 @@ _BASE_GAP_REGISTER: tuple[GapRow, ...] = (
     ),
     _row(
         "F7:bot_stopped_speaking.@event",
+        "non-blocking",
         "unmapped",
         "schema-architect",
         "the event carries no Pipecat time (only the harness clock), so it states no instant "
@@ -356,11 +412,12 @@ _F2_CONFIG = (
 )
 _F2_SPAN = "an OpenTelemetry span field with no target field in the run records"
 
-# (key, kind, owner, reason)
-_F2_ROWS: tuple[tuple[str, str, str, str], ...] = (
-    ("F2:*.langfuse.trace.name", "unmapped", "dev", _F2_TRACE),
+# (key, classification, kind, owner, reason)
+_F2_ROWS: tuple[tuple[str, str, str, str, str], ...] = (
+    ("F2:*.langfuse.trace.name", "non-blocking", "unmapped", "dev", _F2_TRACE),
     (
         "F2:*.langfuse.user.id",
+        "non-blocking",
         "unmapped",
         "security-licensing",
         "identifies the end user, who may be a person; it is copied nowhere and no warning "
@@ -368,16 +425,18 @@ _F2_ROWS: tuple[tuple[str, str, str, str], ...] = (
     ),
     (
         "F2:*.user.id",
+        "non-blocking",
         "unmapped",
         "security-licensing",
         "identifies the end user, who may be a person; it is copied nowhere and no warning "
         "quotes it",
     ),
-    ("F2:*.langfuse.release", "unmapped", "dev", _F2_TRACE),
-    ("F2:*.langfuse.trace.public", "unmapped", "dev", _F2_TRACE),
-    ("F2:*.langfuse.trace.tags", "unmapped", "dev", _F2_TRACE),
+    ("F2:*.langfuse.release", "non-blocking", "unmapped", "dev", _F2_TRACE),
+    ("F2:*.langfuse.trace.public", "non-blocking", "unmapped", "dev", _F2_TRACE),
+    ("F2:*.langfuse.trace.tags", "non-blocking", "unmapped", "dev", _F2_TRACE),
     (
         "F2:*.langfuse.trace.metadata.*",
+        "non-blocking",
         "unmapped",
         "security-licensing",
         "free-form producer metadata of the trace; it can hold anything the operator wrote, so "
@@ -385,6 +444,7 @@ _F2_ROWS: tuple[tuple[str, str, str, str], ...] = (
     ),
     (
         "F2:*.langfuse.trace.input",
+        "non-blocking",
         "unmapped",
         "schema-architect",
         "the input of the whole trace repeats the conversation or the prompt and is not a record "
@@ -392,18 +452,20 @@ _F2_ROWS: tuple[tuple[str, str, str, str], ...] = (
     ),
     (
         "F2:*.langfuse.trace.output",
+        "non-blocking",
         "unmapped",
         "schema-architect",
         "the output of the whole trace repeats a model call's output, which is read from the "
         "generation itself",
     ),
-    ("F2:*.langfuse.version", "unmapped", "dev", _F2_TRACE),
-    ("F2:*.langfuse." + _E, "unmapped", "dev", _F2_TRACE),
-    ("F2:*.deployment." + _E, "unmapped", "dev", _F2_TRACE),
-    ("F2:*.deployment." + _E + ".name", "unmapped", "dev", _F2_TRACE),
-    ("F2:*.langfuse.observation.level", "unmapped", "dev", _F2_OBSERVATION),
+    ("F2:*.langfuse.version", "non-blocking", "unmapped", "dev", _F2_TRACE),
+    ("F2:*.langfuse." + _E, "non-blocking", "unmapped", "dev", _F2_TRACE),
+    ("F2:*.deployment." + _E, "non-blocking", "unmapped", "dev", _F2_TRACE),
+    ("F2:*.deployment." + _E + ".name", "non-blocking", "unmapped", "dev", _F2_TRACE),
+    ("F2:*.langfuse.observation.level", "non-blocking", "unmapped", "dev", _F2_OBSERVATION),
     (
         "F2:*.langfuse.observation.status_message",
+        "non-blocking",
         "unmapped",
         "security-licensing",
         "a producer's status text for the observation; it can repeat request content, so it is "
@@ -411,6 +473,7 @@ _F2_ROWS: tuple[tuple[str, str, str, str], ...] = (
     ),
     (
         "F2:*.langfuse.observation.metadata.*",
+        "non-blocking",
         "unmapped",
         "security-licensing",
         "free-form producer metadata of the observation; it can hold anything the operator "
@@ -418,22 +481,36 @@ _F2_ROWS: tuple[tuple[str, str, str, str], ...] = (
     ),
     (
         "F2:*.langfuse.observation.input",
+        "non-blocking",
         "lossy",
         "schema-architect",
         "the input of a generation is the context sent to the model, not a line of the call; "
         "only a tool observation's input is read (its arguments)",
     ),
-    ("F2:*.gen_ai.prompt", "unmapped", "dev", _F2_CARRIER),
-    ("F2:*.gen_ai.completion", "unmapped", "dev", _F2_CARRIER),
-    ("F2:*.input.value", "unmapped", "dev", _F2_CARRIER),
-    ("F2:*.output.value", "unmapped", "dev", _F2_CARRIER),
-    ("F2:*.mlflow.spanInputs", "unmapped", "dev", _F2_CARRIER),
-    ("F2:*.mlflow.spanOutputs", "unmapped", "dev", _F2_CARRIER),
-    ("F2:*.langfuse.observation.model.parameters", "unmapped", "schema-architect", _F2_CONFIG),
-    ("F2:*.gen_ai.request.temperature", "unmapped", "schema-architect", _F2_CONFIG),
-    ("F2:*.llm.invocation_parameters.*", "unmapped", "schema-architect", _F2_CONFIG),
+    ("F2:*.gen_ai.prompt", "non-blocking", "unmapped", "dev", _F2_CARRIER),
+    ("F2:*.gen_ai.completion", "non-blocking", "unmapped", "dev", _F2_CARRIER),
+    ("F2:*.input.value", "non-blocking", "unmapped", "dev", _F2_CARRIER),
+    ("F2:*.output.value", "non-blocking", "unmapped", "dev", _F2_CARRIER),
+    ("F2:*.mlflow.spanInputs", "non-blocking", "unmapped", "dev", _F2_CARRIER),
+    ("F2:*.mlflow.spanOutputs", "non-blocking", "unmapped", "dev", _F2_CARRIER),
+    (
+        "F2:*.langfuse.observation.model.parameters",
+        "non-blocking",
+        "unmapped",
+        "schema-architect",
+        _F2_CONFIG,
+    ),
+    ("F2:*.gen_ai.request.temperature", "non-blocking", "unmapped", "schema-architect", _F2_CONFIG),
+    (
+        "F2:*.llm.invocation_parameters.*",
+        "non-blocking",
+        "unmapped",
+        "schema-architect",
+        _F2_CONFIG,
+    ),
     (
         "F2:*.gen_ai.usage.reasoning.output_tokens",
+        "non-blocking",
         "unmapped",
         "schema-architect",
         "the OpenTelemetry registry says reasoning tokens are included in the output count, so "
@@ -441,6 +518,7 @@ _F2_ROWS: tuple[tuple[str, str, str, str], ...] = (
     ),
     (
         "F2:*.llm.token_count.*",
+        "non-blocking",
         "unmapped",
         "dev",
         "an alternative usage carrier that Langfuse reads; the mapping reads gen_ai.usage.* and "
@@ -448,30 +526,35 @@ _F2_ROWS: tuple[tuple[str, str, str, str], ...] = (
     ),
     (
         "F2:*.langfuse.observation.prompt.name",
+        "non-blocking",
         "unmapped",
         "dev",
         "the name of the Langfuse prompt version used; prompt management has no run record",
     ),
     (
         "F2:*.langfuse.observation.prompt.version",
+        "non-blocking",
         "unmapped",
         "dev",
         "the version of the Langfuse prompt used; prompt management has no run record",
     ),
     (
         "F2:*.langfuse.prompt.name",
+        "non-blocking",
         "unmapped",
         "dev",
         "the name of the Langfuse prompt version used; prompt management has no run record",
     ),
     (
         "F2:*.langfuse.prompt.version",
+        "non-blocking",
         "unmapped",
         "dev",
         "the version of the Langfuse prompt used; prompt management has no run record",
     ),
     (
         "F2:*.langfuse.observation.completion_start_time",
+        "non-blocking",
         "lossy",
         "staff-reviewer",
         "when the model began generating; no page defines time to first token as that instant "
@@ -480,17 +563,19 @@ _F2_ROWS: tuple[tuple[str, str, str, str], ...] = (
     ),
     (
         "F2:*.langfuse.observation.cost_details.@components",
+        "non-blocking",
         "lossy",
         "schema-architect",
         "the per-usage-type costs (input, output, ...) have no target; the total of the call, "
         "which the cost model needs, is kept",
     ),
-    ("F2:*.@parentSpanId", "unmapped", "dev", _F2_SPAN),
-    ("F2:*.@kind", "unmapped", "dev", _F2_SPAN),
-    ("F2:*.@status", "unmapped", "dev", _F2_SPAN),
-    ("F2:*.@events", "unmapped", "dev", _F2_SPAN),
+    ("F2:*.@parentSpanId", "non-blocking", "unmapped", "dev", _F2_SPAN),
+    ("F2:*.@kind", "non-blocking", "unmapped", "dev", _F2_SPAN),
+    ("F2:*.@status", "non-blocking", "unmapped", "dev", _F2_SPAN),
+    ("F2:*.@events", "non-blocking", "unmapped", "dev", _F2_SPAN),
     (
         "F2:*.@startTimeUnixNano",
+        "non-blocking",
         "unmapped",
         "dev",
         "the span start of an observation that is not a model call or a tool call has no target "
@@ -498,18 +583,21 @@ _F2_ROWS: tuple[tuple[str, str, str, str], ...] = (
     ),
     (
         "F2:*.@endTimeUnixNano",
+        "non-blocking",
         "unmapped",
         "dev",
         "the span end of an observation that is not a model call has no target field",
     ),
     (
         "F2:resource.*",
+        "non-blocking",
         "unmapped",
         "dev",
         "OpenTelemetry resource attributes describe the exporter, not the call",
     ),
     (
         "F2:scope.name",
+        "non-blocking",
         "unmapped",
         "dev",
         "the instrumentation scope name only groups spans",
@@ -552,81 +640,96 @@ _F5_EXPECT = (
 )
 
 # key -> (kind, owner, reason)
-_F5_ROWS: dict[str, tuple[str, str, str]] = {
+_F5_ROWS: dict[str, tuple[str, str, str, str]] = {
     "context": (
+        "non-blocking",
         "unmapped",
         "schema-architect",
         "the seed messages of the bot's conversation context; the Evaluator has no field for a "
         "starting context and it can hold anything the operator wrote",
     ),
-    "stop_on_failure": ("unmapped", "dev", _F5_HARNESS),
-    "trigger_disconnect": ("unmapped", "dev", _F5_HARNESS),
-    "simulator.service": ("unmapped", "dev", _F5_SIMULATOR),
-    "simulator.model": ("unmapped", "dev", _F5_SIMULATOR),
-    "simulator.endpoint": ("unmapped", "security-licensing", _F5_SENSITIVE),
-    "simulator.extra": ("unmapped", "security-licensing", _F5_SENSITIVE),
-    "simulator.factory": ("unmapped", "dev", _F5_SIMULATOR),
-    "max_turns": ("unmapped", "dev", _F5_HARNESS),
-    "max_silence_s": ("unmapped", "dev", _F5_HARNESS),
-    "runs": ("unmapped", "dev", _F5_HARNESS),
-    "user.modality": ("unmapped", "dev", _F5_HARNESS),
-    "user.speech.service": ("unmapped", "dev", _F5_SPEECH),
-    "user.speech.voice": ("unmapped", "dev", _F5_SPEECH),
-    "user.speech.model": ("unmapped", "dev", _F5_SPEECH),
+    "stop_on_failure": ("non-blocking", "unmapped", "dev", _F5_HARNESS),
+    "trigger_disconnect": ("non-blocking", "unmapped", "dev", _F5_HARNESS),
+    "simulator.service": ("non-blocking", "unmapped", "dev", _F5_SIMULATOR),
+    "simulator.model": ("non-blocking", "unmapped", "dev", _F5_SIMULATOR),
+    "simulator.endpoint": ("non-blocking", "unmapped", "security-licensing", _F5_SENSITIVE),
+    "simulator.extra": ("non-blocking", "unmapped", "security-licensing", _F5_SENSITIVE),
+    "simulator.factory": ("non-blocking", "unmapped", "dev", _F5_SIMULATOR),
+    "max_turns": ("non-blocking", "unmapped", "dev", _F5_HARNESS),
+    "max_silence_s": ("non-blocking", "unmapped", "dev", _F5_HARNESS),
+    "runs": ("non-blocking", "unmapped", "dev", _F5_HARNESS),
+    "user.modality": ("non-blocking", "unmapped", "dev", _F5_HARNESS),
+    "user.speech.service": ("non-blocking", "unmapped", "dev", _F5_SPEECH),
+    "user.speech.voice": ("non-blocking", "unmapped", "dev", _F5_SPEECH),
+    "user.speech.model": ("non-blocking", "unmapped", "dev", _F5_SPEECH),
     "user.speech.language": (
+        "non-blocking",
         "unmapped",
         "indic-linguistics",
         "the language the harness's TTS speaks the caller in; it must match the voice and is "
         "not a statement about the Evaluator, whose language the user declares",
     ),
-    "user.speech.speed": ("unmapped", "dev", _F5_SPEECH),
-    "user.speech.sample_rate": ("unmapped", "dev", _F5_SPEECH),
-    "user.speech.api_key": ("unmapped", "security-licensing", _F5_SENSITIVE),
-    "user.speech.factory": ("unmapped", "dev", _F5_SPEECH),
-    "judge.modality": ("unmapped", "dev", _F5_HARNESS),
-    "judge.eval.endpoint": ("unmapped", "security-licensing", _F5_SENSITIVE),
-    "judge.eval.extra": ("unmapped", "security-licensing", _F5_SENSITIVE),
+    "user.speech.speed": ("non-blocking", "unmapped", "dev", _F5_SPEECH),
+    "user.speech.sample_rate": ("non-blocking", "unmapped", "dev", _F5_SPEECH),
+    "user.speech.api_key": ("non-blocking", "unmapped", "security-licensing", _F5_SENSITIVE),
+    "user.speech.factory": ("non-blocking", "unmapped", "dev", _F5_SPEECH),
+    "judge.modality": ("non-blocking", "unmapped", "dev", _F5_HARNESS),
+    "judge.eval.endpoint": ("non-blocking", "unmapped", "security-licensing", _F5_SENSITIVE),
+    "judge.eval.extra": ("non-blocking", "unmapped", "security-licensing", _F5_SENSITIVE),
     "judge.eval.factory": (
+        "non-blocking",
         "unmapped",
         "dev",
         "a factory builds the judge from code, so no service and model can be stated; a "
         "scenario that writes one is not built (blocking dynamic row F5:judge.eval)",
     ),
-    "judge.eval.explainer": ("unmapped", "dev", _F5_JUDGE),
-    "judge.eval.explainer.service": ("unmapped", "dev", _F5_JUDGE),
-    "judge.eval.explainer.model": ("unmapped", "dev", _F5_JUDGE),
-    "judge.eval.explainer.endpoint": ("unmapped", "security-licensing", _F5_SENSITIVE),
-    "judge.eval.explainer.extra": ("unmapped", "security-licensing", _F5_SENSITIVE),
-    "judge.eval.explainer.factory": ("unmapped", "dev", _F5_JUDGE),
-    "judge.eval.explain_below": ("unmapped", "dev", _F5_JUDGE),
-    "judge.eval.allow_continue": ("unmapped", "dev", _F5_JUDGE),
-    "judge.transcription.service": ("unmapped", "dev", _F5_TRANSCRIPTION),
-    "judge.transcription.model": ("unmapped", "dev", _F5_TRANSCRIPTION),
-    "judge.transcription.language": ("unmapped", "indic-linguistics", _F5_TRANSCRIPTION),
-    "judge.transcription.padding_secs": ("unmapped", "dev", _F5_TRANSCRIPTION),
-    "judge.transcription.factory": ("unmapped", "dev", _F5_TRANSCRIPTION),
+    "judge.eval.explainer": ("non-blocking", "unmapped", "dev", _F5_JUDGE),
+    "judge.eval.explainer.service": ("non-blocking", "unmapped", "dev", _F5_JUDGE),
+    "judge.eval.explainer.model": ("non-blocking", "unmapped", "dev", _F5_JUDGE),
+    "judge.eval.explainer.endpoint": (
+        "non-blocking",
+        "unmapped",
+        "security-licensing",
+        _F5_SENSITIVE,
+    ),
+    "judge.eval.explainer.extra": ("non-blocking", "unmapped", "security-licensing", _F5_SENSITIVE),
+    "judge.eval.explainer.factory": ("non-blocking", "unmapped", "dev", _F5_JUDGE),
+    "judge.eval.explain_below": ("non-blocking", "unmapped", "dev", _F5_JUDGE),
+    "judge.eval.allow_continue": ("non-blocking", "unmapped", "dev", _F5_JUDGE),
+    "judge.transcription.service": ("non-blocking", "unmapped", "dev", _F5_TRANSCRIPTION),
+    "judge.transcription.model": ("non-blocking", "unmapped", "dev", _F5_TRANSCRIPTION),
+    "judge.transcription.language": (
+        "non-blocking",
+        "unmapped",
+        "indic-linguistics",
+        _F5_TRANSCRIPTION,
+    ),
+    "judge.transcription.padding_secs": ("non-blocking", "unmapped", "dev", _F5_TRANSCRIPTION),
+    "judge.transcription.factory": ("non-blocking", "unmapped", "dev", _F5_TRANSCRIPTION),
     "turns.user.pause_ms": (
+        "non-blocking",
         "unmapped",
         "dev",
         "a pause between the parts of a scripted line; the ScriptedTurn holds the joined text "
         "and no timing",
     ),
-    "turns.audio": ("unmapped", "dev", _F5_SCRIPT),
-    "turns.dtmf": ("unmapped", "dev", _F5_SCRIPT),
-    "turns.image": ("unmapped", "dev", _F5_SCRIPT),
-    "turns.send_after.event": ("unmapped", "dev", _F5_SCRIPT),
-    "turns.send_after.delay_ms": ("unmapped", "dev", _F5_SCRIPT),
-    "turns.expect.within_ms": ("unmapped", "staff-reviewer", _F5_EXPECT),
-    "turns.expect.text_contains": ("unmapped", "staff-reviewer", _F5_EXPECT),
-    "turns.expect.text_excludes": ("unmapped", "staff-reviewer", _F5_EXPECT),
-    "turns.expect.eval": ("unmapped", "staff-reviewer", _F5_EXPECT),
-    "turns.expect.marker": ("unmapped", "staff-reviewer", _F5_EXPECT),
-    "turns.expect.marker_first": ("unmapped", "staff-reviewer", _F5_EXPECT),
-    "turns.expect.markers": ("unmapped", "staff-reviewer", _F5_EXPECT),
-    "turns.expect.text_after": ("unmapped", "staff-reviewer", _F5_EXPECT),
-    "turns.expect.check_from": ("unmapped", "staff-reviewer", _F5_EXPECT),
-    "turns.expect.absent": ("unmapped", "staff-reviewer", _F5_EXPECT),
+    "turns.audio": ("non-blocking", "unmapped", "dev", _F5_SCRIPT),
+    "turns.dtmf": ("non-blocking", "unmapped", "dev", _F5_SCRIPT),
+    "turns.image": ("non-blocking", "unmapped", "dev", _F5_SCRIPT),
+    "turns.send_after.event": ("non-blocking", "unmapped", "dev", _F5_SCRIPT),
+    "turns.send_after.delay_ms": ("non-blocking", "unmapped", "dev", _F5_SCRIPT),
+    "turns.expect.within_ms": ("non-blocking", "unmapped", "staff-reviewer", _F5_EXPECT),
+    "turns.expect.text_contains": ("non-blocking", "unmapped", "staff-reviewer", _F5_EXPECT),
+    "turns.expect.text_excludes": ("non-blocking", "unmapped", "staff-reviewer", _F5_EXPECT),
+    "turns.expect.eval": ("non-blocking", "unmapped", "staff-reviewer", _F5_EXPECT),
+    "turns.expect.marker": ("non-blocking", "unmapped", "staff-reviewer", _F5_EXPECT),
+    "turns.expect.marker_first": ("non-blocking", "unmapped", "staff-reviewer", _F5_EXPECT),
+    "turns.expect.markers": ("non-blocking", "unmapped", "staff-reviewer", _F5_EXPECT),
+    "turns.expect.text_after": ("non-blocking", "unmapped", "staff-reviewer", _F5_EXPECT),
+    "turns.expect.check_from": ("non-blocking", "unmapped", "staff-reviewer", _F5_EXPECT),
+    "turns.expect.absent": ("non-blocking", "unmapped", "staff-reviewer", _F5_EXPECT),
     "turns.expect.calls.@anonymous": (
+        "non-blocking",
         "lossy",
         "staff-reviewer",
         "a call expectation with no name (a bare function_call, or a call given by arguments "
@@ -637,9 +740,10 @@ _F5_ROWS: dict[str, tuple[str, str, str]] = {
 
 # ---- F8: transcript export of a voice platform ------------------------------------------------
 
-_F8_ROWS: tuple[tuple[str, str, str, str], ...] = (
+_F8_ROWS: tuple[tuple[str, str, str, str, str], ...] = (
     (
         "F8:assistant.text",
+        "non-blocking",
         "lossy",
         "schema-architect",
         "One logged assistant line may concatenate several utterances (repeated prompts plus a "
@@ -648,6 +752,7 @@ _F8_ROWS: tuple[tuple[str, str, str, str], ...] = (
     ),
     (
         "F8:@turn_timing",
+        "non-blocking",
         "absent_in_source",
         "schema-architect",
         "The one timestamp per line may be a start, an end or a log time and is kept as "
@@ -656,6 +761,7 @@ _F8_ROWS: tuple[tuple[str, str, str, str], ...] = (
     ),
     (
         "F8:@language_tag",
+        "non-blocking",
         "absent_in_source",
         "indic-linguistics",
         "The export carries no language label; detected_language and detected_language_raw "
@@ -664,6 +770,7 @@ _F8_ROWS: tuple[tuple[str, str, str, str], ...] = (
     ),
     (
         "F8:@audio",
+        "non-blocking",
         "absent_in_source",
         "schema-architect",
         "The export has no audio and no artifact reference, so audio metrics and WER are "
@@ -671,12 +778,14 @@ _F8_ROWS: tuple[tuple[str, str, str, str], ...] = (
     ),
     (
         "F8:@confidence",
+        "non-blocking",
         "absent_in_source",
         "schema-architect",
         "The export has no confidence value of any kind, so none is stored and none is invented.",
     ),
     (
         "F8:@tool_calls",
+        "non-blocking",
         "absent_in_source",
         "schema-architect",
         "The export has no tool calls or tool results, so no ToolCallEvent is made and tool "
@@ -684,6 +793,7 @@ _F8_ROWS: tuple[tuple[str, str, str, str], ...] = (
     ),
     (
         "F8:@end_of_call_reason",
+        "non-blocking",
         "absent_in_source",
         "schema-architect",
         "The export does not say how the call ended; nothing is inferred from the closing "
@@ -691,6 +801,7 @@ _F8_ROWS: tuple[tuple[str, str, str, str], ...] = (
     ),
     (
         "F8:@filename",
+        "non-blocking",
         "unmapped",
         "dev",
         "The file name carries local time (IST) while the content is UTC; the importer takes "
@@ -700,9 +811,9 @@ _F8_ROWS: tuple[tuple[str, str, str, str], ...] = (
 
 GAP_REGISTER: tuple[GapRow, ...] = (
     *_BASE_GAP_REGISTER,
-    *(_row(key, kind, owner, reason) for key, kind, owner, reason in _F2_ROWS),
-    *(_row(f"F5:{key}", kind, owner, reason) for key, (kind, owner, reason) in _F5_ROWS.items()),
-    *(_row(key, kind, owner, reason) for key, kind, owner, reason in _F8_ROWS),
+    *(_row(*row) for row in _F2_ROWS),
+    *(_row(f"F5:{key}", *row) for key, row in _F5_ROWS.items()),
+    *(_row(*row) for row in _F8_ROWS),
 )
 
 KNOWN_SCHEMA_GAPS: tuple[GapRow, ...] = tuple(

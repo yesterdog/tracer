@@ -40,6 +40,7 @@ from decimal import ROUND_FLOOR, Decimal
 from typing import Any
 
 from ._support import FIXTURES, api
+from .support.mappings.common import format_utc_instant
 
 __all__ = [
     "CITATION_DERIVATIONS",
@@ -474,7 +475,7 @@ def _decimal_of(value: Any) -> Decimal:
 
 def _unix_nano_to_utc_us(args: tuple[Any, ...]) -> str:
     micro = int(args[0]) // 1000
-    return (_EPOCH + timedelta(microseconds=micro)).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+    return format_utc_instant(_EPOCH + timedelta(microseconds=micro))
 
 
 def _ns_interval_to_ms_floor(args: tuple[Any, ...]) -> int:
@@ -533,7 +534,7 @@ def _provider_from_endpoint(args: tuple[Any, ...]) -> str:
 def _iso_to_utc_us(args: tuple[Any, ...]) -> str:
     moment = datetime.fromisoformat(str(args[0]))
     assert moment.tzinfo is not None, "a naive timestamp is never converted"
-    return moment.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+    return format_utc_instant(moment.astimezone(UTC))
 
 
 def _span_stage(args: tuple[Any, ...]) -> str:

@@ -56,6 +56,7 @@ from ._support_b3 import (
 )
 from ._support_b4 import entry_doc, make_catalog, usage_doc, usd
 from ._support_b7 import export_doc
+from .support.mappings.common import format_utc_instant
 
 __all__ = [
     "AGENT_USAGE",
@@ -572,7 +573,7 @@ def result_by_key(world: TdegWorld) -> dict[str, dict[str, Any]]:
 
 
 def _utc(moment: datetime) -> str:
-    return moment.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+    return format_utc_instant(moment.astimezone(UTC))
 
 
 def _dump(model: Any) -> dict[str, Any]:

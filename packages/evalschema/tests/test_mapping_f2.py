@@ -55,6 +55,7 @@ from ._support_b11 import (
     resolve_source_b11,
     run_f2,
 )
+from .support.mappings.common import format_utc_instant
 
 DOC = pytest.mark.parametrize("name", F2_DOCS)
 OTEL_URL = "https://langfuse.com/integrations/native/opentelemetry"
@@ -923,7 +924,7 @@ def _utc(microseconds: int) -> str:
     from datetime import UTC, datetime, timedelta
 
     moment = datetime(1970, 1, 1, tzinfo=UTC) + timedelta(microseconds=microseconds)
-    return moment.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+    return format_utc_instant(moment)
 
 
 def test_f2_digits_finer_than_a_microsecond_are_truncated_and_warned() -> None:

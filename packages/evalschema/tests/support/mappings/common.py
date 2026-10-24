@@ -139,6 +139,17 @@ class MappingResult:
 # ------------------------------------------------------------------------------------ helpers
 
 
+def format_utc_instant(moment: datetime) -> str:
+    """The RFC 3339 text of ``moment`` as written (no zone conversion), year zero padded.
+
+    The C library year directive is platform dependent below year 1000, so fields are padded here.
+    """
+    return (
+        f"{moment.year:04d}-{moment.month:02d}-{moment.day:02d}"
+        f"T{moment.hour:02d}:{moment.minute:02d}:{moment.second:02d}.{moment.microsecond:06d}Z"
+    )
+
+
 def is_int(value: Any) -> bool:
     return type(value) is int
 
@@ -212,7 +223,7 @@ def unix_nano_to_utc_us(nanoseconds: Any) -> tuple[int, str, bool] | None:
         return None
     try:
         moment = _EPOCH + timedelta(microseconds=count // 1000)
-        text = moment.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+        text = format_utc_instant(moment)
     except (OverflowError, ValueError):
         return None
     return count, text, count % 1000 != 0

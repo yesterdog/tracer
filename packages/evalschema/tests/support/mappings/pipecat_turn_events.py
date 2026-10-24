@@ -27,6 +27,7 @@ from .common import (
     Recorder,
     TableRow,
     floor_ms,
+    format_utc_instant,
     pointer,
     raw_text,
 )
@@ -148,7 +149,7 @@ def _wall_time(rec: Recorder, message: Mapping[str, Any], where: str) -> tuple[s
         return None
     try:
         moment = datetime.fromisoformat(stamp).astimezone(UTC)
-        text = moment.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+        text = format_utc_instant(moment)
     except (ValueError, OverflowError):
         rec.warn("timestamp_not_parseable", "the timestamp is not an instant", path=path, raw=stamp)
         return None

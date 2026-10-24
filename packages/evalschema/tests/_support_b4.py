@@ -26,6 +26,7 @@ from typing import Any
 
 from ._support import api
 from ._support_b2 import meta, new_id, registered_class, seal
+from .support.mappings.common import format_utc_instant
 
 __all__ = [
     "ALL_UNITS",
@@ -163,7 +164,7 @@ def qty(unit: Any, count: Any) -> dict[str, Any]:
 
 def utc_text(moment: datetime) -> str:
     """The canonical wire text of an aware instant (``2026-06-01T00:00:00.000000Z``)."""
-    return moment.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+    return format_utc_instant(moment.astimezone(UTC))
 
 
 def usage_doc(occurred_at: Any = None, **over: Any) -> dict[str, Any]:

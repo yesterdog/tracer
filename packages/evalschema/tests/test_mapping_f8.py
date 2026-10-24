@@ -72,6 +72,7 @@ from ._support_b14 import (
     utc_text,
     word_tokens,
 )
+from .support.mappings.common import format_utc_instant
 
 TESTS_DIR = Path(__file__).resolve().parent
 CONVERTER = TESTS_DIR / "support" / "mappings" / "voicera_transcript.py"
@@ -190,7 +191,7 @@ def test_f8_twin_file_name_carries_ist_local_time() -> None:
     local = datetime(year, month, day, hour, minute, second)
     first = expected_instant(reference_parse(twin_text()).messages[0].timestamp)[0]
     assert first is not None
-    utc = datetime.strptime(first, "%Y-%m-%dT%H:%M:%S.%fZ")
+    utc = datetime.fromisoformat(first.removesuffix("Z"))
     assert local - utc.replace(microsecond=0) == timedelta(hours=5, minutes=30)
 
 
@@ -395,7 +396,7 @@ def test_f8_filename_local_time_not_used() -> None:
     year, month, day, hour, minute, second = (int(g) for g in found.groups())
     as_utc = datetime(year, month, day, hour, minute, second, tzinfo=UTC)
     as_ist = as_utc - timedelta(hours=5, minutes=30)
-    forbidden = {as_utc.strftime("%Y-%m-%dT%H:%M:%S.%fZ"), as_ist.strftime("%Y-%m-%dT%H:%M:%S.%fZ")}
+    forbidden = {format_utc_instant(as_utc), format_utc_instant(as_ist)}
     first = run_f8(twin_text())
     second = run_f8(TWIN_FILE.read_bytes().decode("utf-8"))
     assert stable(first) == stable(second)

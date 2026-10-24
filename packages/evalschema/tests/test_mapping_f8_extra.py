@@ -38,6 +38,7 @@ from ._support_b14 import (
     run_f8,
     twin_text,
 )
+from .support.mappings.common import format_utc_instant
 
 UUID_TEXT = "5c0a7e1d-3b42-4f6e-9a18-2d7e4c9b0a11"
 HEADER = f"call_id={UUID_TEXT}\n---\n"
@@ -66,7 +67,7 @@ def one_stamp(stamp: str) -> Any:
 
 def instant_text(result: Any) -> str | None:
     wall = result.turns[0].wall_time
-    return None if wall is None else wall.at.strftime("%Y-%m-%dT%H:%M:%S.%f") + "Z"
+    return None if wall is None else format_utc_instant(wall.at)
 
 
 # ======================================================================= N1: blank line 1 or 2

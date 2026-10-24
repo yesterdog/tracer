@@ -41,6 +41,7 @@ from typing import Any
 
 from ._support import FIXTURES, ROOT
 from ._support_b6 import CREATED_AT, check_records_valid, leaves, mapping, privacy_synthetic
+from .support.mappings.common import format_utc_instant
 
 __all__ = [
     "ALLOWED_CONSTANTS",
@@ -281,7 +282,7 @@ def reference_parse(text: str) -> Parsed:
 
 def utc_text(moment: datetime) -> str:
     """A UTC datetime as the canonical text with six fractional digits and ``Z``."""
-    return moment.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+    return format_utc_instant(moment.astimezone(UTC))
 
 
 def expected_instant(stamp: str) -> tuple[str | None, str | None]:
@@ -297,7 +298,7 @@ def expected_instant(stamp: str) -> tuple[str | None, str | None]:
         moment = datetime.fromisoformat(stamp)
     except ValueError:
         return None, "timestamp_not_parseable"
-    text = moment.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+    text = format_utc_instant(moment.astimezone(UTC))
     fraction = found.group("frac")
     return text, ("time_precision_reduced" if fraction and len(fraction) > 6 else None)
 
