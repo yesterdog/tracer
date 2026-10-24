@@ -1,0 +1,18 @@
+Batch 28 implementation (schema-architect, 2026-10-24): classification of full-suite failures.
+
+Second run (the logs in this directory; after qa's SCR-G1 to SCR-G6 and qa's golden-fixture move
+for A-C6): 8646 passed, 0 failed, 6 deselected (local-only/private) on each of Python 3.11, 3.12,
+3.13 and 3.14. Nothing to classify.
+
+First run (same source, before qa's golden-fixture change; logs overwritten): 7 failed, 8639
+passed on every version, all in test_golden_fixtures.py and all from one cause: the valid fixture
+MetricResult/maximal-na-missing-input carried a per_turn summary on missing_input, which A-C6
+forbids:
+  test_golden_valid_fixtures_round_trip_byte_for_byte[MetricResult/maximal-na-missing-input]
+  test_golden_valid_fixtures_are_accepted_by_the_json_schemas[MetricResult/maximal-na-missing-input]
+  test_golden_files_equal_generator_output
+  test_golden_generator_is_deterministic_across_processes
+  test_the_build_script_check_passes_on_the_committed_fixtures
+  test_the_generator_refuses_an_expectation_the_model_does_not_meet
+  test_golden_generator_check_reports_drift_and_write_repairs_it
+SCR-G1 to SCR-G6 had already landed by then (none of the six named tests failed).
