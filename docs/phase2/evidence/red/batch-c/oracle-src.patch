@@ -1,0 +1,1197 @@
+diff -ruN a/packages/evaldb/src/tracer_evaldb/__init__.py b/packages/evaldb/src/tracer_evaldb/__init__.py
+--- a/packages/evaldb/src/tracer_evaldb/__init__.py
++++ b/packages/evaldb/src/tracer_evaldb/__init__.py
+@@ -4,18 +4,47 @@
+ 
+ from __future__ import annotations
+ 
+-from . import tables
++from . import tables, triggers
+ from .columns import BigIntCol, BoolCol, DecimalCol, DocCol, InstantCol, KeyCol, Sha256Col, UuidCol
+ from .engine import create_store_engine
+ from .errors import (
++    ExportReferenceNotStored,
++    IncompleteRunBundle,
++    InternalSnapshotRefused,
++    ProjectNotStored,
++    RecordNotStored,
++    RecordOwnershipConflict,
++    ReimportConflict,
+     StoreConfigurationError,
+     StoreConnectionError,
++    StoreConstraintViolation,
+     StoreError,
+     StoreIntegrityError,
+     StoreValueOutOfRange,
+     UnsupportedServerEncoding,
+     UnsupportedSqliteVersion,
+ )
++from .repository import (
++    ExternalRefMatch,
++    LoadedRunBundle,
++    MissingMember,
++    StoreResult,
++    find_by_external_ref,
++    find_snapshot_by_digest,
++    latest_version,
++    load_dataset_item,
++    load_definition,
++    load_export,
++    load_project,
++    load_run_bundle,
++    load_snapshot,
++    store_dataset_item,
++    store_definition,
++    store_export,
++    store_project,
++    store_run_bundle,
++    store_snapshot,
++)
+ from .schema import metadata
+ 
+ __all__ = [
+@@ -23,18 +52,46 @@
+     "BoolCol",
+     "DecimalCol",
+     "DocCol",
++    "ExportReferenceNotStored",
++    "ExternalRefMatch",
++    "IncompleteRunBundle",
+     "InstantCol",
++    "InternalSnapshotRefused",
+     "KeyCol",
++    "LoadedRunBundle",
++    "MissingMember",
++    "ProjectNotStored",
++    "RecordNotStored",
++    "RecordOwnershipConflict",
++    "ReimportConflict",
+     "Sha256Col",
+     "StoreConfigurationError",
+     "StoreConnectionError",
++    "StoreConstraintViolation",
+     "StoreError",
+     "StoreIntegrityError",
++    "StoreResult",
+     "StoreValueOutOfRange",
+     "UnsupportedServerEncoding",
+     "UnsupportedSqliteVersion",
+     "UuidCol",
+     "create_store_engine",
++    "find_by_external_ref",
++    "find_snapshot_by_digest",
++    "latest_version",
++    "load_dataset_item",
++    "load_definition",
++    "load_export",
++    "load_project",
++    "load_run_bundle",
++    "load_snapshot",
+     "metadata",
++    "store_dataset_item",
++    "store_definition",
++    "store_export",
++    "store_project",
++    "store_run_bundle",
++    "store_snapshot",
+     "tables",
++    "triggers",
+ ]
+diff -ruN a/packages/evaldb/src/tracer_evaldb/engine.py b/packages/evaldb/src/tracer_evaldb/engine.py
+--- a/packages/evaldb/src/tracer_evaldb/engine.py
++++ b/packages/evaldb/src/tracer_evaldb/engine.py
+@@ -22,8 +22,54 @@
+     UnsupportedSqliteVersion,
+ )
+ 
+-__all__ = ["create_store_engine"]
++__all__ = ["INTEGRITY_SQLSTATE_CLASS", "create_store_engine", "is_integrity_sqlstate", "sqlstate_of"]
+ 
++INTEGRITY_SQLSTATE_CLASS = "23"
++
++
++def sqlstate_of(exception: BaseException) -> str | None:
++    """The SQLSTATE a pg8000 error carries (``args[0]["C"]``), or None."""
++    args = getattr(exception, "args", ())
++    if args and isinstance(args[0], dict):
++        code = args[0].get("C")
++        return code if isinstance(code, str) else None
++    return None
++
++
++def is_integrity_sqlstate(code: str | None) -> bool:
++    """True for every SQLSTATE of class 23 (integrity constraint violation)."""
++    return isinstance(code, str) and len(code) == 5 and code.startswith(INTEGRITY_SQLSTATE_CLASS)
++
++
++def _translate(context: Any) -> Exception | None:
++    """``handle_error`` hook: pg8000 reports every server error as ``ProgrammingError``; a
++    SQLSTATE of class 23 becomes ``sqlalchemy.exc.IntegrityError`` (the DBAPI error is kept as
++    ``orig``), as on SQLite."""
++    original = context.original_exception
++    if original is None or not is_integrity_sqlstate(sqlstate_of(original)):
++        return None
++    return sa.exc.IntegrityError(
++        context.statement, context.parameters, _without_row_content(original), hide_parameters=True
++    )
++
++
++# The fields of a pg8000 error that name the failure and nothing of the row: severity, SQLSTATE,
++# message, schema, table, column, data type and constraint. The detail ("Failing row contains
++# (...)", "Key (id)=(...)") quotes values and is dropped.
++_KEEP = ("S", "V", "C", "M", "s", "t", "c", "d", "n")
++
++
++def _without_row_content(original: BaseException) -> BaseException:
++    args = original.args
++    if args and isinstance(args[0], dict):
++        kept = {key: value for key, value in args[0].items() if key in _KEEP}
++        try:
++            return type(original)(kept)
++        except Exception:
++            return original
++    return original
++
++
+ # STRICT tables (3.37) are part of the storage design.
+ _SQLITE_MINIMUM = (3, 37, 0)
+ 
+@@ -63,7 +109,7 @@
+         raise UnsupportedSqliteVersion(
+             f"SQLite {sqlite3.sqlite_version} is too old; 3.37 or newer is required"
+         )
+-    engine = sa.create_engine(url)
++    engine = sa.create_engine(url, hide_parameters=True)
+ 
+     @event.listens_for(engine, "connect")
+     def _configure(dbapi_connection: Any, _record: Any) -> None:
+@@ -88,7 +134,7 @@
+ 
+ def _postgres_engine(url: URL) -> Engine:
+     try:
+-        engine = sa.create_engine(url)
++        engine = sa.create_engine(url, hide_parameters=True)
+     except Exception:  # the pg8000 extra is not installed
+         raise StoreConfigurationError("the Postgres driver (pg8000) is not available") from None
+ 
+@@ -102,6 +148,7 @@
+             cursor.close()
+         dbapi_connection.commit()
+ 
++    event.listen(engine, "handle_error", _translate)
+     connection = _probe(engine)
+     try:
+         encoding = connection.exec_driver_sql("SHOW server_encoding").scalar_one()
+diff -ruN a/packages/evaldb/src/tracer_evaldb/errors.py b/packages/evaldb/src/tracer_evaldb/errors.py
+--- a/packages/evaldb/src/tracer_evaldb/errors.py
++++ b/packages/evaldb/src/tracer_evaldb/errors.py
+@@ -4,9 +4,20 @@
+ 
+ from __future__ import annotations
+ 
++from tracer_evalschema.errors import ConflictingRecordError
++from tracer_evalschema.ids import TypedId
++
+ __all__ = [
++    "ExportReferenceNotStored",
++    "IncompleteRunBundle",
++    "InternalSnapshotRefused",
++    "ProjectNotStored",
++    "RecordNotStored",
++    "RecordOwnershipConflict",
++    "ReimportConflict",
+     "StoreConfigurationError",
+     "StoreConnectionError",
++    "StoreConstraintViolation",
+     "StoreError",
+     "StoreIntegrityError",
+     "StoreValueOutOfRange",
+@@ -63,3 +74,92 @@
+         self.table = table
+         self.column = column
+         super().__init__(f"a value for column {column!r} of table {table!r} is out of range")
++
++
++class ReimportConflict(ConflictingRecordError):
++    """A run arrives whose external reference already names a stored run with another ID or
++    other content (P-02). Names the entity kind and the stored ID, never the reference."""
++
++    def __init__(self, entity_kind: str, stored_id: TypedId) -> None:
++        self.entity_kind = entity_kind
++        self.stored_id = stored_id
++        super().__init__(
++            f"an external reference of this {entity_kind} already names the stored {entity_kind} "
++            f"{stored_id} with other content"
++        )
++
++
++class RecordOwnershipConflict(StoreError):
++    """A record of fact that is stored for one run arrives in the bundle of another run."""
++
++    def __init__(self, kind: str, record_id: TypedId) -> None:
++        self.kind = kind
++        self.record_id = record_id
++        super().__init__(f"{kind} {record_id} is stored for another run")
++
++
++class ProjectNotStored(StoreError):
++    """The project of a run is not stored; the store never creates one."""
++
++    def __init__(self, project_id: TypedId) -> None:
++        self.project_id = project_id
++        super().__init__(f"project {project_id} is not stored")
++
++
++class InternalSnapshotRefused(StoreError, ValueError):
++    """The snapshot does not meet the rule for internal data (ADR 0006 Decision 6): its test
++    profile reference carries no plain digest."""
++
++    def __init__(self, snapshot_id: TypedId) -> None:
++        self.snapshot_id = snapshot_id
++        super().__init__(
++            f"snapshot {snapshot_id}: an internal snapshot records the plain digest of its test "
++            "profile; it is absent or keyed"
++        )
++
++
++class RecordNotStored(StoreError):
++    """No stored row has this kind, ID (and version)."""
++
++    def __init__(self, kind: str, record_id: TypedId, version: int | None = None) -> None:
++        self.kind = kind
++        self.record_id = record_id
++        self.version = version
++        suffix = "" if version is None else f" version {version}"
++        super().__init__(f"{kind} {record_id}{suffix} is not stored")
++
++
++class IncompleteRunBundle(StoreError):
++    """A stored run bundle lost members (ADR 0020); the partial content is not a RunBundle."""
++
++    def __init__(self, bundle_id: TypedId, missing: tuple[object, ...]) -> None:
++        self.bundle_id = bundle_id
++        self.missing = missing
++        super().__init__(
++            f"run bundle {bundle_id} is incomplete: {len(missing)} member(s) are not stored"
++        )
++
++
++class ExportReferenceNotStored(StoreError):
++    """An export carries a run, dataset item or test profile that is not stored."""
++
++    def __init__(self, kind: str, record_id: TypedId) -> None:
++        self.kind = kind
++        self.record_id = record_id
++        super().__init__(f"the export carries {kind} {record_id}, which is not stored")
++
++
++class StoreConstraintViolation(StoreError):
++    """The database refused a write. Names the kind of constraint, the table and (when the
++    database says) the constraint, never a value."""
++
++    def __init__(self, kind: str, table: str | None = None, constraint: str | None = None) -> None:
++        self.kind = kind
++        self.table = table
++        self.constraint = constraint
++        text = f"the database refused a write: {kind} violation"
++        if table is not None:
++            text += f" on table {table!r}"
++        if constraint is not None:
++            text += f" (constraint {constraint!r})"
++        super().__init__(text)
+diff -ruN a/packages/evaldb/src/tracer_evaldb/repository.py b/packages/evaldb/src/tracer_evaldb/repository.py
+--- a/packages/evaldb/src/tracer_evaldb/repository.py
++++ b/packages/evaldb/src/tracer_evaldb/repository.py
+@@ -0,0 +1,797 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The repository: whole validated entities and bundles in, whole validated entities out.
++
++Contract: docs/phase2/api-surface-batch-c.md. Every function takes the ``Engine`` first and opens
++exactly one transaction (``engine.begin()``): committed on return, rolled back on any exception.
++Every writer validates through the models first (from the instance's own JSON, so an instance
++built without validation cannot be stored) and sends no INSERT before that has succeeded.
++"""
++
++from __future__ import annotations
++
++import re
++import uuid
++from collections.abc import Iterable, Mapping, Sequence
++from dataclasses import dataclass, field
++from typing import Any
++
++import sqlalchemy as sa
++from sqlalchemy.engine import Connection, Engine
++
++from tracer_evalschema import digest as ev_digest
++from tracer_evalschema import ids as ev_ids
++from tracer_evalschema import loader, snapshot as ev_snapshot
++from tracer_evalschema.base import EntityBase
++from tracer_evalschema.bundle import ExportBundle, RunBundle
++from tracer_evalschema.digest import ContentDigest
++from tracer_evalschema.errors import ConflictingRecordError, ConflictingVersionError
++from tracer_evalschema.ids import ExternalRef, TypedId
++from tracer_evalschema.dataset import DatasetItem
++from tracer_evalschema.project import Project
++from tracer_evalschema.snapshot import ConfigSnapshot
++
++from . import codecs
++from .errors import (
++    ExportReferenceNotStored,
++    IncompleteRunBundle,
++    InternalSnapshotRefused,
++    ProjectNotStored,
++    RecordNotStored,
++    RecordOwnershipConflict,
++    ReimportConflict,
++    StoreConstraintViolation,
++)
++from .schema import metadata
++
++__all__ = [
++    "ExternalRefMatch",
++    "LoadedRunBundle",
++    "MissingMember",
++    "StoreResult",
++    "find_by_external_ref",
++    "find_snapshot_by_digest",
++    "latest_version",
++    "load_dataset_item",
++    "load_definition",
++    "load_export",
++    "load_project",
++    "load_run_bundle",
++    "load_snapshot",
++    "store_dataset_item",
++    "store_definition",
++    "store_export",
++    "store_project",
++    "store_run_bundle",
++    "store_snapshot",
++    "translate_integrity_error",
++]
++
++T = metadata.tables
++
++DEFINITION_CLASSES: Mapping[str, type[EntityBase]] = {
++    kind: codecs._BY_TABLE[kind].model
++    for kind in (
++        "agent_target",
++        "persona",
++        "test_profile",
++        "evaluator",
++        "metric_definition",
++        "metric_binding",
++        "rubric",
++        "pricing_catalog",
++        "dataset",
++    )
++}
++_KIND_OF_CLASS = {cls: kind for kind, cls in DEFINITION_CLASSES.items()}
++_EXTERNAL_KINDS = ("run", "span", "transcript", "usage_record")
++_EXTERNAL_ID_CLASSES: Mapping[str, type[TypedId]] = {
++    "run": ev_ids.RunId,
++    "span": ev_ids.StageSpanId,
++    "transcript": ev_ids.TranscriptId,
++    "usage_record": ev_ids.UsageRecordId,
++}
++_BUNDLE_KIND_TABLE = {
++    "run": "run",
++    "snapshot": "config_snapshot",
++    "pricing_catalog": "pricing_catalog",
++    "test_profile": "test_profile",
++    "artifact": "artifact",
++    "transcript": "transcript",
++    "turn": "turn",
++    "exchange": "exchange",
++    "tool_call": "tool_call_event",
++    "span": "stage_span",
++    "result": "metric_result",
++    "verdict": "run_verdict",
++    "usage_record": "usage_record",
++    "cost_record": "cost_record",
++    "cost_summary": "cost_summary",
++}
++_MEMBER_KINDS = tuple(_BUNDLE_KIND_TABLE)  # member order: the RunBundle field order
++_PURPOSES = ("internal", "shared_export", "benchmark")
++
++
++# ------------------------------------------------------------------------------------ results
++
++
++@dataclass(frozen=True)
++class StoreResult:
++    kind: str
++    entity_id: TypedId
++    version: int | None
++    created: bool
++    inserted: Mapping[str, int]
++
++
++@dataclass(frozen=True)
++class MissingMember:
++    kind: str
++    record_id: TypedId
++    record_version: int | None
++
++
++@dataclass(frozen=True)
++class LoadedRunBundle:
++    bundle_id: TypedId
++    complete: bool
++    missing: tuple[MissingMember, ...]
++    bundle: RunBundle | None
++    records: Mapping[str, tuple[EntityBase, ...]] = field(default_factory=dict)
++
++
++@dataclass(frozen=True)
++class ExternalRefMatch:
++    entity_kind: str
++    entity_id: TypedId
++    run_id: TypedId
++
++
++# ------------------------------------------------------------------------------------ helpers
++
++
++def _require_engine(engine: object) -> Engine:
++    if not isinstance(engine, Engine):
++        raise TypeError("engine must be a sqlalchemy.engine.Engine")
++    return engine
++
++
++def _uuid_arg(value: object, id_class: type[TypedId], name: str) -> uuid.UUID:
++    if isinstance(value, uuid.UUID):
++        return value
++    if isinstance(value, id_class):
++        return value.uuid
++    raise TypeError(f"{name} must be a {id_class.__name__} or a uuid.UUID")
++
++
++def _id_class_of(model_class: type[EntityBase]) -> type[TypedId]:
++    return ev_ids.id_type(model_class.id_prefix)  # type: ignore[attr-defined]
++
++
++def _typed(table: str, value: uuid.UUID) -> TypedId:
++    cls = codecs._BY_TABLE[table].model
++    return _id_class_of(cls)(value)
++
++
++def _revalidate(model: Any, cls: type[EntityBase]) -> Any:
++    if not isinstance(model, cls):
++        raise TypeError(f"expected a {cls.__name__}")
++    return loader.load_model(cls, model.model_dump_json())
++
++
++@dataclass
++class _Tally:
++    inserted: dict[str, int] = field(default_factory=dict)
++
++    def add(self, table: str, count: int) -> None:
++        if count:
++            self.inserted[table] = self.inserted.get(table, 0) + count
++
++
++def _result(
++    kind: str, model: EntityBase, version: int | None, tally: _Tally, created: bool
++) -> StoreResult:
++    return StoreResult(kind, model.id, version, created, dict(tally.inserted))
++
++
++_CONSTRAINT_KIND = (
++    (re.compile(r"UNIQUE constraint failed: (\w+)\."), "unique"),
++    (re.compile(r"CHECK constraint failed"), "check"),
++    (re.compile(r"NOT NULL constraint failed: (\w+)\."), "not_null"),
++    (re.compile(r"FOREIGN KEY constraint failed"), "foreign_key"),
++)
++_SQLSTATE_KIND = {
++    "23505": "unique",
++    "23514": "check",
++    "23502": "not_null",
++    "23503": "foreign_key",
++    "23001": "foreign_key",
++}
++
++
++def translate_integrity_error(exc: sa.exc.IntegrityError) -> StoreConstraintViolation:
++    original = exc.orig
++    kind, table, constraint = "other", None, None
++    args = getattr(original, "args", ())
++    if args and isinstance(args[0], dict):
++        fields = args[0]
++        kind = _SQLSTATE_KIND.get(str(fields.get("C")), "other")
++        table = fields.get("t")
++        constraint = fields.get("n")
++    else:
++        text = str(original)
++        for pattern, name in _CONSTRAINT_KIND:
++            match = pattern.search(text)
++            if match:
++                kind = name
++                table = match.group(1) if match.groups() else None
++                break
++    return StoreConstraintViolation(
++        kind,
++        table if isinstance(table, str) else None,
++        constraint if isinstance(constraint, str) else None,
++    )
++
++
++class _Write:
++    """Context manager: one transaction; a database integrity error becomes a typed error."""
++
++    def __init__(self, engine: Engine) -> None:
++        self._engine = engine
++
++    def __enter__(self) -> Connection:
++        self._cm = self._engine.begin()
++        return self._cm.__enter__()
++
++    def __exit__(self, exc_type: Any, exc: Any, tb: Any) -> bool:
++        suppress = self._cm.__exit__(exc_type, exc, tb)
++        if isinstance(exc, sa.exc.IntegrityError):
++            raise translate_integrity_error(exc) from None
++        return bool(suppress)
++
++
++# --------------------------------------------------------------------------- insert or verify
++
++
++def _insert_all(
++    conn: Connection,
++    encoded: Sequence[tuple[codecs.EncodedEntity, EntityBase]],
++    tally: _Tally,
++    *,
++    versioned: bool,
++) -> set[bytes]:
++    """Insert the rows of one entity table that are absent; compare the present ones by
++    ``doc_sha256``. Returns nothing useful; raises on conflict."""
++    if not encoded:
++        return set()
++    table_name = encoded[0][0].table
++    table = T[table_name]
++    unique: dict[Any, tuple[codecs.EncodedEntity, EntityBase]] = {}
++    for item in encoded:
++        row = item[0].row
++        key = (row["id"], row["version"]) if versioned else row["id"]
++        unique.setdefault(key, item)
++    ids = list({item[0].row["id"] for item in unique.values()})
++    columns = [table.c.id, table.c.doc_sha256]
++    if versioned:
++        columns.append(table.c.version)
++    owned = "run_id" in table.c
++    if owned:
++        columns.append(table.c.run_id)
++    found: dict[Any, Mapping[str, Any]] = {}
++    for stored in conn.execute(sa.select(*columns).where(table.c.id.in_(ids))).mappings():
++        key = (stored["id"], stored["version"]) if versioned else stored["id"]
++        found[key] = stored
++    new_rows: list[Mapping[str, Any]] = []
++    side: dict[str, list[Mapping[str, Any]]] = {}
++    for key, (enc, model) in unique.items():
++        stored_row = found.get(key)
++        if stored_row is None:
++            new_rows.append(enc.row)
++            for side_table, rows in enc.side_rows.items():
++                side.setdefault(side_table, []).extend(rows)
++            continue
++        if owned and stored_row["run_id"] != enc.row["run_id"]:
++            raise RecordOwnershipConflict(table_name, model.id)
++        if stored_row["doc_sha256"] != enc.row["doc_sha256"]:
++            error_class = ConflictingVersionError if versioned else ConflictingRecordError
++            version = f" version {enc.row['version']}" if versioned else ""
++            raise error_class(f"{table_name} {model.id}{version} is stored with other content")
++    if new_rows:
++        conn.execute(sa.insert(table), [dict(r) for r in new_rows])
++        tally.add(table_name, len(new_rows))
++    for side_table, rows in side.items():
++        if rows:
++            conn.execute(sa.insert(T[side_table]), [dict(r) for r in rows])
++    return set()
++
++
++_Plan = tuple[str, bool, list[tuple[codecs.EncodedEntity, EntityBase]]]
++
++
++def _plan_models(
++    models: Sequence[EntityBase], *, run_id: uuid.UUID | None = None
++) -> _Plan | None:
++    """Encode models of one entity class (this is where StoreValueOutOfRange is raised)."""
++    if not models:
++        return None
++    first = models[0]
++    spec = codecs._BY_MODEL[type(first)]
++    encoded = [
++        (codecs.encode(m, run_id=run_id if spec.storage_run_id else None), m) for m in models
++    ]
++    return spec.table, hasattr(first, "version"), encoded
++
++
++def _run_plan(conn: Connection, plan: _Plan | None, tally: _Tally) -> None:
++    if plan is not None:
++        _insert_all(conn, plan[2], tally, versioned=plan[1])
++
++
++def _store_models(
++    conn: Connection,
++    models: Sequence[EntityBase],
++    tally: _Tally,
++    *,
++    run_id: uuid.UUID | None = None,
++) -> None:
++    _run_plan(conn, _plan_models(models, run_id=run_id), tally)
++
++
++def _plan_snapshot(snapshot: ConfigSnapshot) -> list[_Plan | None]:
++    ev_snapshot_check(snapshot)
++    return [
++        _plan_models([snapshot.persona]),
++        _plan_models([snapshot.rubric]),
++        _plan_models([snapshot.evaluator]),
++        _plan_models(list(snapshot.metric_definitions)),
++        _plan_models(list(snapshot.metric_bindings)),
++        _plan_models([snapshot]),
++    ]
++
++
++def _store_snapshot_in(conn: Connection, snapshot: ConfigSnapshot, tally: _Tally) -> None:
++    for plan in _plan_snapshot(snapshot):
++        _run_plan(conn, plan, tally)
++
++
++def ev_snapshot_check(snapshot: ConfigSnapshot) -> None:
++    try:
++        ev_snapshot.check_internal_snapshot(snapshot)
++    except ValueError:
++        raise InternalSnapshotRefused(snapshot.id) from None
++
++
++# ------------------------------------------------------------------------------ simple writers
++
++
++def store_project(engine: Engine, project: Project) -> StoreResult:
++    _require_engine(engine)
++    checked = _revalidate(project, Project)
++    tally = _Tally()
++    with _Write(engine) as conn:
++        _store_models(conn, [checked], tally)
++    return _result("project", checked, None, tally, "project" in tally.inserted)
++
++
++def store_definition(engine: Engine, definition: EntityBase) -> StoreResult:
++    _require_engine(engine)
++    kind = _KIND_OF_CLASS.get(type(definition))
++    if kind is None:
++        raise TypeError("store_definition takes one of the nine versioned entities")
++    checked = _revalidate(definition, type(definition))
++    tally = _Tally()
++    with _Write(engine) as conn:
++        _store_models(conn, [checked], tally)
++    return _result(kind, checked, checked.version, tally, kind in tally.inserted)
++
++
++def store_snapshot(engine: Engine, snapshot: ConfigSnapshot) -> StoreResult:
++    _require_engine(engine)
++    checked = _revalidate(snapshot, ConfigSnapshot)
++    plans = _plan_snapshot(checked)
++    tally = _Tally()
++    with _Write(engine) as conn:
++        for plan in plans:
++            _run_plan(conn, plan, tally)
++    return _result("config_snapshot", checked, None, tally, "config_snapshot" in tally.inserted)
++
++
++def store_dataset_item(engine: Engine, item: DatasetItem) -> StoreResult:
++    _require_engine(engine)
++    checked = _revalidate(item, DatasetItem)
++    tally = _Tally()
++    with _Write(engine) as conn:
++        _store_models(conn, [checked], tally)
++    return _result("dataset_item", checked, None, tally, "dataset_item" in tally.inserted)
++
++
++# ------------------------------------------------------------------------------- run bundles
++
++
++def _check_reimport(conn: Connection, encoded_run: codecs.EncodedEntity) -> None:
++    rows = encoded_run.side_rows.get("external_ref_index", ())
++    keys = [r["key_sha256"] for r in rows if r["entity_kind"] == "run"]
++    if not keys:
++        return
++    ext, run = T["external_ref_index"], T["run"]
++    query = (
++        sa.select(ext.c.entity_id, run.c.doc_sha256)
++        .join(run, run.c.id == ext.c.entity_id)
++        .where(ext.c.entity_kind == "run", ext.c.key_sha256.in_(keys))
++    )
++    for stored in conn.execute(query).mappings():
++        if (
++            stored["entity_id"] != encoded_run.row["id"]
++            or stored["doc_sha256"] != encoded_run.row["doc_sha256"]
++        ):
++            raise ReimportConflict("run", ev_ids.RunId(stored["entity_id"]))
++
++
++def store_run_bundle(engine: Engine, bundle: RunBundle) -> StoreResult:
++    _require_engine(engine)
++    if not isinstance(bundle, RunBundle):
++        raise TypeError("expected a RunBundle")
++    checked = loader.load_bundle(RunBundle, bundle.model_dump_json())
++    ev_snapshot_check(checked.snapshot)
++    run_uuid = checked.run.id.uuid
++    # encode everything before the first statement (StoreValueOutOfRange)
++    encoded_bundle = codecs.encode(checked)
++    encoded_run = codecs.encode(checked.run)
++    plans: list[_Plan | None] = [
++        *_plan_snapshot(checked.snapshot),
++        _plan_models(list(checked.pricing_catalogs)),
++        _plan_models(list(checked.test_profiles)),
++        _plan_models([checked.run]),
++    ]
++    for name in ("artifacts", "transcripts", "turns", "exchanges", "tool_calls", "spans", "results"):
++        plans.append(_plan_models(list(getattr(checked, name)), run_id=run_uuid))
++    if checked.verdict is not None:
++        plans.append(_plan_models([checked.verdict], run_id=run_uuid))
++    plans.append(_plan_models(list(checked.usage_records)))
++    plans.append(_plan_models(list(checked.cost_records), run_id=run_uuid))
++    plans.append(_plan_models(list(checked.cost_summaries), run_id=run_uuid))
++    tally = _Tally()
++    with _Write(engine) as conn:
++        project = T["project"]
++        found = conn.execute(
++            sa.select(project.c.id).where(project.c.id == checked.run.project_id.uuid)
++        ).first()
++        if found is None:
++            raise ProjectNotStored(checked.run.project_id)
++        _check_reimport(conn, encoded_run)
++        for plan in plans:
++            _run_plan(conn, plan, tally)
++        _store_bundle_row(conn, encoded_bundle, checked, tally)
++    return _result("run_bundle", checked, None, tally, "run_bundle" in tally.inserted)
++
++
++def _store_bundle_row(
++    conn: Connection, encoded: codecs.EncodedEntity, bundle: RunBundle, tally: _Tally
++) -> None:
++    table = T["run_bundle"]
++    stored = (
++        conn.execute(
++            sa.select(table.c.doc_sha256, table.c.run_id).where(table.c.id == encoded.row["id"])
++        )
++        .mappings()
++        .first()
++    )
++    members, withheld = T["run_bundle_member"], T["run_bundle_withheld"]
++    if stored is not None:
++        same = (
++            stored["doc_sha256"] == encoded.row["doc_sha256"]
++            and stored["run_id"] == encoded.row["run_id"]
++        )
++        if same:
++            have_members = {
++                (r["kind"], r["ordinal"], r["record_id"], r["record_version"])
++                for r in conn.execute(
++                    sa.select(members).where(members.c.bundle_id == encoded.row["id"])
++                ).mappings()
++            }
++            want_members = {
++                (r["kind"], r["ordinal"], r["record_id"], r["record_version"])
++                for r in encoded.side_rows["run_bundle_member"]
++            }
++            have_withheld = {
++                (r["ordinal"], r["kind"], r["record_id"])
++                for r in conn.execute(
++                    sa.select(withheld).where(withheld.c.bundle_id == encoded.row["id"])
++                ).mappings()
++            }
++            want_withheld = {
++                (r["ordinal"], r["kind"], r["record_id"])
++                for r in encoded.side_rows["run_bundle_withheld"]
++            }
++            same = have_members == want_members and have_withheld == want_withheld
++        if not same:
++            raise ConflictingRecordError(f"run_bundle {bundle.id} is stored with other content")
++        return
++    conn.execute(sa.insert(table), dict(encoded.row))
++    tally.add("run_bundle", 1)
++    for side_name in ("run_bundle_member", "run_bundle_withheld"):
++        rows = encoded.side_rows[side_name]
++        if rows:
++            conn.execute(sa.insert(T[side_name]), [dict(r) for r in rows])
++
++
++# ----------------------------------------------------------------------------------- loaders
++
++
++def _one_row(conn: Connection, table: str, where: Any) -> Mapping[str, Any] | None:
++    return conn.execute(sa.select(T[table]).where(where)).mappings().first()
++
++
++def load_project(engine: Engine, project_id: TypedId | uuid.UUID) -> Project:
++    _require_engine(engine)
++    key = _uuid_arg(project_id, ev_ids.ProjectId, "project_id")
++    with engine.begin() as conn:
++        row = _one_row(conn, "project", T["project"].c.id == key)
++    if row is None:
++        raise RecordNotStored("project", ev_ids.ProjectId(key))
++    result: Project = codecs.decode_project(row)
++    return result
++
++
++def load_snapshot(engine: Engine, snapshot_id: TypedId | uuid.UUID) -> ConfigSnapshot:
++    _require_engine(engine)
++    key = _uuid_arg(snapshot_id, ev_ids.ConfigSnapshotId, "snapshot_id")
++    with engine.begin() as conn:
++        row = _one_row(conn, "config_snapshot", T["config_snapshot"].c.id == key)
++    if row is None:
++        raise RecordNotStored("config_snapshot", ev_ids.ConfigSnapshotId(key))
++    result: ConfigSnapshot = codecs.decode_config_snapshot(row)
++    return result
++
++
++def load_dataset_item(engine: Engine, item_id: TypedId | uuid.UUID) -> DatasetItem:
++    _require_engine(engine)
++    key = _uuid_arg(item_id, ev_ids.DatasetItemId, "item_id")
++    with engine.begin() as conn:
++        row = _one_row(conn, "dataset_item", T["dataset_item"].c.id == key)
++    if row is None:
++        raise RecordNotStored("dataset_item", ev_ids.DatasetItemId(key))
++    result: DatasetItem = codecs.decode_dataset_item(row)
++    return result
++
++
++def _definition_kind(kind: object) -> str:
++    if not isinstance(kind, str) or kind not in DEFINITION_CLASSES:
++        raise ValueError("kind must be one of the nine versioned entity tables")
++    return kind
++
++
++def load_definition(
++    engine: Engine, kind: str, definition_id: TypedId | uuid.UUID, version: int
++) -> Any:
++    _require_engine(engine)
++    kind = _definition_kind(kind)
++    id_class = _id_class_of(DEFINITION_CLASSES[kind])
++    key = _uuid_arg(definition_id, id_class, "definition_id")
++    if type(version) is not int:
++        raise TypeError("version must be an int")
++    table = T[kind]
++    with engine.begin() as conn:
++        row = _one_row(conn, kind, sa.and_(table.c.id == key, table.c.version == version))
++    if row is None:
++        raise RecordNotStored(kind, id_class(key), version)
++    return codecs.decode(kind, row)
++
++
++def latest_version(engine: Engine, kind: str, definition_id: TypedId | uuid.UUID) -> int | None:
++    _require_engine(engine)
++    kind = _definition_kind(kind)
++    key = _uuid_arg(definition_id, _id_class_of(DEFINITION_CLASSES[kind]), "definition_id")
++    table = T[kind]
++    with engine.begin() as conn:
++        found = conn.execute(
++            sa.select(sa.func.max(table.c.version)).where(table.c.id == key)
++        ).scalar_one()
++    return None if found is None else int(found)
++
++
++def find_snapshot_by_digest(engine: Engine, content_digest: ContentDigest) -> ConfigSnapshot | None:
++    _require_engine(engine)
++    if not isinstance(content_digest, ContentDigest):
++        raise TypeError("expected a ContentDigest")
++    table = T["config_snapshot"]
++    with engine.begin() as conn:
++        row = (
++            conn.execute(
++                sa.select(table).where(
++                    table.c.content_digest_scheme == content_digest.scheme,
++                    table.c.content_digest_value == bytes.fromhex(content_digest.value),
++                )
++            )
++            .mappings()
++            .first()
++        )
++    if row is None:
++        return None
++    result: ConfigSnapshot = codecs.decode_config_snapshot(row)
++    return result
++
++
++def load_run_bundle(
++    engine: Engine, bundle_id: TypedId | uuid.UUID, *, allow_incomplete: bool = False
++) -> LoadedRunBundle:
++    _require_engine(engine)
++    key = _uuid_arg(bundle_id, ev_ids.RunBundleId, "bundle_id")
++    typed_bundle = ev_ids.RunBundleId(key)
++    with engine.begin() as conn:
++        row = _one_row(conn, "run_bundle", T["run_bundle"].c.id == key)
++        if row is None:
++            raise RecordNotStored("run_bundle", typed_bundle)
++        member_t, withheld_t = T["run_bundle_member"], T["run_bundle_withheld"]
++        members = [
++            dict(r)
++            for r in conn.execute(sa.select(member_t).where(member_t.c.bundle_id == key)).mappings()
++        ]
++        withheld = [
++            dict(r)
++            for r in conn.execute(
++                sa.select(withheld_t).where(withheld_t.c.bundle_id == key)
++            ).mappings()
++        ]
++        by_kind: dict[str, list[Mapping[str, Any]]] = {}
++        for member in members:
++            by_kind.setdefault(member["kind"], []).append(member)
++        stored: dict[tuple[str, uuid.UUID, int | None], Mapping[str, Any]] = {}
++        for kind, group in by_kind.items():
++            table = T[_BUNDLE_KIND_TABLE[kind]]
++            ids = list({m["record_id"] for m in group})
++            for found in conn.execute(sa.select(table).where(table.c.id.in_(ids))).mappings():
++                version = found["version"] if "version" in table.c else None
++                stored[(kind, found["id"], version)] = dict(found)
++    ordered = sorted(
++        members, key=lambda m: (_MEMBER_KINDS.index(m["kind"]), m["ordinal"])
++    )
++    missing = tuple(
++        MissingMember(
++            m["kind"],
++            _typed(_BUNDLE_KIND_TABLE[m["kind"]], m["record_id"]),
++            m["record_version"],
++        )
++        for m in ordered
++        if (m["kind"], m["record_id"], m["record_version"]) not in stored
++    )
++    if missing and not allow_incomplete:
++        raise IncompleteRunBundle(typed_bundle, missing)
++    decoded: dict[tuple[str, uuid.UUID, int | None], Any] = {
++        k: codecs.decode(_BUNDLE_KIND_TABLE[k[0]], v) for k, v in stored.items()
++    }
++    if missing:
++        records: dict[str, list[Any]] = {}
++        for m in ordered:
++            found_key = (m["kind"], m["record_id"], m["record_version"])
++            if found_key in decoded:
++                records.setdefault(m["kind"], []).append(decoded[found_key])
++        return LoadedRunBundle(
++            typed_bundle, False, missing, None, {k: tuple(v) for k, v in records.items()}
++        )
++    bundle = codecs.decode_run_bundle(
++        row,
++        members=members,
++        withheld=withheld,
++        resolve=lambda kind, record_id, version: decoded[(kind, record_id, version)],
++    )
++    return LoadedRunBundle(typed_bundle, True, (), bundle)
++
++
++# ------------------------------------------------------------------------------------ exports
++
++
++def _check_purpose_argument(expected_purpose: object) -> str:
++    if type(expected_purpose) is not str:
++        raise TypeError("expected_purpose must be a str")
++    if expected_purpose not in _PURPOSES:
++        raise ValueError("expected_purpose must be internal, shared_export or benchmark")
++    return expected_purpose
++
++
++def store_export(
++    engine: Engine, export: ExportBundle | str | bytes, *, expected_purpose: str
++) -> StoreResult:
++    _require_engine(engine)
++    purpose = _check_purpose_argument(expected_purpose)
++    data = export.model_dump_json() if isinstance(export, ExportBundle) else export
++    checked = loader.load_bundle(ExportBundle, data, expected_purpose=purpose)
++    encoded = codecs.encode(checked)
++    tally = _Tally()
++    with _Write(engine) as conn:
++        _lock_targets(conn, encoded)
++        table = T["export_bundle"]
++        stored = (
++            conn.execute(sa.select(table.c.doc_sha256).where(table.c.id == encoded.row["id"]))
++            .mappings()
++            .first()
++        )
++        if stored is not None:
++            if stored["doc_sha256"] != encoded.row["doc_sha256"]:
++                raise ConflictingRecordError(f"export_bundle {checked.id} is stored with other content")
++        else:
++            conn.execute(sa.insert(table), dict(encoded.row))
++            tally.add("export_bundle", 1)
++            for side_name, rows in encoded.side_rows.items():
++                if rows:
++                    conn.execute(sa.insert(T[side_name]), [dict(r) for r in rows])
++    return _result("export_bundle", checked, None, tally, "export_bundle" in tally.inserted)
++
++
++def _lock_targets(conn: Connection, encoded: codecs.EncodedEntity) -> None:
++    """Every run, dataset item and test profile the export carries must be stored; lock them
++    (Postgres ``FOR KEY SHARE``) before the link rows are inserted."""
++    for side_name, column, table_name, kind in (
++        ("export_bundle_run", "run_id", "run", "run"),
++        ("export_bundle_item", "item_id", "dataset_item", "dataset_item"),
++        ("export_bundle_profile", "profile_id", "test_profile", "test_profile"),
++    ):
++        wanted = [r[column] for r in encoded.side_rows[side_name]]
++        if not wanted:
++            continue
++        table = T[table_name]
++        found = {
++            r
++            for r in conn.execute(
++                sa.select(table.c.id)
++                .where(table.c.id.in_(wanted))
++                .with_for_update(read=True, key_share=True)
++            ).scalars()
++        }
++        for value in wanted:
++            if value not in found:
++                raise ExportReferenceNotStored(kind, _typed(table_name, value))
++
++
++def load_export(engine: Engine, export_id: TypedId | uuid.UUID, *, expected_purpose: str) -> ExportBundle:
++    _require_engine(engine)
++    purpose = _check_purpose_argument(expected_purpose)
++    key = _uuid_arg(export_id, ev_ids.ExportBundleId, "export_id")
++    with engine.begin() as conn:
++        row = _one_row(conn, "export_bundle", T["export_bundle"].c.id == key)
++    if row is None:
++        raise RecordNotStored("export_bundle", ev_ids.ExportBundleId(key))
++    if row["byte_length"] > loader.DEFAULT_MAX_BUNDLE_BYTES:
++        from tracer_evalschema.errors import BundleSizeError
++
++        raise BundleSizeError(
++            f"the stored export is {row['byte_length']} bytes, over the limit of "
++            f"{loader.DEFAULT_MAX_BUNDLE_BYTES} bytes"
++        )
++    model: ExportBundle = codecs.decode_export_bundle(row)
++    if model.purpose != purpose:
++        raise ValueError(f"[purpose] expected {purpose}, the bundle says {model.purpose}")
++    return model
++
++
++# ------------------------------------------------------------------------------- re-import
++
++
++def find_by_external_ref(
++    engine: Engine, entity_kind: str, ref: ExternalRef, *, run_id: TypedId | uuid.UUID | None = None
++) -> tuple[ExternalRefMatch, ...]:
++    _require_engine(engine)
++    if entity_kind not in _EXTERNAL_KINDS:
++        raise ValueError("entity_kind must be run, span, transcript or usage_record")
++    if not isinstance(ref, ExternalRef):
++        raise TypeError("ref must be an ExternalRef")
++    if entity_kind == "run":
++        if run_id is not None:
++            raise ValueError("a run is looked up by its reference alone; run_id must be None")
++        run_key = None
++    else:
++        if run_id is None:
++            raise ValueError(f"a {entity_kind} reference is looked up within one run; pass run_id")
++        run_key = _uuid_arg(run_id, ev_ids.RunId, "run_id")
++    key = bytes.fromhex(ev_digest.sha256_hex(ev_digest.jcs_bytes([ref.system, ref.kind, ref.value])))
++    ext = T["external_ref_index"]
++    query = sa.select(ext.c.entity_id, ext.c.run_id).where(
++        ext.c.entity_kind == entity_kind, ext.c.key_sha256 == key
++    )
++    if run_key is not None:
++        query = query.where(ext.c.run_id == run_key)
++    with engine.begin() as conn:
++        rows = conn.execute(query.order_by(ext.c.entity_id)).all()
++    id_class = _EXTERNAL_ID_CLASSES[entity_kind]
++    return tuple(ExternalRefMatch(entity_kind, id_class(r[0]), ev_ids.RunId(r[1])) for r in rows)
+diff -ruN a/packages/evaldb/src/tracer_evaldb/triggers.py b/packages/evaldb/src/tracer_evaldb/triggers.py
+--- a/packages/evaldb/src/tracer_evaldb/triggers.py
++++ b/packages/evaldb/src/tracer_evaldb/triggers.py
+@@ -0,0 +1,91 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Immutability triggers (ADR 0020 Decision 7), created with the tables by ``create_all``.
++
++Every table of the store has a ``BEFORE UPDATE`` trigger that raises; ``deletion_audit`` also has a
++``BEFORE DELETE`` trigger. The message names the table and holds no value. On Postgres the two
++trigger functions are created before the first table and raise SQLSTATE 23001; on SQLite the
++triggers call ``RAISE(ABORT, ...)``.
++"""
++
++from __future__ import annotations
++
++import sqlalchemy as sa
++from sqlalchemy import event
++from sqlalchemy.schema import DDL
++
++from .schema import metadata
++
++__all__ = [
++    "DELETE_PROTECTED_TABLES",
++    "DELETE_TRIGGER_FUNCTION",
++    "UPDATE_TRIGGER_FUNCTION",
++    "delete_trigger_name",
++    "update_trigger_name",
++]
++
++UPDATE_TRIGGER_FUNCTION = "tracer_reject_update"
++DELETE_TRIGGER_FUNCTION = "tracer_reject_delete"
++DELETE_PROTECTED_TABLES = ("deletion_audit",)
++
++
++def update_trigger_name(table: str) -> str:
++    return f"trg_{table}_no_update"
++
++
++def delete_trigger_name(table: str) -> str:
++    return f"trg_{table}_no_delete"
++
++
++def _function_ddl(name: str, verb: str) -> DDL:
++    return DDL(
++        f"CREATE OR REPLACE FUNCTION {name}() RETURNS trigger LANGUAGE plpgsql AS $$ "
++        f"BEGIN RAISE EXCEPTION USING MESSAGE = 'table ' || TG_TABLE_NAME || ' is immutable: "
++        f"{verb} refused', ERRCODE = '23001'; END; $$"
++    ).execute_if(dialect="postgresql")
++
++
++event.listen(metadata, "before_create", _function_ddl(UPDATE_TRIGGER_FUNCTION, "UPDATE"))
++event.listen(metadata, "before_create", _function_ddl(DELETE_TRIGGER_FUNCTION, "DELETE"))
++
++
++def _attach(table: sa.Table) -> None:
++    name, upd = table.name, update_trigger_name(table.name)
++    event.listen(
++        table,
++        "after_create",
++        DDL(
++            f"CREATE TRIGGER {upd} BEFORE UPDATE ON {name} BEGIN "
++            f"SELECT RAISE(ABORT, 'table {name} is immutable: UPDATE refused'); END"
++        ).execute_if(dialect="sqlite"),
++    )
++    event.listen(
++        table,
++        "after_create",
++        DDL(
++            f"CREATE TRIGGER {upd} BEFORE UPDATE ON {name} FOR EACH ROW "
++            f"EXECUTE FUNCTION {UPDATE_TRIGGER_FUNCTION}()"
++        ).execute_if(dialect="postgresql"),
++    )
++    if name in DELETE_PROTECTED_TABLES:
++        dele = delete_trigger_name(name)
++        event.listen(
++            table,
++            "after_create",
++            DDL(
++                f"CREATE TRIGGER {dele} BEFORE DELETE ON {name} BEGIN "
++                f"SELECT RAISE(ABORT, 'table {name} is immutable: DELETE refused'); END"
++            ).execute_if(dialect="sqlite"),
++        )
++        event.listen(
++            table,
++            "after_create",
++            DDL(
++                f"CREATE TRIGGER {dele} BEFORE DELETE ON {name} FOR EACH ROW "
++                f"EXECUTE FUNCTION {DELETE_TRIGGER_FUNCTION}()"
++            ).execute_if(dialect="postgresql"),
++        )
++
++
++for _table in metadata.tables.values():
++    _attach(_table)

@@ -1,0 +1,307 @@
+# Phase 2 batch C: mutants of the scratch oracle
+
+Method: a runner applies ONE text edit to a pristine copy of the oracle source (repository.py, triggers.py, errors.py, engine.py), runs the whole tests directory (SQLite side, Python 3.13, stop at the first failure) or, for the mutants that only Postgres can see, the matching tests with -m postgres against a throwaway Postgres 18.6 (-k selection), restores the pristine files and reads the failures. Four worker copies of the oracle ran in parallel.
+
+95 mutants: 91 caught, 4 survivors (all four are equivalent or unpinned, explained below).
+
+EM01 [CAUGHT] sqlite: only 23505 counts as an integrity SQLSTATE
+    1 failed, 661 passed, 807 deselected in 26.22s
+    test_sqlstate_helpers
+EM02 [CAUGHT] pg: the handle_error hook is not registered
+    86 failed, 41 passed, 1718 deselected in 26.24s
+    test_constraint_violations_are_integrity_errors_on_both_backends
+    test_deletion_audit_rows_cannot_be_deleted
+    test_engine_hides_bound_parameters_in_errors
+    test_translate_integrity_error_names_the_kind_and_no_value
+    test_translated_integrity_errors_carry_no_row_content
+    test_update_is_rejected_for_a_row_selected_by_key
+EM03 [CAUGHT] pg: the driver error is passed on whole (row content kept)
+    6 failed, 8 passed, 1831 deselected in 3.44s
+    test_engine_hides_bound_parameters_in_errors
+    test_translated_integrity_errors_carry_no_row_content
+EM04 [CAUGHT] sqlite: sqlite engine shows parameters
+    1 failed, 667 passed, 807 deselected in 28.81s
+    test_translated_integrity_errors_carry_no_row_content
+EM05 [CAUGHT] sqlite: a six character code counts
+    1 failed, 661 passed, 807 deselected in 28.42s
+    test_sqlstate_helpers
+EM06 [CAUGHT] pg: the detail is kept
+    6 failed, 8 passed, 1831 deselected in 3.14s
+    test_engine_hides_bound_parameters_in_errors
+    test_translated_integrity_errors_carry_no_row_content
+EM07 [CAUGHT] pg: postgres engine shows parameters
+    1 failed, 13 passed, 1831 deselected in 3.00s
+    test_engine_hides_bound_parameters_in_errors
+EM08 [CAUGHT] sqlite: hook also swallows other classes (class 22 as integrity)
+    1 failed, 661 passed, 807 deselected in 27.22s
+    test_sqlstate_helpers
+EM09 [CAUGHT] sqlite: sqlstate_of reads the message
+    1 failed, 661 passed, 807 deselected in 27.92s
+    test_sqlstate_helpers
+RM01 [CAUGHT] sqlite: ownership check removed
+    1 failed, 808 passed, 807 deselected in 22.68s
+    test_record_owned_by_another_run_rejected
+RM02 [CAUGHT] sqlite: content compared before ownership
+    1 failed, 810 passed, 807 deselected in 22.96s
+    test_record_owned_by_another_run_rejected
+RM03 [CAUGHT] sqlite: content comparison removed
+    1 failed, 579 passed, 807 deselected in 13.11s
+    test_store_definition_conflicting_content_rejected
+RM04 [CAUGHT] sqlite: versioned conflict raises the record error
+    1 failed, 579 passed, 807 deselected in 13.06s
+    test_store_definition_conflicting_content_rejected
+RM05 [CAUGHT] sqlite: record conflict raises the version error
+    1 failed, 634 passed, 807 deselected in 14.87s
+    test_store_snapshot_conflicting_snapshot_rejected
+RM06 [CAUGHT] sqlite: conflict message quotes the stored document
+    1 failed, 579 passed, 807 deselected in 13.67s
+    test_store_definition_conflicting_content_rejected
+RM07 [CAUGHT] sqlite: re-import check removed
+    1 failed, 714 passed, 807 deselected in 17.41s
+    test_external_ref_unique_per_entity_kind
+RM08 [CAUGHT] sqlite: re-import conflict only for another ID
+    1 failed, 717 passed, 807 deselected in 17.90s
+    test_reimport_conflicting_content_raises_reimport_conflict
+RM09 [SURVIVED] sqlite: re-import conflict only for other content
+    1038 passed, 807 deselected in 33.47s
+    NOTE: equivalent: a run whose ID differs from the stored run necessarily has a different document (the ID is in it), so 'ID differs' implies 'doc_sha256 differs'
+RM10 [CAUGHT] sqlite: re-import check after the inserts
+    1 failed, 714 passed, 807 deselected in 18.10s
+    test_external_ref_unique_per_entity_kind
+RM11 [CAUGHT] sqlite: re-import conflict raises the plain record error
+    1 failed, 714 passed, 807 deselected in 18.15s
+    test_external_ref_unique_per_entity_kind
+RM12 [CAUGHT] sqlite: project check removed
+    1 failed, 778 passed, 807 deselected in 22.27s
+    test_store_run_bundle_refuses_a_bundle_whose_project_is_not_stored
+RM13 [CAUGHT] sqlite: internal snapshot rule removed
+    1 failed, 635 passed, 807 deselected in 15.85s
+    test_store_snapshot_refuses_absent_or_keyed_profile_digest
+RM14 [CAUGHT] sqlite: definitions are not re-validated
+    1 failed, 645 passed, 807 deselected in 16.30s
+    test_store_functions_revalidate_instances_built_without_validation
+RM15 [CAUGHT] sqlite: bundle is not re-validated
+    1 failed, 771 passed, 807 deselected in 22.28s
+    test_invalid_run_bundle_never_stored
+RM16 [CAUGHT] sqlite: each table is committed on its own
+    1 failed, 630 passed, 807 deselected in 15.83s
+    test_store_snapshot_conflicting_embedded_definition_rejected
+RM17 [CAUGHT] sqlite: present rows are inserted again (no dedup)
+    1 failed, 545 passed, 807 deselected in 13.66s
+    test_store_definition_idempotent_same_content
+RM18 [CAUGHT] sqlite: members ordered by record id
+    1 failed, 830 passed, 813 deselected in 39.63s
+    test_run_bundle_load_reports_incomplete_after_member_deletion
+    (survived the first run of the tests; the test that catches it was added afterwards)
+RM19 [CAUGHT] sqlite: allow_incomplete defaults to True
+    1 failed, 650 passed, 807 deselected in 16.11s
+    test_repository_functions_and_signatures
+RM20 [CAUGHT] sqlite: an incomplete load says complete
+    1 failed, 824 passed, 807 deselected in 28.31s
+    test_run_bundle_load_reports_incomplete_after_member_deletion
+RM21 [CAUGHT] sqlite: the error lists no missing member
+    1 failed, 824 passed, 807 deselected in 34.96s
+    test_run_bundle_load_reports_incomplete_after_member_deletion
+RM22 [CAUGHT] sqlite: export purpose None slips through
+    1 failed, 677 passed, 807 deselected in 19.92s
+    test_store_export_requires_expected_purpose
+RM23 [CAUGHT] sqlite: export doc is the caller's text
+    1 failed, 690 passed, 813 deselected in 22.24s
+    test_export_doc_is_canonical_whatever_the_input_form
+    (survived the first run of the tests; the test that catches it was added afterwards)
+RM24 [CAUGHT] pg: no lock on the linked rows
+    1 failed, 1844 deselected in 1.05s
+    test_store_export_locks_the_rows_it_links
+RM25 [CAUGHT] pg: FOR UPDATE on the linked rows
+    1 failed, 1844 deselected in 1.42s
+    test_store_export_locks_the_rows_it_links
+RM26 [CAUGHT] pg: FOR SHARE on the linked rows
+    1 failed, 1844 deselected in 1.26s
+    test_store_export_locks_the_rows_it_links
+RM27 [CAUGHT] sqlite: only runs are checked and linked for existence
+    1 failed, 698 passed, 807 deselected in 25.09s
+    test_store_export_requires_stored_runs_items_and_profiles
+RM28 [CAUGHT] sqlite: export references not required to exist
+    1 failed, 697 passed, 807 deselected in 20.70s
+    test_store_export_requires_stored_runs_items_and_profiles
+RM29 [CAUGHT] sqlite: load_export size check removed
+    1 failed, 695 passed, 807 deselected in 25.50s
+    test_export_size_limit_enforced_before_parse
+RM30 [CAUGHT] sqlite: load_export size check is >=
+    1 failed, 695 passed, 807 deselected in 25.46s
+    test_export_size_limit_enforced_before_parse
+RM31 [CAUGHT] sqlite: load_export purpose check removed
+    1 failed, 679 passed, 807 deselected in 24.39s
+    test_store_export_purpose_mismatch_rejected
+RM32 [CAUGHT] sqlite: export link rows not written
+    1 failed, 683 passed, 807 deselected in 24.13s
+    test_export_round_trip_byte_identical
+RM33 [CAUGHT] sqlite: lookup ignores the entity kind
+    1 failed, 719 passed, 807 deselected in 28.41s
+    test_child_provider_call_refs_not_unique
+RM34 [CAUGHT] sqlite: lookup ignores the run
+    1 failed, 719 passed, 807 deselected in 28.66s
+    test_child_provider_call_refs_not_unique
+RM35 [CAUGHT] sqlite: lookup unordered
+    1 failed, 719 passed, 807 deselected in 28.26s
+    test_child_provider_call_refs_not_unique
+RM36 [CAUGHT] sqlite: key hashes the lower-cased value
+    1 failed, 712 passed, 807 deselected in 27.13s
+    test_reimport_finds_existing_run_by_external_ref
+RM37 [CAUGHT] sqlite: key hashes the stripped value
+    1 failed, 716 passed, 807 deselected in 27.18s
+    test_external_ref_lookup_is_exact
+RM38 [CAUGHT] sqlite: key hashes the NFC value
+    1 failed, 716 passed, 807 deselected in 27.61s
+    test_external_ref_lookup_is_exact
+RM39 [CAUGHT] sqlite: key tuple order system and kind swapped
+    1 failed, 712 passed, 807 deselected in 26.44s
+    test_reimport_finds_existing_run_by_external_ref
+RM40 [CAUGHT] sqlite: key hashes the value with NULs removed
+    1 failed, 715 passed, 807 deselected in 27.36s
+    test_external_ref_key_is_hash_of_jcs_tuple
+RM41 [CAUGHT] sqlite: latest_version is the minimum
+    1 failed, 615 passed, 807 deselected in 22.12s
+    test_latest_version_lookup
+RM42 [CAUGHT] sqlite: latest_version of nothing is 0
+    1 failed, 615 passed, 807 deselected in 21.92s
+    test_latest_version_lookup
+RM43 [CAUGHT] sqlite: latest_version ignores the kind
+    1 failed, 615 passed, 807 deselected in 22.14s
+    test_latest_version_lookup
+RM44 [CAUGHT] sqlite: snapshot lookup ignores the scheme
+    1 failed, 636 passed, 807 deselected in 22.66s
+    test_snapshot_lookup_by_content_digest
+RM45 [CAUGHT] sqlite: snapshot persona not extracted
+    1 failed, 625 passed, 807 deselected in 23.64s
+    test_store_snapshot_extracts_embedded_definitions
+RM46 [CAUGHT] sqlite: snapshot metric bindings not extracted
+    1 failed, 625 passed, 807 deselected in 22.98s
+    test_store_snapshot_extracts_embedded_definitions
+RM47 [CAUGHT] sqlite: any typed ID accepted
+    1 failed, 624 passed, 807 deselected in 23.90s
+    test_latest_version_arguments
+RM48 [CAUGHT] sqlite: engine type not checked
+    1 failed, 651 passed, 807 deselected in 23.52s
+    test_repository_functions_require_an_engine
+RM49 [CAUGHT] sqlite: created always true
+    1 failed, 545 passed, 807 deselected in 23.52s
+    test_store_definition_idempotent_same_content
+RM50 [CAUGHT] sqlite: unique kind reported as check
+    1 failed, 674 passed, 807 deselected in 26.66s
+    test_translate_integrity_error_names_the_kind_and_no_value
+RM51 [CAUGHT] pg: 23505 reported as check
+    2 failed, 12 passed, 1831 deselected in 2.84s
+    test_the_repository_raises_a_typed_error_when_the_database_refuses_a_write
+    test_translate_integrity_error_names_the_kind_and_no_value
+RM52 [CAUGHT] sqlite: typed error keeps the driver error in the chain
+    1 failed, 675 passed, 807 deselected in 25.17s
+    test_the_repository_raises_a_typed_error_when_the_database_refuses_a_write
+RM53 [CAUGHT] sqlite: integrity errors not translated
+    1 failed, 675 passed, 807 deselected in 26.50s
+    test_the_repository_raises_a_typed_error_when_the_database_refuses_a_write
+RM54 [CAUGHT] sqlite: one INSERT per row
+    1 failed, 823 passed, 807 deselected in 46.27s
+    test_store_run_bundle_statement_count_independent_of_record_count
+RM55 [CAUGHT] sqlite: existence SELECT in chunks of 50
+    1 failed, 823 passed, 807 deselected in 46.29s
+    test_store_run_bundle_statement_count_independent_of_record_count
+RM56 [CAUGHT] sqlite: run_id allowed for a run lookup
+    1 failed, 713 passed, 807 deselected in 31.83s
+    test_find_by_external_ref_arguments
+RM57 [CAUGHT] sqlite: run_id not required for a child lookup
+    1 failed, 713 passed, 807 deselected in 29.67s
+    test_find_by_external_ref_arguments
+RM58 [CAUGHT] sqlite: bundle row compared by id only
+    1 failed, 792 passed, 807 deselected in 38.55s
+    test_same_bundle_id_with_other_members_is_a_conflict
+RM59 [CAUGHT] sqlite: bundle members not compared
+    1 failed, 792 passed, 807 deselected in 38.43s
+    test_same_bundle_id_with_other_members_is_a_conflict
+RM60 [CAUGHT] sqlite: withheld treated as missing members
+    1 failed, 675 passed, 807 deselected in 26.45s
+    test_the_repository_raises_a_typed_error_when_the_database_refuses_a_write
+RM61 [CAUGHT] sqlite: project check only after the snapshot
+    1 failed, 778 passed, 807 deselected in 38.60s
+    test_store_run_bundle_refuses_a_bundle_whose_project_is_not_stored
+RM62 [SURVIVED] sqlite: created means inserted anything
+    1038 passed, 807 deselected in 58.14s
+    NOTE: equivalent under the pinned behaviour: created differs from 'anything inserted' only when a bundle is re-stored after a member was deleted (unpinned, api-surface-batch-c.md A6)
+RM63 [SURVIVED] sqlite: internal snapshot rule only for store_snapshot
+    1038 passed, 807 deselected in 57.46s
+    NOTE: equivalent in this oracle: the snapshot rule also runs inside the snapshot plan, before any write; the early call is redundant
+RM64 [CAUGHT] sqlite: load_definition ignores the version
+    1 failed, 644 passed, 813 deselected in 21.30s
+    test_loading_something_that_is_not_stored_is_a_typed_error
+RM65 [CAUGHT] sqlite: lookup returns only the first match
+    1 failed, 724 passed, 813 deselected in 25.69s
+    test_child_provider_call_refs_not_unique
+RM66 [CAUGHT] sqlite: store_export does not look at the linked rows
+    1 failed, 702 passed, 813 deselected in 18.25s
+    test_store_export_requires_stored_runs_items_and_profiles
+RM67 [CAUGHT] sqlite: a loaded bundle ignores withheld
+    1 failed, 734 passed, 813 deselected in 25.88s
+    test_run_bundle_round_trip_order_preserved
+RM68 [CAUGHT] sqlite: records of an incomplete load in reverse
+    1 failed, 829 passed, 813 deselected in 21.36s
+    test_run_bundle_load_reports_incomplete_after_member_deletion
+TM01 [CAUGHT] sqlite: no trigger on tracer_meta
+    1 failed, 961 passed, 807 deselected in 55.69s
+    test_update_rejected_on_every_table
+TM02 [CAUGHT] sqlite: no trigger on turn
+    1 failed, 939 passed, 807 deselected in 53.53s
+    test_update_rejected_on_every_table
+TM03 [CAUGHT] sqlite: no delete trigger on the audit
+    1 failed, 924 passed, 807 deselected in 54.18s
+    test_trigger_names_are_pinned
+TM04 [CAUGHT] sqlite: delete trigger on every table
+    1 failed, 510 passed, 807 deselected in 24.24s
+    test_db_errors_never_echo_document_content
+TM05 [CAUGHT] sqlite: update message without the table
+    1 failed, 925 passed, 807 deselected in 54.13s
+    test_update_rejected_on_every_table
+TM06 [CAUGHT] sqlite: trigger renamed
+    1 failed, 924 passed, 807 deselected in 55.73s
+    test_trigger_names_are_pinned
+TM07 [CAUGHT] pg: update function raises P0001
+    75 failed, 38 passed, 1732 deselected in 25.57s
+    test_deletion_audit_rows_cannot_be_deleted
+    test_update_is_rejected_for_a_row_selected_by_key
+    test_update_rejected_on_every_table
+TM08 [CAUGHT] sqlite: update trigger is AFTER UPDATE
+    1 failed, 1037 passed, 807 deselected in 56.45s
+    test_immutability_triggers_exist_after_migrations
+TM09 [CAUGHT] pg: update trigger is a statement trigger
+    2 failed, 111 passed, 1732 deselected in 14.25s
+    test_immutability_triggers_exist_after_migrations
+    test_update_and_delete_of_a_missing_row_are_not_errors
+TM10 [CAUGHT] sqlite: delete message without the table
+    1 failed, 1035 passed, 807 deselected in 43.83s
+    test_deletion_audit_rows_cannot_be_deleted
+TM11 [CAUGHT] pg: the delete function is the update function
+    1 failed, 112 passed, 1732 deselected in 11.19s
+    test_immutability_triggers_exist_after_migrations
+TM12 [CAUGHT] pg: update function message without the table
+    38 failed, 75 passed, 1744 deselected in 11.43s
+    test_deletion_audit_rows_cannot_be_deleted
+    test_update_rejected_on_every_table
+TM13 [CAUGHT] sqlite: update message without the word immutable
+    1 failed, 931 passed, 813 deselected in 38.49s
+    test_update_rejected_on_every_table
+XM01 [CAUGHT] sqlite: ReimportConflict is a StoreError
+    1 failed, 676 passed, 807 deselected in 28.85s
+    test_error_types_and_their_parents
+XM02 [CAUGHT] sqlite: InternalSnapshotRefused is not a ValueError
+    1 failed, 635 passed, 807 deselected in 23.90s
+    test_store_snapshot_refuses_absent_or_keyed_profile_digest
+XM03 [CAUGHT] sqlite: ownership conflict is a ConflictingRecordError
+    1 failed, 676 passed, 807 deselected in 17.78s
+    test_error_types_and_their_parents
+XM04 [SURVIVED] sqlite: incomplete bundle error holds the count wrongly (names the first member's content)
+    1038 passed, 807 deselected in 35.62s
+    NOTE: equivalent: the message may list the missing (kind, ID) pairs (they are IDs, not content); the contract only forbids content
+XM05 [CAUGHT] sqlite: RecordNotStored loses the kind
+    1 failed, 644 passed, 807 deselected in 28.89s
+    test_loading_something_that_is_not_stored_is_a_typed_error
+
+Survivors: RM09, RM62, RM63, XM04

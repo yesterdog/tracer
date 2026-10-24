@@ -4,6 +4,11 @@
 
 Every failure is raised ``from None`` with a fixed message: the database URL (password, user,
 host, database name, file path) never reaches an exception, a repr or a log record of this code.
+
+Both engines hide bound parameters in errors (ADR 0019 Decision 18). pg8000 reports every server
+error, constraint violations included, as a ``DatabaseError`` (``IntegrityError`` for 23505 only);
+the Postgres engine raises every SQLSTATE of class 23 as ``sqlalchemy.exc.IntegrityError`` (what
+SQLite raises natively) and drops the fields of the server's error that quote the failing row.
 """
 
 from __future__ import annotations
@@ -13,7 +18,7 @@ from typing import Any
 
 import sqlalchemy as sa
 from sqlalchemy import event
-from sqlalchemy.engine import URL, Connection, Engine, make_url
+from sqlalchemy.engine import URL, Connection, Engine, ExceptionContext, make_url
 
 from .errors import (
     StoreConfigurationError,
@@ -22,7 +27,18 @@ from .errors import (
     UnsupportedSqliteVersion,
 )
 
-__all__ = ["create_store_engine"]
+__all__ = [
+    "INTEGRITY_SQLSTATE_CLASS",
+    "create_store_engine",
+    "is_integrity_sqlstate",
+    "sqlstate_of",
+]
+
+INTEGRITY_SQLSTATE_CLASS = "23"
+# The fields of a Postgres error that name no row value: severity, SQLSTATE, message, schema, table,
+# column, data type, constraint. The detail ("Failing row contains ...", "Key (id)=(...)"), hint,
+# context and source position are dropped.
+_SAFE_ERROR_FIELDS = ("S", "V", "C", "M", "s", "t", "c", "d", "n")
 
 # STRICT tables (3.37) are part of the storage design.
 _SQLITE_MINIMUM = (3, 37, 0)
@@ -50,6 +66,37 @@ def create_store_engine(url: str | URL, *, busy_timeout_ms: int = 5000) -> Engin
     )
 
 
+def sqlstate_of(exception: BaseException) -> str | None:
+    """The SQLSTATE (field ``C``) of a pg8000 server error, else ``None``."""
+    args = getattr(exception, "args", ())
+    if args and isinstance(args[0], dict):
+        code = args[0].get("C")
+        if isinstance(code, str):
+            return code
+    return None
+
+
+def is_integrity_sqlstate(code: object) -> bool:
+    """True for exactly a five-character SQLSTATE of class 23 (integrity constraint violation)."""
+    return (
+        isinstance(code, str)
+        and len(code) == 5
+        and code.isascii()
+        and code.startswith(INTEGRITY_SQLSTATE_CLASS)
+    )
+
+
+def _translate_integrity(context: ExceptionContext) -> Exception | None:
+    original = context.original_exception
+    if original is None or not is_integrity_sqlstate(sqlstate_of(original)):
+        return None
+    fields = original.args[0]
+    scrubbed = type(original)({name: fields[name] for name in _SAFE_ERROR_FIELDS if name in fields})
+    return sa.exc.IntegrityError(
+        context.statement, context.parameters, scrubbed, hide_parameters=True
+    )
+
+
 def _probe(engine: Engine) -> Connection:
     try:
         return engine.connect()
@@ -63,7 +110,7 @@ def _sqlite_engine(url: URL, busy_timeout_ms: int) -> Engine:
         raise UnsupportedSqliteVersion(
             f"SQLite {sqlite3.sqlite_version} is too old; 3.37 or newer is required"
         )
-    engine = sa.create_engine(url)
+    engine = sa.create_engine(url, hide_parameters=True)
 
     @event.listens_for(engine, "connect")
     def _configure(dbapi_connection: Any, _record: Any) -> None:
@@ -88,9 +135,11 @@ def _sqlite_engine(url: URL, busy_timeout_ms: int) -> Engine:
 
 def _postgres_engine(url: URL) -> Engine:
     try:
-        engine = sa.create_engine(url)
+        engine = sa.create_engine(url, hide_parameters=True)
     except Exception:  # the pg8000 extra is not installed
         raise StoreConfigurationError("the Postgres driver (pg8000) is not available") from None
+
+    event.listen(engine, "handle_error", _translate_integrity)
 
     @event.listens_for(engine, "connect")
     def _configure(dbapi_connection: Any, _record: Any) -> None:
