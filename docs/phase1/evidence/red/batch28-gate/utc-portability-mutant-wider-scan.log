@@ -1,0 +1,11 @@
+# Mutant: strftime in tests/_support_b13.py, in scripts/check_headers.py and strptime in tests/support/mappings (scratch copy, own environment). Only the wider-scan test must fail.
+......................................................F............      [100%]
+=================================== FAILURES ===================================
+______ test_no_test_helper_converter_or_script_uses_strftime_or_strptime _______
+packages/evalschema/tests/test_utc_datetime_portability.py:230: in test_no_test_helper_converter_or_script_uses_strftime_or_strptime
+    assert not found, sorted(found)
+E   AssertionError: ['packages/evalschema/tests/_support_b13.py:1233: strftime', 'packages/evalschema/tests/_support_b13.py:575: strftime'...packages/evalschema/tests/_support_b4.py:166: strftime', 'packages/evalschema/tests/_support_b6.py:477: strftime', ...]
+E   assert not {'packages/evalschema/tests/_support_b13.py:1233: strftime', 'packages/evalschema/tests/_support_b13.py:575: strftime'...packages/evalschema/tests/_support_b4.py:166: strftime', 'packages/evalschema/tests/_support_b6.py:477: strftime', ...}
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_utc_datetime_portability.py::test_no_test_helper_converter_or_script_uses_strftime_or_strptime
+1 failed, 66 passed in 0.61s

@@ -1,0 +1,35 @@
+# final gates, python 3.14 (shared .venv), 2026-10-24
+## uv run --locked ruff check packages scripts
+All checks passed!
+exit: 0
+## uv run --locked ruff format --check packages scripts
+174 files already formatted
+exit: 0
+## uv run --locked mypy
+Success: no issues found in 167 source files
+exit: 0
+## uv run --locked mypy --strict packages/evalschema/src
+Success: no issues found in 40 source files
+exit: 0
+## uv run --locked python scripts/check_headers.py
+exit: 0
+## uv run --locked python scripts/guard_private_fixtures.py
+exit: 0
+## uv run --locked python scripts/check_licenses.py
+42 ok, 0 failed
+exit: 0
+## uv run --locked python -m tracer_evalschema.schema_export --check
+exit: 0
+## uv run --locked python scripts/generate_field_docs.py --check
+exit: 0
+## uv run --locked python scripts/build_golden_fixtures.py --check
+502 files equal the generator output
+exit: 0
+## uv run --locked python scripts/property_coverage.py
+UsageRecord         46/46    100.00%  (5 excluded)
+excluded points matching ^\w+\.content_digest\.key_ref: an entity's own content_digest is verified on load and a keyed digest cannot be (DigestKeyUnavailable); keyed digests and key references occur in references
+excluded points matching ^\w+\.content_digest\.scheme="hmac-sha256-jcs/v1"$: an entity's own content_digest is verified on load and a keyed digest cannot be (DigestKeyUnavailable); keyed digests and key references occur in references
+excluded points matching \.plaintext_digest\.scheme="sha256-jcs/v1"$: a sealed payload's plaintext_digest is absent or keyed (P-42): a plain digest of the plaintext is rejected
+excluded points matching \.metadata_flags\[\]: a metadata flag exists only when a metadata string looks like a credential, and no fixture may hold a credential-shaped value (the flags are tested in test_entity_base.py)
+TOTAL             1215/1215  100.00%
+exit: 0

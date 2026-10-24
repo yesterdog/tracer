@@ -533,7 +533,7 @@ qa-owned test that must change: `test_metric_definition.py::test_all_closed_enum
 - **P-62 ([Proposed], decide before P1-11; not applied).** `JudgeInfo.reported_model: VerbatimText | None` and `JudgeInfo.per_turn[].reported_model: VerbatimText | None`. Each is present iff the provider's response to that call carried a model string. The value is non-empty and verbatim, never filled from `model_ref`, and compared only for equality (ADR 0010 Decision 6 and "Proposed items awaiting owner review (revision 10)"). Conditional tests: `test_judge_reported_model_verbatim_and_optional`, `test_judge_per_turn_reported_model_verbatim_and_optional`.
 
 ### 21.2 N14 contract (accepted): declared languages
-- **`LanguageDeclaration`** (value object): `language: SupportedLanguage` with no script subtag, `source: "user_declared"` (closed set of one, emitted as `{"type": "string", "enum": ["user_declared"]}`), `declared_by: MachineKey` with no `@`, `declared_at: UtcDatetime`. All four are required.
+- **`LanguageDeclaration`** (value object): `language: SupportedLanguage` with no script subtag, `source: "user_declared"` (closed set of one, emitted as `{"type": "string", "enum": ["user_declared"]}`), `declared_by: MachineKey` with no `@`, `declared_at: UtcDatetime`. All four are required. (Revision 32, N19: `declared_by` is optional, default `None`; the other three stay required; 25.15.)
 - **`Transcript.declared_language: LanguageDeclaration | None`** (default `None`). A model validator rejects it unless `source` is one of `agent_export`, `agent_telemetry`, `observer`, `human_reference` and `detected_language` and `detected_language_raw` are both `None`. The message names the rule.
 - **Effective language of a read turn** (pure function; P1-11 names it, extending the 20.2 seam). The function returns `(language, language_source)` or "none":
   1. `Turn.language` not `und`: that tag, `observed`.
@@ -575,7 +575,7 @@ Meaning extended, name kept: `test_all_closed_enums_exact`. Once P1-10b and P1-1
 - **P-62 ([Proposed], ADR 0010; decide before P1-11).** See 21.1. Recommendation: accept. **Decided by the owner (recorded in revision 11): accepted as proposed;** the two conditional tests are binding under P1-11.
 - **N17 (note, not proposed).** With a declaration, a script-sensitive metric on declared-only turns gives `language_not_observed`. That is true, because the language was not observed, but it is less specific than it could be: the language is declared and only the script is unknown. A new reason `script_not_observed` would say this exactly. It would add an `na_reason` and change the five-reason precedence that the owner accepted, so it is not adopted. Reports can still tell the cases apart, because the transcript carries `declared_language`. Revisit when Phase 3 records script evidence (P-11).
 - **N18 (open, Phase 2).** In 0.0.1 a declaration is supplied at import only. Adding or correcting a declaration on a stored transcript is undefined. With idempotent re-import (P-02) a second import of the same external call finds the existing transcript, so the declaration cannot be changed by re-importing either. Phase 2 must choose between two options: a new transcript record linked to the old one, or a versioned declaration. Either way, results that cite the old declaration must keep their meaning.
-- **N19 (decided in revision 31, gate finding M5; implementation pending: qa tests, then the architect).** Decision: `declared_by` is absent in shared and benchmark `ExportBundle`s, rejected with the tag `[declared_by]`, and allowed in internal exports (SCOPE "Changes in revision 31" item 5). Original text: `LanguageDeclaration.declared_by` names an actor. `@` is rejected, but a `MachineKey` can still hold a phone number or a user handle. Whether shared and benchmark exports drop or key it, like `Run.caller_external_id`, is decided at P1-14.
+- **N19 (decided in revision 31, gate finding M5; implemented in revision 32, section 25.15).** Decision: `declared_by` is absent in shared and benchmark `ExportBundle`s, rejected with the tag `[declared_by]`, and allowed in internal exports (SCOPE "Changes in revision 31" item 5). Original text: `LanguageDeclaration.declared_by` names an actor. `@` is rejected, but a `MachineKey` can still hold a phone number or a user handle. Whether shared and benchmark exports drop or key it, like `Run.caller_external_id`, is decided at P1-14.
 - **Details for owner confirmation** (ADR 0004 and ADR 0007 "Decided items (revision 10)", ADR 0010 Decision 5a): listed there, not repeated here.
 - **Unverified:** the claim that servers commonly treat `-` and `_` as interchangeable in parameter names, which is the reason given for N15 (true of some frameworks' header handling; not surveyed). The cloud presign names (20.5) are still not re-checked. The qa N15 tests were read, not run.
 
@@ -623,7 +623,7 @@ Run rule (P): `"agent_audio" in Run.available_inputs` requires `agent_audio_avai
 | `Segment` | value object | `granularity` (word, phrase, utterance), `start_ms?`, `end_ms?`, `text: VerbatimText`, `confidence?` (strict float in [0,1]), `contains_bidi_controls` (computed when omitted, verified when supplied, serialized). `end_ms >= start_ms` |
 | `Turn` (`turn`) | entity | `transcript_id: TranscriptId` (P, N21, decided by the owner in revision 11: turns are separate records and the transcript does not embed them), `seq` (strict int >= 0, required), `role` (caller, agent, unknown), `start_ms?`, `end_ms?`, `wall_time?`, `timing_source` (audio_alignment, telemetry, observer, none; required), `source` (the eight of ADR 0003; required), `text`, `segments?` (a list, may be empty), `language?: ObservedLanguageTag`, `language_raw?: VerbatimText`, `interrupted?` (bool or None, default None), `exchange_index?` (int >= 0), `contains_bidi_controls`. `timing_source=none` iff neither offset is present (a `wall_time` is not an offset); `end_ms >= start_ms`; each segment bound lies inside the same-named turn bound when both are present. No `started_at`, no confidence. Errors at `timing_source`, `end_ms`, `segments`, `contains_bidi_controls` |
 | `Exchange` (`exc`) | entity | `index` (int >= 0), `started_at?`, `duration_ms?`, `was_interrupted?` (bool or None, default None), `source` (audio_alignment, telemetry, observer, inferred_from_turns) |
-| `LanguageDeclaration` | value object | `language: SupportedLanguage` without a script subtag, `source` (exactly `user_declared`), `declared_by: MachineKey` without `@`, `declared_at: UtcDatetime`; all four required |
+| `LanguageDeclaration` | value object | `language: SupportedLanguage` without a script subtag, `source` (exactly `user_declared`), `declared_by: MachineKey` without `@`, `declared_at: UtcDatetime`; all four required (revision 32: `declared_by` optional, N19) |
 | `Transcript` (`tsc`) | entity | `source` (our_stt, agent_export, agent_telemetry, observer, script, human_reference), `provider?`, `model?` (MachineKey), `detected_language?: ObservedLanguageTag`, `detected_language_raw?: VerbatimText`, `language_confidence?` (strict float in [0,1]), `declared_language?: LanguageDeclaration`, `timeline_origin?`, `privacy: PrivacyMarker`. No `turns` field. `declared_language` only on `agent_export`, `agent_telemetry`, `observer`, `human_reference` and only when `detected_language` and `detected_language_raw` are both None; error at `declared_language`. `provider_call_ref?: ExternalRef` (revision 11, N28 resolved: a provider's request identifier is a foreign identifier, ADR 0012 Decision 6; not yet tested, see 22.9) |
 | `check_transcript(transcript, turns, exchanges=None) -> None` | function (P) | `ValueError`: a turn of another transcript (names the turn's transcript), a repeated `seq` (names it), offsets (any turn or segment bound) without `timeline_origin`, a `timeline_origin` without offsets (both messages contain `timeline_origin`), and, only when `exchanges` is given, a repeated exchange index (names it) or a turn whose `exchange_index` is not in the list (names it). `exchanges=None` skips the exchange checks |
 
@@ -803,7 +803,7 @@ The bundle halves (P1-14): evidence resolution inside `RunBundle`, `declared_lan
 
 ### 22.7 Findings carried over
 
-N11 (plan fields not adopted), N12 (code-only rules against gate item 2) and N17 to N19 stay open as listed in sections 19.6 and 21.5; N19 now also covers `LanguageDeclaration.declared_by` in `Transcript`, which the tests keep inside the transcript's `privacy` scope as ADR 0011 Decision 1a says.
+N11 (plan fields not adopted), N12 (code-only rules against gate item 2) and N17 to N19 stay open as listed in sections 19.6 and 21.5 (revision 31: N11 closed and N19 decided; N19 implemented in revision 32, 25.15); N19 now also covers `LanguageDeclaration.declared_by` in `Transcript`, which the tests keep inside the transcript's `privacy` scope as ADR 0011 Decision 1a says.
 
 ### 22.8 Validation
 
@@ -875,7 +875,7 @@ Each item is a genuine design choice that no ADR or core rule settles. The pinne
 - **O6 (follow-on of N26). Rename `CostRecord.pricing_snapshot.digest` to `content_digest`?** Trade-off: one name for every catalog digest lets the bundle seam and readers treat them alike; the cost is a change to ADR 0014 Decision 12 and SCOPE before P1-25, where no test exists yet. Recommendation: rename, with the same rule as `PricingCatalogRef`. **Decided (rev 12, owner): option A** (ADR 0014 Decision 12; 22.9 item 18).
 - **O7 (N22 wording). Confirm `DatasetItem.source_run_id`.** The owner's N22 decision reads "no run_id on records of fact except UsageRecord". `source_run_id` names the run a dataset item's recording came from (provenance; ADR 0016 Decision 5 uses it: an item without a source run has no role evidence), not membership of a run. Trade-off: without it, every recording item derives human-subject forever, even when it came from a simulated run whose roles are known. Recommendation: keep it, as pinned. **Decided (rev 12, owner): option A.** Kept as optional provenance only (not run membership); exports treat it as an unresolved reference, kept only where policy allows (ADR 0016 Decisions 5 and 9; 22.9 item 19; the policy is O9, 22.11, decided by the owner in revision 13).
 
-Carried forward (not owner questions now): N33's open part (whether a RunBundle may carry a rescoring next to the original results) is decided at P1-14; N38 goes to staff-reviewer with N12; N11 and N17 to N19 stay open as listed in 22.7.
+Carried forward (not owner questions now): N33's open part (whether a RunBundle may carry a rescoring next to the original results) is decided at P1-14; N38 goes to staff-reviewer with N12; N11 and N17 to N19 stay open as listed in 22.7 (N11 closed and N19 decided in revision 31; N19 implemented in revision 32).
 
 ### 22.11 Revision 12: new owner items (one at a time, in chat). Revision 13: all four decided by the owner, option A
 
@@ -1624,10 +1624,11 @@ are named. The words after the tag are not pinned, except the ones listed in the
 | `[marker]` | an artifact's or transcript's stored marker is looser than the derivation, or stricter without a reason (`check_human_subject_marker`, P-47, A-31) | names the record ID |
 | `[tier]` | R2 (25.6.2) | the stored and the computed tier; for an under-claim also the ID of one evidence record |
 | `[withheld]` | a declared record is in the bundle, or declared twice | names the ID |
-| `[applicability]` | (rev 29, B15, ADR 0004 Decision 9) a stored result differs from `results.applicability` re-run over the bundle (step 9) in the status class, `na_reason`, `missing_kinds`, `language_source` or `declared_language_transcript_ids`; a result without `transcript_ids` in a bundle that holds several transcripts, for a metric that reads transcripts or is language dependent; a run that lists `agent_transcript`, holds turns, declares no turn withheld and has no agent turn (T-A4) | the result ID, `results[<index>]` (0-based) and exactly one of the five field names (the first that differs); for the missing ids, verbatim `transcript_ids required when the bundle holds several transcripts` with the result ID and `results[<index>]`; for T-A4 the run ID and `agent_transcript`. No text, tag value or reason value |
+| `[applicability]` | (rev 29, B15, ADR 0004 Decision 9) a stored result differs from `results.applicability` re-run over the bundle (step 9) in the status class, `na_reason`, `missing_kinds`, `language_source` or `declared_language_transcript_ids`; a result without `transcript_ids` in a bundle that holds several transcripts, for a metric that reads transcripts or is language dependent; a run that lists `agent_transcript`, holds turns, declares no turn withheld and has no agent turn (T-A4); (rev 32, T-B13) a `scored` result of a metric that reads transcripts read no turn (no agent turn for `agent_transcript`); (rev 32, T-B16) a `per_turn` summary whose `total_turns` or `counts.not_applicable` differs from the turns the result read | the result ID, `results[<index>]` (0-based) and exactly one of the five field names (the first that differs); for T-B13 the field `status` and not the input kind; for T-B16 exactly one of `per_turn.total_turns` and `per_turn.counts.not_applicable` and none of the five; for the missing ids, verbatim `transcript_ids required when the bundle holds several transcripts` with the result ID and `results[<index>]`; for T-A4 the run ID and `agent_transcript`. No text, tag value or reason value |
 | `[caller_external_id]` | an embedded run carries `caller_external_id` | names the run ID |
 | `[profile_digest]` | a `TestProfileRef.content_digest` that the purpose does not allow (25.4.2) | names the profile ID |
 | `[profile]` | a `TestProfile` in the clear in a shared or benchmark export | |
+| `[declared_by]` | (rev 32, N19, ADR 0016 Decision 6a) a transcript of an embedded run bundle of a shared or benchmark export whose `declared_language` carries `declared_by` | the run bundle ID, the transcript ID and `transcripts[<j>]` (0-based in `RunBundle.transcripts`); never the value |
 | `[uri]` | an artifact with a `file:` URI or a loopback host in a shared or benchmark export | names the artifact, not the URI |
 | `[source_run]` | a dataset item keeps a `source_run_id` that names no run of a shared or benchmark export | names the item, not the run |
 | `[provenance_redaction]` | an omission entry for an item that is absent or still carries the field, or two entries for one item | |
@@ -1691,19 +1692,30 @@ before tagged rules"):
      per-conversation metric, and for a `per_turn_share` metric one call per read turn aggregated as in ADR 0010
      Decision 3 (scored if any turn applies, else the strongest reason by `NA_REASON_PRECEDENCE`; `declared` if any
      turn used a declaration, else `observed` if any turn had an effective language; the declared IDs are the sorted
-     union; the counts in `per_turn` are not compared);
+     union; the counts in `per_turn` are compared separately, below);
    - **compared**, the first difference reported: the status class (`not_applicable` or not), `na_reason`,
      `missing_kinds` (in the order of `requires`), `language_source`, `declared_language_transcript_ids`. An `error`
      result is exempt from the status class (and has no reason or kinds) except that a run-level answer rejects it;
      its language provenance is compared;
+   - **(rev 32, T-B13) the turns a scored result read**: after the run-level answer and before the comparison, a
+     `scored` result of a metric whose `requires` names `transcript` or `agent_transcript` must have read at least
+     one turn (so an agent turn for `agent_transcript`), else the field `status` is reported (scored over nothing;
+     the message does not name the input kind). `not_applicable` and `error` results are not judged by it;
+   - **(rev 32, T-B16) the per-turn counts**: after the five fields, for a `per_turn_share` result that has a
+     `per_turn` summary (any status), `per_turn.total_turns` must equal the number of turns read and then
+     `per_turn.counts.not_applicable` the number of them that `applicability` over that turn alone finds not
+     applicable (the same per-turn answers as above). `passed`, `failed` and `undetermined` are not compared;
    - **only the run-level answer is judged** (it must be stored exactly; any other answer must not carry a run-level
-     reason; the language outcome is accepted as stored) when the bundle declares a `transcript` or `turn` withheld
-     (B22: the language steps cannot be re-run), and for a `per_turn_share` metric that reads no turn (T-B4). Other
-     withheld kinds take nothing away; a withheld result is not there to check.
+     reason; the language outcome is accepted as stored; T-B13 and T-B16 are off for every result) when the bundle
+     declares a `transcript` or `turn` withheld (B22: the language steps cannot be re-run). For a `per_turn_share`
+     metric that reads no turn (T-B4) the run-level reasons are compared and the language outcome is accepted as
+     stored; a stored `per_turn` summary is rejected at `per_turn.total_turns` (rev 32, P-C6), a scored result at
+     `status` (T-B13). Other withheld kinds take nothing away; a withheld result is not there to check.
 
 Not rules of the bundle: a reference to a catalog, test profile, agent target or project that the bundle does not
 embed is not rejected (it is verified when present); the bundle does not recompute costs (deferred, section 25.11)
-or the per-turn counts of a `per_turn_share` result (T-B16).
+or the `passed`, `failed` and `undetermined` counts of a `per_turn_share` result (the scorer's or the judge's
+answers; a tally of `JudgeInfo.per_turn` against them waits for the frozen judge record format, A-C4).
 
 #### 25.4.2 `ExportBundle`
 
@@ -1736,6 +1748,9 @@ test profiles in `test_profiles` are all allowed.
 
 `shared_export` and `benchmark`:
 
+- (rev 32, N19) `[declared_by]`: a transcript of a run bundle whose `declared_language` has a `declared_by` (ADR
+  0016 Decision 6a; checked with `[profile]`, `[profile_digest]` and `[uri]`; the first offender in the order run
+  bundles, then transcripts). `internal` exports keep it, and so do a `RunBundle` and a `Transcript` on their own.
 - `[profile]` if a run bundle has a non-empty `test_profiles` (ADR 0006 Decision 7); `[profile_digest]` if a
   `TestProfileRef.content_digest` is present and its scheme is not `hmac-sha256-jcs/v1` (A-30). An absent digest
   is accepted. (P-17, ADR 0006 Decision 6.)
@@ -2018,9 +2033,9 @@ docstring update for qa.
 - Verification of keyed digests with a key resolver at bundle level (`verify_bundle_digests`, B11); the seam never
   reports a non-comparable digest as verified.
 - Re-running the cost computation over a bundle ((rev 29) `check_language` and `applicability` are re-run since
-  batch 23, step 9 of 25.4.1 (B15); still not re-run: the per-turn counts against the turns (T-B16), the language of
-  a per-turn metric that reads no turn (T-B4), an `agent_transcript` metric that names a transcript without agent
-  turns (T-B13)); the F8/T-DEG bundles
+  batch 23, step 9 of 25.4.1 (B15); still not re-run: the language of a per-turn metric that reads no turn (T-B4);
+  (rev 32) the per-turn counts against the turns (T-B16) and the turns a scored result read (T-B13) are rules since
+  revision 32, 25.15); the F8/T-DEG bundles
   (P1-19); the golden bundle fixtures and the frozen fixtures (P1-16, P1-17); the JSON Schema export and
   `schema.lock` (P1-15), where the code-only rules of this file (everything in section 25.4 beyond the field types
   and the closed sets) are `KNOWN_SCHEMA_GAPS`-style entries (N12, N38); `SCHEMA_POLICY.md` wording for the
@@ -2028,7 +2043,7 @@ docstring update for qa.
 - Sealing and redaction of `UsageRecord.raw` and `ReportedCostRaw` (api-surface 23.4, 24.3: no sixth payload type);
   `Persona`, `Evaluator` free text, `IngestWarning.raw`, `Run.ingest_warnings` and `metadata` are not payload kinds
   of the rule.
-- Database and storage (Phase 2), retention enforcement, `declared_by` in shared exports (N19), the plan fields
+- Database and storage (Phase 2), retention enforcement, `declared_by` in shared exports (N19; a rule since revision 32, 25.15), the plan fields
   (N11), per-bundle limits on the number of records (only bytes are limited), bundle-level `Artifact` content
   checks (hash of the audio against `sha256`), streaming.
 - A `RunBundle` built from model instances rather than documents (pydantic does not revalidate instances; the
@@ -2078,7 +2093,7 @@ show; the 228 mutants test the tests, not the reading. The pinned readings are t
 - **B26. Order in an export.** The seam (typed errors) runs before `[caller_external_id]` (contract 25.4.2 lists the caller identifier first). Recommendation: accept (the 25.4.1 principle "typed seam errors first"; no seam message quotes a value, so nothing is leaked by the order).
 - **B27. Value-object count.** B20 says ADR 0001 Decision 8 goes from 65 to 68; Decision 8 already named 67 classes after revision 19 (`DekWrap`, `SealedAadFields`; the SCOPE gate text still said 65), so it now names 70, which is exactly what the registry walk finds. Recommendation: use 70 in ADR 0001 and SCOPE gate item 1 (done in revision 22).
 
-**Still open, unchanged:** N19 (`declared_by` in shared exports); B11 (`verify_bundle_digests`, with the key-management work); B13 and B19 (the export builder); B15 (language steps at P1-19); the `SCHEMA_POLICY.md` wording for B3 (sealed artifact `uri`) and the internal profile digest (P1-20a); the code-only rules of this section for the JSON Schema export (N12/N38, P1-15).
+**Still open, unchanged:** N19 (`declared_by` in shared exports; decided in revision 31, implemented in revision 32, 25.15); B11 (`verify_bundle_digests`, with the key-management work); B13 and B19 (the export builder); B15 (language steps at P1-19); the `SCHEMA_POLICY.md` wording for B3 (sealed artifact `uri`) and the internal profile digest (P1-20a); the code-only rules of this section for the JSON Schema export (N12/N38, P1-15).
 
 ### 25.14 Revision 28: I-JSON metadata and `expected_purpose` implemented (schema-architect, 2026-10-24)
 
@@ -2109,6 +2124,35 @@ findings (1), (3) and qa's ambiguities 1 to 6.
   entity pages changed). The frozen 0.0.1 fixtures (`tests/fixtures/frozen/0.0.1/`) hold documents and
   `digests.json` only, no schema lock (A10: released locks come with the release); their bytes are unchanged and
   `build_golden_fixtures.py --check` reports no drift.
+
+### 25.15 Revision 32: T-B13, T-B16 and N19 implemented (schema-architect, 2026-10-24)
+
+Contract: qa batch 28, `docs/phase1/api-surface-gate-fixes.md` (P-C1 to P-C6, P-N1 to P-N5), tests
+`test_bundle_applicability_counts.py` (83 items), `test_export_declared_by.py` (48 items) and, for A-C6,
+`test_result_run_level_per_turn.py`; decisions auto-approved and logged ("qa batch 28 GATE TESTS DELIVERED").
+
+- **T-B13 and T-B16** (`bundle._check_applicability`, step 9 of 25.4.1): per result, the run-level answer, then the
+  turn rule (`status`), then the five fields, then `per_turn.total_turns` and `per_turn.counts.not_applicable`
+  (`bundle._compare_counts`, `bundle._not_applicable_turns`). The per-turn answers are computed once per result
+  (`bundle._turn_answers`) and feed both the language outcome and the counts. The turns read stay unjudged (`None`)
+  when the run-level answer decides or a `transcript` or `turn` is withheld.
+- **N19** (`bundle._check_portable_run_bundle`): `[declared_by]` (25.3.1, 25.4.2); `LanguageDeclaration.declared_by`
+  is `MachineKey | None = None`. Schema effect: in `Transcript`, `RunBundle` and `ExportBundle` the member leaves
+  `required` and becomes `anyOf` of the machine-key string and `null`, `default: null`.
+- **A-C6** (`results.MetricResult`): a `not_applicable` result with `na_reason` `missing_input` or
+  `agent_channel_unknown` carries no `per_turn` (error at `per_turn`, type `metric_result`, the words `run-level`
+  and `per_turn`); `_result_conditions` adds `per_turn: null` to the run-level rule, so `MetricResult`, `RunBundle`
+  and `ExportBundle` change too.
+- **Sealed transcript text (A-C1).** A `SealedPayload` of `transcript_text` replaces a transcript's turns in the
+  embedded run bundle. The run bundle must then declare those turns `withheld`; otherwise its scored transcript
+  results read no turn and T-B13 rejects it. The export builder (B13, B19) declares them.
+- **Generated files.** `schema_export --write` (`ExportBundle`, `MetricResult`, `RunBundle`, `Transcript` and
+  `schema.lock`); `generate_field_docs.py --write` (`ExportBundle.md`, `MetricResult.md`, `RunBundle.md`,
+  `Transcript.md`, `value-objects.md`). `SCHEMA_VERSION` stays `0.0.1` (within the unreleased version). The valid
+  golden fixture `MetricResult/maximal-na-missing-input` carried a summary on `missing_input`, which A-C6 forbids;
+  qa moved the summary to `maximal-na-language-not-observed` (where it is legal) in `_support_b9_valid.py` and
+  regenerated the golden files (`build_golden_fixtures.py --write`: those two valid fixtures and the invalid ones
+  derived from them).
 
 ## 26. Batch 11 (P1-15): JSON Schema export, `schema.lock` and the register of rules JSON Schema cannot state; API assumed by the tests
 

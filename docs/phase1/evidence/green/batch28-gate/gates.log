@@ -1,0 +1,27 @@
+# gates on the repository tree, python 3.14 (shared .venv), 2026-10-24
+## uv run --locked ruff check packages scripts
+All checks passed!
+exit: 
+## uv run --locked ruff format --check packages scripts
+173 files already formatted
+exit: 
+## uv run --locked mypy
+Success: no issues found in 166 source files
+exit: 
+## uv run --locked mypy --strict packages/evalschema/src
+Success: no issues found in 40 source files
+exit: 
+## uv run --locked python scripts/check_headers.py
+exit: 
+## uv run --locked python scripts/guard_private_fixtures.py
+exit: 
+## uv run --locked python scripts/check_licenses.py
+42 ok, 0 failed
+exit: 
+## uv run --locked python -m tracer_evalschema.schema_export --check
+exit: 
+## uv run --locked python scripts/generate_field_docs.py --check
+exit: 
+## uv run --locked python scripts/build_golden_fixtures.py --check
+502 files equal the generator output
+exit: 

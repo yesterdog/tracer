@@ -1,0 +1,8 @@
+Why the named and new tests are red on the pre-landing source (HEAD src, python 3.14; the same on 3.11-3.14):
+  16 x test_bundle_applicability.py:463  turn_politeness_share: loaded although ['per_turn.counts.not_applicable'] differ
+      (SCR-G1: 16 parametrised cases of the stored-for-another-run test)
+   1 x test_bundle_tier.py:662           DID NOT RAISE ValidationError (SCR-G5: the no-declaration branch must be rejected [applicability])
+   1 x test_transcript.py:756            ValidationError for LanguageDeclaration (SCR-G6: declared_by absent is rejected: still required)
+  16 x test_result_run_level_per_turn.py DID NOT RAISE ValidationError (A-C6; the schema case: the JSON Schema accepts the summary)
+Counts: 34 failed, 622 passed in the five files on each of 3.11, 3.12, 3.13, 3.14.
+SCR-G2, SCR-G3 and SCR-G4 pass on both sides: they are consistent with the old and the new rule (their summaries/results are what both accept).

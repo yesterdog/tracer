@@ -1,0 +1,32 @@
+# Mutants (scratch copy with its own environment): text.py imports jsonschema inside a function; errors.py imports pytest at module level
+.FF...........................F.F.........                               [100%]
+=================================== FAILURES ===================================
+________________________ test_runtime_imports_whitelist ________________________
+packages/evalschema/tests/test_runtime_imports.py:153: in test_runtime_imports_whitelist
+    assert not found, sorted(found)
+E   AssertionError: ['errors.py:151: import of pytest', 'text.py:280: import of jsonschema']
+E   assert not {'errors.py:151: import of pytest', 'text.py:280: import of jsonschema'}
+_________ test_every_module_parses_and_has_a_third_party_import_count __________
+packages/evalschema/tests/test_runtime_imports.py:166: in test_every_module_parses_and_has_a_third_party_import_count
+    assert (tops - STDLIB) <= SOURCE_THIRD_PARTY
+E   AssertionError: assert {'jsonschema'...r_evalschema'} <= frozenset({'p..._evalschema'})
+E     
+E     Extra items in the left set:
+E     'pytest'
+E     'jsonschema'
+____________ test_runtime_imports_whitelist_in_a_fresh_interpreter _____________
+packages/evalschema/tests/test_runtime_imports.py:281: in test_runtime_imports_whitelist_in_a_fresh_interpreter
+    assert not unexpected, sorted(unexpected)
+E   AssertionError: ['_pytest', 'iniconfig', 'pluggy', 'py', 'pygments', 'pytest']
+E   assert not {'_pytest', 'iniconfig', 'pluggy', 'py', 'pygments', 'pytest'}
+__________ test_no_test_only_module_is_loaded_by_the_runtime[pytest] ___________
+packages/evalschema/tests/test_runtime_imports.py:286: in test_no_test_only_module_is_loaded_by_the_runtime
+    assert name not in third_party_loaded(_EXERCISE)
+E   assert 'pytest' not in {'_pytest', 'annotated_types', 'iniconfig', 'pluggy', 'py', 'pydantic', ...}
+E    +  where {'_pytest', 'annotated_types', 'iniconfig', 'pluggy', 'py', 'pydantic', ...} = third_party_loaded("\nimport tracer_evalschema.schema_export as export\nfiles = export.render_schemas()\nassert files\nfrom pydantic impo...itives as primitives\nadapter = TypeAdapter(primitives.UtcDatetime)\nadapter.validate_python('2026-10-24T08:00:00Z')\n")
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_runtime_imports.py::test_runtime_imports_whitelist
+FAILED packages/evalschema/tests/test_runtime_imports.py::test_every_module_parses_and_has_a_third_party_import_count
+FAILED packages/evalschema/tests/test_runtime_imports.py::test_runtime_imports_whitelist_in_a_fresh_interpreter
+FAILED packages/evalschema/tests/test_runtime_imports.py::test_no_test_only_module_is_loaded_by_the_runtime[pytest]
+4 failed, 38 passed in 3.64s

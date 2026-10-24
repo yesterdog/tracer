@@ -1,0 +1,104 @@
+--- a/packages/evalschema/src/tracer_evalschema/bundle.py
++++ b/packages/evalschema/src/tracer_evalschema/bundle.py
+@@ -979,6 +979,34 @@
+         result.declared_language_transcript_ids, expected.declared_language_transcript_ids
+     ):
+         raise _applicability_error(position, result, "declared_language_transcript_ids")
++
++
++def _not_applicable_turns(
++    definition: MetricDefinition, run: Run, turns: Sequence[Turn], transcripts: Sequence[Transcript]
++) -> int:
++    return sum(
++        1
++        for turn in turns
++        if applicability(definition, run, turns=[turn], transcripts=transcripts).na_reason
++        is not None
++    )
++
++
++def _compare_counts(
++    position: int,
++    result: MetricResult,
++    definition: MetricDefinition,
++    run: Run,
++    turns: Sequence[Turn],
++    transcripts: Sequence[Transcript],
++) -> None:
++    summary = result.per_turn
++    if summary is None:
++        return
++    if summary.total_turns != len(turns):
++        raise _applicability_error(position, result, "per_turn.total_turns")
++    if summary.counts.not_applicable != _not_applicable_turns(definition, run, turns, transcripts):
++        raise _applicability_error(position, result, "per_turn.counts.not_applicable")
+ 
+ 
+ def _check_agent_turn(bundle: RunBundle, withheld_kinds: set[str]) -> None:
+@@ -1023,8 +1051,15 @@
+             )
+         transcripts = _transcripts_read(position, result, definition, held)
+         expected = _run_level_answer(definition, run)
++        turns: list[Turn] | None = None
+         if expected is None and language_known:
+             turns = _turns_read(definition, bundle.turns, transcripts)
++            if (
++                result.status == "scored"
++                and any(kind in _TRANSCRIPT_KINDS for kind in definition.requires)
++                and not turns
++            ):
++                raise _applicability_error(position, result, "status")
+             if definition.aggregation.kind != "per_turn_share":
+                 expected = applicability(definition, run, turns=turns, transcripts=transcripts)
+             elif turns:
+@@ -1033,6 +1068,8 @@
+             _compare_applicability(position, result, expected)
+         elif result.na_reason in _RUN_LEVEL_REASONS:
+             raise _applicability_error(position, result, "na_reason")
++        if turns is not None and definition.aggregation.kind == "per_turn_share":
++            _compare_counts(position, result, definition, run, turns, transcripts)
+ 
+ 
+ def check_run_bundle(bundle: RunBundle) -> None:
+@@ -1223,6 +1260,13 @@
+             f"[profile] run bundle {run_bundle.id} carries a test profile in the clear; a shared "
+             "or benchmark export carries a profile only as a sealed test_profile payload"
+         )
++    for index, transcript in enumerate(run_bundle.transcripts):
++        declaration = transcript.declared_language
++        if declaration is not None and declaration.declared_by is not None:
++            raise ValueError(
++                f"[declared_by] run bundle {run_bundle.id} transcripts[{index}] {transcript.id} "
++                "carries declared_by; a shared or benchmark export holds none"
++            )
+     reference = run_bundle.snapshot.evaluator.test_profile
+     if (
+         reference is not None
+--- a/packages/evalschema/src/tracer_evalschema/transcript.py
++++ b/packages/evalschema/src/tracer_evalschema/transcript.py
+@@ -161,14 +161,17 @@
+ 
+     language: SupportedLanguageNoScript
+     source: Annotated[str, ClosedSet(("user_declared",))]
+-    declared_by: Annotated[
+-        str,
+-        FullMatch(
+-            "^[A-Za-z0-9][A-Za-z0-9._:/+-]{0,255}$",
+-            "declared_by",
+-            "{value} is not a machine key without '@' ({pattern})",
+-        ),
+-    ]
++    declared_by: (
++        Annotated[
++            str,
++            FullMatch(
++                "^[A-Za-z0-9][A-Za-z0-9._:/+-]{0,255}$",
++                "declared_by",
++                "{value} is not a machine key without '@' ({pattern})",
++            ),
++        ]
++        | None
++    ) = None
+     declared_at: UtcDatetime
+ 
+ 

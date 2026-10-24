@@ -1,0 +1,28 @@
+# T-B13 and T-B16 mutants of the oracle (scratch), tests: test_bundle_applicability_counts.py (-x, first failure shown). 'KILLED' = at least one test fails.
+control-unmutated | SURVIVED | ...........                                                              [100%]
+b13-absent | KILLED | E   Failed: DID NOT RAISE ValidationError
+b13-also-na-and-error | KILLED | E   Failed: DID NOT RAISE ValidationError
+b13-agent-only | KILLED | E   Failed: DID NOT RAISE ValidationError
+b13-transcript-only | KILLED | E   Failed: DID NOT RAISE ValidationError
+b13-ignores-withheld | KILLED | E   pydantic_core._pydantic_core.ValidationError: 1 validation error for RunBundle
+b13-any-turn-of-transcript | KILLED | E   Failed: DID NOT RAISE ValidationError
+b13-names-input-kind | KILLED | s/evalschema/tests/test_bundle_applicability_counts.py::test_b13_scored_agent_transcript_result_over_a_transcript_without_agent_turn[agent_politeness]
+b13-wrong-field | KILLED | E   AssertionError: ('status', {'na_reason'})
+c-total-not-compared | KILLED | E   Failed: DID NOT RAISE ValidationError
+c-na-not-compared | KILLED | E   Failed: DID NOT RAISE ValidationError
+c-total-vs-all-bundle-turns | KILLED | E   pydantic_core._pydantic_core.ValidationError: 1 validation error for RunBundle
+c-total-vs-all-held-turns | KILLED | E   NameError: name 'TURNS_ALL' is not defined
+c-na-always-zero | KILLED | E   pydantic_core._pydantic_core.ValidationError: 1 validation error for RunBundle
+c-na-from-sibling-language-metric | KILLED |     SyntaxError: invalid syntax
+c-undetermined-must-be-zero | KILLED | E   pydantic_core._pydantic_core.ValidationError: 1 validation error for RunBundle
+c-passed-compared | KILLED | s/evalschema/tests/test_bundle_applicability_counts.py::test_b13_scored_agent_transcript_result_over_a_transcript_without_agent_turn[agent_turn_count]
+c-only-scored | KILLED | E   Failed: DID NOT RAISE ValidationError
+c-skip-errors | KILLED | E   Failed: DID NOT RAISE ValidationError
+c-ignores-withheld | KILLED | E   pydantic_core._pydantic_core.ValidationError: 1 validation error for RunBundle
+c-before-five-fields | KILLED | E   AssertionError: ('na_reason', set())
+c-names-na-first | KILLED | E   AssertionError: ('per_turn.total_turns', {'per_turn.counts.not_applicable'})
+c-skips-zero-turns | KILLED | E   Failed: DID NOT RAISE ValidationError
+c-ignores-transcript-ids | KILLED | E   Failed: DID NOT RAISE ValidationError
+# two mutants whose first-pass patterns did not compile, rerun:
+c-total-vs-all-held-turns | KILLED | s/evalschema/tests/test_bundle_applicability_counts.py::test_b13_scored_agent_transcript_result_over_a_transcript_without_agent_turn[agent_turn_count]
+c-na-from-sibling-language-metric | KILLED | E   pydantic_core._pydantic_core.ValidationError: 1 validation error for RunBundle

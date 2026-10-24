@@ -1,0 +1,46 @@
+# batch28-impl gates; schema-architect; date: 2026-10-24T01:04:27Z (UTC)
+# python: Python 3.14.7 (shared .venv)
+# command: see sections
+# uv.lock sha256: 7f0195d24718bf2fa5eea2040d6c9ad3b923bbab2105a3cbcbf3a04dd37aa337
+# paths: <repo> is the checkout, <scratchpad> the agent scratch area
+# ----
+## ruff check packages scripts
+All checks passed!
+# exit: 0
+## ruff format --check packages scripts
+174 files already formatted
+# exit: 0
+## mypy --strict packages/evalschema/src
+Success: no issues found in 40 source files
+# exit: 0
+## mypy
+Success: no issues found in 167 source files
+# exit: 0
+## python scripts/check_headers.py
+# exit: 0
+## python scripts/guard_private_fixtures.py
+# exit: 0
+## python scripts/check_licenses.py
+42 ok, 0 failed
+# exit: 0
+## python -m tracer_evalschema.schema_export --check
+# exit: 0
+## python scripts/generate_field_docs.py --check
+# exit: 0
+## python scripts/build_golden_fixtures.py --check
+
+Traceback (most recent call last):
+  File "<repo>/scripts/build_golden_fixtures.py", line 109, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "<repo>/scripts/build_golden_fixtures.py", line 86, in main
+    files = render()
+  File "<repo>/scripts/build_golden_fixtures.py", line 39, in render
+    rendered: dict[str, bytes] = dict(support.render_all().files)
+                                      ~~~~~~~~~~~~~~~~~~^^
+  File "<repo>/packages/evalschema/tests/_support_b9.py", line 293, in render_all
+    raise RuntimeError(f"valid fixture {entity}/{name}: {error}") from error
+RuntimeError: valid fixture MetricResult/maximal-na-missing-input: 1 validation error for MetricResult
+per_turn
+  na_reason=missing_input is a run-level reason, decided from the run before any turn is read, so there is no per_turn summary [type=metric_result]
+# exit: 1

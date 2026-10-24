@@ -1,0 +1,130 @@
+--- before/test_bundle.py
++++ after/test_bundle.py
+@@ -894,6 +894,10 @@
+     empty["results"][0]["evidence_refs"] = [
+         e for e in empty["results"][0]["evidence_refs"] if e["kind"] != "turn"
+     ]
++    # T-B13: a scored result of a metric that reads a transcript has read a turn, so an empty call
++    # holds no such result (nothing was scored)
++    empty["results"] = []
++    empty["verdict"] = None
+     assert load_run(empty).turns == []
+     # a timeline origin on a transcript that has no turn left is not an error of the bundle
+     with_origin = copy.deepcopy(empty)
+--- before/test_bundle_applicability.py
++++ after/test_bundle_applicability.py
+@@ -68,8 +68,10 @@
+     text_of_error,
+     transplant,
+     turn_texts,
++    with_results,
+     world_of,
+ )
++from ._support_b17 import count_differences, counts_changes, fields_named
+ 
+ TAG = "[applicability]"
+ IDENTITY = (
+@@ -427,7 +429,7 @@
+     from the target's own result in the status class, ``na_reason``, ``missing_kinds`` or
+     ``language_source`` (and ``declared_language_transcript_ids``, (P)); the message names a field
+     on which they differ and none on which they agree. Where nothing differs the bundle loads
+-    (a per-turn summary may differ: its counts are not compared by this rule).
++    (the per-turn counts total_turns and counts.not_applicable are compared too, T-B16).
+ 
+     The expected verdict comes from comparing the two stored documents, which were built by the
+     reference evaluator and are the hand-written matrix of api-surface-tdeg.md; the library under
+@@ -442,7 +444,7 @@
+             continue
+         doc, theirs = planted
+         mine = result_of(target_world.copy(), target_world, key)
+-        differing = first_differences(mine, theirs)
++        differing = [*first_differences(mine, theirs), *count_differences(mine, theirs)]
+         try:
+             model.model_validate(doc)
+         except ValidationError as error:
+@@ -452,7 +454,7 @@
+             elif TAG not in text:
+                 problems.append(f"{key}: rejected without {TAG}: {text[:200]}")
+             else:
+-                named = mentioned_fields(text)
++                named = mentioned_fields(text) | fields_named(text)
+                 if not named or not named <= set(differing):
+                     problems.append(f"{key}: names {sorted(named)}, differing {differing}")
+         else:
+@@ -992,6 +994,18 @@
+     keep = next(t["id"] for t in doc["turns"] if t["role"] == "agent")
+     set_roles(doc, "unknown", only=lambda t: t["id"] != keep)
+     assert sum(1 for t in doc["turns"] if t["role"] == "agent") == 1
++    # the per-turn results read the one agent turn (T-B16): their summaries say so
++    rebuild_verdict(
++        world,
++        with_results(
++            world,
++            {
++                "turn_politeness_share": counts_changes(world, "turn_politeness_share", passed=1),
++                "turn_length_share": counts_changes(world, "turn_length_share", passed=1),
++            },
++            doc,
++        ),
++    )
+     load_bundle(doc)
+ 
+ 
+@@ -1344,6 +1358,17 @@
+     not a benchmark), and a forged result is rejected as in a small bundle."""
+     world = cached_world("T1", origin="human")
+     doc = _huge(world, 2000)
++    agents = sum(1 for t in doc["turns"] if t["role"] == "agent")  # 1,004 (T-B16)
++    with_results(
++        world,
++        {
++            "turn_politeness_share": counts_changes(
++                world, "turn_politeness_share", passed=agents - 1, failed=1
++            ),
++            "turn_length_share": counts_changes(world, "turn_length_share", passed=agents),
++        },
++        doc,
++    )
+     started = time.monotonic()
+     load_bundle(doc)
+     elapsed = time.monotonic() - started
+--- before/test_bundle_tier.py
++++ after/test_bundle_tier.py
+@@ -657,7 +657,10 @@
+     no_declaration = export_doc(
+         "shared_export", [stripped], sealed_payloads=sealed, payload_redactions=rest
+     )
+-    load_export(no_declaration)  # the observer transcript is still there: T2 holds
++    # T-B13: the observer transcript is still there (T2 holds) but its turns are gone and
++    # undeclared, so the scored results read nothing: the turns must be declared withheld
++    with pytest.raises(ValidationError, match=r"\[applicability\]"):
++        load_export(no_declaration)
+     stripped["withheld"] = [withheld_doc("turn", i) for i in ids]
+     declared = export_doc(
+         "shared_export", [stripped], sealed_payloads=sealed, payload_redactions=rest
+--- before/test_transcript.py
++++ after/test_transcript.py
+@@ -736,7 +736,7 @@
+         assert (
+             declaration.model_validate(language_declaration(declared_by=good)).declared_by == good
+         )
+-    for bad in ("a@b", "user@example.com", "@", "", "two words", DEVANAGARI, None):
++    for bad in ("a@b", "user@example.com", "@", "", "two words", DEVANAGARI):
+         with pytest.raises(ValidationError):
+             declaration.model_validate(language_declaration(declared_by=bad))
+     loaded = declaration.model_validate(
+@@ -747,10 +747,13 @@
+     for bad_time in bad_times:
+         with pytest.raises(ValidationError):
+             declaration.model_validate(language_declaration(declared_at=bad_time))
+-    for missing in ("language", "source", "declared_by", "declared_at"):
++    for missing in ("language", "source", "declared_at"):
+         doc = {k: v for k, v in language_declaration().items() if k != missing}
+         with pytest.raises(ValidationError):
+             declaration.model_validate(doc)
++    # N19: declared_by is optional (a shared or benchmark export holds none)
++    without = {k: v for k, v in language_declaration().items() if k != "declared_by"}
++    assert declaration.model_validate(without).declared_by is None
+     with pytest.raises(ValidationError):
+         declaration.model_validate(language_declaration(confidence=1.0))
+     transcript = make3(

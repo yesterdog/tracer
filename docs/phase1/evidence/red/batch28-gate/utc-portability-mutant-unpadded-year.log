@@ -1,0 +1,232 @@
+# Mutant M1: glibc behaviour simulated in a scratch copy: _format_instant writes the year unpadded (f"{utc.year}")
+# PYTHONPATH=<scratchpad>/teeth/packages/evalschema/src <repo>/.venv/bin/python -m pytest -q -p no:cacheprovider packages/evalschema/tests/test_utc_datetime_portability.py --tb=short
+FFFF..FFFF..FFFF..FFFF..FFFF.............FFFF..FF................        [100%]
+=================================== FAILURES ===================================
+_________________ test_model_dump_json_mode_is_zero_padded[1] __________________
+packages/evalschema/tests/test_utc_datetime_portability.py:67: in test_model_dump_json_mode_is_zero_padded
+    assert value.model_dump(mode="json") == {"at": YEAR_TEXT[year]}
+E   AssertionError: assert {'at': '1-01-...0:00.000000Z'} == {'at': '0001-...0:00.000000Z'}
+E     
+E     Differing items:
+E     {'at': '1-01-01T00:00:00.000000Z'} != {'at': '0001-01-01T00:00:00.000000Z'}
+E     Use -v to get more diff
+_________________ test_model_dump_json_mode_is_zero_padded[9] __________________
+packages/evalschema/tests/test_utc_datetime_portability.py:67: in test_model_dump_json_mode_is_zero_padded
+    assert value.model_dump(mode="json") == {"at": YEAR_TEXT[year]}
+E   AssertionError: assert {'at': '9-01-...0:00.000000Z'} == {'at': '0009-...0:00.000000Z'}
+E     
+E     Differing items:
+E     {'at': '9-01-01T00:00:00.000000Z'} != {'at': '0009-01-01T00:00:00.000000Z'}
+E     Use -v to get more diff
+_________________ test_model_dump_json_mode_is_zero_padded[99] _________________
+packages/evalschema/tests/test_utc_datetime_portability.py:67: in test_model_dump_json_mode_is_zero_padded
+    assert value.model_dump(mode="json") == {"at": YEAR_TEXT[year]}
+E   AssertionError: assert {'at': '99-01...0:00.000000Z'} == {'at': '0099-...0:00.000000Z'}
+E     
+E     Differing items:
+E     {'at': '99-01-01T00:00:00.000000Z'} != {'at': '0099-01-01T00:00:00.000000Z'}
+E     Use -v to get more diff
+________________ test_model_dump_json_mode_is_zero_padded[999] _________________
+packages/evalschema/tests/test_utc_datetime_portability.py:67: in test_model_dump_json_mode_is_zero_padded
+    assert value.model_dump(mode="json") == {"at": YEAR_TEXT[year]}
+E   AssertionError: assert {'at': '999-0...0:00.000000Z'} == {'at': '0999-...0:00.000000Z'}
+E     
+E     Differing items:
+E     {'at': '999-01-01T00:00:00.000000Z'} != {'at': '0999-01-01T00:00:00.000000Z'}
+E     Use -v to get more diff
+_________________ test_model_dump_json_text_is_zero_padded[1] __________________
+packages/evalschema/tests/test_utc_datetime_portability.py:75: in test_model_dump_json_text_is_zero_padded
+    assert text == '{"at":"' + YEAR_TEXT[year] + '"}'
+E   assert '{"at":"1-01-...:00.000000Z"}' == '{"at":"0001-...:00.000000Z"}'
+E     
+E     - {"at":"0001-01-01T00:00:00.000000Z"}
+E     ?        ---
+E     + {"at":"1-01-01T00:00:00.000000Z"}
+_________________ test_model_dump_json_text_is_zero_padded[9] __________________
+packages/evalschema/tests/test_utc_datetime_portability.py:75: in test_model_dump_json_text_is_zero_padded
+    assert text == '{"at":"' + YEAR_TEXT[year] + '"}'
+E   assert '{"at":"9-01-...:00.000000Z"}' == '{"at":"0009-...:00.000000Z"}'
+E     
+E     - {"at":"0009-01-01T00:00:00.000000Z"}
+E     ?        ---
+E     + {"at":"9-01-01T00:00:00.000000Z"}
+_________________ test_model_dump_json_text_is_zero_padded[99] _________________
+packages/evalschema/tests/test_utc_datetime_portability.py:75: in test_model_dump_json_text_is_zero_padded
+    assert text == '{"at":"' + YEAR_TEXT[year] + '"}'
+E   assert '{"at":"99-01...:00.000000Z"}' == '{"at":"0099-...:00.000000Z"}'
+E     
+E     - {"at":"0099-01-01T00:00:00.000000Z"}
+E     ?        --
+E     + {"at":"99-01-01T00:00:00.000000Z"}
+________________ test_model_dump_json_text_is_zero_padded[999] _________________
+packages/evalschema/tests/test_utc_datetime_portability.py:75: in test_model_dump_json_text_is_zero_padded
+    assert text == '{"at":"' + YEAR_TEXT[year] + '"}'
+E   assert '{"at":"999-0...:00.000000Z"}' == '{"at":"0999-...:00.000000Z"}'
+E     
+E     - {"at":"0999-01-01T00:00:00.000000Z"}
+E     ?        -
+E     + {"at":"999-01-01T00:00:00.000000Z"}
+___________________ test_type_adapter_json_is_zero_padded[1] ___________________
+packages/evalschema/tests/test_utc_datetime_portability.py:83: in test_type_adapter_json_is_zero_padded
+    assert adapter.dump_python(instant, mode="json") == YEAR_TEXT[year]
+E   AssertionError: assert '1-01-01T00:00:00.000000Z' == '0001-01-01T00:00:00.000000Z'
+E     
+E     - 0001-01-01T00:00:00.000000Z
+E     ? ---
+E     + 1-01-01T00:00:00.000000Z
+___________________ test_type_adapter_json_is_zero_padded[9] ___________________
+packages/evalschema/tests/test_utc_datetime_portability.py:83: in test_type_adapter_json_is_zero_padded
+    assert adapter.dump_python(instant, mode="json") == YEAR_TEXT[year]
+E   AssertionError: assert '9-01-01T00:00:00.000000Z' == '0009-01-01T00:00:00.000000Z'
+E     
+E     - 0009-01-01T00:00:00.000000Z
+E     ? ---
+E     + 9-01-01T00:00:00.000000Z
+__________________ test_type_adapter_json_is_zero_padded[99] ___________________
+packages/evalschema/tests/test_utc_datetime_portability.py:83: in test_type_adapter_json_is_zero_padded
+    assert adapter.dump_python(instant, mode="json") == YEAR_TEXT[year]
+E   AssertionError: assert '99-01-01T00:00:00.000000Z' == '0099-01-01T00:00:00.000000Z'
+E     
+E     - 0099-01-01T00:00:00.000000Z
+E     ? --
+E     + 99-01-01T00:00:00.000000Z
+__________________ test_type_adapter_json_is_zero_padded[999] __________________
+packages/evalschema/tests/test_utc_datetime_portability.py:83: in test_type_adapter_json_is_zero_padded
+    assert adapter.dump_python(instant, mode="json") == YEAR_TEXT[year]
+E   AssertionError: assert '999-01-01T00:00:00.000000Z' == '0999-01-01T00:00:00.000000Z'
+E     
+E     - 0999-01-01T00:00:00.000000Z
+E     ? -
+E     + 999-01-01T00:00:00.000000Z
+___________ test_serialized_text_matches_the_json_schema_pattern[1] ____________
+packages/evalschema/tests/test_utc_datetime_portability.py:91: in test_serialized_text_matches_the_json_schema_pattern
+    assert re.fullmatch(pattern, text), text
+E   AssertionError: 1-01-01T00:00:00.000000Z
+E   assert None
+E    +  where None = <function fullmatch at 0x1061d49e0>('^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$', '1-01-01T00:00:00.000000Z')
+E    +    where <function fullmatch at 0x1061d49e0> = re.fullmatch
+___________ test_serialized_text_matches_the_json_schema_pattern[9] ____________
+packages/evalschema/tests/test_utc_datetime_portability.py:91: in test_serialized_text_matches_the_json_schema_pattern
+    assert re.fullmatch(pattern, text), text
+E   AssertionError: 9-01-01T00:00:00.000000Z
+E   assert None
+E    +  where None = <function fullmatch at 0x1061d49e0>('^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$', '9-01-01T00:00:00.000000Z')
+E    +    where <function fullmatch at 0x1061d49e0> = re.fullmatch
+___________ test_serialized_text_matches_the_json_schema_pattern[99] ___________
+packages/evalschema/tests/test_utc_datetime_portability.py:91: in test_serialized_text_matches_the_json_schema_pattern
+    assert re.fullmatch(pattern, text), text
+E   AssertionError: 99-01-01T00:00:00.000000Z
+E   assert None
+E    +  where None = <function fullmatch at 0x1061d49e0>('^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$', '99-01-01T00:00:00.000000Z')
+E    +    where <function fullmatch at 0x1061d49e0> = re.fullmatch
+__________ test_serialized_text_matches_the_json_schema_pattern[999] ___________
+packages/evalschema/tests/test_utc_datetime_portability.py:91: in test_serialized_text_matches_the_json_schema_pattern
+    assert re.fullmatch(pattern, text), text
+E   AssertionError: 999-01-01T00:00:00.000000Z
+E   assert None
+E    +  where None = <function fullmatch at 0x1061d49e0>('^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$', '999-01-01T00:00:00.000000Z')
+E    +    where <function fullmatch at 0x1061d49e0> = re.fullmatch
+_________________________ test_round_trip_is_equal[1] __________________________
+packages/evalschema/tests/test_utc_datetime_portability.py:100: in test_round_trip_is_equal
+    again = model.model_validate_json(original.model_dump_json())
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for Stamped
+E   at
+E     '1-01-01T00:00:00.000000Z' is not a UTC instant: write YYYY-MM-DDTHH:MM:SS[.ffffff] with Z or an offset, at most six fractional digits, seconds 00-59 [type=utc_datetime, input_value='1-01-01T00:00:00.000000Z', input_type=str]
+_________________________ test_round_trip_is_equal[9] __________________________
+packages/evalschema/tests/test_utc_datetime_portability.py:100: in test_round_trip_is_equal
+    again = model.model_validate_json(original.model_dump_json())
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for Stamped
+E   at
+E     '9-01-01T00:00:00.000000Z' is not a UTC instant: write YYYY-MM-DDTHH:MM:SS[.ffffff] with Z or an offset, at most six fractional digits, seconds 00-59 [type=utc_datetime, input_value='9-01-01T00:00:00.000000Z', input_type=str]
+_________________________ test_round_trip_is_equal[99] _________________________
+packages/evalschema/tests/test_utc_datetime_portability.py:100: in test_round_trip_is_equal
+    again = model.model_validate_json(original.model_dump_json())
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for Stamped
+E   at
+E     '99-01-01T00:00:00.000000Z' is not a UTC instant: write YYYY-MM-DDTHH:MM:SS[.ffffff] with Z or an offset, at most six fractional digits, seconds 00-59 [type=utc_datetime, input_value='99-01-01T00:00:00.000000Z', input_type=str]
+________________________ test_round_trip_is_equal[999] _________________________
+packages/evalschema/tests/test_utc_datetime_portability.py:100: in test_round_trip_is_equal
+    again = model.model_validate_json(original.model_dump_json())
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for Stamped
+E   at
+E     '999-01-01T00:00:00.000000Z' is not a UTC instant: write YYYY-MM-DDTHH:MM:SS[.ffffff] with Z or an offset, at most six fractional digits, seconds 00-59 [type=utc_datetime, input_value='999-01-01T00:00:00.000000Z', input_type=str]
+_______________ test_all_fields_are_padded_not_only_the_year[1] ________________
+packages/evalschema/tests/test_utc_datetime_portability.py:139: in test_all_fields_are_padded_not_only_the_year
+    assert text == expected
+E   AssertionError: assert '1-02-03T04:05:06.000007Z' == '0001-02-03T04:05:06.000007Z'
+E     
+E     - 0001-02-03T04:05:06.000007Z
+E     ? ---
+E     + 1-02-03T04:05:06.000007Z
+_______________ test_all_fields_are_padded_not_only_the_year[9] ________________
+packages/evalschema/tests/test_utc_datetime_portability.py:139: in test_all_fields_are_padded_not_only_the_year
+    assert text == expected
+E   AssertionError: assert '9-02-03T04:05:06.000007Z' == '0009-02-03T04:05:06.000007Z'
+E     
+E     - 0009-02-03T04:05:06.000007Z
+E     ? ---
+E     + 9-02-03T04:05:06.000007Z
+_______________ test_all_fields_are_padded_not_only_the_year[99] _______________
+packages/evalschema/tests/test_utc_datetime_portability.py:139: in test_all_fields_are_padded_not_only_the_year
+    assert text == expected
+E   AssertionError: assert '99-02-03T04:05:06.000007Z' == '0099-02-03T04:05:06.000007Z'
+E     
+E     - 0099-02-03T04:05:06.000007Z
+E     ? --
+E     + 99-02-03T04:05:06.000007Z
+______________ test_all_fields_are_padded_not_only_the_year[999] _______________
+packages/evalschema/tests/test_utc_datetime_portability.py:139: in test_all_fields_are_padded_not_only_the_year
+    assert text == expected
+E   AssertionError: assert '999-02-03T04:05:06.000007Z' == '0999-02-03T04:05:06.000007Z'
+E     
+E     - 0999-02-03T04:05:06.000007Z
+E     ? -
+E     + 999-02-03T04:05:06.000007Z
+_________ test_offset_input_is_converted_and_the_year_stays_padded[99] _________
+packages/evalschema/tests/test_utc_datetime_portability.py:148: in test_offset_input_is_converted_and_the_year_stays_padded
+    assert text == f"{year:04d}-06-15T06:30:00.000000Z"
+E   AssertionError: assert '99-06-15T06:30:00.000000Z' == '0099-06-15T06:30:00.000000Z'
+E     
+E     - 0099-06-15T06:30:00.000000Z
+E     ? --
+E     + 99-06-15T06:30:00.000000Z
+________ test_offset_input_is_converted_and_the_year_stays_padded[999] _________
+packages/evalschema/tests/test_utc_datetime_portability.py:148: in test_offset_input_is_converted_and_the_year_stays_padded
+    assert text == f"{year:04d}-06-15T06:30:00.000000Z"
+E   AssertionError: assert '999-06-15T06:30:00.000000Z' == '0999-06-15T06:30:00.000000Z'
+E     
+E     - 0999-06-15T06:30:00.000000Z
+E     ? -
+E     + 999-06-15T06:30:00.000000Z
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_utc_datetime_portability.py::test_model_dump_json_mode_is_zero_padded[1]
+FAILED packages/evalschema/tests/test_utc_datetime_portability.py::test_model_dump_json_mode_is_zero_padded[9]
+FAILED packages/evalschema/tests/test_utc_datetime_portability.py::test_model_dump_json_mode_is_zero_padded[99]
+FAILED packages/evalschema/tests/test_utc_datetime_portability.py::test_model_dump_json_mode_is_zero_padded[999]
+FAILED packages/evalschema/tests/test_utc_datetime_portability.py::test_model_dump_json_text_is_zero_padded[1]
+FAILED packages/evalschema/tests/test_utc_datetime_portability.py::test_model_dump_json_text_is_zero_padded[9]
+FAILED packages/evalschema/tests/test_utc_datetime_portability.py::test_model_dump_json_text_is_zero_padded[99]
+FAILED packages/evalschema/tests/test_utc_datetime_portability.py::test_model_dump_json_text_is_zero_padded[999]
+FAILED packages/evalschema/tests/test_utc_datetime_portability.py::test_type_adapter_json_is_zero_padded[1]
+FAILED packages/evalschema/tests/test_utc_datetime_portability.py::test_type_adapter_json_is_zero_padded[9]
+FAILED packages/evalschema/tests/test_utc_datetime_portability.py::test_type_adapter_json_is_zero_padded[99]
+FAILED packages/evalschema/tests/test_utc_datetime_portability.py::test_type_adapter_json_is_zero_padded[999]
+FAILED packages/evalschema/tests/test_utc_datetime_portability.py::test_serialized_text_matches_the_json_schema_pattern[1]
+FAILED packages/evalschema/tests/test_utc_datetime_portability.py::test_serialized_text_matches_the_json_schema_pattern[9]
+FAILED packages/evalschema/tests/test_utc_datetime_portability.py::test_serialized_text_matches_the_json_schema_pattern[99]
+FAILED packages/evalschema/tests/test_utc_datetime_portability.py::test_serialized_text_matches_the_json_schema_pattern[999]
+FAILED packages/evalschema/tests/test_utc_datetime_portability.py::test_round_trip_is_equal[1]
+FAILED packages/evalschema/tests/test_utc_datetime_portability.py::test_round_trip_is_equal[9]
+FAILED packages/evalschema/tests/test_utc_datetime_portability.py::test_round_trip_is_equal[99]
+FAILED packages/evalschema/tests/test_utc_datetime_portability.py::test_round_trip_is_equal[999]
+FAILED packages/evalschema/tests/test_utc_datetime_portability.py::test_all_fields_are_padded_not_only_the_year[1]
+FAILED packages/evalschema/tests/test_utc_datetime_portability.py::test_all_fields_are_padded_not_only_the_year[9]
+FAILED packages/evalschema/tests/test_utc_datetime_portability.py::test_all_fields_are_padded_not_only_the_year[99]
+FAILED packages/evalschema/tests/test_utc_datetime_portability.py::test_all_fields_are_padded_not_only_the_year[999]
+FAILED packages/evalschema/tests/test_utc_datetime_portability.py::test_offset_input_is_converted_and_the_year_stays_padded[99]
+FAILED packages/evalschema/tests/test_utc_datetime_portability.py::test_offset_input_is_converted_and_the_year_stays_padded[999]
+26 failed, 39 passed in 0.21s
