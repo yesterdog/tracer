@@ -8,7 +8,7 @@
 A schema designed only from documentation fits documentation. Phase 1 must show that real outputs of the systems we target (Pipecat OTel spans, Langfuse-attributed OTLP, Sarvam STT REST, Pipecat conversation logs and turn events, AudioBufferProcessor WAV, Pipecat Evals scenario YAML, a VoicEra transcript export) fit the schema without losing information and without inventing values. One of these samples is a real call from the user's own deployment and contains a real person's speech, so it must stay private.
 
 ## Decision
-1. **Fixtures F1-F8**, each committed with a `provenance.json` of `{source, retrieval date, software version/commit, method: captured|synthetic_from_docs|private_real, license, PII status}`:
+1. **Fixtures F1-F8**, each committed with a `provenance.json` of `{source, retrieval date, software version/commit, method: captured|synthetic_from_docs|synthetic_hand_written_twin|private_real, license, PII status}` (revision 31: `synthetic_hand_written_twin` added for the public F8 twin, which is written by hand from the documented structure of a private real file and is neither captured nor derived from published documentation; Decision 5):
    - F1 Pipecat OTel spans (T1)
    - F2 Langfuse-attributed OTLP (T1; `synthetic_from_docs` unless a real instance is available)
    - F3 Sarvam STT REST (T0)

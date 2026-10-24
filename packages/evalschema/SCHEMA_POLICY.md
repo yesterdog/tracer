@@ -623,12 +623,18 @@ mapping adapters of Phase 1 are test support code, not part of the package.
   characters assigned in later Unicode versions: the profile-value lint (normalization, case
   folding, digit and category lookups), case-folding of URL parameter names, the white-space test
   of price notes (`str.isspace()`) and of label edges. The default-ignorable set of labels is
-  pinned to Unicode 16.0.0 in the code and does not follow the runtime. **Python 3.15 is not
-  verified**: its CI leg is non-blocking, and no 3.15 run is recorded **(unverified)**.
-- **The CI workflow** has run on GitHub Actions for the jobs that existed before revision 30.
-  The secret-scanner job (gitleaks, pinned by checksum) and the dependency-audit job (pip-audit
-  on `uv export`) are new and are **unverified until they run on GitHub**. The multi-version
-  results above come from local runs.
+  pinned to Unicode 16.0.0 in the code and does not follow the runtime. **Python 3.15** has run
+  on GitHub Actions as a release candidate (CPython 3.15.0rc2 on hosted Linux: the full suite
+  passed, 8374 tests, at commits `2653212` and `1a32d53`, 2026-10-24). Its leg stays non-blocking, and no final
+  3.15 release has been tested **(unverified)**.
+- **The CI workflow** runs on GitHub Actions (hosted Linux). The required test legs are Python
+  3.11 to 3.14; hosted Linux, not a local macOS run, is the authority for whether they pass (a
+  year-formatting bug in the shipped serializer showed only on Linux; `CHANGELOG.md`,
+  "Development notes"). The secret-scanner job (gitleaks, pinned by checksum) and the
+  dependency-audit job (pip-audit on `uv export`) have run there: the dependency audit passed on
+  its first run; the secret scanner found one false positive in its first run (synthetic
+  `key=value` samples in a test support module), which is allowlisted for one rule and one exact
+  path, and it has passed since.
 - **Interoperability with other languages.** No non-Python JSON Schema validator was run against
   the schema files; portability rests on the pattern syntax rules of section 2.5
   **(unverified)**. Digests use the `rfc8785` Python package; agreement with JCS
@@ -646,8 +652,7 @@ mapping adapters of Phase 1 are test support code, not part of the package.
 
 ## 16. Statements in this file that are not verified
 
-- Python 3.15 behaviour (section 15).
-- Results of the new secret-scanner and dependency-audit CI jobs (section 15).
+- Python 3.15 behaviour on a final 3.15 release (section 15; only a release candidate ran).
 - Validation by non-Python JSON Schema validators; JCS and AES-GCM interoperability with other
   languages (section 15).
 - The match of the credential patterns with current vendor key formats and presigned-URL forms

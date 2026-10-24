@@ -20,8 +20,10 @@ First version. Everything below is new, so there is no change class and no migra
 
 ### Package
 
-- Pydantic v2 models, Python 3.11 or later (CI legs 3.11 to 3.14; 3.15 non-blocking and not
-  run). Runtime dependencies: `pydantic` 2.14.1 and `rfc8785` 0.1.4 only. Licence Apache-2.0.
+- Pydantic v2 models, Python 3.11 or later (required CI legs 3.11 to 3.14 on hosted Linux; a
+  non-blocking 3.15 leg, which has run on a 3.15 release candidate). Runtime dependencies:
+  `pydantic` 2.14.1 and `rfc8785` 0.1.4 only, pinned exactly (whether to relax the pins before
+  a public release is open, see "Development notes"). Licence Apache-2.0.
 - 26 entities, each with `id`, `schema_version`, `created_at`, `metadata` and the computed,
   load-verified `metadata_flags`: Project, AgentTarget, Persona, TestProfile, Evaluator,
   MetricDefinition, MetricBinding, Rubric, ConfigSnapshot, Run, Artifact, Transcript, Turn,
@@ -92,7 +94,32 @@ First version. Everything below is new, so there is no change class and no migra
   - `ProviderConfigRef.config_ref` rejects a high-entropy name part after any scheme.
   - Messages outside hiding models quote at most 64 code points of a rejected value, then
     `...`.
+- Importing a Pipecat Evals scenario (fixture F5) that carries per-turn expectations loses
+  information: the event assertions of a scripted scenario (`response` with `eval` or
+  `text_contains`, `within_ms` budgets, `absent`, `llm_marker` checks, `user_transcription`
+  text) have no place in an Evaluator, which holds a script, expected tool calls, an expected
+  outcome and metric bindings. They are recorded as non-blocking gaps in the gap register (no
+  MVP-1 metric reads them), so an imported scenario runs its script and its declared
+  expectations but **cannot reproduce the verdict Pipecat Evals gives for that scenario**.
 - Limitations and non-guarantees: `SCHEMA_POLICY.md`.
+
+### Development notes
+
+Changes made while 0.0.1 was being built. None changes the version, because nothing was
+released.
+
+- **Year formatting on Linux.** `UtcDatetime` serialized instants with `strftime("%Y-...")`.
+  glibc does not zero-pad `%Y` for years below 1000, so on Linux an instant in year 1 was
+  written as `1-01-01T...` and failed the type's own pattern (macOS pads, which hid the bug
+  locally; the hosted Linux CI legs 3.11 to 3.13 caught it). Fixed in two steps: the shipped
+  serializer formats the year explicitly with four digits (`58a9857`), and the test-side
+  converters and helpers that used the same `strftime` pattern do the same (`1a32d53`). The
+  output on macOS is unchanged byte for byte, and no schema file or lock changed. Hosted run
+  40043294681 at `1a32d53` passed every job on Linux, 3.11 to 3.15.
+- **Runtime pins.** The exact pins `pydantic==2.14.1` and `rfc8785==0.1.4` keep results
+  reproducible, but they conflict with consumers that pin a range (for example `pipecat-ai`
+  requires `pydantic>=2.10.6,<3`). Whether to relax them is an owner decision before anything
+  is published to PyPI.
 
 ### Not in this release
 

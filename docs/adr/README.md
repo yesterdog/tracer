@@ -1,6 +1,15 @@
 # Architecture Decision Records: Phase 1 (`tracer-evalschema` 0.0.1)
 
-Revision 30, 2026-10-24. Authoritative scope: `docs/phase1/SCOPE.md`.
+Revision 31, 2026-10-24. Authoritative scope: `docs/phase1/SCOPE.md`.
+
+## Changes in revision 31
+- **Phase 1 gate findings, decided by the lead (auto-approved and logged; SCOPE "Changes in revision 31"):**
+  - **ADR 0001 Decision 5 (m4):** the freeze of the prefix registry is recorded: frozen at the Phase 1 gate on 2026-10-24; the table of 26 prefixes is unchanged since its first commit `fa5a76d` (2026-10-23) through `1a32d53`.
+  - **ADR 0003 Decision 2 (m2):** `ExternalRef.system` is `VerbatimText`, as the code has it, not `MachineKey`; it names another system in that system's spelling and is part of the verbatim re-import key (ADR 0001 Decision 7, P-02). Closes the open question on the `ExternalRef` field types.
+  - **ADR 0006 I23 (M2):** the test name is `test_profile_placeholders_in_outcome_and_tool_arguments`, the name the test carries (the revision 9 text used a longer spelling).
+  - **ADR 0018 Decision 1 (m1):** the provenance method set adds `synthetic_hand_written_twin` (the public F8 twin); gate item 13 follows.
+  - **N11 closed** (deferred, additive) and **N19 decided** (M5: `declared_by` rejected in shared and benchmark exports with `[declared_by]`, allowed in internal exports; implementation pending). No ADR text changes for these yet; ADR 0016 is amended when M5 is implemented.
+- Open [Proposed] items: none. Owner decisions (M7, M8 and the release items) are listed in HANDOFF section 8; none of them changes an ADR.
 
 ## Changes in revision 30
 - **Decided, auto-approved and logged** (decision log "P1-21 SECURITY AUDIT DELIVERED", "AUTO-APPROVED audit decisions", "AUTO-APPROVED A1-A10"; SCOPE "Changes in revision 30"; contract `docs/phase1/api-surface-hardening.md`):
