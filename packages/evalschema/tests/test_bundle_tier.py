@@ -657,7 +657,10 @@ def test_sealed_and_redacted_records_count_for_the_tier() -> None:
     no_declaration = export_doc(
         "shared_export", [stripped], sealed_payloads=sealed, payload_redactions=rest
     )
-    load_export(no_declaration)  # the observer transcript is still there: T2 holds
+    # T-B13: the observer transcript is still there (T2 holds) but its turns are gone and
+    # undeclared, so the scored results read nothing: the turns must be declared withheld
+    with pytest.raises(ValidationError, match=r"\[applicability\]"):
+        load_export(no_declaration)
     stripped["withheld"] = [withheld_doc("turn", i) for i in ids]
     declared = export_doc(
         "shared_export", [stripped], sealed_payloads=sealed, payload_redactions=rest

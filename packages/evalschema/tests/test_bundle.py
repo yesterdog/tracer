@@ -894,6 +894,10 @@ def test_run_bundle_transcript_rules_run_over_the_bundles_turns() -> None:
     empty["results"][0]["evidence_refs"] = [
         e for e in empty["results"][0]["evidence_refs"] if e["kind"] != "turn"
     ]
+    # T-B13: a scored result of a metric that reads a transcript has read a turn, so an empty call
+    # holds no such result (nothing was scored)
+    empty["results"] = []
+    empty["verdict"] = None
     assert load_run(empty).turns == []
     # a timeline origin on a transcript that has no turn left is not an error of the bundle
     with_origin = copy.deepcopy(empty)

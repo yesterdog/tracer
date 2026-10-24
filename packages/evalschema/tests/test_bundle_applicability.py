@@ -68,8 +68,10 @@ from ._support_b15 import (
     text_of_error,
     transplant,
     turn_texts,
+    with_results,
     world_of,
 )
+from ._support_b17 import count_differences, counts_changes, fields_named
 
 TAG = "[applicability]"
 IDENTITY = (
@@ -427,7 +429,7 @@ def test_applic_a_result_stored_for_another_run_is_rejected_unless_it_agrees(
     from the target's own result in the status class, ``na_reason``, ``missing_kinds`` or
     ``language_source`` (and ``declared_language_transcript_ids``, (P)); the message names a field
     on which they differ and none on which they agree. Where nothing differs the bundle loads
-    (a per-turn summary may differ: its counts are not compared by this rule).
+    (the per-turn counts total_turns and counts.not_applicable are compared too, T-B16).
 
     The expected verdict comes from comparing the two stored documents, which were built by the
     reference evaluator and are the hand-written matrix of api-surface-tdeg.md; the library under
@@ -442,7 +444,7 @@ def test_applic_a_result_stored_for_another_run_is_rejected_unless_it_agrees(
             continue
         doc, theirs = planted
         mine = result_of(target_world.copy(), target_world, key)
-        differing = first_differences(mine, theirs)
+        differing = [*first_differences(mine, theirs), *count_differences(mine, theirs)]
         try:
             model.model_validate(doc)
         except ValidationError as error:
@@ -452,7 +454,7 @@ def test_applic_a_result_stored_for_another_run_is_rejected_unless_it_agrees(
             elif TAG not in text:
                 problems.append(f"{key}: rejected without {TAG}: {text[:200]}")
             else:
-                named = mentioned_fields(text)
+                named = mentioned_fields(text) | fields_named(text)
                 if not named or not named <= set(differing):
                     problems.append(f"{key}: names {sorted(named)}, differing {differing}")
         else:
@@ -992,6 +994,18 @@ def test_applic_agent_transcript_with_one_agent_turn_is_enough() -> None:
     keep = next(t["id"] for t in doc["turns"] if t["role"] == "agent")
     set_roles(doc, "unknown", only=lambda t: t["id"] != keep)
     assert sum(1 for t in doc["turns"] if t["role"] == "agent") == 1
+    # the per-turn results read the one agent turn (T-B16): their summaries say so
+    rebuild_verdict(
+        world,
+        with_results(
+            world,
+            {
+                "turn_politeness_share": counts_changes(world, "turn_politeness_share", passed=1),
+                "turn_length_share": counts_changes(world, "turn_length_share", passed=1),
+            },
+            doc,
+        ),
+    )
     load_bundle(doc)
 
 
@@ -1344,6 +1358,17 @@ def test_applic_a_huge_call_validates_and_a_forgery_in_it_is_still_found() -> No
     not a benchmark), and a forged result is rejected as in a small bundle."""
     world = cached_world("T1", origin="human")
     doc = _huge(world, 2000)
+    agents = sum(1 for t in doc["turns"] if t["role"] == "agent")  # 1,004 (T-B16)
+    with_results(
+        world,
+        {
+            "turn_politeness_share": counts_changes(
+                world, "turn_politeness_share", passed=agents - 1, failed=1
+            ),
+            "turn_length_share": counts_changes(world, "turn_length_share", passed=agents),
+        },
+        doc,
+    )
     started = time.monotonic()
     load_bundle(doc)
     elapsed = time.monotonic() - started

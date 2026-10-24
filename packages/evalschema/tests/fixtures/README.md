@@ -120,3 +120,10 @@ Regeneration log:
   id, the RunBundle worlds declare `hi-IN` (turn_timing available, transcript tagged `hi-IN`), and
   the new invalid files `MetricResult/invalid/transcript-ids-twice.json` and
   `transcript-ids-empty.json` are rejected (duplicate id; empty list).
+* 2026-10-24 (batch 28, A-C6): a `not_applicable` result with a run-level reason (`missing_input`,
+  `agent_channel_unknown`) may not carry a `per_turn` summary. `MetricResult/valid/maximal-na-missing-input.json`
+  loses its summary and `maximal-na-language-not-observed.json` gains it (4 not-applicable turns, one
+  turn evidence reference), so a golden still shows a not_applicable result with a summary. The
+  invalid files derived from them change with them (`missing-input-without-kinds`,
+  `not-applicable-with-value`, `not-applicable-without-reason`; same expectations, including error
+  path `missing_kinds`). No `frozen/` file and no digest changed.

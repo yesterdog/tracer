@@ -1318,7 +1318,6 @@ def _result_na_missing() -> Doc:
         "missing_input",
         missing_kinds=list(ALL_INPUT_KINDS),
         language_source=None,
-        per_turn=per_turn(0, 0, 4, 0),
         evidence_refs=_evidence()[:1],
     )
 
@@ -1330,7 +1329,12 @@ def _result_na_channel() -> Doc:
 
 @valid("MetricResult", "maximal-na-language-not-observed")
 def _result_na_not_observed() -> Doc:
-    return _not_applicable("language_not_observed", language_source=None)
+    return _not_applicable(
+        "language_not_observed",
+        language_source=None,
+        per_turn=per_turn(0, 0, 4, 0),
+        evidence_refs=_evidence()[:1],
+    )
 
 
 @valid("MetricResult", "maximal-na-unsupported-language")

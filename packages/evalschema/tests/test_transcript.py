@@ -736,7 +736,7 @@ def test_transcript_declared_language_shape_and_provenance() -> None:
         assert (
             declaration.model_validate(language_declaration(declared_by=good)).declared_by == good
         )
-    for bad in ("a@b", "user@example.com", "@", "", "two words", DEVANAGARI, None):
+    for bad in ("a@b", "user@example.com", "@", "", "two words", DEVANAGARI):
         with pytest.raises(ValidationError):
             declaration.model_validate(language_declaration(declared_by=bad))
     loaded = declaration.model_validate(
@@ -747,10 +747,13 @@ def test_transcript_declared_language_shape_and_provenance() -> None:
     for bad_time in bad_times:
         with pytest.raises(ValidationError):
             declaration.model_validate(language_declaration(declared_at=bad_time))
-    for missing in ("language", "source", "declared_by", "declared_at"):
+    for missing in ("language", "source", "declared_at"):
         doc = {k: v for k, v in language_declaration().items() if k != missing}
         with pytest.raises(ValidationError):
             declaration.model_validate(doc)
+    # N19: declared_by is optional (a shared or benchmark export holds none)
+    without = {k: v for k, v in language_declaration().items() if k != "declared_by"}
+    assert declaration.model_validate(without).declared_by is None
     with pytest.raises(ValidationError):
         declaration.model_validate(language_declaration(confidence=1.0))
     transcript = make3(
