@@ -67,9 +67,18 @@ from .repository import (
     store_snapshot,
 )
 from .schema import metadata
+from .verify import (
+    VERIFY_NOTES,
+    VERIFY_PROBLEMS,
+    VerifyFinding,
+    VerifyReport,
+    verify_database,
+)
 from .versioning import StoreInfo, open_store
 
 __all__ = [
+    "VERIFY_NOTES",
+    "VERIFY_PROBLEMS",
     "BigIntCol",
     "BoolCol",
     "DecimalCol",
@@ -110,6 +119,8 @@ __all__ = [
     "UnsupportedServerEncoding",
     "UnsupportedSqliteVersion",
     "UuidCol",
+    "VerifyFinding",
+    "VerifyReport",
     "create_store_engine",
     "delete_dataset_item",
     "delete_definition",
@@ -139,4 +150,5 @@ __all__ = [
     "store_snapshot",
     "tables",
     "triggers",
+    "verify_database",
 ]

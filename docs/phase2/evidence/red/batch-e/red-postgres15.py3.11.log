@@ -1,0 +1,354 @@
+# red run: batch E postgres-marked tests against the committed tree; PostgreSQL 15.19, python 3.11; throwaway container on 127.0.0.1, generated password (scrubbed)
+Python 3.11.16
+F..FFFFFF.FFF..FFFFFFFFFFFFFFF.FFF.............................F.FFFFFFF [ 66%]
+FFFFF.........FFFFFFFFFFFFFFFFFFFFF.                                     [100%]
+=================================== FAILURES ===================================
+E   AssertionError: ['ix_artifact_run_id', 'ix_artifact_sha256', 'ix_config_snapshot_content_digest_value', 'ix_cost_record_run_id', 'ix_cost_summary_run_id', 'ix_dataset_item_artifact_id', ...]
+    assert {'ix_artifact..._run_id', ...} == frozenset({'i...run_id', ...})
+      
+      Extra items in the right set:
+      'ix_stage_span_run_id'
+      'ix_transcript_run_id'
+      'ix_cost_summary_run_id'
+      'ix_turn_run_id'
+      'ix_artifact_sha256'...
+      
+      ...Full output truncated (21 lines hidden), use '-vv' to show
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_indexes.py:87: AssertionError: ['ix_artifact_run_id', 'ix_artifact_sha256', 'ix_config_snapshot_content_digest_value', 'ix_cost_record_run_id', 'ix_cost_summary_run_id', 'ix_dataset_item_artifact_id', ...]
+E   AssertionError: ('runs-by-agent-target-version', {'run'}, '')
+    assert not ({'run'} & {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...})
+     +  where {'run'} = Plan(indexes=set(), primary_key=False, scans={'run'}, sort=False, text='').scans
+     +  and   {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...} = set(FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}))
+     +    where FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}) = MetaData().tables
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_indexes.py:537: AssertionError: ('runs-by-agent-target-version', {'run'}, '')
+E   AssertionError: ('runs-by-agent-target-only', {'run'}, '')
+    assert not ({'run'} & {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...})
+     +  where {'run'} = Plan(indexes=set(), primary_key=False, scans={'run'}, sort=False, text='').scans
+     +  and   {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...} = set(FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}))
+     +    where FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}) = MetaData().tables
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_indexes.py:537: AssertionError: ('runs-by-agent-target-only', {'run'}, '')
+E   AssertionError: ('runs-by-mode', {'run'}, '')
+    assert not ({'run'} & {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...})
+     +  where {'run'} = Plan(indexes=set(), primary_key=False, scans={'run'}, sort=False, text='').scans
+     +  and   {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...} = set(FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}))
+     +    where FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}) = MetaData().tables
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_indexes.py:537: AssertionError: ('runs-by-mode', {'run'}, '')
+E   AssertionError: ('runs-by-observed-tier', {'run'}, '')
+    assert not ({'run'} & {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...})
+     +  where {'run'} = Plan(indexes=set(), primary_key=False, scans={'run'}, sort=False, text='').scans
+     +  and   {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...} = set(FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}))
+     +    where FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}) = MetaData().tables
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_indexes.py:537: AssertionError: ('runs-by-observed-tier', {'run'}, '')
+E   AssertionError: ('runs-started-between', {'run'}, '')
+    assert not ({'run'} & {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...})
+     +  where {'run'} = Plan(indexes=set(), primary_key=False, scans={'run'}, sort=False, text='').scans
+     +  and   {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...} = set(FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}))
+     +    where FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}) = MetaData().tables
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_indexes.py:537: AssertionError: ('runs-started-between', {'run'}, '')
+E   AssertionError: ('runs-by-snapshot', {'run'}, '')
+    assert not ({'run'} & {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...})
+     +  where {'run'} = Plan(indexes=set(), primary_key=False, scans={'run'}, sort=False, text='').scans
+     +  and   {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...} = set(FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}))
+     +    where FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}) = MetaData().tables
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_indexes.py:537: AssertionError: ('runs-by-snapshot', {'run'}, '')
+E   AssertionError: ('artifacts-by-run', {'artifact'}, '')
+    assert not ({'artifact'} & {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...})
+     +  where {'artifact'} = Plan(indexes=set(), primary_key=False, scans={'artifact'}, sort=False, text='').scans
+     +  and   {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...} = set(FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}))
+     +    where FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}) = MetaData().tables
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_indexes.py:537: AssertionError: ('artifacts-by-run', {'artifact'}, '')
+E   AssertionError: ('artifacts-by-sha256', {'artifact'}, '')
+    assert not ({'artifact'} & {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...})
+     +  where {'artifact'} = Plan(indexes=set(), primary_key=False, scans={'artifact'}, sort=False, text='').scans
+     +  and   {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...} = set(FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}))
+     +    where FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}) = MetaData().tables
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_indexes.py:537: AssertionError: ('artifacts-by-sha256', {'artifact'}, '')
+E   AssertionError: ('transcripts-by-run', {'transcript'}, '')
+    assert not ({'transcript'} & {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...})
+     +  where {'transcript'} = Plan(indexes=set(), primary_key=False, scans={'transcript'}, sort=False, text='').scans
+     +  and   {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...} = set(FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}))
+     +    where FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}) = MetaData().tables
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_indexes.py:537: AssertionError: ('transcripts-by-run', {'transcript'}, '')
+E   AssertionError: ('turns-by-run', {'turn'}, '')
+    assert not ({'turn'} & {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...})
+     +  where {'turn'} = Plan(indexes=set(), primary_key=False, scans={'turn'}, sort=False, text='').scans
+     +  and   {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...} = set(FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}))
+     +    where FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}) = MetaData().tables
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_indexes.py:537: AssertionError: ('turns-by-run', {'turn'}, '')
+E   AssertionError: ('exchanges-by-run', {'exchange'}, '')
+    assert not ({'exchange'} & {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...})
+     +  where {'exchange'} = Plan(indexes=set(), primary_key=False, scans={'exchange'}, sort=False, text='').scans
+     +  and   {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...} = set(FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}))
+     +    where FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}) = MetaData().tables
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_indexes.py:537: AssertionError: ('exchanges-by-run', {'exchange'}, '')
+E   AssertionError: ('tool-calls-by-run', {'tool_call_event'}, '')
+    assert not ({'tool_call_event'} & {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...})
+     +  where {'tool_call_event'} = Plan(indexes=set(), primary_key=False, scans={'tool_call_event'}, sort=False, text='').scans
+     +  and   {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...} = set(FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}))
+     +    where FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}) = MetaData().tables
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_indexes.py:537: AssertionError: ('tool-calls-by-run', {'tool_call_event'}, '')
+E   AssertionError: ('spans-by-run', {'stage_span'}, '')
+    assert not ({'stage_span'} & {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...})
+     +  where {'stage_span'} = Plan(indexes=set(), primary_key=False, scans={'stage_span'}, sort=False, text='').scans
+     +  and   {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...} = set(FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}))
+     +    where FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}) = MetaData().tables
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_indexes.py:537: AssertionError: ('spans-by-run', {'stage_span'}, '')
+E   AssertionError: ('results-by-run', {'metric_result'}, '')
+    assert not ({'metric_result'} & {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...})
+     +  where {'metric_result'} = Plan(indexes=set(), primary_key=False, scans={'metric_result'}, sort=False, text='').scans
+     +  and   {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...} = set(FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}))
+     +    where FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}) = MetaData().tables
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_indexes.py:537: AssertionError: ('results-by-run', {'metric_result'}, '')
+E   AssertionError: ('results-by-metric', {'metric_result'}, '')
+    assert not ({'metric_result'} & {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...})
+     +  where {'metric_result'} = Plan(indexes=set(), primary_key=False, scans={'metric_result'}, sort=False, text='').scans
+     +  and   {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...} = set(FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}))
+     +    where FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}) = MetaData().tables
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_indexes.py:537: AssertionError: ('results-by-metric', {'metric_result'}, '')
+E   AssertionError: ('results-by-metric-version', {'metric_result'}, '')
+    assert not ({'metric_result'} & {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...})
+     +  where {'metric_result'} = Plan(indexes=set(), primary_key=False, scans={'metric_result'}, sort=False, text='').scans
+     +  and   {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...} = set(FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}))
+     +    where FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}) = MetaData().tables
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_indexes.py:537: AssertionError: ('results-by-metric-version', {'metric_result'}, '')
+E   AssertionError: ('results-by-metric-version-status', {'metric_result'}, '')
+    assert not ({'metric_result'} & {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...})
+     +  where {'metric_result'} = Plan(indexes=set(), primary_key=False, scans={'metric_result'}, sort=False, text='').scans
+     +  and   {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...} = set(FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}))
+     +    where FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}) = MetaData().tables
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_indexes.py:537: AssertionError: ('results-by-metric-version-status', {'metric_result'}, '')
+E   AssertionError: ('verdicts-by-status', {'run_verdict'}, '')
+    assert not ({'run_verdict'} & {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...})
+     +  where {'run_verdict'} = Plan(indexes=set(), primary_key=False, scans={'run_verdict'}, sort=False, text='').scans
+     +  and   {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...} = set(FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}))
+     +    where FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}) = MetaData().tables
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_indexes.py:537: AssertionError: ('verdicts-by-status', {'run_verdict'}, '')
+E   AssertionError: ('verdicts-by-run', {'run_verdict'}, '')
+    assert not ({'run_verdict'} & {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...})
+     +  where {'run_verdict'} = Plan(indexes=set(), primary_key=False, scans={'run_verdict'}, sort=False, text='').scans
+     +  and   {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...} = set(FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}))
+     +    where FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}) = MetaData().tables
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_indexes.py:537: AssertionError: ('verdicts-by-run', {'run_verdict'}, '')
+E   AssertionError: ('usage-by-run', {'usage_record'}, '')
+    assert not ({'usage_record'} & {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...})
+     +  where {'usage_record'} = Plan(indexes=set(), primary_key=False, scans={'usage_record'}, sort=False, text='').scans
+     +  and   {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...} = set(FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}))
+     +    where FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}) = MetaData().tables
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_indexes.py:537: AssertionError: ('usage-by-run', {'usage_record'}, '')
+E   AssertionError: ('cost-records-by-run', {'cost_record'}, '')
+    assert not ({'cost_record'} & {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...})
+     +  where {'cost_record'} = Plan(indexes=set(), primary_key=False, scans={'cost_record'}, sort=False, text='').scans
+     +  and   {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...} = set(FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}))
+     +    where FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}) = MetaData().tables
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_indexes.py:537: AssertionError: ('cost-records-by-run', {'cost_record'}, '')
+E   AssertionError: ('cost-summaries-by-run', {'cost_summary'}, '')
+    assert not ({'cost_summary'} & {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...})
+     +  where {'cost_summary'} = Plan(indexes=set(), primary_key=False, scans={'cost_summary'}, sort=False, text='').scans
+     +  and   {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...} = set(FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}))
+     +    where FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}) = MetaData().tables
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_indexes.py:537: AssertionError: ('cost-summaries-by-run', {'cost_summary'}, '')
+E   AssertionError: ('snapshot-by-digest', {'config_snapshot'}, '')
+    assert not ({'config_snapshot'} & {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...})
+     +  where {'config_snapshot'} = Plan(indexes=set(), primary_key=False, scans={'config_snapshot'}, sort=False, text='').scans
+     +  and   {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...} = set(FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}))
+     +    where FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}) = MetaData().tables
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_indexes.py:537: AssertionError: ('snapshot-by-digest', {'config_snapshot'}, '')
+E   AssertionError: ('metric-definition-by-key', {'metric_definition'}, '')
+    assert not ({'metric_definition'} & {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...})
+     +  where {'metric_definition'} = Plan(indexes=set(), primary_key=False, scans={'metric_definition'}, sort=False, text='').scans
+     +  and   {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...} = set(FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}))
+     +    where FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}) = MetaData().tables
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_indexes.py:537: AssertionError: ('metric-definition-by-key', {'metric_definition'}, '')
+E   AssertionError: ('dataset-items-by-artifact', {'dataset_item'}, '')
+    assert not ({'dataset_item'} & {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...})
+     +  where {'dataset_item'} = Plan(indexes=set(), primary_key=False, scans={'dataset_item'}, sort=False, text='').scans
+     +  and   {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...} = set(FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}))
+     +    where FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}) = MetaData().tables
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_indexes.py:537: AssertionError: ('dataset-items-by-artifact', {'dataset_item'}, '')
+E   AssertionError: ('dataset-items-by-transcript', {'dataset_item'}, '')
+    assert not ({'dataset_item'} & {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...})
+     +  where {'dataset_item'} = Plan(indexes=set(), primary_key=False, scans={'dataset_item'}, sort=False, text='').scans
+     +  and   {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...} = set(FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}))
+     +    where FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}) = MetaData().tables
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_indexes.py:537: AssertionError: ('dataset-items-by-transcript', {'dataset_item'}, '')
+E   AssertionError: ('run-bundle-by-run', {'run_bundle'}, '')
+    assert not ({'run_bundle'} & {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...})
+     +  where {'run_bundle'} = Plan(indexes=set(), primary_key=False, scans={'run_bundle'}, sort=False, text='').scans
+     +  and   {'agent_target', 'artifact', 'config_snapshot', 'cost_record', 'cost_summary', 'dataset', ...} = set(FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}))
+     +    where FacadeDict({'agent_target': Table('agent_target', MetaData(), Column('id', UuidCol(), table=<agent_target>, primary_ke...<tracer_meta>, nullable=False), Column('evaldb_version', KeyCol(), table=<tracer_meta>, nullable=False), schema=None)}) = MetaData().tables
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_indexes.py:537: AssertionError: ('run-bundle-by-run', {'run_bundle'}, '')
+E   AssertionError: [('SELECT count(*) AS count_1 FROM run WHERE run.config_snapshot_id = %s::UUID', {'run'}), ('SELECT artifact.id FROM a... {'artifact'}), ('SELECT count(*) AS count_1 FROM transcript WHERE transcript.run_id = %s::UUID', {'transcript'}), ...]
+    assert [('SELECT cou...cript'}), ...] == []
+      
+      Left contains 16 more items, first extra item: ('SELECT count(*) AS count_1 FROM run WHERE run.config_snapshot_id = %s::UUID', {'run'})
+      Use -v to get more diff
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_indexes.py:628: AssertionError: [('SELECT count(*) AS count_1 FROM run WHERE run.config_snapshot_id = %s::UUID', {'run'}), ('SELECT artifact.id FROM a... {'artifact'}), ('SELECT count(*) AS count_1 FROM transcript WHERE transcript.run_id = %s::UUID', {'transcript'}), ...]
+E   AssertionError: assert '0001' == '0002'
+      
+      - 0002
+      ?    ^
+      + 0001
+      ?    ^
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_revision_0002.py:110: AssertionError: assert '0001' == '0002'
+E   AssertionError: assert '0001' == '0002'
+      
+      - 0002
+      ?    ^
+      + 0001
+      ?    ^
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_revision_0002.py:133: AssertionError: assert '0001' == '0002'
+E   AssertionError: assert '0001' == '0002'
+      
+      - 0002
+      ?    ^
+      + 0001
+      ?    ^
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_revision_0002.py:149: AssertionError: assert '0001' == '0002'
+E   AssertionError: assert '0001' == '0002'
+      
+      - 0002
+      ?    ^
+      + 0001
+      ?    ^
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_revision_0002.py:179: AssertionError: assert '0001' == '0002'
+E   AssertionError: assert '0001' == '0002'
+      
+      - 0002
+      ?    ^
+      + 0001
+      ?    ^
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_revision_0002.py:179: AssertionError: assert '0001' == '0002'
+E   AssertionError: assert '0001' == '0002'
+      
+      - 0002
+      ?    ^
+      + 0001
+      ?    ^
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_revision_0002.py:192: AssertionError: assert '0001' == '0002'
+E   Failed: DID NOT RAISE Boom
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_revision_0002.py:200: Failed: DID NOT RAISE Boom
+E   AssertionError: assert '0001' == '0002'
+      
+      - 0002
+      ?    ^
+      + 0001
+      ?    ^
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_revision_0002.py:221: AssertionError: assert '0001' == '0002'
+E   Failed: DID NOT RAISE StoreNotMigrated
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_revision_0002.py:239: Failed: DID NOT RAISE StoreNotMigrated
+E   Failed: DID NOT RAISE StoreNotMigrated
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_revision_0002.py:260: Failed: DID NOT RAISE StoreNotMigrated
+E   Failed: DID NOT RAISE StoreNotMigrated
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_revision_0002.py:277: Failed: DID NOT RAISE StoreNotMigrated
+E   AssertionError: assert ('0001', '0.0.1') == ('0002', '0.0.1')
+      
+      At index 0 diff: '0001' != '0002'
+      Use -v to get more diff
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_revision_0002.py:287: AssertionError: assert ('0001', '0.0.1') == ('0002', '0.0.1')
+E   AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_verify.py:175: AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_verify.py:196: AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_verify.py:215: AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_verify.py:240: AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_verify.py:259: AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_verify.py:283: AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_verify.py:376: AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_verify.py:416: AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_verify.py:442: AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_verify.py:467: AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_verify.py:497: AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_verify.py:497: AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_verify.py:497: AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_verify.py:497: AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_verify.py:497: AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_verify.py:497: AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_verify.py:497: AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_verify.py:507: AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_verify.py:528: AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_verify.py:605: AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+<scratch>/red/repo/packages/evaldb/tests/test_evaldb_verify.py:671: AttributeError: module 'tracer_evaldb' has no attribute 'verify_database'
+=========================== short test summary info ============================
+FAILED packages/evaldb/tests/test_evaldb_indexes.py::test_access_pattern_indexes_exist[postgres]
+FAILED packages/evaldb/tests/test_evaldb_indexes.py::test_postgres_plans_can_use_indexes[runs-by-agent-target-version]
+FAILED packages/evaldb/tests/test_evaldb_indexes.py::test_postgres_plans_can_use_indexes[runs-by-agent-target-only]
+FAILED packages/evaldb/tests/test_evaldb_indexes.py::test_postgres_plans_can_use_indexes[runs-by-mode]
+FAILED packages/evaldb/tests/test_evaldb_indexes.py::test_postgres_plans_can_use_indexes[runs-by-observed-tier]
+FAILED packages/evaldb/tests/test_evaldb_indexes.py::test_postgres_plans_can_use_indexes[runs-started-between]
+FAILED packages/evaldb/tests/test_evaldb_indexes.py::test_postgres_plans_can_use_indexes[runs-by-snapshot]
+FAILED packages/evaldb/tests/test_evaldb_indexes.py::test_postgres_plans_can_use_indexes[artifacts-by-run]
+FAILED packages/evaldb/tests/test_evaldb_indexes.py::test_postgres_plans_can_use_indexes[artifacts-by-sha256]
+FAILED packages/evaldb/tests/test_evaldb_indexes.py::test_postgres_plans_can_use_indexes[transcripts-by-run]
+FAILED packages/evaldb/tests/test_evaldb_indexes.py::test_postgres_plans_can_use_indexes[turns-by-run]
+FAILED packages/evaldb/tests/test_evaldb_indexes.py::test_postgres_plans_can_use_indexes[exchanges-by-run]
+FAILED packages/evaldb/tests/test_evaldb_indexes.py::test_postgres_plans_can_use_indexes[tool-calls-by-run]
+FAILED packages/evaldb/tests/test_evaldb_indexes.py::test_postgres_plans_can_use_indexes[spans-by-run]
+FAILED packages/evaldb/tests/test_evaldb_indexes.py::test_postgres_plans_can_use_indexes[results-by-run]
+FAILED packages/evaldb/tests/test_evaldb_indexes.py::test_postgres_plans_can_use_indexes[results-by-metric]
+FAILED packages/evaldb/tests/test_evaldb_indexes.py::test_postgres_plans_can_use_indexes[results-by-metric-version]
+FAILED packages/evaldb/tests/test_evaldb_indexes.py::test_postgres_plans_can_use_indexes[results-by-metric-version-status]
+FAILED packages/evaldb/tests/test_evaldb_indexes.py::test_postgres_plans_can_use_indexes[verdicts-by-status]
+FAILED packages/evaldb/tests/test_evaldb_indexes.py::test_postgres_plans_can_use_indexes[verdicts-by-run]
+FAILED packages/evaldb/tests/test_evaldb_indexes.py::test_postgres_plans_can_use_indexes[usage-by-run]
+FAILED packages/evaldb/tests/test_evaldb_indexes.py::test_postgres_plans_can_use_indexes[cost-records-by-run]
+FAILED packages/evaldb/tests/test_evaldb_indexes.py::test_postgres_plans_can_use_indexes[cost-summaries-by-run]
+FAILED packages/evaldb/tests/test_evaldb_indexes.py::test_postgres_plans_can_use_indexes[snapshot-by-digest]
+FAILED packages/evaldb/tests/test_evaldb_indexes.py::test_postgres_plans_can_use_indexes[metric-definition-by-key]
+FAILED packages/evaldb/tests/test_evaldb_indexes.py::test_postgres_plans_can_use_indexes[dataset-items-by-artifact]
+FAILED packages/evaldb/tests/test_evaldb_indexes.py::test_postgres_plans_can_use_indexes[dataset-items-by-transcript]
+FAILED packages/evaldb/tests/test_evaldb_indexes.py::test_postgres_plans_can_use_indexes[run-bundle-by-run]
+FAILED packages/evaldb/tests/test_evaldb_indexes.py::test_repository_and_deletion_statements_are_served_by_indexes[postgres]
+FAILED packages/evaldb/tests/test_evaldb_revision_0002.py::test_revision_0002_adds_exactly_the_access_pattern_indexes[postgres]
+FAILED packages/evaldb/tests/test_evaldb_revision_0002.py::test_revision_0002_keeps_every_row_and_the_store_readable[postgres]
+FAILED packages/evaldb/tests/test_evaldb_revision_0002.py::test_revision_0002_downgrade_restores_revision_0001_exactly[postgres]
+FAILED packages/evaldb/tests/test_evaldb_revision_0002.py::test_revision_0002_stairway_up_down_up[postgres-empty]
+FAILED packages/evaldb/tests/test_evaldb_revision_0002.py::test_revision_0002_stairway_up_down_up[postgres-filled]
+FAILED packages/evaldb/tests/test_evaldb_revision_0002.py::test_downgrade_through_0002_to_base_still_asks_for_the_flag_on_a_filled_store[postgres]
+FAILED packages/evaldb/tests/test_evaldb_revision_0002.py::test_revision_0002_is_one_transaction[postgres]
+FAILED packages/evaldb/tests/test_evaldb_revision_0002.py::test_revision_0002_upgrade_over_a_current_database_sends_no_write[postgres]
+FAILED packages/evaldb/tests/test_evaldb_revision_0002.py::test_open_store_at_an_older_shipped_revision_is_not_migrated[postgres]
+FAILED packages/evaldb/tests/test_evaldb_revision_0002.py::test_open_store_at_an_older_revision_changes_nothing_and_never_migrates[postgres]
+FAILED packages/evaldb/tests/test_evaldb_revision_0002.py::test_open_store_checks_the_revision_before_the_schema_version[postgres]
+FAILED packages/evaldb/tests/test_evaldb_revision_0002.py::test_open_store_after_the_upgrade_returns_the_head[postgres]
+FAILED packages/evaldb/tests/test_evaldb_verify.py::test_verify_database_api_and_types[postgres]
+FAILED packages/evaldb/tests/test_evaldb_verify.py::test_verify_database_of_an_empty_store_reports_nothing_and_counts_zero[postgres]
+FAILED packages/evaldb/tests/test_evaldb_verify.py::test_verify_database_clean_store_reports_nothing[postgres]
+FAILED packages/evaldb/tests/test_evaldb_verify.py::test_verify_database_clean_after_the_repository_deleted_things[postgres]
+FAILED packages/evaldb/tests/test_evaldb_verify.py::test_verify_database_works_on_the_schema_alembic_builds[postgres]
+FAILED packages/evaldb/tests/test_evaldb_verify.py::test_verify_database_finds_projection_mismatch_without_echo[postgres]
+FAILED packages/evaldb/tests/test_evaldb_verify.py::test_verify_database_reports_every_projected_column_by_name_only[postgres]
+FAILED packages/evaldb/tests/test_evaldb_verify.py::test_verify_database_finds_tampered_doc[postgres]
+FAILED packages/evaldb/tests/test_evaldb_verify.py::test_verify_database_finds_a_changed_doc_sha256[postgres]
+FAILED packages/evaldb/tests/test_evaldb_verify.py::test_verify_database_finds_a_versioned_doc_edited_with_a_consistent_digest[postgres]
+FAILED packages/evaldb/tests/test_evaldb_verify.py::test_verify_database_finds_a_doc_the_strict_loader_refuses[postgres-deeply-nested]
+FAILED packages/evaldb/tests/test_evaldb_verify.py::test_verify_database_finds_a_doc_the_strict_loader_refuses[postgres-duplicate-key]
+FAILED packages/evaldb/tests/test_evaldb_verify.py::test_verify_database_finds_a_doc_the_strict_loader_refuses[postgres-empty]
+FAILED packages/evaldb/tests/test_evaldb_verify.py::test_verify_database_finds_a_doc_the_strict_loader_refuses[postgres-nan-constant]
+FAILED packages/evaldb/tests/test_evaldb_verify.py::test_verify_database_finds_a_doc_the_strict_loader_refuses[postgres-not-an-object]
+FAILED packages/evaldb/tests/test_evaldb_verify.py::test_verify_database_finds_a_doc_the_strict_loader_refuses[postgres-trailing-garbage]
+FAILED packages/evaldb/tests/test_evaldb_verify.py::test_verify_database_finds_a_doc_the_strict_loader_refuses[postgres-truncated]
+FAILED packages/evaldb/tests/test_evaldb_verify.py::test_verify_database_finds_a_run_bundle_envelope_that_is_not_one[postgres]
+FAILED packages/evaldb/tests/test_evaldb_verify.py::test_verify_database_formatting_only_difference_is_informational[postgres]
+FAILED packages/evaldb/tests/test_evaldb_verify.py::test_verify_database_finds_side_rows_that_do_not_match_their_document[postgres]
+FAILED packages/evaldb/tests/test_evaldb_verify.py::test_verify_database_never_logs_or_raises_content[postgres]
+62 failed, 46 passed, 123 deselected in 70.72s (0:01:10)
+exit code: 1

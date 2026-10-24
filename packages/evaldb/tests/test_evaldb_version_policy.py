@@ -56,7 +56,7 @@ mig = _mig_support.mig
 postgres_mig = _mig_support.postgres_mig
 migrate = _mig_support.migrate
 
-HEAD = "0001"
+HEAD = "0002"
 WRITE_OR_DDL = re.compile(r"\s*(INSERT|UPDATE|DELETE|CREATE|ALTER|DROP|REPLACE|VACUUM)\b", re.I)
 VERSIONED = (
     "agent_target",
@@ -309,7 +309,7 @@ def test_test_only_revisions_are_never_part_of_the_shipped_chain(migrate: Module
     from alembic.script import ScriptDirectory
 
     script = ScriptDirectory.from_config(migrate.alembic_config())
-    assert [r.revision for r in script.walk_revisions()] == [HEAD]
+    assert [r.revision for r in script.walk_revisions()] == [HEAD, "0001"]
     src = Path(__file__).resolve().parents[1] / "src" / "tracer_evaldb"
     offences = [
         str(p.relative_to(src))

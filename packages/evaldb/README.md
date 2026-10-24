@@ -68,3 +68,20 @@ as `sqlalchemy.exc.IntegrityError`, without the failing row.
 - Retention: the privacy columns have partial indexes on the retention date
   (`ix_artifact_retain_until`, `ix_transcript_retain_until`, `ix_dataset_item_retain_until`,
   `ix_run_caller_retain_until`). Nothing enforces retention; a later phase does.
+
+## Access-pattern indexes and verification (batch E)
+
+- Revision 0002 (`0002_access_pattern_indexes`) adds 25 plain indexes (no table or row changes):
+  `run` by `(project_id, id)`, by agent target, `mode`, `observed_tier`, `started_at` and snapshot;
+  `run_id` on every child table of a run (so a cascade never scans a child table); artifacts by
+  `sha256`; results by `(metric_id, metric_version, status)`; snapshots by digest; metric
+  definitions by `key`; dataset items by artifact and transcript. Definitions by `(id, version)`
+  are served by the primary key. Its downgrade loses no data. `open_store` on a database still at
+  revision 0001 raises `StoreNotMigrated`.
+- `verify_database(engine) -> VerifyReport` is a read-only admin check (SELECT only, REPEATABLE
+  READ on Postgres, no migration needed). It re-validates every `doc`, recomputes `doc_sha256`,
+  every projected column and the side-table rows, and reports `VerifyFinding(kind, id, version,
+  problem, location)` in `findings` (`VERIFY_PROBLEMS`: `doc_invalid`, `digest_mismatch`,
+  `doc_sha256_mismatch`, `projection_mismatch`, `side_rows_mismatch`) and `informational`
+  (`VERIFY_NOTES`: `doc_text_not_canonical`, `bundle_member_absent`), plus `checked` row counts
+  per entity table. A damaged row is a finding, never an exception, and no finding holds a value.

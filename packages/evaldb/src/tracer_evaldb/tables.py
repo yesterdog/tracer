@@ -403,6 +403,37 @@ _RETENTION_INDEXED = {
 }
 
 
+# Access-pattern indexes (ADR 0019 Decision 15, revision 0002): table -> key columns of each plain
+# index, in order. The name is ``ix_<table>_<columns>``. The foreign keys to ``run.id`` are led by
+# an index so that a cascade never scans a child table. Definitions by (id, version) need none:
+# the primary key serves them in both directions.
+_ACCESS_INDEXES: Mapping[str, tuple[tuple[str, ...], ...]] = {
+    "run": (
+        ("project_id", "id"),
+        ("agent_target_id", "agent_target_version"),
+        ("mode",),
+        ("observed_tier",),
+        ("started_at",),
+        ("config_snapshot_id",),
+    ),
+    "artifact": (("run_id",), ("sha256",)),
+    "transcript": (("run_id",),),
+    "turn": (("run_id",),),
+    "exchange": (("run_id",),),
+    "tool_call_event": (("run_id",),),
+    "stage_span": (("run_id",),),
+    "metric_result": (("run_id",), ("metric_id", "metric_version", "status")),
+    "run_verdict": (("run_id",), ("status",)),
+    "usage_record": (("run_id",),),
+    "cost_record": (("run_id",),),
+    "cost_summary": (("run_id",),),
+    "run_bundle": (("run_id",),),
+    "config_snapshot": (("content_digest_value",),),
+    "metric_definition": (("key",),),
+    "dataset_item": (("artifact_id",), ("transcript_id",)),
+}
+
+
 def _entity_table(table: str) -> sa.Table:
     projected = _ENTITIES[table][1]
     versioned = table in _VERSIONED
@@ -436,6 +467,8 @@ def _entity_table(table: str) -> sa.Table:
                 f"ix_{table}_{retention}", retention, sqlite_where=dated, postgresql_where=dated
             )
         )
+    for names in _ACCESS_INDEXES.get(table, ()):
+        items.append(sa.Index(f"ix_{table}_{'_'.join(names)}", *names))
     return sa.Table(table, metadata, *items, sqlite_strict=True, sqlite_with_rowid=False)
 
 

@@ -1,0 +1,352 @@
+--- a/src/tracer_evaldb/__init__.py
++++ b/src/tracer_evaldb/__init__.py
+@@ -67,6 +67,7 @@
+     store_snapshot,
+ )
+ from .schema import metadata
++from .verify import VERIFY_NOTES, VERIFY_PROBLEMS, VerifyFinding, VerifyReport, verify_database
+ from .versioning import StoreInfo, open_store
+ 
+ __all__ = [
+@@ -110,6 +111,10 @@
+     "UnsupportedServerEncoding",
+     "UnsupportedSqliteVersion",
+     "UuidCol",
++    "VERIFY_NOTES",
++    "VERIFY_PROBLEMS",
++    "VerifyFinding",
++    "VerifyReport",
+     "create_store_engine",
+     "delete_dataset_item",
+     "delete_definition",
+@@ -139,4 +144,5 @@
+     "store_snapshot",
+     "tables",
+     "triggers",
++    "verify_database",
+ ]
+--- a/src/tracer_evaldb/migrations/versions/0002_access_pattern_indexes.py
++++ b/src/tracer_evaldb/migrations/versions/0002_access_pattern_indexes.py
+@@ -0,0 +1,60 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Access-pattern indexes of the entity tables (revision 0002, ADR 0019 Decision 15).
++
++Frozen text: the index DDL is written out, never derived from the live table definitions.
++"""
++
++from __future__ import annotations
++
++from alembic import op
++
++revision = "0002"
++down_revision = "0001"
++branch_labels = None
++depends_on = None
++
++# An index holds no data of its own: a downgrade destroys no row and no value.
++DOWNGRADE_DROPS: tuple[str, ...] = ()
++
++INDEXES: tuple[tuple[str, str, str], ...] = (
++    ("ix_run_project_id_id", "run", "project_id, id"),
++    ("ix_run_agent_target_id_agent_target_version", "run", "agent_target_id, agent_target_version"),
++    ("ix_run_mode", "run", "mode"),
++    ("ix_run_observed_tier", "run", "observed_tier"),
++    ("ix_run_started_at", "run", "started_at"),
++    ("ix_run_config_snapshot_id", "run", "config_snapshot_id"),
++    ("ix_artifact_run_id", "artifact", "run_id"),
++    ("ix_artifact_sha256", "artifact", "sha256"),
++    ("ix_transcript_run_id", "transcript", "run_id"),
++    ("ix_turn_run_id", "turn", "run_id"),
++    ("ix_exchange_run_id", "exchange", "run_id"),
++    ("ix_tool_call_event_run_id", "tool_call_event", "run_id"),
++    ("ix_stage_span_run_id", "stage_span", "run_id"),
++    ("ix_metric_result_run_id", "metric_result", "run_id"),
++    (
++        "ix_metric_result_metric_id_metric_version_status",
++        "metric_result",
++        "metric_id, metric_version, status",
++    ),
++    ("ix_run_verdict_run_id", "run_verdict", "run_id"),
++    ("ix_run_verdict_status", "run_verdict", "status"),
++    ("ix_usage_record_run_id", "usage_record", "run_id"),
++    ("ix_cost_record_run_id", "cost_record", "run_id"),
++    ("ix_cost_summary_run_id", "cost_summary", "run_id"),
++    ("ix_run_bundle_run_id", "run_bundle", "run_id"),
++    ("ix_config_snapshot_content_digest_value", "config_snapshot", "content_digest_value"),
++    ("ix_metric_definition_key", "metric_definition", '"key"'),
++    ("ix_dataset_item_artifact_id", "dataset_item", "artifact_id"),
++    ("ix_dataset_item_transcript_id", "dataset_item", "transcript_id"),
++)
++
++
++def upgrade() -> None:
++    for name, table, columns in INDEXES:
++        op.execute(f"CREATE INDEX {name} ON {table} ({columns})")
++
++
++def downgrade() -> None:
++    for name, _table, _columns in reversed(INDEXES):
++        op.execute(f"DROP INDEX {name}")
+--- a/src/tracer_evaldb/tables.py
++++ b/src/tracer_evaldb/tables.py
+@@ -403,6 +403,34 @@
+ }
+ 
+ 
++# Access-pattern indexes (ADR 0019 Decision 15, revision 0002): table -> index column lists.
++ACCESS_INDEXES: Mapping[str, tuple[tuple[str, ...], ...]] = {
++    "run": (
++        ("project_id", "id"),
++        ("agent_target_id", "agent_target_version"),
++        ("mode",),
++        ("observed_tier",),
++        ("started_at",),
++        ("config_snapshot_id",),
++    ),
++    "artifact": (("run_id",), ("sha256",)),
++    "transcript": (("run_id",),),
++    "turn": (("run_id",),),
++    "exchange": (("run_id",),),
++    "tool_call_event": (("run_id",),),
++    "stage_span": (("run_id",),),
++    "metric_result": (("run_id",), ("metric_id", "metric_version", "status")),
++    "run_verdict": (("run_id",), ("status",)),
++    "usage_record": (("run_id",),),
++    "cost_record": (("run_id",),),
++    "cost_summary": (("run_id",),),
++    "run_bundle": (("run_id",),),
++    "config_snapshot": (("content_digest_value",),),
++    "metric_definition": (("key",),),
++    "dataset_item": (("artifact_id",), ("transcript_id",)),
++}
++
++
+ def _entity_table(table: str) -> sa.Table:
+     projected = _ENTITIES[table][1]
+     versioned = table in _VERSIONED
+@@ -436,6 +464,8 @@
+                 f"ix_{table}_{retention}", retention, sqlite_where=dated, postgresql_where=dated
+             )
+         )
++    for names in ACCESS_INDEXES.get(table, ()):
++        items.append(sa.Index(f"ix_{table}_{'_'.join(names)}", *names))
+     return sa.Table(table, metadata, *items, sqlite_strict=True, sqlite_with_rowid=False)
+ 
+ 
+--- a/src/tracer_evaldb/verify.py
++++ b/src/tracer_evaldb/verify.py
+@@ -0,0 +1,213 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""``verify_database``: the admin check of a store (P2-26). ORACLE VERSION (qa scratch)."""
++
++from __future__ import annotations
++
++import uuid
++from collections import Counter
++from dataclasses import dataclass, field
++from typing import Any
++
++import sqlalchemy as sa
++from sqlalchemy.engine import Engine
++
++from tracer_evalschema import digest, loader
++from tracer_evalschema.errors import DigestMismatch
++
++from . import codecs, repository
++from .errors import StoreIntegrityError
++from .schema import metadata
++from .tables import ENTITY_TABLES
++
++__all__ = ["VERIFY_NOTES", "VERIFY_PROBLEMS", "VerifyFinding", "VerifyReport", "verify_database"]
++
++VERIFY_PROBLEMS = (
++    "doc_invalid",
++    "digest_mismatch",
++    "doc_sha256_mismatch",
++    "projection_mismatch",
++    "side_rows_mismatch",
++)
++VERIFY_NOTES = ("doc_text_not_canonical", "bundle_member_absent")
++
++
++@dataclass(frozen=True)
++class VerifyFinding:
++    kind: str
++    id: str
++    version: int | None
++    problem: str
++    location: str | None
++
++
++@dataclass(frozen=True)
++class VerifyReport:
++    findings: tuple[VerifyFinding, ...]
++    informational: tuple[VerifyFinding, ...]
++    checked: dict[str, int] = field(default_factory=dict)
++
++    @property
++    def ok(self) -> bool:
++        return not self.findings
++
++
++def _key(f: VerifyFinding) -> tuple[Any, ...]:
++    return (f.kind, f.id, -1 if f.version is None else f.version, f.problem, f.location or "")
++
++
++def _wire(table: str, value: uuid.UUID) -> str:
++    spec = codecs._BY_TABLE[table]
++    return str(spec.model.model_fields["id"].annotation(value))  # type: ignore[misc,operator]
++
++
++def _side_key(row: dict[str, Any]) -> tuple[Any, ...]:
++    return tuple(sorted((k, repr(v)) for k, v in row.items()))
++
++
++_OWNER = {
++    "snapshot_member": ("snapshot_id", "id"),
++    "snapshot_profile_ref": ("snapshot_id", "id"),
++    "dataset_member": None,
++    "external_ref_index": ("entity_id", "id"),
++    "run_bundle_member": ("bundle_id", "id"),
++    "run_bundle_withheld": ("bundle_id", "id"),
++    "export_bundle_run": ("export_id", "id"),
++    "export_bundle_item": ("export_id", "id"),
++    "export_bundle_profile": ("export_id", "id"),
++}
++
++
++def _side_where(conn: sa.Connection, side: str, row: dict[str, Any]) -> list[dict[str, Any]]:
++    t = metadata.tables[side]
++    if side == "dataset_member":
++        clause = sa.and_(t.c.dataset_id == row["id"], t.c.dataset_version == row["version"])
++    else:
++        column, source = _OWNER[side]  # type: ignore[misc]
++        clause = t.c[column] == row[source]
++    return [dict(r) for r in conn.execute(sa.select(t).where(clause)).mappings()]
++
++
++def verify_database(engine: Engine) -> VerifyReport:
++    if not isinstance(engine, Engine):
++        raise TypeError("the first argument must be the Engine of create_store_engine")
++    reader: Engine = engine
++    if engine.dialect.name == "postgresql":
++        reader = engine.execution_options(isolation_level="REPEATABLE READ")
++    findings: list[VerifyFinding] = []
++    notes: list[VerifyFinding] = []
++    checked: dict[str, int] = {}
++    with reader.begin() as conn:
++        for entity in ENTITY_TABLES.values():
++            table = entity.name
++            spec = codecs._BY_TABLE[table]
++            versioned = "version" in entity.c
++            checked[table] = 0
++            for row in [dict(r) for r in conn.execute(sa.select(entity)).mappings()]:
++                checked[table] += 1
++                version = row["version"] if versioned else None
++
++                def add(problem: str, location: str | None, row: dict[str, Any] = row, version: Any = version, table: str = table) -> None:
++                    findings.append(VerifyFinding(table, _wire(table, row["id"]), version, problem, location))
++
++                if table == "run_bundle":
++                    _bundle(conn, row, add, notes)
++                    continue
++                text = row.get("doc")
++                try:
++                    model = codecs._load(spec, text)  # type: ignore[arg-type]
++                except DigestMismatch:
++                    add("digest_mismatch", "doc")
++                    continue
++                except Exception:
++                    add("doc_invalid", "doc")
++                    continue
++                run_id = row.get("run_id") if spec.storage_run_id else None
++                try:
++                    expected = codecs._row(spec, model, run_id)
++                except Exception:
++                    add("doc_invalid", "doc")
++                    continue
++                if not codecs._same(row["doc_sha256"], expected["doc_sha256"]):
++                    add("doc_sha256_mismatch", "doc_sha256")
++                for column in sorted(expected):
++                    if column in ("doc", "doc_sha256"):
++                        continue
++                    if not codecs._same(row.get(column), expected[column]):
++                        add("projection_mismatch", column)
++                if text != expected["doc"]:
++                    notes.append(VerifyFinding(table, _wire(table, row["id"]), version, "doc_text_not_canonical", "doc"))
++                encoded = codecs._encode(spec, model, run_id)
++                for side, wanted in encoded.side_rows.items():
++                    have = _side_where(conn, side, row)
++                    if Counter(map(_side_key, have)) != Counter(map(_side_key, [dict(w) for w in wanted])):
++                        add("side_rows_mismatch", side)
++        conn.rollback()
++    return VerifyReport(
++        tuple(sorted(findings, key=_key)), tuple(sorted(notes, key=_key)), checked
++    )
++
++
++def _bundle(conn: sa.Connection, row: dict[str, Any], add: Any, notes: list[VerifyFinding]) -> None:
++    """A run bundle: the envelope is checked by itself, then the whole bundle when it assembles."""
++    from datetime import datetime
++
++    text = row.get("doc")
++    try:
++        envelope = loader.loads_strict(text)  # type: ignore[arg-type]
++        if not isinstance(envelope, dict):
++            raise ValueError
++        sha = bytes.fromhex(digest.sha256_hex(digest.jcs_bytes(envelope)))
++        created = datetime.fromisoformat(str(envelope["created_at"]).replace("Z", "+00:00"))
++        wire = str(envelope["id"])
++        version = envelope["schema_version"]
++    except Exception:
++        add("doc_invalid", "doc")
++        return
++    reported: set[str] = set()
++
++    def once(problem: str, column: str) -> None:
++        if column not in reported:
++            reported.add(column)
++            add(problem, column if problem == "projection_mismatch" else ("doc_sha256" if problem == "doc_sha256_mismatch" else "doc"))
++
++    if sha != bytes(row["doc_sha256"]):
++        once("doc_sha256_mismatch", "doc_sha256")
++    if wire != _wire("run_bundle", row["id"]):
++        once("projection_mismatch", "id")
++    if version != row["schema_version"]:
++        once("projection_mismatch", "schema_version")
++    if not codecs._same(row["created_at"], created):
++        once("projection_mismatch", "created_at")
++    mt, wt = metadata.tables["run_bundle_member"], metadata.tables["run_bundle_withheld"]
++    members = repository._sorted_members(
++        [dict(r) for r in conn.execute(sa.select(mt).where(mt.c.bundle_id == row["id"])).mappings()]
++    )
++    withheld = [dict(r) for r in conn.execute(sa.select(wt).where(wt.c.bundle_id == row["id"])).mappings()]
++    try:
++        records = repository._read_records(conn, members)
++    except Exception:
++        return  # a member that does not verify is reported under its own table
++    missing = {m["kind"] for m in members if (m["kind"], m["record_id"], m["record_version"]) not in records}
++    if missing:
++        for kind in sorted(missing):
++            notes.append(VerifyFinding("run_bundle", _wire("run_bundle", row["id"]), None, "bundle_member_absent", kind))
++        return
++    try:
++        bundle = codecs.decode_run_bundle(
++            row, members=members, withheld=withheld,
++            resolve=lambda kind, record_id, version: records[kind, record_id, version],
++        )
++    except StoreIntegrityError as exc:
++        if exc.column == "doc":
++            once("doc_invalid", "doc")
++        elif exc.column == "doc_sha256":
++            once("doc_sha256_mismatch", "doc_sha256")
++        else:
++            once("projection_mismatch", exc.column)
++        return
++    except Exception:
++        once("doc_invalid", "doc")
++        return
++    if text != codecs._document(codecs._S_RUN_BUNDLE, bundle)[0]:
++        notes.append(VerifyFinding("run_bundle", _wire("run_bundle", row["id"]), None, "doc_text_not_canonical", "doc"))

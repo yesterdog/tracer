@@ -1,0 +1,49 @@
+# batch E mutants: each is applied to the scratch oracle alone and the five batch E test files are run (X05 also runs the batch D head-matches-metadata test); CAUGHT = at least one test failed. SQLite side, Python 3.11; I04 (Postgres collation) on PostgreSQL 15.19. Equivalent survivors: I06 (the label rule already refuses edge white space, so a stripping column changes nothing the fixture can store) and H03 (the real per-table maximum is 1).
+X01 CAUGHT | drop ix_run_project_id_id from metadata | 1 failed, 108 deselected in 0.58s
+X02 CAUGHT | reverse columns of the keyset index in metadata | 1 failed, 108 deselected in 0.24s
+X03 CAUGHT | 0002 omits ix_run_mode | 1 failed, 108 deselected in 0.22s
+X04 CAUGHT | 0002 downgrade leaves an index | 1 failed, 108 deselected in 0.23s
+X05 CAUGHT | 0002 unquoted key (caught by the batch D head-matches-metadata test) | 1 failed, 109 deselected in 0.25s
+X06 CAUGHT | sha256 index unique | 1 failed, 108 deselected in 0.26s
+X07 CAUGHT | started_at index partial | 1 failed, 108 deselected in 0.27s
+X08 CAUGHT | no dataset_item transcript index | 1 failed, 108 deselected in 0.27s
+X09 CAUGHT | 0002 reads live tables | 1 failed, 70 passed, 108 deselected in 1.08s
+X10 CAUGHT | 0002 second root | 1 failed, 108 deselected in 0.26s
+X11 CAUGHT | 0002 declares it drops run | 1 failed, 68 passed, 108 deselected in 1.01s
+X12 CAUGHT | metric_result index reversed (metadata) | 1 failed, 108 deselected in 0.27s
+X13 CAUGHT | no artifact sha index | 1 failed, 108 deselected in 0.25s
+X14 CAUGHT | no run_bundle run_id index | 1 failed, 108 deselected in 0.26s
+X15 CAUGHT | no turn run_id index (FK scan) | 1 failed, 108 deselected in 0.25s
+X16 CAUGHT | extra index on cost_summary.total | 1 failed, 108 deselected in 0.24s
+X17 CAUGHT | transcript redundant prefix index | 1 failed, 108 deselected in 0.25s
+O01 CAUGHT | open_store: older revision as unknown | 1 failed, 79 passed, 108 deselected in 1.29s
+O02 CAUGHT | open_store migrates | 1 failed, 79 passed, 108 deselected in 1.30s
+O03 CAUGHT | open_store: older revision reported as never migrated | 1 failed, 79 passed, 108 deselected in 1.38s
+O04 CAUGHT | open_store ignores the revision != head | 1 failed, 79 passed, 108 deselected in 1.39s
+V01 CAUGHT | verify skips run_bundle | 1 failed, 95 passed, 108 deselected in 2.31s
+V02 CAUGHT | verify skips doc_sha256 | 1 failed, 101 passed, 108 deselected in 4.65s
+V03 CAUGHT | verify ignores created_at | 1 failed, 99 passed, 108 deselected in 2.54s
+V04 CAUGHT | verify echoes the value | 1 failed, 99 passed, 108 deselected in 2.54s
+V05 CAUGHT | verify lets a bad doc raise | 1 failed, 104 passed, 108 deselected in 4.68s
+V06 CAUGHT | verify reports formatting as an error | 1 failed, 103 passed, 108 deselected in 4.58s
+V07 CAUGHT | verify drops the formatting note | 1 failed, 112 passed, 108 deselected in 5.41s
+V08 CAUGHT | verify skips side rows | 1 failed, 113 passed, 108 deselected in 5.10s
+V09 CAUGHT | verify writes | 1 failed, 96 passed, 108 deselected in 2.34s
+V10 CAUGHT | verify stops counting after 2 rows | 1 failed, 96 passed, 108 deselected in 2.42s
+V11 CAUGHT | verify unsorted | 1 failed, 99 passed, 108 deselected in 2.53s
+V12 CAUGHT | verify plain uuid ids | 1 failed, 96 passed, 108 deselected in 2.24s
+V13 CAUGHT | digest mismatch as invalid | 1 failed, 101 passed, 108 deselected in 4.58s
+V15 CAUGHT | verify accepts anything | 1 failed, 94 passed, 108 deselected in 2.22s
+V16 CAUGHT | verify drops the absent-member note | 1 failed, 97 passed, 108 deselected in 2.38s
+V17 CAUGHT | checked count off for turn | 1 failed, 95 passed, 108 deselected in 2.29s
+V18 CAUGHT | bundle findings all located at doc | 1 failed, 99 passed, 108 deselected in 2.54s
+I01 CAUGHT | KeyCol normalizes NFC | 1 failed, 85 passed, 108 deselected in 1.48s
+I02 CAUGHT | KeyCol case-insensitive on SQLite | 1 failed, 85 passed, 108 deselected in 1.58s
+I03 CAUGHT | persona language lower-cased | 1 failed, 85 passed, 108 deselected in 1.58s
+I05 CAUGHT | DocCol strips ZWJ | 1 failed, 85 passed, 108 deselected in 1.46s
+I06 SURVIVED | KeyCol strips | 123 passed, 108 deselected in 6.27s
+I07 CAUGHT | project name casefolded | 1 failed, 85 passed, 108 deselected in 1.57s
+H01 CAUGHT | harness leaves schema | 1 failed, 115 passed, 108 deselected in 5.94s
+H02 CAUGHT | harness accepts non-empty db | 1 failed, 116 passed, 108 deselected in 5.66s
+H03 SURVIVED | harness hides per-table inserts | 123 passed, 108 deselected in 6.32s
+I04 CAUGHT | KeyCol default collation on Postgres | 1 failed, 79 passed, 123 deselected in 43.55s
