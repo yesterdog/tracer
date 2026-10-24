@@ -657,7 +657,8 @@ mapping adapters of Phase 1 are test support code, not part of the package.
   dependency-audit job (pip-audit on `uv export`) have run there: the dependency audit passed on
   its first run; the secret scanner found one false positive in its first run (synthetic
   `key=value` samples in a test support module), which is allowlisted for one rule and one exact
-  path, and it has passed since.
+  path; the config now holds three allowlist entries in total, each limited to a single rule
+  (see `docs/security/P1-21-audit.md`, finding N1), and the job has passed since.
 - **Interoperability with other languages.** No non-Python JSON Schema validator was run against
   the schema files; portability rests on the pattern syntax rules of section 2.5
   **(unverified)**. Digests use the `rfc8785` Python package; agreement with JCS
