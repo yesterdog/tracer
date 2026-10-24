@@ -1,0 +1,26 @@
+# oracle: the WHOLE workspace suite on the oracle tree BEFORE the two named spec changes of the contract section 8.3 (Python 3.13; the Phase 3 tests at that time numbered 163, 165 now): exactly the two tests of the section fail
+>       assert set(exceptions) == {"hypothesis", "pathspec"}
+E       AssertionError: assert {'certifi', '...', 'pathspec'} == {'hypothesis', 'pathspec'}
+E         
+E         Extra items in the left set:
+E         'certifi'
+E         Use -v to get more diff
+
+packages/evalschema/tests/test_repo_contract.py:295: AssertionError
+___________________ test_ci_sqlite_runs_on_every_python_leg ____________________
+
+    def test_ci_sqlite_runs_on_every_python_leg() -> None:
+        pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+        ini = pyproject["tool"]["pytest"]["ini_options"]
+>       assert ini["testpaths"] == ["packages/evalschema/tests", "packages/evaldb/tests"]
+E       AssertionError: assert ['packages/ev...es/cli/tests'] == ['packages/ev...evaldb/tests']
+E         
+E         Left contains 3 more items, first extra item: 'packages/evalcore/tests'
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_ci.py:230: AssertionError
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_repo_contract.py::test_license_exceptions_exact
+FAILED packages/evaldb/tests/test_evaldb_ci.py::test_ci_sqlite_runs_on_every_python_leg
+2 failed, 10717 passed, 1287 deselected in 244.83s (0:04:04)
+exit 1

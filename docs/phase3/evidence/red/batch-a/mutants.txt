@@ -1,0 +1,289 @@
+# Mutants of the oracle (scratch tracer_evalcore, tracer_evalproviders, tracer_cli, repo files), Phase 3 batch A.
+# Each entry: one change made to the oracle (source, pyproject, policy, workflow or checker), then packages/{evalcore,evalproviders,cli}/tests
+# run on Python 3.13 (165 tests). CAUGHT = at least one test fails (or the run hangs or crashes, which a test alarm or the runner timeout turns into a failure).
+# 139 mutants, 139 caught, 0 survived. History: a first run left 7 survivors (W1 float tag with 16 bits, W23 file content in an
+# error message, C13 float in the plan metadata, C23 bytearray accepted as pcm, C24 channel check after the length check, C26 and V25 below);
+# each led to a test change (a float-tag-16-bit case, a leak probe on the first 8 characters, integer type checks on the plan, bytearray and memoryview
+# refused, an order probe, a 20 s alarm for the chunker tests, header cases with a leading and a trailing space) and the full list was run again.
+# C5 (cut at the frame start) never advances in a window whose lowest frame is the first. Every chunker test carries a 20 s alarm that turns the
+# endless loop into a TimeoutError (the single test C26 shows the alarm firing), but with many chunker tests looping the run as a whole
+# passes the runner's 90 s limit, which is counted as caught (entry C5 shows <hang>).
+# Not mutated (no code in the oracle for them): the 3.15 leg, the Windows path forms.
+W1 [CAUGHT] wav: float format tag 3 accepted
+    caught by: test_wav_reader_rejects_non_pcm_and_8_or_24_bit
+W2 [CAUGHT] wav: 8 and 24 bit accepted
+    caught by: test_wav_reader_rejects_non_pcm_and_8_or_24_bit
+W3 [CAUGHT] wav: zero channels accepted
+    caught by: test_wav_reader_rejects_non_pcm_and_8_or_24_bit
+W4 [CAUGHT] wav: zero rate accepted
+    caught by: test_wav_reader_rejects_non_pcm_and_8_or_24_bit
+W5 [CAUGHT] wav: data size beyond the file accepted
+    caught by: test_wav_reader_rejects_truncated_and_lying_header
+W6 [CAUGHT] wav: partial last frame accepted
+    caught by: test_wav_reader_rejects_truncated_and_lying_header
+W7 [CAUGHT] wav: size cap not applied before reading
+    caught by: test_wav_reader_rejects_oversize_before_reading
+W8 [CAUGHT] wav: cap off by one
+    caught by: test_wav_reader_rejects_oversize_before_reading
+W9 [CAUGHT] wav: uri from absolute() not resolve()
+    caught by: test_artifact_uri_is_absolute_file_uri
+W10 [CAUGHT] wav: uri not percent-encoded
+    caught by: test_artifact_uri_is_absolute_file_uri
+W11 [CAUGHT] wav: sha256 of the samples only
+    caught by: test_wav_reader_reads_mono_24k_16bit_exact_duration
+W12 [CAUGHT] wav: consent defaults to obtained
+    caught by: test_artifact_privacy_marker_requires_explicit_consent_input, test_wav_reader_signature_and_result_type
+W13 [CAUGHT] wav: consent given as a string is coerced
+    caught by: test_artifact_privacy_marker_requires_explicit_consent_input
+W14 [CAUGHT] wav: non-terminating duration rounded
+    caught by: test_chunk_durations_are_exact_or_absent, test_exact_seconds_is_exact_or_none, test_wav_reader_reads_mono_24k_16bit_exact_duration
+W15 [CAUGHT] wav: buffer sized by the cap
+    caught by: test_wav_reader_rejects_truncated_and_lying_header
+W16 [CAUGHT] wav: chunk padding byte not skipped
+    caught by: test_wav_reader_reads_mono_24k_16bit_exact_duration
+W17 [CAUGHT] wav: samples include what follows the data chunk
+    caught by: test_wav_reader_reads_mono_24k_16bit_exact_duration
+W18 [CAUGHT] wav: extensible tag accepted
+    caught by: test_wav_reader_rejects_non_pcm_and_8_or_24_bit
+W19 [CAUGHT] wav: created_at from the clock
+    caught by: test_wav_reader_ids_and_clock, test_wav_reader_reads_mono_24k_16bit_exact_duration
+W20 [CAUGHT] wav: codec name changed
+    caught by: test_wav_reader_reads_mono_24k_16bit_exact_duration
+W21 [CAUGHT] wav: privacy built with obtained whatever the input
+    caught by: test_artifact_privacy_marker_requires_explicit_consent_input
+W22 [CAUGHT] wav: non-regular files read
+    caught by: test_wav_reader_refuses_non_regular_files_without_reading
+W23 [CAUGHT] wav: file name leaks into the truncated message
+    caught by: test_wav_reader_rejects_truncated_and_lying_header
+S1 [CAUGHT] seconds: scale limit 19
+    caught by: test_exact_seconds_is_exact_or_none
+S2 [CAUGHT] seconds: no gcd reduction
+    caught by: test_chunk_durations_are_exact_or_absent, test_exact_seconds_is_exact_or_none, test_wav_reader_reads_mono_24k_16bit_exact_duration
+S3 [CAUGHT] seconds: float result
+    caught by: test_chunk_durations_are_exact_or_absent, test_exact_seconds_is_exact_or_none, test_wav_reader_reads_mono_24k_16bit_exact_duration
+S4 [CAUGHT] seconds: bool accepted
+    caught by: test_exact_seconds_validates_its_arguments
+C1 [CAUGHT] chunker: ties go to the earliest frame
+    caught by: test_chunker_cuts_at_lowest_energy_frame
+C2 [CAUGHT] chunker: energy is the plain sum
+    caught by: test_chunk_wav_reads_the_audio_of_the_reader, test_chunker_cuts_at_lowest_energy_frame, test_chunker_matches_the_reference_on_seeded_random_signals
+C2b [CAUGHT] chunker: energy is the sum of magnitudes
+    caught by: test_chunk_wav_reads_the_audio_of_the_reader, test_chunker_cuts_at_lowest_energy_frame, test_chunker_matches_the_reference_on_seeded_random_signals
+C3 [CAUGHT] chunker: a frame overlapping the region start is a candidate
+    caught by: test_chunker_matches_the_reference_on_seeded_random_signals, test_chunker_parameters_are_validated
+C4 [CAUGHT] chunker: partial last frame of the window is a candidate
+    caught by: test_chunker_matches_the_reference_on_seeded_random_signals, test_chunker_never_exceeds_max_chunk_ms, test_chunker_parameters_are_validated
+C5 [CAUGHT] chunker: cut at the frame start
+    caught by: <hang>
+C6 [CAUGHT] chunker: frame grid counted from the start of the audio
+    caught by: test_chunk_wav_reads_the_audio_of_the_reader, test_chunker_cuts_at_lowest_energy_frame, test_chunker_matches_the_reference_on_seeded_random_signals
+C7 [CAUGHT] chunker: energy of the first channel only
+    caught by: test_chunker_cuts_at_lowest_energy_frame, test_chunker_matches_the_reference_on_seeded_random_signals
+C8 [CAUGHT] chunker: stereo accepted without the opt-in
+    caught by: test_chunker_parameters_are_validated, test_chunker_stereo_is_not_downmixed_silently
+C9 [CAUGHT] chunker: window rounded, not floored
+    caught by: test_chunker_never_exceeds_max_chunk_ms
+C10 [CAUGHT] chunker: window one frame too long
+    caught by: test_chunk_durations_are_exact_or_absent, test_chunk_wav_bytes_are_the_canonical_pcm_file, test_chunk_wav_reads_the_audio_of_the_reader, test_chunker_covers_every_sample_once, test_chunker_cuts_at_lowest_energy_frame, test_chunker_matches_the_reference_on_seeded_random_signals
+C11 [CAUGHT] chunker: last chunk dropped
+    caught by: test_chunk_durations_are_exact_or_absent, test_chunk_wav_bytes_are_the_canonical_pcm_file, test_chunk_wav_reads_the_audio_of_the_reader, test_chunker_covers_every_sample_once, test_chunker_cuts_at_lowest_energy_frame, test_chunker_is_deterministic
+C12 [CAUGHT] chunker: wrong RIFF size
+    caught by: test_chunk_wav_bytes_are_the_canonical_pcm_file, test_chunker_covers_every_sample_once, test_chunker_short_audio_is_one_chunk
+C13 [CAUGHT] chunker: float in the metadata
+    caught by: test_chunk_plan_metadata_is_integers_only_and_fits_a_transcript
+C14 [CAUGHT] chunker: empty audio gives an empty chunk
+    caught by: test_chunker_short_audio_is_one_chunk
+C15 [CAUGHT] chunker: audio of exactly one window is cut
+    caught by: test_chunker_cuts_at_lowest_energy_frame, test_chunker_short_audio_is_one_chunk
+C16 [CAUGHT] chunker: search region ignored (whole window)
+    caught by: test_chunk_wav_reads_the_audio_of_the_reader, test_chunker_cuts_at_lowest_energy_frame, test_chunker_matches_the_reference_on_seeded_random_signals, test_chunker_parameters_are_validated
+C17 [CAUGHT] chunker: bool accepted as an int
+    caught by: test_chunker_parameters_are_validated
+C18 [CAUGHT] chunker: search longer than the window accepted
+    caught by: test_chunker_parameters_are_validated
+C19 [CAUGHT] chunker: opt-in never works
+    caught by: test_chunk_wav_bytes_are_the_canonical_pcm_file, test_chunker_covers_every_sample_once, test_chunker_cuts_at_lowest_energy_frame, test_chunker_matches_the_reference_on_seeded_random_signals, test_chunker_parameters_are_validated, test_chunker_stereo_is_not_downmixed_silently
+C20 [CAUGHT] chunker: random tie-break
+    caught by: test_chunker_cuts_at_lowest_energy_frame
+C21 [CAUGHT] chunker: stereo downmixed to mono
+    caught by: test_chunk_wav_bytes_are_the_canonical_pcm_file, test_chunker_covers_every_sample_once, test_chunker_stereo_is_not_downmixed_silently
+C22 [CAUGHT] chunker: no check that the audio is whole frames
+    caught by: test_chunker_parameters_are_validated
+C23 [CAUGHT] chunker: pcm of any type accepted
+    caught by: test_chunker_parameters_are_validated
+C24 [CAUGHT] chunker: channels checked after the audio length
+    caught by: test_chunker_parameters_are_validated
+C25 [CAUGHT] chunker: durations rounded
+    caught by: test_chunk_durations_are_exact_or_absent
+C26 [CAUGHT] chunker: empty region not refused
+    caught by: test_chunker_parameters_are_validated
+V1 [CAUGHT] voicera: text normalised to NFC
+    caught by: test_voicera_reader_equals_f8_mapper_on_public_cases, test_voicera_reader_keeps_text_verbatim_and_seq_order
+V2 [CAUGHT] voicera: text stripped
+    caught by: test_voicera_reader_equals_f8_mapper_on_public_cases, test_voicera_reader_keeps_text_verbatim_and_seq_order
+V3 [CAUGHT] voicera: turns sorted by timestamp
+    caught by: test_voicera_reader_keeps_text_verbatim_and_seq_order
+V4 [CAUGHT] voicera: roles swapped
+    caught by: test_voicera_reader_equals_f8_mapper_on_public_cases, test_voicera_reader_keeps_text_verbatim_and_seq_order, test_voicera_reader_maps_assistant_agent_user_caller
+V5 [CAUGHT] voicera: a language is set on every turn
+    caught by: test_voicera_reader_declared_language_only_from_argument, test_voicera_reader_equals_f8_mapper_on_public_cases, test_voicera_reader_never_sets_language_or_timing
+V6 [CAUGHT] voicera: declared language ignored
+    caught by: test_voicera_reader_declared_language_only_from_argument, test_voicera_reader_equals_f8_mapper_on_public_cases
+V7 [CAUGHT] voicera: never refuses
+    caught by: test_voicera_reader_equals_f8_mapper_on_public_cases, test_voicera_reader_refuses_dropped_lines_by_default
+V8 [CAUGHT] voicera: a non-UUID call id is refused
+    caught by: test_voicera_reader_equals_f8_mapper_on_public_cases, test_voicera_reader_refuses_dropped_lines_by_default, test_voicera_reader_rejects_bidi_in_call_id_safely
+V9 [CAUGHT] voicera: control and bidi characters in the call id accepted
+    caught by: test_voicera_reader_rejects_bidi_in_call_id_safely
+V10 [CAUGHT] voicera: unsafe call id accepted with accept_warnings
+    caught by: test_voicera_reader_rejects_bidi_in_call_id_safely
+V11 [CAUGHT] voicera: refusal message quotes the dropped line
+    caught by: test_voicera_reader_refuses_dropped_lines_by_default
+V12 [CAUGHT] voicera: bidi characters not in the unsafe set
+    caught by: test_voicera_reader_rejects_bidi_in_call_id_safely
+V13 [CAUGHT] voicera: unsafe call id echoed in the refusal
+    caught by: test_voicera_reader_rejects_bidi_in_call_id_safely
+V14 [CAUGHT] voicera: accept_warnings="yes" taken for true
+    caught by: test_voicera_reader_refuses_dropped_lines_by_default
+V15 [CAUGHT] voicera: byte order mark kept
+    caught by: test_voicera_reader_equals_f8_mapper_on_public_cases
+V16 [CAUGHT] voicera: seq is the line number
+    caught by: test_voicera_reader_equals_f8_mapper_on_public_cases, test_voicera_reader_keeps_text_verbatim_and_seq_order
+V17 [CAUGHT] voicera: wall time dropped
+    caught by: test_voicera_reader_equals_f8_mapper_on_public_cases, test_voicera_reader_keeps_text_verbatim_and_seq_order
+V18 [CAUGHT] voicera: speaker labels matched case-insensitively
+    caught by: test_voicera_reader_equals_f8_mapper_on_public_cases, test_voicera_reader_maps_assistant_agent_user_caller
+V19 [CAUGHT] voicera: turn source is the STT of the agent
+    caught by: test_voicera_reader_equals_f8_mapper_on_public_cases, test_voicera_reader_maps_assistant_agent_user_caller
+V20 [CAUGHT] voicera: warnings truncated
+    caught by: test_voicera_reader_equals_f8_mapper_on_public_cases, test_voicera_reader_maps_assistant_agent_user_caller, test_voicera_reader_refuses_dropped_lines_by_default
+V21 [CAUGHT] voicera: arguments not validated for an empty export
+    caught by: test_voicera_reader_declared_language_only_from_argument
+V22 [CAUGHT] voicera: refusal holds only the dropping warnings
+    caught by: test_voicera_reader_refuses_dropped_lines_by_default
+V23 [CAUGHT] voicera: bytes accepted as the export
+    caught by: test_voicera_reader_declared_language_only_from_argument
+V24 [CAUGHT] voicera: timing_source set to telemetry
+    caught by: test_voicera_reader_declared_language_only_from_argument, test_voicera_reader_equals_f8_mapper_on_public_cases, test_voicera_reader_keeps_text_verbatim_and_seq_order, test_voicera_reader_maps_assistant_agent_user_caller, test_voicera_reader_never_sets_language_or_timing, test_voicera_reader_refuses_dropped_lines_by_default
+V25 [CAUGHT] voicera: BOM-less header recognised loosely (strip)
+    caught by: test_voicera_reader_equals_f8_mapper_on_public_cases
+P1 [CAUGHT] evalcore imports socket
+    caught by: test_evalcore_imports_no_network_module
+P2 [CAUGHT] evalcore imports httpx
+    caught by: test_evalcore_imports_no_network_module, test_evalcore_runtime_imports_whitelist
+P3 [CAUGHT] evalcore imports urllib.request
+    caught by: test_evalcore_imports_no_network_module
+P4 [CAUGHT] evalcore imports an undeclared third-party package
+    caught by: test_evalcore_runtime_imports_whitelist
+P5 [CAUGHT] evalproviders imports sqlalchemy
+    caught by: test_evalproviders_runtime_imports_whitelist
+P6 [CAUGHT] evalproviders imports the cli
+    caught by: test_evalproviders_runtime_imports_whitelist
+P7 [CAUGHT] evalproviders imports requests
+    caught by: test_evalproviders_runtime_imports_whitelist
+P8 [CAUGHT] cli imports httpx directly
+    caught by: test_cli_runtime_imports_whitelist
+P9 [CAUGHT] cli imports sqlalchemy directly
+    caught by: test_cli_runtime_imports_whitelist
+P10 [CAUGHT] evalschema imports evalcore
+    caught by: test_evalschema_does_not_import_phase3_packages, test_evalschema_unchanged_since_phase3_baseline
+P11 [CAUGHT] evalschema source changed (one blank line)
+    caught by: test_evalschema_unchanged_since_phase3_baseline
+P12 [CAUGHT] evalproviders: httpx without an upper bound
+    caught by: test_check_licenses_covers_phase3_packages, test_phase3_requires_dist_bounded_ranges
+P13 [CAUGHT] evalproviders: httpx upper bound is the second major
+    caught by: test_check_licenses_covers_phase3_packages, test_phase3_requires_dist_bounded_ranges
+P14 [CAUGHT] evalproviders: httpx pinned exactly
+    caught by: test_check_licenses_covers_phase3_packages, test_phase3_requires_dist_bounded_ranges
+P15 [CAUGHT] evalcore: a second third-party dependency
+    caught by: test_check_licenses_covers_phase3_packages, test_phase3_requires_dist_bounded_ranges
+P16 [CAUGHT] evalcore: workspace pin loosened
+    caught by: test_check_licenses_covers_phase3_packages, test_phase3_requires_dist_bounded_ranges
+P17 [CAUGHT] cli: console script removed
+    caught by: test_phase3_scaffold_files_and_repo_config, test_phase3_wheels_contain_no_tests
+P18 [CAUGHT] cli: console script points elsewhere
+    caught by: test_phase3_scaffold_files_and_repo_config, test_phase3_wheels_contain_no_tests
+P19 [CAUGHT] evalcore wheel ships the tests
+    caught by: test_phase3_scaffold_files_and_repo_config, test_phase3_wheels_contain_no_tests
+P20 [CAUGHT] evalproviders wheel ships a conftest
+    caught by: test_phase3_wheels_contain_no_tests
+P21 [CAUGHT] baseline file: wrong source tree hash
+    caught by: test_evalschema_unchanged_since_phase3_baseline
+P22 [CAUGHT] baseline file: wrong commit
+    caught by: test_evalschema_unchanged_since_phase3_baseline
+P23 [CAUGHT] cli LICENSE differs from the evalschema one
+    caught by: test_phase3_scaffold_files_and_repo_config
+P24 [CAUGHT] evalproviders py.typed missing
+    caught by: test_phase3_scaffold_files_and_repo_config, test_phase3_wheels_contain_no_tests
+P25 [CAUGHT] SPDX header missing in cli.py
+    caught by: test_phase3_scaffold_files_and_repo_config
+P26 [CAUGHT] root: testpaths lacks the cli tests
+    caught by: test_phase3_scaffold_files_and_repo_config
+P27 [CAUGHT] root: dev group lacks tracer-cli
+    caught by: test_phase3_scaffold_files_and_repo_config
+P28 [CAUGHT] root: mypy files lack evalproviders tests
+    caught by: test_phase3_scaffold_files_and_repo_config
+P29 [CAUGHT] root: ruff src lacks evalcore src
+    caught by: test_phase3_scaffold_files_and_repo_config
+P30 [CAUGHT] root: uv source of tracer-cli missing
+    caught by: test_phase3_scaffold_files_and_repo_config
+P31 [CAUGHT] evalcore version differs from the distribution
+    caught by: test_evalcore_version_is_the_distribution_version
+P32 [CAUGHT] normaliser fixture content changed
+    caught by: test_normaliser_fixture_moved_unchanged
+P33 [CAUGHT] normaliser staging copy still present
+    caught by: test_normaliser_fixture_moved_unchanged
+P34 [CAUGHT] evalcore: network module imported inside a function
+    caught by: test_evalcore_imports_no_network_module
+P35 [CAUGHT] evalcore: dynamic import with a computed name
+    caught by: test_evalcore_runtime_imports_whitelist
+L1 [CAUGHT] policy: httpx missing from the evalproviders closure
+    caught by: test_check_licenses_covers_phase3_packages, test_license_policy_lists_phase3_closures
+L2 [CAUGHT] policy: certifi exception removed
+    caught by: test_check_licenses_covers_phase3_packages, test_license_policy_lists_phase3_closures
+L3 [CAUGHT] policy: certifi exception hash wrong
+    caught by: test_check_licenses_covers_phase3_packages, test_license_policy_lists_phase3_closures
+L4 [CAUGHT] policy: MPL-2.0 added to the allowlist
+    caught by: test_check_licenses_covers_phase3_packages, test_license_policy_lists_phase3_closures
+L5 [CAUGHT] policy: requests rejection missing
+    caught by: test_license_policy_lists_phase3_closures
+L6 [CAUGHT] policy: cli requires_dist drops the evaldb pin
+    caught by: test_check_licenses_covers_phase3_packages, test_license_policy_lists_phase3_closures, test_phase3_requires_dist_bounded_ranges
+L7 [CAUGHT] policy: evalcore closure gains an entry
+    caught by: test_check_licenses_covers_phase3_packages, test_license_policy_lists_phase3_closures
+L8 [CAUGHT] checker: Phase 3 closure not compared
+    caught by: test_check_licenses_covers_phase3_packages
+L9 [CAUGHT] checker: wheel Requires-Dist of Phase 3 not compared
+    caught by: test_check_licenses_covers_phase3_packages
+L10 [CAUGHT] policy: sarvamai rejection missing
+    caught by: test_license_policy_lists_phase3_closures
+I1 [CAUGHT] ci: lowest-direct Phase 3 job removed
+    caught by: test_ci_lower_bound_leg_for_phase3_ranges, test_ci_phase3_actions_pinned_and_no_new_image
+I2 [CAUGHT] ci: lowest-direct Phase 3 job renamed
+    caught by: test_ci_lower_bound_leg_for_phase3_ranges
+I3 [CAUGHT] ci: lowest-direct Phase 3 job not required
+    caught by: test_ci_lower_bound_leg_for_phase3_ranges
+I4 [CAUGHT] ci: lowest-direct Phase 3 job on Python 3.12
+    caught by: test_ci_lower_bound_leg_for_phase3_ranges
+I5 [CAUGHT] ci: full lowest resolution
+    caught by: test_ci_lower_bound_leg_for_phase3_ranges
+I6 [CAUGHT] ci: job named for httpx
+    caught by: test_ci_has_no_httpx_specific_job, test_ci_lower_bound_leg_for_phase3_ranges, test_ci_phase3_actions_pinned_and_no_new_image
+I7 [CAUGHT] ci: new job uses an unpinned action
+    caught by: test_ci_phase3_actions_pinned_and_no_new_image
+I8 [CAUGHT] ci: new job starts a container
+    caught by: test_ci_lower_bound_leg_for_phase3_ranges, test_ci_phase3_actions_pinned_and_no_new_image
+I9 [CAUGHT] ci: licenses job does not build the cli wheel
+    caught by: test_ci_phase3_wheels_are_built_and_checked
+I10 [CAUGHT] ci: test job names explicit paths
+    caught by: test_ci_phase3_test_legs_run_the_new_directories
+I11 [CAUGHT] ci: Phase 3 job does not deselect the lock-comparing tests
+    caught by: test_ci_lower_bound_leg_for_phase3_ranges
+I12 [CAUGHT] ci: Phase 3 job misses the cli tests
+    caught by: test_ci_lower_bound_leg_for_phase3_ranges
+I13 [CAUGHT] ci: Phase 3 job not re-locked
+    caught by: test_ci_lower_bound_leg_for_phase3_ranges
+I14 [CAUGHT] ci: a key reaches the workflow
+    caught by: test_ci_phase3_actions_pinned_and_no_new_image
+I15 [CAUGHT] ci: httpx pinned by hand in a step
+    caught by: test_ci_has_no_httpx_specific_job, test_ci_lower_bound_leg_for_phase3_ranges

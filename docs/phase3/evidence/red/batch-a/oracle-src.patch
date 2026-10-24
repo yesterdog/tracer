@@ -1,0 +1,1451 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index ed4eff8..fdaac39 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -63,6 +63,9 @@ jobs:
+       - run: uv run --locked --all-groups python scripts/check_licenses.py
+       - run: uv build --package tracer-evalschema --out-dir dist
+       - run: uv build --package tracer-evaldb --out-dir dist
++      - run: uv build --package tracer-evalcore --out-dir dist
++      - run: uv build --package tracer-evalproviders --out-dir dist
++      - run: uv build --package tracer-cli --out-dir dist
+       - run: uv run --locked --all-groups python scripts/check_licenses.py --wheel dist --artifacts-only
+ 
+   test:
+@@ -247,6 +250,28 @@ jobs:
+       - run: uv lock --resolution lowest-direct
+       - run: uv run --locked --resolution lowest-direct --all-groups pytest -m "not private_fixtures and not local_only" packages/evaldb/tests --deselect packages/evaldb/tests/test_evaldb_scaffold.py::test_evaldb_locked_closure_is_the_reviewed_one --deselect packages/evaldb/tests/test_evaldb_licenses.py
+ 
++  # Every direct dependency of the Phase 3 packages at the lower bound of its range. The only
++  # third-party range of Phase 3 is the one on the HTTP client, whose lowest-direct resolution is
++  # its highest one today (the lower bound is the newest stable release), so no job is named for
++  # it: this leg lowers every direct dependency of the workspace together and runs the three Phase 3
++  # test directories (docs/security/P3-02-licenses.md section 8). The lock of this throwaway
++  # checkout is re-resolved first; every uv call stays --locked. Deselected: the tests that compare
++  # the installed versions or the closure with the committed uv.lock, which cannot hold after the
++  # deliberate downgrade (they run in every other leg).
++  test-oldest-phase3-deps:
++    name: test (lowest-direct phase 3 deps, py3.11)
++    runs-on: ubuntu-latest
++    steps:
++      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
++        with:
++          persist-credentials: false
++      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
++        with:
++          version: ${{ env.UV_VERSION }}
++          python-version: "3.11"
++      - run: uv lock --resolution lowest-direct
++      - run: uv run --locked --resolution lowest-direct --all-groups pytest packages/evalcore/tests packages/evalproviders/tests packages/cli/tests --deselect packages/evalcore/tests/test_phase3_licenses.py --deselect packages/evalcore/tests/test_phase3_scaffold.py::test_phase3_locked_closures_are_the_reviewed_ones
++
+   secrets:
+     name: secret scan (gitleaks)
+     runs-on: ubuntu-latest
+diff --git a/docs/phase3/evidence/evalschema-baseline.json b/docs/phase3/evidence/evalschema-baseline.json
+new file mode 100644
+index 0000000..55d7b5d
+--- /dev/null
++++ b/docs/phase3/evidence/evalschema-baseline.json
+@@ -0,0 +1,6 @@
++{
++  "commit": "e942b3bd825c92a668a3a1c8061211b76a4d661d",
++  "pyproject_sha256": "1a918eef9fd6647f160722f68241783afddbe09a73f7cbc43621f7bc5920a52e",
++  "schema_lock_sha256": "ee5b2ac39ecca544f89f0757760620a52cfe4fd38913f64b4297523ccab66b73",
++  "source_tree_sha256": "59d5b637afb46ce43e7e8ee5423fdbb757039da32695d2a1ce46a2441c5f1906"
++}
+diff --git a/docs/security/license-policy.toml b/docs/security/license-policy.toml
+index 76ac21b..17c920f 100644
+--- a/docs/security/license-policy.toml
++++ b/docs/security/license-policy.toml
+@@ -65,6 +65,71 @@ requires_dist = [
+     "pg8000>=1.31.5,<2; extra == 'postgres'",
+ ]
+ 
++[runtime.evalcore]
++# Runtime closure of tracer-evalcore (docs/security/P3-02-licenses.md). Workspace packages are
++# excluded. The standard library plus tracer-evalschema only; a new third-party dependency is a
++# conscious edit.
++closure = [
++    "annotated-types",
++    "pydantic",
++    "pydantic-core",
++    "rfc8785",
++    "typing-extensions",
++    "typing-inspection",
++]
++requires_dist = ["tracer-evalschema==0.0.1"]
++
++[runtime.evalproviders]
++# Runtime closure of tracer-evalproviders: the evalschema closure plus httpx and its dependencies.
++# sniffio is not required by anyio 4.15.1. certifi is MPL-2.0 (see [[exceptions]]).
++closure = [
++    "annotated-types",
++    "anyio",
++    "certifi",
++    "h11",
++    "httpcore",
++    "httpx",
++    "idna",
++    "pydantic",
++    "pydantic-core",
++    "rfc8785",
++    "typing-extensions",
++    "typing-inspection",
++]
++requires_dist = [
++    "tracer-evalschema==0.0.1",
++    "tracer-evalcore==0.0.1",
++    "httpx>=0.28.1,<1",
++]
++
++[runtime.cli]
++# Runtime closure of tracer-cli: the union of the evalschema, evaldb base and httpx closures. No
++# extra is declared (the Postgres driver is not part of the command line).
++closure = [
++    "alembic",
++    "annotated-types",
++    "anyio",
++    "certifi",
++    "h11",
++    "httpcore",
++    "httpx",
++    "idna",
++    "mako",
++    "markupsafe",
++    "pydantic",
++    "pydantic-core",
++    "rfc8785",
++    "sqlalchemy",
++    "typing-extensions",
++    "typing-inspection",
++]
++requires_dist = [
++    "tracer-evalschema==0.0.1",
++    "tracer-evalcore==0.0.1",
++    "tracer-evalproviders==0.0.1",
++    "tracer-evaldb==0.0.1",
++]
++
+ # ---------------------------------------------------------------------------------------------
+ # Rejected: packages considered and refused. Recorded so that nobody adds them without a decision.
+ # ---------------------------------------------------------------------------------------------
+@@ -79,6 +144,16 @@ name = "psycopg-binary"
+ spdx = "LGPL-3.0-only"
+ reason = "The binary distribution of psycopg, with the same LGPL-3.0-only licence."
+ 
++[[rejected]]
++name = "sarvamai"
++spdx = "none declared"
++reason = "PyPI declares no licence (license and license_expression null, no classifier; 0.1.37). The Sarvam adapter uses the documented REST interface through httpx. See docs/security/P3-02-licenses.md."
++
++[[rejected]]
++name = "requests"
++spdx = "Apache-2.0"
++reason = "Not a licence rejection: a second HTTP stack beside the decided httpx (decision Q2) that adds charset_normalizer and urllib3. See docs/security/P3-02-licenses.md."
++
+ # ---------------------------------------------------------------------------------------------
+ # Exceptions: copyleft licenses allowed by name, version and dependency group.
+ # ---------------------------------------------------------------------------------------------
+@@ -105,6 +180,17 @@ license_file_sha256 = "fab3dd6bdab226f1c08630b1dd917e11fcb4ec5e1e020e2c16f83a0a1
+ decided_by = "project owner (sign-off for audit finding E1)"
+ reason = "Transitive dev tool dependency (mypy, hatchling); used unmodified, never vendored."
+ 
++[[exceptions]]
++name = "certifi"
++version = "2026.10.23"
++spdx = "MPL-2.0"
++scope = "runtime"  # dependency of httpx and httpcore in tracer-evalproviders and tracer-cli
++groups = ["dev"]   # the checker's reachability group; the 'scope' text is documentary only
++license_file = "licenses/LICENSE"
++license_file_sha256 = "e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7"
++decided_by = "project owner (standing rule: do not dwell on copyleft; accepted by name 2026-10-25)"
++reason = "File-level weak copyleft. Used unmodified as a transitive dependency of httpx and httpcore, never vendored or copied into a tracer wheel and never named in a tracer Requires-Dist."
++
+ # ---------------------------------------------------------------------------------------------
+ # Overrides: metadata is empty, non-SPDX or classifier-only; the license file was read by a human.
+ # ---------------------------------------------------------------------------------------------
+diff --git a/packages/cli/README.md b/packages/cli/README.md
+new file mode 100644
+index 0000000..59e0433
+--- /dev/null
++++ b/packages/cli/README.md
+@@ -0,0 +1,3 @@
++# tracer-cli
++
++The tracer command line.
+diff --git a/packages/cli/pyproject.toml b/packages/cli/pyproject.toml
+new file mode 100644
+index 0000000..5bac4a8
+--- /dev/null
++++ b/packages/cli/pyproject.toml
+@@ -0,0 +1,36 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++[build-system]
++requires = ["hatchling==1.32.4"]
++build-backend = "hatchling.build"
++
++[project]
++name = "tracer-cli"
++version = "0.0.1"
++description = "The tracer command line."
++readme = "README.md"
++requires-python = ">=3.11"
++license = "Apache-2.0"
++license-files = ["LICENSE", "NOTICE"]
++dependencies = [
++    "tracer-evalschema==0.0.1",
++    "tracer-evalcore==0.0.1",
++    "tracer-evalproviders==0.0.1",
++    "tracer-evaldb==0.0.1",
++]
++classifiers = [
++    "Development Status :: 2 - Pre-Alpha",
++    "License :: OSI Approved :: Apache Software License",
++    "Programming Language :: Python :: 3",
++    "Programming Language :: Python :: 3.11",
++    "Programming Language :: Python :: 3.12",
++    "Programming Language :: Python :: 3.13",
++    "Programming Language :: Python :: 3.14",
++    "Typing :: Typed",
++]
++
++[project.scripts]
++tracer = "tracer_cli.cli:main"
++
++[tool.hatch.build.targets.wheel]
++packages = ["src/tracer_cli"]
+diff --git a/packages/cli/src/tracer_cli/__init__.py b/packages/cli/src/tracer_cli/__init__.py
+new file mode 100644
+index 0000000..eaebb66
+--- /dev/null
++++ b/packages/cli/src/tracer_cli/__init__.py
+@@ -0,0 +1,8 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The ``tracer`` command line."""
++
++from __future__ import annotations
++
++__version__ = "0.0.1"
++__all__ = ["__version__"]
+diff --git a/packages/cli/src/tracer_cli/cli.py b/packages/cli/src/tracer_cli/cli.py
+new file mode 100644
+index 0000000..5c313d2
+--- /dev/null
++++ b/packages/cli/src/tracer_cli/cli.py
+@@ -0,0 +1,25 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Entry point of the ``tracer`` console script (scaffold: help only)."""
++
++from __future__ import annotations
++
++import argparse
++import sys
++from collections.abc import Sequence
++
++__all__ = ["build_parser", "main"]
++
++
++def build_parser() -> argparse.ArgumentParser:
++    return argparse.ArgumentParser(
++        prog="tracer",
++        description="Tracer: score a recorded call by the agreement of two transcripts.",
++    )
++
++
++def main(argv: Sequence[str] | None = None) -> int:
++    parser = build_parser()
++    parser.parse_args(argv)
++    parser.print_help(sys.stderr)
++    return 2
+diff --git a/packages/cli/src/tracer_cli/py.typed b/packages/cli/src/tracer_cli/py.typed
+new file mode 100644
+index 0000000..e69de29
+diff --git a/packages/evalcore/README.md b/packages/evalcore/README.md
+new file mode 100644
+index 0000000..9c20e3a
+--- /dev/null
++++ b/packages/evalcore/README.md
+@@ -0,0 +1,3 @@
++# tracer-evalcore
++
++Pure scoring core for Tracer: readers, chunker and (later) alignment.
+diff --git a/packages/evalcore/pyproject.toml b/packages/evalcore/pyproject.toml
+new file mode 100644
+index 0000000..79a699a
+--- /dev/null
++++ b/packages/evalcore/pyproject.toml
+@@ -0,0 +1,30 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++[build-system]
++requires = ["hatchling==1.32.4"]
++build-backend = "hatchling.build"
++
++[project]
++name = "tracer-evalcore"
++version = "0.0.1"
++description = "Pure scoring core for Tracer: readers, chunker and (later) alignment."
++readme = "README.md"
++requires-python = ">=3.11"
++license = "Apache-2.0"
++license-files = ["LICENSE", "NOTICE"]
++dependencies = [
++    "tracer-evalschema==0.0.1",
++]
++classifiers = [
++    "Development Status :: 2 - Pre-Alpha",
++    "License :: OSI Approved :: Apache Software License",
++    "Programming Language :: Python :: 3",
++    "Programming Language :: Python :: 3.11",
++    "Programming Language :: Python :: 3.12",
++    "Programming Language :: Python :: 3.13",
++    "Programming Language :: Python :: 3.14",
++    "Typing :: Typed",
++]
++
++[tool.hatch.build.targets.wheel]
++packages = ["src/tracer_evalcore"]
+diff --git a/packages/evalcore/src/tracer_evalcore/__init__.py b/packages/evalcore/src/tracer_evalcore/__init__.py
+new file mode 100644
+index 0000000..befb29d
+--- /dev/null
++++ b/packages/evalcore/src/tracer_evalcore/__init__.py
+@@ -0,0 +1,8 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Pure core of the recorded-call scoring: readers, chunker (no network, no clock)."""
++
++from __future__ import annotations
++
++__version__ = "0.0.1"
++__all__ = ["__version__"]
+diff --git a/packages/evalcore/src/tracer_evalcore/audio/__init__.py b/packages/evalcore/src/tracer_evalcore/audio/__init__.py
+new file mode 100644
+index 0000000..deed335
+--- /dev/null
++++ b/packages/evalcore/src/tracer_evalcore/audio/__init__.py
+@@ -0,0 +1,5 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Audio helpers: exact durations and the deterministic chunker."""
++
++from __future__ import annotations
+diff --git a/packages/evalcore/src/tracer_evalcore/audio/chunker.py b/packages/evalcore/src/tracer_evalcore/audio/chunker.py
+new file mode 100644
+index 0000000..312c8ff
+--- /dev/null
++++ b/packages/evalcore/src/tracer_evalcore/audio/chunker.py
+@@ -0,0 +1,220 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The deterministic chunker (ADR 0024 rule 7): windows of at most ``max_chunk_ms``, each cut
++inside its last ``search_ms`` at the lowest-energy 20 ms frame. Pure Python over ``array('h')``.
++
++Frames are counted from the window start, ``rate * 20 // 1000`` sample frames each; a frame is a
++candidate when it lies whole inside the last ``rate * search_ms // 1000`` frames of the window;
++its energy is the exact integer sum of squares over all channels; ties go to the latest frame;
++the cut is the frame's middle sample frame. Chunks are canonical 44-byte-header PCM WAV files.
++"""
++
++from __future__ import annotations
++
++import struct
++import sys
++from array import array
++from dataclasses import dataclass, field
++from decimal import Decimal
++from typing import Any
++
++from tracer_evalcore.audio.seconds import exact_seconds
++from tracer_evalcore.errors import InputRefusedError
++from tracer_evalcore.importers.wav import WavAudio
++
++__all__ = [
++    "DEFAULT_MAX_CHUNK_MS",
++    "DEFAULT_SEARCH_MS",
++    "ChannelsRefusedError",
++    "Chunk",
++    "ChunkPlan",
++    "ChunkerError",
++    "ChunkerInputError",
++    "ChunkerParameterError",
++    "chunk_pcm",
++    "chunk_wav",
++]
++
++DEFAULT_MAX_CHUNK_MS = 25_000
++DEFAULT_SEARCH_MS = 5_000
++_FRAME_MS = 20
++
++
++class ChunkerError(InputRefusedError):
++    """The chunker refused its input or its parameters."""
++
++
++class ChunkerParameterError(ChunkerError):
++    """A parameter is not an int in range, or the window cannot be cut."""
++
++
++class ChunkerInputError(ChunkerError):
++    """The audio is not a whole number of 16-bit sample frames."""
++
++
++class ChannelsRefusedError(ChunkerError):
++    """More than one channel without the explicit opt-in, or more than two channels."""
++
++
++@dataclass(frozen=True)
++class Chunk:
++    index: int
++    start_frame: int
++    end_frame: int
++    sample_rate_hz: int
++    channels: int
++    wav: bytes = field(repr=False)
++
++    @property
++    def frames(self) -> int:
++        return self.end_frame - self.start_frame
++
++    @property
++    def duration_seconds(self) -> Decimal | None:
++        return exact_seconds(self.frames, self.sample_rate_hz)
++
++    @property
++    def start_seconds(self) -> Decimal | None:
++        return exact_seconds(self.start_frame, self.sample_rate_hz)
++
++
++@dataclass(frozen=True)
++class ChunkPlan:
++    sample_rate_hz: int
++    channels: int
++    max_chunk_ms: int
++    search_ms: int
++    total_frames: int
++    chunks: tuple[Chunk, ...]
++
++    def as_metadata(self) -> dict[str, Any]:
++        return {
++            "format": "tracer.chunk_plan/1",
++            "max_chunk_ms": self.max_chunk_ms,
++            "search_ms": self.search_ms,
++            "sample_rate_hz": self.sample_rate_hz,
++            "channels": self.channels,
++            "total_frames": self.total_frames,
++            "chunks": [
++                {"index": c.index, "start_frame": c.start_frame, "end_frame": c.end_frame}
++                for c in self.chunks
++            ],
++        }
++
++
++def _int(name: str, value: object, minimum: int) -> int:
++    if type(value) is not int:
++        raise ChunkerParameterError(f"{name} must be an int")
++    if value < minimum:
++        raise ChunkerParameterError(f"{name} must be at least {minimum}")
++    return value
++
++
++def _wav_bytes(pcm: bytes, rate: int, channels: int) -> bytes:
++    return (
++        b"RIFF"
++        + struct.pack("<I", 36 + len(pcm))
++        + b"WAVE"
++        + b"fmt "
++        + struct.pack("<IHHIIHH", 16, 1, channels, rate, rate * channels * 2, channels * 2, 16)
++        + b"data"
++        + struct.pack("<I", len(pcm))
++        + pcm
++    )
++
++
++def chunk_pcm(
++    pcm: bytes,
++    *,
++    sample_rate_hz: int,
++    channels: int,
++    max_chunk_ms: int = DEFAULT_MAX_CHUNK_MS,
++    search_ms: int = DEFAULT_SEARCH_MS,
++    accept_provider_downmix: bool = False,
++) -> ChunkPlan:
++    rate = _int("sample_rate_hz", sample_rate_hz, 1)
++    count = _int("channels", channels, 1)
++    window_ms = _int("max_chunk_ms", max_chunk_ms, 1)
++    region_ms = _int("search_ms", search_ms, 0)
++    if region_ms > window_ms:
++        raise ChunkerParameterError("search_ms must not exceed max_chunk_ms")
++    if type(accept_provider_downmix) is not bool:
++        raise ChunkerParameterError("accept_provider_downmix must be a bool")
++    if count > 2 or (count == 2 and not accept_provider_downmix):
++        raise ChannelsRefusedError(
++            "more than one channel: the provider merges channels; pass "
++            "accept_provider_downmix=True to send two channels unchanged"
++        )
++    if not isinstance(pcm, bytes):
++        raise TypeError("pcm must be bytes")
++    frame_bytes = 2 * count
++    if len(pcm) % frame_bytes != 0:
++        raise ChunkerInputError("the audio is not a whole number of sample frames")
++    total = len(pcm) // frame_bytes
++    window = rate * window_ms // 1000
++    frame = rate * _FRAME_MS // 1000
++    region = rate * region_ms // 1000
++    ranges: list[tuple[int, int]] = []
++    if total > window:
++        samples = array("h")
++        samples.frombytes(pcm)
++        if sys.byteorder == "big":
++            samples.byteswap()
++        candidates = [
++            k
++            for k in range(window // frame)
++            if k * frame >= window - region and (k + 1) * frame <= window
++        ]
++        if not candidates:
++            raise ChunkerParameterError("no whole 20 ms frame lies in the search region")
++        start = 0
++        while total - start > window:
++            best_k = -1
++            best_energy = 0
++            for k in candidates:
++                low = (start + k * frame) * count
++                energy = sum(v * v for v in samples[low : low + frame * count])
++                if best_k < 0 or energy <= best_energy:
++                    best_k, best_energy = k, energy
++            cut = start + best_k * frame + frame // 2
++            ranges.append((start, cut))
++            start = cut
++        ranges.append((start, total))
++    elif total > 0:
++        ranges.append((0, total))
++    chunks = tuple(
++        Chunk(
++            index=index,
++            start_frame=first,
++            end_frame=last,
++            sample_rate_hz=rate,
++            channels=count,
++            wav=_wav_bytes(pcm[first * frame_bytes : last * frame_bytes], rate, count),
++        )
++        for index, (first, last) in enumerate(ranges)
++    )
++    return ChunkPlan(
++        sample_rate_hz=rate,
++        channels=count,
++        max_chunk_ms=window_ms,
++        search_ms=region_ms,
++        total_frames=total,
++        chunks=chunks,
++    )
++
++
++def chunk_wav(
++    audio: WavAudio,
++    *,
++    max_chunk_ms: int = DEFAULT_MAX_CHUNK_MS,
++    search_ms: int = DEFAULT_SEARCH_MS,
++    accept_provider_downmix: bool = False,
++) -> ChunkPlan:
++    return chunk_pcm(
++        audio.pcm,
++        sample_rate_hz=audio.sample_rate_hz,
++        channels=audio.channels,
++        max_chunk_ms=max_chunk_ms,
++        search_ms=search_ms,
++        accept_provider_downmix=accept_provider_downmix,
++    )
+diff --git a/packages/evalcore/src/tracer_evalcore/audio/seconds.py b/packages/evalcore/src/tracer_evalcore/audio/seconds.py
+new file mode 100644
+index 0000000..417a36a
+--- /dev/null
++++ b/packages/evalcore/src/tracer_evalcore/audio/seconds.py
+@@ -0,0 +1,41 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Exact durations: frames divided by the sample rate, as a Decimal or not at all."""
++
++from __future__ import annotations
++
++from decimal import Decimal
++from math import gcd
++
++__all__ = ["MAX_DECIMAL_SCALE", "exact_seconds"]
++
++#: The most fractional digits a canonical decimal of the schema carries (DecimalString).
++MAX_DECIMAL_SCALE = 18
++
++
++def exact_seconds(frames: int, rate: int) -> Decimal | None:
++    """``frames / rate`` seconds when a finite decimal with at most 18 fractional digits equals
++    it exactly, else ``None`` (never rounded, never a float)."""
++    if type(frames) is not int or type(rate) is not int:
++        raise TypeError("frames and rate must be int")
++    if frames < 0:
++        raise ValueError("frames must not be negative")
++    if rate <= 0:
++        raise ValueError("rate must be positive")
++    divisor = gcd(frames, rate)
++    numerator, denominator = frames // divisor, rate // divisor
++    twos = fives = 0
++    rest = denominator
++    while rest % 2 == 0:
++        rest //= 2
++        twos += 1
++    while rest % 5 == 0:
++        rest //= 5
++        fives += 1
++    if rest != 1:
++        return None
++    scale = max(twos, fives)
++    if scale > MAX_DECIMAL_SCALE:
++        return None
++    scaled = numerator * (10**scale // denominator)
++    return Decimal(scaled).scaleb(-scale)
+diff --git a/packages/evalcore/src/tracer_evalcore/errors.py b/packages/evalcore/src/tracer_evalcore/errors.py
+new file mode 100644
+index 0000000..ced34e9
+--- /dev/null
++++ b/packages/evalcore/src/tracer_evalcore/errors.py
+@@ -0,0 +1,15 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Base error types of tracer-evalcore."""
++
++from __future__ import annotations
++
++__all__ = ["EvalcoreError", "InputRefusedError"]
++
++
++class EvalcoreError(Exception):
++    """Base of every error that tracer-evalcore raises on purpose."""
++
++
++class InputRefusedError(EvalcoreError, ValueError):
++    """An input was refused (malformed, unsupported or over a cap); nothing was guessed."""
+diff --git a/packages/evalcore/src/tracer_evalcore/importers/__init__.py b/packages/evalcore/src/tracer_evalcore/importers/__init__.py
+new file mode 100644
+index 0000000..0932de3
+--- /dev/null
++++ b/packages/evalcore/src/tracer_evalcore/importers/__init__.py
+@@ -0,0 +1,5 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Readers that turn user-supplied files into schema records."""
++
++from __future__ import annotations
+diff --git a/packages/evalcore/src/tracer_evalcore/importers/voicera.py b/packages/evalcore/src/tracer_evalcore/importers/voicera.py
+new file mode 100644
+index 0000000..6a77d02
+--- /dev/null
++++ b/packages/evalcore/src/tracer_evalcore/importers/voicera.py
+@@ -0,0 +1,389 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""VoicEra-style transcript export reader: the F8 mapper promoted into the product.
++
++The file is a header line ``call_id=<id>``, a ``---`` line and message lines
++``[<timestamp>] <speaker>: <text>``. The mapping is the one of the F8 test mapper
++(``packages/evalschema/tests/support/mappings/voicera_transcript.py``): ``assistant`` is the agent,
++``user`` the caller, every line is an ``agent_log`` turn without timing or language. Differences
++from F8 (contract docs/phase3/api-surface-batch-a.md section 4): a warning that drops or alters
++content is a refusal unless ``accept_warnings=True``, and a call id with control or bidi characters
++is always refused, without echoing it.
++"""
++
++from __future__ import annotations
++
++import re
++import unicodedata
++from collections.abc import Mapping
++from dataclasses import dataclass
++from datetime import UTC, datetime, timedelta, timezone
++from typing import Any
++
++from tracer_evalcore.errors import InputRefusedError
++from tracer_evalschema import SCHEMA_VERSION
++from tracer_evalschema.events import IngestWarning
++from tracer_evalschema.ids import ExternalRef, TranscriptId, TurnId
++from tracer_evalschema.text import replace_lone_surrogates
++from tracer_evalschema.transcript import LanguageDeclaration, Transcript, Turn
++
++__all__ = [
++    "NON_REFUSING_WARNING_CODES",
++    "VoicEraRead",
++    "VoicEraRefusedError",
++    "read_voicera_export",
++]
++
++NON_REFUSING_WARNING_CODES = frozenset(
++    {"call_id_not_uuid", "timestamp_not_parseable", "naive_timestamp", "time_precision_reduced"}
++)
++_UNSAFE_CALL_ID = frozenset(
++    chr(c) for c in (0x200E, 0x200F, 0x061C, *range(0x202A, 0x202F), *range(0x2066, 0x206A))
++)
++_HEADER = re.compile(r"call_id=(?P<value>.+)")
++_UUID = re.compile(r"[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}")
++_MESSAGE = re.compile(r"\[(?P<ts>[^\]]*)\] (?P<speaker>[^\s:]+):(?: (?P<text>.*))?")
++_INSTANT = re.compile(
++    r"(?P<y>[0-9]{4})-(?P<mo>[0-9]{2})-(?P<d>[0-9]{2})[T ](?P<h>[0-9]{2}):(?P<mi>[0-9]{2})"
++    r":(?P<s>[0-9]{2})(?:\.(?P<frac>[0-9]+))?(?P<zone>Z|[+-][0-9]{2}:[0-9]{2})?"
++)
++_ROLE = {"assistant": "agent", "user": "caller"}
++_BOM = "\ufeff"
++_TIME_MESSAGES = {
++    "timestamp_not_parseable": "the timestamp is not an ISO-8601 instant; no wall time is stored",
++    "naive_timestamp": "the timestamp has no zone; no wall time is stored",
++    "time_precision_reduced": "digits finer than a microsecond were cut",
++}
++_LISTED = 20
++
++
++class VoicEraRefusedError(InputRefusedError):
++    """The export was refused. ``warnings`` holds every warning of the read (they quote lines)."""
++
++    def __init__(self, message: str, warnings: tuple[IngestWarning, ...] = ()) -> None:
++        super().__init__(message)
++        self.warnings = warnings
++
++
++@dataclass(frozen=True)
++class VoicEraRead:
++    transcript: Transcript | None
++    turns: tuple[Turn, ...]
++    warnings: tuple[IngestWarning, ...]
++    external_refs: tuple[ExternalRef, ...]
++
++
++class _Warnings:
++    def __init__(self) -> None:
++        self.items: list[IngestWarning] = []
++        self._seen: set[tuple[str, str | None, str | None]] = set()
++
++    def warn(
++        self, code: str, message: str, *, path: str | None = None, raw: str | None = None
++    ) -> None:
++        shown_path = None if path is None else replace_lone_surrogates(path)
++        shown_raw = None if raw is None else replace_lone_surrogates(raw)
++        key = (code, shown_path, shown_raw)
++        if key in self._seen:
++            return
++        self._seen.add(key)
++        self.items.append(IngestWarning(code=code, path=shown_path, raw=shown_raw, message=message))
++
++    def text(self, value: str, source: str) -> str:
++        replaced = replace_lone_surrogates(value)
++        if replaced != value:
++            self.warn(
++                "text_not_valid_unicode",
++                "the text held a lone surrogate, stored with U+FFFD in its place",
++                path=source,
++                raw=replaced,
++            )
++        return replaced
++
++
++def _lines(text: str) -> list[str]:
++    pieces = text.split("\n")
++    if pieces and pieces[-1] == "":
++        pieces.pop()
++    out = [piece[:-1] if piece.endswith("\r") else piece for piece in pieces]
++    if out and out[0].startswith(_BOM):
++        out[0] = out[0][1:]
++    return out
++
++
++def _instant(stamp: str) -> tuple[str | None, str | None]:
++    found = _INSTANT.fullmatch(stamp)
++    if found is None:
++        return None, "timestamp_not_parseable"
++    zone = found["zone"]
++    if zone is None:
++        return None, "naive_timestamp"
++    try:
++        if zone == "Z":
++            offset = timedelta(0)
++        else:
++            hours, minutes = int(zone[1:3]), int(zone[4:6])
++            if hours > 23 or minutes > 59:
++                return None, "timestamp_not_parseable"
++            offset = timedelta(hours=hours, minutes=minutes)
++            if zone[0] == "-":
++                offset = -offset
++        fraction = found["frac"] or ""
++        micro = int(fraction[:6].ljust(6, "0"))
++        moment = datetime(
++            int(found["y"]),
++            int(found["mo"]),
++            int(found["d"]),
++            int(found["h"]),
++            int(found["mi"]),
++            int(found["s"]),
++            micro,
++            tzinfo=timezone(offset),
++        )
++        utc = moment.astimezone(UTC)
++        text = (
++            f"{utc.year:04d}-{utc.month:02d}-{utc.day:02d}T"
++            f"{utc.hour:02d}:{utc.minute:02d}:{utc.second:02d}.{utc.microsecond:06d}Z"
++        )
++    except (ValueError, OverflowError):
++        return None, "timestamp_not_parseable"
++    return text, ("time_precision_reduced" if len(fraction) > 6 else None)
++
++
++def _failing_fields(exc: ValueError) -> list[str] | None:
++    errors = getattr(exc, "errors", None)
++    if errors is None:
++        return None
++    try:
++        located = errors(include_input=False, include_url=False)
++    except TypeError:
++        return None
++    names: list[str] = []
++    for item in located:
++        loc = item.get("loc") or ()
++        if not loc:
++            return None
++        names.append(str(loc[0]))
++    return names
++
++
++def _build(
++    cls: Any,
++    fixed: dict[str, Any],
++    values: dict[str, Any],
++    caller: set[str],
++    note: _Warnings,
++    where: str | None,
++) -> Any | None:
++    """Build a record; an optional field the schema refuses is dropped with a warning, a record
++    that cannot be built without it is dropped with a warning (the F8 recorder's rule)."""
++    optional = {name for name, info in cls.model_fields.items() if not info.is_required()}
++    values = dict(values)
++    for _ in range(len(values) + 1):
++        try:
++            return cls(**fixed, **values)
++        except ValueError as exc:
++            bad = _failing_fields(exc)
++            if set(bad or []) & caller:
++                raise
++            dropped = [n for n in (bad or []) if n in values and n in optional]
++            if not dropped or len(dropped) != len(set(bad or [])):
++                note.warn(
++                    "malformed_entry",
++                    f"a {cls.__name__} could not be built from the source and was not stored",
++                    path=where,
++                )
++                return None
++            for name in dropped:
++                del values[name]
++                note.warn(
++                    "malformed_entry",
++                    f"{cls.__name__}.{name} is not valid for the schema and was not stored",
++                    path=where,
++                )
++    return None
++
++
++def read_voicera_export(
++    text: str,
++    *,
++    created_at: str | datetime,
++    privacy: Any,
++    declared_language: LanguageDeclaration | Mapping[str, Any] | None = None,
++    accept_warnings: bool = False,
++) -> VoicEraRead:
++    if not isinstance(text, str):
++        raise TypeError("an export is passed as decoded text")
++    if type(accept_warnings) is not bool:
++        raise TypeError("accept_warnings must be a bool")
++    # the caller's own arguments are checked first, whatever the content: the model raises
++    arguments: dict[str, Any] = {
++        "id": TranscriptId.new(),
++        "schema_version": SCHEMA_VERSION,
++        "created_at": created_at,
++        "source": "agent_export",
++        "privacy": privacy,
++        "declared_language": declared_language,
++    }
++    Transcript(**arguments)
++    note = _Warnings()
++    lines = _lines(text)
++    if all(line.strip() == "" for line in lines):
++        note.warn("empty_input", "the export has no line with content")
++        return _finish(None, [], note, [], accept_warnings)
++
++    transcript_id = TranscriptId.new()
++    head: dict[str, Any] = {"source": "agent_export"}
++    if declared_language is not None:
++        head["declared_language"] = declared_language
++    refs: list[ExternalRef] = []
++    header_ok = False
++    turns: list[Turn] = []
++    for index, line in enumerate(lines):
++        number = index + 1
++        where = f"f8:{number}"
++        if number == 1:
++            found = _HEADER.fullmatch(line)
++            if found is not None:
++                header_ok = True
++                value = found["value"]
++                if any(ch in _UNSAFE_CALL_ID or unicodedata.category(ch) == "Cc" for ch in value):
++                    raise VoicEraRefusedError(
++                        "the export header holds control or bidirectional characters in the "
++                        "call id: call_id_unsafe_characters at f8:1/call_id; refused"
++                    )
++                _header(note, head, refs, value)
++                continue
++            note.warn(
++                "header_not_recognized",
++                "the first line is not a call_id header",
++                path=where,
++                raw=line,
++            )
++        elif number == 2:
++            if line == "---":
++                continue
++            note.warn(
++                "delimiter_not_found",
++                "the second line is not the header delimiter",
++                path=where,
++                raw=line,
++            )
++            if _MESSAGE.fullmatch(line) is None:
++                continue
++        if line.strip() == "":
++            continue
++        message = _MESSAGE.fullmatch(line)
++        if message is None:
++            if number > 2:
++                note.warn("unparsed_line", "the line is not a message line", path=where, raw=line)
++            continue
++        turn = _message(note, transcript_id, where, message, len(turns), created_at)
++        if turn is not None:
++            turns.append(turn)
++
++    transcript: Transcript | None = None
++    if turns or header_ok:
++        transcript = _build(
++            Transcript,
++            {
++                "privacy": privacy,
++                "id": transcript_id,
++                "schema_version": SCHEMA_VERSION,
++                "created_at": created_at,
++            },
++            head,
++            {"privacy", "created_at"},
++            note,
++            None,
++        )
++    return _finish(transcript, turns, note, refs, accept_warnings)
++
++
++def _finish(
++    transcript: Transcript | None,
++    turns: list[Turn],
++    note: _Warnings,
++    refs: list[ExternalRef],
++    accept_warnings: bool,
++) -> VoicEraRead:
++    warnings = tuple(note.items)
++    dropping = [w for w in warnings if w.code not in NON_REFUSING_WARNING_CODES]
++    if dropping and not accept_warnings:
++        listed = ", ".join(
++            w.code if w.path is None else f"{w.code} at {w.path}" for w in dropping[:_LISTED]
++        )
++        more = f" and {len(dropping) - _LISTED} more" if len(dropping) > _LISTED else ""
++        raise VoicEraRefusedError(
++            f"the export was refused: {len(dropping)} warning(s) drop or alter content: "
++            f"{listed}{more}; pass accept_warnings=True to read it anyway",
++            warnings,
++        )
++    return VoicEraRead(transcript, tuple(turns), warnings, tuple(refs))
++
++
++def _header(note: _Warnings, head: dict[str, Any], refs: list[ExternalRef], value: str) -> None:
++    source = "f8:1/call_id"
++    if not _UUID.fullmatch(value):
++        note.warn(
++            "call_id_not_uuid",
++            "the call id is not shaped like a UUID and is kept as it is",
++            path=source,
++            raw=value,
++        )
++    if replace_lone_surrogates(value) != value:
++        note.warn(
++            "text_not_valid_unicode",
++            "an external identifier holds a lone surrogate and is not stored",
++            path=source,
++        )
++        return
++    refs.append(ExternalRef(system="voicera", kind="call_id", value=value))
++    head["provider_call_ref"] = {"system": "voicera", "kind": "call_id", "value": value}
++
++
++def _message(
++    note: _Warnings,
++    transcript_id: TranscriptId,
++    where: str,
++    message: re.Match[str],
++    seq: int,
++    created_at: str | datetime,
++) -> Turn | None:
++    speaker = message["speaker"]
++    role = _ROLE.get(speaker)
++    if role is None:
++        note.warn(
++            "unknown_enum_value",
++            "the speaker label is not assistant or user, so the line is not mapped",
++            path=f"{where}/speaker",
++            raw=speaker,
++        )
++        return None
++    values: dict[str, Any] = {
++        "seq": seq,
++        "role": role,
++        "source": "agent_log",
++        "timing_source": "none",
++        "text": note.text(message["text"] or "", f"{where}/text"),
++    }
++    stamp = message["ts"]
++    instant, code = _instant(stamp)
++    if instant is not None:
++        values["wall_time"] = {"at": instant, "meaning": "unknown"}
++    if code is not None:
++        note.warn(code, _TIME_MESSAGES[code], path=f"{where}/timestamp", raw=stamp)
++    turn: Turn | None = _build(
++        Turn,
++        {
++            "transcript_id": transcript_id,
++            "id": TurnId.new(),
++            "schema_version": SCHEMA_VERSION,
++            "created_at": created_at,
++        },
++        values,
++        {"transcript_id", "created_at"},
++        note,
++        where,
++    )
++    return turn
+diff --git a/packages/evalcore/src/tracer_evalcore/importers/wav.py b/packages/evalcore/src/tracer_evalcore/importers/wav.py
+new file mode 100644
+index 0000000..80789a9
+--- /dev/null
++++ b/packages/evalcore/src/tracer_evalcore/importers/wav.py
+@@ -0,0 +1,176 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""WAV reader: one 16-bit PCM file to an Artifact, the exact duration and the samples.
++
++Plain PCM (format tag 1), 16 bits, at least one channel. The header is parsed here, byte by
++byte, so that the result does not depend on the Python version; sizes in the header are compared
++with the file and never used to allocate.
++"""
++
++from __future__ import annotations
++
++import hashlib
++import os
++import stat
++import struct
++from dataclasses import dataclass, field
++from datetime import datetime
++from decimal import Decimal
++from pathlib import Path
++from typing import Any
++
++from tracer_evalcore.audio.seconds import exact_seconds
++from tracer_evalcore.errors import InputRefusedError
++from tracer_evalschema import SCHEMA_VERSION
++from tracer_evalschema.artifact import Artifact, AudioFormat
++from tracer_evalschema.ids import ArtifactId
++from tracer_evalschema.privacy import ConsentRecord, PrivacyMarker, RetentionPolicy
++
++__all__ = [
++    "DEFAULT_MAX_WAV_BYTES",
++    "WavAudio",
++    "WavError",
++    "WavMalformedError",
++    "WavTooLargeError",
++    "WavTruncatedError",
++    "WavUnsupportedFormatError",
++    "read_wav",
++]
++
++DEFAULT_MAX_WAV_BYTES = 1_073_741_824
++
++
++class WavError(InputRefusedError):
++    """A WAV file was refused."""
++
++
++class WavMalformedError(WavError):
++    """Not a WAV file, or a header that contradicts itself."""
++
++
++class WavTruncatedError(WavError):
++    """The file ends before the bytes its header declares."""
++
++
++class WavUnsupportedFormatError(WavError):
++    """Not plain 16-bit PCM, or no channel, or a rate of zero."""
++
++
++class WavTooLargeError(WavError):
++    """The file is larger than the cap; it was not read."""
++
++
++@dataclass(frozen=True)
++class WavAudio:
++    artifact: Artifact
++    frames: int
++    sample_rate_hz: int
++    channels: int
++    duration_seconds: Decimal | None
++    pcm: bytes = field(repr=False)
++
++
++def read_wav(
++    path: str | os.PathLike[str],
++    *,
++    created_at: str | datetime,
++    consent: ConsentRecord,
++    retention: RetentionPolicy,
++    max_bytes: int = DEFAULT_MAX_WAV_BYTES,
++) -> WavAudio:
++    if type(max_bytes) is not int:
++        raise TypeError("max_bytes must be an int")
++    if max_bytes <= 0:
++        raise ValueError("max_bytes must be positive")
++    if not isinstance(consent, ConsentRecord):
++        raise TypeError("consent must be a ConsentRecord")
++    if not isinstance(retention, RetentionPolicy):
++        raise TypeError("retention must be a RetentionPolicy")
++    resolved = Path(path).resolve(strict=True)
++    with open(resolved, "rb") as handle:
++        info = os.fstat(handle.fileno())
++        if not stat.S_ISREG(info.st_mode):
++            raise WavMalformedError("not a regular file")
++        if info.st_size > max_bytes:
++            raise WavTooLargeError(f"file of {info.st_size} bytes is over the cap of {max_bytes}")
++        # the buffer is sized by the file, never by the cap; one byte more detects a file that grew
++        content = handle.read(info.st_size + 1)
++    if len(content) > max_bytes or len(content) > info.st_size:
++        raise WavTooLargeError(f"file is over the cap of {max_bytes} bytes or changed while read")
++    channels, rate, pcm = _parse(content)
++    frames = len(pcm) // (2 * channels)
++    fields: dict[str, Any] = {
++        "id": ArtifactId.new(),
++        "schema_version": SCHEMA_VERSION,
++        "created_at": created_at,  # the model parses the RFC 3339 text
++        "uri": resolved.as_uri(),
++        "sha256": hashlib.sha256(content).hexdigest(),
++        "size": len(content),
++        "audio_format": AudioFormat(
++            container="wav",
++            codec="pcm_s16le",
++            sample_rate_hz=rate,
++            channels=channels,
++            bits_per_sample=16,
++        ),
++        "privacy": PrivacyMarker(human_subject=True, consent=consent, retention=retention),
++    }
++    artifact = Artifact(**fields)
++    return WavAudio(
++        artifact=artifact,
++        frames=frames,
++        sample_rate_hz=rate,
++        channels=channels,
++        duration_seconds=exact_seconds(frames, rate),
++        pcm=pcm,
++    )
++
++
++def _parse(content: bytes) -> tuple[int, int, bytes]:
++    if len(content) < 12 or content[:4] != b"RIFF" or content[8:12] != b"WAVE":
++        raise WavMalformedError("not a RIFF/WAVE file")
++    position = 12
++    fmt: tuple[int, int] | None = None
++    while position + 8 <= len(content):
++        chunk_id = content[position : position + 4]
++        (size,) = struct.unpack_from("<I", content, position + 4)
++        body = position + 8
++        if chunk_id == b"fmt ":
++            if body + size > len(content):
++                raise WavTruncatedError("the file ends inside the fmt chunk")
++            fmt = _parse_fmt(content, body, size)
++        elif chunk_id == b"data":
++            if fmt is None:
++                raise WavMalformedError("the data chunk comes before the fmt chunk, or none")
++            available = len(content) - body
++            if size > available:
++                raise WavTruncatedError(
++                    f"the data chunk declares {size} bytes but {available} follow"
++                )
++            channels, rate = fmt
++            if size % (2 * channels) != 0:
++                raise WavTruncatedError("the data chunk ends inside a frame")
++            return channels, rate, bytes(content[body : body + size])
++        position = body + size + (size & 1)
++    if fmt is None:
++        raise WavMalformedError("no fmt chunk")
++    raise WavMalformedError("no data chunk")
++
++
++def _parse_fmt(content: bytes, body: int, size: int) -> tuple[int, int]:
++    if size < 16:
++        raise WavMalformedError("the fmt chunk is shorter than 16 bytes")
++    tag, channels, rate, _byte_rate, block_align, bits = struct.unpack_from(
++        "<HHIIHH", content, body
++    )
++    if tag != 1:
++        raise WavUnsupportedFormatError(f"format tag {tag} is not plain PCM")
++    if bits != 16:
++        raise WavUnsupportedFormatError(f"{bits}-bit samples are not read; only 16-bit PCM")
++    if channels == 0:
++        raise WavUnsupportedFormatError("the file declares no channel")
++    if rate == 0:
++        raise WavUnsupportedFormatError("the file declares a sample rate of zero")
++    if block_align != channels * 2:
++        raise WavMalformedError("the block alignment contradicts the channels")
++    return channels, rate
+diff --git a/packages/evalcore/src/tracer_evalcore/py.typed b/packages/evalcore/src/tracer_evalcore/py.typed
+new file mode 100644
+index 0000000..e69de29
+diff --git a/packages/evalproviders/README.md b/packages/evalproviders/README.md
+new file mode 100644
+index 0000000..b71bbf2
+--- /dev/null
++++ b/packages/evalproviders/README.md
+@@ -0,0 +1,3 @@
++# tracer-evalproviders
++
++Provider adapters for Tracer (HTTP).
+diff --git a/packages/evalproviders/pyproject.toml b/packages/evalproviders/pyproject.toml
+new file mode 100644
+index 0000000..2117a80
+--- /dev/null
++++ b/packages/evalproviders/pyproject.toml
+@@ -0,0 +1,32 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++[build-system]
++requires = ["hatchling==1.32.4"]
++build-backend = "hatchling.build"
++
++[project]
++name = "tracer-evalproviders"
++version = "0.0.1"
++description = "Provider adapters for Tracer (HTTP)."
++readme = "README.md"
++requires-python = ">=3.11"
++license = "Apache-2.0"
++license-files = ["LICENSE", "NOTICE"]
++dependencies = [
++    "tracer-evalschema==0.0.1",
++    "tracer-evalcore==0.0.1",
++    "httpx>=0.28.1,<1",
++]
++classifiers = [
++    "Development Status :: 2 - Pre-Alpha",
++    "License :: OSI Approved :: Apache Software License",
++    "Programming Language :: Python :: 3",
++    "Programming Language :: Python :: 3.11",
++    "Programming Language :: Python :: 3.12",
++    "Programming Language :: Python :: 3.13",
++    "Programming Language :: Python :: 3.14",
++    "Typing :: Typed",
++]
++
++[tool.hatch.build.targets.wheel]
++packages = ["src/tracer_evalproviders"]
+diff --git a/packages/evalproviders/src/tracer_evalproviders/__init__.py b/packages/evalproviders/src/tracer_evalproviders/__init__.py
+new file mode 100644
+index 0000000..db4a5b2
+--- /dev/null
++++ b/packages/evalproviders/src/tracer_evalproviders/__init__.py
+@@ -0,0 +1,8 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Provider adapters for Tracer. Phase 3 batch B adds the Sarvam speech-to-text adapter."""
++
++from __future__ import annotations
++
++__version__ = "0.0.1"
++__all__ = ["__version__"]
+diff --git a/packages/evalproviders/src/tracer_evalproviders/py.typed b/packages/evalproviders/src/tracer_evalproviders/py.typed
+new file mode 100644
+index 0000000..e69de29
+diff --git a/pyproject.toml b/pyproject.toml
+index 26c8455..215d1f8 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -19,6 +19,9 @@ test = [
+ dev = [
+     "tracer-evalschema",
+     "tracer-evaldb[postgres]",  # pg8000 must be installed for the Postgres job
++    "tracer-evalcore",
++    "tracer-evalproviders",
++    "tracer-cli",
+     { include-group = "test" },
+     "pytest==9.1.1",
+     "ruff==0.17.1",
+@@ -47,6 +50,9 @@ members = ["packages/*"]
+ [tool.uv.sources]
+ tracer-evalschema = { workspace = true }
+ tracer-evaldb = { workspace = true }
++tracer-evalcore = { workspace = true }
++tracer-evalproviders = { workspace = true }
++tracer-cli = { workspace = true }
+ 
+ [tool.ruff]
+ line-length = 100
+@@ -56,6 +62,12 @@ src = [
+     "packages/evalschema/tests",
+     "packages/evaldb/src",
+     "packages/evaldb/tests",
++    "packages/evalcore/src",
++    "packages/evalcore/tests",
++    "packages/evalproviders/src",
++    "packages/evalproviders/tests",
++    "packages/cli/src",
++    "packages/cli/tests",
+     "scripts",
+ ]
+ # Evidence scripts under docs/phase1/evidence are records of one-off runs, not maintained code.
+@@ -76,15 +88,27 @@ files = [
+     "packages/evalschema/tests",
+     "packages/evaldb/src",
+     "packages/evaldb/tests",
++    "packages/evalcore/src",
++    "packages/evalcore/tests",
++    "packages/evalproviders/src",
++    "packages/evalproviders/tests",
++    "packages/cli/src",
++    "packages/cli/tests",
+     "scripts",
+ ]
+ exclude = ["packages/evalschema/tests/fixtures/"]
+-mypy_path = "packages/evalschema/src:packages/evaldb/src"
++mypy_path = "packages/evalschema/src:packages/evaldb/src:packages/evalcore/src:packages/evalproviders/src:packages/cli/src"
+ explicit_package_bases = true
+ namespace_packages = true
+ 
+ [tool.pytest.ini_options]
+-testpaths = ["packages/evalschema/tests", "packages/evaldb/tests"]
++testpaths = [
++    "packages/evalschema/tests",
++    "packages/evaldb/tests",
++    "packages/evalcore/tests",
++    "packages/evalproviders/tests",
++    "packages/cli/tests",
++]
+ addopts = "-ra --strict-markers --strict-config -m 'not private_fixtures and not local_only and not postgres'"
+ markers = [
+     "private_fixtures: needs the gitignored private fixtures; deselected by default (run locally with -m private_fixtures)",
+diff --git a/scripts/check_licenses.py b/scripts/check_licenses.py
+index 4e12c10..7d39dd4 100644
+--- a/scripts/check_licenses.py
++++ b/scripts/check_licenses.py
+@@ -35,6 +35,12 @@ ROOT_PROJECT = "tracer-workspace"
+ RUNTIME_PROJECT = "tracer-evalschema"
+ EVALDB_PROJECT = "tracer-evaldb"
+ EVALDB_EXTRA = "postgres"
++#: The Phase 3 packages: key of the policy table [runtime.<key>] -> project name.
++PHASE3_PROJECTS = {
++    "evalcore": "tracer-evalcore",
++    "evalproviders": "tracer-evalproviders",
++    "cli": "tracer-cli",
++}
+ MAX_LICENSE_FILE_BYTES = 1_000_000
+ MAX_ARTIFACT_METADATA_BYTES = 10_000_000
+ _REQ_NAME_RE = re.compile(r"^\s*([A-Za-z0-9][A-Za-z0-9._-]*)")
+@@ -78,6 +84,8 @@ class Policy:
+     evaldb_closure: frozenset[str]
+     evaldb_extras: frozenset[str]
+     evaldb_requires_dist: frozenset[str]
++    phase3_closure: dict[str, frozenset[str]]
++    phase3_requires_dist: dict[str, frozenset[str]]
+     overrides: list[dict[str, Any]]
+     exceptions: list[dict[str, Any]]
+ 
+@@ -93,6 +101,14 @@ class Policy:
+             evaldb_closure=frozenset(norm_name(n) for n in evaldb.get("closure", [])),
+             evaldb_extras=frozenset(norm_name(n) for n in evaldb.get("extras_postgres", [])),
+             evaldb_requires_dist=frozenset(evaldb.get("requires_dist", [])),
++            phase3_closure={
++                key: frozenset(norm_name(n) for n in runtime.get(key, {}).get("closure", []))
++                for key in PHASE3_PROJECTS
++            },
++            phase3_requires_dist={
++                key: frozenset(runtime.get(key, {}).get("requires_dist", []))
++                for key in PHASE3_PROJECTS
++            },
+             overrides=list(data.get("overrides", [])),
+             exceptions=list(data.get("exceptions", [])),
+         )
+@@ -502,6 +518,7 @@ def runtime_findings(lock: Lock, policy: Policy, runtime: set[str]) -> list[Find
+             )
+         )
+     out.extend(evaldb_findings(lock, policy))
++    out.extend(phase3_findings(lock, policy))
+     lp = lock.packages.get(norm_name(RUNTIME_PROJECT))
+     if lp is not None:
+         for r in lp.requires_dist:
+@@ -556,6 +573,36 @@ def evaldb_findings(lock: Lock, policy: Policy) -> list[Finding]:
+     return out
+ 
+ 
++def phase3_findings(lock: Lock, policy: Policy) -> list[Finding]:
++    """The Phase 3 packages: the third-party closure of each is frozen, and every third-party
++    runtime dependency is a bounded range (workspace packages are pinned exactly)."""
++    out: list[Finding] = []
++    for key, project in PHASE3_PROJECTS.items():
++        lp = lock.packages.get(norm_name(project))
++        if lp is None or not policy.phase3_closure[key]:
++            continue
++
++        def fail(note: str, project: str = project, version: str = lp.version) -> None:
++            out.append(Finding(project, version, "?", "FAIL", note))
++
++        reached = lock.closure([project]) - {norm_name(project)}
++        third_party = {n for n in reached if "editable" not in lock.packages[n].source}
++        expected = set(policy.phase3_closure[key])
++        if third_party != expected:
++            fail(
++                f"runtime closure changed: extra {sorted(third_party - expected)}, "
++                f"missing {sorted(expected - third_party)}"
++            )
++        for r in lp.requires_dist:
++            if norm_name(r["name"]) in lock.packages and (
++                "editable" in lock.packages[norm_name(r["name"])].source
++            ):
++                continue  # a workspace package: pinned exactly in pyproject
++            if not re.fullmatch(r">=\d+(\.\d+)*,<\d+(\.\d+)*", str(r.get("specifier", ""))):
++                fail(f"runtime dependency {r['name']} not declared as a bounded range (>=X,<Y)")
++    return out
++
++
+ def _open_artifact(path: Path) -> tuple[list[str], Callable[[str], bytes]]:
+     if path.suffix == ".whl":
+         z = zipfile.ZipFile(path)
+@@ -595,8 +642,12 @@ def check_artifact(path: Path, policy: Policy) -> list[Finding]:
+     if verdict.klass != ALLOWED:
+         fail(f"artifact license {CLASS_NAMES[verdict.klass]}: {verdict.declared}")
+     requires = {_normal_requirement(r) for r in meta.get_all("Requires-Dist") or []}
+-    is_evaldb = norm_name(str(meta.get("Name", ""))) == norm_name(EVALDB_PROJECT)
++    project_name = norm_name(str(meta.get("Name", "")))
++    is_evaldb = project_name == norm_name(EVALDB_PROJECT)
+     wanted_dist = policy.evaldb_requires_dist if is_evaldb else policy.runtime_requires_dist
++    for key, project in PHASE3_PROJECTS.items():
++        if project_name == norm_name(project):
++            wanted_dist = policy.phase3_requires_dist[key]
+     wanted = {_normal_requirement(r) for r in wanted_dist}
+     if wanted_dist and requires != wanted:
+         fail(f"Requires-Dist {sorted(requires)} != policy {sorted(wanted)}")

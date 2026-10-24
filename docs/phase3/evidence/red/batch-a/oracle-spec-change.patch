@@ -1,0 +1,36 @@
+diff --git a/packages/evaldb/tests/test_evaldb_ci.py b/packages/evaldb/tests/test_evaldb_ci.py
+index edca408..a0d64c0 100644
+--- a/packages/evaldb/tests/test_evaldb_ci.py
++++ b/packages/evaldb/tests/test_evaldb_ci.py
+@@ -227,7 +227,13 @@ def test_ci_postgres_password_not_literal() -> None:
+ def test_ci_sqlite_runs_on_every_python_leg() -> None:
+     pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+     ini = pyproject["tool"]["pytest"]["ini_options"]
+-    assert ini["testpaths"] == ["packages/evalschema/tests", "packages/evaldb/tests"]
++    assert ini["testpaths"] == [  # Phase 3 spec change (P3-01): three more test directories
++        "packages/evalschema/tests",
++        "packages/evaldb/tests",
++        "packages/evalcore/tests",
++        "packages/evalproviders/tests",
++        "packages/cli/tests",
++    ]
+     marker_match = re.search(r"-m\s+'([^']*)'", ini["addopts"])
+     assert marker_match, ini["addopts"]
+     terms = marker_match.group(1).split(" and ")
+diff --git a/packages/evalschema/tests/test_repo_contract.py b/packages/evalschema/tests/test_repo_contract.py
+index 6fc9a36..bf153da 100644
+--- a/packages/evalschema/tests/test_repo_contract.py
++++ b/packages/evalschema/tests/test_repo_contract.py
+@@ -292,9 +292,11 @@ def test_test_only_deps_absent_from_runtime_metadata() -> None:
+ def test_license_exceptions_exact() -> None:
+     policy = _toml(POLICY)
+     exceptions = {e["name"]: e for e in policy["exceptions"]}
+-    assert set(exceptions) == {"hypothesis", "pathspec"}
++    assert set(exceptions) == {"hypothesis", "pathspec", "certifi"}  # Phase 3 spec change (P3-02)
+     assert exceptions["hypothesis"]["spdx"] == "MPL-2.0"
+     assert exceptions["pathspec"]["spdx"] == "MPL-2.0"
++    assert exceptions["certifi"]["spdx"] == "MPL-2.0"
++    assert exceptions["certifi"]["groups"] == ["dev"]
+     assert set(exceptions["hypothesis"]["groups"]) <= {"dev", "test"}
+     assert exceptions["pathspec"]["groups"] == ["dev"]
+     locked = _lock_packages()

@@ -1,0 +1,23 @@
+# Why the 162 staged tests fail on the tree without the three packages (Python 3.13, --tb=line), grouped by exception.
+# The failures are the absence of tracer_evalcore (lazy import), of packages/{evalcore,evalproviders,cli}, of the policy blocks,
+# of the CI job, of the baseline file and of the moved fixture: nothing else.
+
+ 136  ModuleNotFoundError: No module named '..'
+   6  FileNotFoundError: [Errno 2] No such file or directory: PosixPath('..')
+   4  KeyError: '..'
+   4  FileNotFoundError: [Errno 2] No such file or directory: '..'
+   3  AssertionError: <path> holds no module (the package is not scaffolded)
+   2  AssertionError: job '..' is missing from ci.yml (jobs: ['..', '..', '..', '..', '..', '..', '..', '.
+   1  AssertionError: the console script `tracer` is not installed in this environment
+   1  AssertionError: [92, 144, -1, -1, -1]
+   1  importlib.metadata.PackageNotFoundError: No package metadata was found for anyio
+   1  ValueError: substring not found
+   1  AssertionError: Traceback (most recent call last):
+   1  AssertionError: evalcore<path>
+   1  AssertionError: P3-01 moves the staged fixture to its final path
+ 162  total failed
+
+# The 3 tests that pass on this tree by nature (guards; their teeth are the mutants in mutants.txt):
+  evalcore/tests/test_phase3_ci.py::test_ci_phase3_test_legs_run_the_new_directories
+  evalcore/tests/test_phase3_ci.py::test_ci_has_no_httpx_specific_job
+  evalcore/tests/test_phase3_scaffold.py::test_evalschema_does_not_import_phase3_packages

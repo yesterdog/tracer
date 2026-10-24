@@ -1,0 +1,28 @@
+# oracle gates (Python 3.13): the checks of the CI lint, licences and guard jobs on the oracle tree (the three packages, the moved tests, the policy blocks, the checker change)
+$ ruff check
+All checks passed!
+$ ruff format --check
+377 files already formatted
+$ mypy (strict, files from pyproject.toml: 251 source files)
+Success: no issues found in 251 source files
+$ python scripts/check_headers.py
+exit 0
+$ python scripts/guard_private_fixtures.py
+exit 0
+$ python scripts/check_licenses.py
+62 ok, 0 failed
+$ hatchling build of the five wheels, then check_licenses.py --wheel dist --artifacts-only
+  tracer_cli-0.0.1-py3-none-any.whl
+  tracer_evalcore-0.0.1-py3-none-any.whl
+  tracer_evaldb-0.0.1-py3-none-any.whl
+  tracer_evalproviders-0.0.1-py3-none-any.whl
+  tracer_evalschema-0.0.1-py3-none-any.whl
+5 ok, 0 failed
+$ python -m tracer_evalschema.schema_export --check; scripts/generate_field_docs.py --check
+exit 0
+exit 0
+$ tracer --help (installed console script)
+usage: tracer [-h]
+
+Tracer: score a recorded call by the agreement of two transcripts.
+
