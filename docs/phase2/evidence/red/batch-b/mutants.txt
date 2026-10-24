@@ -1,0 +1,725 @@
+# Mutants of the oracle (scratch tracer_evaldb tables.py, codecs.py, columns.py), batch B. Each entry: one text edit made to the oracle,
+# then packages/evaldb/tests run (SQLite side on Python 3.14; "pg" = the postgres-marked cases against a throwaway postgres:18 container).
+# CAUGHT = at least one test fails and is listed (at most 12 names, then a count). 116 mutants, 115 caught, 1 survived.
+# CM24 SURVIVED, an equivalent mutant: the codec hashes the document first, and JCS refuses every integer above 2**53 - 1, so the oracle's
+#   second range check on the projected integers can never fire (a larger value is already StoreValueOutOfRange from the hashing step).
+# TM = table and column mutants, PM = Postgres-only mutants, CM = codec mutants.
+# TM33 is the ADR text itself (external_ref_index unique for run AND span): it is caught on purpose, by the golden RunBundle round trip (ambiguity A1).
+# Mutants that crashed the import of the package are not listed: none of these does.
+TM01 [CAUGHT] py3.14 sqlite: table export_bundle_profile missing
+    summary: 20 failed, 629 passed, 430 deselected in 18.23s
+    test_adr0019_entity_table_matches_metadata
+    test_adr0020_cascade_graph_matches_metadata
+    test_adr_side_table_columns_are_not_null_except_record_version
+    test_alembic_version_is_not_part_of_metadata
+    test_column_types_per_backend
+    test_db_digest_preserved_on_round_trip
+    test_db_round_trip_every_golden_valid_fixture
+    test_db_round_trip_frozen_0_0_1_fixtures
+    test_ddl_compiles_on_both_backends
+    test_definition_references_have_no_foreign_key
+    test_encode_matches_the_reference_projection_for_every_golden_valid_fixture
+    test_every_column_has_the_logical_type_and_nullability_of_the_adr
+    ... and 8 more tests
+TM02 [CAUGHT] py3.14 sqlite: an extra 38th table
+    summary: 5 failed, 644 passed, 430 deselected in 18.06s
+    test_alembic_version_is_not_part_of_metadata
+    test_ddl_compiles_on_both_backends
+    test_every_column_has_the_logical_type_and_nullability_of_the_adr
+    test_metadata_has_one_table_per_entity
+    test_sqlite_tables_are_strict_without_rowid
+TM03 [CAUGHT] py3.14 sqlite: alembic_version inside MetaData
+    summary: 5 failed, 644 passed, 430 deselected in 18.06s
+    test_alembic_version_is_not_part_of_metadata
+    test_ddl_compiles_on_both_backends
+    test_every_column_has_the_logical_type_and_nullability_of_the_adr
+    test_metadata_has_one_table_per_entity
+    test_sqlite_tables_are_strict_without_rowid
+TM04 [CAUGHT] py3.14 sqlite: versioned tables keyed by id only
+    summary: 12 failed, 637 passed, 430 deselected in 19.46s
+    test_adr0019_entity_table_matches_metadata
+    test_dataset_member_cascades_with_its_dataset_version
+    test_db_digest_preserved_on_round_trip
+    test_db_projection_equals_model_fields
+    test_db_round_trip_every_golden_valid_fixture
+    test_db_round_trip_frozen_0_0_1_fixtures
+    test_definition_references_have_no_foreign_key
+    test_foreign_key_actions_behave_as_adr0020_states
+    test_metadata_has_one_table_per_entity
+    test_side_table_primary_keys_refuse_duplicates
+    test_version_check_ge_1
+    test_versioned_tables_pk_is_id_version
+TM05 [CAUGHT] py3.14 sqlite: version >= 1 check removed (all versioned tables)
+    summary: 1 failed, 648 passed, 430 deselected in 21.58s
+    test_version_check_ge_1
+TM06 [CAUGHT] py3.14 sqlite: version check is >= 0
+    summary: 1 failed, 648 passed, 430 deselected in 21.06s
+    test_version_check_ge_1
+TM07 [CAUGHT] py3.14 sqlite: schema_version pinned to 0.0.2 on entity tables
+    summary: 397 failed, 252 passed, 430 deselected in 112.03s (0:01:52)
+    test_closed_set_check_accepts_members_and_refuses_others
+    test_cost_amount_non_negative_check_both_backends
+    test_currency_check_is_usd_only
+    test_currency_present_if_and_only_if_amount_present
+    test_dataset_member_cascades_with_its_dataset_version
+    test_db_adversarial_preserved_fixtures_round_trip
+    test_db_digest_preserved_on_round_trip
+    test_db_doc_column_is_text_not_json
+    test_db_errors_never_echo_document_content
+    test_db_flagged_and_injected_text_is_stored_verbatim
+    test_db_metadata_large_float_round_trips
+    test_db_nul_in_verbatim_text_round_trips
+    ... and 25 more tests
+TM08 [CAUGHT] py3.14 sqlite: schema_version pin missing on transcript
+    summary: 1 failed, 648 passed, 430 deselected in 21.47s
+    test_schema_version_check_pinned_to_0_0_1
+TM09 [CAUGHT] py3.14 sqlite: run_id foreign key is SET NULL
+    summary: 6 failed, 643 passed, 430 deselected in 22.55s
+    test_adr0019_entity_table_matches_metadata
+    test_adr0020_cascade_graph_matches_metadata
+    test_fk_graph_matches_adr0020
+    test_foreign_key_actions_behave_as_adr0020_states
+    test_no_fk_uses_set_null_or_set_default
+    test_run_owned_tables_have_run_id_cascade
+TM10 [CAUGHT] py3.14 sqlite: foreign key turn.transcript_id -> transcript (Ambiguity 1)
+    summary: 26 failed, 623 passed, 430 deselected in 26.48s
+    test_adr0019_entity_table_matches_metadata
+    test_adr0020_cascade_graph_matches_metadata
+    test_db_adversarial_preserved_fixtures_round_trip
+    test_db_digest_preserved_on_round_trip
+    test_db_flagged_and_injected_text_is_stored_verbatim
+    test_db_nul_in_verbatim_text_round_trips
+    test_db_projection_equals_model_fields
+    test_db_round_trip_every_golden_valid_fixture
+    test_db_round_trip_frozen_0_0_1_fixtures
+    test_definition_references_have_no_foreign_key
+    test_encode_refuses_values_beyond_64_bits_with_a_typed_error
+    test_fk_graph_matches_adr0020
+    ... and 2 more tests
+TM11 [CAUGHT] py3.14 sqlite: foreign key artifact.turn_ref -> turn
+    summary: 11 failed, 638 passed, 430 deselected in 27.69s
+    test_adr0019_entity_table_matches_metadata
+    test_adr0020_cascade_graph_matches_metadata
+    test_db_digest_preserved_on_round_trip
+    test_db_projection_equals_model_fields
+    test_db_round_trip_every_golden_valid_fixture
+    test_db_round_trip_frozen_0_0_1_fixtures
+    test_definition_references_have_no_foreign_key
+    test_fk_graph_matches_adr0020
+    test_no_fk_uses_set_null_or_set_default
+TM12 [CAUGHT] py3.14 sqlite: run.config_snapshot_id is CASCADE
+    summary: 4 failed, 645 passed, 430 deselected in 21.77s
+    test_adr0019_entity_table_matches_metadata
+    test_adr0020_cascade_graph_matches_metadata
+    test_fk_graph_matches_adr0020
+    test_foreign_key_actions_behave_as_adr0020_states
+TM13 [CAUGHT] py3.14 sqlite: cost_summary has no run_id foreign key
+    summary: 6 failed, 643 passed, 430 deselected in 24.93s
+    test_adr0019_entity_table_matches_metadata
+    test_adr0020_cascade_graph_matches_metadata
+    test_fk_graph_matches_adr0020
+    test_foreign_key_actions_behave_as_adr0020_states
+    test_no_fk_uses_set_null_or_set_default
+    test_run_owned_tables_have_run_id_cascade
+TM14 [CAUGHT] py3.14 sqlite: turn (transcript_id, seq) unique removed
+    summary: 2 failed, 647 passed, 430 deselected in 24.75s
+    test_adr0019_entity_table_matches_metadata
+    test_turn_seq_unique_per_transcript
+TM15 [CAUGHT] py3.14 sqlite: turn unique on seq only
+    summary: 4 failed, 645 passed, 430 deselected in 26.47s
+    test_adr0019_entity_table_matches_metadata
+    test_closed_set_check_accepts_members_and_refuses_others
+    test_run_owned_tables_have_run_id_cascade
+    test_turn_seq_unique_per_transcript
+TM16 [CAUGHT] py3.14 sqlite: currency set allows EUR
+    summary: 2 failed, 647 passed, 430 deselected in 24.52s
+    test_closed_set_checks_equal_shipped_schema_enums
+    test_currency_check_is_usd_only
+TM17 [CAUGHT] py3.14 sqlite: transcript.source set misses a member
+    summary: 4 failed, 645 passed, 430 deselected in 27.45s
+    test_closed_set_check_accepts_members_and_refuses_others
+    test_closed_set_checks_equal_shipped_schema_enums
+    test_db_projection_equals_model_fields
+    test_db_round_trip_every_golden_valid_fixture
+TM18 [CAUGHT] py3.14 sqlite: turn.role set has an extra member
+    summary: 1 failed, 648 passed, 430 deselected in 26.02s
+    test_closed_set_checks_equal_shipped_schema_enums
+TM19 [CAUGHT] py3.14 sqlite: stage_span.stage has no CHECK
+    summary: 2 failed, 647 passed, 430 deselected in 26.77s
+    test_closed_set_check_accepts_members_and_refuses_others
+    test_closed_set_checks_equal_shipped_schema_enums
+TM20 [CAUGHT] py3.14 sqlite: a language column has a CHECK
+    summary: 10 failed, 639 passed, 430 deselected in 27.79s
+    test_closed_set_check_accepts_members_and_refuses_others
+    test_closed_set_checks_equal_shipped_schema_enums
+    test_db_digest_preserved_on_round_trip
+    test_db_projection_equals_model_fields
+    test_db_round_trip_every_golden_valid_fixture
+    test_db_round_trip_frozen_0_0_1_fixtures
+    test_db_tampered_doc_rejected_on_read
+    test_schema_version_check_pinned_to_0_0_1
+    test_version_check_ge_1
+    test_versioned_tables_pk_is_id_version
+TM21 [CAUGHT] py3.14 sqlite: privacy: false marker may carry other columns
+    summary: 4 failed, 645 passed, 430 deselected in 26.83s
+    test_privacy_projection_check
+TM22 [CAUGHT] py3.14 sqlite: privacy: true marker needs retain_until
+    summary: 12 failed, 637 passed, 430 deselected in 28.97s
+    test_closed_set_check_accepts_members_and_refuses_others
+    test_privacy_projection_check
+TM23 [CAUGHT] py3.14 sqlite: privacy: absent marker may carry columns
+    summary: 2 failed, 647 passed, 430 deselected in 26.22s
+    test_privacy_projection_check
+TM24 [CAUGHT] py3.14 sqlite: artifact.human_subject nullable
+    summary: 2 failed, 647 passed, 430 deselected in 26.57s
+    test_every_column_has_the_logical_type_and_nullability_of_the_adr
+    test_privacy_projection_check
+TM25 [CAUGHT] py3.14 sqlite: not_applicable => passed NULL removed
+    summary: 1 failed, 648 passed, 430 deselected in 26.49s
+    test_not_applicable_result_requires_null_passed
+TM26 [CAUGHT] py3.14 sqlite: not_available check forgets basis
+    summary: 1 failed, 648 passed, 430 deselected in 25.95s
+    test_not_available_cost_has_no_amount_basis_or_currency
+TM27 [CAUGHT] py3.14 sqlite: cost_record currency/amount pairing removed
+    summary: 1 failed, 648 passed, 430 deselected in 27.10s
+    test_currency_present_if_and_only_if_amount_present
+TM28 [CAUGHT] py3.14 sqlite: evaluator profile pairing removed
+    summary: 1 failed, 648 passed, 430 deselected in 25.86s
+    test_paired_reference_columns_present_together
+TM29 [CAUGHT] py3.14 sqlite: run_bundle_member record_version rule removed
+    summary: 1 failed, 648 passed, 430 deselected in 26.98s
+    test_run_bundle_member_record_version_exactly_for_versioned_kinds
+TM30 [CAUGHT] py3.14 sqlite: tracer_meta singleton check removed
+    summary: 1 failed, 648 passed, 430 deselected in 26.71s
+    test_tracer_meta_is_one_row
+TM31 [CAUGHT] py3.14 sqlite: external_ref unique for every kind
+    summary: 5 failed, 644 passed, 430 deselected in 27.26s
+    test_db_digest_preserved_on_round_trip
+    test_db_round_trip_every_golden_valid_fixture
+    test_db_round_trip_frozen_0_0_1_fixtures
+    test_external_ref_index_unique_only_for_run
+    test_side_table_indexes_and_keys_match_adr_table2
+TM32 [CAUGHT] py3.14 sqlite: external_ref index not unique
+    summary: 2 failed, 647 passed, 430 deselected in 26.61s
+    test_external_ref_index_unique_only_for_run
+    test_side_table_indexes_and_keys_match_adr_table2
+TM33 [CAUGHT] py3.14 sqlite: ADR text variant: external_ref unique for run and span (expected: golden RunBundle fails)
+    summary: 5 failed, 644 passed, 430 deselected in 27.60s
+    test_db_digest_preserved_on_round_trip
+    test_db_round_trip_every_golden_valid_fixture
+    test_db_round_trip_frozen_0_0_1_fixtures
+    test_external_ref_index_unique_only_for_run
+    test_side_table_indexes_and_keys_match_adr_table2
+TM34 [CAUGHT] py3.14 sqlite: turn table not STRICT
+    summary: 2 failed, 647 passed, 430 deselected in 26.12s
+    test_ddl_compiles_on_both_backends
+    test_sqlite_tables_are_strict_without_rowid
+TM35 [CAUGHT] py3.14 sqlite: turn table has a rowid
+    summary: 2 failed, 647 passed, 430 deselected in 27.35s
+    test_ddl_compiles_on_both_backends
+    test_sqlite_tables_are_strict_without_rowid
+TM36 [CAUGHT] py3.14 sqlite: version stored as KeyCol
+    summary: 123 failed, 526 passed, 430 deselected in 57.80s
+    test_closed_set_check_accepts_members_and_refuses_others
+    test_column_types_per_backend
+    test_dataset_member_cascades_with_its_dataset_version
+    test_db_digest_preserved_on_round_trip
+    test_db_metadata_large_float_round_trips
+    test_db_projection_equals_model_fields
+    test_db_round_trip_every_golden_valid_fixture
+    test_db_round_trip_frozen_0_0_1_fixtures
+    test_db_tampered_doc_rejected_on_read
+    test_db_versioned_doc_edited_with_a_consistent_digest_is_caught_by_doc_sha256
+    test_definition_references_have_no_foreign_key
+    test_encode_refuses_values_beyond_64_bits_with_a_typed_error
+    ... and 8 more tests
+TM37 [CAUGHT] py3.14 sqlite: turn.start_ms stored as KeyCol
+    summary: 21 failed, 628 passed, 430 deselected in 32.04s
+    test_column_types_per_backend
+    test_db_adversarial_preserved_fixtures_round_trip
+    test_db_digest_preserved_on_round_trip
+    test_db_projection_equals_model_fields
+    test_db_round_trip_every_golden_valid_fixture
+    test_db_round_trip_frozen_0_0_1_fixtures
+    test_db_tampered_doc_rejected_on_read
+    test_encode_refuses_values_beyond_64_bits_with_a_typed_error
+    test_every_column_has_the_logical_type_and_nullability_of_the_adr
+    test_tdeg_run_bundles_round_trip_through_the_codecs
+TM38 [CAUGHT] py3.14 sqlite: created_at stored as DocCol
+    summary: 398 failed, 251 passed, 430 deselected in 137.71s (0:02:17)
+    test_closed_set_check_accepts_members_and_refuses_others
+    test_cost_amount_non_negative_check_both_backends
+    test_currency_check_is_usd_only
+    test_currency_present_if_and_only_if_amount_present
+    test_dataset_member_cascades_with_its_dataset_version
+    test_db_adversarial_preserved_fixtures_round_trip
+    test_db_digest_preserved_on_round_trip
+    test_db_doc_column_is_text_not_json
+    test_db_errors_never_echo_document_content
+    test_db_flagged_and_injected_text_is_stored_verbatim
+    test_db_metadata_large_float_round_trips
+    test_db_nul_in_verbatim_text_round_trips
+    ... and 26 more tests
+TM39 [CAUGHT] py3.14 sqlite: metric_result.passed stored as KeyCol
+    summary: 25 failed, 624 passed, 430 deselected in 31.92s
+    test_column_types_per_backend
+    test_db_digest_preserved_on_round_trip
+    test_db_projection_equals_model_fields
+    test_db_round_trip_every_golden_valid_fixture
+    test_db_round_trip_frozen_0_0_1_fixtures
+    test_db_tampered_doc_rejected_on_read
+    test_every_column_has_the_logical_type_and_nullability_of_the_adr
+    test_not_applicable_result_requires_null_passed
+    test_tdeg_run_bundles_round_trip_through_the_codecs
+    test_to_metadata_copy_has_exactly_one_check_per_type_bound_column
+TM40 [CAUGHT] py3.14 sqlite: turn.start_ms NOT NULL
+    summary: 17 failed, 632 passed, 430 deselected in 29.56s
+    test_db_digest_preserved_on_round_trip
+    test_db_errors_never_echo_document_content
+    test_db_flagged_and_injected_text_is_stored_verbatim
+    test_db_nul_in_verbatim_text_round_trips
+    test_db_projection_equals_model_fields
+    test_db_round_trip_every_golden_valid_fixture
+    test_db_round_trip_frozen_0_0_1_fixtures
+    test_encoded_values_have_the_python_types_of_the_column_types
+    test_every_column_has_the_logical_type_and_nullability_of_the_adr
+TM41 [CAUGHT] py3.14 sqlite: cost_record.amount NOT NULL
+    summary: 31 failed, 618 passed, 430 deselected in 32.66s
+    test_closed_set_check_accepts_members_and_refuses_others
+    test_currency_check_is_usd_only
+    test_currency_present_if_and_only_if_amount_present
+    test_db_digest_preserved_on_round_trip
+    test_db_projection_equals_model_fields
+    test_db_round_trip_every_golden_valid_fixture
+    test_db_round_trip_frozen_0_0_1_fixtures
+    test_encoded_values_have_the_python_types_of_the_column_types
+    test_every_column_has_the_logical_type_and_nullability_of_the_adr
+    test_foreign_key_actions_behave_as_adr0020_states
+    test_not_available_cost_has_no_amount_basis_or_currency
+    test_record_of_fact_tables_pk_is_id
+    ... and 3 more tests
+TM42 [CAUGHT] py3.14 sqlite: snapshot_member index missing
+    summary: 1 failed, 648 passed, 430 deselected in 27.94s
+    test_side_table_indexes_and_keys_match_adr_table2
+TM43 [CAUGHT] py3.14 sqlite: dataset_member item index missing
+    summary: 1 failed, 648 passed, 430 deselected in 26.57s
+    test_side_table_indexes_and_keys_match_adr_table2
+TM44 [CAUGHT] py3.14 sqlite: export_bundle_run keyed by export_id only
+    summary: 5 failed, 644 passed, 430 deselected in 28.37s
+    test_adr0019_entity_table_matches_metadata
+    test_db_digest_preserved_on_round_trip
+    test_db_round_trip_every_golden_valid_fixture
+    test_db_round_trip_frozen_0_0_1_fixtures
+    test_side_table_primary_keys_refuse_duplicates
+TM45 [CAUGHT] py3.14 sqlite: evaluator.persona_version column missing
+    summary: 16 failed, 633 passed, 430 deselected in 28.99s
+    test_adr0019_entity_table_matches_metadata
+    test_adr0019_every_value_object_classified
+    test_db_digest_preserved_on_round_trip
+    test_db_projection_equals_model_fields
+    test_db_round_trip_every_golden_valid_fixture
+    test_db_round_trip_frozen_0_0_1_fixtures
+    test_db_tampered_doc_rejected_on_read
+    test_encode_matches_the_reference_projection_for_every_golden_valid_fixture
+TM46 [CAUGHT] py3.14 sqlite: Project has an extra projected column
+    summary: 34 failed, 615 passed, 430 deselected in 33.37s
+    test_adr0019_entity_table_matches_metadata
+    test_db_adversarial_preserved_fixtures_round_trip
+    test_db_digest_preserved_on_round_trip
+    test_db_doc_column_is_text_not_json
+    test_db_flagged_and_injected_text_is_stored_verbatim
+    test_db_metadata_large_float_round_trips
+    test_db_projection_equals_model_fields
+    test_db_read_uses_strict_loader
+    test_db_round_trip_every_golden_valid_fixture
+    test_db_round_trip_frozen_0_0_1_fixtures
+    test_db_tampered_doc_rejected_on_read
+    test_encode_matches_the_reference_projection_for_every_golden_valid_fixture
+    ... and 1 more tests
+TM47 [CAUGHT] py3.14 sqlite: BigIntCol accepts 2**64
+    summary: 4 failed, 645 passed, 430 deselected in 28.34s
+    test_bigint_column_refuses_values_beyond_64_bits_and_other_types
+TM48 [CAUGHT] py3.14 sqlite: BigIntCol accepts bool
+    summary: 2 failed, 647 passed, 430 deselected in 26.78s
+    test_bigint_column_refuses_values_beyond_64_bits_and_other_types
+TM49 [CAUGHT] py3.14 sqlite: BigIntCol upper bound off by one
+    summary: 2 failed, 647 passed, 430 deselected in 27.53s
+    test_bigint_column_round_trips_the_signed_64_bit_range
+    test_versioned_tables_pk_is_id_version
+TM50 [CAUGHT] py3.14 sqlite: instant shape check removed
+    summary: 1 failed, 648 passed, 430 deselected in 26.18s
+    test_sqlite_instant_and_decimal_shape_checks
+TM51 [CAUGHT] py3.14 sqlite: decimal shape check removed
+    summary: 1 failed, 648 passed, 430 deselected in 26.69s
+    test_sqlite_instant_and_decimal_shape_checks
+TM52 [CAUGHT] py3.14 sqlite: decimal shape accepts exponent letters
+    summary: 1 failed, 648 passed, 430 deselected in 26.55s
+    test_sqlite_instant_and_decimal_shape_checks
+TM53 [CAUGHT] py3.14 sqlite: type-bound CHECK not marked _type_bound (to_metadata duplicates it)
+    summary: 1 failed, 648 passed, 430 deselected in 26.71s
+    test_to_metadata_copy_has_exactly_one_check_per_type_bound_column
+TM54 [CAUGHT] py3.14 sqlite: cost amount sign check removed (SQLite)
+    summary: 1 failed, 648 passed, 430 deselected in 26.26s
+    test_cost_amount_non_negative_check_both_backends
+TM55 [CAUGHT] py3.14 sqlite: tables module lacks the SIDE_TABLES map
+    summary: 1 failed, 648 passed, 430 deselected in 26.20s
+    test_tables_module_exposes_every_table
+TM56 [CAUGHT] py3.14 sqlite: FK deletion_audit-like: dataset_member FK is RESTRICT
+    summary: 4 failed, 645 passed, 430 deselected in 28.21s
+    test_adr0020_cascade_graph_matches_metadata
+    test_dataset_member_cascades_with_its_dataset_version
+    test_fk_graph_matches_adr0020
+    test_foreign_key_actions_behave_as_adr0020_states
+TM57 [CAUGHT] py3.14 sqlite: run.project_id FK is RESTRICT
+    summary: 4 failed, 645 passed, 430 deselected in 28.39s
+    test_adr0019_entity_table_matches_metadata
+    test_adr0020_cascade_graph_matches_metadata
+    test_fk_graph_matches_adr0020
+    test_foreign_key_actions_behave_as_adr0020_states
+TM58 [CAUGHT] py3.14 sqlite: deletion_audit reason set open
+    summary: 3 failed, 646 passed, 430 deselected in 27.16s
+    test_closed_set_check_accepts_members_and_refuses_others
+    test_closed_set_checks_equal_shipped_schema_enums
+    test_side_table_primary_keys_refuse_duplicates
+TM59 [CAUGHT] py3.14 sqlite: run_bundle_withheld kind set widened
+    summary: 1 failed, 648 passed, 430 deselected in 27.07s
+    test_closed_set_checks_equal_shipped_schema_enums
+TM60 [CAUGHT] py3.14 sqlite: persona.language is NOT a KeyCol (DocCol)
+    summary: 1 failed, 648 passed, 430 deselected in 26.66s
+    test_every_column_has_the_logical_type_and_nullability_of_the_adr
+TM61 [CAUGHT] py3.14 sqlite: usage_record has no run_id foreign key
+    summary: 6 failed, 643 passed, 430 deselected in 15.06s
+    test_adr0019_entity_table_matches_metadata
+    test_adr0020_cascade_graph_matches_metadata
+    test_fk_graph_matches_adr0020
+    test_foreign_key_actions_behave_as_adr0020_states
+    test_no_fk_uses_set_null_or_set_default
+    test_run_owned_tables_have_run_id_cascade
+TM62 [CAUGHT] py3.14 sqlite: run_bundle.run_id foreign key missing
+    summary: 7 failed, 642 passed, 430 deselected in 23.89s
+    test_adr0019_entity_table_matches_metadata
+    test_adr0020_cascade_graph_matches_metadata
+    test_fk_graph_matches_adr0020
+    test_foreign_key_actions_behave_as_adr0020_states
+    test_metadata_has_one_table_per_entity
+    test_no_fk_uses_set_null_or_set_default
+    test_run_owned_tables_have_run_id_cascade
+TM63 [CAUGHT] py3.14 sqlite: export_bundle_item table missing
+    summary: 20 failed, 629 passed, 430 deselected in 23.77s
+    test_adr0019_entity_table_matches_metadata
+    test_adr0020_cascade_graph_matches_metadata
+    test_adr_side_table_columns_are_not_null_except_record_version
+    test_alembic_version_is_not_part_of_metadata
+    test_column_types_per_backend
+    test_db_digest_preserved_on_round_trip
+    test_db_round_trip_every_golden_valid_fixture
+    test_db_round_trip_frozen_0_0_1_fixtures
+    test_ddl_compiles_on_both_backends
+    test_definition_references_have_no_foreign_key
+    test_encode_matches_the_reference_projection_for_every_golden_valid_fixture
+    test_every_column_has_the_logical_type_and_nullability_of_the_adr
+    ... and 8 more tests
+TM64 [CAUGHT] py3.14 sqlite: artifact privacy CHECK missing
+    summary: 1 failed, 648 passed, 430 deselected in 11.35s
+    test_privacy_projection_check
+TM65 [CAUGHT] py3.14 sqlite: run caller privacy CHECK missing
+    summary: 1 failed, 648 passed, 430 deselected in 14.67s
+    test_privacy_projection_check
+TM66 [CAUGHT] py3.14 sqlite: bigint columns declared TEXT-affine KeyCol for byte_length
+    summary: 18 failed, 631 passed, 430 deselected in 22.45s
+    test_closed_set_check_accepts_members_and_refuses_others
+    test_column_types_per_backend
+    test_db_digest_preserved_on_round_trip
+    test_db_round_trip_every_golden_valid_fixture
+    test_db_round_trip_frozen_0_0_1_fixtures
+    test_db_tampered_doc_rejected_on_read
+    test_definition_references_have_no_foreign_key
+    test_every_column_has_the_logical_type_and_nullability_of_the_adr
+    test_export_byte_length_is_the_utf8_length_of_the_document
+    test_foreign_key_actions_behave_as_adr0020_states
+    test_record_of_fact_tables_pk_is_id
+    test_schema_version_check_pinned_to_0_0_1
+    ... and 1 more tests
+PM01 [CAUGHT] py3.14 pg: Postgres sign check is > -5
+    summary: 1 failed, 429 passed, 649 deselected in 30.57s
+    test_cost_amount_non_negative_check_both_backends
+PM02 [CAUGHT] py3.14 pg: BigIntCol is int4 on Postgres
+    summary: 17 failed, 413 passed, 649 deselected in 30.45s
+    test_bigint_column_orders_numerically
+    test_bigint_column_round_trips_the_signed_64_bit_range
+    test_column_types_per_backend
+    test_db_projection_equals_model_fields
+    test_encode_refuses_values_beyond_64_bits_with_a_typed_error
+    test_version_check_ge_1
+    test_versioned_tables_pk_is_id_version
+PM03 [CAUGHT] py3.14 pg: Postgres instant column without time zone
+    summary: 312 failed, 118 passed, 649 deselected in 31.34s
+    test_column_types_per_backend
+    test_db_adversarial_preserved_fixtures_round_trip
+    test_db_digest_preserved_on_round_trip
+    test_db_doc_column_is_text_not_json
+    test_db_flagged_and_injected_text_is_stored_verbatim
+    test_db_metadata_large_float_round_trips
+    test_db_nul_in_verbatim_text_round_trips
+    test_db_projection_equals_model_fields
+    test_db_round_trip_every_golden_valid_fixture
+    test_db_round_trip_frozen_0_0_1_fixtures
+    test_db_tampered_doc_rejected_on_read
+    test_db_versioned_doc_edited_with_a_consistent_digest_is_caught_by_doc_sha256
+    ... and 5 more tests
+PM04 [CAUGHT] py3.14 pg: Postgres decimal column is numeric(10,2)
+    summary: 23 failed, 407 passed, 649 deselected in 30.28s
+    test_column_types_per_backend
+    test_cost_amount_non_negative_check_both_backends
+    test_db_digest_preserved_on_round_trip
+    test_db_projection_equals_model_fields
+    test_db_round_trip_every_golden_valid_fixture
+    test_db_round_trip_frozen_0_0_1_fixtures
+    test_decimal_round_trip_exact
+    test_tdeg_run_bundles_round_trip_through_the_codecs
+CM01 [CAUGHT] py3.14 sqlite: doc written with sorted keys
+    summary: 365 failed, 284 passed, 430 deselected in 33.08s
+    test_db_adversarial_preserved_fixtures_round_trip
+    test_db_doc_column_is_text_not_json
+    test_db_flagged_and_injected_text_is_stored_verbatim
+    test_db_metadata_large_float_round_trips
+    test_db_nul_in_verbatim_text_round_trips
+    test_db_projection_equals_model_fields
+    test_db_round_trip_every_golden_valid_fixture
+    test_db_round_trip_frozen_0_0_1_fixtures
+    test_encode_matches_the_reference_projection_for_every_golden_valid_fixture
+    test_export_bundle_link_rows_cover_clear_and_sealed_test_profiles
+    test_export_byte_length_is_the_utf8_length_of_the_document
+CM02 [CAUGHT] py3.14 sqlite: doc_sha256 over the doc text
+    summary: 430 failed, 219 passed, 430 deselected in 34.80s
+    test_db_adversarial_preserved_fixtures_round_trip
+    test_db_digest_preserved_on_round_trip
+    test_db_flagged_and_injected_text_is_stored_verbatim
+    test_db_metadata_large_float_round_trips
+    test_db_nul_in_verbatim_text_round_trips
+    test_db_projection_equals_model_fields
+    test_db_round_trip_every_golden_valid_fixture
+    test_db_round_trip_frozen_0_0_1_fixtures
+    test_encode_matches_the_reference_projection_for_every_golden_valid_fixture
+    test_encode_refuses_values_beyond_64_bits_with_a_typed_error
+    test_export_byte_length_is_the_utf8_length_of_the_document
+    test_tdeg_run_bundles_round_trip_through_the_codecs
+CM03 [CAUGHT] py3.14 sqlite: doc_sha256 over the digest domain
+    summary: 429 failed, 220 passed, 430 deselected in 34.42s
+    test_db_adversarial_preserved_fixtures_round_trip
+    test_db_digest_preserved_on_round_trip
+    test_db_flagged_and_injected_text_is_stored_verbatim
+    test_db_metadata_large_float_round_trips
+    test_db_nul_in_verbatim_text_round_trips
+    test_db_projection_equals_model_fields
+    test_db_round_trip_every_golden_valid_fixture
+    test_db_round_trip_frozen_0_0_1_fixtures
+    test_encode_matches_the_reference_projection_for_every_golden_valid_fixture
+    test_export_byte_length_is_the_utf8_length_of_the_document
+    test_tdeg_run_bundles_round_trip_through_the_codecs
+CM04 [CAUGHT] py3.14 sqlite: turn.seq projected + 1
+    summary: 10 failed, 639 passed, 430 deselected in 26.68s
+    test_db_projection_equals_model_fields
+    test_encode_matches_the_reference_projection_for_every_golden_valid_fixture
+CM05 [CAUGHT] py3.14 sqlite: run.mode projected constant
+    summary: 5 failed, 644 passed, 430 deselected in 26.61s
+    test_db_projection_equals_model_fields
+    test_encode_matches_the_reference_projection_for_every_golden_valid_fixture
+CM06 [CAUGHT] py3.14 sqlite: metric_result.passed False instead of NULL
+    summary: 22 failed, 627 passed, 430 deselected in 30.61s
+    test_db_projection_equals_model_fields
+    test_db_round_trip_every_golden_valid_fixture
+    test_encode_matches_the_reference_projection_for_every_golden_valid_fixture
+    test_tdeg_run_bundles_round_trip_through_the_codecs
+CM07 [CAUGHT] py3.14 sqlite: cost amount through float
+    summary: 4 failed, 645 passed, 430 deselected in 27.57s
+    test_db_projection_equals_model_fields
+    test_encode_matches_the_reference_projection_for_every_golden_valid_fixture
+CM08 [CAUGHT] py3.14 sqlite: artifact.sha256 stored as hex text
+    summary: 25 failed, 624 passed, 430 deselected in 30.30s
+    test_db_digest_preserved_on_round_trip
+    test_db_projection_equals_model_fields
+    test_db_round_trip_every_golden_valid_fixture
+    test_db_round_trip_frozen_0_0_1_fixtures
+    test_db_tampered_doc_rejected_on_read
+    test_encode_matches_the_reference_projection_for_every_golden_valid_fixture
+    test_tdeg_run_bundles_round_trip_through_the_codecs
+CM09 [CAUGHT] py3.14 sqlite: external ref key is a plain join
+    summary: 34 failed, 615 passed, 430 deselected in 27.64s
+    test_db_nul_in_verbatim_text_round_trips
+    test_db_projection_equals_model_fields
+    test_encode_matches_the_reference_projection_for_every_golden_valid_fixture
+    test_external_ref_keys_are_exact_and_a_repeated_reference_gives_one_row
+CM10 [CAUGHT] py3.14 sqlite: external refs not de-duplicated within a record
+    summary: 1 failed, 648 passed, 430 deselected in 28.79s
+    test_external_ref_keys_are_exact_and_a_repeated_reference_gives_one_row
+CM11 [CAUGHT] py3.14 sqlite: snapshot_member ordinals of definitions start at 1
+    summary: 5 failed, 644 passed, 430 deselected in 27.03s
+    test_db_projection_equals_model_fields
+    test_encode_matches_the_reference_projection_for_every_golden_valid_fixture
+    test_snapshot_members_carry_the_versions_of_the_embedded_definitions
+CM12 [CAUGHT] py3.14 sqlite: snapshot_profile_ref never written
+    summary: 3 failed, 646 passed, 430 deselected in 27.08s
+    test_db_projection_equals_model_fields
+    test_encode_matches_the_reference_projection_for_every_golden_valid_fixture
+CM13 [CAUGHT] py3.14 sqlite: bundle member record_version dropped
+    summary: 13 failed, 636 passed, 430 deselected in 29.82s
+    test_db_digest_preserved_on_round_trip
+    test_db_round_trip_every_golden_valid_fixture
+    test_db_round_trip_frozen_0_0_1_fixtures
+    test_encode_matches_the_reference_projection_for_every_golden_valid_fixture
+    test_run_bundle_decode_rebuilds_in_member_order_whatever_the_row_order
+    test_tdeg_run_bundles_round_trip_through_the_codecs
+CM14 [CAUGHT] py3.14 sqlite: bundle withheld ordinals reversed
+    summary: 5 failed, 644 passed, 430 deselected in 26.01s
+    test_db_digest_preserved_on_round_trip
+    test_db_round_trip_every_golden_valid_fixture
+    test_db_round_trip_frozen_0_0_1_fixtures
+    test_encode_matches_the_reference_projection_for_every_golden_valid_fixture
+    test_run_bundle_decode_rebuilds_in_member_order_whatever_the_row_order
+CM15 [CAUGHT] py3.14 sqlite: export profile links miss the sealed profiles
+    summary: 1 failed, 648 passed, 430 deselected in 28.35s
+    test_export_bundle_profile_links_include_a_profile_that_is_only_sealed
+CM16 [CAUGHT] py3.14 sqlite: decode does not check doc_sha256
+    summary: 37 failed, 612 passed, 430 deselected in 28.27s
+    test_db_errors_never_echo_document_content
+    test_db_projection_tamper_rejected_naming_the_column_not_the_value
+    test_db_tampered_doc_rejected_on_read
+CM17 [CAUGHT] py3.14 sqlite: decode checks no projection
+    summary: 38 failed, 611 passed, 430 deselected in 29.12s
+    test_db_errors_never_echo_document_content
+    test_db_projection_tamper_rejected_naming_the_column_not_the_value
+    test_db_tampered_doc_rejected_on_read
+    test_db_versioned_doc_edited_with_a_consistent_digest_is_caught_by_doc_sha256
+CM18 [CAUGHT] py3.14 sqlite: decode skips created_at
+    summary: 21 failed, 628 passed, 430 deselected in 24.52s
+    test_db_projection_tamper_rejected_naming_the_column_not_the_value
+CM19 [CAUGHT] py3.14 sqlite: decode reads with plain json (no duplicate-key check)
+    summary: 5 failed, 644 passed, 430 deselected in 25.22s
+    test_db_errors_never_echo_document_content
+    test_db_read_uses_strict_loader
+CM20 [CAUGHT] py3.14 sqlite: a digest mismatch of a versioned entity is wrapped
+    summary: 10 failed, 639 passed, 430 deselected in 28.55s
+    test_db_tampered_doc_rejected_on_read
+CM21 [CAUGHT] py3.14 sqlite: integrity error echoes the start of the document
+    summary: 1 failed, 648 passed, 430 deselected in 27.76s
+    test_db_errors_never_echo_document_content
+CM22 [CAUGHT] py3.14 sqlite: integrity error keeps the parser error chained
+    summary: 1 failed, 648 passed, 430 deselected in 23.54s
+    test_db_errors_never_echo_document_content
+CM23 [CAUGHT] py3.14 sqlite: integrity error names no column
+    summary: 47 failed, 602 passed, 430 deselected in 24.53s
+    test_db_projection_tamper_rejected_naming_the_column_not_the_value
+    test_db_read_uses_strict_loader
+    test_db_tampered_doc_rejected_on_read
+    test_db_versioned_doc_edited_with_a_consistent_digest_is_caught_by_doc_sha256
+CM24 [SURVIVED] py3.14 sqlite: no second range check on the projected integers (equivalent, see the header)
+    summary: 649 passed, 430 deselected in 10.65s
+CM25 [CAUGHT] py3.14 sqlite: unhashable document leaks NonIJsonValueError
+    summary: 1 failed, 648 passed, 430 deselected in 28.84s
+    test_encode_refuses_values_beyond_64_bits_with_a_typed_error
+CM26 [CAUGHT] py3.14 sqlite: encode_usage_record takes a run_id
+    summary: 40 failed, 609 passed, 430 deselected in 24.83s
+    test_codec_functions_and_signatures
+    test_db_digest_preserved_on_round_trip
+    test_db_projection_equals_model_fields
+    test_db_projection_tamper_rejected_naming_the_column_not_the_value
+    test_db_round_trip_every_golden_valid_fixture
+    test_db_round_trip_frozen_0_0_1_fixtures
+    test_db_tampered_doc_rejected_on_read
+    test_encode_matches_the_reference_projection_for_every_golden_valid_fixture
+    test_encoded_values_have_the_python_types_of_the_column_types
+    test_generic_encode_and_decode_dispatch_on_the_model
+    test_storage_only_run_id_is_required_and_native_run_id_is_not_accepted
+    test_tdeg_run_bundles_round_trip_through_the_codecs
+CM27 [CAUGHT] py3.14 sqlite: encode_turn run_id is optional
+    summary: 1 failed, 648 passed, 430 deselected in 23.46s
+    test_codec_functions_and_signatures
+CM28 [CAUGHT] py3.14 sqlite: encoded row carries an extra column
+    summary: 199 failed, 450 passed, 430 deselected in 40.15s
+    test_db_errors_never_echo_document_content
+    test_db_projection_equals_model_fields
+    test_db_read_uses_strict_loader
+    test_db_tampered_doc_rejected_on_read
+    test_db_versioned_doc_edited_with_a_consistent_digest_is_caught_by_doc_sha256
+    test_encode_matches_the_reference_projection_for_every_golden_valid_fixture
+CM29 [CAUGHT] py3.14 sqlite: codecs import hashlib
+    summary: 1 failed, 648 passed, 430 deselected in 25.28s
+    test_evaldb_hashes_only_through_the_digest_module
+CM30 [CAUGHT] py3.14 sqlite: bundle decode ignores member ordinals
+    summary: 4 failed, 645 passed, 430 deselected in 23.55s
+    test_tdeg_run_bundles_round_trip_through_the_codecs
+CM31 [CAUGHT] py3.14 sqlite: bundle decode ignores withheld ordinals
+    summary: 4 failed, 645 passed, 430 deselected in 23.93s
+    test_db_digest_preserved_on_round_trip
+    test_db_round_trip_every_golden_valid_fixture
+    test_db_round_trip_frozen_0_0_1_fixtures
+    test_run_bundle_decode_rebuilds_in_member_order_whatever_the_row_order
+CM32 [CAUGHT] py3.14 sqlite: doc text normalized to NFC
+    summary: 1 failed, 648 passed, 430 deselected in 24.48s
+    test_db_adversarial_preserved_fixtures_round_trip
+CM33 [CAUGHT] py3.14 sqlite: export decode passes the row purpose as expected_purpose
+    summary: 1 failed, 648 passed, 430 deselected in 24.25s
+    test_db_projection_tamper_rejected_naming_the_column_not_the_value
+CM34 [CAUGHT] py3.14 sqlite: usage_record run_id projected from the argument
+    summary: 10 failed, 639 passed, 430 deselected in 23.55s
+    test_db_projection_equals_model_fields
+    test_encode_matches_the_reference_projection_for_every_golden_valid_fixture
+    test_metadata_has_one_table_per_entity
+CM35 [CAUGHT] py3.14 sqlite: export byte_length counts characters
+    summary: 1 failed, 648 passed, 430 deselected in 23.55s
+    test_export_byte_length_is_the_utf8_length_of_the_document
+CM36 [CAUGHT] py3.14 sqlite: run external refs: only the first is indexed
+    summary: 8 failed, 641 passed, 430 deselected in 23.54s
+    test_db_nul_in_verbatim_text_round_trips
+    test_db_projection_equals_model_fields
+    test_encode_matches_the_reference_projection_for_every_golden_valid_fixture
+    test_external_ref_keys_are_exact_and_a_repeated_reference_gives_one_row
+CM37 [CAUGHT] py3.14 sqlite: dataset_member ordinals start at 1
+    summary: 2 failed, 647 passed, 430 deselected in 23.64s
+    test_db_projection_equals_model_fields
+    test_encode_matches_the_reference_projection_for_every_golden_valid_fixture
+CM38 [CAUGHT] py3.14 sqlite: config_snapshot digest projected from the evaluator
+    summary: 11 failed, 638 passed, 430 deselected in 19.63s
+    test_db_digest_preserved_on_round_trip
+    test_db_projection_equals_model_fields
+    test_db_round_trip_every_golden_valid_fixture
+    test_db_round_trip_frozen_0_0_1_fixtures
+    test_encode_matches_the_reference_projection_for_every_golden_valid_fixture
+CM39 [CAUGHT] py3.14 sqlite: caller privacy columns taken from the wrong prefix (run reason dropped)
+    summary: 5 failed, 644 passed, 430 deselected in 23.28s
+    test_db_projection_equals_model_fields
+    test_encode_matches_the_reference_projection_for_every_golden_valid_fixture
+    test_metadata_has_one_table_per_entity
+CM40 [CAUGHT] py3.14 sqlite: verdict counts: failed projected as passed
+    summary: 4 failed, 645 passed, 430 deselected in 23.75s
+    test_db_projection_equals_model_fields
+    test_encode_matches_the_reference_projection_for_every_golden_valid_fixture
+CM41 [CAUGHT] py3.14 sqlite: doc keeps U+0000 raw instead of the escape
+    summary: 19 failed, 630 passed, 430 deselected in 23.08s
+    test_db_nul_in_verbatim_text_round_trips
+    test_db_projection_equals_model_fields
+CM42 [CAUGHT] py3.14 sqlite: dataset_item privacy columns never projected
+    summary: 5 failed, 644 passed, 430 deselected in 15.31s
+    test_db_projection_equals_model_fields
+    test_encode_matches_the_reference_projection_for_every_golden_valid_fixture
+CM43 [CAUGHT] py3.14 sqlite: snapshot_member def_version constant 1
+    summary: 1 failed, 648 passed, 430 deselected in 18.51s
+    test_snapshot_members_carry_the_versions_of_the_embedded_definitions
+CM44 [CAUGHT] py3.14 sqlite: run.started_at never projected
+    summary: 6 failed, 643 passed, 430 deselected in 23.52s
+    test_db_projection_equals_model_fields
+    test_encode_matches_the_reference_projection_for_every_golden_valid_fixture
+CM45 [CAUGHT] py3.14 sqlite: transcript.detected_language taken from the raw label
+    summary: 5 failed, 644 passed, 430 deselected in 23.81s
+    test_db_projection_equals_model_fields
+    test_encode_matches_the_reference_projection_for_every_golden_valid_fixture
+CM46 [CAUGHT] py3.14 sqlite: cost_summary total dropped
+    summary: 19 failed, 630 passed, 430 deselected in 16.67s
+    test_db_digest_preserved_on_round_trip
+    test_db_projection_equals_model_fields
+    test_db_round_trip_every_golden_valid_fixture
+    test_db_round_trip_frozen_0_0_1_fixtures
+    test_db_tampered_doc_rejected_on_read
+    test_encode_matches_the_reference_projection_for_every_golden_valid_fixture
+    test_tdeg_run_bundles_round_trip_through_the_codecs

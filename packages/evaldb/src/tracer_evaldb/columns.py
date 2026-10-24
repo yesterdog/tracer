@@ -28,6 +28,7 @@ from sqlalchemy.sql.visitors import InternalTraversal
 from sqlalchemy.types import TypeDecorator, TypeEngine
 
 __all__ = [
+    "BigIntCol",
     "BoolCol",
     "DecimalCol",
     "DocCol",
@@ -68,6 +69,14 @@ class _BoolDomain(_CheckElement):
     """The value is a boolean (SQLite stores 0 or 1)."""
 
 
+class _InstantShape(_CheckElement):
+    """SQLite only: the fixed-width ``YYYY-MM-DDTHH:MM:SS.ffffffZ`` text."""
+
+
+class _DecimalShape(_CheckElement):
+    """SQLite only: plain decimal text (digits, one inner ``.``, an optional leading ``-``)."""
+
+
 @compiles(_UuidV7, "sqlite")
 def _uuid_v7_sqlite(element: _UuidV7, compiler: SQLCompiler, **kw: Any) -> str:
     col = compiler.process(element.column, **kw)
@@ -100,6 +109,31 @@ def _bool_postgresql(element: _BoolDomain, compiler: SQLCompiler, **kw: Any) -> 
     return f"{compiler.process(element.column, **kw)} IN (TRUE, FALSE)"
 
 
+_DIGIT = "[0-9]"
+_INSTANT_GLOB = (
+    f"{_DIGIT * 4}-[0-1]{_DIGIT}-[0-3]{_DIGIT}T[0-2]{_DIGIT}:[0-5]{_DIGIT}:[0-5]{_DIGIT}."
+    f"{_DIGIT * 6}Z"
+)
+
+
+@compiles(_InstantShape, "sqlite")
+def _instant_sqlite(element: _InstantShape, compiler: SQLCompiler, **kw: Any) -> str:
+    col = compiler.process(element.column, **kw)
+    return f"length({col}) = 27 AND {col} GLOB '{_INSTANT_GLOB}'"
+
+
+@compiles(_DecimalShape, "sqlite")
+def _decimal_sqlite(element: _DecimalShape, compiler: SQLCompiler, **kw: Any) -> str:
+    col = compiler.process(element.column, **kw)
+    return (
+        f"({col} GLOB '[0-9]*' OR {col} GLOB '-[0-9]*') AND {col} GLOB '*[0-9]' "
+        f"AND {col} NOT GLOB '*[^0-9.-]*' AND {col} NOT GLOB '?*-*' AND {col} NOT GLOB '*.*.*'"
+    )
+
+
+_SQLITE_ONLY = (_InstantShape, _DecimalShape)
+
+
 @event.listens_for(sa.Column, "after_parent_attach")
 def _attach_type_check(column: sa.Column[Any], parent: Any) -> None:
     """Add the CHECK of a column type to its table (once, whatever order a table is built in)."""
@@ -112,7 +146,10 @@ def _attach_type_check(column: sa.Column[Any], parent: Any) -> None:
         return
     # _type_bound: Table.to_metadata() copies the columns, which attach this check again, so the
     # copy of the constraint itself must be skipped (SQLAlchemy's Enum and Boolean do the same).
-    parent.append_constraint(sa.CheckConstraint(element_type(column), name=name, _type_bound=True))
+    constraint = sa.CheckConstraint(element_type(column), name=name, _type_bound=True)
+    if element_type in _SQLITE_ONLY:
+        constraint = constraint.ddl_if(dialect="sqlite")
+    parent.append_constraint(constraint)
 
 
 # ------------------------------------------------------------------------------------ helpers
@@ -191,6 +228,7 @@ class InstantCol(_Strict):
 
     impl = sa.Text
     cache_ok = True
+    check = (_InstantShape, "instant_shape")
 
     def load_dialect_impl(self, dialect: Dialect) -> TypeEngine[Any]:
         if dialect.name == "postgresql":
@@ -237,6 +275,7 @@ class DecimalCol(_Strict):
 
     impl = sa.Text
     cache_ok = True
+    check = (_DecimalShape, "decimal_shape")
 
     def load_dialect_impl(self, dialect: Dialect) -> TypeEngine[Any]:
         if dialect.name == "postgresql":
@@ -318,3 +357,31 @@ class BoolCol(_Strict):
 
     def process_result_value(self, value: Any, dialect: Dialect) -> Any:
         return None if value is None else bool(value)
+
+
+class BigIntCol(_Strict):
+    """A Python ``int`` (exactly; ``bool`` is refused) in the signed 64-bit range.
+
+    Postgres ``bigint``; SQLite ``INTEGER``. Any range rule (``>= 0``, ``>= 1``) belongs to the
+    table, not to the type.
+    """
+
+    impl = sa.BigInteger
+    cache_ok = True
+
+    def load_dialect_impl(self, dialect: Dialect) -> TypeEngine[Any]:
+        if dialect.name == "postgresql":
+            return dialect.type_descriptor(sa.BigInteger())
+        return dialect.type_descriptor(sa.Integer())
+
+    def process_bind_param(self, value: object, dialect: Dialect) -> Any:
+        if value is None:
+            return None
+        if type(value) is not int:
+            raise ValueError("an int is required")
+        if not -(2**63) <= value <= 2**63 - 1:
+            raise ValueError("the integer is outside the signed 64-bit range")
+        return value
+
+    def process_result_value(self, value: Any, dialect: Dialect) -> Any:
+        return None if value is None else int(value)

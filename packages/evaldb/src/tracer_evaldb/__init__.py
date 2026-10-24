@@ -4,18 +4,22 @@
 
 from __future__ import annotations
 
-from .columns import BoolCol, DecimalCol, DocCol, InstantCol, KeyCol, Sha256Col, UuidCol
+from . import tables
+from .columns import BigIntCol, BoolCol, DecimalCol, DocCol, InstantCol, KeyCol, Sha256Col, UuidCol
 from .engine import create_store_engine
 from .errors import (
     StoreConfigurationError,
     StoreConnectionError,
     StoreError,
+    StoreIntegrityError,
+    StoreValueOutOfRange,
     UnsupportedServerEncoding,
     UnsupportedSqliteVersion,
 )
 from .schema import metadata
 
 __all__ = [
+    "BigIntCol",
     "BoolCol",
     "DecimalCol",
     "DocCol",
@@ -25,9 +29,12 @@ __all__ = [
     "StoreConfigurationError",
     "StoreConnectionError",
     "StoreError",
+    "StoreIntegrityError",
+    "StoreValueOutOfRange",
     "UnsupportedServerEncoding",
     "UnsupportedSqliteVersion",
     "UuidCol",
     "create_store_engine",
     "metadata",
+    "tables",
 ]

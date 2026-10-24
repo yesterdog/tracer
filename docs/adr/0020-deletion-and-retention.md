@@ -1,7 +1,7 @@
 # ADR 0020: Deletion roots, cascade graph, deletion audit and retention data
 
-- Status: Accepted (Phase 2 batch 0, task P2-00b). Records the questions Q10, Q11, Q12, Q13, Q14 and the deletion side of Q16 of `docs/phase2/SCOPE.md` section 3, auto-approved by the lead on the recommended option under the owner's standing rule of 2026-10-23 (decision log "PHASE 2 SCOPE delivered"), and the owner's deletion decision in the decision log (deletion is allowed; `ON DELETE CASCADE` or an equivalent; run-owned facts cascade from the run; definitions embedded in snapshots are safe to delete because snapshots embed them; a minimal deletion audit of what kind, when and who, with no content). The points where the SCOPE was ambiguous are listed under "Ambiguities resolved" with the recommendation the lead auto-approves. Open [Proposed] items: none.
-- Date: 2026-10-24
+- Status: Accepted (Phase 2 batch 0, task P2-00b). Records the questions Q10, Q11, Q12, Q13, Q14 and the deletion side of Q16 of `docs/phase2/SCOPE.md` section 3, auto-approved by the lead on the recommended option under the owner's standing rule of 2026-10-23 (decision log "PHASE 2 SCOPE delivered"), and the owner's deletion decision in the decision log (deletion is allowed; `ON DELETE CASCADE` or an equivalent; run-owned facts cascade from the run; definitions embedded in snapshots are safe to delete because snapshots embed them; a minimal deletion audit of what kind, when and who, with no content). The points where the SCOPE was ambiguous are listed under "Ambiguities resolved" with the recommendation the lead auto-approves. Revision 35 (2026-10-24, docs only): Decision 6 states that `reason` and `root_kind` are database CHECKs (batch B A10, auto-approved; SCOPE Decisions D4). Open [Proposed] items: none.
+- Date: 2026-10-24 (revision 35: Decision 6 note)
 - Task: P2-00b (implemented by P2-10, P2-16, P2-17a, P2-17b, P2-18)
 
 ## Context
@@ -69,7 +69,8 @@ Facts in the code that drive the design: a `Dataset` version lists `item_ids` an
    - `deleted_at` (`InstantCol`): the commit time of the deletion, from the store's clock;
    - `actor` (`KeyCol`): a required label naming who asked, with no default; it follows the `HumanLabel` rules (non-empty, no control, separator or default-ignorable character) and is refused when `credentials.credential_reason` flags it; the error names the rule, never the value;
    - `reason` (`KeyCol`): required, the closed set `operator_request`, `retention_policy`, `data_subject_request`;
-   - `root_kind` (`KeyCol`): the closed set of the `root_kind` column of Decision 2;
+   - `root_kind` (`KeyCol`): the closed set of the `root_kind` column of Decision 2 (fourteen kinds);
+   - both closed sets are also database CHECKs (revision 35, batch B A10; ADR 0019 Table 2);
    - `counts` (`DocCol`): the JCS text of one JSON object from table name to the integer number of entity rows deleted. Its keys are exactly the reach set of the root kind (table below), zeros included, so an absent key never stands for zero. Side-table rows are not counted.
 
    The row holds no ID, no digest, no text, no metadata and no projection of a deleted record (a UUIDv7 reveals its creation time and links to external logs; a plain digest of a low-entropy profile is content). It is inserted in the root's transaction, so the deletion and its audit commit or roll back together.

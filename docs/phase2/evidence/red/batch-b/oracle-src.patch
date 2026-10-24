@@ -1,0 +1,988 @@
+diff -ruN a/tracer_evaldb/__init__.py b/tracer_evaldb/__init__.py
+--- a/packages/evaldb/src/tracer_evaldb/__init__.py	2026-10-24 14:13:40
++++ b/packages/evaldb/src/tracer_evaldb/__init__.py	2026-10-24 14:13:40
+@@ -4,18 +4,22 @@
+ 
+ from __future__ import annotations
+ 
+-from .columns import BoolCol, DecimalCol, DocCol, InstantCol, KeyCol, Sha256Col, UuidCol
++from .columns import BigIntCol, BoolCol, DecimalCol, DocCol, InstantCol, KeyCol, Sha256Col, UuidCol
+ from .engine import create_store_engine
+ from .errors import (
+     StoreConfigurationError,
+     StoreConnectionError,
+     StoreError,
++    StoreIntegrityError,
++    StoreValueOutOfRange,
+     UnsupportedServerEncoding,
+     UnsupportedSqliteVersion,
+ )
++from . import tables as tables  # noqa: F401
+ from .schema import metadata
+ 
+ __all__ = [
++    "BigIntCol",
+     "BoolCol",
+     "DecimalCol",
+     "DocCol",
+@@ -25,6 +29,8 @@
+     "StoreConfigurationError",
+     "StoreConnectionError",
+     "StoreError",
++    "StoreIntegrityError",
++    "StoreValueOutOfRange",
+     "UnsupportedServerEncoding",
+     "UnsupportedSqliteVersion",
+     "UuidCol",
+diff -ruN a/tracer_evaldb/codecs.py b/tracer_evaldb/codecs.py
+--- a/packages/evaldb/src/tracer_evaldb/codecs.py	1970-01-01 05:30:00
++++ b/packages/evaldb/src/tracer_evaldb/codecs.py	2026-10-24 14:13:40
+@@ -0,0 +1,401 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""ORACLE (scratch, qa): the codecs of the batch B contract, hand-written and minimal."""
++
++from __future__ import annotations
++
++import uuid
++from collections.abc import Callable, Mapping, Sequence
++from dataclasses import dataclass
++from decimal import Decimal
++from typing import Any
++
++from tracer_evalschema import digest as ev_digest
++from tracer_evalschema import loader as ev_loader
++from tracer_evalschema import registry
++from tracer_evalschema.errors import DigestMismatch, NonIJsonValueError
++
++from .errors import StoreError, StoreIntegrityError, StoreValueOutOfRange
++from .tables import ENTITY_TABLES, NULLABLE, PRIV, SPEC, VERSIONED  # noqa: F401
++
++__all__ = ["EncodedEntity", "decode", "encode"]
++
++_INT64 = (-(2**63), 2**63 - 1)
++_CLASSES = {c.__name__: c for c in registry.entity_classes().values()}
++_ENVELOPE = {"id", "schema_version", "created_at", "metadata", "metadata_flags"}
++_STORAGE_RUN_ID = {"artifact", "transcript", "turn", "exchange", "tool_call_event", "stage_span",
++                   "metric_result", "run_verdict", "cost_record", "cost_summary"}  # fmt: skip
++_BIGINT_COLUMNS = {"version", "seq", "index", "start_ms", "byte_length", "required_total",
++                   "failed", "not_applicable", "errored", "passed"}  # fmt: skip
++_BUNDLE_KINDS = (
++    ("run", "run", False), ("snapshot", "snapshot", False),
++    ("pricing_catalog", "pricing_catalogs", True), ("test_profile", "test_profiles", True),
++    ("artifact", "artifacts", False), ("transcript", "transcripts", False),
++    ("turn", "turns", False), ("exchange", "exchanges", False),
++    ("tool_call", "tool_calls", False), ("span", "spans", False),
++    ("result", "results", False), ("verdict", "verdict", False),
++    ("usage_record", "usage_records", False), ("cost_record", "cost_records", False),
++    ("cost_summary", "cost_summaries", False),
++)  # fmt: skip
++
++
++@dataclass(frozen=True)
++class EncodedEntity:
++    table: str
++    row: Mapping[str, Any]
++    side_rows: Mapping[str, Sequence[Mapping[str, Any]]]
++
++
++def _priv(marker: Any, prefix: str) -> dict[str, Any]:
++    names = [f"{prefix}{p}" for p in PRIV]
++    if marker is None:
++        return dict.fromkeys(names)
++    consent, ret = marker.consent, marker.retention
++    values = (
++        marker.human_subject,
++        marker.human_subject_reason,
++        None if consent is None else consent.status,
++        None if ret is None else ret.retain_until,
++        None if ret is None else ret.delete_on_expiry,
++        None if ret is None else ret.policy_ref,
++    )
++    return dict(zip(names, values, strict=True))
++
++
++def _ref(ref: Any) -> tuple[Any, Any]:
++    return (None, None) if ref is None else (ref.id.uuid, ref.version)
++
++
++def _money(m: Any) -> tuple[Any, Any]:
++    return (None, None) if m is None else (Decimal(m.amount), m.currency)
++
++
++def _projection(table: str, m: Any, run_id: uuid.UUID | None) -> dict[str, Any]:
++    if table == "agent_target":
++        return {"transport": m.endpoint.transport}
++    if table == "persona":
++        return {"language": m.language}
++    if table == "evaluator":
++        tp = _ref(m.test_profile)
++        return {"persona_id": m.persona.id.uuid, "persona_version": m.persona.version,
++                "test_profile_id": tp[0], "test_profile_version": tp[1]}  # fmt: skip
++    if table == "metric_definition":
++        return {"key": m.key, "kind": m.kind, "value_type": m.value_type}
++    if table == "metric_binding":
++        return {"evaluator_id": m.evaluator_id.uuid, "metric_id": m.metric.id.uuid,
++                "metric_version": m.metric.version}  # fmt: skip
++    if table == "project":
++        return {"name": m.name}
++    if table == "config_snapshot":
++        pc = _ref(m.pricing_catalog)
++        return {
++            "content_digest_scheme": m.content_digest.scheme,
++            "content_digest_value": bytes.fromhex(m.content_digest.value),
++            "evaluator_id": m.evaluator.id.uuid, "evaluator_version": m.evaluator.version,
++            "rubric_id": m.rubric.id.uuid, "rubric_version": m.rubric.version,
++            "pricing_catalog_id": pc[0], "pricing_catalog_version": pc[1],
++        }  # fmt: skip
++    if table == "run":
++        marker = None if m.caller_external_id is None else m.caller_external_id.privacy
++        return {
++            "project_id": m.project_id.uuid, "config_snapshot_id": m.config_snapshot_id.uuid,
++            "agent_target_id": m.agent_target.id.uuid, "agent_target_version": m.agent_target.version,
++            "mode": m.mode, "caller_origin": m.caller_origin, "observed_tier": m.observed_tier,
++            "started_at": m.started_at, **_priv(marker, "caller_"),
++        }  # fmt: skip
++    if table == "artifact":
++        return {"run_id": run_id, "sha256": bytes.fromhex(m.sha256),
++                "turn_ref": None if m.turn_ref is None else m.turn_ref.uuid,
++                **_priv(m.privacy, "")}  # fmt: skip
++    if table == "transcript":
++        return {"run_id": run_id, "source": m.source, "detected_language": m.detected_language,
++                **_priv(m.privacy, "")}  # fmt: skip
++    if table == "turn":
++        return {"run_id": run_id, "transcript_id": m.transcript_id.uuid, "seq": m.seq,
++                "role": m.role, "start_ms": m.start_ms}  # fmt: skip
++    if table == "exchange":
++        return {"run_id": run_id, "index": m.index}
++    if table == "tool_call_event":
++        return {"run_id": run_id, "source": m.source}
++    if table == "stage_span":
++        return {"run_id": run_id, "stage": m.stage}
++    if table == "metric_result":
++        return {"run_id": run_id, "metric_id": m.metric.id.uuid, "metric_version": m.metric.version,
++                "status": m.status, "na_reason": m.na_reason, "passed": m.passed}  # fmt: skip
++    if table == "run_verdict":
++        return {"run_id": run_id, "status": m.status, "required_total": m.required_total,
++                "passed": m.passed, "failed": m.failed, "not_applicable": m.not_applicable,
++                "errored": m.errored}  # fmt: skip
++    if table == "usage_record":
++        return {"run_id": m.run_id.uuid, "domain": m.domain, "source": m.source,
++                "occurred_at": m.occurred_at}  # fmt: skip
++    if table == "cost_record":
++        a, cur = _money(m.amount)
++        return {"run_id": run_id, "status": m.status, "basis": m.basis, "amount": a,
++                "currency": cur, "na_reason": m.na_reason}  # fmt: skip
++    if table == "cost_summary":
++        t, cur = _money(m.total)
++        return {"run_id": run_id, "completeness": m.completeness, "total": t, "currency": cur}
++    if table == "dataset_item":
++        return {
++            "artifact_id": None if m.artifact_id is None else m.artifact_id.uuid,
++            "transcript_id": None if m.transcript_id is None else m.transcript_id.uuid,
++            "source_run_id": None if m.source_run_id is None else m.source_run_id.uuid,
++            "language": m.language, **_priv(m.privacy, ""),
++        }  # fmt: skip
++    if table == "run_bundle":
++        return {"run_id": m.run.id.uuid}
++    if table == "export_bundle":
++        return {"purpose": m.purpose, "byte_length": len(m.model_dump_json().encode("utf-8"))}
++    return {}
++
++
++def _doc(table: str, m: Any) -> tuple[str, Any]:
++    if table == "run_bundle":
++        return m.model_dump_json(include=_ENVELOPE), m.model_dump(mode="json", include=_ENVELOPE)
++    return m.model_dump_json(), m.model_dump(mode="json")
++
++
++def _row(table: str, m: Any, run_id: uuid.UUID | None) -> dict[str, Any]:
++    text, dump = _doc(table, m)
++    try:
++        sha = bytes.fromhex(ev_digest.sha256_hex(ev_digest.jcs_bytes(dump)))
++    except NonIJsonValueError:
++        # an integer above 2**53 - 1 in a projected column is named; otherwise the document
++        for column, value in _projection(table, m, run_id).items():
++            if type(value) is int and abs(value) > 2**53 - 1:
++                raise StoreValueOutOfRange(table, column) from None
++        if table in VERSIONED and abs(m.version) > 2**53 - 1:
++            raise StoreValueOutOfRange(table, "version") from None
++        raise StoreValueOutOfRange(table, "doc") from None
++    row: dict[str, Any] = {
++        "id": m.id.uuid, "schema_version": m.schema_version, "created_at": m.created_at,
++        "doc": text, "doc_sha256": sha,
++    }  # fmt: skip
++    if table in VERSIONED:
++        row.update(
++            version=m.version, content_digest_scheme=m.content_digest.scheme,
++            content_digest_value=bytes.fromhex(m.content_digest.value),
++        )  # fmt: skip
++    row.update(_projection(table, m, run_id))
++    for column, value in row.items():
++        if type(value) is int and abs(value) > 2**53 - 1:
++            raise StoreValueOutOfRange(table, column)
++    return row
++
++
++def _ref_key(ref: Any) -> bytes:
++    return bytes.fromhex(ev_digest.sha256_hex(ev_digest.jcs_bytes([ref.system, ref.kind, ref.value])))
++
++
++def _external(kind: str, entity: uuid.UUID, refs: Sequence[Any], run_id: uuid.UUID) -> list[dict[str, Any]]:
++    seen: set[bytes] = set()
++    rows = []
++    for ref in refs:
++        key = _ref_key(ref)
++        if key not in seen:
++            seen.add(key)
++            rows.append({"entity_kind": kind, "entity_id": entity, "key_sha256": key,
++                         "run_id": run_id})  # fmt: skip
++    return rows
++
++
++def _side(table: str, m: Any, run_id: uuid.UUID | None) -> dict[str, list[dict[str, Any]]]:
++    if table == "config_snapshot":
++        sid = m.id.uuid
++        members = [("evaluator", 0, m.evaluator), ("persona", 0, m.persona), ("rubric", 0, m.rubric),
++                   *(("metric_definition", i, d) for i, d in enumerate(m.metric_definitions)),
++                   *(("metric_binding", i, b) for i, b in enumerate(m.metric_bindings))]  # fmt: skip
++        tp = m.evaluator.test_profile
++        return {
++            "snapshot_member": [{"snapshot_id": sid, "kind": k, "ordinal": o, "def_id": e.id.uuid,
++                                 "def_version": e.version} for k, o, e in members],  # fmt: skip
++            "snapshot_profile_ref": [] if tp is None else [
++                {"snapshot_id": sid, "profile_id": tp.id.uuid, "profile_version": tp.version}
++            ],
++        }  # fmt: skip
++    if table == "dataset":
++        return {"dataset_member": [{"dataset_id": m.id.uuid, "dataset_version": m.version,
++                                    "ordinal": i, "item_id": x.uuid}
++                                   for i, x in enumerate(m.item_ids)]}  # fmt: skip
++    if table == "run":
++        return {"external_ref_index": _external("run", m.id.uuid, m.external_refs, m.id.uuid)}
++    if table == "stage_span":
++        assert run_id is not None
++        return {"external_ref_index": _external("span", m.id.uuid, [m.span_ref], run_id)}
++    if table == "transcript":
++        assert run_id is not None
++        refs = [] if m.provider_call_ref is None else [m.provider_call_ref]
++        return {"external_ref_index": _external("transcript", m.id.uuid, refs, run_id)}
++    if table == "usage_record":
++        refs = [] if m.provider_call_ref is None else [m.provider_call_ref]
++        return {"external_ref_index": _external("usage_record", m.id.uuid, refs, m.run_id.uuid)}
++    if table == "run_bundle":
++        bid = m.id.uuid
++        members = []
++        for kind, name, versioned in _BUNDLE_KINDS:
++            value = getattr(m, name)
++            records = [] if value is None else value if isinstance(value, list) else [value]
++            for ordinal, record in enumerate(records):
++                members.append({"bundle_id": bid, "kind": kind, "ordinal": ordinal,
++                                "record_id": record.id.uuid,
++                                "record_version": record.version if versioned else None})  # fmt: skip
++        withheld = [{"bundle_id": bid, "ordinal": i, "kind": w.kind, "record_id": w.record_id.uuid}
++                    for i, w in enumerate(m.withheld)]  # fmt: skip
++        return {"run_bundle_member": members, "run_bundle_withheld": withheld}
++    if table == "export_bundle":
++        eid = m.id.uuid
++        runs = list(dict.fromkeys(rb.run.id.uuid for rb in m.run_bundles))
++        items = list(dict.fromkeys(i.id.uuid for i in m.dataset_items))
++        profiles = list(dict.fromkeys(
++            [p.id.uuid for rb in m.run_bundles for p in rb.test_profiles]
++            + [s.aad_fields.subject_id.uuid for s in m.sealed_payloads
++               if s.aad_fields.payload_type == "test_profile"]
++        ))  # fmt: skip
++        return {
++            "export_bundle_run": [{"export_id": eid, "run_id": r} for r in runs],
++            "export_bundle_item": [{"export_id": eid, "item_id": i} for i in items],
++            "export_bundle_profile": [{"export_id": eid, "profile_id": p} for p in profiles],
++        }  # fmt: skip
++    return {}
++
++
++def _encode(entity: str, model: Any, run_id: uuid.UUID | None) -> EncodedEntity:
++    table = SPEC[entity][0]
++    if not isinstance(model, _CLASSES[entity]):
++        raise TypeError(f"encode_{table} takes a {entity}")
++    if table in _STORAGE_RUN_ID and type(run_id) is not uuid.UUID:
++        raise TypeError("run_id must be a uuid.UUID")
++    return EncodedEntity(table, _row(table, model, run_id), _side(table, model, run_id))
++
++
++def _fail(table: str, column: str | None, row: Mapping[str, Any]) -> StoreIntegrityError:
++    ident = row.get("id")
++    return StoreIntegrityError(table, column=column, entity_id=None if ident is None else str(ident))
++
++
++def _decode(entity: str, row: Mapping[str, Any], *, cls_override: Any = None) -> Any:
++    table = SPEC[entity][0]
++    cls = _CLASSES[entity]
++    try:
++        text = row["doc"]
++        if not isinstance(text, str):
++            raise TypeError
++        if entity == "ExportBundle":
++            model = ev_loader.load_bundle(cls, text)
++        else:
++            model = ev_loader.load_model(cls, text)
++    except DigestMismatch:
++        if table in VERSIONED or table == "config_snapshot":
++            raise
++        raise _fail(table, "doc", row) from None
++    except Exception:
++        raise _fail(table, "doc", row) from None
++    run_id = row.get("run_id") if table in _STORAGE_RUN_ID else None
++    try:
++        expected = _row(table, model, run_id)
++    except StoreError:
++        raise _fail(table, "doc", row) from None
++    order = ["id", "schema_version", "created_at", "doc_sha256", "version", "content_digest_scheme",
++             "content_digest_value"]  # fmt: skip
++    order += [k for k in expected if k not in order and k != "doc"]
++    for column in order:
++        if column not in expected:
++            continue
++        got, want = row.get(column), expected[column]
++        same = got == want and type(got) is type(want)
++        if isinstance(want, Decimal) and isinstance(got, Decimal):
++            same = format(got, "f") == format(want, "f")
++        if not same:
++            raise _fail(table, column, row)
++    return model
++
++
++def encode(model: Any, *, run_id: uuid.UUID | None = None) -> EncodedEntity:
++    entity = type(model).__name__
++    if entity not in SPEC:
++        raise TypeError("not an entity")
++    if SPEC[entity][0] in _STORAGE_RUN_ID:
++        return _encode(entity, model, run_id)
++    if run_id is not None:
++        raise TypeError("this entity takes no run_id")
++    return _encode(entity, model, None)
++
++
++def decode(table: str, row: Mapping[str, Any]) -> Any:
++    entity = next(e for e, (t, _) in SPEC.items() if t == table)
++    if table == "run_bundle":
++        raise TypeError("use decode_run_bundle")
++    return _decode(entity, row)
++
++
++def decode_run_bundle(
++    row: Mapping[str, Any],
++    *,
++    members: Sequence[Mapping[str, Any]],
++    withheld: Sequence[Mapping[str, Any]],
++    resolve: Callable[[str, uuid.UUID, int | None], Any],
++) -> Any:
++    cls = _CLASSES["RunBundle"]
++    try:
++        envelope = ev_loader.loads_strict(row["doc"])
++    except Exception:
++        raise _fail("run_bundle", "doc", row) from None
++    docs: dict[str, list[Any]] = {name: [] for _, name, _ in _BUNDLE_KINDS}
++    for kind, name, _ in _BUNDLE_KINDS:
++        chosen = sorted((m for m in members if m["kind"] == kind), key=lambda m: m["ordinal"])
++        docs[name] = [resolve(kind, m["record_id"], m["record_version"]) for m in chosen]
++    order = sorted(withheld, key=lambda w: w["ordinal"])
++    try:
++        bundle = cls.model_validate(
++            {
++                **envelope,
++                "run": docs["run"][0], "snapshot": docs["snapshot"][0],
++                **{n: v for n, v in docs.items() if n not in ("run", "snapshot", "verdict")},
++                "verdict": docs["verdict"][0] if docs["verdict"] else None,
++                "withheld": [_withheld(w) for w in order],
++            }
++        )
++    except Exception:
++        raise _fail("run_bundle", "doc", row) from None
++    expected = _row("run_bundle", bundle, None)
++    for column in ("id", "schema_version", "created_at", "doc_sha256", "run_id"):
++        if row.get(column) != expected[column]:
++            raise _fail("run_bundle", column, row)
++    return bundle
++
++
++def _withheld(w: Mapping[str, Any]) -> Any:
++    prefix = {"artifact": "art", "transcript": "tsc", "turn": "turn", "exchange": "exc",
++              "tool_call": "tcl", "span": "spn", "result": "res", "usage_record": "use",
++              "cost_record": "cst"}[w["kind"]]  # fmt: skip
++    return {"kind": w["kind"], "record_id": f"{prefix}_{w['record_id']}"}
++
++
++def _make(entity: str, table: str) -> tuple[Callable[..., Any], Callable[..., Any]]:
++    if table in _STORAGE_RUN_ID:
++        def enc(model: Any, *, run_id: uuid.UUID) -> EncodedEntity:
++            return _encode(entity, model, run_id)
++    else:
++        def enc(model: Any) -> EncodedEntity:  # type: ignore[misc]
++            return _encode(entity, model, None)
++
++    def dec(row: Mapping[str, Any]) -> Any:
++        return _decode(entity, row)
++
++    enc.__name__, dec.__name__ = f"encode_{table}", f"decode_{table}"
++    return enc, dec
++
++
++for _entity, (_table, _cols) in SPEC.items():
++    if _table == "run_bundle":
++        def encode_run_bundle(model: Any) -> EncodedEntity:
++            return _encode("RunBundle", model, None)
++
++        globals()["encode_run_bundle"] = encode_run_bundle
++        __all__ += ["encode_run_bundle", "decode_run_bundle"]
++        continue
++    _e, _d = _make(_entity, _table)
++    globals()[f"encode_{_table}"] = _e
++    globals()[f"decode_{_table}"] = _d
++    __all__ += [f"encode_{_table}", f"decode_{_table}"]
+diff -ruN a/tracer_evaldb/columns.py b/tracer_evaldb/columns.py
+--- a/packages/evaldb/src/tracer_evaldb/columns.py	2026-10-24 14:13:40
++++ b/packages/evaldb/src/tracer_evaldb/columns.py	2026-10-24 14:13:40
+@@ -28,6 +28,7 @@
+ from sqlalchemy.types import TypeDecorator, TypeEngine
+ 
+ __all__ = [
++    "BigIntCol",
+     "BoolCol",
+     "DecimalCol",
+     "DocCol",
+@@ -68,6 +69,14 @@
+     """The value is a boolean (SQLite stores 0 or 1)."""
+ 
+ 
++class _InstantShape(_CheckElement):
++    """SQLite: the fixed-width instant text. Postgres: nothing to check."""
++
++
++class _DecimalShape(_CheckElement):
++    """SQLite: plain decimal text. Postgres: nothing to check."""
++
++
+ @compiles(_UuidV7, "sqlite")
+ def _uuid_v7_sqlite(element: _UuidV7, compiler: SQLCompiler, **kw: Any) -> str:
+     col = compiler.process(element.column, **kw)
+@@ -100,6 +109,40 @@
+     return f"{compiler.process(element.column, **kw)} IN (TRUE, FALSE)"
+ 
+ 
++_DIGITS = "[0-9]"
++_INSTANT_GLOB = (
++    f"{_DIGITS * 4}-[0-1]{_DIGITS}-[0-3]{_DIGITS}T[0-2]{_DIGITS}:[0-5]{_DIGITS}:[0-5]{_DIGITS}."
++    f"{_DIGITS * 6}Z"
++)
++
++
++@compiles(_InstantShape, "sqlite")
++def _instant_sqlite(element: _InstantShape, compiler: SQLCompiler, **kw: Any) -> str:
++    col = compiler.process(element.column, **kw)
++    return f"({col} IS NULL OR (length({col}) = 27 AND {col} GLOB '{_INSTANT_GLOB}'))"
++
++
++@compiles(_InstantShape, "postgresql")
++def _instant_postgresql(element: _InstantShape, compiler: SQLCompiler, **kw: Any) -> str:
++    return "TRUE"
++
++
++@compiles(_DecimalShape, "sqlite")
++def _decimal_sqlite(element: _DecimalShape, compiler: SQLCompiler, **kw: Any) -> str:
++    c = compiler.process(element.column, **kw)
++    return (
++        f"({c} IS NULL OR (length({c}) > 0 AND ({c} GLOB '[0-9]*' OR {c} GLOB '-[0-9]*') "
++        f"AND {c} GLOB '*[0-9]' AND {c} NOT GLOB '*[^0-9.-]*' AND {c} NOT GLOB '?*-*' "
++        f"AND {c} NOT GLOB '*.*.*' AND {c} NOT GLOB '*.' AND {c} NOT GLOB '.*' "
++        f"AND {c} NOT GLOB '-.*'))"
++    )
++
++
++@compiles(_DecimalShape, "postgresql")
++def _decimal_postgresql(element: _DecimalShape, compiler: SQLCompiler, **kw: Any) -> str:
++    return "TRUE"
++
++
+ @event.listens_for(sa.Column, "after_parent_attach")
+ def _attach_type_check(column: sa.Column[Any], parent: Any) -> None:
+     """Add the CHECK of a column type to its table (once, whatever order a table is built in)."""
+@@ -191,6 +234,7 @@
+ 
+     impl = sa.Text
+     cache_ok = True
++    check = (_InstantShape, "instant_shape")
+ 
+     def load_dialect_impl(self, dialect: Dialect) -> TypeEngine[Any]:
+         if dialect.name == "postgresql":
+@@ -237,6 +281,7 @@
+ 
+     impl = sa.Text
+     cache_ok = True
++    check = (_DecimalShape, "decimal_shape")
+ 
+     def load_dialect_impl(self, dialect: Dialect) -> TypeEngine[Any]:
+         if dialect.name == "postgresql":
+@@ -318,3 +363,28 @@
+ 
+     def process_result_value(self, value: Any, dialect: Dialect) -> Any:
+         return None if value is None else bool(value)
++
++
++class BigIntCol(_Strict):
++    """A Python ``int`` (exactly) in the signed 64-bit range. Postgres ``bigint``; SQLite
++    ``INTEGER``."""
++
++    impl = sa.BigInteger
++    cache_ok = True
++
++    def load_dialect_impl(self, dialect: Dialect) -> TypeEngine[Any]:
++        if dialect.name == "postgresql":
++            return dialect.type_descriptor(sa.BigInteger())
++        return dialect.type_descriptor(sa.Integer())
++
++    def process_bind_param(self, value: object, dialect: Dialect) -> Any:
++        if value is None:
++            return None
++        if type(value) is not int:
++            raise ValueError("an int is required")
++        if not -(2**63) <= value <= 2**63 - 1:
++            raise ValueError("the integer is outside the signed 64-bit range")
++        return value
++
++    def process_result_value(self, value: Any, dialect: Dialect) -> Any:
++        return None if value is None else int(value)
+diff -ruN a/tracer_evaldb/errors.py b/tracer_evaldb/errors.py
+--- a/packages/evaldb/src/tracer_evaldb/errors.py	2026-10-24 14:13:40
++++ b/packages/evaldb/src/tracer_evaldb/errors.py	2026-10-24 14:13:40
+@@ -8,6 +8,8 @@
+     "StoreConfigurationError",
+     "StoreConnectionError",
+     "StoreError",
++    "StoreIntegrityError",
++    "StoreValueOutOfRange",
+     "UnsupportedServerEncoding",
+     "UnsupportedSqliteVersion",
+ ]
+@@ -31,3 +33,28 @@
+ 
+ class UnsupportedServerEncoding(StoreError):
+     """The Postgres database does not use UTF8."""
++
++
++class StoreIntegrityError(StoreError):
++    """A stored row fails a check against its own document. Names the table, the column and the
++    ID, never a value."""
++
++    def __init__(self, table: str, *, column: str | None = None, entity_id: str | None = None):
++        self.table = table
++        self.column = column
++        self.entity_id = entity_id
++        text = f"stored row of table {table!r} failed an integrity check"
++        if column is not None:
++            text += f" (column {column!r})"
++        if entity_id is not None:
++            text += f" (id {entity_id})"
++        super().__init__(text)
++
++
++class StoreValueOutOfRange(StoreError, ValueError):
++    """A value does not fit the 64-bit column it is projected to. Names the table and column."""
++
++    def __init__(self, table: str, column: str):
++        self.table = table
++        self.column = column
++        super().__init__(f"a value for column {column!r} of table {table!r} is outside 64 bits")
+diff -ruN a/tracer_evaldb/tables.py b/tracer_evaldb/tables.py
+--- a/packages/evaldb/src/tracer_evaldb/tables.py	1970-01-01 05:30:00
++++ b/packages/evaldb/src/tracer_evaldb/tables.py	2026-10-24 14:13:40
+@@ -0,0 +1,390 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""ORACLE (scratch, qa): the 37 tables of ADR 0019, written by hand for the batch B tests."""
++
++from __future__ import annotations
++
++import json
++from importlib import resources
++from typing import Any
++
++import sqlalchemy as sa
++from sqlalchemy.ext.compiler import compiles
++from sqlalchemy.sql.compiler import SQLCompiler
++from sqlalchemy.sql.elements import ColumnElement
++
++from . import columns as c
++from .schema import metadata
++
++__all__ = ["ENTITY_TABLES", "SIDE_TABLES"]
++
++_TYPES = {
++    "UuidCol": c.UuidCol,
++    "Sha256Col": c.Sha256Col,
++    "InstantCol": c.InstantCol,
++    "DecimalCol": c.DecimalCol,
++    "DocCol": c.DocCol,
++    "KeyCol": c.KeyCol,
++    "BigIntCol": c.BigIntCol,
++    "BoolCol": c.BoolCol,
++}
++_BIGINT = {"version", "seq", "index", "start_ms", "byte_length", "required_total", "failed",
++           "not_applicable", "errored", "ordinal", "singleton"}  # fmt: skip
++
++
++def _logical(table: str, name: str) -> str:
++    if name in ("doc", "counts"):
++        return "DocCol"
++    if name in ("doc_sha256", "sha256", "content_digest_value", "key_sha256"):
++        return "Sha256Col"
++    if name in ("schema_version", "evaldb_version"):
++        return "KeyCol"
++    if name == "passed":
++        return "BoolCol" if table == "metric_result" else "BigIntCol"
++    if name.endswith(("human_subject", "delete_on_expiry")):
++        return "BoolCol"
++    if name == "id" or name.endswith("_id") or name in ("audit_uuid", "turn_ref"):
++        return "UuidCol"
++    if name in _BIGINT or name.endswith("_version"):
++        return "BigIntCol"
++    if name in ("created_at", "started_at", "occurred_at", "deleted_at") or name.endswith(
++        "retain_until"
++    ):
++        return "InstantCol"
++    if name in ("amount", "total"):
++        return "DecimalCol"
++    return "KeyCol"
++
++
++# ------------------------------------------------------------------------------ checks
++
++
++class _PerDialect(ColumnElement[bool]):
++    inherit_cache = False
++    type = sa.Boolean()
++    _traverse_internals: list[Any] = []  # noqa: RUF012
++
++    def __init__(self, sqlite: str, postgresql: str) -> None:
++        self.sqlite = sqlite
++        self.postgresql = postgresql
++
++
++@compiles(_PerDialect, "sqlite")
++def _sqlite(element: _PerDialect, compiler: SQLCompiler, **kw: Any) -> str:
++    return element.sqlite
++
++
++@compiles(_PerDialect, "postgresql")
++def _postgresql(element: _PerDialect, compiler: SQLCompiler, **kw: Any) -> str:
++    return element.postgresql
++
++
++def _check(sql: str, name: str) -> sa.CheckConstraint:
++    return sa.CheckConstraint(sa.text(sql), name=name)
++
++
++def _nonneg(column: str, name: str) -> sa.CheckConstraint:
++    return sa.CheckConstraint(
++        _PerDialect(f"{column} NOT GLOB '-*'", f"{column} >= 0"), name=name
++    )
++
++
++def _schema_enum(file: str, *path: str | int) -> tuple[str, ...]:
++    root = resources.files("tracer_evalschema") / "schemas" / file
++    node: Any = json.loads(root.read_text(encoding="utf-8"))
++    for step in path:
++        node = node[step]
++    return tuple(node["enum"] if isinstance(node, dict) else node)
++
++
++def _prop(file: str, name: str, optional: bool = False) -> tuple[str, ...]:
++    if optional:
++        return _schema_enum(file, "properties", name, "anyOf", 0)
++    return _schema_enum(file, "properties", name)
++
++
++def _sets() -> dict[tuple[str, str], tuple[str, ...]]:
++    s: dict[tuple[str, str], tuple[str, ...]] = {}
++    s["agent_target", "transport"] = tuple(
++        _schema_enum("AgentTarget.schema.json", "$defs", k, "properties", "transport")[0]
++        for k in ("WebSocketEndpoint", "WebRtcEndpoint", "SipEndpoint")
++    )
++    s["metric_definition", "kind"] = _prop("MetricDefinition.schema.json", "kind")
++    s["metric_definition", "value_type"] = _prop("MetricDefinition.schema.json", "value_type")
++    for col in ("mode", "caller_origin", "observed_tier"):
++        s["run", col] = _prop("Run.schema.json", col)
++    s["transcript", "source"] = _prop("Transcript.schema.json", "source")
++    s["tool_call_event", "source"] = _prop("ToolCallEvent.schema.json", "source")
++    s["usage_record", "source"] = _prop("UsageRecord.schema.json", "source")
++    s["usage_record", "domain"] = _prop("UsageRecord.schema.json", "domain")
++    s["turn", "role"] = _prop("Turn.schema.json", "role")
++    s["stage_span", "stage"] = _prop("StageSpan.schema.json", "stage")
++    s["metric_result", "status"] = _prop("MetricResult.schema.json", "status")
++    s["metric_result", "na_reason"] = _prop("MetricResult.schema.json", "na_reason", True)
++    s["run_verdict", "status"] = _prop("RunVerdict.schema.json", "status")
++    s["cost_record", "status"] = _prop("CostRecord.schema.json", "status")
++    s["cost_record", "basis"] = _prop("CostRecord.schema.json", "basis", True)
++    s["cost_record", "na_reason"] = _prop("CostRecord.schema.json", "na_reason", True)
++    usd = _schema_enum("CostRecord.schema.json", "$defs", "Money", "properties", "currency")
++    s["cost_record", "currency"] = usd
++    s["cost_summary", "currency"] = usd
++    s["cost_summary", "completeness"] = _prop("CostSummary.schema.json", "completeness")
++    s["export_bundle", "purpose"] = _prop("ExportBundle.schema.json", "purpose")
++    consent = _schema_enum("Artifact.schema.json", "$defs", "ConsentRecord", "properties", "status")
++    reason = _schema_enum(
++        "Artifact.schema.json", "$defs", "PrivacyMarker", "properties",
++        "human_subject_reason", "anyOf", 0,
++    )  # fmt: skip
++    for t, p in (("artifact", ""), ("transcript", ""), ("dataset_item", ""), ("run", "caller_")):
++        s[t, f"{p}consent_status"] = consent
++        s[t, f"{p}human_subject_reason"] = reason
++    scheme = _schema_enum("Persona.schema.json", "$defs", "ContentDigest", "properties", "scheme")
++    for t in (*VERSIONED, "config_snapshot"):
++        s[t, "content_digest_scheme"] = scheme
++    return s
++
++
++VERSIONED = ("agent_target", "persona", "test_profile", "evaluator", "metric_definition",
++             "metric_binding", "rubric", "pricing_catalog", "dataset")  # fmt: skip
++PRIV = ("human_subject", "human_subject_reason", "consent_status", "retain_until",
++        "delete_on_expiry", "policy_ref")  # fmt: skip
++
++# entity: (table, projected columns, nullable columns)
++SPEC: dict[str, tuple[str, tuple[str, ...]]] = {
++    "AgentTarget": ("agent_target", ("transport",)),
++    "Persona": ("persona", ("language",)),
++    "TestProfile": ("test_profile", ()),
++    "Evaluator": ("evaluator", ("persona_id", "persona_version", "test_profile_id",
++                                "test_profile_version")),  # fmt: skip
++    "MetricDefinition": ("metric_definition", ("key", "kind", "value_type")),
++    "MetricBinding": ("metric_binding", ("evaluator_id", "metric_id", "metric_version")),
++    "Rubric": ("rubric", ()),
++    "PricingCatalog": ("pricing_catalog", ()),
++    "Dataset": ("dataset", ()),
++    "Project": ("project", ("name",)),
++    "ConfigSnapshot": ("config_snapshot", ("content_digest_scheme", "content_digest_value",
++                                           "evaluator_id", "evaluator_version", "rubric_id",
++                                           "rubric_version", "pricing_catalog_id",
++                                           "pricing_catalog_version")),  # fmt: skip
++    "Run": ("run", ("project_id", "config_snapshot_id", "agent_target_id", "agent_target_version",
++                    "mode", "caller_origin", "observed_tier", "started_at",
++                    *(f"caller_{p}" for p in PRIV))),  # fmt: skip
++    "Artifact": ("artifact", ("run_id", "sha256", "turn_ref", *PRIV)),
++    "Transcript": ("transcript", ("run_id", "source", "detected_language", *PRIV)),
++    "Turn": ("turn", ("run_id", "transcript_id", "seq", "role", "start_ms")),
++    "Exchange": ("exchange", ("run_id", "index")),
++    "ToolCallEvent": ("tool_call_event", ("run_id", "source")),
++    "StageSpan": ("stage_span", ("run_id", "stage")),
++    "MetricResult": ("metric_result", ("run_id", "metric_id", "metric_version", "status",
++                                       "na_reason", "passed")),  # fmt: skip
++    "RunVerdict": ("run_verdict", ("run_id", "status", "required_total", "passed", "failed",
++                                   "not_applicable", "errored")),  # fmt: skip
++    "UsageRecord": ("usage_record", ("run_id", "domain", "source", "occurred_at")),
++    "CostRecord": ("cost_record", ("run_id", "status", "basis", "amount", "currency", "na_reason")),
++    "CostSummary": ("cost_summary", ("run_id", "completeness", "total", "currency")),
++    "DatasetItem": ("dataset_item", ("artifact_id", "transcript_id", "source_run_id", "language",
++                                     *PRIV)),  # fmt: skip
++    "RunBundle": ("run_bundle", ("run_id",)),
++    "ExportBundle": ("export_bundle", ("purpose", "byte_length")),
++}
++NULLABLE: dict[str, set[str]] = {
++    "evaluator": {"test_profile_id", "test_profile_version"},
++    "config_snapshot": {"pricing_catalog_id", "pricing_catalog_version"},
++    "run": {"started_at", *(f"caller_{p}" for p in PRIV)},
++    "artifact": {"turn_ref", *PRIV[1:]},
++    "transcript": {"detected_language", *PRIV[1:]},
++    "turn": {"start_ms"},
++    "metric_result": {"na_reason", "passed"},
++    "usage_record": {"occurred_at"},
++    "cost_record": {"amount", "basis", "currency", "na_reason"},
++    "cost_summary": {"total", "currency"},
++    "dataset_item": {"artifact_id", "transcript_id", "source_run_id", *PRIV},
++    "run_bundle_member": {"record_version"},
++}
++RUN_FK = {"artifact", "transcript", "turn", "exchange", "tool_call_event", "stage_span",
++          "metric_result", "run_verdict", "usage_record", "cost_record", "cost_summary",
++          "run_bundle"}  # fmt: skip
++SETS = _sets()
++
++
++def _columns(table: str, names: tuple[str, ...]) -> list[sa.Column[Any]]:
++    result: list[sa.Column[Any]] = []
++    for name in names:
++        kind = _TYPES[_logical(table, name)]
++        fks: list[sa.ForeignKey] = []
++        if name == "run_id" and table in RUN_FK:
++            fks.append(sa.ForeignKey("run.id", ondelete="CASCADE"))
++        result.append(
++            sa.Column(name, kind(), *fks, nullable=name in NULLABLE.get(table, set()))
++        )
++    return result
++
++
++def _privacy_check(table: str, prefix: str) -> sa.CheckConstraint:
++    hs, reason, consent, retain, doe, policy = (f"{prefix}{p}" for p in PRIV)
++    none = " AND ".join(f"{x} IS NULL" for x in (reason, consent, retain, doe, policy))
++    sql = (
++        f"({hs} IS NULL AND {none}) OR "
++        f"({hs} IS TRUE AND {consent} IS NOT NULL AND {doe} IS NOT NULL) OR "
++        f"({hs} IS FALSE AND {none})"
++    )
++    return _check(sql, f"{prefix}privacy_projection")
++
++
++def _sets_for(table: str, names: tuple[str, ...]) -> list[sa.CheckConstraint]:
++    out = []
++    for name in names:
++        members = SETS.get((table, name))
++        if members is not None:
++            listing = ", ".join("'" + m.replace("'", "''") + "'" for m in members)
++            out.append(_check(f"{name} IN ({listing})", f"{name}_closed"))
++    return out
++
++
++def _entity_table(entity: str) -> sa.Table:
++    table, projected = SPEC[entity]
++    versioned = table in VERSIONED
++    names = ("id", *(("version",) if versioned else ()), "schema_version", "created_at", "doc",
++             "doc_sha256", *(("content_digest_scheme", "content_digest_value") if versioned else ()),
++             *projected)  # fmt: skip
++    items: list[Any] = [*_columns(table, names)]
++    items.append(sa.PrimaryKeyConstraint("id", "version") if versioned else sa.PrimaryKeyConstraint("id"))
++    items.append(_check("schema_version = '0.0.1'", "schema_version_pinned"))
++    if versioned:
++        items.append(_check("version >= 1", "version_ge_1"))
++    items += _sets_for(table, names)
++    if table == "run":
++        items.append(sa.ForeignKeyConstraint(["project_id"], ["project.id"], ondelete="CASCADE"))
++        items.append(
++            sa.ForeignKeyConstraint(["config_snapshot_id"], ["config_snapshot.id"], ondelete="RESTRICT")
++        )
++        items.append(_privacy_check(table, "caller_"))
++    if table in ("artifact", "transcript", "dataset_item"):
++        items.append(_privacy_check(table, ""))
++    if table == "turn":
++        items.append(sa.UniqueConstraint("transcript_id", "seq"))
++    if table == "metric_result":
++        items.append(_check("status <> 'not_applicable' OR passed IS NULL", "na_has_null_passed"))
++    if table == "cost_record":
++        items.append(_nonneg("amount", "amount_non_negative"))
++        items.append(
++            _check(
++                "status <> 'not_available' OR (amount IS NULL AND basis IS NULL AND currency IS NULL)",
++                "not_available_is_empty",
++            )
++        )
++        items.append(_check("(amount IS NULL) = (currency IS NULL)", "currency_with_amount"))
++    if table == "cost_summary":
++        items.append(_nonneg("total", "total_non_negative"))
++        items.append(_check("(total IS NULL) = (currency IS NULL)", "currency_with_total"))
++    if table == "evaluator":
++        items.append(_check("(test_profile_id IS NULL) = (test_profile_version IS NULL)", "profile_pair"))
++    if table == "config_snapshot":
++        items.append(
++            _check("(pricing_catalog_id IS NULL) = (pricing_catalog_version IS NULL)", "catalog_pair")
++        )
++    return sa.Table(table, metadata, *items, sqlite_strict=True, sqlite_with_rowid=False)
++
++
++def _side(
++    name: str,
++    cols: tuple[str, ...],
++    pk: tuple[str, ...],
++    *extra: Any,
++    nullable: tuple[str, ...] = (),
++) -> sa.Table:
++    NULLABLE.setdefault(name, set()).update(nullable)
++    items: list[Any] = [*_columns(name, cols), sa.PrimaryKeyConstraint(*pk), *extra]
++    return sa.Table(name, metadata, *items, sqlite_strict=True, sqlite_with_rowid=False)
++
++
++def _in(column: str, members: tuple[str, ...], label: str) -> sa.CheckConstraint:
++    listing = ", ".join(f"'{m}'" for m in members)
++    return _check(f"{column} IN ({listing})", label)
++
++
++_ENTITY: dict[str, sa.Table] = {e: _entity_table(e) for e in SPEC}
++
++_MEMBER_KINDS = ("run", "snapshot", "pricing_catalog", "test_profile", "artifact", "transcript",
++                 "turn", "exchange", "tool_call", "span", "result", "verdict", "usage_record",
++                 "cost_record", "cost_summary")  # fmt: skip
++_SNAP_KINDS = ("evaluator", "persona", "rubric", "metric_definition", "metric_binding")
++_WITHHELD = _schema_enum("RunBundle.schema.json", "$defs", "WithheldRecord", "properties", "kind")
++_ENTITY_KINDS = ("run", "span", "transcript", "usage_record")
++_ROOT_KINDS = ("run", "project", "test_profile", "agent_target", "persona", "evaluator",
++               "metric_definition", "metric_binding", "rubric", "pricing_catalog", "dataset",
++               "dataset_item", "export_bundle", "config_snapshot")  # fmt: skip
++_CASC = {"ondelete": "CASCADE"}
++
++_SIDE: dict[str, sa.Table] = {}
++_SIDE["snapshot_member"] = _side(
++    "snapshot_member", ("snapshot_id", "kind", "ordinal", "def_id", "def_version"),
++    ("snapshot_id", "kind", "ordinal"),
++    sa.ForeignKeyConstraint(["snapshot_id"], ["config_snapshot.id"], **_CASC),
++    _in("kind", _SNAP_KINDS, "kind_closed"), _check("ordinal >= 0", "ordinal_ge_0"),
++    _check("def_version >= 1", "def_version_ge_1"),
++    sa.Index("ix_snapshot_member_def", "kind", "def_id", "def_version"),
++)  # fmt: skip
++_SIDE["snapshot_profile_ref"] = _side(
++    "snapshot_profile_ref", ("snapshot_id", "profile_id", "profile_version"), ("snapshot_id",),
++    sa.ForeignKeyConstraint(["snapshot_id"], ["config_snapshot.id"], **_CASC),
++    _check("profile_version >= 1", "profile_version_ge_1"),
++    sa.Index("ix_snapshot_profile_ref_profile", "profile_id", "profile_version"),
++)  # fmt: skip
++_SIDE["external_ref_index"] = _side(
++    "external_ref_index", ("entity_kind", "entity_id", "key_sha256", "run_id"),
++    ("entity_kind", "entity_id", "key_sha256"),
++    sa.ForeignKeyConstraint(["run_id"], ["run.id"], **_CASC),
++    _in("entity_kind", _ENTITY_KINDS, "entity_kind_closed"),
++    sa.Index(
++        "ux_external_ref_unique", "entity_kind", "key_sha256", unique=True,
++        sqlite_where=sa.text("entity_kind = 'run'"),
++        postgresql_where=sa.text("entity_kind = 'run'"),
++    ),
++    sa.Index("ix_external_ref_run", "run_id", "entity_kind", "key_sha256"),
++)  # fmt: skip
++_SIDE["dataset_member"] = _side(
++    "dataset_member", ("dataset_id", "dataset_version", "ordinal", "item_id"),
++    ("dataset_id", "dataset_version", "ordinal"),
++    sa.ForeignKeyConstraint(["dataset_id", "dataset_version"], ["dataset.id", "dataset.version"], **_CASC),
++    _check("ordinal >= 0", "ordinal_ge_0"), sa.Index("ix_dataset_member_item", "item_id"),
++)  # fmt: skip
++_SIDE["run_bundle_member"] = _side(
++    "run_bundle_member", ("bundle_id", "kind", "ordinal", "record_id", "record_version"),
++    ("bundle_id", "kind", "ordinal"),
++    sa.ForeignKeyConstraint(["bundle_id"], ["run_bundle.id"], **_CASC),
++    _in("kind", _MEMBER_KINDS, "kind_closed"),
++    _check(
++        "(kind IN ('pricing_catalog', 'test_profile')) = (record_version IS NOT NULL)",
++        "record_version_for_versioned_kinds",
++    ),
++    sa.Index("ix_run_bundle_member_record", "kind", "record_id"),
++    nullable=("record_version",),
++)  # fmt: skip
++_SIDE["run_bundle_withheld"] = _side(
++    "run_bundle_withheld", ("bundle_id", "ordinal", "kind", "record_id"), ("bundle_id", "ordinal"),
++    sa.ForeignKeyConstraint(["bundle_id"], ["run_bundle.id"], **_CASC),
++    _in("kind", _WITHHELD, "kind_closed"),
++)  # fmt: skip
++for _name, _col in (("export_bundle_run", "run_id"), ("export_bundle_item", "item_id"),
++                    ("export_bundle_profile", "profile_id")):  # fmt: skip
++    _SIDE[_name] = _side(
++        _name, ("export_id", _col), ("export_id", _col),
++        sa.ForeignKeyConstraint(["export_id"], ["export_bundle.id"], **_CASC),
++        sa.Index(f"ix_{_name}_{_col}", _col),
++    )  # fmt: skip
++_SIDE["deletion_audit"] = _side(
++    "deletion_audit", ("audit_uuid", "deleted_at", "actor", "reason", "root_kind", "counts"),
++    ("audit_uuid",),
++    _in("reason", ("operator_request", "retention_policy", "data_subject_request"), "reason_closed"),
++    _in("root_kind", _ROOT_KINDS, "root_kind_closed"),
++)  # fmt: skip
++_SIDE["tracer_meta"] = _side(
++    "tracer_meta", ("singleton", "schema_version", "evaldb_version"), ("singleton",),
++    _check("singleton = 1", "singleton_is_1"), _check("schema_version = '0.0.1'", "schema_version_pinned"),
++)  # fmt: skip
++
++ENTITY_TABLES: dict[str, sa.Table] = _ENTITY
++SIDE_TABLES: dict[str, sa.Table] = _SIDE
++for _t in (*_ENTITY.values(), *_SIDE.values()):
++    globals()[_t.name] = _t

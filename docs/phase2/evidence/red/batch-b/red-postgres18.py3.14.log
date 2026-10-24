@@ -1,0 +1,1807 @@
+# red run: batch B postgres-marked tests against the tree of batch A (no tables.py, codecs.py, BigIntCol, StoreIntegrityError), throwaway container on 127.0.0.1 (generated password, scrubbed)
+postgres 18.6 (Debian 18.6-1.pgdg13+2) (image major 18), python 3.14
+FEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE [ 17%]
+EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE [ 34%]
+EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE [ 52%]
+EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE [ 69%]
+EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE [ 86%]
+EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEFFFFFFFFFFFFFF                   [100%]
+==================================== ERRORS ====================================
+______ ERROR at setup of test_versioned_tables_pk_is_id_version[postgres] ______
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_______ ERROR at setup of test_record_of_fact_tables_pk_is_id[postgres] ________
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_____________ ERROR at setup of test_version_check_ge_1[postgres] ______________
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+____ ERROR at setup of test_schema_version_check_pinned_to_0_0_1[postgres] _____
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+__ ERROR at setup of test_definition_references_have_no_foreign_key[postgres] __
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+____ ERROR at setup of test_run_owned_tables_have_run_id_cascade[postgres] _____
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_foreign_key_actions_behave_as_adr0020_states[postgres] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_______ ERROR at setup of test_turn_seq_unique_per_transcript[postgres] ________
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_________ ERROR at setup of test_currency_check_is_usd_only[postgres] __________
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_cost_amount_non_negative_check_both_backends[postgres] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-agent_target.content_digest_scheme] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-agent_target.transport] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-artifact.consent_status] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-artifact.human_subject_reason] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-config_snapshot.content_digest_scheme] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-cost_record.basis] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-cost_record.currency] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-cost_record.na_reason] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-cost_record.status] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-cost_summary.completeness] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-cost_summary.currency] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-dataset.content_digest_scheme] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-dataset_item.consent_status] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-dataset_item.human_subject_reason] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-deletion_audit.reason] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-deletion_audit.root_kind] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-evaluator.content_digest_scheme] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-export_bundle.purpose] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-external_ref_index.entity_kind] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-metric_binding.content_digest_scheme] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-metric_definition.content_digest_scheme] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-metric_definition.kind] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-metric_definition.value_type] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-metric_result.na_reason] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-metric_result.status] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-persona.content_digest_scheme] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-pricing_catalog.content_digest_scheme] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-rubric.content_digest_scheme] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-run.caller_consent_status] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-run.caller_human_subject_reason] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-run.caller_origin] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-run.mode] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-run.observed_tier] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-run_bundle_member.kind] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-run_bundle_withheld.kind] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-run_verdict.status] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-snapshot_member.kind] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-stage_span.stage] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-test_profile.content_digest_scheme] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-tool_call_event.source] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-transcript.consent_status] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-transcript.human_subject_reason] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-transcript.source] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-turn.role] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-usage_record.domain] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_closed_set_check_accepts_members_and_refuses_others[postgres-usage_record.source] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_____ ERROR at setup of test_privacy_projection_check[postgres-artifact-] ______
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+____ ERROR at setup of test_privacy_projection_check[postgres-transcript-] _____
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+___ ERROR at setup of test_privacy_projection_check[postgres-dataset_item-] ____
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+____ ERROR at setup of test_privacy_projection_check[postgres-run-caller_] _____
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_not_applicable_result_requires_null_passed[postgres] __
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_not_available_cost_has_no_amount_basis_or_currency[postgres] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_currency_present_if_and_only_if_amount_present[postgres] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+__ ERROR at setup of test_paired_reference_columns_present_together[postgres] __
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_run_bundle_member_record_version_exactly_for_versioned_kinds[postgres] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+___________ ERROR at setup of test_tracer_meta_is_one_row[postgres] ____________
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+___ ERROR at setup of test_external_ref_index_unique_only_for_run[postgres] ____
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+__ ERROR at setup of test_side_table_primary_keys_refuse_duplicates[postgres] __
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_dataset_member_cascades_with_its_dataset_version[postgres] _
+E   pg8000.exceptions.DatabaseError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+During handling of the above exception, another exception occurred:
+E   pg8000.dbapi.ProgrammingError: {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+
+The above exception was the direct cause of the following exception:
+E   sqlalchemy.exc.ProgrammingError: (pg8000.dbapi.ProgrammingError) {'S': 'ERROR', 'V': 'ERROR', 'C': '42P01', 'M': 'relation "cascade" does not exist', 'F': 'namespace.c', 'L': '636', 'R': 'RangeVarGetRelidExtended'}
+    [SQL: TRUNCATE  CASCADE]
+    (Background on this error at: https://sqlalche.me/e/21/f405)
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-AgentTarget/maximal-sip] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-AgentTarget/maximal-webrtc] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-AgentTarget/maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-AgentTarget/minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Artifact/maximal-consent-not-obtained] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Artifact/maximal-consent-unknown] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Artifact/maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Artifact/minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-ConfigSnapshot/maximal-keyed-catalog] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-ConfigSnapshot/maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-ConfigSnapshot/minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-CostRecord/maximal-computed-keyed-agent] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-CostRecord/maximal-na-ambiguous-price] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-CostRecord/maximal-na-amount-unparseable] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-CostRecord/maximal-na-billing-rules-missing] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-CostRecord/maximal-na-currency-conflict] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-CostRecord/maximal-na-currency-not-reported] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-CostRecord/maximal-na-no-price-for-model] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-CostRecord/maximal-na-no-usage] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-CostRecord/maximal-na-unit-unpriced] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-CostRecord/maximal-na-unsupported-currency] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-CostRecord/maximal-na-usage-not-reported] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-CostRecord/maximal-reported-platform] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-CostRecord/maximal-reported-provider] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-CostRecord/maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-CostRecord/minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-CostSummary/maximal-complete-agent] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-CostSummary/maximal-none] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-CostSummary/maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-CostSummary/minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Dataset/maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Dataset/minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-DatasetItem/maximal-consent-not-obtained] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-DatasetItem/maximal-consent-unknown] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-DatasetItem/maximal-synthetic] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-DatasetItem/maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-DatasetItem/minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Evaluator/maximal-keyed-profile] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Evaluator/maximal-not-exhaustive] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Evaluator/maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Evaluator/minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Exchange/maximal-audio-alignment] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Exchange/maximal-inferred-from-turns] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Exchange/maximal-observer] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Exchange/maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Exchange/minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-ExportBundle/maximal-benchmark] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-ExportBundle/maximal-shared-export] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-ExportBundle/maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-ExportBundle/minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-MetricBinding/maximal-disabled-keyed] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-MetricBinding/maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-MetricBinding/minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-MetricDefinition/maximal-boolean-rule] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-MetricDefinition/maximal-cer] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-MetricDefinition/maximal-count-share] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-MetricDefinition/maximal-judge-boolean] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-MetricDefinition/maximal-judge-enum-rule] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-MetricDefinition/maximal-judge-enum-share] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-MetricDefinition/maximal-latency-ms] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-MetricDefinition/maximal-percent] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-MetricDefinition/maximal-ratio-share] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-MetricDefinition/maximal-wer] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-MetricDefinition/maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-MetricDefinition/minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-MetricResult/maximal-boolean-false] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-MetricResult/maximal-error-undetermined] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-MetricResult/maximal-error] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-MetricResult/maximal-integer-scorer-declared] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-MetricResult/maximal-na-agent-channel-unknown] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-MetricResult/maximal-na-language-not-observed] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-MetricResult/maximal-na-missing-input] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-MetricResult/maximal-na-unsupported-language] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-MetricResult/maximal-na-unsupported-script] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-MetricResult/maximal-number] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-MetricResult/maximal-per-turn-share] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-MetricResult/maximal-string] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-MetricResult/maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-MetricResult/minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Persona/maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Persona/minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-PricingCatalog/maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-PricingCatalog/minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Project/maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Project/minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Rubric/maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Rubric/minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Run/maximal-simulated-recorded] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Run/maximal-simulated] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Run/maximal-t0-unknown-consent] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Run/maximal-t2-not-obtained] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Run/maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Run/minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-RunBundle/maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-RunBundle/minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-RunVerdict/maximal-fail] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-RunVerdict/maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-RunVerdict/minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-StageSpan/maximal-judge] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-StageSpan/maximal-llm] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-StageSpan/maximal-other] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-StageSpan/maximal-realtime] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-StageSpan/maximal-sim-caller-llm] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-StageSpan/maximal-sim-caller-tts] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-StageSpan/maximal-tts] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-StageSpan/maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-StageSpan/minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-TestProfile/maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-TestProfile/minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-ToolCallEvent/maximal-cancelled-truncated] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-ToolCallEvent/maximal-unknown-export] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-ToolCallEvent/maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-ToolCallEvent/minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Transcript/maximal-agent-export-declared] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Transcript/maximal-agent-telemetry] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Transcript/maximal-human-reference] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Transcript/maximal-observer] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Transcript/maximal-script] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Transcript/maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Transcript/minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Turn/maximal-agent-context] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Turn/maximal-agent-llm-output] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Turn/maximal-agent-log] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Turn/maximal-agent-stt-unknown-role] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Turn/maximal-agent-tts-input] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Turn/maximal-human-reference] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Turn/maximal-script] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Turn/maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-Turn/minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-UsageRecord/maximal-llm-telemetry] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-UsageRecord/maximal-other] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-UsageRecord/maximal-realtime] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-UsageRecord/maximal-sim-caller-llm] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-UsageRecord/maximal-sim-caller-tts] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-UsageRecord/maximal-stt-measured] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-UsageRecord/maximal-tts-agent] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-UsageRecord/maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_every_golden_valid_fixture[postgres-UsageRecord/minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-AgentTarget.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-AgentTarget.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-Artifact.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-Artifact.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-ConfigSnapshot.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-ConfigSnapshot.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-CostRecord.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-CostRecord.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-CostSummary.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-CostSummary.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-Dataset.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-Dataset.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-DatasetItem.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-DatasetItem.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-Evaluator.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-Evaluator.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-Exchange.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-Exchange.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-ExportBundle.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-ExportBundle.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-MetricBinding.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-MetricBinding.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-MetricDefinition.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-MetricDefinition.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-MetricResult.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-MetricResult.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-Persona.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-Persona.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-PricingCatalog.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-PricingCatalog.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-Project.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-Project.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-Rubric.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-Rubric.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-Run.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-Run.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-RunBundle.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-RunBundle.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-RunVerdict.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-RunVerdict.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-StageSpan.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-StageSpan.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-TestProfile.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-TestProfile.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-ToolCallEvent.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-ToolCallEvent.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-Transcript.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-Transcript.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-Turn.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-Turn.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-UsageRecord.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_round_trip_frozen_0_0_1_fixtures[postgres-UsageRecord.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-AgentTarget.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-AgentTarget.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-Artifact.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-Artifact.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-ConfigSnapshot.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-ConfigSnapshot.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-CostRecord.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-CostRecord.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-CostSummary.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-CostSummary.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-Dataset.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-Dataset.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-DatasetItem.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-DatasetItem.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-Evaluator.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-Evaluator.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-Exchange.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-Exchange.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-ExportBundle.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-ExportBundle.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-MetricBinding.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-MetricBinding.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-MetricDefinition.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-MetricDefinition.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-MetricResult.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-MetricResult.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-Persona.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-Persona.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-PricingCatalog.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-PricingCatalog.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-Project.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-Project.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-Rubric.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-Rubric.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-Run.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-Run.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-RunBundle.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-RunBundle.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-RunVerdict.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-RunVerdict.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-StageSpan.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-StageSpan.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-TestProfile.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-TestProfile.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-ToolCallEvent.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-ToolCallEvent.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-Transcript.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-Transcript.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-Turn.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-Turn.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-UsageRecord.maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_digest_preserved_on_round_trip[postgres-UsageRecord.minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_______ ERROR at setup of test_db_doc_column_is_text_not_json[postgres] ________
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_projection_equals_model_fields[postgres-AgentTarget] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_projection_equals_model_fields[postgres-Artifact] __
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_projection_equals_model_fields[postgres-ConfigSnapshot] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_projection_equals_model_fields[postgres-CostRecord] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_projection_equals_model_fields[postgres-CostSummary] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+__ ERROR at setup of test_db_projection_equals_model_fields[postgres-Dataset] __
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_projection_equals_model_fields[postgres-DatasetItem] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_projection_equals_model_fields[postgres-Evaluator] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_projection_equals_model_fields[postgres-Exchange] __
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_projection_equals_model_fields[postgres-MetricBinding] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_projection_equals_model_fields[postgres-MetricDefinition] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_projection_equals_model_fields[postgres-MetricResult] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+__ ERROR at setup of test_db_projection_equals_model_fields[postgres-Persona] __
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_projection_equals_model_fields[postgres-PricingCatalog] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+__ ERROR at setup of test_db_projection_equals_model_fields[postgres-Project] __
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+__ ERROR at setup of test_db_projection_equals_model_fields[postgres-Rubric] ___
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+____ ERROR at setup of test_db_projection_equals_model_fields[postgres-Run] ____
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_projection_equals_model_fields[postgres-RunVerdict] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_projection_equals_model_fields[postgres-StageSpan] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_projection_equals_model_fields[postgres-TestProfile] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_projection_equals_model_fields[postgres-ToolCallEvent] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_projection_equals_model_fields[postgres-Transcript] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+___ ERROR at setup of test_db_projection_equals_model_fields[postgres-Turn] ____
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_projection_equals_model_fields[postgres-UsageRecord] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_____ ERROR at setup of test_db_nul_in_verbatim_text_round_trips[postgres] _____
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_____ ERROR at setup of test_db_metadata_large_float_round_trips[postgres] _____
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+__ ERROR at setup of test_db_read_uses_strict_loader[postgres-depth-over-256] __
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+__ ERROR at setup of test_db_read_uses_strict_loader[postgres-duplicate-key] ___
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_read_uses_strict_loader[postgres-duplicate-key-escaped-spelling] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_read_uses_strict_loader[postgres-duplicate-key-in-metadata] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+______ ERROR at setup of test_db_read_uses_strict_loader[postgres-empty] _______
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_read_uses_strict_loader[postgres-infinity-constant] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+___ ERROR at setup of test_db_read_uses_strict_loader[postgres-nan-constant] ___
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+__ ERROR at setup of test_db_read_uses_strict_loader[postgres-not-an-object] ___
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_read_uses_strict_loader[postgres-trailing-garbage] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+____ ERROR at setup of test_db_read_uses_strict_loader[postgres-truncated] _____
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_tampered_doc_rejected_on_read[postgres-AgentTarget-minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_tampered_doc_rejected_on_read[postgres-Persona-maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_tampered_doc_rejected_on_read[postgres-TestProfile-maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_tampered_doc_rejected_on_read[postgres-Evaluator-maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_tampered_doc_rejected_on_read[postgres-MetricDefinition-maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_tampered_doc_rejected_on_read[postgres-MetricBinding-maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_tampered_doc_rejected_on_read[postgres-Rubric-maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_tampered_doc_rejected_on_read[postgres-PricingCatalog-maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_tampered_doc_rejected_on_read[postgres-Dataset-maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_tampered_doc_rejected_on_read[postgres-ConfigSnapshot-minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_tampered_doc_rejected_on_read[postgres-Project-maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_tampered_doc_rejected_on_read[postgres-Run-maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_tampered_doc_rejected_on_read[postgres-Artifact-maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_tampered_doc_rejected_on_read[postgres-Transcript-maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_tampered_doc_rejected_on_read[postgres-Turn-maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_tampered_doc_rejected_on_read[postgres-Exchange-maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_tampered_doc_rejected_on_read[postgres-ToolCallEvent-maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_tampered_doc_rejected_on_read[postgres-StageSpan-maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_tampered_doc_rejected_on_read[postgres-MetricResult-maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_tampered_doc_rejected_on_read[postgres-RunVerdict-maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_tampered_doc_rejected_on_read[postgres-UsageRecord-maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_tampered_doc_rejected_on_read[postgres-CostRecord-maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_tampered_doc_rejected_on_read[postgres-CostSummary-maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_tampered_doc_rejected_on_read[postgres-DatasetItem-maximal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_tampered_doc_rejected_on_read[postgres-ExportBundle-minimal] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_versioned_doc_edited_with_a_consistent_digest_is_caught_by_doc_sha256[postgres] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_adversarial_preserved_fixtures_round_trip[postgres-X-02/nfc-and-nfd-keys-are-two-keys] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_adversarial_preserved_fixtures_round_trip[postgres-X-02/same-key-in-sibling-objects] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_adversarial_preserved_fixtures_round_trip[postgres-X-03/brackets-inside-a-string-do-not-count] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_adversarial_preserved_fixtures_round_trip[postgres-X-03/escaped-quote-then-brackets-inside-a-string] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_adversarial_preserved_fixtures_round_trip[postgres-X-03/metadata-nested-to-the-limit] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_adversarial_preserved_fixtures_round_trip[postgres-X-05/label-keeps-zwj-and-zwnj-in-indic-text] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_adversarial_preserved_fixtures_round_trip[postgres-X-05/turn-text-with-an-override-and-the-flag-true] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_adversarial_preserved_fixtures_round_trip[postgres-X-07/leap-day-in-a-leap-year] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_adversarial_preserved_fixtures_round_trip[postgres-X-07/offset-crossing-the-year-boundary] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_adversarial_preserved_fixtures_round_trip[postgres-X-07/six-fraction-digits-are-kept] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_adversarial_preserved_fixtures_round_trip[postgres-X-09/tool-arguments-that-hold-a-key-are-observed-data] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_adversarial_preserved_fixtures_round_trip[postgres-X-09/turn-text-that-holds-a-key-is-observed-data] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_adversarial_preserved_fixtures_round_trip[postgres-X-14/escaped-surrogate-pair-is-one-character] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_db_flagged_and_injected_text_is_stored_verbatim[postgres] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+____ ERROR at setup of test_db_errors_never_echo_document_content[postgres] ____
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_encode_refuses_values_beyond_64_bits_with_a_typed_error[postgres] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_tdeg_run_bundles_round_trip_through_the_codecs[postgres-T0-simulated] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_tdeg_run_bundles_round_trip_through_the_codecs[postgres-T0-human] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_tdeg_run_bundles_round_trip_through_the_codecs[postgres-T0m-simulated] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_tdeg_run_bundles_round_trip_through_the_codecs[postgres-T0m-human] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_tdeg_run_bundles_round_trip_through_the_codecs[postgres-T1-simulated] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_tdeg_run_bundles_round_trip_through_the_codecs[postgres-T1-human] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_tdeg_run_bundles_round_trip_through_the_codecs[postgres-T2-simulated] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_tdeg_run_bundles_round_trip_through_the_codecs[postgres-T2-human] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+_ ERROR at setup of test_export_byte_length_is_the_utf8_length_of_the_document[postgres] _
+E   ModuleNotFoundError: No module named 'tracer_evaldb.codecs'
+=================================== FAILURES ===================================
+E   sqlalchemy.exc.NoSuchTableError: agent_target
+<scratchpad>/bb-red-3.14/lib/python3.14/site-packages/sqlalchemy/engine/default.py:158: sqlalchemy.exc.NoSuchTableError: agent_target
+E   AttributeError: module 'tracer_evaldb' has no attribute 'BigIntCol'
+<repo>/packages/evaldb/tests/test_evaldb_bigint.py:29: AttributeError: module 'tracer_evaldb' has no attribute 'BigIntCol'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'BigIntCol'
+<repo>/packages/evaldb/tests/test_evaldb_bigint.py:29: AttributeError: module 'tracer_evaldb' has no attribute 'BigIntCol'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'BigIntCol'
+<repo>/packages/evaldb/tests/test_evaldb_bigint.py:29: AttributeError: module 'tracer_evaldb' has no attribute 'BigIntCol'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'BigIntCol'
+<repo>/packages/evaldb/tests/test_evaldb_bigint.py:29: AttributeError: module 'tracer_evaldb' has no attribute 'BigIntCol'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'BigIntCol'
+<repo>/packages/evaldb/tests/test_evaldb_bigint.py:29: AttributeError: module 'tracer_evaldb' has no attribute 'BigIntCol'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'BigIntCol'
+<repo>/packages/evaldb/tests/test_evaldb_bigint.py:29: AttributeError: module 'tracer_evaldb' has no attribute 'BigIntCol'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'BigIntCol'
+<repo>/packages/evaldb/tests/test_evaldb_bigint.py:29: AttributeError: module 'tracer_evaldb' has no attribute 'BigIntCol'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'BigIntCol'
+<repo>/packages/evaldb/tests/test_evaldb_bigint.py:29: AttributeError: module 'tracer_evaldb' has no attribute 'BigIntCol'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'BigIntCol'
+<repo>/packages/evaldb/tests/test_evaldb_bigint.py:29: AttributeError: module 'tracer_evaldb' has no attribute 'BigIntCol'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'BigIntCol'
+<repo>/packages/evaldb/tests/test_evaldb_bigint.py:29: AttributeError: module 'tracer_evaldb' has no attribute 'BigIntCol'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'BigIntCol'
+<repo>/packages/evaldb/tests/test_evaldb_bigint.py:29: AttributeError: module 'tracer_evaldb' has no attribute 'BigIntCol'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'BigIntCol'
+<repo>/packages/evaldb/tests/test_evaldb_bigint.py:29: AttributeError: module 'tracer_evaldb' has no attribute 'BigIntCol'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'BigIntCol'
+<repo>/packages/evaldb/tests/test_evaldb_bigint.py:29: AttributeError: module 'tracer_evaldb' has no attribute 'BigIntCol'
+E   AttributeError: module 'tracer_evaldb' has no attribute 'BigIntCol'
+<repo>/packages/evaldb/tests/test_evaldb_bigint.py:29: AttributeError: module 'tracer_evaldb' has no attribute 'BigIntCol'
+=========================== short test summary info ============================
+FAILED packages/evaldb/tests/test_evaldb_tables.py::test_column_types_per_backend[postgres]
+FAILED packages/evaldb/tests/test_evaldb_bigint.py::test_bigint_column_round_trips_the_signed_64_bit_range[postgres]
+FAILED packages/evaldb/tests/test_evaldb_bigint.py::test_bigint_column_refuses_values_beyond_64_bits_and_other_types[postgres-int922337]
+FAILED packages/evaldb/tests/test_evaldb_bigint.py::test_bigint_column_refuses_values_beyond_64_bits_and_other_types[postgres-int-92233]
+FAILED packages/evaldb/tests/test_evaldb_bigint.py::test_bigint_column_refuses_values_beyond_64_bits_and_other_types[postgres-int184467]
+FAILED packages/evaldb/tests/test_evaldb_bigint.py::test_bigint_column_refuses_values_beyond_64_bits_and_other_types[postgres-int-18446]
+FAILED packages/evaldb/tests/test_evaldb_bigint.py::test_bigint_column_refuses_values_beyond_64_bits_and_other_types[postgres-int100000]
+FAILED packages/evaldb/tests/test_evaldb_bigint.py::test_bigint_column_refuses_values_beyond_64_bits_and_other_types[postgres-boolTrue]
+FAILED packages/evaldb/tests/test_evaldb_bigint.py::test_bigint_column_refuses_values_beyond_64_bits_and_other_types[postgres-boolFalse]
+FAILED packages/evaldb/tests/test_evaldb_bigint.py::test_bigint_column_refuses_values_beyond_64_bits_and_other_types[postgres-float]
+FAILED packages/evaldb/tests/test_evaldb_bigint.py::test_bigint_column_refuses_values_beyond_64_bits_and_other_types[postgres-str]
+FAILED packages/evaldb/tests/test_evaldb_bigint.py::test_bigint_column_refuses_values_beyond_64_bits_and_other_types[postgres-bytes]
+FAILED packages/evaldb/tests/test_evaldb_bigint.py::test_bigint_column_refuses_values_beyond_64_bits_and_other_types[postgres-Decimal]
+FAILED packages/evaldb/tests/test_evaldb_bigint.py::test_bigint_column_refuses_values_beyond_64_bits_and_other_types[postgres-list]
+FAILED packages/evaldb/tests/test_evaldb_bigint.py::test_bigint_column_orders_numerically[postgres]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_versioned_tables_pk_is_id_version[postgres]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_record_of_fact_tables_pk_is_id[postgres]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_version_check_ge_1[postgres]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_schema_version_check_pinned_to_0_0_1[postgres]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_definition_references_have_no_foreign_key[postgres]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_run_owned_tables_have_run_id_cascade[postgres]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_foreign_key_actions_behave_as_adr0020_states[postgres]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_turn_seq_unique_per_transcript[postgres]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_currency_check_is_usd_only[postgres]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_cost_amount_non_negative_check_both_backends[postgres]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-agent_target.content_digest_scheme]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-agent_target.transport]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-artifact.consent_status]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-artifact.human_subject_reason]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-config_snapshot.content_digest_scheme]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-cost_record.basis]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-cost_record.currency]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-cost_record.na_reason]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-cost_record.status]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-cost_summary.completeness]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-cost_summary.currency]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-dataset.content_digest_scheme]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-dataset_item.consent_status]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-dataset_item.human_subject_reason]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-deletion_audit.reason]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-deletion_audit.root_kind]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-evaluator.content_digest_scheme]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-export_bundle.purpose]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-external_ref_index.entity_kind]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-metric_binding.content_digest_scheme]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-metric_definition.content_digest_scheme]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-metric_definition.kind]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-metric_definition.value_type]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-metric_result.na_reason]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-metric_result.status]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-persona.content_digest_scheme]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-pricing_catalog.content_digest_scheme]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-rubric.content_digest_scheme]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-run.caller_consent_status]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-run.caller_human_subject_reason]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-run.caller_origin]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-run.mode]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-run.observed_tier]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-run_bundle_member.kind]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-run_bundle_withheld.kind]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-run_verdict.status]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-snapshot_member.kind]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-stage_span.stage]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-test_profile.content_digest_scheme]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-tool_call_event.source]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-transcript.consent_status]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-transcript.human_subject_reason]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-transcript.source]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-turn.role]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-usage_record.domain]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_closed_set_check_accepts_members_and_refuses_others[postgres-usage_record.source]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_privacy_projection_check[postgres-artifact-]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_privacy_projection_check[postgres-transcript-]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_privacy_projection_check[postgres-dataset_item-]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_privacy_projection_check[postgres-run-caller_]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_not_applicable_result_requires_null_passed[postgres]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_not_available_cost_has_no_amount_basis_or_currency[postgres]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_currency_present_if_and_only_if_amount_present[postgres]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_paired_reference_columns_present_together[postgres]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_run_bundle_member_record_version_exactly_for_versioned_kinds[postgres]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_tracer_meta_is_one_row[postgres]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_external_ref_index_unique_only_for_run[postgres]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_side_table_primary_keys_refuse_duplicates[postgres]
+ERROR packages/evaldb/tests/test_evaldb_tables.py::test_dataset_member_cascades_with_its_dataset_version[postgres]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-AgentTarget/maximal-sip]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-AgentTarget/maximal-webrtc]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-AgentTarget/maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-AgentTarget/minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Artifact/maximal-consent-not-obtained]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Artifact/maximal-consent-unknown]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Artifact/maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Artifact/minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-ConfigSnapshot/maximal-keyed-catalog]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-ConfigSnapshot/maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-ConfigSnapshot/minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-CostRecord/maximal-computed-keyed-agent]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-CostRecord/maximal-na-ambiguous-price]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-CostRecord/maximal-na-amount-unparseable]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-CostRecord/maximal-na-billing-rules-missing]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-CostRecord/maximal-na-currency-conflict]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-CostRecord/maximal-na-currency-not-reported]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-CostRecord/maximal-na-no-price-for-model]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-CostRecord/maximal-na-no-usage]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-CostRecord/maximal-na-unit-unpriced]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-CostRecord/maximal-na-unsupported-currency]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-CostRecord/maximal-na-usage-not-reported]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-CostRecord/maximal-reported-platform]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-CostRecord/maximal-reported-provider]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-CostRecord/maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-CostRecord/minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-CostSummary/maximal-complete-agent]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-CostSummary/maximal-none]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-CostSummary/maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-CostSummary/minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Dataset/maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Dataset/minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-DatasetItem/maximal-consent-not-obtained]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-DatasetItem/maximal-consent-unknown]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-DatasetItem/maximal-synthetic]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-DatasetItem/maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-DatasetItem/minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Evaluator/maximal-keyed-profile]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Evaluator/maximal-not-exhaustive]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Evaluator/maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Evaluator/minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Exchange/maximal-audio-alignment]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Exchange/maximal-inferred-from-turns]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Exchange/maximal-observer]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Exchange/maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Exchange/minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-ExportBundle/maximal-benchmark]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-ExportBundle/maximal-shared-export]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-ExportBundle/maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-ExportBundle/minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-MetricBinding/maximal-disabled-keyed]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-MetricBinding/maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-MetricBinding/minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-MetricDefinition/maximal-boolean-rule]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-MetricDefinition/maximal-cer]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-MetricDefinition/maximal-count-share]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-MetricDefinition/maximal-judge-boolean]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-MetricDefinition/maximal-judge-enum-rule]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-MetricDefinition/maximal-judge-enum-share]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-MetricDefinition/maximal-latency-ms]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-MetricDefinition/maximal-percent]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-MetricDefinition/maximal-ratio-share]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-MetricDefinition/maximal-wer]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-MetricDefinition/maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-MetricDefinition/minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-MetricResult/maximal-boolean-false]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-MetricResult/maximal-error-undetermined]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-MetricResult/maximal-error]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-MetricResult/maximal-integer-scorer-declared]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-MetricResult/maximal-na-agent-channel-unknown]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-MetricResult/maximal-na-language-not-observed]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-MetricResult/maximal-na-missing-input]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-MetricResult/maximal-na-unsupported-language]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-MetricResult/maximal-na-unsupported-script]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-MetricResult/maximal-number]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-MetricResult/maximal-per-turn-share]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-MetricResult/maximal-string]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-MetricResult/maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-MetricResult/minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Persona/maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Persona/minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-PricingCatalog/maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-PricingCatalog/minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Project/maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Project/minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Rubric/maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Rubric/minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Run/maximal-simulated-recorded]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Run/maximal-simulated]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Run/maximal-t0-unknown-consent]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Run/maximal-t2-not-obtained]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Run/maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Run/minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-RunBundle/maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-RunBundle/minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-RunVerdict/maximal-fail]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-RunVerdict/maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-RunVerdict/minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-StageSpan/maximal-judge]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-StageSpan/maximal-llm]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-StageSpan/maximal-other]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-StageSpan/maximal-realtime]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-StageSpan/maximal-sim-caller-llm]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-StageSpan/maximal-sim-caller-tts]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-StageSpan/maximal-tts]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-StageSpan/maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-StageSpan/minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-TestProfile/maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-TestProfile/minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-ToolCallEvent/maximal-cancelled-truncated]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-ToolCallEvent/maximal-unknown-export]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-ToolCallEvent/maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-ToolCallEvent/minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Transcript/maximal-agent-export-declared]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Transcript/maximal-agent-telemetry]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Transcript/maximal-human-reference]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Transcript/maximal-observer]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Transcript/maximal-script]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Transcript/maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Transcript/minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Turn/maximal-agent-context]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Turn/maximal-agent-llm-output]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Turn/maximal-agent-log]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Turn/maximal-agent-stt-unknown-role]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Turn/maximal-agent-tts-input]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Turn/maximal-human-reference]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Turn/maximal-script]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Turn/maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-Turn/minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-UsageRecord/maximal-llm-telemetry]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-UsageRecord/maximal-other]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-UsageRecord/maximal-realtime]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-UsageRecord/maximal-sim-caller-llm]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-UsageRecord/maximal-sim-caller-tts]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-UsageRecord/maximal-stt-measured]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-UsageRecord/maximal-tts-agent]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-UsageRecord/maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_every_golden_valid_fixture[postgres-UsageRecord/minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-AgentTarget.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-AgentTarget.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-Artifact.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-Artifact.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-ConfigSnapshot.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-ConfigSnapshot.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-CostRecord.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-CostRecord.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-CostSummary.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-CostSummary.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-Dataset.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-Dataset.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-DatasetItem.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-DatasetItem.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-Evaluator.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-Evaluator.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-Exchange.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-Exchange.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-ExportBundle.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-ExportBundle.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-MetricBinding.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-MetricBinding.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-MetricDefinition.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-MetricDefinition.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-MetricResult.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-MetricResult.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-Persona.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-Persona.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-PricingCatalog.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-PricingCatalog.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-Project.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-Project.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-Rubric.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-Rubric.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-Run.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-Run.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-RunBundle.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-RunBundle.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-RunVerdict.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-RunVerdict.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-StageSpan.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-StageSpan.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-TestProfile.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-TestProfile.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-ToolCallEvent.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-ToolCallEvent.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-Transcript.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-Transcript.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-Turn.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-Turn.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-UsageRecord.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_round_trip_frozen_0_0_1_fixtures[postgres-UsageRecord.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-AgentTarget.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-AgentTarget.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-Artifact.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-Artifact.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-ConfigSnapshot.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-ConfigSnapshot.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-CostRecord.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-CostRecord.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-CostSummary.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-CostSummary.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-Dataset.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-Dataset.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-DatasetItem.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-DatasetItem.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-Evaluator.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-Evaluator.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-Exchange.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-Exchange.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-ExportBundle.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-ExportBundle.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-MetricBinding.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-MetricBinding.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-MetricDefinition.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-MetricDefinition.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-MetricResult.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-MetricResult.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-Persona.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-Persona.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-PricingCatalog.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-PricingCatalog.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-Project.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-Project.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-Rubric.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-Rubric.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-Run.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-Run.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-RunBundle.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-RunBundle.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-RunVerdict.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-RunVerdict.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-StageSpan.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-StageSpan.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-TestProfile.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-TestProfile.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-ToolCallEvent.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-ToolCallEvent.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-Transcript.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-Transcript.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-Turn.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-Turn.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-UsageRecord.maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_digest_preserved_on_round_trip[postgres-UsageRecord.minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_doc_column_is_text_not_json[postgres]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_projection_equals_model_fields[postgres-AgentTarget]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_projection_equals_model_fields[postgres-Artifact]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_projection_equals_model_fields[postgres-ConfigSnapshot]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_projection_equals_model_fields[postgres-CostRecord]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_projection_equals_model_fields[postgres-CostSummary]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_projection_equals_model_fields[postgres-Dataset]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_projection_equals_model_fields[postgres-DatasetItem]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_projection_equals_model_fields[postgres-Evaluator]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_projection_equals_model_fields[postgres-Exchange]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_projection_equals_model_fields[postgres-MetricBinding]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_projection_equals_model_fields[postgres-MetricDefinition]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_projection_equals_model_fields[postgres-MetricResult]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_projection_equals_model_fields[postgres-Persona]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_projection_equals_model_fields[postgres-PricingCatalog]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_projection_equals_model_fields[postgres-Project]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_projection_equals_model_fields[postgres-Rubric]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_projection_equals_model_fields[postgres-Run]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_projection_equals_model_fields[postgres-RunVerdict]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_projection_equals_model_fields[postgres-StageSpan]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_projection_equals_model_fields[postgres-TestProfile]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_projection_equals_model_fields[postgres-ToolCallEvent]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_projection_equals_model_fields[postgres-Transcript]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_projection_equals_model_fields[postgres-Turn]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_projection_equals_model_fields[postgres-UsageRecord]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_nul_in_verbatim_text_round_trips[postgres]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_metadata_large_float_round_trips[postgres]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_read_uses_strict_loader[postgres-depth-over-256]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_read_uses_strict_loader[postgres-duplicate-key]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_read_uses_strict_loader[postgres-duplicate-key-escaped-spelling]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_read_uses_strict_loader[postgres-duplicate-key-in-metadata]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_read_uses_strict_loader[postgres-empty]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_read_uses_strict_loader[postgres-infinity-constant]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_read_uses_strict_loader[postgres-nan-constant]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_read_uses_strict_loader[postgres-not-an-object]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_read_uses_strict_loader[postgres-trailing-garbage]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_read_uses_strict_loader[postgres-truncated]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_tampered_doc_rejected_on_read[postgres-AgentTarget-minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_tampered_doc_rejected_on_read[postgres-Persona-maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_tampered_doc_rejected_on_read[postgres-TestProfile-maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_tampered_doc_rejected_on_read[postgres-Evaluator-maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_tampered_doc_rejected_on_read[postgres-MetricDefinition-maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_tampered_doc_rejected_on_read[postgres-MetricBinding-maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_tampered_doc_rejected_on_read[postgres-Rubric-maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_tampered_doc_rejected_on_read[postgres-PricingCatalog-maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_tampered_doc_rejected_on_read[postgres-Dataset-maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_tampered_doc_rejected_on_read[postgres-ConfigSnapshot-minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_tampered_doc_rejected_on_read[postgres-Project-maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_tampered_doc_rejected_on_read[postgres-Run-maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_tampered_doc_rejected_on_read[postgres-Artifact-maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_tampered_doc_rejected_on_read[postgres-Transcript-maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_tampered_doc_rejected_on_read[postgres-Turn-maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_tampered_doc_rejected_on_read[postgres-Exchange-maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_tampered_doc_rejected_on_read[postgres-ToolCallEvent-maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_tampered_doc_rejected_on_read[postgres-StageSpan-maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_tampered_doc_rejected_on_read[postgres-MetricResult-maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_tampered_doc_rejected_on_read[postgres-RunVerdict-maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_tampered_doc_rejected_on_read[postgres-UsageRecord-maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_tampered_doc_rejected_on_read[postgres-CostRecord-maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_tampered_doc_rejected_on_read[postgres-CostSummary-maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_tampered_doc_rejected_on_read[postgres-DatasetItem-maximal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_tampered_doc_rejected_on_read[postgres-ExportBundle-minimal]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_versioned_doc_edited_with_a_consistent_digest_is_caught_by_doc_sha256[postgres]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_adversarial_preserved_fixtures_round_trip[postgres-X-02/nfc-and-nfd-keys-are-two-keys]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_adversarial_preserved_fixtures_round_trip[postgres-X-02/same-key-in-sibling-objects]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_adversarial_preserved_fixtures_round_trip[postgres-X-03/brackets-inside-a-string-do-not-count]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_adversarial_preserved_fixtures_round_trip[postgres-X-03/escaped-quote-then-brackets-inside-a-string]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_adversarial_preserved_fixtures_round_trip[postgres-X-03/metadata-nested-to-the-limit]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_adversarial_preserved_fixtures_round_trip[postgres-X-05/label-keeps-zwj-and-zwnj-in-indic-text]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_adversarial_preserved_fixtures_round_trip[postgres-X-05/turn-text-with-an-override-and-the-flag-true]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_adversarial_preserved_fixtures_round_trip[postgres-X-07/leap-day-in-a-leap-year]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_adversarial_preserved_fixtures_round_trip[postgres-X-07/offset-crossing-the-year-boundary]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_adversarial_preserved_fixtures_round_trip[postgres-X-07/six-fraction-digits-are-kept]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_adversarial_preserved_fixtures_round_trip[postgres-X-09/tool-arguments-that-hold-a-key-are-observed-data]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_adversarial_preserved_fixtures_round_trip[postgres-X-09/turn-text-that-holds-a-key-is-observed-data]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_adversarial_preserved_fixtures_round_trip[postgres-X-14/escaped-surrogate-pair-is-one-character]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_flagged_and_injected_text_is_stored_verbatim[postgres]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_db_errors_never_echo_document_content[postgres]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_encode_refuses_values_beyond_64_bits_with_a_typed_error[postgres]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_tdeg_run_bundles_round_trip_through_the_codecs[postgres-T0-simulated]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_tdeg_run_bundles_round_trip_through_the_codecs[postgres-T0-human]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_tdeg_run_bundles_round_trip_through_the_codecs[postgres-T0m-simulated]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_tdeg_run_bundles_round_trip_through_the_codecs[postgres-T0m-human]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_tdeg_run_bundles_round_trip_through_the_codecs[postgres-T1-simulated]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_tdeg_run_bundles_round_trip_through_the_codecs[postgres-T1-human]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_tdeg_run_bundles_round_trip_through_the_codecs[postgres-T2-simulated]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_tdeg_run_bundles_round_trip_through_the_codecs[postgres-T2-human]
+ERROR packages/evaldb/tests/test_evaldb_codecs.py::test_export_byte_length_is_the_utf8_length_of_the_document[postgres]
+15 failed, 605 deselected, 399 errors in 3.36s
+exit code: 1
