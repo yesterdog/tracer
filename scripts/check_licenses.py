@@ -51,6 +51,16 @@ _CLASSIFIER_RESTRICTED = (
 _TOKEN_RE = re.compile(r"\s*(\(|\)|[A-Za-z0-9][A-Za-z0-9.+-]*)")
 
 
+def _normal_requirement(requirement: str) -> str:
+    """A requirement with its specifiers sorted (build backends write ``<3,>=2.11`` for
+    ``>=2.11,<3``); the constraint is the same, only the order differs."""
+    text = requirement.replace(" ", "")
+    match = re.match(r"([A-Za-z0-9_.-]+)(.*)", text)
+    if match is None:
+        return text
+    return match.group(1) + ",".join(sorted(part for part in match.group(2).split(",") if part))
+
+
 def norm_name(name: str) -> str:
     return re.sub(r"[-_.]+", "-", name).lower()
 
@@ -529,9 +539,10 @@ def check_artifact(path: Path, policy: Policy) -> list[Finding]:
     verdict = classify_metadata(meta, policy.allowed)
     if verdict.klass != ALLOWED:
         fail(f"artifact license {CLASS_NAMES[verdict.klass]}: {verdict.declared}")
-    requires = {r.replace(" ", "") for r in meta.get_all("Requires-Dist") or []}
-    if policy.runtime_requires_dist and requires != policy.runtime_requires_dist:
-        fail(f"Requires-Dist {sorted(requires)} != policy {sorted(policy.runtime_requires_dist)}")
+    requires = {_normal_requirement(r) for r in meta.get_all("Requires-Dist") or []}
+    wanted = {_normal_requirement(r) for r in policy.runtime_requires_dist}
+    if policy.runtime_requires_dist and requires != wanted:
+        fail(f"Requires-Dist {sorted(requires)} != policy {sorted(wanted)}")
     if meta.get_all("Provides-Extra"):
         fail("artifact declares extras")
     for e in policy.exceptions:
