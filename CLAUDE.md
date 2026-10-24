@@ -1,6 +1,6 @@
 # tracer: open-source eval framework for Indic voice AI agents
 
-Start here when resuming work. Read `docs/HANDOFF.md` first, then `docs/BACKLOG.md` (every deferred, accepted or unverified item with a stable BL id: triage and close items there, never leave a miss only in chat or the decision log), then `docs/phase1/SCOPE.md` (task table, test names, gate), `docs/phase1/api-surface.md` and `docs/adr/README.md`. Before relying on the handoff's status, run `uv sync --locked --all-groups && uv run --locked pytest -q packages/evalschema/tests` and check `git status`.
+Start here when resuming work. Read `docs/HANDOFF.md` first, then `docs/BACKLOG.md` (every deferred, accepted or unverified item with a stable BL id: triage and close items there, never leave a miss only in chat or the decision log), then `docs/phase1/SCOPE.md` (task table, test names, gate), `docs/phase1/api-surface.md` and `docs/adr/README.md`. Before relying on the handoff's status, run `uv sync --locked --all-groups && uv run --locked pytest -q` (the whole workspace; the Postgres tests run with `-m postgres` and `TRACER_TEST_POSTGRES_URL`, see `packages/evaldb/STORAGE_POLICY.md`) and check `git status`.
 
 Standing rules from the project owner:
 - Only the AI agent is evaluated. The caller may be a human or a simulator. No IVR, no human hand-over. Roles are `caller`, `agent`, `unknown`.
@@ -10,6 +10,7 @@ Standing rules from the project owner:
 - Git commit and push are authorised when the code is ready and no keys are published (owner, 2026-10-23). Before every commit: scan the tree and staged diff for key values and key patterns, confirm `.env.local` and `packages/evalschema/tests/fixtures/private/` are not staged, and run `scripts/guard_private_fixtures.py`.
 - Sending data to frontier-lab APIs, extra spend and data deletion (cascade) are allowed. The private call fixture stays local-only. Licensing: prefer open source, keep the automated check, do not dwell on copyleft.
 - Never quote the private call fixture or let a subagent read it (a real helpline call export the owner keeps outside the repository). The owner allowed the lead on 2026-10-24 to `cp` it into the git-ignored `packages/evalschema/tests/fixtures/private/voicera/` and run the local `private_fixtures` tests with content-free output (never commit it, never print its text). Never read or copy the owner's personal keys notes file. The Sarvam dev key lives only in the git-ignored `.env.local`. Never commit anything under `packages/evalschema/tests/fixtures/private/`. Never paste keys into chat or files.
+- Triage findings by priority (owner, 2026-10-25): fix where possible, but P0 first, then P1, and never spend crucial time on P3 while P0 needs full attention; log every deferral as a row in `docs/BACKLOG.md` at the moment it is deferred.
 - Never weaken, skip or delete a test to make it pass. Do not run `ruff --unsafe-fixes` on test files.
 - Use `uv run` for Python (the system `python3` is too old).
 

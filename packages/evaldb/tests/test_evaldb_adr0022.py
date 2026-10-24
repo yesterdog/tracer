@@ -21,8 +21,9 @@ ROOT = next(p for p in TESTS.parents if (p / "uv.lock").is_file())
 ADR22 = ROOT / "docs" / "adr" / "0022-write-unit-rescoring-reimport.md"
 SCOPE = ROOT / "docs" / "phase2" / "SCOPE.md"
 
-# Named by ADR 0022 and written in a later batch: P2-24 (batch F, security audit of evaldb).
-PENDING = frozenset({"test_store_errors_hide_input"})
+# Named spec change C5 (gate P2-G, tightening only): the last pending name,
+# ``test_store_errors_hide_input``, exists now, so nothing may be pending any more.
+PENDING: frozenset[str] = frozenset()
 
 # The batch C rows of SCOPE section 1.4.
 BATCH_C_TASKS = ("P2-12a", "P2-12b", "P2-12c", "P2-13", "P2-16")

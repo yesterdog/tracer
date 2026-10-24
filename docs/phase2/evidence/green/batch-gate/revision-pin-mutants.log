@@ -1,0 +1,39 @@
+== base
+PASSED packages/evaldb/tests/test_evaldb_revision_files.py::test_shipped_revision_files_are_pinned_by_sha256
+7 passed in 0.07s
+== mutant 1: one byte appended to 0001
+E       AssertionError: revision 0001 (0001_initial_schema.py) differs from its pin: 71e52fcec8ba3ee6464f53b4762b34f68246bd891d066a14b28d433fb6a5ad20
+packages/evaldb/tests/test_evaldb_revision_files.py:38: AssertionError
+E       AssertionError: assert ['revision 00...433fb6a5ad20'] == []
+packages/evaldb/tests/test_evaldb_revision_files.py:51: AssertionError
+E       AssertionError: assert (2 == 1)
+packages/evaldb/tests/test_evaldb_revision_files.py:66: AssertionError
+E       AssertionError: assert (2 == 1)
+packages/evaldb/tests/test_evaldb_revision_files.py:73: AssertionError
+== mutant 2: new 0003 without pin
+E       AssertionError: revision 0003 (0003_x.py) has no pin
+packages/evaldb/tests/test_evaldb_revision_files.py:38: AssertionError
+E       AssertionError: assert ['revision 00...) has no pin'] == []
+packages/evaldb/tests/test_evaldb_revision_files.py:51: AssertionError
+E       AssertionError: assert (2 == 1)
+packages/evaldb/tests/test_evaldb_revision_files.py:59: AssertionError
+E       AssertionError: assert (2 == 1)
+packages/evaldb/tests/test_evaldb_revision_files.py:73: AssertionError
+== mutant 3: pin of 0002 deleted (first attempt left invalid JSON; valid-JSON rerun is appended at the end)
+FAILED packages/evaldb/tests/test_evaldb_revision_files.py::test_shipped_revision_files_are_pinned_by_sha256
+7 failed in 0.09s
+== mutant 4: 0002 file deleted
+E       AssertionError: pinned revision 0002 (0002_access_pattern_indexes.py) is missing
+packages/evaldb/tests/test_evaldb_revision_files.py:38: AssertionError
+E       AssertionError: assert ['pinned revi...) is missing'] == []
+packages/evaldb/tests/test_evaldb_revision_files.py:51: AssertionError
+E       AssertionError: assert (2 == 1)
+packages/evaldb/tests/test_evaldb_revision_files.py:59: AssertionError
+E       AssertionError: assert (2 == 1)
+packages/evaldb/tests/test_evaldb_revision_files.py:66: AssertionError
+== restored
+PASSED packages/evaldb/tests/test_evaldb_revision_files.py::test_shipped_revision_files_are_pinned_by_sha256
+7 passed in 0.07s
+E       AssertionError: revision 0002 (0002_access_pattern_indexes.py) has no pin
+FAILED packages/evaldb/tests/test_evaldb_revision_files.py::test_shipped_revision_files_are_pinned_by_sha256
+== mutant 3 rerun: pin of 0002 deleted from valid JSON
