@@ -124,7 +124,7 @@ The table below is the 26-entry registry `ID_PREFIXES` in `packages/evalschema/s
 | `turn` | Turn | `exc` | Exchange |
 | `tcl` | ToolCallEvent | `spn` | StageSpan |
 
-Freeze commit: the Phase 1 gate commit (the lead records its exact id here and in ADR 0001 Decision 5 when the gate passes).
+Freeze commit: `534c346` (the Phase 1 gate commit, 2026-10-24; hosted CI run green on every job; recorded here and in ADR 0001 Decision 5).
 
 ## Commands run (paths scrubbed)
 
