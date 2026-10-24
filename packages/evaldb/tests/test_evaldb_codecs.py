@@ -19,6 +19,7 @@ import decimal
 import importlib
 import inspect
 import json
+import re
 import traceback
 import uuid
 from pathlib import Path
@@ -534,7 +535,12 @@ def test_db_metadata_large_float_round_trips(db: Db, codecs: ModuleType) -> None
         assert back.metadata == metadata
         assert back.model_dump_json() == model.model_dump_json()
         assert json.loads(row["doc"])["metadata"] == metadata
-        assert "1e+300" in row["doc"]
+        # the exponent spelling (1e300 or 1e+300) is a pydantic-core detail; the document is
+        # the text of the same process's model_dump_json, keeps exactly one exponent spelling,
+        # and never an expanded integer (jsonb would write 1e300 as a 301-digit integer)
+        assert row["doc"] == model.model_dump_json()
+        assert len(re.findall(r"1e\+?300(?!\d)", row["doc"])) == 1
+        assert not re.search(r"\d{100,}", row["doc"])
 
 
 # ---------------------------------------------------------------- strict loader, tampering
