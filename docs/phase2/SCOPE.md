@@ -1,6 +1,6 @@
 # Phase 2 scope: tracer-evaldb (relational storage of evalschema 0.0.1)
 
-Status: Scoped 2026-10-24, not started.
+Status: Scoped 2026-10-24; ADRs 0019-0022 written (batch 0, P2-00a to P2-00d, 2026-10-24; `docs/adr/README.md` revision 34).
 
 Source: the final scoping report of the staff-reviewer, reproduced faithfully below. The only
 edits are the ones listed under Decisions (D2, D3), third-person wording in the reviewer's notes,

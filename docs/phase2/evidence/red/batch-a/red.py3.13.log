@@ -1,0 +1,502 @@
+# red run: batch A tests against the Phase 1 tree (no packages/evaldb source, no sqlalchemy installed)
+Python 3.13.15
+tracer_evaldb installed: False | sqlalchemy installed: False
+============================= test session starts ==============================
+platform darwin -- Python 3.13.15, pytest-9.1.1, pluggy-1.7.0
+rootdir: <scratch>/redbase
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collected 60 items / 16 deselected / 44 selected
+
+packages/evaldb/tests/test_evaldb_ci.py FFFFF                            [ 11%]
+packages/evaldb/tests/test_evaldb_columns.py EEEEEEEEEEEEEEEE            [ 47%]
+packages/evaldb/tests/test_evaldb_engine.py EEEEEEE                      [ 63%]
+packages/evaldb/tests/test_evaldb_licenses.py FFFFFFF                    [ 79%]
+packages/evaldb/tests/test_evaldb_scaffold.py F..FFFFFF                  [100%]
+
+==================================== ERRORS ====================================
+_ ERROR at setup of test_uuid_column_native_on_postgres_blob16_on_sqlite[sqlite] _
+packages/evaldb/tests/conftest.py:62: in sa
+    return importlib.import_module("sqlalchemy")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+______ ERROR at setup of test_uuid_column_sorts_in_v7_time_order[sqlite] _______
+packages/evaldb/tests/conftest.py:62: in sa
+    return importlib.import_module("sqlalchemy")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+_____ ERROR at setup of test_uuid_v7_check_rejects_other_versions[sqlite] ______
+packages/evaldb/tests/conftest.py:62: in sa
+    return importlib.import_module("sqlalchemy")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+___________ ERROR at setup of test_instant_round_trip_edges[sqlite] ____________
+packages/evaldb/tests/conftest.py:62: in sa
+    return importlib.import_module("sqlalchemy")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+_ ERROR at setup of test_instant_round_trip_under_non_utc_server_timezone[sqlite] _
+packages/evaldb/tests/conftest.py:62: in sa
+    return importlib.import_module("sqlalchemy")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+_______ ERROR at setup of test_sqlite_instant_text_sorts_chronologically _______
+packages/evaldb/tests/conftest.py:62: in sa
+    return importlib.import_module("sqlalchemy")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+___________ ERROR at setup of test_decimal_round_trip_exact[sqlite] ____________
+packages/evaldb/tests/conftest.py:62: in sa
+    return importlib.import_module("sqlalchemy")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+_____________ ERROR at setup of test_sqlite_decimal_stored_as_text _____________
+packages/evaldb/tests/conftest.py:62: in sa
+    return importlib.import_module("sqlalchemy")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+________ ERROR at setup of test_bool_tristate_null_never_false[sqlite] _________
+packages/evaldb/tests/conftest.py:62: in sa
+    return importlib.import_module("sqlalchemy")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+____________ ERROR at setup of test_key_column_order_parity[sqlite] ____________
+packages/evaldb/tests/conftest.py:62: in sa
+    return importlib.import_module("sqlalchemy")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+_ ERROR at setup of test_case_distinct_keys_distinct_on_both_backends[sqlite] __
+packages/evaldb/tests/conftest.py:62: in sa
+    return importlib.import_module("sqlalchemy")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+_______ ERROR at setup of test_nfc_nfd_distinct_on_both_backends[sqlite] _______
+packages/evaldb/tests/conftest.py:62: in sa
+    return importlib.import_module("sqlalchemy")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+__ ERROR at setup of test_key_column_rejects_nul_and_lone_surrogates[sqlite] ___
+packages/evaldb/tests/conftest.py:62: in sa
+    return importlib.import_module("sqlalchemy")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+______ ERROR at setup of test_doc_column_round_trips_text_exactly[sqlite] ______
+packages/evaldb/tests/conftest.py:62: in sa
+    return importlib.import_module("sqlalchemy")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+_________ ERROR at setup of test_sha256_column_is_32_byte_blob[sqlite] _________
+packages/evaldb/tests/conftest.py:62: in sa
+    return importlib.import_module("sqlalchemy")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+____________ ERROR at setup of test_no_sqlalchemy_datetime_columns _____________
+packages/evaldb/tests/conftest.py:57: in evaldb
+    return importlib.import_module("tracer_evaldb")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'tracer_evaldb'
+___ ERROR at setup of test_create_store_engine_signature_and_error_hierarchy ___
+packages/evaldb/tests/conftest.py:57: in evaldb
+    return importlib.import_module("tracer_evaldb")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'tracer_evaldb'
+________ ERROR at setup of test_sqlite_connections_enforce_foreign_keys ________
+packages/evaldb/tests/conftest.py:62: in sa
+    return importlib.import_module("sqlalchemy")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+_____________ ERROR at setup of test_sqlite_orphan_insert_rejected _____________
+packages/evaldb/tests/conftest.py:62: in sa
+    return importlib.import_module("sqlalchemy")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+________ ERROR at setup of test_sqlite_rollback_is_real_on_every_python ________
+packages/evaldb/tests/conftest.py:62: in sa
+    return importlib.import_module("sqlalchemy")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+_____________ ERROR at setup of test_sqlite_version_at_least_3_37 ______________
+packages/evaldb/tests/conftest.py:57: in evaldb
+    return importlib.import_module("tracer_evaldb")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'tracer_evaldb'
+___________ ERROR at setup of test_sqlite_busy_timeout_is_configured ___________
+packages/evaldb/tests/conftest.py:57: in evaldb
+    return importlib.import_module("tracer_evaldb")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'tracer_evaldb'
+__ ERROR at setup of test_database_url_never_echoed_in_errors_or_logs[sqlite] __
+packages/evaldb/tests/conftest.py:62: in sa
+    return importlib.import_module("sqlalchemy")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+=================================== FAILURES ===================================
+_________________ test_ci_postgres_job_matrix_and_pinned_image _________________
+packages/evaldb/tests/test_evaldb_ci.py:114: in test_ci_postgres_job_matrix_and_pinned_image
+    job = _job("test-postgres")
+          ^^^^^^^^^^^^^^^^^^^^^
+packages/evaldb/tests/test_evaldb_ci.py:51: in _job
+    assert name in jobs, f"job {name!r} is missing from ci.yml (jobs: {sorted(jobs)})"
+E   AssertionError: job 'test-postgres' is missing from ci.yml (jobs: ['audit', 'guard', 'licenses', 'lint', 'secrets', 'test', 'test-oldest-deps', 'test-py315'])
+E   assert 'test-postgres' in {'guard': {'name': 'private fixture guard', 'runs-on': 'ubuntu-latest', 'steps': [{'uses': 'actions/checkout@3d3c42e5a....python-version }}'}}, {'run': 'uv sync --locked --all-groups'}, {'run': 'uv run --locked --all-groups pytest'}]}, ...}
+__________________ test_ci_lower_bound_leg_for_evaldb_ranges ___________________
+packages/evaldb/tests/test_evaldb_ci.py:175: in test_ci_lower_bound_leg_for_evaldb_ranges
+    job = _job("test-oldest-evaldb-deps")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evaldb/tests/test_evaldb_ci.py:51: in _job
+    assert name in jobs, f"job {name!r} is missing from ci.yml (jobs: {sorted(jobs)})"
+E   AssertionError: job 'test-oldest-evaldb-deps' is missing from ci.yml (jobs: ['audit', 'guard', 'licenses', 'lint', 'secrets', 'test', 'test-oldest-deps', 'test-py315'])
+E   assert 'test-oldest-evaldb-deps' in {'guard': {'name': 'private fixture guard', 'runs-on': 'ubuntu-latest', 'steps': [{'uses': 'actions/checkout@3d3c42e5a....python-version }}'}}, {'run': 'uv sync --locked --all-groups'}, {'run': 'uv run --locked --all-groups pytest'}]}, ...}
+____________________ test_ci_postgres_password_not_literal _____________________
+packages/evaldb/tests/test_evaldb_ci.py:218: in test_ci_postgres_password_not_literal
+    run = _run_text(_job(name))
+                    ^^^^^^^^^^
+packages/evaldb/tests/test_evaldb_ci.py:51: in _job
+    assert name in jobs, f"job {name!r} is missing from ci.yml (jobs: {sorted(jobs)})"
+E   AssertionError: job 'test-postgres' is missing from ci.yml (jobs: ['audit', 'guard', 'licenses', 'lint', 'secrets', 'test', 'test-oldest-deps', 'test-py315'])
+E   assert 'test-postgres' in {'guard': {'name': 'private fixture guard', 'runs-on': 'ubuntu-latest', 'steps': [{'uses': 'actions/checkout@3d3c42e5a....python-version }}'}}, {'run': 'uv sync --locked --all-groups'}, {'run': 'uv run --locked --all-groups pytest'}]}, ...}
+___________________ test_ci_sqlite_runs_on_every_python_leg ____________________
+packages/evaldb/tests/test_evaldb_ci.py:230: in test_ci_sqlite_runs_on_every_python_leg
+    assert ini["testpaths"] == ["packages/evalschema/tests", "packages/evaldb/tests"]
+E   AssertionError: assert ['packages/evalschema/tests'] == ['packages/ev...evaldb/tests']
+E     
+E     Right contains one more item: 'packages/evaldb/tests'
+E     Use -v to get more diff
+_______________ test_postgres_marker_without_url_is_usage_error ________________
+packages/evaldb/tests/test_evaldb_ci.py:282: in test_postgres_marker_without_url_is_usage_error
+    assert plain.returncode == 0, plain.stdout + plain.stderr
+E   AssertionError: packages/evaldb/tests/test_evaldb_ci.py::test_ci_postgres_job_matrix_and_pinned_image
+E     packages/evaldb/tests/test_evaldb_ci.py::test_ci_lower_bound_leg_for_evaldb_ranges
+E     packages/evaldb/tests/test_evaldb_ci.py::test_ci_postgres_password_not_literal
+E     packages/evaldb/tests/test_evaldb_ci.py::test_ci_sqlite_runs_on_every_python_leg
+E     packages/evaldb/tests/test_evaldb_ci.py::test_postgres_marker_without_url_is_usage_error
+E     packages/evaldb/tests/test_evaldb_columns.py::test_uuid_column_native_on_postgres_blob16_on_sqlite[sqlite]
+E     packages/evaldb/tests/test_evaldb_columns.py::test_uuid_column_native_on_postgres_blob16_on_sqlite[postgres]
+E     packages/evaldb/tests/test_evaldb_columns.py::test_uuid_column_sorts_in_v7_time_order[sqlite]
+E     packages/evaldb/tests/test_evaldb_columns.py::test_uuid_column_sorts_in_v7_time_order[postgres]
+E     packages/evaldb/tests/test_evaldb_columns.py::test_uuid_v7_check_rejects_other_versions[sqlite]
+E     packages/evaldb/tests/test_evaldb_columns.py::test_uuid_v7_check_rejects_other_versions[postgres]
+E     packages/evaldb/tests/test_evaldb_columns.py::test_instant_round_trip_edges[sqlite]
+E     packages/evaldb/tests/test_evaldb_columns.py::test_instant_round_trip_edges[postgres]
+E     packages/evaldb/tests/test_evaldb_columns.py::test_instant_round_trip_under_non_utc_server_timezone[sqlite]
+E     packages/evaldb/tests/test_evaldb_columns.py::test_instant_round_trip_under_non_utc_server_timezone[postgres]
+E     packages/evaldb/tests/test_evaldb_columns.py::test_sqlite_instant_text_sorts_chronologically
+E     packages/evaldb/tests/test_evaldb_columns.py::test_decimal_round_trip_exact[sqlite]
+E     packages/evaldb/tests/test_evaldb_columns.py::test_decimal_round_trip_exact[postgres]
+E     packages/evaldb/tests/test_evaldb_columns.py::test_sqlite_decimal_stored_as_text
+E     packages/evaldb/tests/test_evaldb_columns.py::test_bool_tristate_null_never_false[sqlite]
+E     packages/evaldb/tests/test_evaldb_columns.py::test_bool_tristate_null_never_false[postgres]
+E     packages/evaldb/tests/test_evaldb_columns.py::test_key_column_order_parity[sqlite]
+E     packages/evaldb/tests/test_evaldb_columns.py::test_key_column_order_parity[postgres]
+E     packages/evaldb/tests/test_evaldb_columns.py::test_case_distinct_keys_distinct_on_both_backends[sqlite]
+E     packages/evaldb/tests/test_evaldb_columns.py::test_case_distinct_keys_distinct_on_both_backends[postgres]
+E     packages/evaldb/tests/test_evaldb_columns.py::test_nfc_nfd_distinct_on_both_backends[sqlite]
+E     packages/evaldb/tests/test_evaldb_columns.py::test_nfc_nfd_distinct_on_both_backends[postgres]
+E     packages/evaldb/tests/test_evaldb_columns.py::test_key_column_rejects_nul_and_lone_surrogates[sqlite]
+E     packages/evaldb/tests/test_evaldb_columns.py::test_key_column_rejects_nul_and_lone_surrogates[postgres]
+E     packages/evaldb/tests/test_evaldb_columns.py::test_doc_column_round_trips_text_exactly[sqlite]
+E     packages/evaldb/tests/test_evaldb_columns.py::test_doc_column_round_trips_text_exactly[postgres]
+E     packages/evaldb/tests/test_evaldb_columns.py::test_sha256_column_is_32_byte_blob[sqlite]
+E     packages/evaldb/tests/test_evaldb_columns.py::test_sha256_column_is_32_byte_blob[postgres]
+E     packages/evaldb/tests/test_evaldb_columns.py::test_no_sqlalchemy_datetime_columns
+E     packages/evaldb/tests/test_evaldb_engine.py::test_create_store_engine_signature_and_error_hierarchy
+E     packages/evaldb/tests/test_evaldb_engine.py::test_sqlite_connections_enforce_foreign_keys
+E     packages/evaldb/tests/test_evaldb_engine.py::test_sqlite_orphan_insert_rejected
+E     packages/evaldb/tests/test_evaldb_engine.py::test_sqlite_rollback_is_real_on_every_python
+E     packages/evaldb/tests/test_evaldb_engine.py::test_sqlite_version_at_least_3_37
+E     packages/evaldb/tests/test_evaldb_engine.py::test_sqlite_busy_timeout_is_configured
+E     packages/evaldb/tests/test_evaldb_engine.py::test_postgres_session_timezone_is_utc
+E     packages/evaldb/tests/test_evaldb_engine.py::test_postgres_non_utf8_database_refused
+E     packages/evaldb/tests/test_evaldb_engine.py::test_database_url_never_echoed_in_errors_or_logs[sqlite]
+E     packages/evaldb/tests/test_evaldb_engine.py::test_database_url_never_echoed_in_errors_or_logs[postgres]
+E     packages/evaldb/tests/test_evaldb_licenses.py::test_license_policy_lists_evaldb_closure
+E     packages/evaldb/tests/test_evaldb_licenses.py::test_no_lgpl_or_gpl_in_lock
+E     packages/evaldb/tests/test_evaldb_licenses.py::test_check_licenses_covers_both_packages
+E     packages/evaldb/tests/test_evaldb_licenses.py::test_licence_files_of_unassumed_packages_are_read[markupsafe]
+E     packages/evaldb/tests/test_evaldb_licenses.py::test_licence_files_of_unassumed_packages_are_read[asn1crypto]
+E     packages/evaldb/tests/test_evaldb_licenses.py::test_licence_files_of_unassumed_packages_are_read[python-dateutil]
+E     packages/evaldb/tests/test_evaldb_licenses.py::test_licence_files_of_unassumed_packages_are_read[six]
+E     packages/evaldb/tests/test_evaldb_scaffold.py::test_evaldb_runtime_imports_whitelist
+E     packages/evaldb/tests/test_evaldb_scaffold.py::test_evalschema_does_not_import_evaldb
+E     packages/evaldb/tests/test_evaldb_scaffold.py::test_evalschema_runtime_closure_unchanged_by_evaldb
+E     packages/evaldb/tests/test_evaldb_scaffold.py::test_evaldb_requires_dist_bounded_ranges
+E     packages/evaldb/tests/test_evaldb_scaffold.py::test_evaldb_wheel_contains_migrations_and_no_tests
+E     packages/evaldb/tests/test_evaldb_scaffold.py::test_evalschema_unchanged_since_phase1_gate
+E     packages/evaldb/tests/test_evaldb_scaffold.py::test_evaldb_scaffold_files_and_repo_config
+E     packages/evaldb/tests/test_evaldb_scaffold.py::test_evaldb_locked_closure_is_the_reviewed_one[base]
+E     packages/evaldb/tests/test_evaldb_scaffold.py::test_evaldb_locked_closure_is_the_reviewed_one[postgres-extra]
+E     
+E     60 tests collected in 0.06s
+E     ERROR: tests marked 'postgres' are selected but TRACER_TEST_POSTGRES_URL is not set; set it or deselect them with -m 'not postgres' (see docs/phase2/api-surface-batch-a.md)
+E     
+E     
+E   assert 4 == 0
+E    +  where 4 = CompletedProcess(args=['/private/tmp/<session>/-Users-amarchandra-tracer/73928893-1b12-4695-9662-eacdb4afd744/scratch..._POSTGRES_URL is not set; set it or deselect them with -m 'not postgres' (see docs/phase2/api-surface-batch-a.md)\n\n").returncode
+___________________ test_license_policy_lists_evaldb_closure ___________________
+packages/evaldb/tests/test_evaldb_licenses.py:91: in test_license_policy_lists_evaldb_closure
+    block = policy["runtime"]["evaldb"]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'evaldb'
+_________________________ test_no_lgpl_or_gpl_in_lock __________________________
+packages/evaldb/tests/test_evaldb_licenses.py:131: in test_no_lgpl_or_gpl_in_lock
+    assert {"sqlalchemy", "alembic", "pg8000"} <= set(locked), "the evaldb closure is not locked"
+E   AssertionError: the evaldb closure is not locked
+E   assert {'alembic', '... 'sqlalchemy'} <= {'annotated-t...olorama', ...}
+E     
+E     Extra items in the left set:
+E     'alembic'
+E     'sqlalchemy'
+E     'pg8000'
+___________________ test_check_licenses_covers_both_packages ___________________
+packages/evaldb/tests/test_evaldb_licenses.py:168: in test_check_licenses_covers_both_packages
+    extra_in_closure = tampered(
+packages/evaldb/tests/test_evaldb_licenses.py:161: in tampered
+    start = text.index(after)
+            ^^^^^^^^^^^^^^^^^
+E   ValueError: substring not found
+________ test_licence_files_of_unassumed_packages_are_read[markupsafe] _________
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/metadata/__init__.py:407: in from_name
+    return next(iter(cls.discover(name=name)))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   StopIteration
+
+During handling of the above exception, another exception occurred:
+packages/evaldb/tests/test_evaldb_licenses.py:201: in test_licence_files_of_unassumed_packages_are_read
+    dist = md.distribution(name)
+           ^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/metadata/__init__.py:960: in distribution
+    return Distribution.from_name(distribution_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/metadata/__init__.py:409: in from_name
+    raise PackageNotFoundError(name)
+E   importlib.metadata.PackageNotFoundError: No package metadata was found for markupsafe
+________ test_licence_files_of_unassumed_packages_are_read[asn1crypto] _________
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/metadata/__init__.py:407: in from_name
+    return next(iter(cls.discover(name=name)))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   StopIteration
+
+During handling of the above exception, another exception occurred:
+packages/evaldb/tests/test_evaldb_licenses.py:201: in test_licence_files_of_unassumed_packages_are_read
+    dist = md.distribution(name)
+           ^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/metadata/__init__.py:960: in distribution
+    return Distribution.from_name(distribution_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/metadata/__init__.py:409: in from_name
+    raise PackageNotFoundError(name)
+E   importlib.metadata.PackageNotFoundError: No package metadata was found for asn1crypto
+______ test_licence_files_of_unassumed_packages_are_read[python-dateutil] ______
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/metadata/__init__.py:407: in from_name
+    return next(iter(cls.discover(name=name)))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   StopIteration
+
+During handling of the above exception, another exception occurred:
+packages/evaldb/tests/test_evaldb_licenses.py:201: in test_licence_files_of_unassumed_packages_are_read
+    dist = md.distribution(name)
+           ^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/metadata/__init__.py:960: in distribution
+    return Distribution.from_name(distribution_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/metadata/__init__.py:409: in from_name
+    raise PackageNotFoundError(name)
+E   importlib.metadata.PackageNotFoundError: No package metadata was found for python-dateutil
+____________ test_licence_files_of_unassumed_packages_are_read[six] ____________
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/metadata/__init__.py:407: in from_name
+    return next(iter(cls.discover(name=name)))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   StopIteration
+
+During handling of the above exception, another exception occurred:
+packages/evaldb/tests/test_evaldb_licenses.py:201: in test_licence_files_of_unassumed_packages_are_read
+    dist = md.distribution(name)
+           ^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/metadata/__init__.py:960: in distribution
+    return Distribution.from_name(distribution_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/metadata/__init__.py:409: in from_name
+    raise PackageNotFoundError(name)
+E   importlib.metadata.PackageNotFoundError: No package metadata was found for six
+____________________ test_evaldb_runtime_imports_whitelist _____________________
+packages/evaldb/tests/test_evaldb_scaffold.py:177: in test_evaldb_runtime_imports_whitelist
+    assert files, f"{EVALDB_SRC} holds no module (the package is not scaffolded)"
+E   AssertionError: <scratch>/redbase/packages/evaldb/src/tracer_evaldb holds no module (the package is not scaffolded)
+E   assert []
+___________________ test_evaldb_requires_dist_bounded_ranges ___________________
+packages/evaldb/tests/test_evaldb_scaffold.py:232: in test_evaldb_requires_dist_bounded_ranges
+    project = _toml(EVALDB / "pyproject.toml")["project"]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evaldb/tests/test_evaldb_scaffold.py:80: in _toml
+    return tomllib.loads(path.read_text(encoding="utf-8"))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/pathlib/_local.py:537: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '<scratch>/redbase/packages/evaldb/pyproject.toml'
+______________ test_evaldb_wheel_contains_migrations_and_no_tests ______________
+packages/evaldb/tests/test_evaldb_scaffold.py:288: in test_evaldb_wheel_contains_migrations_and_no_tests
+    with zipfile.ZipFile(_build_wheel(tmp_path)) as zf:
+                         ^^^^^^^^^^^^^^^^^^^^^^
+packages/evaldb/tests/test_evaldb_scaffold.py:276: in _build_wheel
+    subprocess.run(  # noqa: S603
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/subprocess.py:577: in run
+    raise CalledProcessError(retcode, process.args,
+E   subprocess.CalledProcessError: Command '['<scratch>/env-red-313/bin/python', '-m', 'hatchling', 'build', '-t', 'wheel', '-d', '<tmp>']' returned non-zero exit status 1.
+_________________ test_evalschema_unchanged_since_phase1_gate __________________
+packages/evaldb/tests/test_evaldb_scaffold.py:341: in test_evalschema_unchanged_since_phase1_gate
+    recorded = json.loads(BASELINE.read_text(encoding="utf-8"))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/pathlib/_local.py:537: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '<scratch>/redbase/docs/phase2/evidence/evalschema-baseline.json'
+__________________ test_evaldb_scaffold_files_and_repo_config __________________
+packages/evaldb/tests/test_evaldb_scaffold.py:360: in test_evaldb_scaffold_files_and_repo_config
+    assert (EVALDB / name).is_file(), name
+E   AssertionError: LICENSE
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = (PosixPath('<scratch>/redbase/packages/evaldb') / 'LICENSE').is_file
+_____________ test_evaldb_locked_closure_is_the_reviewed_one[base] _____________
+packages/evaldb/tests/test_evaldb_scaffold.py:436: in test_evaldb_locked_closure_is_the_reviewed_one
+    assert _closure("tracer-evaldb", extras=extras) == expected
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evaldb/tests/test_evaldb_scaffold.py:161: in _closure
+    entry = packages[name]
+            ^^^^^^^^^^^^^^
+E   KeyError: 'tracer-evaldb'
+________ test_evaldb_locked_closure_is_the_reviewed_one[postgres-extra] ________
+packages/evaldb/tests/test_evaldb_scaffold.py:436: in test_evaldb_locked_closure_is_the_reviewed_one
+    assert _closure("tracer-evaldb", extras=extras) == expected
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evaldb/tests/test_evaldb_scaffold.py:161: in _closure
+    entry = packages[name]
+            ^^^^^^^^^^^^^^
+E   KeyError: 'tracer-evaldb'
+=========================== short test summary info ============================
+FAILED packages/evaldb/tests/test_evaldb_ci.py::test_ci_postgres_job_matrix_and_pinned_image
+FAILED packages/evaldb/tests/test_evaldb_ci.py::test_ci_lower_bound_leg_for_evaldb_ranges
+FAILED packages/evaldb/tests/test_evaldb_ci.py::test_ci_postgres_password_not_literal
+FAILED packages/evaldb/tests/test_evaldb_ci.py::test_ci_sqlite_runs_on_every_python_leg
+FAILED packages/evaldb/tests/test_evaldb_ci.py::test_postgres_marker_without_url_is_usage_error
+FAILED packages/evaldb/tests/test_evaldb_licenses.py::test_license_policy_lists_evaldb_closure
+FAILED packages/evaldb/tests/test_evaldb_licenses.py::test_no_lgpl_or_gpl_in_lock
+FAILED packages/evaldb/tests/test_evaldb_licenses.py::test_check_licenses_covers_both_packages
+FAILED packages/evaldb/tests/test_evaldb_licenses.py::test_licence_files_of_unassumed_packages_are_read[markupsafe]
+FAILED packages/evaldb/tests/test_evaldb_licenses.py::test_licence_files_of_unassumed_packages_are_read[asn1crypto]
+FAILED packages/evaldb/tests/test_evaldb_licenses.py::test_licence_files_of_unassumed_packages_are_read[python-dateutil]
+FAILED packages/evaldb/tests/test_evaldb_licenses.py::test_licence_files_of_unassumed_packages_are_read[six]
+FAILED packages/evaldb/tests/test_evaldb_scaffold.py::test_evaldb_runtime_imports_whitelist
+FAILED packages/evaldb/tests/test_evaldb_scaffold.py::test_evaldb_requires_dist_bounded_ranges
+FAILED packages/evaldb/tests/test_evaldb_scaffold.py::test_evaldb_wheel_contains_migrations_and_no_tests
+FAILED packages/evaldb/tests/test_evaldb_scaffold.py::test_evalschema_unchanged_since_phase1_gate
+FAILED packages/evaldb/tests/test_evaldb_scaffold.py::test_evaldb_scaffold_files_and_repo_config
+FAILED packages/evaldb/tests/test_evaldb_scaffold.py::test_evaldb_locked_closure_is_the_reviewed_one[base]
+FAILED packages/evaldb/tests/test_evaldb_scaffold.py::test_evaldb_locked_closure_is_the_reviewed_one[postgres-extra]
+ERROR packages/evaldb/tests/test_evaldb_columns.py::test_uuid_column_native_on_postgres_blob16_on_sqlite[sqlite]
+ERROR packages/evaldb/tests/test_evaldb_columns.py::test_uuid_column_sorts_in_v7_time_order[sqlite]
+ERROR packages/evaldb/tests/test_evaldb_columns.py::test_uuid_v7_check_rejects_other_versions[sqlite]
+ERROR packages/evaldb/tests/test_evaldb_columns.py::test_instant_round_trip_edges[sqlite]
+ERROR packages/evaldb/tests/test_evaldb_columns.py::test_instant_round_trip_under_non_utc_server_timezone[sqlite]
+ERROR packages/evaldb/tests/test_evaldb_columns.py::test_sqlite_instant_text_sorts_chronologically
+ERROR packages/evaldb/tests/test_evaldb_columns.py::test_decimal_round_trip_exact[sqlite]
+ERROR packages/evaldb/tests/test_evaldb_columns.py::test_sqlite_decimal_stored_as_text
+ERROR packages/evaldb/tests/test_evaldb_columns.py::test_bool_tristate_null_never_false[sqlite]
+ERROR packages/evaldb/tests/test_evaldb_columns.py::test_key_column_order_parity[sqlite]
+ERROR packages/evaldb/tests/test_evaldb_columns.py::test_case_distinct_keys_distinct_on_both_backends[sqlite]
+ERROR packages/evaldb/tests/test_evaldb_columns.py::test_nfc_nfd_distinct_on_both_backends[sqlite]
+ERROR packages/evaldb/tests/test_evaldb_columns.py::test_key_column_rejects_nul_and_lone_surrogates[sqlite]
+ERROR packages/evaldb/tests/test_evaldb_columns.py::test_doc_column_round_trips_text_exactly[sqlite]
+ERROR packages/evaldb/tests/test_evaldb_columns.py::test_sha256_column_is_32_byte_blob[sqlite]
+ERROR packages/evaldb/tests/test_evaldb_columns.py::test_no_sqlalchemy_datetime_columns
+ERROR packages/evaldb/tests/test_evaldb_engine.py::test_create_store_engine_signature_and_error_hierarchy
+ERROR packages/evaldb/tests/test_evaldb_engine.py::test_sqlite_connections_enforce_foreign_keys
+ERROR packages/evaldb/tests/test_evaldb_engine.py::test_sqlite_orphan_insert_rejected
+ERROR packages/evaldb/tests/test_evaldb_engine.py::test_sqlite_rollback_is_real_on_every_python
+ERROR packages/evaldb/tests/test_evaldb_engine.py::test_sqlite_version_at_least_3_37
+ERROR packages/evaldb/tests/test_evaldb_engine.py::test_sqlite_busy_timeout_is_configured
+ERROR packages/evaldb/tests/test_evaldb_engine.py::test_database_url_never_echoed_in_errors_or_logs[sqlite]
+============ 19 failed, 2 passed, 16 deselected, 23 errors in 2.15s ============
+exit code: 1

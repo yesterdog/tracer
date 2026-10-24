@@ -1,0 +1,77 @@
+# postgres-marked tests selected with a dummy URL (no server): red by import, nothing is run against Postgres
+Python 3.14.7
+============================= test session starts ==============================
+platform darwin -- Python 3.14.7, pytest-9.1.1, pluggy-1.7.0
+rootdir: <scratch>/redbase
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collected 60 items / 44 deselected / 16 selected
+
+packages/evaldb/tests/test_evaldb_columns.py EEEEEEEEEEEEE               [ 81%]
+packages/evaldb/tests/test_evaldb_engine.py EEE                          [100%]
+
+==================================== ERRORS ====================================
+_ ERROR at setup of test_uuid_column_native_on_postgres_blob16_on_sqlite[postgres] _
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+_____ ERROR at setup of test_uuid_column_sorts_in_v7_time_order[postgres] ______
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+____ ERROR at setup of test_uuid_v7_check_rejects_other_versions[postgres] _____
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+__________ ERROR at setup of test_instant_round_trip_edges[postgres] ___________
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+_ ERROR at setup of test_instant_round_trip_under_non_utc_server_timezone[postgres] _
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+__________ ERROR at setup of test_decimal_round_trip_exact[postgres] ___________
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+_______ ERROR at setup of test_bool_tristate_null_never_false[postgres] ________
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+___________ ERROR at setup of test_key_column_order_parity[postgres] ___________
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+_ ERROR at setup of test_case_distinct_keys_distinct_on_both_backends[postgres] _
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+______ ERROR at setup of test_nfc_nfd_distinct_on_both_backends[postgres] ______
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+_ ERROR at setup of test_key_column_rejects_nul_and_lone_surrogates[postgres] __
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+_____ ERROR at setup of test_doc_column_round_trips_text_exactly[postgres] _____
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+________ ERROR at setup of test_sha256_column_is_32_byte_blob[postgres] ________
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+___________ ERROR at setup of test_postgres_session_timezone_is_utc ____________
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+__________ ERROR at setup of test_postgres_non_utf8_database_refused ___________
+E   ModuleNotFoundError: No module named 'tracer_evaldb'
+_ ERROR at setup of test_database_url_never_echoed_in_errors_or_logs[postgres] _
+E   ModuleNotFoundError: No module named 'sqlalchemy'
+=========================== short test summary info ============================
+ERROR packages/evaldb/tests/test_evaldb_columns.py::test_uuid_column_native_on_postgres_blob16_on_sqlite[postgres]
+ERROR packages/evaldb/tests/test_evaldb_columns.py::test_uuid_column_sorts_in_v7_time_order[postgres]
+ERROR packages/evaldb/tests/test_evaldb_columns.py::test_uuid_v7_check_rejects_other_versions[postgres]
+ERROR packages/evaldb/tests/test_evaldb_columns.py::test_instant_round_trip_edges[postgres]
+ERROR packages/evaldb/tests/test_evaldb_columns.py::test_instant_round_trip_under_non_utc_server_timezone[postgres]
+ERROR packages/evaldb/tests/test_evaldb_columns.py::test_decimal_round_trip_exact[postgres]
+ERROR packages/evaldb/tests/test_evaldb_columns.py::test_bool_tristate_null_never_false[postgres]
+ERROR packages/evaldb/tests/test_evaldb_columns.py::test_key_column_order_parity[postgres]
+ERROR packages/evaldb/tests/test_evaldb_columns.py::test_case_distinct_keys_distinct_on_both_backends[postgres]
+ERROR packages/evaldb/tests/test_evaldb_columns.py::test_nfc_nfd_distinct_on_both_backends[postgres]
+ERROR packages/evaldb/tests/test_evaldb_columns.py::test_key_column_rejects_nul_and_lone_surrogates[postgres]
+ERROR packages/evaldb/tests/test_evaldb_columns.py::test_doc_column_round_trips_text_exactly[postgres]
+ERROR packages/evaldb/tests/test_evaldb_columns.py::test_sha256_column_is_32_byte_blob[postgres]
+ERROR packages/evaldb/tests/test_evaldb_engine.py::test_postgres_session_timezone_is_utc
+ERROR packages/evaldb/tests/test_evaldb_engine.py::test_postgres_non_utf8_database_refused
+ERROR packages/evaldb/tests/test_evaldb_engine.py::test_database_url_never_echoed_in_errors_or_logs[postgres]
+====================== 44 deselected, 16 errors in 0.08s =======================
+exit code: 1
+
+# without the URL
+ERROR: tests marked 'postgres' are selected but TRACER_TEST_POSTGRES_URL is not set; set it or deselect them with -m 'not postgres' (see docs/phase2/api-surface-batch-a.md)
+
+============================= test session starts ==============================
+platform darwin -- Python 3.14.7, pytest-9.1.1, pluggy-1.7.0
+rootdir: <scratch>/redbase
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, platformdirs-4.13.5
+collected 60 items / 44 deselected / 16 selected
+
+============================ 44 deselected in 0.06s ============================
+exit code: 4

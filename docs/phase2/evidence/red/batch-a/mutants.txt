@@ -1,0 +1,209 @@
+# Mutants of the oracle (scratch tracer_evaldb + scratch repo files), batch A. Each line group: one change made to the
+# oracle, then packages/evaldb/tests run (SQLite side on the stated Python; "pg" = the postgres-marked cases against a
+# throwaway postgres:18 container). CAUGHT = at least one test fails and is listed. 59 mutants, 56 caught.
+# Three are not CAUGHT, and each is explained:
+#  E2   SURVIVED, an equivalent mutant: with the explicit BEGIN event kept, dropping isolation_level=None changes nothing
+#       observable (sqlite3 sees the connection already inside a transaction). E2b and E2c remove the BEGIN event and are caught.
+#  C5p  SURVIVED, an equivalent mutant while the session time zone is UTC: pg8000 returns UTC-aware values, so the
+#       astimezone(UTC) on read changes nothing. Killing it would need a session time zone that is not UTC, which E7 covers.
+#  P1   DID-NOT-RUN is the expected outcome and counts as caught: without "not postgres" in addopts the default command line
+#       selects postgres cases, TRACER_TEST_POSTGRES_URL is unset, and pytest ends with the usage error (exit code 4).
+E1 [CAUGHT] py3.14 sqlite: sqlite: PRAGMA foreign_keys not set
+    summary: ================= 2 failed, 42 passed, 16 deselected in 1.90s ==================
+    test_evaldb_engine.py::test_sqlite_connections_enforce_foreign_keys
+    test_evaldb_engine.py::test_sqlite_orphan_insert_rejected
+E2 [SURVIVED] py3.11 sqlite: sqlite: no isolation_level=None and no BEGIN event (naive pysqlite transactions)
+    summary: ====================== 44 passed, 16 deselected in 1.70s =======================
+E2c [CAUGHT] py3.11 sqlite: sqlite: BEGIN event removed (isolation_level=None only), 3.11
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.65s ==================
+    test_evaldb_engine.py::test_sqlite_rollback_is_real_on_every_python
+E2b [CAUGHT] py3.14 sqlite: sqlite: BEGIN event removed (isolation_level=None only), 3.14
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.86s ==================
+    test_evaldb_engine.py::test_sqlite_rollback_is_real_on_every_python
+E3 [CAUGHT] py3.14 sqlite: sqlite: busy_timeout not set
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.87s ==================
+    test_evaldb_engine.py::test_sqlite_busy_timeout_is_configured
+E4 [CAUGHT] py3.14 sqlite: sqlite: version check removed
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.85s ==================
+    test_evaldb_engine.py::test_sqlite_version_at_least_3_37
+E5 [CAUGHT] py3.14 sqlite: connection error echoes the URL host
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.84s ==================
+    test_evaldb_engine.py::test_database_url_never_echoed_in_errors_or_logs[sqlite]
+E6 [CAUGHT] py3.14 sqlite: connection error keeps the original exception chained
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.85s ==================
+    test_evaldb_engine.py::test_database_url_never_echoed_in_errors_or_logs[sqlite]
+E7 [CAUGHT] py3.14 pg: postgres: session time zone not set to UTC
+    summary: ================= 3 failed, 13 passed, 44 deselected in 0.79s ==================
+    test_evaldb_columns.py::test_instant_round_trip_edges[postgres]
+    test_evaldb_columns.py::test_instant_round_trip_under_non_utc_server_timezone[postgres]
+    test_evaldb_engine.py::test_postgres_session_timezone_is_utc
+E8 [CAUGHT] py3.14 pg: postgres: server_encoding check removed
+    summary: ================= 1 failed, 15 passed, 44 deselected in 0.84s ==================
+    test_evaldb_engine.py::test_postgres_non_utf8_database_refused
+E9 [CAUGHT] py3.14 sqlite: malformed URL error echoes the URL text
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.93s ==================
+    test_evaldb_engine.py::test_database_url_never_echoed_in_errors_or_logs[sqlite]
+C1 [CAUGHT] py3.14 sqlite: UuidCol: sqlite stores the hex text (not a 16 byte BLOB)
+    summary: ================= 3 failed, 41 passed, 16 deselected in 1.83s ==================
+    test_evaldb_columns.py::test_uuid_column_native_on_postgres_blob16_on_sqlite[sqlite]
+    test_evaldb_columns.py::test_uuid_column_sorts_in_v7_time_order[sqlite]
+    test_evaldb_columns.py::test_uuid_v7_check_rejects_other_versions[sqlite]
+C2 [CAUGHT] py3.14 sqlite: no CHECK constraints are attached (v7, sha256, bool)
+    summary: ================= 3 failed, 41 passed, 16 deselected in 1.81s ==================
+    test_evaldb_columns.py::test_bool_tristate_null_never_false[sqlite]
+    test_evaldb_columns.py::test_sha256_column_is_32_byte_blob[sqlite]
+    test_evaldb_columns.py::test_uuid_v7_check_rejects_other_versions[sqlite]
+C2p [CAUGHT] py3.14 pg: same mutant on postgres
+    summary: ================= 2 failed, 14 passed, 44 deselected in 0.79s ==================
+    test_evaldb_columns.py::test_sha256_column_is_32_byte_blob[postgres]
+    test_evaldb_columns.py::test_uuid_v7_check_rejects_other_versions[postgres]
+C3 [CAUGHT] py3.14 sqlite: InstantCol: sqlite text year not zero padded (glibc strftime lesson)
+    summary: ================= 3 failed, 41 passed, 16 deselected in 1.90s ==================
+    test_evaldb_columns.py::test_instant_round_trip_edges[sqlite]
+    test_evaldb_columns.py::test_instant_round_trip_under_non_utc_server_timezone[sqlite]
+    test_evaldb_columns.py::test_sqlite_instant_text_sorts_chronologically
+C4 [CAUGHT] py3.14 sqlite: InstantCol: naive datetimes accepted
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.89s ==================
+    test_evaldb_columns.py::test_instant_round_trip_edges[sqlite]
+C5 [CAUGHT] py3.14 sqlite: InstantCol: offset input stored without conversion to UTC
+    summary: ================= 3 failed, 41 passed, 16 deselected in 1.86s ==================
+    test_evaldb_columns.py::test_instant_round_trip_edges[sqlite]
+    test_evaldb_columns.py::test_instant_round_trip_under_non_utc_server_timezone[sqlite]
+    test_evaldb_columns.py::test_sqlite_instant_text_sorts_chronologically
+C5p [SURVIVED] py3.14 pg: InstantCol: postgres value not converted to UTC
+    summary: ====================== 16 passed, 44 deselected in 0.87s =======================
+C6 [CAUGHT] py3.14 sqlite: DecimalCol: sqlite stores through float
+    summary: ================= 2 failed, 42 passed, 16 deselected in 1.88s ==================
+    test_evaldb_columns.py::test_decimal_round_trip_exact[sqlite]
+    test_evaldb_columns.py::test_sqlite_decimal_stored_as_text
+C7 [CAUGHT] py3.14 sqlite: DecimalCol: sqlite column is NUMERIC (affinity coercion)
+    summary: ================= 2 failed, 42 passed, 16 deselected in 1.87s ==================
+    test_evaldb_columns.py::test_decimal_round_trip_exact[sqlite]
+    test_evaldb_columns.py::test_sqlite_decimal_stored_as_text
+C7p [CAUGHT] py3.14 pg: DecimalCol: postgres column is NUMERIC(12, 2)
+    summary: ================= 1 failed, 15 passed, 44 deselected in 0.85s ==================
+    test_evaldb_columns.py::test_decimal_round_trip_exact[postgres]
+C8 [CAUGHT] py3.14 pg: KeyCol: postgres default collation instead of C
+    summary: ================= 1 failed, 15 passed, 44 deselected in 0.87s ==================
+    test_evaldb_columns.py::test_key_column_order_parity[postgres]
+C9 [CAUGHT] py3.14 sqlite: BoolCol: None stored as false
+    summary: ================= 1 failed, 43 passed, 16 deselected in 2.00s ==================
+    test_evaldb_columns.py::test_bool_tristate_null_never_false[sqlite]
+C10 [CAUGHT] py3.14 sqlite: Sha256Col: length not checked at bind
+    summary: ================= 1 failed, 43 passed, 16 deselected in 2.01s ==================
+    test_evaldb_columns.py::test_sha256_column_is_32_byte_blob[sqlite]
+C11 [CAUGHT] py3.14 sqlite: DocCol: raw U+0000 accepted
+    summary: ================= 2 failed, 42 passed, 16 deselected in 1.72s ==================
+    test_evaldb_columns.py::test_doc_column_round_trips_text_exactly[sqlite]
+    test_evaldb_columns.py::test_key_column_rejects_nul_and_lone_surrogates[sqlite]
+C12 [CAUGHT] py3.14 sqlite: package imports yaml (not in the closure)
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.61s ==================
+    test_evaldb_scaffold.py::test_evaldb_runtime_imports_whitelist
+C13 [CAUGHT] py3.14 sqlite: package names sqlalchemy DateTime
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.74s ==================
+    test_evaldb_columns.py::test_no_sqlalchemy_datetime_columns
+C14 [CAUGHT] py3.14 sqlite: package imports pg8000 at module level
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.63s ==================
+    test_evaldb_scaffold.py::test_evaldb_runtime_imports_whitelist
+T1 [CAUGHT] py3.14 sqlite: conftest: no usage error for postgres tests without URL (skip instead)
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.52s ==================
+    test_evaldb_ci.py::test_postgres_marker_without_url_is_usage_error
+R1 [CAUGHT] py3.14 sqlite: ci: matrix lacks (3.14, 15)
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.72s ==================
+    test_evaldb_ci.py::test_ci_postgres_job_matrix_and_pinned_image
+R2 [CAUGHT] py3.14 sqlite: ci: one image without a digest
+    summary: ================= 1 failed, 43 passed, 16 deselected in 2.30s ==================
+    test_evaldb_ci.py::test_ci_postgres_job_matrix_and_pinned_image
+R3 [CAUGHT] py3.14 sqlite: ci: literal Postgres password
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.75s ==================
+    test_evaldb_ci.py::test_ci_postgres_password_not_literal
+R4 [CAUGHT] py3.14 sqlite: ci: password written to GITHUB_ENV before masking
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.74s ==================
+    test_evaldb_ci.py::test_ci_postgres_password_not_literal
+R5 [CAUGHT] py3.14 sqlite: ci: 3.15 Postgres job is required
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.72s ==================
+    test_evaldb_ci.py::test_ci_postgres_job_matrix_and_pinned_image
+R6 [CAUGHT] py3.14 sqlite: ci: trust authentication
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.73s ==================
+    test_evaldb_ci.py::test_ci_postgres_password_not_literal
+R7 [CAUGHT] py3.14 sqlite: ci: lower bound leg without --resolution lowest-direct
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.73s ==================
+    test_evaldb_ci.py::test_ci_lower_bound_leg_for_evaldb_ranges
+R8 [CAUGHT] py3.14 sqlite: ci: licence job does not build the evaldb wheel
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.72s ==================
+    test_evaldb_ci.py::test_ci_sqlite_runs_on_every_python_leg
+R9 [CAUGHT] py3.14 sqlite: ci: Postgres job has no readiness wait
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.76s ==================
+    test_evaldb_ci.py::test_ci_postgres_job_matrix_and_pinned_image
+R10 [CAUGHT] py3.14 sqlite: ci: no SQL_ASCII database
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.72s ==================
+    test_evaldb_ci.py::test_ci_postgres_job_matrix_and_pinned_image
+P1 [DID-NOT-RUN] py3.14 sqlite: pyproject: addopts does not deselect postgres
+    summary: ?
+P2 [CAUGHT] py3.14 sqlite: pyproject: evaldb tests not in testpaths
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.77s ==================
+    test_evaldb_ci.py::test_ci_sqlite_runs_on_every_python_leg
+P3 [CAUGHT] py3.14 sqlite: pyproject: mypy files omit evaldb
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.71s ==================
+    test_evaldb_scaffold.py::test_evaldb_scaffold_files_and_repo_config
+P4 [CAUGHT] py3.14 sqlite: pyproject: marker not registered
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.73s ==================
+    test_evaldb_ci.py::test_ci_sqlite_runs_on_every_python_leg
+W1 [CAUGHT] py3.14 sqlite: evaldb pyproject: exact pin sqlalchemy==2.1.6
+    summary: ================= 2 failed, 42 passed, 16 deselected in 1.67s ==================
+    test_evaldb_licenses.py::test_check_licenses_covers_both_packages
+    test_evaldb_scaffold.py::test_evaldb_requires_dist_bounded_ranges
+W2 [CAUGHT] py3.14 sqlite: evaldb pyproject: alembic without upper bound
+    summary: ================= 2 failed, 42 passed, 16 deselected in 1.64s ==================
+    test_evaldb_licenses.py::test_check_licenses_covers_both_packages
+    test_evaldb_scaffold.py::test_evaldb_requires_dist_bounded_ranges
+W3 [CAUGHT] py3.14 sqlite: evaldb pyproject: evalschema as a range
+    summary: ================= 2 failed, 42 passed, 16 deselected in 1.64s ==================
+    test_evaldb_licenses.py::test_check_licenses_covers_both_packages
+    test_evaldb_scaffold.py::test_evaldb_requires_dist_bounded_ranges
+W4 [CAUGHT] py3.14 sqlite: evaldb pyproject: pg8000 upper bound is not the next major
+    summary: ================= 2 failed, 42 passed, 16 deselected in 1.64s ==================
+    test_evaldb_licenses.py::test_check_licenses_covers_both_packages
+    test_evaldb_scaffold.py::test_evaldb_requires_dist_bounded_ranges
+W5 [CAUGHT] py3.14 sqlite: wheel ships the tests
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.72s ==================
+    test_evaldb_scaffold.py::test_evaldb_wheel_contains_migrations_and_no_tests
+W6 [CAUGHT] py3.14 sqlite: wheel lacks migrations/env.py
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.78s ==================
+    test_evaldb_scaffold.py::test_evaldb_wheel_contains_migrations_and_no_tests
+W7 [CAUGHT] py3.14 sqlite: evalschema source changed after the baseline
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.75s ==================
+    test_evaldb_scaffold.py::test_evalschema_unchanged_since_phase1_gate
+W8 [CAUGHT] py3.14 sqlite: evalschema imports sqlalchemy
+    summary: ================= 2 failed, 42 passed, 16 deselected in 1.63s ==================
+    test_evaldb_scaffold.py::test_evalschema_does_not_import_evaldb
+    test_evaldb_scaffold.py::test_evalschema_unchanged_since_phase1_gate
+W9 [CAUGHT] py3.14 sqlite: evalschema policy closure gains greenlet
+    summary: ================= 3 failed, 41 passed, 16 deselected in 1.34s ==================
+    test_evaldb_licenses.py::test_check_licenses_covers_both_packages
+    test_evaldb_licenses.py::test_license_policy_lists_evaldb_closure
+    test_evaldb_scaffold.py::test_evalschema_runtime_closure_unchanged_by_evaldb
+L1 [CAUGHT] py3.14 sqlite: policy: evaldb closure lacks mako
+    summary: ================= 2 failed, 42 passed, 16 deselected in 1.36s ==================
+    test_evaldb_licenses.py::test_check_licenses_covers_both_packages
+    test_evaldb_licenses.py::test_license_policy_lists_evaldb_closure
+L2 [CAUGHT] py3.14 sqlite: policy: tzdata dropped from the postgres extra
+    summary: ================= 2 failed, 42 passed, 16 deselected in 1.36s ==================
+    test_evaldb_licenses.py::test_check_licenses_covers_both_packages
+    test_evaldb_licenses.py::test_license_policy_lists_evaldb_closure
+L3 [CAUGHT] py3.14 sqlite: policy: psycopg rejection not recorded
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.75s ==================
+    test_evaldb_licenses.py::test_license_policy_lists_evaldb_closure
+L4 [CAUGHT] py3.14 sqlite: policy: pg8000 override pinned to a wrong hash
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.39s ==================
+    test_evaldb_licenses.py::test_check_licenses_covers_both_packages
+L5 [CAUGHT] py3.14 sqlite: policy: evaldb requires_dist lists an unbounded range
+    summary: ================= 2 failed, 42 passed, 16 deselected in 1.62s ==================
+    test_evaldb_licenses.py::test_check_licenses_covers_both_packages
+    test_evaldb_scaffold.py::test_evaldb_requires_dist_bounded_ranges
+L6 [CAUGHT] py3.14 sqlite: check_licenses.py: evaldb closure check removed
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.49s ==================
+    test_evaldb_licenses.py::test_check_licenses_covers_both_packages
+L7 [CAUGHT] py3.14 sqlite: check_licenses.py: artifact check ignores the evaldb policy
+    summary: ================= 1 failed, 43 passed, 16 deselected in 1.70s ==================
+    test_evaldb_licenses.py::test_check_licenses_covers_both_packages
