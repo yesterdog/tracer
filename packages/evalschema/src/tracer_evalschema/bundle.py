@@ -136,6 +136,7 @@ from tracer_evalschema.privacy import (
 )
 from tracer_evalschema.profile import TestProfile
 from tracer_evalschema.results import (
+    _RUN_LEVEL_NA_REASONS,
     Applicability,
     MetricResult,
     applicability,
@@ -872,9 +873,10 @@ def _check_declaration(bundle: RunBundle, present: set[TypedId]) -> None:
             )
 
 
-_RUN_LEVEL_REASONS: Final = ("missing_input", "agent_channel_unknown")
+_RUN_LEVEL_REASONS: Final = _RUN_LEVEL_NA_REASONS
 """The not-applicable reasons decided from the run alone, before any language step (ADR 0004
-Decisions 3 to 5)."""
+Decisions 3 to 5). An alias of ``results._RUN_LEVEL_NA_REASONS``, the one definition, kept under
+this name because tests and evidence cite ``bundle._RUN_LEVEL_REASONS``."""
 _TRANSCRIPT_KINDS: Final = ("transcript", "agent_transcript")
 _LANGUAGE_RECORD_KINDS: Final = frozenset({"transcript", "turn"})
 """Withheld kinds that take away what the language steps read, so those steps cannot be re-run."""

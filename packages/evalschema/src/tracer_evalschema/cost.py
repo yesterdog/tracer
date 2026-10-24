@@ -1302,7 +1302,13 @@ def import_reported_cost(
     currency (``api_contract``), else ``currency_not_reported``. (4) Only a USD amount is parsed:
     canonical, lexically normalized (``decimal_normalized``) or ``amount_unparseable``. (5) Each
     warning carries ``currency_source_path`` or ``amount_source_path`` for its field, as passed
-    (N69, N74). Warnings follow the order of these steps (N75).
+    (N69, N74); a lone surrogate in a passed path is replaced by U+FFFD before any warning is
+    built, with no warning of its own, because a path is a locator, not data (N83). Warnings
+    follow the order of these steps (N75).
+
+    Raises ``ValueError`` for a cited contract whose ``currency`` is blank or holds a lone
+    surrogate (mapping configuration, linted at P1-35; the value is never echoed, N83); an
+    uncited contract is never read.
     """
     warnings: list[IngestWarning] = []
 
@@ -1331,6 +1337,13 @@ def import_reported_cost(
         raise TypeError("amount_raw is the source lexeme as text (never a parsed number)")
     if currency_raw is not None and not isinstance(currency_raw, str):
         raise TypeError("currency_raw is the currency label as text, or None when none was sent")
+
+    # N83: a path is a locator, not data: lone surrogates are replaced (U+FFFD, one for one) before
+    # any warning is built, and no extra warning is recorded for them
+    if currency_source_path is not None:
+        currency_source_path = replace_lone_surrogates(currency_source_path)
+    if amount_source_path is not None:
+        amount_source_path = replace_lone_surrogates(amount_source_path)
 
     # step 0 (N82): never raise on the text of the source; replace lone surrogates and flag them
     label_damaged = currency_raw is not None and (
@@ -1361,6 +1374,12 @@ def import_reported_cost(
     cited = contract if _is_cited(contract) else None
     if cited is not None and _is_blank_label(cited.currency):
         raise ValueError("a cited contract states a currency code (contract.currency is blank)")
+    if cited is not None and replace_lone_surrogates(cited.currency) != cited.currency:
+        # N83: mapping configuration, not source text (P1-35 lint); the value is never echoed
+        raise ValueError(
+            "a cited contract states its currency code as valid Unicode text "
+            "(contract.currency holds a lone surrogate)"
+        )
     contract_usd = cited is not None and normalize_currency_label(cited.currency) == _USD
     has_label = currency_raw is not None and not _is_blank_label(currency_raw)
 
