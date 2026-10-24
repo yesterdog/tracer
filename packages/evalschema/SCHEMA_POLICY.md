@@ -240,6 +240,10 @@ extrapolate.
   (ADR 0004 Decisions 2, 2a).
 - Importers never fill a field by guessing: an absent source value stays absent (or uses the
   explicit `unknown` member of a closed set) with an ingest warning (ADR 0018 Decision 2).
+- A result that is `not_applicable` for a run-level reason (`missing_input`,
+  `agent_channel_unknown`) read no turn, so it carries no `per_turn` summary; the model and the
+  JSON Schema reject one (ADR 0010 Decision 3). A per-turn result whose turns were all not
+  applicable for a language reason keeps its summary.
 
 ### 4.1 Bundle checks: every result is re-checked against its run (ADR 0004 Decision 9)
 
@@ -262,14 +266,28 @@ observed language where none was observed, does not load.
   an error is for a metric whose inputs existed. Its language provenance is compared.
 - **Agent turns.** A run that lists `agent_transcript` and whose bundle holds turns has at least
   one agent turn, unless a turn is declared withheld.
+- **A score needs turns (T-B13).** A `scored` result of a metric that reads transcripts
+  (`requires` names `transcript` or `agent_transcript`) must have read at least one turn (an
+  agent turn for `agent_transcript`). An empty call, a transcript without turns, or
+  `transcript_ids` naming only a transcript without agent turns makes such a result a score over
+  nothing, rejected at the field `status`. `not_applicable` and `error` results claim nothing
+  and are not judged by this rule.
+- **Per-turn counts (T-B16).** A `per_turn` summary's `total_turns` must equal the number of
+  turns the result read and its `counts.not_applicable` the number of those turns that are not
+  applicable on their own (fields `per_turn.total_turns` and `per_turn.counts.not_applicable`,
+  checked after the five fields above, `total_turns` first). `passed`, `failed` and
+  `undetermined` are the scorer's or the judge's answers and are not recomputed.
 - **Withheld records.** With a transcript or turn declared withheld the language steps cannot be
-  re-run, so only the run-level reasons are judged and the language outcome is accepted as
-  stored; the same holds for a per-turn metric that reads no turn. Other withheld kinds take
-  nothing away.
-- **Not re-checked.** The value itself, the per-turn counts against the turns, and whether an
-  `agent_transcript` metric named a transcript that has agent turns. The message names the
-  result's ID, its position `results[<index>]` and the first field that differs; it never
-  quotes a text, a tag or a reason value.
+  re-run, so only the run-level reasons are judged, the language outcome is accepted as stored,
+  and neither the turn rule nor the counts run for any result of that bundle. For a per-turn
+  metric that reads no turn the run-level reasons are compared, and a stored summary is rejected
+  (a summary counts at least one turn). Other withheld kinds take nothing away. A sealed
+  `transcript_text` replaces turns, so the run bundle must declare those turns withheld
+  (section 9).
+- **Not re-checked.** The value itself; the split of the counted turns into `passed`, `failed`
+  and `undetermined` (a tally of `JudgeInfo.per_turn` against it waits for the judge record
+  format). The message names the result's ID, its position `results[<index>]` and the first
+  field that differs; it never quotes a text, a tag or a reason value.
 
 The JSON Schema cannot express any of this (it reads several records); it is part of the
 register row `CO-BUNDLE-CROSS-RECORD`.
@@ -417,8 +435,10 @@ register row `CO-BUNDLE-CROSS-RECORD`.
 - **Other export rules.** Every export purpose rejects a run carrying `caller_external_id`; the
   exporter strips it. `shared_export` and `benchmark` reject artifact URIs with the `file:` scheme
   or a loopback host, embedded test profiles in the clear (a profile travels only as a sealed
-  payload) and a `DatasetItem.source_run_id` that names no run of the export (the exporter drops
-  it and records a `ProvenanceRedaction`).
+  payload), a `LanguageDeclaration.declared_by` on any transcript (`[declared_by]`: it names who
+  declared the language; the exporter drops it, and the rest of the declaration stays; ADR 0016
+  Decision 6a) and a `DatasetItem.source_run_id` that names no run of the export (the exporter
+  drops it and records a `ProvenanceRedaction`). An `internal` export keeps `declared_by`.
 - **Retention.** The marker carries the policy (`retain_until`, `policy_ref`,
   `delete_on_expiry`). Nothing in 0.0.1 deletes data; enforcement is Phase 2 or later work.
 - **The schema does not redact.** A `RedactionRecord` is an assertion by a tool (`tool_ref`); the
@@ -426,8 +446,9 @@ register row `CO-BUNDLE-CROSS-RECORD`.
   why benchmarks also need consent.
 - **No export builder in 0.0.1.** The package validates exports; it does not build them (finding
   B19, deferred). Whoever writes an `ExportBundle` performs the transformations above (dropping
-  or keying digests, stripping caller identifiers, sealing, dropping unresolved `source_run_id`
-  values) and must validate the result with the models.
+  or keying digests, stripping caller identifiers, dropping `declared_by` for a shared or
+  benchmark export, sealing and declaring the replaced turns withheld, dropping unresolved
+  `source_run_id` values) and must validate the result with the models.
 
 ## 9. Sealing (ADR 0015)
 
@@ -463,7 +484,9 @@ register row `CO-BUNDLE-CROSS-RECORD`.
   their input in validation errors (section 11).
 - **What a sealed payload replaces.** The metadata record of the subject stays in the export. A
   sealed `transcript_text` replaces the transcript's turns, which are then absent and declared
-  withheld. A sealed `tool_arguments` or `tool_result` payload protects only when the clear fields
+  withheld. The declaration is required in practice: without it the embedded run bundle holds
+  scored transcript results that read no turn, and its `[applicability]` rule rejects it
+  (section 4.1). A sealed `tool_arguments` or `tool_result` payload protects only when the clear fields
   (`arguments_raw`, `arguments`; `result_raw`) are absent.
 - **Exporter duty: the artifact `uri`.** When an exporter seals the audio of an artifact, it
   **replaces the artifact's `uri` with the location of the sealed copy**. The original `uri`

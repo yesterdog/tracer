@@ -673,12 +673,19 @@ A user's declaration of the language of an untagged import (N14, ADR 0004 Decisi
 Never an observation: it fills no observed field, script-sensitive metrics never use it, and
 every result that uses it says so (``language_source=declared``).
 
+``language``, ``source`` and ``declared_at`` are required. ``declared_by`` (who declared it, a
+machine key without ``@``) is optional (N19, ADR 0004 Decision 6g): ``None`` (absent and
+``null`` are the same) says nothing about the declarer, and a present value is validated as
+before. A shared or benchmark ``ExportBundle`` holds no ``declared_by`` (``[declared_by]``,
+``bundle.check_export_bundle``); an internal export, a bare ``RunBundle`` and a bare
+``Transcript`` may keep it.
+
 ### Fields
 
 | Field | Required | Type and constraints | Default | Notes |
 | --- | --- | --- | --- | --- |
 | `declared_at` | yes | `string` (pattern of 129 characters (see the schema file); format `date-time`) |  |  |
-| `declared_by` | yes | `string` (pattern `^[A-Za-z0-9][A-Za-z0-9._:/+-]{0,255}$`) |  |  |
+| `declared_by` | no | `string` (pattern `^[A-Za-z0-9][A-Za-z0-9._:/+-]{0,255}$`) or `null` | `null` |  |
 | `language` | yes | `string` (pattern of 122 characters (see the schema file)) |  |  |
 | `source` | yes | one of `"user_declared"` |  |  |
 

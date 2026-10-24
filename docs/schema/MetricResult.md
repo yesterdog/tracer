@@ -5,7 +5,7 @@
 - Schema file: `MetricResult.schema.json` (package data `tracer_evalschema/schemas/`)
 - `$id`: `urn:tracer:evalschema:0.0.1:MetricResult`
 - Schema version: `0.0.1`
-- SHA-256 of the schema file (as in `schema.lock`): `8a741b7c7b37a7aa7800ce481ccdd405f0a4cc4b8b3a0b438c6906ff184abc7d`
+- SHA-256 of the schema file (as in `schema.lock`): `00a4f0e55eaad9f4e20f798f5ccbe1ab706a6d28f9042f0cd71edfe9eea3f166`
 - ID prefix: `res`
 - Versioned (has `version`): no
 
@@ -25,7 +25,10 @@ Rules on the result alone (each reported at the field it is about):
   no counted turn, an undetermined turn and ``error.code=judge_undetermined`` (P-56);
 - ``declared_language_transcript_ids`` non-empty if and only if ``language_source=declared``;
 - ``language_source`` is absent when the language steps did not run (``missing_input``,
-  ``agent_channel_unknown``).
+  ``agent_channel_unknown``);
+- ``per_turn`` is absent with those two run-level reasons too: no turn was read, so there are
+  no turn counts (A-C6; a ``per_turn`` summary belongs to a result whose metric ran or whose
+  read turns were all not applicable).
 
 ``transcript_ids`` (optional, additive in 0.0.1) names the transcripts the result read (ADR
 0004 Decision 6d): ``None`` (absent and ``null`` are the same) lets a bundle derive them; a
@@ -355,6 +358,9 @@ The schema states these conditional rules as `allOf` of `if`/`then` (copied verb
     "then": {
       "properties": {
         "language_source": {
+          "type": "null"
+        },
+        "per_turn": {
           "type": "null"
         }
       }

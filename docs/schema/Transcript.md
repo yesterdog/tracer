@@ -5,7 +5,7 @@
 - Schema file: `Transcript.schema.json` (package data `tracer_evalschema/schemas/`)
 - `$id`: `urn:tracer:evalschema:0.0.1:Transcript`
 - Schema version: `0.0.1`
-- SHA-256 of the schema file (as in `schema.lock`): `30be34f0cf71e2c07253e3e971629a2fffc284d4d70a194dfb28112f8bd417bc`
+- SHA-256 of the schema file (as in `schema.lock`): `0e0da7f36feb1d633731f873a0fd0fb1c9481f8316926d42596a460c3021d801`
 - ID prefix: `tsc`
 - Versioned (has `version`): no
 

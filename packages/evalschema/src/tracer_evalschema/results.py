@@ -98,6 +98,9 @@ NA_REASON_PRECEDENCE: Final = (
 )
 """The not-applicable reasons in the order of ADR 0004 Decision 4: the first that applies wins."""
 NA_REASONS: Final = NA_REASON_PRECEDENCE
+_RUN_LEVEL_NA_REASONS: Final = ("missing_input", "agent_channel_unknown")
+"""The reasons decided from the run alone, before any language step or turn is read (ADR 0004
+Decisions 3 to 5): a result with one of them has no ``language_source`` and no ``per_turn``."""
 LANGUAGE_SOURCES: Final = ("observed", "declared")
 JUDGE_VERDICTS: Final = ("yes", "no", "undetermined")
 SCORER_KINDS: Final = ("deterministic", "audio", "latency")
@@ -407,12 +410,13 @@ def _result_conditions(schema: dict[str, Any]) -> None:
             "else": {"properties": {"declared_language_transcript_ids": _NO_ITEMS}},
         },
         {
-            # missing_input and agent_channel_unknown are decided before the language steps.
+            # missing_input and agent_channel_unknown are decided before the language steps and
+            # before any turn is read: no language_source and no per_turn summary (A-C6).
             "if": {
-                "properties": {"na_reason": {"enum": ["missing_input", "agent_channel_unknown"]}},
+                "properties": {"na_reason": {"enum": list(_RUN_LEVEL_NA_REASONS)}},
                 "required": ["na_reason"],
             },
-            "then": {"properties": {"language_source": _NULL}},
+            "then": {"properties": {"language_source": _NULL, "per_turn": _NULL}},
         },
     ]
     schema["allOf"] = copy.deepcopy(rules)  # no node is shared between rules or calls
@@ -433,7 +437,10 @@ class MetricResult(HidingModel, EntityBase):
       no counted turn, an undetermined turn and ``error.code=judge_undetermined`` (P-56);
     - ``declared_language_transcript_ids`` non-empty if and only if ``language_source=declared``;
     - ``language_source`` is absent when the language steps did not run (``missing_input``,
-      ``agent_channel_unknown``).
+      ``agent_channel_unknown``);
+    - ``per_turn`` is absent with those two run-level reasons too: no turn was read, so there are
+      no turn counts (A-C6; a ``per_turn`` summary belongs to a result whose metric ran or whose
+      read turns were all not applicable).
 
     ``transcript_ids`` (optional, additive in 0.0.1) names the transcripts the result read (ADR
     0004 Decision 6d): ``None`` (absent and ``null`` are the same) lets a bundle derive them; a
@@ -515,14 +522,19 @@ class MetricResult(HidingModel, EntityBase):
                 "declared_language_transcript_ids are listed if and only if "
                 "language_source=declared",
             )
-        if self.na_reason in ("missing_input", "agent_channel_unknown") and (
-            self.language_source is not None
-        ):
-            problem(
-                "language_source",
-                f"na_reason={self.na_reason} is decided before the language steps, so there is "
-                "no language_source",
-            )
+        if self.na_reason in _RUN_LEVEL_NA_REASONS:
+            if self.language_source is not None:
+                problem(
+                    "language_source",
+                    f"na_reason={self.na_reason} is decided before the language steps, so there "
+                    "is no language_source",
+                )
+            if self.per_turn is not None:
+                problem(
+                    "per_turn",
+                    f"na_reason={self.na_reason} is a run-level reason, decided from the run "
+                    "before any turn is read, so there is no per_turn summary",
+                )
         raise_problems(type(self).__name__, problems)
         return self
 

@@ -57,7 +57,20 @@ transcripts or is language dependent) and their turns limited by role (ADR 0004 
 rejects any difference in the status class, ``na_reason``, ``missing_kinds``, ``language_source``
 or ``declared_language_transcript_ids``, naming the result's ID, its position ``results[<i>]`` and
 the first field that differs. A run that lists ``agent_transcript`` and holds turns has an agent
-turn (T-A4). A withheld transcript or turn leaves only the run-level reasons to judge (B22).
+turn (T-A4). A scored result of a metric that reads transcripts has read at least one turn (an
+agent turn for ``agent_transcript``; T-B13, field ``status``), and a ``per_turn`` summary's
+``total_turns`` and ``counts.not_applicable`` equal the turns read and those of them not
+applicable on their own (T-B16, fields ``per_turn.total_turns`` and
+``per_turn.counts.not_applicable``, after the five). A withheld transcript or turn leaves only the
+run-level reasons to judge (B22).
+
+Shared and benchmark exports
+----------------------------
+Besides the rules every export runs, a ``shared_export`` or ``benchmark`` ``ExportBundle`` holds
+no test profile in the clear (``[profile]``), no ``LanguageDeclaration.declared_by`` in any
+embedded transcript (``[declared_by]``, N19), only keyed profile digests (``[profile_digest]``),
+no ``file:`` or loopback artifact URI (``[uri]``), no ``source_run_id`` that names no run of the
+export (``[source_run]``), and protects human-subject payloads (``[unprotected]``, ``[consent]``).
 
 The functions hold no module-level mutable state; the rules read their arguments only.
 """
@@ -876,14 +889,17 @@ def _applicability_error(position: int, result: MetricResult, field: str) -> Val
     )
 
 
+def _reads_transcripts(definition: MetricDefinition) -> bool:
+    """The metric reads transcripts: its ``requires`` names ``transcript`` or
+    ``agent_transcript``."""
+    return any(kind in _TRANSCRIPT_KINDS for kind in definition.requires)
+
+
 def _needs_transcript_ids(definition: MetricDefinition) -> bool:
     """T-A3: the metric reads transcripts (``requires`` names a transcript kind) or depends on a
     language (its language may come from a transcript, ADR 0004 Decision 6d). Decided on the
     definition, never on the stored outcome."""
-    return (
-        any(kind in _TRANSCRIPT_KINDS for kind in definition.requires)
-        or definition.languages != LANGUAGE_INDEPENDENT
-    )
+    return _reads_transcripts(definition) or definition.languages != LANGUAGE_INDEPENDENT
 
 
 def _transcripts_read(
@@ -929,17 +945,21 @@ def _run_level_answer(definition: MetricDefinition, run: Run) -> Applicability |
     return answer if answer.na_reason in _RUN_LEVEL_REASONS else None
 
 
-def _per_turn_answer(
+def _turn_answers(
     definition: MetricDefinition, run: Run, turns: Sequence[Turn], transcripts: Sequence[Transcript]
-) -> Applicability:
-    """A ``per_turn_share`` metric with no run-level reason and at least one read turn: the
-    language steps on each turn on its own (ADR 0004 Decision 6e, ADR 0010 Decision 3). Scored
-    when any turn applies, else the strongest of the turns' reasons. ``declared`` if any turn used
-    a declaration, else ``observed`` if any turn had an effective language (also a turn that was
-    then not applicable); the declared transcripts are the sorted union."""
-    answers = [
-        applicability(definition, run, turns=[turn], transcripts=transcripts) for turn in turns
-    ]
+) -> list[Applicability]:
+    """A ``per_turn_share`` metric with no run-level reason: ``applicability`` over each read turn
+    on its own, with the transcripts the result read (ADR 0004 Decision 6e, ADR 0010 Decision 3),
+    in the order of ``turns``. Computed once per result; both the language outcome
+    (``_per_turn_answer``) and the counts (``_compare_counts``) read it."""
+    return [applicability(definition, run, turns=[turn], transcripts=transcripts) for turn in turns]
+
+
+def _per_turn_answer(answers: Sequence[Applicability]) -> Applicability:
+    """The outcome of a ``per_turn_share`` metric from the answers of its read turns (at least
+    one): scored when any turn applies, else the strongest of the turns' reasons. ``declared`` if
+    any turn used a declaration, else ``observed`` if any turn had an effective language (also a
+    turn that was then not applicable); the declared transcripts are the sorted union."""
     reasons = [answer.na_reason for answer in answers]
     reason = None
     if None not in reasons:
@@ -981,6 +1001,32 @@ def _compare_applicability(position: int, result: MetricResult, expected: Applic
         raise _applicability_error(position, result, "declared_language_transcript_ids")
 
 
+def _not_applicable_turns(answers: Iterable[Applicability]) -> int:
+    """How many of the read turns ``applicability`` over that turn alone finds not applicable."""
+    return sum(1 for answer in answers if answer.na_reason is not None)
+
+
+def _compare_counts(
+    position: int,
+    result: MetricResult,
+    turns: Sequence[Turn],
+    answers: Sequence[Applicability],
+) -> None:
+    """T-B16: the recomputable counts of a stored ``per_turn`` summary against the turns the
+    result read, whatever its status: ``per_turn.total_turns`` is their number, then
+    ``per_turn.counts.not_applicable`` is how many of them are not applicable on their own
+    (``answers``, one per turn). ``passed``, ``failed`` and ``undetermined`` are what the scorer
+    or the judge answered and are not compared; the model already makes the four counts add up
+    to ``total_turns``. A result without a summary has nothing to compare."""
+    summary = result.per_turn
+    if summary is None:
+        return
+    if summary.total_turns != len(turns):
+        raise _applicability_error(position, result, "per_turn.total_turns")
+    if summary.counts.not_applicable != _not_applicable_turns(answers):
+        raise _applicability_error(position, result, "per_turn.counts.not_applicable")
+
+
 def _check_agent_turn(bundle: RunBundle, withheld_kinds: set[str]) -> None:
     """T-A4: a run that lists ``agent_transcript`` has an agent turn, judged only when the bundle
     holds turns and declares no turn withheld (a withheld turn may be the agent turn)."""
@@ -1003,11 +1049,27 @@ def _check_applicability(bundle: RunBundle, withheld_kinds: set[str]) -> None:
     against ``results.applicability`` re-run over the bundle, with the definition the snapshot
     embeds, the run, and the transcripts and turns the result read.
 
+    Per result, in this order (api-surface-gate-fixes.md P-C5):
+
+    1. the run-level answer (``missing_input``, ``agent_channel_unknown``): when it decides, it is
+       compared and the turns are not judged;
+    2. T-B13: a ``scored`` result of a metric that reads transcripts has read at least one turn
+       (an agent turn for ``agent_transcript``), else field ``status`` (scored over nothing);
+       ``not_applicable`` and ``error`` results claim nothing and are not judged by it;
+    3. the five compared fields (``status``, ``na_reason``, ``missing_kinds``,
+       ``language_source``, ``declared_language_transcript_ids``);
+    4. T-B16, for a ``per_turn_share`` result with a ``per_turn`` summary (any status):
+       ``per_turn.total_turns``, then ``per_turn.counts.not_applicable``, recomputed from the
+       turns read.
+
     What cannot be re-run is skipped and nothing else (B22): with a ``transcript`` or ``turn``
-    declared withheld, and for a per-turn metric that reads no turn (T-B4), only the run-level
-    reasons are judged (a run-level answer must be stored exactly; any other answer must not
-    carry a run-level reason) and the language outcome is accepted as stored. A withheld result
-    is not there to check. The per-turn counts are not compared (T-B16).
+    declared withheld, only the run-level reasons are judged (a run-level answer must be stored
+    exactly; any other answer must not carry a run-level reason), the language outcome is
+    accepted as stored and T-B13 and T-B16 are off for every result of the bundle. A withheld
+    record of another kind takes nothing away. For a per-turn metric that reads no turn (T-B4,
+    P-C6) the run-level reasons are compared and a stored summary is rejected at
+    ``per_turn.total_turns`` (a summary counts at least one turn). A withheld result is not there
+    to check.
     """
     _check_agent_turn(bundle, withheld_kinds)
     run = bundle.run
@@ -1022,17 +1084,27 @@ def _check_applicability(bundle: RunBundle, withheld_kinds: set[str]) -> None:
                 f"{result.metric.version}, which the snapshot does not embed"
             )
         transcripts = _transcripts_read(position, result, definition, held)
+        per_turn = definition.aggregation.kind == "per_turn_share"
         expected = _run_level_answer(definition, run)
+        # None: the turns read are not judged (the run-level answer decides, or a transcript or a
+        # turn is withheld and the turns read cannot be known).
+        turns: list[Turn] | None = None
+        answers: list[Applicability] = []
         if expected is None and language_known:
             turns = _turns_read(definition, bundle.turns, transcripts)
-            if definition.aggregation.kind != "per_turn_share":
+            if result.status == "scored" and _reads_transcripts(definition) and not turns:
+                raise _applicability_error(position, result, "status")
+            if not per_turn:
                 expected = applicability(definition, run, turns=turns, transcripts=transcripts)
             elif turns:
-                expected = _per_turn_answer(definition, run, turns, transcripts)
+                answers = _turn_answers(definition, run, turns, transcripts)
+                expected = _per_turn_answer(answers)
         if expected is not None:
             _compare_applicability(position, result, expected)
         elif result.na_reason in _RUN_LEVEL_REASONS:
             raise _applicability_error(position, result, "na_reason")
+        if turns is not None and per_turn:
+            _compare_counts(position, result, turns, answers)
 
 
 def check_run_bundle(bundle: RunBundle) -> None:
@@ -1041,8 +1113,9 @@ def check_run_bundle(bundle: RunBundle) -> None:
     (``[unresolved]``, ``[channel_map]``, ``[declared_language]``), ``[exchange]``,
     ``[transcript]``, ``[tool_call_seq]``, ``[rescoring]``, ``[result]``, ``[verdict]``,
     ``[cost]``, ``[summary]``, ``[marker]``, ``[withheld]``, R2 (``[tier]``) and last
-    ``[applicability]`` (the re-run of ``results.applicability`` per result). Pure and
-    idempotent; the models run it on load."""
+    ``[applicability]``: the re-run of ``results.applicability`` per result, the turns a scored
+    transcript-reading result read (T-B13) and the recomputable counts of a per-turn summary
+    (T-B16). Pure and idempotent; the models run it on load."""
     _run_bundle_seam(bundle)
     _check_unique_records(bundle)
     run = bundle.run
@@ -1216,13 +1289,25 @@ def _check_datasets(bundle: ExportBundle) -> dict[TypedId, DatasetItem]:
 
 
 def _check_portable_run_bundle(run_bundle: RunBundle) -> None:
-    """``[profile]``, ``[profile_digest]`` and ``[uri]`` for one run bundle of a shared or
-    benchmark export (ADR 0006 Decisions 6 and 7, ADR 0007 Decisions 6c and 6d, P-17, O5, O8)."""
+    """``[profile]``, ``[declared_by]``, ``[profile_digest]`` and ``[uri]`` for one run bundle of
+    a shared or benchmark export (ADR 0006 Decisions 6 and 7, ADR 0007 Decisions 6c and 6d, ADR
+    0004 Decision 6g, P-17, O5, O8, N19). ``[declared_by]``: no transcript's language declaration
+    names who declared it; the first offender in ``transcripts`` order is named by the run bundle
+    ID, its position ``transcripts[<j>]`` and the transcript ID, never by the value."""
     if run_bundle.test_profiles:
         raise ValueError(
             f"[profile] run bundle {run_bundle.id} carries a test profile in the clear; a shared "
             "or benchmark export carries a profile only as a sealed test_profile payload"
         )
+    for position, transcript in enumerate(run_bundle.transcripts):
+        declaration = transcript.declared_language
+        if declaration is not None and declaration.declared_by is not None:
+            raise ValueError(
+                f"[declared_by] run bundle {run_bundle.id}: transcript {transcript.id} "
+                f"(transcripts[{position}]) has a language declaration that names who declared "
+                "it; a shared or benchmark export holds no declared_by (the export builder drops "
+                "it)"
+            )
     reference = run_bundle.snapshot.evaluator.test_profile
     if (
         reference is not None
@@ -1376,10 +1461,11 @@ def check_export_bundle(bundle: ExportBundle, *, expected_purpose: str | None = 
     bundle's content) before any other rule. Every purpose: the seam (typed errors),
     ``[caller_external_id]``, ``[duplicate]``, ``[sealed]``, ``[redaction]``, ``[unresolved]`` for
     dataset members and ``[provenance_redaction]``. ``internal``: the plain profile digest
-    (``[profile_digest]``). ``shared_export`` and ``benchmark``: ``[profile]``,
-    ``[profile_digest]``, ``[uri]``, ``[source_run]``, ``[unprotected]`` and, for a benchmark,
-    ``[consent]``. Each embedded run bundle has passed ``check_run_bundle`` already. Pure and
-    idempotent; the model runs it on load (with ``expected_purpose=None``)."""
+    (``[profile_digest]``); a ``declared_by`` is kept. ``shared_export`` and ``benchmark``:
+    ``[profile]``, ``[declared_by]`` (no transcript's language declaration names its declarer,
+    N19), ``[profile_digest]``, ``[uri]``, ``[source_run]``, ``[unprotected]`` and, for a
+    benchmark, ``[consent]``. Each embedded run bundle has passed ``check_run_bundle`` already.
+    Pure and idempotent; the model runs it on load (with ``expected_purpose=None``)."""
     _check_expected_purpose(expected_purpose)
     if expected_purpose is not None and bundle.purpose != expected_purpose:
         raise ValueError(f"[purpose] expected {expected_purpose}, the bundle says {bundle.purpose}")

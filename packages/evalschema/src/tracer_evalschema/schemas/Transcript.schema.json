@@ -73,7 +73,7 @@
     },
     "LanguageDeclaration": {
       "additionalProperties": false,
-      "description": "A user's declaration of the language of an untagged import (N14, ADR 0004 Decision 6g).\n\nNever an observation: it fills no observed field, script-sensitive metrics never use it, and\nevery result that uses it says so (``language_source=declared``).",
+      "description": "A user's declaration of the language of an untagged import (N14, ADR 0004 Decision 6g).\n\nNever an observation: it fills no observed field, script-sensitive metrics never use it, and\nevery result that uses it says so (``language_source=declared``).\n\n``language``, ``source`` and ``declared_at`` are required. ``declared_by`` (who declared it, a\nmachine key without ``@``) is optional (N19, ADR 0004 Decision 6g): ``None`` (absent and\n``null`` are the same) says nothing about the declarer, and a present value is validated as\nbefore. A shared or benchmark ``ExportBundle`` holds no ``declared_by`` (``[declared_by]``,\n``bundle.check_export_bundle``); an internal export, a bare ``RunBundle`` and a bare\n``Transcript`` may keep it.",
       "properties": {
         "declared_at": {
           "format": "date-time",
@@ -82,9 +82,17 @@
           "type": "string"
         },
         "declared_by": {
-          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/+-]{0,255}$",
-          "title": "Declared By",
-          "type": "string"
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/+-]{0,255}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Declared By"
         },
         "language": {
           "pattern": "^(?:[eE][nN]|[hH][iI]|[mM][rR]|[tT][eE]|[tT][aA]|[kK][nN]|[mM][lL]|[pP][aA]|[gG][uU])(?:-(?:[gG][bB]|[iI][nN]|[uU][sS]))?$",
@@ -101,7 +109,6 @@
       },
       "required": [
         "declared_at",
-        "declared_by",
         "language",
         "source"
       ],

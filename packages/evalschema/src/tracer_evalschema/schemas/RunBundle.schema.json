@@ -2073,7 +2073,7 @@
     },
     "LanguageDeclaration": {
       "additionalProperties": false,
-      "description": "A user's declaration of the language of an untagged import (N14, ADR 0004 Decision 6g).\n\nNever an observation: it fills no observed field, script-sensitive metrics never use it, and\nevery result that uses it says so (``language_source=declared``).",
+      "description": "A user's declaration of the language of an untagged import (N14, ADR 0004 Decision 6g).\n\nNever an observation: it fills no observed field, script-sensitive metrics never use it, and\nevery result that uses it says so (``language_source=declared``).\n\n``language``, ``source`` and ``declared_at`` are required. ``declared_by`` (who declared it, a\nmachine key without ``@``) is optional (N19, ADR 0004 Decision 6g): ``None`` (absent and\n``null`` are the same) says nothing about the declarer, and a present value is validated as\nbefore. A shared or benchmark ``ExportBundle`` holds no ``declared_by`` (``[declared_by]``,\n``bundle.check_export_bundle``); an internal export, a bare ``RunBundle`` and a bare\n``Transcript`` may keep it.",
       "properties": {
         "declared_at": {
           "format": "date-time",
@@ -2082,9 +2082,17 @@
           "type": "string"
         },
         "declared_by": {
-          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/+-]{0,255}$",
-          "title": "Declared By",
-          "type": "string"
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/+-]{0,255}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Declared By"
         },
         "language": {
           "pattern": "^(?:[eE][nN]|[hH][iI]|[mM][rR]|[tT][eE]|[tT][aA]|[kK][nN]|[mM][lL]|[pP][aA]|[gG][uU])(?:-(?:[gG][bB]|[iI][nN]|[uU][sS]))?$",
@@ -2101,7 +2109,6 @@
       },
       "required": [
         "declared_at",
-        "declared_by",
         "language",
         "source"
       ],
@@ -3043,12 +3050,15 @@
             "properties": {
               "language_source": {
                 "type": "null"
+              },
+              "per_turn": {
+                "type": "null"
               }
             }
           }
         }
       ],
-      "description": "The result of one metric on one run (prefix ``res``; ADR 0004, ADR 0010 Decision 5).\n\nRules on the result alone (each reported at the field it is about):\n\n- ``scored``: no ``na_reason``, ``error`` or ``missing_kinds``; exactly one of ``value`` and\n  ``per_turn``, and a scored ``per_turn`` has a counted turn;\n- only a scored result has a ``value`` or ``passed``;\n- ``not_applicable``: ``na_reason`` required; no ``error``, ``scorer`` or ``judge``;\n  ``missing_kinds`` non-empty if and only if ``na_reason=missing_input``; ``per_turn`` only\n  when every turn was not applicable (counted 0, undetermined 0);\n- ``error``: ``error`` required; no ``na_reason`` or ``missing_kinds``; ``per_turn`` only with\n  no counted turn, an undetermined turn and ``error.code=judge_undetermined`` (P-56);\n- ``declared_language_transcript_ids`` non-empty if and only if ``language_source=declared``;\n- ``language_source`` is absent when the language steps did not run (``missing_input``,\n  ``agent_channel_unknown``).\n\n``transcript_ids`` (optional, additive in 0.0.1) names the transcripts the result read (ADR\n0004 Decision 6d): ``None`` (absent and ``null`` are the same) lets a bundle derive them; a\nlist has at least one element, names each transcript once and keeps the producer's order. No\nrule of the result alone reads it; ``check_run_bundle`` resolves it (``[unresolved]``), requires\nit when the bundle holds several transcripts and the metric reads transcripts or is language\ndependent, and re-runs ``applicability`` over the transcripts it names (``[applicability]``).",
+      "description": "The result of one metric on one run (prefix ``res``; ADR 0004, ADR 0010 Decision 5).\n\nRules on the result alone (each reported at the field it is about):\n\n- ``scored``: no ``na_reason``, ``error`` or ``missing_kinds``; exactly one of ``value`` and\n  ``per_turn``, and a scored ``per_turn`` has a counted turn;\n- only a scored result has a ``value`` or ``passed``;\n- ``not_applicable``: ``na_reason`` required; no ``error``, ``scorer`` or ``judge``;\n  ``missing_kinds`` non-empty if and only if ``na_reason=missing_input``; ``per_turn`` only\n  when every turn was not applicable (counted 0, undetermined 0);\n- ``error``: ``error`` required; no ``na_reason`` or ``missing_kinds``; ``per_turn`` only with\n  no counted turn, an undetermined turn and ``error.code=judge_undetermined`` (P-56);\n- ``declared_language_transcript_ids`` non-empty if and only if ``language_source=declared``;\n- ``language_source`` is absent when the language steps did not run (``missing_input``,\n  ``agent_channel_unknown``);\n- ``per_turn`` is absent with those two run-level reasons too: no turn was read, so there are\n  no turn counts (A-C6; a ``per_turn`` summary belongs to a result whose metric ran or whose\n  read turns were all not applicable).\n\n``transcript_ids`` (optional, additive in 0.0.1) names the transcripts the result read (ADR\n0004 Decision 6d): ``None`` (absent and ``null`` are the same) lets a bundle derive them; a\nlist has at least one element, names each transcript once and keeps the producer's order. No\nrule of the result alone reads it; ``check_run_bundle`` resolves it (``[unresolved]``), requires\nit when the bundle holds several transcripts and the metric reads transcripts or is language\ndependent, and re-runs ``applicability`` over the transcripts it names (``[applicability]``).",
       "properties": {
         "created_at": {
           "format": "date-time",

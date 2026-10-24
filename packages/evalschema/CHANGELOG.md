@@ -77,6 +77,22 @@ First version. Everything below is new, so there is no change class and no migra
   bundle holds several transcripts and the metric reads transcripts or is language dependent.
   Producers that wrote such bundles before must add it, and must store each result as
   `applicability` decides it.
+- Phase 1 gate fixes (added during 0.0.1 development; `SCHEMA_VERSION` stays `0.0.1`; the JSON
+  Schema files of `Transcript`, `MetricResult`, `RunBundle`, `ExportBundle` and the lock were
+  regenerated). The rules tighten what loads, so documents that relied on the looser behaviour
+  are rejected; producers must fix such data, nothing is converted:
+  - A run bundle rejects a `scored` result of a metric that reads transcripts when the result
+    read no turn (no agent turn for `agent_transcript`), at the field `status` (T-B13).
+  - A run bundle recomputes `per_turn.total_turns` and `per_turn.counts.not_applicable` of a
+    stored per-turn summary from the turns the result read and rejects a difference (T-B16);
+    `passed`, `failed` and `undetermined` are not recomputed. Both rules are off when a
+    transcript or turn is declared withheld, so a run bundle whose turns were replaced by a
+    sealed `transcript_text` must declare them withheld.
+  - A `not_applicable` result with `missing_input` or `agent_channel_unknown` carries no
+    `per_turn` summary (model and JSON Schema).
+  - `LanguageDeclaration.declared_by` is optional (default `None`; additive: it leaves the
+    schema's `required` list and may be `null`). A `shared_export` or `benchmark` export rejects
+    a transcript whose declaration has one (`[declared_by]`); internal exports keep it.
 - Security hardening from the P1-21 audit (added during 0.0.1 development; code-only rules, so
   no schema file, lock, golden fixture or field document changed and `SCHEMA_VERSION` stays).
   They tighten rules, so documents that relied on the looser behaviour are rejected; producers

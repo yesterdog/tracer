@@ -155,20 +155,30 @@ class LanguageDeclaration(BaseModel):
 
     Never an observation: it fills no observed field, script-sensitive metrics never use it, and
     every result that uses it says so (``language_source=declared``).
+
+    ``language``, ``source`` and ``declared_at`` are required. ``declared_by`` (who declared it, a
+    machine key without ``@``) is optional (N19, ADR 0004 Decision 6g): ``None`` (absent and
+    ``null`` are the same) says nothing about the declarer, and a present value is validated as
+    before. A shared or benchmark ``ExportBundle`` holds no ``declared_by`` (``[declared_by]``,
+    ``bundle.check_export_bundle``); an internal export, a bare ``RunBundle`` and a bare
+    ``Transcript`` may keep it.
     """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     language: SupportedLanguageNoScript
     source: Annotated[str, ClosedSet(("user_declared",))]
-    declared_by: Annotated[
-        str,
-        FullMatch(
-            "^[A-Za-z0-9][A-Za-z0-9._:/+-]{0,255}$",
-            "declared_by",
-            "{value} is not a machine key without '@' ({pattern})",
-        ),
-    ]
+    declared_by: (
+        Annotated[
+            str,
+            FullMatch(
+                "^[A-Za-z0-9][A-Za-z0-9._:/+-]{0,255}$",
+                "declared_by",
+                "{value} is not a machine key without '@' ({pattern})",
+            ),
+        ]
+        | None
+    ) = None
     declared_at: UtcDatetime
 
 

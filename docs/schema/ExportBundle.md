@@ -5,7 +5,7 @@
 - Schema file: `ExportBundle.schema.json` (package data `tracer_evalschema/schemas/`)
 - `$id`: `urn:tracer:evalschema:0.0.1:ExportBundle`
 - Schema version: `0.0.1`
-- SHA-256 of the schema file (as in `schema.lock`): `68059caf8fd1ecd2826d9d8427c7f3da412ee5045d325190030f2c15955c3b70`
+- SHA-256 of the schema file (as in `schema.lock`): `5f718df7bdefcdd8721577df643ad1b147a804217096c00cc3d51c28b64b08a4`
 - ID prefix: `exp`
 - Versioned (has `version`): no
 
