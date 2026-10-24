@@ -1,9 +1,9 @@
 # Phase 2 scope: tracer-evaldb (relational storage of evalschema 0.0.1)
 
-Status: Scoped 2026-10-24; ADRs 0019-0022 written (batch 0, P2-00a to P2-00d, 2026-10-24; `docs/adr/README.md` revision 34), amended for batch B (revision 35, Decisions D4), batch C (revision 36, Decisions D5) and batch E (revision 37, Decisions D6).
+Status: Scoped 2026-10-24; ADRs 0019-0022 written (batch 0, P2-00a to P2-00d, 2026-10-24; `docs/adr/README.md` revision 34), amended for batch B (revision 35, Decisions D4), batch C (revision 36, Decisions D5) and batch E (revision 37, Decisions D6); the deletion actor rule of batch G (2026-10-25, Decisions D7).
 
 Source: the final scoping report of the staff-reviewer, reproduced faithfully below. The only
-edits are the ones listed under Decisions (D2 to D6), third-person wording in the reviewer's notes,
+edits are the ones listed under Decisions (D2 to D7), third-person wording in the reviewer's notes,
 and repository-relative paths (`<repo>`).
 
 ## Decisions
@@ -49,6 +49,7 @@ and repository-relative paths (`<repo>`).
   - **Finding P2-F4 (A11, Phase 5 performance).** The P2-23 measurement of a 4,000-turn bundle: store median 5.6 s on Postgres 18 and 5.7 s on Postgres 15 through pg8000, against 0.28 s on SQLite; loads 0.27 s (SQLite) and 0.33 to 0.34 s (Postgres); statement counts equal at 4, 400 and 4,000 turns (at most one INSERT per table; SQLite 45 store and 18 load statements, Postgres 44 and 17). The cost is pg8000's `executemany` of the turn rows, the risk section 5 names. Candidate remedies, decided in Phase 5 and each run behind the same parity suite: batching tuned for `executemany`, `COPY` for the bulk tables, or a second permissive-licence driver as another dialect. No timing threshold is asserted; the evidence is `docs/phase2/evidence/measurements/bundle/`.
   - **Still open (A12):** the error type of `upgrade` over a `create_all` schema (batch D A11) and concurrent writers (batch D A15, A16; Phase 5 risks).
   - **Add-on test names.** The batch E tests join the rows P2-20 (index rules, the statements the package sends, revision `0002` and the four `open_store` tests of an older revision), P2-21, P2-23 (the harness, never a duration) and P2-26; the P2-20 task text records A1 and A3, and the pg8000 risk of section 5 points to P2-F4.
+- **D7. The deletion actor is a machine-style label (P2-24 finding E14, 2026-10-25).** The `actor` of every `delete_*` function must match, in full, `^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$`, and the credential check still applies (decision log "P2-24 SECURITY AUDIT DELIVERED", lead decision 4; `docs/phase2/api-surface-batch-g.md` section 3; ADR 0020 Decision 6 amended). This supersedes the statement of the batch D contract (`docs/phase2/api-surface-batch-d.md`) that the actor follows the `HumanLabel` rules; that contract is kept as written, as the record of batch D. The P2-17b row's "required label, credential check" now reads with this rule. Tests: `test_actor_outside_the_label_rule_is_refused_by_every_deletion`, `test_actor_labels_that_follow_the_rule_are_accepted_and_stored_exactly`, `test_actor_credential_check_still_applies_to_values_that_match_the_label_rule`. Rejected: keeping `HumanLabel` (it admits names of people and e-mail addresses into an append-only table that no deletion removes). Trade-off: an operator records a role or service label (`ops-night-shift`, `service_account:tracer-ci`), not a person's name.
 
 ## Summary
 

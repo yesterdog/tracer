@@ -1,0 +1,249 @@
+--- a/packages/evaldb/STORAGE_POLICY.md
++++ b/packages/evaldb/STORAGE_POLICY.md
+@@ -0,0 +1,94 @@
++# Storage policy: tracer-evaldb 0.0.1
++
++## 1. What this document is
++
++See `packages/evaldb/README.md`, `packages/evaldb/CHANGELOG.md` and `docs/concepts/storage.md`.
++
++The package stores the entities of `tracer-evalschema` 0.0.1 in SQLite or Postgres through the repository functions of `tracer_evaldb` (`test_invalid_run_bundle_never_stored`).
++
++The version is unreleased and nothing is published (unverified).
++
++## 2. The parity table
++
++Both backends store the same value the same way, and the table below is the parity table that `test_storage_policy_parity_table_matches_column_types` compares with the real column types.
++
++| Logical type | Postgres | SQLite (STRICT) |
++| --- | --- | --- |
++| `UuidCol` | `uuid` | `BLOB` |
++| `InstantCol` | `timestamptz` | `TEXT` |
++| `DecimalCol` | `numeric` | `TEXT` |
++| `DocCol` | `text` | `TEXT` |
++| `Sha256Col` | `bytea` | `BLOB` |
++| `KeyCol` | `varchar COLLATE "C"` | `TEXT COLLATE "BINARY"` |
++| `BigIntCol` | `bigint` | `INTEGER` |
++| `BoolCol` | `boolean` | `INTEGER` |
++
++SQLite tables are STRICT and WITHOUT ROWID (`test_sqlite_tables_are_strict_without_rowid`).
++
++## 3. The database is not a validation boundary
++
++The DB is not a validation boundary, the repository is (`test_the_database_accepts_what_the_models_reject_and_verify_database_finds_it`).
++
++- A raw INSERT with a document the models reject is accepted by the database, and the repository refuses to load it (`test_the_database_accepts_what_the_models_reject_and_verify_database_finds_it`).
++- The update triggers refuse every UPDATE of a stored row, and nothing else (`test_update_rejected_on_every_table`).
++- `verify_database` is the admin check that finds such rows and reports kind and ID only (`test_verify_database_finds_tampered_doc`).
++
++## 4. Limits
++
++- Integers are stored in the range plus or minus 2**53 - 1, and a larger value is refused before any write (`test_store_run_bundle_refuses_an_integer_it_cannot_store_before_any_write`).
++- SQLite needs library version 3.37 (`test_sqlite_version_at_least_3_37`).
++- Postgres 15 and 18 are tested (`test_ci_postgres_job_matrix_and_pinned_image`).
++- A Postgres database must use the UTF8 encoding (`test_postgres_non_utf8_database_refused`).
++- U+0000 is held only inside a document, as the six characters of its JSON escape (`test_db_nul_in_verbatim_text_round_trips`).
++- Instants from the year 0001 to the year 9999 round-trip (`test_instant_round_trip_edges`).
++- A stored document is limited to 256 MiB, the limit of the strict loader (unverified).
++
++## 5. Encryption at rest
++
++The database is not encrypted at rest by tracer, so a SQLite file holds the documents as plain text (`test_the_sqlite_file_holds_documents_in_plain_text`).
++
++The stored internal data is personal data: a stored test profile is readable in the file (`test_the_sqlite_file_holds_documents_in_plain_text`).
++
++Encryption of a Postgres server disk is the operator's concern, and tracer does not check it (unverified).
++
++## 6. Digests and the plain profile digest
++
++ADR 0006 Decision 6 states a limitation that holds here: a plain SHA-256 digest of a low-entropy profile in internal data can be brute-forced (`test_policy_documents_low_entropy_digest_limitation`).
++
++The store keeps internal data, so a snapshot whose profile reference has an absent or keyed digest is refused with `InternalSnapshotRefused` (`test_store_run_bundle_refuses_absent_or_keyed_profile_digest`).
++
++A shared export drops the plain digest or keys it with an HMAC (`test_policy_documents_low_entropy_digest_limitation`).
++
++## 7. Deletion and audit
++
++- The roots are `delete_run`, `delete_project`, `delete_test_profile`, `delete_definition`, `delete_dataset_item`, `delete_export` and `delete_snapshot` (`test_delete_run_cascades_every_run_owned_kind`).
++- Every deletion writes one row of `deletion_audit` with no content (`test_deletion_audit_is_content_free`).
++- The `actor` and the `reason` are required, and the reasons are `operator_request`, `retention_policy` and `data_subject_request` (`test_deletion_requires_actor_and_reason`).
++- The audit is append-only (`test_deletion_audit_rows_cannot_be_deleted`).
++- A deletion cascades to what the root owns, and a bundle that lists a deleted member is an `IncompleteRunBundle` (`test_run_bundle_load_reports_incomplete_after_member_deletion`).
++- Retention is recorded and not enforced (`test_no_retention_enforcement_code_exists`).
++
++## 8. Migrations and versions
++
++See `docs/adr/0021-store-schema-version-and-migrations.md`.
++
++Opening a store never migrates it: `open_store` raises `StoreNotMigrated` for a database below the head revision (`test_open_store_at_an_older_shipped_revision_is_not_migrated`).
++
++`upgrade` and `downgrade` are explicit, and a downgrade that would lose rows needs `allow_data_loss` (`test_downgrade_through_0002_to_base_still_asks_for_the_flag_on_a_filled_store`).
++
++The schema version of the data is recorded in `tracer_meta` (`test_tracer_meta_records_schema_version`).
++
++## 9. Phase 5 risks
++
++Storing a bundle of 4,000 turns takes a median of 5.6 to 5.7 s on Postgres through pg8000 `executemany` against 0.28 s on SQLite (finding P2-F4), and no timing threshold is asserted (`test_measurement_harness_runs_on_postgres`).
++
++Concurrent writers are not tested beyond the statement counts, and a loser of a race on the same new record may see a constraint error (unverified).
++
++A change of 0.0.2 that alters the digest of a versioned entity cannot be migrated in place (`test_digest_changing_upgrade_of_versioned_entity_refused`).
++
++## 10. Statements that are not verified
++
++- The version is unreleased and nothing is published (unverified).
++- A stored document is limited to 256 MiB, the limit of the strict loader (unverified).
++- Encryption of a Postgres server disk is the operator's concern, and tracer does not check it (unverified).
++- Concurrent writers are not tested beyond the statement counts, and a loser of a race on the same new record may see a constraint error (unverified).
+--- a/packages/evaldb/CHANGELOG.md
++++ b/packages/evaldb/CHANGELOG.md
+@@ -0,0 +1,27 @@
++# Changelog: `tracer-evaldb`
++
++Every release lists what the store, its migrations and its policies gained. The data it holds is
++the data of `tracer-evalschema`; the rules of the storage are in `STORAGE_POLICY.md`.
++
++## 0.0.1 (unreleased)
++
++Status: not released. No tag exists and nothing is published.
++
++### Package
++
++- Relational storage of `tracer-evalschema` 0.0.1 on SQLite and Postgres (SQLAlchemy Core and Alembic).
++
++### Storage
++
++- 37 tables, immutability triggers, a deletion audit, `verify_database`. See `STORAGE_POLICY.md`.
++
++### Migrations
++
++- Revisions 0001 (initial schema) and 0002 (access-pattern indexes).
++
++### Findings
++
++- P2-F1: ownership of definitions by project, for 0.0.2.
++- P2-F2: integer bounds of `version` and `*_ms`, for 0.0.2.
++- P2-F3: distinct `span_ref` values within a run, for 0.0.2.
++- P2-F4: the store time of a large bundle on Postgres through pg8000, for Phase 5.
+--- a/packages/evaldb/README.md
++++ b/packages/evaldb/README.md
+@@ -17,6 +17,38 @@
+ to insert, and a row is checked against its own document on the way back
+ (`StoreIntegrityError`, `StoreValueOutOfRange`).
+ 
++## Install
++
++`pip install tracer-evaldb` for SQLite (library version 3.37 or newer), and
++`pip install "tracer-evaldb[postgres]"` for Postgres (pg8000, a pure Python driver; the URL is
++`postgresql+pg8000://...`).
++
++## Quick start
++
++```python
++import json
++
++import tracer_evaldb as e
++from tracer_evalschema import loader
++from tracer_evalschema.project import Project
++
++engine = e.create_store_engine("sqlite:///store.db")
++e.migrate.upgrade(engine)
++document = {
++    "id": "prj_01a168a1-da00-7394-a377-74bf798c7e70",
++    "schema_version": "0.0.1",
++    "created_at": "2026-10-23T12:00:00.000000Z",
++    "metadata": {},
++    "metadata_flags": [],
++    "name": "Example project",
++    "provider_configs": [],
++}
++project = loader.load_model(Project, json.dumps(document))
++e.store_project(engine, project)
++assert e.load_project(engine, project.id) == project
++print(e.open_store(engine))
++```
++
+ ## Repository (`tracer_evaldb.repository`, re-exported from `tracer_evaldb`)
+ 
+ Every function takes the engine of `create_store_engine` first and runs in one transaction (a
+@@ -85,3 +117,20 @@
+   `doc_sha256_mismatch`, `projection_mismatch`, `side_rows_mismatch`) and `informational`
+   (`VERIFY_NOTES`: `doc_text_not_canonical`, `bundle_member_absent`), plus `checked` row counts
+   per entity table. A damaged row is a finding, never an exception, and no finding holds a value.
++
++## Storage policy
++
++The rules of the storage (the parity table, the limits, what the database does not validate) are in
++`packages/evaldb/STORAGE_POLICY.md`. The changes of each release are in
++`packages/evaldb/CHANGELOG.md`, and the concepts in `docs/concepts/storage.md`.
++
++## Security and privacy
++
++The database is not encrypted by tracer, and the stored internal data is personal data: protect the
++file or the server accordingly. `create_store_engine` never echoes the URL in an error, and the
++stored values never appear in an error. `expected_purpose` is required at both export entry points
++(`store_export` and `load_export`).
++
++## Status
++
++Version 0.0.1, unreleased (Phase 2 in progress).
+--- a/docs/concepts/storage.md
++++ b/docs/concepts/storage.md
+@@ -0,0 +1,36 @@
++# Storage
++
++The `tracer-evaldb` package keeps the entities of `tracer-evalschema` in a relational database. The
++details are decided in [ADR 0019](../adr/0019-relational-storage.md),
++[ADR 0020](../adr/0020-deletion-and-retention.md),
++[ADR 0021](../adr/0021-store-schema-version-and-migrations.md) and
++[ADR 0022](../adr/0022-write-unit-rescoring-reimport.md); the rules are collected in
++`packages/evaldb/STORAGE_POLICY.md`.
++
++## What is stored
++
++One table per entity (26) and eleven side tables. A run bundle is the write unit, stored in one
++transaction (`test_run_bundle_store_is_atomic`).
++
++## Documents and projections
++
++Each row keeps the whole document as text and the columns a query needs, checked against the
++document on every read (`test_db_tampered_doc_rejected_on_read`).
++
++## Two backends, one behaviour
++
++SQLite and Postgres store the same value the same way (`test_storage_policy_parity_table_matches_column_types`).
++
++## What the database does not do
++
++The database is not a validation boundary: the repository is. The database is not encrypted by
++tracer.
++
++## Deletion and retention
++
++Deletion removes what a root owns and writes a content-free audit row. Retention is recorded and not
++enforced.
++
++## Versions and migrations
++
++The store records the schema version of its data and never migrates by being opened.
+--- a/docs/concepts/README.md
++++ b/docs/concepts/README.md
+@@ -16,6 +16,7 @@
+ | [display-safety.md](display-safety.md) | exact text storage, bidi controls, `display_safe()` |
+ | [versioning.md](versioning.md) | schema version, compatibility, versioned entities |
+ | [mappings-and-gaps.md](mappings-and-gaps.md) | source mappings, no fabrication, the gap register |
++| [storage.md](storage.md) | the relational store: documents and projections, two backends, deletion, migrations |
+ 
+ Scope, in one paragraph: only the AI agent is evaluated. The caller is a human (recordings of
+ real calls) or a simulator (test calls). Speaker roles are `caller`, `agent` and `unknown`;
+--- a/packages/evalschema/SCHEMA_POLICY.md
++++ b/packages/evalschema/SCHEMA_POLICY.md
+@@ -222,6 +222,8 @@
+   record with a new ID; a bundle that holds two contents under one ID is rejected.
+ - **Database.** No database tables exist in 0.0.1, so there are no migrations yet. Phase 2
+   keys versioned tables on `(id, version)` and records of fact on `id` (ADR 0009 Decision 6).
++  The store that creates these tables is `tracer-evaldb`, and its rules are in
++  `packages/evaldb/STORAGE_POLICY.md`.
+ 
+ ## 4. Missing data: `not_applicable` and `not_available`
+ 

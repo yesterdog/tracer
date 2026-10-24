@@ -1,6 +1,12 @@
 # Architecture Decision Records: Phase 1 (`tracer-evalschema` 0.0.1) and Phase 2 (`tracer-evaldb`)
 
-Revision 37, 2026-10-24. Authoritative scope: `docs/phase1/SCOPE.md` (ADRs 0001 to 0018) and `docs/phase2/SCOPE.md` (ADRs 0019 to 0022).
+Revision 38, 2026-10-25. Authoritative scope: `docs/phase1/SCOPE.md` (ADRs 0001 to 0018) and `docs/phase2/SCOPE.md` (ADRs 0019 to 0022).
+
+## Changes in revision 38
+- **ADR 0020 Decision 6 amended** (docs only; decision log "PHASE 2 BATCH G (qa) DELIVERED" and "P2-24 SECURITY AUDIT DELIVERED", finding E14): the deletion audit `actor` must match `^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$` in addition to the credential check; this replaces the earlier statement that the actor is a free human label (e-mail addresses and long values are refused because audit rows are kept forever). Rejected: keeping the human label (personal data kept forever).
+- **ADR 0019 Table 3 amended** (a dated note in the Postgres `KeyCol` cell): the real type is `varchar COLLATE "C"`; the first backticked token stays `text COLLATE "C"` because `test_adr0019_table3_matches_column_classes` reads it (a full replacement needs a named spec change of that test; backlog BL-127).
+- **Repair rule** (decision log "DECISION REVERSAL (BL-134)"): `store_run_bundle` no longer re-inserts absent members of a stored run unless `repair_members=True`; this revokes the batch C ambiguity A6 and is recorded in `docs/phase2/api-surface-batch-g.md` section 10 and `packages/evaldb/STORAGE_POLICY.md`.
+- The machine-read parts keep their format: no row was added to or removed from ADR 0019 Tables 1, 2, 3 or 5 or ADR 0020 Decision 3.
 
 ## Changes in revision 37
 - **ADRs 0019 and 0021 amended for qa's batch E contract** (docs only; `docs/phase2/api-surface-batch-e.md` sections 2, 4 and 9; ambiguities A1 to A12 auto-approved by the lead on qa's recommendations, decision log "PHASE 2 BATCH E (qa) DELIVERED"; `docs/phase2/SCOPE.md` Decisions D6):

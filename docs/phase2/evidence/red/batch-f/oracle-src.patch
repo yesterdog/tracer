@@ -1,0 +1,14 @@
+--- a/packages/evaldb/src/tracer_evaldb/engine.py
++++ b/packages/evaldb/src/tracer_evaldb/engine.py
+@@ -94,7 +94,10 @@
+     if original is None or not is_integrity_sqlstate(sqlstate_of(original)):
+         return None
+     fields = original.args[0]
+-    scrubbed = type(original)({name: fields[name] for name in _SAFE_ERROR_FIELDS if name in fields})
++    safe = {name: fields[name] for name in _SAFE_ERROR_FIELDS if name in fields}
++    scrubbed = type(original)(safe)
++    original.args = (dict(safe),)  # the chained cause must not keep the failing row either
++    original.__cause__ = original.__context__ = None  # the driver error below it holds the row
+     return sa.exc.IntegrityError(
+         context.statement, context.parameters, scrubbed, hide_parameters=True
+     )

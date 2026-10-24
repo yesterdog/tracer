@@ -1,0 +1,1290 @@
+# red run: batch G tests (default selection: SQLite side and the tests without a database) against the committed tree
+Python 3.11.16
+........FFFFFFF..............F.FFFFFFFFFFFFFF........................... [ 53%]
+FFF.FF.......F....FF...........F.FFFFFFFFFFFFFFFFFF.FFFFFFFFFF           [100%]
+=================================== FAILURES ===================================
+__ test_untranslated_integrity_error_params_hold_no_bound_value[sqlite-check] __
+
+db = Db(store=<conftest.StoreHandle object at 0x10aec6d90>, evaldb=<module 'tracer_evaldb' from '<repo>/...lated_integrity_er7/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10ac56d90>)
+kind = 'check'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_untranslated_integrity_error_params_hold_no_bound_value(db: Db, kind: str) -> None:
+        """E6. ``hide_parameters=True`` hides the bound values from ``str()`` only; the attribute
+        ``params`` of the error (and of every SQLAlchemy error in its chain) must not hold them either,
+        on both backends."""
+        error, needles = _provoke(db, kind)
+        assert isinstance(error, sa.exc.IntegrityError)
+>       assert leaks(params_text(error), needles) == []
+E       AssertionError: assert ['DOC-MARKER-...1bc22d4a61c1'] == []
+E         
+E         Left contains 3 more items, first extra item: 'DOC-MARKER-7e41-\u0915\u094d\u0937'
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:254: AssertionError
+_ test_untranslated_integrity_error_params_hold_no_bound_value[sqlite-unique] __
+
+db = Db(store=<conftest.StoreHandle object at 0x10aed3050>, evaldb=<module 'tracer_evaldb' from '<repo>/...lated_integrity_er8/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10a7ecd90>)
+kind = 'unique'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_untranslated_integrity_error_params_hold_no_bound_value(db: Db, kind: str) -> None:
+        """E6. ``hide_parameters=True`` hides the bound values from ``str()`` only; the attribute
+        ``params`` of the error (and of every SQLAlchemy error in its chain) must not hold them either,
+        on both backends."""
+        error, needles = _provoke(db, kind)
+        assert isinstance(error, sa.exc.IntegrityError)
+>       assert leaks(params_text(error), needles) == []
+E       AssertionError: assert ['DOC-MARKER-...131b99e62f0b'] == []
+E         
+E         Left contains 3 more items, first extra item: 'DOC-MARKER-7e41-\u0915\u094d\u0937'
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:254: AssertionError
+_ test_untranslated_integrity_error_params_hold_no_bound_value[sqlite-not_null] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10aed0b90>, evaldb=<module 'tracer_evaldb' from '<repo>/...lated_integrity_er9/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10acfac90>)
+kind = 'not_null'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_untranslated_integrity_error_params_hold_no_bound_value(db: Db, kind: str) -> None:
+        """E6. ``hide_parameters=True`` hides the bound values from ``str()`` only; the attribute
+        ``params`` of the error (and of every SQLAlchemy error in its chain) must not hold them either,
+        on both backends."""
+        error, needles = _provoke(db, kind)
+        assert isinstance(error, sa.exc.IntegrityError)
+>       assert leaks(params_text(error), needles) == []
+E       AssertionError: assert ['DOC-MARKER-...581640e42fca'] == []
+E         
+E         Left contains 2 more items, first extra item: 'DOC-MARKER-7e41-\u0915\u094d\u0937'
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:254: AssertionError
+_ test_untranslated_integrity_error_params_hold_no_bound_value[sqlite-foreign_key] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10aed1290>, evaldb=<module 'tracer_evaldb' from '<repo>/...ated_integrity_er10/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10ad45ad0>)
+kind = 'foreign_key'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_untranslated_integrity_error_params_hold_no_bound_value(db: Db, kind: str) -> None:
+        """E6. ``hide_parameters=True`` hides the bound values from ``str()`` only; the attribute
+        ``params`` of the error (and of every SQLAlchemy error in its chain) must not hold them either,
+        on both backends."""
+        error, needles = _provoke(db, kind)
+        assert isinstance(error, sa.exc.IntegrityError)
+>       assert leaks(params_text(error), needles) == []
+E       AssertionError: assert ['DOC-MARKER-...657a6aec0569'] == []
+E         
+E         Left contains 3 more items, first extra item: 'DOC-MARKER-7e41-\u0915\u094d\u0937'
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:254: AssertionError
+_ test_untranslated_integrity_error_params_hold_no_bound_value[sqlite-restrict] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10ae9a810>, evaldb=<module 'tracer_evaldb' from '<repo>/...ated_integrity_er11/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10ae98990>)
+kind = 'restrict'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_untranslated_integrity_error_params_hold_no_bound_value(db: Db, kind: str) -> None:
+        """E6. ``hide_parameters=True`` hides the bound values from ``str()`` only; the attribute
+        ``params`` of the error (and of every SQLAlchemy error in its chain) must not hold them either,
+        on both backends."""
+        error, needles = _provoke(db, kind)
+        assert isinstance(error, sa.exc.IntegrityError)
+>       assert leaks(params_text(error), needles) == []
+E       AssertionError: assert ['01a16f4e20f...e9e48f939c09'] == []
+E         
+E         Left contains one more item: '01a16f4e20f0735e9868e9e48f939c09'
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:254: AssertionError
+_ test_untranslated_integrity_error_params_hold_no_bound_value[sqlite-immutable_update] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10ae796d0>, evaldb=<module 'tracer_evaldb' from '<repo>/...ated_integrity_er12/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10ae632d0>)
+kind = 'immutable_update'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_untranslated_integrity_error_params_hold_no_bound_value(db: Db, kind: str) -> None:
+        """E6. ``hide_parameters=True`` hides the bound values from ``str()`` only; the attribute
+        ``params`` of the error (and of every SQLAlchemy error in its chain) must not hold them either,
+        on both backends."""
+        error, needles = _provoke(db, kind)
+        assert isinstance(error, sa.exc.IntegrityError)
+>       assert leaks(params_text(error), needles) == []
+E       AssertionError: assert ['RENAMED-MAR...33ce580f5df5'] == []
+E         
+E         Left contains 2 more items, first extra item: 'RENAMED-MARKER-4b08'
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:254: AssertionError
+_ test_untranslated_integrity_error_params_hold_no_bound_value[sqlite-immutable_delete] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10ae9a3d0>, evaldb=<module 'tracer_evaldb' from '<repo>/...ated_integrity_er13/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b048cd0>)
+kind = 'immutable_delete'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_untranslated_integrity_error_params_hold_no_bound_value(db: Db, kind: str) -> None:
+        """E6. ``hide_parameters=True`` hides the bound values from ``str()`` only; the attribute
+        ``params`` of the error (and of every SQLAlchemy error in its chain) must not hold them either,
+        on both backends."""
+        error, needles = _provoke(db, kind)
+        assert isinstance(error, sa.exc.IntegrityError)
+>       assert leaks(params_text(error), needles) == []
+E       AssertionError: assert ['01a16f4e211...0e21eb89d33b'] == []
+E         
+E         Left contains one more item: '01a16f4e2112718e8b680e21eb89d33b'
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:254: AssertionError
+_____ test_repository_store_error_chain_holds_no_stored_text_or_id[sqlite] _____
+
+db = Db(store=<conftest.StoreHandle object at 0x10af66350>, evaldb=<module 'tracer_evaldb' from '<repo>/...ory_store_error_ch0/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10ae79dd0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+
+    def test_repository_store_error_chain_holds_no_stored_text_or_id(
+        db: Db, evaldb: ModuleType
+    ) -> None:
+        """The repository path of E6. A rescoring that lists a different turn at a stored position is
+        refused by the unique constraint and raised as ``StoreConstraintViolation ... from None``. A
+        reader that walks ``__context__`` (ignoring ``__suppress_context__``) must find no turn text,
+        no ID and no bound value, and no ``params`` holding them."""
+        doc = run_bundle_doc(tier="T1", origin="simulated")
+        first = load_run_bundle_doc(doc)
+        store_bundle(db.engine, evaldb, first)
+        second = load_run_bundle_doc(renew_ids(doc, lists=["turns", "results"], verdict=True))
+        needles = [str(t.text) for t in second.turns] + [
+            s for t in (*first.turns, *second.turns) for s in _strings(t.id)
+        ]
+        needles += _strings(second.id)
+        assert needles
+        assert all(len(n) >= 8 for n in needles), "the needles must be distinctive"
+        with pytest.raises(evaldb.StoreConstraintViolation) as caught:
+            evaldb.store_run_bundle(db.engine, second)
+        error = caught.value
+        assert error.kind == "unique"
+        assert leaks(chain_text(error), needles) == []
+>       assert leaks(params_text(error), needles) == []
+E       AssertionError: assert ['turn 0 text...'turn 3 text'] == []
+E         
+E         Left contains 4 more items, first extra item: 'turn 0 text'
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:313: AssertionError
+__ test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-run] __
+
+db = Db(store=<conftest.StoreHandle object at 0x10aed1010>, evaldb=<module 'tracer_evaldb' from '<repo>/...utside_the_label_r0/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b133b90>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+spec = RootSpec(id='run', root_kind='run', function='delete_run', build=<function _build_run at 0x10a599b20>)
+
+    @pytest.mark.parametrize("spec", [pytest.param(s, id=s.id) for s in ROOTS])
+    def test_actor_outside_the_label_rule_is_refused_by_every_deletion(
+        db: Db, evaldb: ModuleType, spec: Any
+    ) -> None:
+        """E14. E-mail addresses, empty, over 128 characters, a leading punctuation mark, non-ASCII,
+        spaces and a trailing newline are a ``ValueError`` naming the actor (the existing error), not
+        echoing the value; the check runs before any statement and nothing is written."""
+        world = World(db.engine)
+        built = spec.build(world)
+        before = raw_dump(db.engine)
+        with recording_statements(db.engine) as statements:
+            for actor in PATTERN_REJECTED:
+>               with pytest.raises(ValueError, match="actor") as caught:
+E               Failed: DID NOT RAISE ValueError
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:420: Failed
+_ test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-project] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10ac55490>, evaldb=<module 'tracer_evaldb' from '<repo>/...utside_the_label_r1/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b037b10>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+spec = RootSpec(id='project', root_kind='project', function='delete_project', build=<function _build_project at 0x10a599bc0>)
+
+    @pytest.mark.parametrize("spec", [pytest.param(s, id=s.id) for s in ROOTS])
+    def test_actor_outside_the_label_rule_is_refused_by_every_deletion(
+        db: Db, evaldb: ModuleType, spec: Any
+    ) -> None:
+        """E14. E-mail addresses, empty, over 128 characters, a leading punctuation mark, non-ASCII,
+        spaces and a trailing newline are a ``ValueError`` naming the actor (the existing error), not
+        echoing the value; the check runs before any statement and nothing is written."""
+        world = World(db.engine)
+        built = spec.build(world)
+        before = raw_dump(db.engine)
+        with recording_statements(db.engine) as statements:
+            for actor in PATTERN_REJECTED:
+>               with pytest.raises(ValueError, match="actor") as caught:
+E               Failed: DID NOT RAISE ValueError
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:420: Failed
+_ test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-test_profile] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10b2a2610>, evaldb=<module 'tracer_evaldb' from '<repo>/...utside_the_label_r2/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b1e4650>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+spec = RootSpec(id='test_profile', root_kind='test_profile', function='delete_test_profile', build=<function _build_test_profile at 0x10a599c60>)
+
+    @pytest.mark.parametrize("spec", [pytest.param(s, id=s.id) for s in ROOTS])
+    def test_actor_outside_the_label_rule_is_refused_by_every_deletion(
+        db: Db, evaldb: ModuleType, spec: Any
+    ) -> None:
+        """E14. E-mail addresses, empty, over 128 characters, a leading punctuation mark, non-ASCII,
+        spaces and a trailing newline are a ``ValueError`` naming the actor (the existing error), not
+        echoing the value; the check runs before any statement and nothing is written."""
+        world = World(db.engine)
+        built = spec.build(world)
+        before = raw_dump(db.engine)
+        with recording_statements(db.engine) as statements:
+            for actor in PATTERN_REJECTED:
+>               with pytest.raises(ValueError, match="actor") as caught:
+E               Failed: DID NOT RAISE ValueError
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:420: Failed
+_ test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-agent_target] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10b445b50>, evaldb=<module 'tracer_evaldb' from '<repo>/...utside_the_label_r3/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b445b90>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+spec = RootSpec(id='agent_target', root_kind='agent_target', function='delete_definition', build=<function _build_definition.<locals>.build at 0x10a59a020>)
+
+    @pytest.mark.parametrize("spec", [pytest.param(s, id=s.id) for s in ROOTS])
+    def test_actor_outside_the_label_rule_is_refused_by_every_deletion(
+        db: Db, evaldb: ModuleType, spec: Any
+    ) -> None:
+        """E14. E-mail addresses, empty, over 128 characters, a leading punctuation mark, non-ASCII,
+        spaces and a trailing newline are a ``ValueError`` naming the actor (the existing error), not
+        echoing the value; the check runs before any statement and nothing is written."""
+        world = World(db.engine)
+        built = spec.build(world)
+        before = raw_dump(db.engine)
+        with recording_statements(db.engine) as statements:
+            for actor in PATTERN_REJECTED:
+>               with pytest.raises(ValueError, match="actor") as caught:
+E               Failed: DID NOT RAISE ValueError
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:420: Failed
+_ test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-persona] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10b469490>, evaldb=<module 'tracer_evaldb' from '<repo>/...utside_the_label_r4/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b3b88d0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+spec = RootSpec(id='persona', root_kind='persona', function='delete_definition', build=<function _build_definition.<locals>.build at 0x10a59a0c0>)
+
+    @pytest.mark.parametrize("spec", [pytest.param(s, id=s.id) for s in ROOTS])
+    def test_actor_outside_the_label_rule_is_refused_by_every_deletion(
+        db: Db, evaldb: ModuleType, spec: Any
+    ) -> None:
+        """E14. E-mail addresses, empty, over 128 characters, a leading punctuation mark, non-ASCII,
+        spaces and a trailing newline are a ``ValueError`` naming the actor (the existing error), not
+        echoing the value; the check runs before any statement and nothing is written."""
+        world = World(db.engine)
+        built = spec.build(world)
+        before = raw_dump(db.engine)
+        with recording_statements(db.engine) as statements:
+            for actor in PATTERN_REJECTED:
+>               with pytest.raises(ValueError, match="actor") as caught:
+E               Failed: DID NOT RAISE ValueError
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:420: Failed
+_ test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-evaluator] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10b3ca790>, evaldb=<module 'tracer_evaldb' from '<repo>/...utside_the_label_r5/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b469950>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+spec = RootSpec(id='evaluator', root_kind='evaluator', function='delete_definition', build=<function _build_definition.<locals>.build at 0x10a59a160>)
+
+    @pytest.mark.parametrize("spec", [pytest.param(s, id=s.id) for s in ROOTS])
+    def test_actor_outside_the_label_rule_is_refused_by_every_deletion(
+        db: Db, evaldb: ModuleType, spec: Any
+    ) -> None:
+        """E14. E-mail addresses, empty, over 128 characters, a leading punctuation mark, non-ASCII,
+        spaces and a trailing newline are a ``ValueError`` naming the actor (the existing error), not
+        echoing the value; the check runs before any statement and nothing is written."""
+        world = World(db.engine)
+        built = spec.build(world)
+        before = raw_dump(db.engine)
+        with recording_statements(db.engine) as statements:
+            for actor in PATTERN_REJECTED:
+>               with pytest.raises(ValueError, match="actor") as caught:
+E               Failed: DID NOT RAISE ValueError
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:420: Failed
+_ test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-metric_definition] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10b3684d0>, evaldb=<module 'tracer_evaldb' from '<repo>/...utside_the_label_r6/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b369b10>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+spec = RootSpec(id='metric_definition', root_kind='metric_definition', function='delete_definition', build=<function _build_definition.<locals>.build at 0x10a59a200>)
+
+    @pytest.mark.parametrize("spec", [pytest.param(s, id=s.id) for s in ROOTS])
+    def test_actor_outside_the_label_rule_is_refused_by_every_deletion(
+        db: Db, evaldb: ModuleType, spec: Any
+    ) -> None:
+        """E14. E-mail addresses, empty, over 128 characters, a leading punctuation mark, non-ASCII,
+        spaces and a trailing newline are a ``ValueError`` naming the actor (the existing error), not
+        echoing the value; the check runs before any statement and nothing is written."""
+        world = World(db.engine)
+        built = spec.build(world)
+        before = raw_dump(db.engine)
+        with recording_statements(db.engine) as statements:
+            for actor in PATTERN_REJECTED:
+>               with pytest.raises(ValueError, match="actor") as caught:
+E               Failed: DID NOT RAISE ValueError
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:420: Failed
+_ test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-metric_binding] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10b296b90>, evaldb=<module 'tracer_evaldb' from '<repo>/...utside_the_label_r7/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b4551d0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+spec = RootSpec(id='metric_binding', root_kind='metric_binding', function='delete_definition', build=<function _build_definition.<locals>.build at 0x10a59a2a0>)
+
+    @pytest.mark.parametrize("spec", [pytest.param(s, id=s.id) for s in ROOTS])
+    def test_actor_outside_the_label_rule_is_refused_by_every_deletion(
+        db: Db, evaldb: ModuleType, spec: Any
+    ) -> None:
+        """E14. E-mail addresses, empty, over 128 characters, a leading punctuation mark, non-ASCII,
+        spaces and a trailing newline are a ``ValueError`` naming the actor (the existing error), not
+        echoing the value; the check runs before any statement and nothing is written."""
+        world = World(db.engine)
+        built = spec.build(world)
+        before = raw_dump(db.engine)
+        with recording_statements(db.engine) as statements:
+            for actor in PATTERN_REJECTED:
+>               with pytest.raises(ValueError, match="actor") as caught:
+E               Failed: DID NOT RAISE ValueError
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:420: Failed
+_ test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-rubric] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10b271e10>, evaldb=<module 'tracer_evaldb' from '<repo>/...utside_the_label_r8/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b3a6bd0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+spec = RootSpec(id='rubric', root_kind='rubric', function='delete_definition', build=<function _build_definition.<locals>.build at 0x10a59a340>)
+
+    @pytest.mark.parametrize("spec", [pytest.param(s, id=s.id) for s in ROOTS])
+    def test_actor_outside_the_label_rule_is_refused_by_every_deletion(
+        db: Db, evaldb: ModuleType, spec: Any
+    ) -> None:
+        """E14. E-mail addresses, empty, over 128 characters, a leading punctuation mark, non-ASCII,
+        spaces and a trailing newline are a ``ValueError`` naming the actor (the existing error), not
+        echoing the value; the check runs before any statement and nothing is written."""
+        world = World(db.engine)
+        built = spec.build(world)
+        before = raw_dump(db.engine)
+        with recording_statements(db.engine) as statements:
+            for actor in PATTERN_REJECTED:
+>               with pytest.raises(ValueError, match="actor") as caught:
+E               Failed: DID NOT RAISE ValueError
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:420: Failed
+_ test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-pricing_catalog] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10b390650>, evaldb=<module 'tracer_evaldb' from '<repo>/...utside_the_label_r9/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b26bd90>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+spec = RootSpec(id='pricing_catalog', root_kind='pricing_catalog', function='delete_definition', build=<function _build_definition.<locals>.build at 0x10a59a3e0>)
+
+    @pytest.mark.parametrize("spec", [pytest.param(s, id=s.id) for s in ROOTS])
+    def test_actor_outside_the_label_rule_is_refused_by_every_deletion(
+        db: Db, evaldb: ModuleType, spec: Any
+    ) -> None:
+        """E14. E-mail addresses, empty, over 128 characters, a leading punctuation mark, non-ASCII,
+        spaces and a trailing newline are a ``ValueError`` naming the actor (the existing error), not
+        echoing the value; the check runs before any statement and nothing is written."""
+        world = World(db.engine)
+        built = spec.build(world)
+        before = raw_dump(db.engine)
+        with recording_statements(db.engine) as statements:
+            for actor in PATTERN_REJECTED:
+>               with pytest.raises(ValueError, match="actor") as caught:
+E               Failed: DID NOT RAISE ValueError
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:420: Failed
+_ test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-dataset] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10b269f50>, evaldb=<module 'tracer_evaldb' from '<repo>/...tside_the_label_r10/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b24bd10>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+spec = RootSpec(id='dataset', root_kind='dataset', function='delete_definition', build=<function _build_definition.<locals>.build at 0x10a59a480>)
+
+    @pytest.mark.parametrize("spec", [pytest.param(s, id=s.id) for s in ROOTS])
+    def test_actor_outside_the_label_rule_is_refused_by_every_deletion(
+        db: Db, evaldb: ModuleType, spec: Any
+    ) -> None:
+        """E14. E-mail addresses, empty, over 128 characters, a leading punctuation mark, non-ASCII,
+        spaces and a trailing newline are a ``ValueError`` naming the actor (the existing error), not
+        echoing the value; the check runs before any statement and nothing is written."""
+        world = World(db.engine)
+        built = spec.build(world)
+        before = raw_dump(db.engine)
+        with recording_statements(db.engine) as statements:
+            for actor in PATTERN_REJECTED:
+>               with pytest.raises(ValueError, match="actor") as caught:
+E               Failed: DID NOT RAISE ValueError
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:420: Failed
+_ test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-dataset_item] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10b390a10>, evaldb=<module 'tracer_evaldb' from '<repo>/...tside_the_label_r11/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b393b90>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+spec = RootSpec(id='dataset_item', root_kind='dataset_item', function='delete_dataset_item', build=<function _build_dataset_item at 0x10a599da0>)
+
+    @pytest.mark.parametrize("spec", [pytest.param(s, id=s.id) for s in ROOTS])
+    def test_actor_outside_the_label_rule_is_refused_by_every_deletion(
+        db: Db, evaldb: ModuleType, spec: Any
+    ) -> None:
+        """E14. E-mail addresses, empty, over 128 characters, a leading punctuation mark, non-ASCII,
+        spaces and a trailing newline are a ``ValueError`` naming the actor (the existing error), not
+        echoing the value; the check runs before any statement and nothing is written."""
+        world = World(db.engine)
+        built = spec.build(world)
+        before = raw_dump(db.engine)
+        with recording_statements(db.engine) as statements:
+            for actor in PATTERN_REJECTED:
+>               with pytest.raises(ValueError, match="actor") as caught:
+E               Failed: DID NOT RAISE ValueError
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:420: Failed
+_ test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-export_bundle] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10b0a5d90>, evaldb=<module 'tracer_evaldb' from '<repo>/...tside_the_label_r12/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b0a6410>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+spec = RootSpec(id='export_bundle', root_kind='export_bundle', function='delete_export', build=<function _build_export at 0x10a599e40>)
+
+    @pytest.mark.parametrize("spec", [pytest.param(s, id=s.id) for s in ROOTS])
+    def test_actor_outside_the_label_rule_is_refused_by_every_deletion(
+        db: Db, evaldb: ModuleType, spec: Any
+    ) -> None:
+        """E14. E-mail addresses, empty, over 128 characters, a leading punctuation mark, non-ASCII,
+        spaces and a trailing newline are a ``ValueError`` naming the actor (the existing error), not
+        echoing the value; the check runs before any statement and nothing is written."""
+        world = World(db.engine)
+        built = spec.build(world)
+        before = raw_dump(db.engine)
+        with recording_statements(db.engine) as statements:
+            for actor in PATTERN_REJECTED:
+>               with pytest.raises(ValueError, match="actor") as caught:
+E               Failed: DID NOT RAISE ValueError
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:420: Failed
+_ test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-config_snapshot] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10b26b1d0>, evaldb=<module 'tracer_evaldb' from '<repo>/...tside_the_label_r13/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b26b5d0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+spec = RootSpec(id='config_snapshot', root_kind='config_snapshot', function='delete_snapshot', build=<function _build_snapshot at 0x10a599ee0>)
+
+    @pytest.mark.parametrize("spec", [pytest.param(s, id=s.id) for s in ROOTS])
+    def test_actor_outside_the_label_rule_is_refused_by_every_deletion(
+        db: Db, evaldb: ModuleType, spec: Any
+    ) -> None:
+        """E14. E-mail addresses, empty, over 128 characters, a leading punctuation mark, non-ASCII,
+        spaces and a trailing newline are a ``ValueError`` naming the actor (the existing error), not
+        echoing the value; the check runs before any statement and nothing is written."""
+        world = World(db.engine)
+        built = spec.build(world)
+        before = raw_dump(db.engine)
+        with recording_statements(db.engine) as statements:
+            for actor in PATTERN_REJECTED:
+>               with pytest.raises(ValueError, match="actor") as caught:
+E               Failed: DID NOT RAISE ValueError
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:420: Failed
+_________ test_a_new_sqlite_file_is_created_with_mode_0600[umask0000] __________
+
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+tmp_path = PosixPath('<tmp>')
+umask = 0
+
+    @pytest.mark.parametrize("umask", [0o000, 0o002, 0o022, 0o077], ids=lambda m: f"umask{m:04o}")
+    def test_a_new_sqlite_file_is_created_with_mode_0600(
+        evaldb: ModuleType, tmp_path: Path, umask: int
+    ) -> None:
+        """E16. The file exists, and has mode 0600, as soon as ``create_store_engine`` returns, with
+        whatever umask the process has; use of the store does not change it."""
+        path = tmp_path / "new.db"
+        with _umask(umask):
+            engine = evaldb.create_store_engine(f"sqlite:///{path}")
+        try:
+            assert path.is_file()
+>           assert _mode(path) == 0o600
+E           AssertionError: assert 420 == 384
+E            +  where 420 = _mode(PosixPath('<tmp>'))
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:504: AssertionError
+_________ test_a_new_sqlite_file_is_created_with_mode_0600[umask0002] __________
+
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+tmp_path = PosixPath('<tmp>')
+umask = 2
+
+    @pytest.mark.parametrize("umask", [0o000, 0o002, 0o022, 0o077], ids=lambda m: f"umask{m:04o}")
+    def test_a_new_sqlite_file_is_created_with_mode_0600(
+        evaldb: ModuleType, tmp_path: Path, umask: int
+    ) -> None:
+        """E16. The file exists, and has mode 0600, as soon as ``create_store_engine`` returns, with
+        whatever umask the process has; use of the store does not change it."""
+        path = tmp_path / "new.db"
+        with _umask(umask):
+            engine = evaldb.create_store_engine(f"sqlite:///{path}")
+        try:
+            assert path.is_file()
+>           assert _mode(path) == 0o600
+E           AssertionError: assert 420 == 384
+E            +  where 420 = _mode(PosixPath('<tmp>'))
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:504: AssertionError
+_________ test_a_new_sqlite_file_is_created_with_mode_0600[umask0022] __________
+
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+tmp_path = PosixPath('<tmp>')
+umask = 18
+
+    @pytest.mark.parametrize("umask", [0o000, 0o002, 0o022, 0o077], ids=lambda m: f"umask{m:04o}")
+    def test_a_new_sqlite_file_is_created_with_mode_0600(
+        evaldb: ModuleType, tmp_path: Path, umask: int
+    ) -> None:
+        """E16. The file exists, and has mode 0600, as soon as ``create_store_engine`` returns, with
+        whatever umask the process has; use of the store does not change it."""
+        path = tmp_path / "new.db"
+        with _umask(umask):
+            engine = evaldb.create_store_engine(f"sqlite:///{path}")
+        try:
+            assert path.is_file()
+>           assert _mode(path) == 0o600
+E           AssertionError: assert 420 == 384
+E            +  where 420 = _mode(PosixPath('<tmp>'))
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:504: AssertionError
+_____ test_a_new_sqlite_file_in_a_directory_with_a_space_and_by_url_object _____
+
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+tmp_path = PosixPath('<tmp>')
+
+    def test_a_new_sqlite_file_in_a_directory_with_a_space_and_by_url_object(
+        evaldb: ModuleType, tmp_path: Path
+    ) -> None:
+        folder = tmp_path / "data dir"
+        folder.mkdir()
+        path = folder / "x.db"
+        with _umask(0o000):
+            engine = evaldb.create_store_engine(sa.URL.create("sqlite", database=str(path)))
+        engine.dispose()
+>       assert _mode(path) == 0o600
+E       AssertionError: assert 420 == 384
+E        +  where 420 = _mode(PosixPath('<tmp> dir/x.db'))
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:527: AssertionError
+____________ test_a_new_sqlite_file_by_relative_path_has_mode_0600 _____________
+
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+tmp_path = PosixPath('<tmp>')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10b99add0>
+
+    def test_a_new_sqlite_file_by_relative_path_has_mode_0600(
+        evaldb: ModuleType, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.chdir(tmp_path)
+        with _umask(0o022):
+            engine = evaldb.create_store_engine("sqlite:///relative.db")
+        engine.dispose()
+>       assert _mode(tmp_path / "relative.db") == 0o600
+E       AssertionError: assert 420 == 384
+E        +  where 420 = _mode((PosixPath('<tmp>') / 'relative.db'))
+
+<repo>/packages/evaldb/tests/test_evaldb_audit_fixes.py:537: AssertionError
+_ test_reopening_a_file_the_package_made_does_not_change_a_mode_the_owner_set __
+
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+tmp_path = PosixPath('<tmp>')
+
+    def test_reopening_a_file_the_package_made_does_not_change_a_mode_the_owner_set(
+        evaldb: ModuleType, tmp_path: Path
+    ) -> None:
+        path = tmp_path / "again.db"
+        evaldb.create_store_engine(f"sqlite:///{path}").dispose()
+>       assert _mode(path) == 0o600
+E       AssertionError: assert 420 == 384
+E        +  where 420 = _mode(PosixPath('<tmp>'))
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:578: AssertionError
+________________________ test_unsafe_engine_error_type _________________________
+
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+
+    def test_unsafe_engine_error_type(evaldb: ModuleType) -> None:
+        errors = importlib.import_module("tracer_evaldb.errors")
+>       cls = evaldb.UnsafeEngine
+              ^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evaldb' has no attribute 'UnsafeEngine'
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:708: AttributeError
+_ test_store_functions_refuse_an_engine_that_does_not_hide_parameters[sqlite] __
+
+db = Db(store=<conftest.StoreHandle object at 0x10b5e62d0>, evaldb=<module 'tracer_evaldb' from '<repo>/...unctions_refuse_an0/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b98b590>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+tmp_path = PosixPath('<tmp>')
+
+    def test_store_functions_refuse_an_engine_that_does_not_hide_parameters(
+        db: Db, evaldb: ModuleType, tmp_path: Path
+    ) -> None:
+        """E10. Every store function (repository, deletion, verify) refuses an Engine with
+        ``hide_parameters`` false with ``UnsafeEngine`` before it sends a statement or takes a
+        connection; the message names the rule and holds nothing of the URL."""
+        plain = _plain_engine(db.store.url)
+        checkouts: list[int] = []
+        sa.event.listen(plain, "checkout", lambda *args: checkouts.append(1))
+        try:
+            with recording_statements(plain) as statements:
+                for function, run in _store_calls(evaldb).items():
+>                   with pytest.raises(evaldb.UnsafeEngine) as caught:
+                                       ^^^^^^^^^^^^^^^^^^^
+E                   AttributeError: module 'tracer_evaldb' has no attribute 'UnsafeEngine'
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:730: AttributeError
+________ test_repair_members_is_a_keyword_only_bool_defaulting_to_false ________
+
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+
+    def test_repair_members_is_a_keyword_only_bool_defaulting_to_false(evaldb: ModuleType) -> None:
+>       parameter = inspect.signature(evaldb.store_run_bundle).parameters["repair_members"]
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:137: KeyError
+_ test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[sqlite-test_profile] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10b34e910>, evaldb=<module 'tracer_evaldb' from '<repo>/..._the_same_bundle_a0/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b34ed50>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'test_profile'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member(
+        db: Db, evaldb: ModuleType, kind: str
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        record = _delete(evaldb, db, bundle, kind)
+        assert _present(db, kind, record) == 0
+        before = raw_dump(db.engine)
+        with recording(db.engine) as statements:
+            result = evaldb.store_run_bundle(db.engine, bundle)
+        assert result.created is False
+>       assert dict(result.inserted) == {}
+E       AssertionError: assert {'test_profile': 1} == {}
+E         
+E         Left contains 1 more item:
+E         {'test_profile': 1}
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_repair_members.py:181: AssertionError
+_ test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[sqlite-pricing_catalog] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10b378410>, evaldb=<module 'tracer_evaldb' from '<repo>/..._the_same_bundle_a1/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b482310>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'pricing_catalog'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member(
+        db: Db, evaldb: ModuleType, kind: str
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        record = _delete(evaldb, db, bundle, kind)
+        assert _present(db, kind, record) == 0
+        before = raw_dump(db.engine)
+        with recording(db.engine) as statements:
+            result = evaldb.store_run_bundle(db.engine, bundle)
+        assert result.created is False
+>       assert dict(result.inserted) == {}
+E       AssertionError: assert {'pricing_catalog': 1} == {}
+E         
+E         Left contains 1 more item:
+E         {'pricing_catalog': 1}
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_repair_members.py:181: AssertionError
+_ test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[sqlite-persona] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10b2ae290>, evaldb=<module 'tracer_evaldb' from '<repo>/..._the_same_bundle_a2/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b2af4d0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'persona'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member(
+        db: Db, evaldb: ModuleType, kind: str
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        record = _delete(evaldb, db, bundle, kind)
+        assert _present(db, kind, record) == 0
+        before = raw_dump(db.engine)
+        with recording(db.engine) as statements:
+            result = evaldb.store_run_bundle(db.engine, bundle)
+        assert result.created is False
+>       assert dict(result.inserted) == {}
+E       AssertionError: assert {'persona': 1} == {}
+E         
+E         Left contains 1 more item:
+E         {'persona': 1}
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_repair_members.py:181: AssertionError
+_ test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[sqlite-rubric] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10b4de410>, evaldb=<module 'tracer_evaldb' from '<repo>/..._the_same_bundle_a3/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b4fead0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'rubric'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member(
+        db: Db, evaldb: ModuleType, kind: str
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        record = _delete(evaldb, db, bundle, kind)
+        assert _present(db, kind, record) == 0
+        before = raw_dump(db.engine)
+        with recording(db.engine) as statements:
+            result = evaldb.store_run_bundle(db.engine, bundle)
+        assert result.created is False
+>       assert dict(result.inserted) == {}
+E       AssertionError: assert {'rubric': 1} == {}
+E         
+E         Left contains 1 more item:
+E         {'rubric': 1}
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_repair_members.py:181: AssertionError
+_ test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[sqlite-evaluator] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10b987950>, evaldb=<module 'tracer_evaldb' from '<repo>/..._the_same_bundle_a4/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b987110>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'evaluator'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member(
+        db: Db, evaldb: ModuleType, kind: str
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        record = _delete(evaldb, db, bundle, kind)
+        assert _present(db, kind, record) == 0
+        before = raw_dump(db.engine)
+        with recording(db.engine) as statements:
+            result = evaldb.store_run_bundle(db.engine, bundle)
+        assert result.created is False
+>       assert dict(result.inserted) == {}
+E       AssertionError: assert {'evaluator': 1} == {}
+E         
+E         Left contains 1 more item:
+E         {'evaluator': 1}
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_repair_members.py:181: AssertionError
+_ test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[sqlite-metric_definition] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10b9b5710>, evaldb=<module 'tracer_evaldb' from '<repo>/..._the_same_bundle_a5/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10c553b10>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'metric_definition'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member(
+        db: Db, evaldb: ModuleType, kind: str
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        record = _delete(evaldb, db, bundle, kind)
+        assert _present(db, kind, record) == 0
+        before = raw_dump(db.engine)
+        with recording(db.engine) as statements:
+            result = evaldb.store_run_bundle(db.engine, bundle)
+        assert result.created is False
+>       assert dict(result.inserted) == {}
+E       AssertionError: assert {'metric_definition': 1} == {}
+E         
+E         Left contains 1 more item:
+E         {'metric_definition': 1}
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_repair_members.py:181: AssertionError
+_ test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[sqlite-metric_binding] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10c55f190>, evaldb=<module 'tracer_evaldb' from '<repo>/..._the_same_bundle_a6/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b7b0810>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'metric_binding'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member(
+        db: Db, evaldb: ModuleType, kind: str
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        record = _delete(evaldb, db, bundle, kind)
+        assert _present(db, kind, record) == 0
+        before = raw_dump(db.engine)
+        with recording(db.engine) as statements:
+            result = evaldb.store_run_bundle(db.engine, bundle)
+        assert result.created is False
+>       assert dict(result.inserted) == {}
+E       AssertionError: assert {'metric_binding': 1} == {}
+E         
+E         Left contains 1 more item:
+E         {'metric_binding': 1}
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_repair_members.py:181: AssertionError
+______ test_default_and_explicit_false_behave_alike[sqlite-test_profile] _______
+
+db = Db(store=<conftest.StoreHandle object at 0x10c674a10>, evaldb=<module 'tracer_evaldb' from '<repo>/..._and_explicit_fals0/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10c719f10>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'test_profile'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_default_and_explicit_false_behave_alike(db: Db, evaldb: ModuleType, kind: str) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        record = _delete(evaldb, db, bundle, kind)
+        before = raw_dump(db.engine)
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=False)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:195: TypeError
+_____ test_default_and_explicit_false_behave_alike[sqlite-pricing_catalog] _____
+
+db = Db(store=<conftest.StoreHandle object at 0x10c65c9d0>, evaldb=<module 'tracer_evaldb' from '<repo>/..._and_explicit_fals1/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10c71ac10>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'pricing_catalog'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_default_and_explicit_false_behave_alike(db: Db, evaldb: ModuleType, kind: str) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        record = _delete(evaldb, db, bundle, kind)
+        before = raw_dump(db.engine)
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=False)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:195: TypeError
+_________ test_default_and_explicit_false_behave_alike[sqlite-persona] _________
+
+db = Db(store=<conftest.StoreHandle object at 0x10ba326d0>, evaldb=<module 'tracer_evaldb' from '<repo>/..._and_explicit_fals2/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10ba6cb50>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'persona'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_default_and_explicit_false_behave_alike(db: Db, evaldb: ModuleType, kind: str) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        record = _delete(evaldb, db, bundle, kind)
+        before = raw_dump(db.engine)
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=False)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:195: TypeError
+_________ test_default_and_explicit_false_behave_alike[sqlite-rubric] __________
+
+db = Db(store=<conftest.StoreHandle object at 0x10b9cb410>, evaldb=<module 'tracer_evaldb' from '<repo>/..._and_explicit_fals3/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10c68ccd0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'rubric'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_default_and_explicit_false_behave_alike(db: Db, evaldb: ModuleType, kind: str) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        record = _delete(evaldb, db, bundle, kind)
+        before = raw_dump(db.engine)
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=False)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:195: TypeError
+________ test_default_and_explicit_false_behave_alike[sqlite-evaluator] ________
+
+db = Db(store=<conftest.StoreHandle object at 0x10b6eb790>, evaldb=<module 'tracer_evaldb' from '<repo>/..._and_explicit_fals4/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10ba211d0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'evaluator'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_default_and_explicit_false_behave_alike(db: Db, evaldb: ModuleType, kind: str) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        record = _delete(evaldb, db, bundle, kind)
+        before = raw_dump(db.engine)
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=False)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:195: TypeError
+____ test_default_and_explicit_false_behave_alike[sqlite-metric_definition] ____
+
+db = Db(store=<conftest.StoreHandle object at 0x10b7ecbd0>, evaldb=<module 'tracer_evaldb' from '<repo>/..._and_explicit_fals5/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b7d9050>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'metric_definition'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_default_and_explicit_false_behave_alike(db: Db, evaldb: ModuleType, kind: str) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        record = _delete(evaldb, db, bundle, kind)
+        before = raw_dump(db.engine)
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=False)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:195: TypeError
+_____ test_default_and_explicit_false_behave_alike[sqlite-metric_binding] ______
+
+db = Db(store=<conftest.StoreHandle object at 0x10b9e8bd0>, evaldb=<module 'tracer_evaldb' from '<repo>/..._and_explicit_fals6/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b9ffa90>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'metric_binding'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_default_and_explicit_false_behave_alike(db: Db, evaldb: ModuleType, kind: str) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        record = _delete(evaldb, db, bundle, kind)
+        before = raw_dump(db.engine)
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=False)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:195: TypeError
+_ test_a_deleted_test_profile_leaves_no_personal_data_after_a_second_store[sqlite] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10ba095d0>, evaldb=<module 'tracer_evaldb' from '<repo>/...ed_test_profile_le0/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b792410>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+
+    def test_a_deleted_test_profile_leaves_no_personal_data_after_a_second_store(
+        db: Db, evaldb: ModuleType
+    ) -> None:
+        """The test profile is personal data: after ``delete_test_profile`` and a store of the same
+        bundle, no string of the profile is in any row of any table."""
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        needles = _profile_texts(bundle.test_profiles[0])
+        assert needles
+        stored = "\n".join(line for rows in raw_dump(db.engine).values() for line in rows)
+        assert any(n in stored for n in needles), "the needles are not what the store holds"
+        _delete(evaldb, db, bundle, "test_profile")
+        evaldb.store_run_bundle(db.engine, bundle)
+>       evaldb.store_run_bundle(db.engine, bundle, repair_members=False)
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:214: TypeError
+_ test_a_rescoring_of_a_stored_run_does_not_bring_back_the_deleted_member[sqlite] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10c765f50>, evaldb=<module 'tracer_evaldb' from '<repo>/...ring_of_a_stored_r0/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10c767c50>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+
+    def test_a_rescoring_of_a_stored_run_does_not_bring_back_the_deleted_member(
+        db: Db, evaldb: ModuleType
+    ) -> None:
+        """A different bundle of the same stored run (new results and verdict) is stored; the
+        deleted profile that the first bundle listed stays absent; the new rows are inserted."""
+        doc = _doc()
+        first = load_run_bundle_doc(doc)
+        store_bundle(db.engine, evaldb, first)
+        profile = _delete(evaldb, db, first, "test_profile")
+        second = load_run_bundle_doc(renew_ids(doc, lists=["results"], verdict=True))
+        result = evaldb.store_run_bundle(db.engine, second)
+        assert result.created is True
+>       assert "test_profile" not in result.inserted
+E       AssertionError: assert 'test_profile' not in mappingproxy({'test_profile': 1, 'metric_result': 2, 'run_verdict': 1, 'run_bundle': 1})
+E        +  where mappingproxy({'test_profile': 1, 'metric_result': 2, 'run_verdict': 1, 'run_bundle': 1}) = StoreResult(kind='run_bundle', entity_id=RunBundleId('rbnd_01a16f4e-2b13-73e5-96a7-0f57f29af924'), version=None, created=True, inserted=mappingproxy({'test_profile': 1, 'metric_result': 2, 'run_verdict': 1, 'run_bundle': 1})).inserted
+
+packages/evaldb/tests/test_evaldb_repair_members.py:231: AssertionError
+___ test_storing_a_bundle_twice_without_a_deletion_is_still_a_no_op[sqlite] ____
+
+db = Db(store=<conftest.StoreHandle object at 0x10a896cd0>, evaldb=<module 'tracer_evaldb' from '<repo>/..._a_bundle_twice_wi0/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10ac5f5d0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+
+    def test_storing_a_bundle_twice_without_a_deletion_is_still_a_no_op(
+        db: Db, evaldb: ModuleType
+    ) -> None:
+        bundle = _bundle()
+        first = store_bundle(db.engine, evaldb, bundle)
+        assert first.created is True
+        before = raw_dump(db.engine)
+        for kwargs in ({}, {"repair_members": False}, {"repair_members": True}):
+            with recording(db.engine) as statements:
+>               again = evaldb.store_run_bundle(db.engine, bundle, **kwargs)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:246: TypeError
+_ test_verify_database_keeps_the_absent_member_note_after_a_second_store[sqlite] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10b063a10>, evaldb=<module 'tracer_evaldb' from '<repo>/...database_keeps_the0/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b6e7b50>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+
+    def test_verify_database_keeps_the_absent_member_note_after_a_second_store(
+        db: Db, evaldb: ModuleType
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        _delete(evaldb, db, bundle, "test_profile")
+        evaldb.store_run_bundle(db.engine, bundle)
+        report = evaldb.verify_database(db.engine)
+        assert report.findings == ()
+>       assert [(f.kind, f.problem, f.location) for f in report.informational] == [
+            ("run_bundle", "bundle_member_absent", "test_profile")
+        ]
+E       AssertionError: assert [] == [('run_bundle...est_profile')]
+E         
+E         Right contains one more item: ('run_bundle', 'bundle_member_absent', 'test_profile')
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_repair_members.py:262: AssertionError
+__ test_repair_members_inserts_the_deleted_member_again[sqlite-test_profile] ___
+
+db = Db(store=<conftest.StoreHandle object at 0x10c82c850>, evaldb=<module 'tracer_evaldb' from '<repo>/...members_inserts_th0/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10c779790>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'test_profile'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_repair_members_inserts_the_deleted_member_again(
+        db: Db, evaldb: ModuleType, kind: str
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        audit_before = audit_rows(db.engine, db.metadata)
+        record = _delete(evaldb, db, bundle, kind)
+        audit_after_delete = audit_rows(db.engine, db.metadata)
+        assert len(audit_after_delete) == len(audit_before) + 1
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:298: TypeError
+_ test_repair_members_inserts_the_deleted_member_again[sqlite-pricing_catalog] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10c782010>, evaldb=<module 'tracer_evaldb' from '<repo>/...members_inserts_th1/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10c6cc310>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'pricing_catalog'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_repair_members_inserts_the_deleted_member_again(
+        db: Db, evaldb: ModuleType, kind: str
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        audit_before = audit_rows(db.engine, db.metadata)
+        record = _delete(evaldb, db, bundle, kind)
+        audit_after_delete = audit_rows(db.engine, db.metadata)
+        assert len(audit_after_delete) == len(audit_before) + 1
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:298: TypeError
+_____ test_repair_members_inserts_the_deleted_member_again[sqlite-persona] _____
+
+db = Db(store=<conftest.StoreHandle object at 0x10c55e0d0>, evaldb=<module 'tracer_evaldb' from '<repo>/...members_inserts_th2/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10c55d210>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'persona'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_repair_members_inserts_the_deleted_member_again(
+        db: Db, evaldb: ModuleType, kind: str
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        audit_before = audit_rows(db.engine, db.metadata)
+        record = _delete(evaldb, db, bundle, kind)
+        audit_after_delete = audit_rows(db.engine, db.metadata)
+        assert len(audit_after_delete) == len(audit_before) + 1
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:298: TypeError
+_____ test_repair_members_inserts_the_deleted_member_again[sqlite-rubric] ______
+
+db = Db(store=<conftest.StoreHandle object at 0x10c673a50>, evaldb=<module 'tracer_evaldb' from '<repo>/...members_inserts_th3/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10c671150>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'rubric'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_repair_members_inserts_the_deleted_member_again(
+        db: Db, evaldb: ModuleType, kind: str
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        audit_before = audit_rows(db.engine, db.metadata)
+        record = _delete(evaldb, db, bundle, kind)
+        audit_after_delete = audit_rows(db.engine, db.metadata)
+        assert len(audit_after_delete) == len(audit_before) + 1
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:298: TypeError
+____ test_repair_members_inserts_the_deleted_member_again[sqlite-evaluator] ____
+
+db = Db(store=<conftest.StoreHandle object at 0x10b7201d0>, evaldb=<module 'tracer_evaldb' from '<repo>/...members_inserts_th4/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b9a1750>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'evaluator'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_repair_members_inserts_the_deleted_member_again(
+        db: Db, evaldb: ModuleType, kind: str
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        audit_before = audit_rows(db.engine, db.metadata)
+        record = _delete(evaldb, db, bundle, kind)
+        audit_after_delete = audit_rows(db.engine, db.metadata)
+        assert len(audit_after_delete) == len(audit_before) + 1
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:298: TypeError
+_ test_repair_members_inserts_the_deleted_member_again[sqlite-metric_definition] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10c5508d0>, evaldb=<module 'tracer_evaldb' from '<repo>/...members_inserts_th5/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b58aad0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'metric_definition'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_repair_members_inserts_the_deleted_member_again(
+        db: Db, evaldb: ModuleType, kind: str
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        audit_before = audit_rows(db.engine, db.metadata)
+        record = _delete(evaldb, db, bundle, kind)
+        audit_after_delete = audit_rows(db.engine, db.metadata)
+        assert len(audit_after_delete) == len(audit_before) + 1
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:298: TypeError
+_ test_repair_members_inserts_the_deleted_member_again[sqlite-metric_binding] __
+
+db = Db(store=<conftest.StoreHandle object at 0x10c6e9dd0>, evaldb=<module 'tracer_evaldb' from '<repo>/...members_inserts_th6/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b80e850>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'metric_binding'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_repair_members_inserts_the_deleted_member_again(
+        db: Db, evaldb: ModuleType, kind: str
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        audit_before = audit_rows(db.engine, db.metadata)
+        record = _delete(evaldb, db, bundle, kind)
+        audit_after_delete = audit_rows(db.engine, db.metadata)
+        assert len(audit_after_delete) == len(audit_before) + 1
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:298: TypeError
+_____ test_repair_members_inserts_every_deleted_member_in_one_call[sqlite] _____
+
+db = Db(store=<conftest.StoreHandle object at 0x10c751790>, evaldb=<module 'tracer_evaldb' from '<repo>/...members_inserts_ev0/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10c7508d0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+
+    def test_repair_members_inserts_every_deleted_member_in_one_call(
+        db: Db, evaldb: ModuleType
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        for kind in KINDS:
+            _delete(evaldb, db, bundle, kind)
+        assert sorted(_missing_kinds(evaldb, db, bundle)) == sorted(BUNDLE_MEMBERS)
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:318: TypeError
+___ test_repair_members_on_a_store_that_lost_nothing_changes_nothing[sqlite] ___
+
+db = Db(store=<conftest.StoreHandle object at 0x10b998050>, evaldb=<module 'tracer_evaldb' from '<repo>/...members_on_a_store0/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b465510>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+
+    def test_repair_members_on_a_store_that_lost_nothing_changes_nothing(
+        db: Db, evaldb: ModuleType
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        before = raw_dump(db.engine)
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:330: TypeError
+_ test_repair_members_makes_no_difference_for_a_run_that_is_not_stored[sqlite] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10b75da10>, evaldb=<module 'tracer_evaldb' from '<repo>/...members_makes_no_d0/store.db), backend='sqlite', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b999390>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+
+    def test_repair_members_makes_no_difference_for_a_run_that_is_not_stored(
+        db: Db, evaldb: ModuleType
+    ) -> None:
+        """For a run that is not stored the flag changes nothing: the same inserts either way."""
+        first, second = _bundle(), _bundle()
+        evaldb.store_project(db.engine, _support.load_entity("Project", _project_text(first)))
+        evaldb.store_project(db.engine, _support.load_entity("Project", _project_text(second)))
+        plain = evaldb.store_run_bundle(db.engine, first)
+>       repaired = evaldb.store_run_bundle(db.engine, second, repair_members=True)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:343: TypeError
+=========================== short test summary info ============================
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_untranslated_integrity_error_params_hold_no_bound_value[sqlite-check]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_untranslated_integrity_error_params_hold_no_bound_value[sqlite-unique]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_untranslated_integrity_error_params_hold_no_bound_value[sqlite-not_null]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_untranslated_integrity_error_params_hold_no_bound_value[sqlite-foreign_key]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_untranslated_integrity_error_params_hold_no_bound_value[sqlite-restrict]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_untranslated_integrity_error_params_hold_no_bound_value[sqlite-immutable_update]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_untranslated_integrity_error_params_hold_no_bound_value[sqlite-immutable_delete]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_repository_store_error_chain_holds_no_stored_text_or_id[sqlite]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-run]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-project]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-test_profile]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-agent_target]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-persona]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-evaluator]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-metric_definition]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-metric_binding]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-rubric]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-pricing_catalog]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-dataset]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-dataset_item]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-export_bundle]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-config_snapshot]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_a_new_sqlite_file_is_created_with_mode_0600[umask0000]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_a_new_sqlite_file_is_created_with_mode_0600[umask0002]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_a_new_sqlite_file_is_created_with_mode_0600[umask0022]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_a_new_sqlite_file_in_a_directory_with_a_space_and_by_url_object
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_a_new_sqlite_file_by_relative_path_has_mode_0600
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_reopening_a_file_the_package_made_does_not_change_a_mode_the_owner_set
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_unsafe_engine_error_type
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_store_functions_refuse_an_engine_that_does_not_hide_parameters[sqlite]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_repair_members_is_a_keyword_only_bool_defaulting_to_false
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[sqlite-test_profile]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[sqlite-pricing_catalog]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[sqlite-persona]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[sqlite-rubric]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[sqlite-evaluator]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[sqlite-metric_definition]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[sqlite-metric_binding]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_default_and_explicit_false_behave_alike[sqlite-test_profile]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_default_and_explicit_false_behave_alike[sqlite-pricing_catalog]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_default_and_explicit_false_behave_alike[sqlite-persona]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_default_and_explicit_false_behave_alike[sqlite-rubric]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_default_and_explicit_false_behave_alike[sqlite-evaluator]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_default_and_explicit_false_behave_alike[sqlite-metric_definition]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_default_and_explicit_false_behave_alike[sqlite-metric_binding]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_a_deleted_test_profile_leaves_no_personal_data_after_a_second_store[sqlite]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_a_rescoring_of_a_stored_run_does_not_bring_back_the_deleted_member[sqlite]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_storing_a_bundle_twice_without_a_deletion_is_still_a_no_op[sqlite]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_verify_database_keeps_the_absent_member_note_after_a_second_store[sqlite]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_repair_members_inserts_the_deleted_member_again[sqlite-test_profile]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_repair_members_inserts_the_deleted_member_again[sqlite-pricing_catalog]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_repair_members_inserts_the_deleted_member_again[sqlite-persona]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_repair_members_inserts_the_deleted_member_again[sqlite-rubric]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_repair_members_inserts_the_deleted_member_again[sqlite-evaluator]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_repair_members_inserts_the_deleted_member_again[sqlite-metric_definition]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_repair_members_inserts_the_deleted_member_again[sqlite-metric_binding]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_repair_members_inserts_every_deleted_member_in_one_call[sqlite]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_repair_members_on_a_store_that_lost_nothing_changes_nothing[sqlite]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_repair_members_makes_no_difference_for_a_run_that_is_not_stored[sqlite]
+59 failed, 75 passed, 103 deselected in 3.55s
+exit code: 1

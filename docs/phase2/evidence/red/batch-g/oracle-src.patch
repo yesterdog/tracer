@@ -1,0 +1,248 @@
+diff --git a/packages/evaldb/src/tracer_evaldb/__init__.py b/packages/evaldb/src/tracer_evaldb/__init__.py
+index de0b433..9d51be0 100644
+--- a/packages/evaldb/src/tracer_evaldb/__init__.py
++++ b/packages/evaldb/src/tracer_evaldb/__init__.py
+@@ -42,6 +42,7 @@ from .errors import (
+     StoreSchemaVersionMismatch,
+     StoreSchemaVersionTooNew,
+     StoreValueOutOfRange,
++    UnsafeEngine,
+     UnsupportedServerEncoding,
+     UnsupportedSqliteVersion,
+ )
+@@ -116,6 +117,7 @@ __all__ = [
+     "StoreSchemaVersionMismatch",
+     "StoreSchemaVersionTooNew",
+     "StoreValueOutOfRange",
++    "UnsafeEngine",
+     "UnsupportedServerEncoding",
+     "UnsupportedSqliteVersion",
+     "UuidCol",
+diff --git a/packages/evaldb/src/tracer_evaldb/deletion.py b/packages/evaldb/src/tracer_evaldb/deletion.py
+index 865e28b..0f2f0c5 100644
+--- a/packages/evaldb/src/tracer_evaldb/deletion.py
++++ b/packages/evaldb/src/tracer_evaldb/deletion.py
+@@ -13,6 +13,7 @@ from __future__ import annotations
+ import contextlib
+ import datetime as dt
+ import json
++import re
+ import uuid
+ from collections.abc import Iterator, Mapping, Sequence
+ from dataclasses import dataclass
+@@ -81,6 +82,9 @@ class DeletionResult:
+     audit_uuid: uuid.UUID
+ 
+ 
++_ACTOR_RULE = re.compile(r"[A-Za-z0-9][A-Za-z0-9._:-]{0,127}")
++
++
+ def _check_actor_and_reason(actor: object, reason: object) -> tuple[str, str]:
+     if not isinstance(actor, str):
+         raise TypeError("actor must be a str")
+@@ -94,6 +98,8 @@ def _check_actor_and_reason(actor: object, reason: object) -> tuple[str, str]:
+         _check_label(actor)
+     except ValueError:
+         raise ValueError("actor is not a valid label: no control, separator or invisible") from None
++    if _ACTOR_RULE.fullmatch(actor) is None:
++        raise ValueError("actor does not match the label rule [A-Za-z0-9][A-Za-z0-9._:-]{0,127}")
+     flagged = credential_reason(actor)
+     if flagged is not None:
+         raise ValueError(f"actor looks like a credential (rule: {flagged})")
+diff --git a/packages/evaldb/src/tracer_evaldb/engine.py b/packages/evaldb/src/tracer_evaldb/engine.py
+index 2f07623..93fa1c0 100644
+--- a/packages/evaldb/src/tracer_evaldb/engine.py
++++ b/packages/evaldb/src/tracer_evaldb/engine.py
+@@ -13,6 +13,7 @@ SQLite raises natively) and drops the fields of the server's error that quote th
+ 
+ from __future__ import annotations
+ 
++import os
+ import sqlite3
+ from typing import Any
+ 
+@@ -93,11 +94,32 @@ def _translate_integrity(context: ExceptionContext) -> Exception | None:
+     original = context.original_exception
+     if original is None or not is_integrity_sqlstate(sqlstate_of(original)):
+         return None
+-    fields = original.args[0]
+-    scrubbed = type(original)({name: fields[name] for name in _SAFE_ERROR_FIELDS if name in fields})
+-    return sa.exc.IntegrityError(
+-        context.statement, context.parameters, scrubbed, hide_parameters=True
+-    )
++    # the driver error stays the __cause__ of what is raised, and pg8000 raised it while handling
++    # its own DatabaseError (the __context__): scrub every link in place
++    link: BaseException | None = original
++    while link is not None:
++        if link.args and isinstance(link.args[0], dict):
++            fields = link.args[0]
++            link.args = ({name: fields[name] for name in _SAFE_ERROR_FIELDS if name in fields},)
++        link = link.__cause__ or link.__context__
++    return sa.exc.IntegrityError(context.statement, None, original, hide_parameters=True)
++
++
++def _drop_integrity_params(context: ExceptionContext) -> Exception | None:
++    original = context.original_exception
++    if not isinstance(original, sqlite3.IntegrityError):
++        return None
++    return sa.exc.IntegrityError(context.statement, None, original, hide_parameters=True)
++
++
++def _create_private_file(url: URL) -> None:
++    path = url.database
++    if not path or path == ":memory:" or path.startswith("file:"):
++        return
++    try:
++        os.close(os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600))
++    except OSError:
++        pass  # exists, or cannot be created: SQLite reports it at the first connection
+ 
+ 
+ def _probe(engine: Engine) -> Connection:
+@@ -113,7 +135,9 @@ def _sqlite_engine(url: URL, busy_timeout_ms: int) -> Engine:
+         raise UnsupportedSqliteVersion(
+             f"SQLite {sqlite3.sqlite_version} is too old; 3.37 or newer is required"
+         )
++    _create_private_file(url)
+     engine = sa.create_engine(url, hide_parameters=True)
++    event.listen(engine, "handle_error", _drop_integrity_params)
+ 
+     @event.listens_for(engine, "connect")
+     def _configure(dbapi_connection: Any, _record: Any) -> None:
+diff --git a/packages/evaldb/src/tracer_evaldb/errors.py b/packages/evaldb/src/tracer_evaldb/errors.py
+index 3266fd8..a93d750 100644
+--- a/packages/evaldb/src/tracer_evaldb/errors.py
++++ b/packages/evaldb/src/tracer_evaldb/errors.py
+@@ -38,6 +38,7 @@ __all__ = [
+     "StoreSchemaVersionMismatch",
+     "StoreSchemaVersionTooNew",
+     "StoreValueOutOfRange",
++    "UnsafeEngine",
+     "UnsupportedServerEncoding",
+     "UnsupportedSqliteVersion",
+ ]
+@@ -51,6 +52,16 @@ class StoreConfigurationError(StoreError):
+     """The URL or an option is not supported."""
+ 
+ 
++class UnsafeEngine(StoreConfigurationError):
++    """The Engine does not hide bound parameters (rule: ``hide_parameters=True``)."""
++
++    def __init__(self) -> None:
++        super().__init__(
++            "the engine does not hide bound parameters (rule: hide_parameters=True); "
++            "use the Engine of create_store_engine"
++        )
++
++
+ class StoreConnectionError(StoreError):
+     """The database could not be reached or refused the connection."""
+ 
+diff --git a/packages/evaldb/src/tracer_evaldb/repository.py b/packages/evaldb/src/tracer_evaldb/repository.py
+index f495882..71136cb 100644
+--- a/packages/evaldb/src/tracer_evaldb/repository.py
++++ b/packages/evaldb/src/tracer_evaldb/repository.py
+@@ -103,6 +103,7 @@ from .errors import (
+     RecordOwnershipConflict,
+     ReimportConflict,
+     StoreConstraintViolation,
++    UnsafeEngine,
+ )
+ from .schema import metadata
+ 
+@@ -262,6 +263,8 @@ _EXPORT_LIMIT = loader.DEFAULT_MAX_BUNDLE_BYTES
+ def _engine(engine: object) -> Engine:
+     if not isinstance(engine, Engine):
+         raise TypeError("the first argument must be the Engine of create_store_engine")
++    if engine.hide_parameters is not True:
++        raise UnsafeEngine
+     return engine
+ 
+ 
+@@ -632,13 +635,48 @@ def _check_bundle_members(connection: Connection, root: _Item) -> None:
+         raise _conflict("run_bundle", root)
+ 
+ 
+-def store_run_bundle(engine: Engine, bundle: RunBundle) -> StoreResult:
++def _deleted_members(connection: Connection, run: _Item) -> set[tuple[Any, ...]]:
++    """(table, id, version) of the records that a stored bundle or the stored snapshot of this run
++    lists: if one of them is absent it was deleted."""
++    run_id = run.encoded.row["id"]
++    listed: set[tuple[Any, ...]] = set()
++    bundles, members = _table("run_bundle"), _table("run_bundle_member")
++    for kind, rid, version in connection.execute(
++        sa.select(members.c.kind, members.c.record_id, members.c.record_version)
++        .join(bundles, bundles.c.id == members.c.bundle_id)
++        .where(bundles.c.run_id == run_id)
++    ):
++        if kind in ("pricing_catalog", "test_profile"):
++            listed.add((kind, rid, version))
++    runs = _table("run")
++    snapshot_id = connection.execute(
++        sa.select(runs.c.config_snapshot_id).where(runs.c.id == run_id)
++    ).scalar_one_or_none()
++    if snapshot_id is not None:
++        sm = _table("snapshot_member")
++        for kind, did, version in connection.execute(
++            sa.select(sm.c.kind, sm.c.def_id, sm.c.def_version).where(sm.c.snapshot_id == snapshot_id)
++        ):
++            listed.add((kind, did, version))
++        sp = _table("snapshot_profile_ref")
++        for pid, version in connection.execute(
++            sa.select(sp.c.profile_id, sp.c.profile_version).where(sp.c.snapshot_id == snapshot_id)
++        ):
++            listed.add(("test_profile", pid, version))
++    return listed
++
++
++def store_run_bundle(
++    engine: Engine, bundle: RunBundle, *, repair_members: bool = False
++) -> StoreResult:
+     """Store a run bundle and everything it lists in one transaction (the write unit, ADR 0022).
+ 
+     Records of fact whose IDs are stored are shared, not inserted again: a rescoring bundle inserts
+     only its new rows. The run's project must be stored.
+     """
+     _engine(engine)
++    if type(repair_members) is not bool:
++        raise TypeError("repair_members must be a bool")
+     if type(bundle) is not RunBundle:
+         raise TypeError("store_run_bundle takes a RunBundle")
+     valid = loader.load_bundle(RunBundle, bundle.model_dump_json())
+@@ -656,6 +694,14 @@ def store_run_bundle(engine: Engine, bundle: RunBundle) -> StoreResult:
+             raise ProjectNotStored(project_id)
+         _check_reimport(connection, run)
+         fresh = _settle(connection, plan)
++        if not repair_members and run.key not in {i.key for i in fresh.get("run", [])}:
++            gone = _deleted_members(connection, run)
++            for table in list(fresh):
++                kept = [i for i in fresh[table] if (table, *i.key) not in gone]
++                if kept:
++                    fresh[table] = kept
++                else:
++                    del fresh[table]
+         if "run_bundle" not in fresh:
+             _check_bundle_members(connection, root)
+         inserted = _insert(connection, fresh)
+diff --git a/packages/evaldb/src/tracer_evaldb/verify.py b/packages/evaldb/src/tracer_evaldb/verify.py
+index 24805d6..e78d55d 100644
+--- a/packages/evaldb/src/tracer_evaldb/verify.py
++++ b/packages/evaldb/src/tracer_evaldb/verify.py
+@@ -32,7 +32,7 @@ from tracer_evalschema.errors import DigestMismatch
+ from tracer_evalschema.ids import RunBundleId
+ 
+ from . import codecs
+-from .errors import StoreIntegrityError
++from .errors import StoreIntegrityError, UnsafeEngine
+ from .repository import _MEMBERS, _PAIR_CHUNK
+ from .schema import metadata
+ from .tables import ENTITY_TABLES
+@@ -424,6 +424,8 @@ def verify_database(engine: Engine) -> VerifyReport:
+     """
+     if not isinstance(engine, Engine):
+         raise TypeError("the first argument must be the Engine of create_store_engine")
++    if engine.hide_parameters is not True:
++        raise UnsafeEngine
+     reader: Engine = engine
+     if engine.dialect.name == "postgresql":
+         reader = engine.execution_options(isolation_level="REPEATABLE READ")

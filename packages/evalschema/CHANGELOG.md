@@ -13,8 +13,8 @@ file of one `0.0.x` version is not readable by another without an upgrade step. 
 availability of the name `tracer-evalschema` there is not verified. Until the release the JSON
 Schema files and `schema.lock` are regenerated in place under the same version; at the release
 the lock is frozen under `tests/fixtures/frozen/0.0.1/` and any later schema change needs a new
-version. The Phase 1 gate (staff-reviewer) has not passed yet; see `docs/phase1/SCOPE.md`
-section 7.
+version. The Phase 1 gate (staff-reviewer) passed with conditions at commit `538c286` (`534c346`
+before the history rewrite of 2026-10-24); see `docs/phase1/SCOPE.md` section 7.
 
 First version. Everything below is new, so there is no change class and no migration.
 
@@ -22,8 +22,8 @@ First version. Everything below is new, so there is no change class and no migra
 
 - Pydantic v2 models, Python 3.11 or later (required CI legs 3.11 to 3.14 on hosted Linux; a
   non-blocking 3.15 leg, which has run on a 3.15 release candidate). Runtime dependencies:
-  `pydantic` 2.14.1 and `rfc8785` 0.1.4 only, pinned exactly (whether to relax the pins before
-  a public release is open, see "Development notes"). Licence Apache-2.0.
+  `pydantic>=2.11,<3` and `rfc8785>=0.1.4,<0.2` only, bounded ranges tested at their lower bound
+  and at the locked versions (see "Development notes"). Licence Apache-2.0.
 - 26 entities, each with `id`, `schema_version`, `created_at`, `metadata` and the computed,
   load-verified `metadata_flags`: Project, AgentTarget, Persona, TestProfile, Evaluator,
   MetricDefinition, MetricBinding, Rubric, ConfigSnapshot, Run, Artifact, Transcript, Turn,
@@ -136,7 +136,8 @@ released.
 
 ### Not in this release
 
-- No database tables, so no Alembic migrations.
+- No database tables, so no Alembic migrations (the relational store is the separate package
+  `tracer-evaldb`).
 - No export builder (exports are validated, not built), no redaction, no retention enforcement,
   no production key management (sealing is defined; the reference implementation is test-only).
 - No upgrade step (`upgrade()`), because no earlier version exists.

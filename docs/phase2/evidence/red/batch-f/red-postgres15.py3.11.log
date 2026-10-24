@@ -1,0 +1,79 @@
+..FF.                                                                    [100%]
+=================================== FAILURES ===================================
+____________________ test_store_errors_hide_input[postgres] ____________________
+
+db = Db(store=<conftest.StoreHandle object at 0x10b4a9e90>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:<port>/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10d2f6dd0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+caplog = <_pytest.logging.LogCaptureFixture object at 0x10d467210>
+
+    def test_store_errors_hide_input(
+        db: Db, evaldb: ModuleType, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """P2-24: an error never contains the text of a document or the value of a bound parameter.
+    
+        Probed: constraint violations of the five kinds (raw, and translated by the repository), a
+        value the column type refuses, ``StoreValueOutOfRange`` (the number is not quoted), and
+        tampered rows: for seven tables a document edited, broken and given a field the strict loader
+        refuses, and a projected column that disagrees with its document, each read back through the
+        repository and through ``verify_database``. The text surface of every error (message,
+        representation, arguments, notes, the attributes of a store error, the driver's original, the
+        whole traceback text, and the exceptions Python itself shows with it) and every log record
+        (with the SQLAlchemy engine logger at INFO) is searched for the markers.
+        """
+        caplog.set_level("DEBUG")
+        caplog.set_level("INFO", logger="sqlalchemy.engine")
+        probes = _probe_constraints(db, evaldb)
+        probes += _probe_out_of_range(db, evaldb)
+        probes += _probe_tampered(db, evaldb)
+        assert len(probes) >= 5 * 2 + 1 + 2 + 7 * 3 * 2 + 2, len(probes)
+    
+        found = {probe.label: leaks(probe.text) for probe in probes}
+>       assert {label: hits for label, hits in found.items() if hits} == {}
+E       AssertionError: assert {'database ch...NAME-5b2e91']} == {}
+E         
+E         Left contains 2 more items:
+E         {'database check': ['HIDE-INPUT-DOC-5b2e91', 'HIDE-INPUT-NAME-5b2e91'],
+E          'database not_null': ['HIDE-INPUT-DOC-5b2e91', 'HIDE-INPUT-NAME-5b2e91']}
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_guards.py:880: AssertionError
+_______ test_storage_policy_parity_table_matches_column_types[postgres] ________
+
+store = <conftest.StoreHandle object at 0x10d822590>
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+
+    def test_storage_policy_parity_table_matches_column_types(store: Any, evaldb: ModuleType) -> None:
+        """P2-25: the parity table of the policy equals the real column types of both backends.
+    
+        The table (section 2) has the header ``Logical type | Postgres | SQLite (STRICT)`` and one row
+        for each of the eight column types in the pinned order, every cell one backticked token. Each
+        cell is compared (a) with the DDL type SQLAlchemy writes for the column type on each dialect,
+        (b) with the DDL type of every real column of the 37 tables, and (c) with what the database
+        itself reports for a scratch table of that type on the backend under test: the type, and the
+        collation (Postgres ``COLLATE "C"``, SQLite ``COLLATE "BINARY"`` in the table definition)."""
+>       rows = parity_rows()
+               ^^^^^^^^^^^^^
+
+packages/evaldb/tests/test_evaldb_storage_policy.py:339: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evaldb/tests/test_evaldb_storage_policy.py:312: in parity_rows
+    (table,) = docs.tables(sections()[2].lines)
+                           ^^^^^^^^^^
+packages/evaldb/tests/test_evaldb_storage_policy.py:73: in sections
+    return {s.number: s for s in docs.numbered_sections(policy_text())}
+                                                        ^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def policy_text() -> str:
+>       assert docs.STORAGE_POLICY.is_file(), "packages/evaldb/STORAGE_POLICY.md does not exist yet"
+E       AssertionError: packages/evaldb/STORAGE_POLICY.md does not exist yet
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('<repo>/packages/evaldb/STORAGE_POLICY.md').is_file
+E        +      where PosixPath('<repo>/packages/evaldb/STORAGE_POLICY.md') = docs.STORAGE_POLICY
+
+packages/evaldb/tests/test_evaldb_storage_policy.py:67: AssertionError
+=========================== short test summary info ============================
+FAILED packages/evaldb/tests/test_evaldb_guards.py::test_store_errors_hide_input[postgres]
+FAILED packages/evaldb/tests/test_evaldb_storage_policy.py::test_storage_policy_parity_table_matches_column_types[postgres]
+2 failed, 3 passed, 35 deselected in 5.25s

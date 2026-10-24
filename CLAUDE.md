@@ -1,6 +1,6 @@
 # tracer: open-source eval framework for Indic voice AI agents
 
-Start here when resuming work. Read `docs/HANDOFF.md` first, then `docs/phase1/SCOPE.md` (task table, test names, gate), `docs/phase1/api-surface.md` and `docs/adr/README.md`. Before relying on the handoff's status, run `uv sync --locked --all-groups && uv run --locked pytest -q packages/evalschema/tests` and check `git status`.
+Start here when resuming work. Read `docs/HANDOFF.md` first, then `docs/BACKLOG.md` (every deferred, accepted or unverified item with a stable BL id: triage and close items there, never leave a miss only in chat or the decision log), then `docs/phase1/SCOPE.md` (task table, test names, gate), `docs/phase1/api-surface.md` and `docs/adr/README.md`. Before relying on the handoff's status, run `uv sync --locked --all-groups && uv run --locked pytest -q packages/evalschema/tests` and check `git status`.
 
 Standing rules from the project owner:
 - Only the AI agent is evaluated. The caller may be a human or a simulator. No IVR, no human hand-over. Roles are `caller`, `agent`, `unknown`.

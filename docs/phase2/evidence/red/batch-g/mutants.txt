@@ -1,0 +1,38 @@
+# batch G mutants: each is applied alone to the scratch oracle and test_evaldb_audit_fixes.py is run with -x on Python 3.14 (SQLite and Postgres 15.19 cases together); CAUGHT = at least one test failed. Equivalent survivor: M07 (the label check `_check_label` that runs before the actor rule already refuses a trailing newline, so a `$`-anchored rule changes nothing observable). M25 was first applied to a docstring line (survived, harness error) and re-run against the f-string: caught.
+M01 CAUGHT | hook scrubs orig.args only, not the __context__ link (pg8000 DatabaseError) | 1 failed, 8 passed in 1.16s | test_untranslated_integrity_error_chain_text_holds_no_row_detail[postgres-check]
+M02 CAUGHT | Postgres hook keeps the bound parameters on the new error | 1 failed, 22 passed in 4.29s | test_untranslated_integrity_error_params_hold_no_bound_value[postgres-check]
+M03 CAUGHT | no SQLite handle_error hook | 1 failed, 15 passed in 1.78s | test_untranslated_integrity_error_params_hold_no_bound_value[sqlite-check]
+M04 CAUGHT | SQLite hook keeps the bound parameters | 1 failed, 15 passed in 1.63s | test_untranslated_integrity_error_params_hold_no_bound_value[sqlite-check]
+M05 CAUGHT | actor label rule removed | 1 failed, 60 passed in 4.88s | test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-run]
+M06 CAUGHT | actor length 129 allowed | 1 failed, 60 passed in 4.52s | test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-run]
+M07 SURVIVED | actor rule matched with re.match and a $ anchor | 176 passed in 17.57s | 
+M08 CAUGHT | actor may start with a hyphen | 1 failed, 60 passed in 4.39s | test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-run]
+M09 CAUGHT | actor may contain @ | 1 failed, 60 passed in 4.51s | test_actor_outside_the_label_rule_is_refused_by_every_deletion[sqlite-run]
+M10 CAUGHT | actor may not contain a colon | 1 failed, 112 passed in 12.51s | test_actor_labels_that_follow_the_rule_are_accepted_and_stored_exactly[sqlite]
+M11 CAUGHT | credential check removed (label rule only) | 1 failed, 88 passed in 9.20s | test_actor_credential_check_still_applies_to_values_that_match_the_label_rule[sqlite-run-len27]
+M12 CAUGHT | new file mode 0644 | 1 failed, 142 passed in 17.83s | test_a_new_sqlite_file_is_created_with_mode_0600[umask0000]
+M13 CAUGHT | new file mode 0666 (umask decides) | 1 failed, 142 passed in 17.36s | test_a_new_sqlite_file_is_created_with_mode_0600[umask0000]
+M14 CAUGHT | an existing file is chmod 0600 | 1 failed, 148 passed in 16.05s | test_an_existing_empty_file_keeps_its_mode[420]
+M15 CAUGHT | in-memory path ':memory:' makes a file | 1 failed, 157 passed in 16.47s | test_in_memory_databases_make_no_file[sqlite:///:memory:]
+M16 CAUGHT | no engine guard in verify_database | 1 failed, 161 passed in 16.91s | test_store_functions_refuse_an_engine_that_does_not_hide_parameters[sqlite]
+M17 CAUGHT | no engine guard in the repository (and so none in deletion) | 1 failed, 161 passed in 16.50s | test_store_functions_refuse_an_engine_that_does_not_hide_parameters[sqlite]
+M18 CAUGHT | guard tests echo instead of hide_parameters | 1 failed, 161 passed in 16.92s | test_store_functions_refuse_an_engine_that_does_not_hide_parameters[sqlite]
+M19 CAUGHT | UnsafeEngine message holds the URL | 1 failed, 162 passed in 17.35s | test_store_functions_refuse_an_engine_that_does_not_hide_parameters[postgres]
+M20 CAUGHT | UnsafeEngine derives from StoreError | 1 failed, 160 passed in 17.03s | test_unsafe_engine_error_type
+M21 CAUGHT | guard refuses a derived (option) engine | 1 failed, 163 passed in 17.78s | test_store_functions_accept_the_engine_of_create_store_engine[sqlite]
+M22 CAUGHT | message lacks the rule name | 1 failed, 161 passed in 22.68s | test_store_functions_refuse_an_engine_that_does_not_hide_parameters[sqlite]
+M23 CAUGHT | triggers.py: sqlite create statement changed | 1 failed, 167 passed in 19.89s | test_trigger_ddl_text_matches_the_committed_hashes
+M24 CAUGHT | triggers.py: postgres function text changed | 1 failed, 167 passed in 18.70s | test_trigger_ddl_text_matches_the_committed_hashes
+M25 CAUGHT | triggers.py: drop statement changed | 1 failed, 167 passed in 15.75s | test_trigger_ddl_text_matches_the_committed_hashes
+M26 CAUGHT | triggers.py: postgres create trigger changed | 1 failed, 167 passed in 18.81s | test_trigger_ddl_text_matches_the_committed_hashes
+M27 CAUGHT | hook scrubs nothing on Postgres (the audit state) | 1 failed, 8 passed in 0.57s | test_untranslated_integrity_error_chain_text_holds_no_row_detail[postgres-check]
+M28 CAUGHT | SQLite hook returns a non-integrity error class | 1 failed, 1 passed in 0.26s | test_untranslated_integrity_error_chain_text_holds_no_row_detail[sqlite-check]
+# repair_members mutants (R01-R08): applied alone to the oracle; test_evaldb_repair_members.py run with -x on Python 3.14 (SQLite and Postgres 15.19 cases together)
+R01 CAUGHT | repair_members ignored: members are always skipped | 1 failed, 41 passed in 7.44s | test_repair_members_inserts_the_deleted_member_again[sqlite-test_profile]
+R02 CAUGHT | repair_members ignored: nothing is ever skipped (the old A6 behaviour) | 1 failed, 3 passed in 0.59s | test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[sqlite-test_profile]
+R03 CAUGHT | repair_members type check removed | 1 failed, 1 passed in 0.27s | test_repair_members_must_be_a_bool_and_is_checked_before_anything_is_written[sqlite]
+R04 CAUGHT | snapshot definitions are not protected | 1 failed, 5 passed in 0.62s | test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[sqlite-persona]
+R05 SURVIVED (equivalent: a run that is not stored has no listing to skip by) | a fresh run is skipped too (no run-stored test) | 61 passed in 11.39s | 
+R06 CAUGHT | repair_members is positional-or-keyword | 1 failed in 0.24s | test_repair_members_is_a_keyword_only_bool_defaulting_to_false
+R07 CAUGHT | pricing catalogs are not protected | 1 failed, 4 passed in 0.57s | test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[sqlite-pricing_catalog]
+R08 CAUGHT | default of repair_members is True | 1 failed in 0.21s | test_repair_members_is_a_keyword_only_bool_defaulting_to_false

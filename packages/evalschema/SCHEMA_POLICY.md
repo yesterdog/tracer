@@ -222,6 +222,8 @@ rule that a description states and no keyword expresses is enforced only by the 
   record with a new ID; a bundle that holds two contents under one ID is rejected.
 - **Database.** No database tables exist in 0.0.1, so there are no migrations yet. Phase 2
   keys versioned tables on `(id, version)` and records of fact on `id` (ADR 0009 Decision 6).
+  The store that creates these tables is `tracer-evaldb`, and its rules are in
+  `packages/evaldb/STORAGE_POLICY.md`.
 
 ## 4. Missing data: `not_applicable` and `not_available`
 

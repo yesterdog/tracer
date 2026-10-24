@@ -1,0 +1,90 @@
+diff --git a/packages/evaldb/tests/test_evaldb_deletion_audit.py b/packages/evaldb/tests/test_evaldb_deletion_audit.py
+index ce8dd27..3f9a989 100644
+--- a/packages/evaldb/tests/test_evaldb_deletion_audit.py
++++ b/packages/evaldb/tests/test_evaldb_deletion_audit.py
+@@ -13,7 +13,6 @@ from __future__ import annotations
+ 
+ import datetime as dt
+ import json
+-import unicodedata
+ import uuid
+ from types import ModuleType
+ from typing import Any
+@@ -73,7 +72,7 @@ def test_deletion_audit_counts_per_kind_exact(db: Db, evaldb: ModuleType, spec:
+     built = spec.build(world)
+     before_call = dt.datetime.now(dt.UTC)
+     result = call(
+-        evaldb, db.engine, spec, built.args, actor="Priya Nair", reason="retention_policy"
++        evaldb, db.engine, spec, built.args, actor="priya-nair", reason="retention_policy"
+     )
+     after_call = dt.datetime.now(dt.UTC)
+     (row,) = audit_rows(db.engine, db.metadata)
+@@ -86,7 +85,7 @@ def test_deletion_audit_counts_per_kind_exact(db: Db, evaldb: ModuleType, spec:
+     assert row["deleted_at"].tzinfo is not None
+     assert before_call <= row["deleted_at"] <= after_call
+     assert (row["actor"], row["reason"], row["root_kind"]) == (
+-        "Priya Nair",
++        "priya-nair",
+         "retention_policy",
+         spec.root_kind,
+     )
+@@ -166,14 +165,14 @@ def test_each_deletion_adds_one_row_and_never_changes_an_earlier_one(
+     world = World(db.engine)
+     first = world.run()
+     second = world.run()
+-    evaldb.delete_run(db.engine, first.id, actor="First Person", reason="operator_request")
++    evaldb.delete_run(db.engine, first.id, actor="first.person", reason="operator_request")
+     one = audit_rows(db.engine, db.metadata)
+-    evaldb.delete_run(db.engine, second.id, actor="Second Person", reason="data_subject_request")
++    evaldb.delete_run(db.engine, second.id, actor="second.person", reason="data_subject_request")
+     two = audit_rows(db.engine, db.metadata)
+     assert len(one) == 1
+     assert len(two) == 2
+     assert one[0] in two  # the earlier row is byte for byte what it was
+-    assert {r["actor"] for r in two} == {"First Person", "Second Person"}
++    assert {r["actor"] for r in two} == {"first.person", "second.person"}
+ 
+ 
+ def test_the_database_refuses_a_reason_or_root_kind_outside_the_closed_sets(db: Db) -> None:
+@@ -404,22 +403,19 @@ def test_deletion_requires_actor_and_reason(db: Db, evaldb: ModuleType, function
+ 
+ 
+ def test_deletion_accepts_each_reason_and_stores_labels_exactly(db: Db, evaldb: ModuleType) -> None:
+-    """The actor follows the HumanLabel rules: Indic text, ZWJ and ZWNJ are allowed, and the
+-    label is stored as given (no trimming, no normalization): NFC and NFD stay different."""
+-    zwnj, zwj = "\u200c", "\u200d"
++    """The actor follows the machine-label rule of batch G (finding E14): ASCII letters and digits
++    with ``.``, ``_``, ``:`` and ``-`` after the first character, 1 to 128 characters (the
++    refusals are in ``test_evaldb_audit_fixes.py``). Labels are stored as given."""
+     actors = [
+         "Priya",
+-        "\u0911\u092a\u0930\u0947\u091f\u0930"
+-        + zwnj
+-        + "\u091f\u0940\u092e",  # Devanagari with a joiner
+-        "\u0d15\u0d4d" + zwj + "\u0d37",  # Malayalam with ZWJ
+-        "caf\u00e9 night",  # NFC
+-        "cafe\u0301 night",  # the same text decomposed
+-        "x" * 500,
+-        "user@example.org",
+-        "Ops (night) #2 - tier-1/3",
++        "ops.night_team",
++        "service_account:tracer-ci",
++        "operator:alice-1",
++        "x" * 128,
++        "Ops-night.2",
++        "0123456789",
++        "a",
+     ]
+-    assert unicodedata.normalize("NFC", actors[3]) != actors[4]
+     world = World(db.engine)
+     expected: list[tuple[str, str]] = []
+     for index, actor in enumerate(actors):
+@@ -468,7 +464,7 @@ def test_ordinary_labels_that_resemble_nothing_secret_are_accepted(
+     for index, actor in enumerate(
+         (
+             "ops-night-shift",
+-            "Priya R. (QA)",
++            "priya.r-qa",
+             "support-team-2026-10-24",
+             "a" * 31,
+             "0123456789abcdef",

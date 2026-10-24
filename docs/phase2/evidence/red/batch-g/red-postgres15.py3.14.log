@@ -1,0 +1,1442 @@
+# red run: batch G tests, postgres-marked cases (Postgres 15, postgres (PostgreSQL) 15.19 (Debian 15.19-1.pgdg13+2)) against the committed tree
+Python 3.14.7
+FFFFF..FFFFFFFFFFFFFF.......FFFFFFFFFFFFFFF...........................F. [ 69%]
+..FFFFFFFFFFFFFFFFFF.FFFFFFFFFF                                          [100%]
+=================================== FAILURES ===================================
+_ test_untranslated_integrity_error_chain_text_holds_no_row_detail[postgres-check] _
+
+db = Db(store=<conftest.StoreHandle object at 0x108f8e510>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x1094352b0>)
+kind = 'check'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_untranslated_integrity_error_chain_text_holds_no_row_detail(db: Db, kind: str) -> None:
+        """E5. On Postgres the original driver error (``__cause__``) carries field ``D``: "Failing row
+        contains (...)" and "Key (id)=(...)". The text of every link must be free of it: the formatted
+        traceback with all causes and contexts, and ``str``, ``repr`` and ``args`` of every link."""
+        error, needles = _provoke(db, kind)
+        assert isinstance(error, sa.exc.IntegrityError)
+        assert error.orig is not None
+        text = chain_text(error)
+>       assert leaks(text, needles) == []
+E       AssertionError: assert ['DOC-MARKER-...0dd90269a4a2'] == []
+E         
+E         Left contains 3 more items, first extra item: 'DOC-MARKER-7e41-\u0915\u094d\u0937'
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:240: AssertionError
+_ test_untranslated_integrity_error_chain_text_holds_no_row_detail[postgres-unique] _
+
+db = Db(store=<conftest.StoreHandle object at 0x109520a50>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x109521bd0>)
+kind = 'unique'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_untranslated_integrity_error_chain_text_holds_no_row_detail(db: Db, kind: str) -> None:
+        """E5. On Postgres the original driver error (``__cause__``) carries field ``D``: "Failing row
+        contains (...)" and "Key (id)=(...)". The text of every link must be free of it: the formatted
+        traceback with all causes and contexts, and ``str``, ``repr`` and ``args`` of every link."""
+        error, needles = _provoke(db, kind)
+        assert isinstance(error, sa.exc.IntegrityError)
+        assert error.orig is not None
+        text = chain_text(error)
+>       assert leaks(text, needles) == []
+E       AssertionError: assert ['01a16f4e-33...eff394f259ba'] == []
+E         
+E         Left contains one more item: '01a16f4e-33cb-702d-9e0d-eff394f259ba'
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:240: AssertionError
+_ test_untranslated_integrity_error_chain_text_holds_no_row_detail[postgres-not_null] _
+
+db = Db(store=<conftest.StoreHandle object at 0x109522710>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x1095239d0>)
+kind = 'not_null'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_untranslated_integrity_error_chain_text_holds_no_row_detail(db: Db, kind: str) -> None:
+        """E5. On Postgres the original driver error (``__cause__``) carries field ``D``: "Failing row
+        contains (...)" and "Key (id)=(...)". The text of every link must be free of it: the formatted
+        traceback with all causes and contexts, and ``str``, ``repr`` and ``args`` of every link."""
+        error, needles = _provoke(db, kind)
+        assert isinstance(error, sa.exc.IntegrityError)
+        assert error.orig is not None
+        text = chain_text(error)
+>       assert leaks(text, needles) == []
+E       AssertionError: assert ['DOC-MARKER-...be0b337ea58c'] == []
+E         
+E         Left contains 2 more items, first extra item: 'DOC-MARKER-7e41-\u0915\u094d\u0937'
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:240: AssertionError
+_ test_untranslated_integrity_error_chain_text_holds_no_row_detail[postgres-foreign_key] _
+
+db = Db(store=<conftest.StoreHandle object at 0x1094d9cd0>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x1094da8b0>)
+kind = 'foreign_key'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_untranslated_integrity_error_chain_text_holds_no_row_detail(db: Db, kind: str) -> None:
+        """E5. On Postgres the original driver error (``__cause__``) carries field ``D``: "Failing row
+        contains (...)" and "Key (id)=(...)". The text of every link must be free of it: the formatted
+        traceback with all causes and contexts, and ``str``, ``repr`` and ``args`` of every link."""
+        error, needles = _provoke(db, kind)
+        assert isinstance(error, sa.exc.IntegrityError)
+        assert error.orig is not None
+        text = chain_text(error)
+>       assert leaks(text, needles) == []
+E       AssertionError: assert ['01a16f4e-35...ce4a1c511701'] == []
+E         
+E         Left contains one more item: '01a16f4e-3554-7182-a362-ce4a1c511701'
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:240: AssertionError
+_ test_untranslated_integrity_error_chain_text_holds_no_row_detail[postgres-restrict] _
+
+db = Db(store=<conftest.StoreHandle object at 0x1094db490>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x1096c03e0>)
+kind = 'restrict'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_untranslated_integrity_error_chain_text_holds_no_row_detail(db: Db, kind: str) -> None:
+        """E5. On Postgres the original driver error (``__cause__``) carries field ``D``: "Failing row
+        contains (...)" and "Key (id)=(...)". The text of every link must be free of it: the formatted
+        traceback with all causes and contexts, and ``str``, ``repr`` and ``args`` of every link."""
+        error, needles = _provoke(db, kind)
+        assert isinstance(error, sa.exc.IntegrityError)
+        assert error.orig is not None
+        text = chain_text(error)
+>       assert leaks(text, needles) == []
+E       AssertionError: assert ['01a16f4e-36...2ae3a6e35833'] == []
+E         
+E         Left contains one more item: '01a16f4e-3621-73e5-b9e1-2ae3a6e35833'
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:240: AssertionError
+_ test_untranslated_integrity_error_params_hold_no_bound_value[postgres-check] _
+
+db = Db(store=<conftest.StoreHandle object at 0x1096f7570>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x1096cc160>)
+kind = 'check'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_untranslated_integrity_error_params_hold_no_bound_value(db: Db, kind: str) -> None:
+        """E6. ``hide_parameters=True`` hides the bound values from ``str()`` only; the attribute
+        ``params`` of the error (and of every SQLAlchemy error in its chain) must not hold them either,
+        on both backends."""
+        error, needles = _provoke(db, kind)
+        assert isinstance(error, sa.exc.IntegrityError)
+>       assert leaks(params_text(error), needles) == []
+E       assert ['DOC-MARKER-...009a9cd56a')"] == []
+E         
+E         Left contains 5 more items, first extra item: 'DOC-MARKER-7e41-\u0915\u094d\u0937'
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:254: AssertionError
+_ test_untranslated_integrity_error_params_hold_no_bound_value[postgres-unique] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10936ba50>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10936b450>)
+kind = 'unique'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_untranslated_integrity_error_params_hold_no_bound_value(db: Db, kind: str) -> None:
+        """E6. ``hide_parameters=True`` hides the bound values from ``str()`` only; the attribute
+        ``params`` of the error (and of every SQLAlchemy error in its chain) must not hold them either,
+        on both backends."""
+        error, needles = _provoke(db, kind)
+        assert isinstance(error, sa.exc.IntegrityError)
+>       assert leaks(params_text(error), needles) == []
+E       assert ['DOC-MARKER-...1b35f80bcd')"] == []
+E         
+E         Left contains 5 more items, first extra item: 'DOC-MARKER-7e41-\u0915\u094d\u0937'
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:254: AssertionError
+_ test_untranslated_integrity_error_params_hold_no_bound_value[postgres-not_null] _
+
+db = Db(store=<conftest.StoreHandle object at 0x109369a50>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10936a450>)
+kind = 'not_null'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_untranslated_integrity_error_params_hold_no_bound_value(db: Db, kind: str) -> None:
+        """E6. ``hide_parameters=True`` hides the bound values from ``str()`` only; the attribute
+        ``params`` of the error (and of every SQLAlchemy error in its chain) must not hold them either,
+        on both backends."""
+        error, needles = _provoke(db, kind)
+        assert isinstance(error, sa.exc.IntegrityError)
+>       assert leaks(params_text(error), needles) == []
+E       assert ['DOC-MARKER-...62865f65aa')"] == []
+E         
+E         Left contains 4 more items, first extra item: 'DOC-MARKER-7e41-\u0915\u094d\u0937'
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:254: AssertionError
+_ test_untranslated_integrity_error_params_hold_no_bound_value[postgres-foreign_key] _
+
+db = Db(store=<conftest.StoreHandle object at 0x109711b80>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10946fa70>)
+kind = 'foreign_key'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_untranslated_integrity_error_params_hold_no_bound_value(db: Db, kind: str) -> None:
+        """E6. ``hide_parameters=True`` hides the bound values from ``str()`` only; the attribute
+        ``params`` of the error (and of every SQLAlchemy error in its chain) must not hold them either,
+        on both backends."""
+        error, needles = _provoke(db, kind)
+        assert isinstance(error, sa.exc.IntegrityError)
+>       assert leaks(params_text(error), needles) == []
+E       AssertionError: assert ['DOC-MARKER-...070c832', ...] == []
+E         
+E         Left contains 7 more items, first extra item: 'DOC-MARKER-7e41-\u0915\u094d\u0937'
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:254: AssertionError
+_ test_untranslated_integrity_error_params_hold_no_bound_value[postgres-restrict] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10946e4e0>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10946ce60>)
+kind = 'restrict'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_untranslated_integrity_error_params_hold_no_bound_value(db: Db, kind: str) -> None:
+        """E6. ``hide_parameters=True`` hides the bound values from ``str()`` only; the attribute
+        ``params`` of the error (and of every SQLAlchemy error in its chain) must not hold them either,
+        on both backends."""
+        error, needles = _provoke(db, kind)
+        assert isinstance(error, sa.exc.IntegrityError)
+>       assert leaks(params_text(error), needles) == []
+E       assert ['01a16f4e-3a...28c053b28c')"] == []
+E         
+E         Left contains 3 more items, first extra item: '01a16f4e-3a3e-76df-a94e-3f28c053b28c'
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:254: AssertionError
+_ test_untranslated_integrity_error_params_hold_no_bound_value[postgres-immutable_update] _
+
+db = Db(store=<conftest.StoreHandle object at 0x1096575b0>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x1097191d0>)
+kind = 'immutable_update'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_untranslated_integrity_error_params_hold_no_bound_value(db: Db, kind: str) -> None:
+        """E6. ``hide_parameters=True`` hides the bound values from ``str()`` only; the attribute
+        ``params`` of the error (and of every SQLAlchemy error in its chain) must not hold them either,
+        on both backends."""
+        error, needles = _provoke(db, kind)
+        assert isinstance(error, sa.exc.IntegrityError)
+>       assert leaks(params_text(error), needles) == []
+E       assert ['RENAMED-MAR...1eb66ed194')"] == []
+E         
+E         Left contains 4 more items, first extra item: 'RENAMED-MARKER-4b08'
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:254: AssertionError
+_ test_untranslated_integrity_error_params_hold_no_bound_value[postgres-immutable_delete] _
+
+db = Db(store=<conftest.StoreHandle object at 0x109719a90>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10978c3d0>)
+kind = 'immutable_delete'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_untranslated_integrity_error_params_hold_no_bound_value(db: Db, kind: str) -> None:
+        """E6. ``hide_parameters=True`` hides the bound values from ``str()`` only; the attribute
+        ``params`` of the error (and of every SQLAlchemy error in its chain) must not hold them either,
+        on both backends."""
+        error, needles = _provoke(db, kind)
+        assert isinstance(error, sa.exc.IntegrityError)
+>       assert leaks(params_text(error), needles) == []
+E       assert ['01a16f4e-3b...47e3b933a9')"] == []
+E         
+E         Left contains 3 more items, first extra item: '01a16f4e-3b8f-7190-93d4-8147e3b933a9'
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:254: AssertionError
+_____ test_driver_error_args_along_the_chain_are_scrubbed[postgres-check] ______
+
+db = Db(store=<conftest.StoreHandle object at 0x109716c30>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x109716ea0>)
+kind = 'check'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_driver_error_args_along_the_chain_are_scrubbed(db: Db, kind: str) -> None:
+        """E5. Postgres: every driver error in the chain (the ``orig`` and the ``__cause__``) has the
+        fields of the engine's scrub rule only. SQLite: the driver error is the native one and its
+        arguments are one message."""
+        error, needles = _provoke(db, kind)
+        dict_args = [a for item in _members(error) for a in item.args if isinstance(a, dict)]
+        for fields in dict_args:
+>           assert set(fields) <= SAFE_FIELDS, sorted(set(fields) - SAFE_FIELDS)
+E           AssertionError: ['D', 'F', 'L', 'R']
+E           assert {'C', 'D', 'F...'M', 'R', ...} <= frozenset({'C...c', 'd', ...})
+E             
+E             Extra items in the left set:
+E             'R'
+E             'F'
+E             'L'
+E             'D'
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:265: AssertionError
+_____ test_driver_error_args_along_the_chain_are_scrubbed[postgres-unique] _____
+
+db = Db(store=<conftest.StoreHandle object at 0x109694e90>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x109695310>)
+kind = 'unique'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_driver_error_args_along_the_chain_are_scrubbed(db: Db, kind: str) -> None:
+        """E5. Postgres: every driver error in the chain (the ``orig`` and the ``__cause__``) has the
+        fields of the engine's scrub rule only. SQLite: the driver error is the native one and its
+        arguments are one message."""
+        error, needles = _provoke(db, kind)
+        dict_args = [a for item in _members(error) for a in item.args if isinstance(a, dict)]
+        for fields in dict_args:
+>           assert set(fields) <= SAFE_FIELDS, sorted(set(fields) - SAFE_FIELDS)
+E           AssertionError: ['D', 'F', 'L', 'R']
+E           assert {'C', 'D', 'F...'M', 'R', ...} <= frozenset({'C...c', 'd', ...})
+E             
+E             Extra items in the left set:
+E             'R'
+E             'F'
+E             'L'
+E             'D'
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:265: AssertionError
+____ test_driver_error_args_along_the_chain_are_scrubbed[postgres-not_null] ____
+
+db = Db(store=<conftest.StoreHandle object at 0x109695850>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x109695e50>)
+kind = 'not_null'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_driver_error_args_along_the_chain_are_scrubbed(db: Db, kind: str) -> None:
+        """E5. Postgres: every driver error in the chain (the ``orig`` and the ``__cause__``) has the
+        fields of the engine's scrub rule only. SQLite: the driver error is the native one and its
+        arguments are one message."""
+        error, needles = _provoke(db, kind)
+        dict_args = [a for item in _members(error) for a in item.args if isinstance(a, dict)]
+        for fields in dict_args:
+>           assert set(fields) <= SAFE_FIELDS, sorted(set(fields) - SAFE_FIELDS)
+E           AssertionError: ['D', 'F', 'L', 'R']
+E           assert {'C', 'D', 'F...'M', 'R', ...} <= frozenset({'C...c', 'd', ...})
+E             
+E             Extra items in the left set:
+E             'R'
+E             'F'
+E             'L'
+E             'D'
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:265: AssertionError
+__ test_driver_error_args_along_the_chain_are_scrubbed[postgres-foreign_key] ___
+
+db = Db(store=<conftest.StoreHandle object at 0x1097454f0>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x109747120>)
+kind = 'foreign_key'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_driver_error_args_along_the_chain_are_scrubbed(db: Db, kind: str) -> None:
+        """E5. Postgres: every driver error in the chain (the ``orig`` and the ``__cause__``) has the
+        fields of the engine's scrub rule only. SQLite: the driver error is the native one and its
+        arguments are one message."""
+        error, needles = _provoke(db, kind)
+        dict_args = [a for item in _members(error) for a in item.args if isinstance(a, dict)]
+        for fields in dict_args:
+>           assert set(fields) <= SAFE_FIELDS, sorted(set(fields) - SAFE_FIELDS)
+E           AssertionError: ['D', 'F', 'L', 'R']
+E           assert {'C', 'D', 'F...'M', 'R', ...} <= frozenset({'C...c', 'd', ...})
+E             
+E             Extra items in the left set:
+E             'R'
+E             'F'
+E             'L'
+E             'D'
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:265: AssertionError
+____ test_driver_error_args_along_the_chain_are_scrubbed[postgres-restrict] ____
+
+db = Db(store=<conftest.StoreHandle object at 0x1097eccb0>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x1097edf40>)
+kind = 'restrict'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_driver_error_args_along_the_chain_are_scrubbed(db: Db, kind: str) -> None:
+        """E5. Postgres: every driver error in the chain (the ``orig`` and the ``__cause__``) has the
+        fields of the engine's scrub rule only. SQLite: the driver error is the native one and its
+        arguments are one message."""
+        error, needles = _provoke(db, kind)
+        dict_args = [a for item in _members(error) for a in item.args if isinstance(a, dict)]
+        for fields in dict_args:
+>           assert set(fields) <= SAFE_FIELDS, sorted(set(fields) - SAFE_FIELDS)
+E           AssertionError: ['D', 'F', 'L', 'R']
+E           assert {'C', 'D', 'F...'M', 'R', ...} <= frozenset({'C...c', 'd', ...})
+E             
+E             Extra items in the left set:
+E             'R'
+E             'F'
+E             'L'
+E             'D'
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:265: AssertionError
+_ test_driver_error_args_along_the_chain_are_scrubbed[postgres-immutable_update] _
+
+db = Db(store=<conftest.StoreHandle object at 0x1097df610>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x1097500f0>)
+kind = 'immutable_update'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_driver_error_args_along_the_chain_are_scrubbed(db: Db, kind: str) -> None:
+        """E5. Postgres: every driver error in the chain (the ``orig`` and the ``__cause__``) has the
+        fields of the engine's scrub rule only. SQLite: the driver error is the native one and its
+        arguments are one message."""
+        error, needles = _provoke(db, kind)
+        dict_args = [a for item in _members(error) for a in item.args if isinstance(a, dict)]
+        for fields in dict_args:
+>           assert set(fields) <= SAFE_FIELDS, sorted(set(fields) - SAFE_FIELDS)
+E           AssertionError: ['F', 'L', 'R', 'W']
+E           assert {'C', 'F', 'L...'R', 'S', ...} <= frozenset({'C...c', 'd', ...})
+E             
+E             Extra items in the left set:
+E             'R'
+E             'F'
+E             'L'
+E             'W'
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:265: AssertionError
+_ test_driver_error_args_along_the_chain_are_scrubbed[postgres-immutable_delete] _
+
+db = Db(store=<conftest.StoreHandle object at 0x1097dd450>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x109722490>)
+kind = 'immutable_delete'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_driver_error_args_along_the_chain_are_scrubbed(db: Db, kind: str) -> None:
+        """E5. Postgres: every driver error in the chain (the ``orig`` and the ``__cause__``) has the
+        fields of the engine's scrub rule only. SQLite: the driver error is the native one and its
+        arguments are one message."""
+        error, needles = _provoke(db, kind)
+        dict_args = [a for item in _members(error) for a in item.args if isinstance(a, dict)]
+        for fields in dict_args:
+>           assert set(fields) <= SAFE_FIELDS, sorted(set(fields) - SAFE_FIELDS)
+E           AssertionError: ['F', 'L', 'R', 'W']
+E           assert {'C', 'F', 'L...'R', 'S', ...} <= frozenset({'C...c', 'd', ...})
+E             
+E             Extra items in the left set:
+E             'R'
+E             'F'
+E             'L'
+E             'W'
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:265: AssertionError
+____ test_repository_store_error_chain_holds_no_stored_text_or_id[postgres] ____
+
+db = Db(store=<conftest.StoreHandle object at 0x10974e350>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10972d850>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+
+    def test_repository_store_error_chain_holds_no_stored_text_or_id(
+        db: Db, evaldb: ModuleType
+    ) -> None:
+        """The repository path of E6. A rescoring that lists a different turn at a stored position is
+        refused by the unique constraint and raised as ``StoreConstraintViolation ... from None``. A
+        reader that walks ``__context__`` (ignoring ``__suppress_context__``) must find no turn text,
+        no ID and no bound value, and no ``params`` holding them."""
+        doc = run_bundle_doc(tier="T1", origin="simulated")
+        first = load_run_bundle_doc(doc)
+        store_bundle(db.engine, evaldb, first)
+        second = load_run_bundle_doc(renew_ids(doc, lists=["turns", "results"], verdict=True))
+        needles = [str(t.text) for t in second.turns] + [
+            s for t in (*first.turns, *second.turns) for s in _strings(t.id)
+        ]
+        needles += _strings(second.id)
+        assert needles
+        assert all(len(n) >= 8 for n in needles), "the needles must be distinctive"
+        with pytest.raises(evaldb.StoreConstraintViolation) as caught:
+            evaldb.store_run_bundle(db.engine, second)
+        error = caught.value
+        assert error.kind == "unique"
+        assert leaks(chain_text(error), needles) == []
+>       assert leaks(params_text(error), needles) == []
+E       AssertionError: assert ['turn 0 text...'turn 3 text'] == []
+E         
+E         Left contains 4 more items, first extra item: 'turn 0 text'
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:313: AssertionError
+_ test_actor_outside_the_label_rule_is_refused_by_every_deletion[postgres-run] _
+
+db = Db(store=<conftest.StoreHandle object at 0x109bf1f60>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x109bf9430>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+spec = RootSpec(id='run', root_kind='run', function='delete_run', build=<function _build_run at 0x108a6afb0>)
+
+    @pytest.mark.parametrize("spec", [pytest.param(s, id=s.id) for s in ROOTS])
+    def test_actor_outside_the_label_rule_is_refused_by_every_deletion(
+        db: Db, evaldb: ModuleType, spec: Any
+    ) -> None:
+        """E14. E-mail addresses, empty, over 128 characters, a leading punctuation mark, non-ASCII,
+        spaces and a trailing newline are a ``ValueError`` naming the actor (the existing error), not
+        echoing the value; the check runs before any statement and nothing is written."""
+        world = World(db.engine)
+        built = spec.build(world)
+        before = raw_dump(db.engine)
+        with recording_statements(db.engine) as statements:
+            for actor in PATTERN_REJECTED:
+>               with pytest.raises(ValueError, match="actor") as caught:
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               Failed: DID NOT RAISE ValueError
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:420: Failed
+_ test_actor_outside_the_label_rule_is_refused_by_every_deletion[postgres-project] _
+
+db = Db(store=<conftest.StoreHandle object at 0x109aa3230>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x1096d1430>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+spec = RootSpec(id='project', root_kind='project', function='delete_project', build=<function _build_project at 0x108a6b110>)
+
+    @pytest.mark.parametrize("spec", [pytest.param(s, id=s.id) for s in ROOTS])
+    def test_actor_outside_the_label_rule_is_refused_by_every_deletion(
+        db: Db, evaldb: ModuleType, spec: Any
+    ) -> None:
+        """E14. E-mail addresses, empty, over 128 characters, a leading punctuation mark, non-ASCII,
+        spaces and a trailing newline are a ``ValueError`` naming the actor (the existing error), not
+        echoing the value; the check runs before any statement and nothing is written."""
+        world = World(db.engine)
+        built = spec.build(world)
+        before = raw_dump(db.engine)
+        with recording_statements(db.engine) as statements:
+            for actor in PATTERN_REJECTED:
+>               with pytest.raises(ValueError, match="actor") as caught:
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               Failed: DID NOT RAISE ValueError
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:420: Failed
+_ test_actor_outside_the_label_rule_is_refused_by_every_deletion[postgres-test_profile] _
+
+db = Db(store=<conftest.StoreHandle object at 0x1096ddcc0>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x109a02e70>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+spec = RootSpec(id='test_profile', root_kind='test_profile', function='delete_test_profile', build=<function _build_test_profile at 0x108a6b270>)
+
+    @pytest.mark.parametrize("spec", [pytest.param(s, id=s.id) for s in ROOTS])
+    def test_actor_outside_the_label_rule_is_refused_by_every_deletion(
+        db: Db, evaldb: ModuleType, spec: Any
+    ) -> None:
+        """E14. E-mail addresses, empty, over 128 characters, a leading punctuation mark, non-ASCII,
+        spaces and a trailing newline are a ``ValueError`` naming the actor (the existing error), not
+        echoing the value; the check runs before any statement and nothing is written."""
+        world = World(db.engine)
+        built = spec.build(world)
+        before = raw_dump(db.engine)
+        with recording_statements(db.engine) as statements:
+            for actor in PATTERN_REJECTED:
+>               with pytest.raises(ValueError, match="actor") as caught:
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               Failed: DID NOT RAISE ValueError
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:420: Failed
+_ test_actor_outside_the_label_rule_is_refused_by_every_deletion[postgres-agent_target] _
+
+db = Db(store=<conftest.StoreHandle object at 0x109b20de0>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x109b310d0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+spec = RootSpec(id='agent_target', root_kind='agent_target', function='delete_definition', build=<function _build_definition.<locals>.build at 0x108a6ba00>)
+
+    @pytest.mark.parametrize("spec", [pytest.param(s, id=s.id) for s in ROOTS])
+    def test_actor_outside_the_label_rule_is_refused_by_every_deletion(
+        db: Db, evaldb: ModuleType, spec: Any
+    ) -> None:
+        """E14. E-mail addresses, empty, over 128 characters, a leading punctuation mark, non-ASCII,
+        spaces and a trailing newline are a ``ValueError`` naming the actor (the existing error), not
+        echoing the value; the check runs before any statement and nothing is written."""
+        world = World(db.engine)
+        built = spec.build(world)
+        before = raw_dump(db.engine)
+        with recording_statements(db.engine) as statements:
+            for actor in PATTERN_REJECTED:
+>               with pytest.raises(ValueError, match="actor") as caught:
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               Failed: DID NOT RAISE ValueError
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:420: Failed
+_ test_actor_outside_the_label_rule_is_refused_by_every_deletion[postgres-persona] _
+
+db = Db(store=<conftest.StoreHandle object at 0x109b21fd0>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x109b33410>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+spec = RootSpec(id='persona', root_kind='persona', function='delete_definition', build=<function _build_definition.<locals>.build at 0x108a6bb60>)
+
+    @pytest.mark.parametrize("spec", [pytest.param(s, id=s.id) for s in ROOTS])
+    def test_actor_outside_the_label_rule_is_refused_by_every_deletion(
+        db: Db, evaldb: ModuleType, spec: Any
+    ) -> None:
+        """E14. E-mail addresses, empty, over 128 characters, a leading punctuation mark, non-ASCII,
+        spaces and a trailing newline are a ``ValueError`` naming the actor (the existing error), not
+        echoing the value; the check runs before any statement and nothing is written."""
+        world = World(db.engine)
+        built = spec.build(world)
+        before = raw_dump(db.engine)
+        with recording_statements(db.engine) as statements:
+            for actor in PATTERN_REJECTED:
+>               with pytest.raises(ValueError, match="actor") as caught:
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               Failed: DID NOT RAISE ValueError
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:420: Failed
+_ test_actor_outside_the_label_rule_is_refused_by_every_deletion[postgres-evaluator] _
+
+db = Db(store=<conftest.StoreHandle object at 0x109aa3230>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x109ac4d10>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+spec = RootSpec(id='evaluator', root_kind='evaluator', function='delete_definition', build=<function _build_definition.<locals>.build at 0x108a6bcc0>)
+
+    @pytest.mark.parametrize("spec", [pytest.param(s, id=s.id) for s in ROOTS])
+    def test_actor_outside_the_label_rule_is_refused_by_every_deletion(
+        db: Db, evaldb: ModuleType, spec: Any
+    ) -> None:
+        """E14. E-mail addresses, empty, over 128 characters, a leading punctuation mark, non-ASCII,
+        spaces and a trailing newline are a ``ValueError`` naming the actor (the existing error), not
+        echoing the value; the check runs before any statement and nothing is written."""
+        world = World(db.engine)
+        built = spec.build(world)
+        before = raw_dump(db.engine)
+        with recording_statements(db.engine) as statements:
+            for actor in PATTERN_REJECTED:
+>               with pytest.raises(ValueError, match="actor") as caught:
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               Failed: DID NOT RAISE ValueError
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:420: Failed
+_ test_actor_outside_the_label_rule_is_refused_by_every_deletion[postgres-metric_definition] _
+
+db = Db(store=<conftest.StoreHandle object at 0x109ae7ee0>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x109ac74d0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+spec = RootSpec(id='metric_definition', root_kind='metric_definition', function='delete_definition', build=<function _build_definition.<locals>.build at 0x108a6be20>)
+
+    @pytest.mark.parametrize("spec", [pytest.param(s, id=s.id) for s in ROOTS])
+    def test_actor_outside_the_label_rule_is_refused_by_every_deletion(
+        db: Db, evaldb: ModuleType, spec: Any
+    ) -> None:
+        """E14. E-mail addresses, empty, over 128 characters, a leading punctuation mark, non-ASCII,
+        spaces and a trailing newline are a ``ValueError`` naming the actor (the existing error), not
+        echoing the value; the check runs before any statement and nothing is written."""
+        world = World(db.engine)
+        built = spec.build(world)
+        before = raw_dump(db.engine)
+        with recording_statements(db.engine) as statements:
+            for actor in PATTERN_REJECTED:
+>               with pytest.raises(ValueError, match="actor") as caught:
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               Failed: DID NOT RAISE ValueError
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:420: Failed
+_ test_actor_outside_the_label_rule_is_refused_by_every_deletion[postgres-metric_binding] _
+
+db = Db(store=<conftest.StoreHandle object at 0x109ae5860>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x109b15790>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+spec = RootSpec(id='metric_binding', root_kind='metric_binding', function='delete_definition', build=<function _build_definition.<locals>.build at 0x108a7c040>)
+
+    @pytest.mark.parametrize("spec", [pytest.param(s, id=s.id) for s in ROOTS])
+    def test_actor_outside_the_label_rule_is_refused_by_every_deletion(
+        db: Db, evaldb: ModuleType, spec: Any
+    ) -> None:
+        """E14. E-mail addresses, empty, over 128 characters, a leading punctuation mark, non-ASCII,
+        spaces and a trailing newline are a ``ValueError`` naming the actor (the existing error), not
+        echoing the value; the check runs before any statement and nothing is written."""
+        world = World(db.engine)
+        built = spec.build(world)
+        before = raw_dump(db.engine)
+        with recording_statements(db.engine) as statements:
+            for actor in PATTERN_REJECTED:
+>               with pytest.raises(ValueError, match="actor") as caught:
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               Failed: DID NOT RAISE ValueError
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:420: Failed
+_ test_actor_outside_the_label_rule_is_refused_by_every_deletion[postgres-rubric] _
+
+db = Db(store=<conftest.StoreHandle object at 0x109b18830>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x109c982f0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+spec = RootSpec(id='rubric', root_kind='rubric', function='delete_definition', build=<function _build_definition.<locals>.build at 0x108a7c1a0>)
+
+    @pytest.mark.parametrize("spec", [pytest.param(s, id=s.id) for s in ROOTS])
+    def test_actor_outside_the_label_rule_is_refused_by_every_deletion(
+        db: Db, evaldb: ModuleType, spec: Any
+    ) -> None:
+        """E14. E-mail addresses, empty, over 128 characters, a leading punctuation mark, non-ASCII,
+        spaces and a trailing newline are a ``ValueError`` naming the actor (the existing error), not
+        echoing the value; the check runs before any statement and nothing is written."""
+        world = World(db.engine)
+        built = spec.build(world)
+        before = raw_dump(db.engine)
+        with recording_statements(db.engine) as statements:
+            for actor in PATTERN_REJECTED:
+>               with pytest.raises(ValueError, match="actor") as caught:
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               Failed: DID NOT RAISE ValueError
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:420: Failed
+_ test_actor_outside_the_label_rule_is_refused_by_every_deletion[postgres-pricing_catalog] _
+
+db = Db(store=<conftest.StoreHandle object at 0x109b18c20>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x109c9a450>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+spec = RootSpec(id='pricing_catalog', root_kind='pricing_catalog', function='delete_definition', build=<function _build_definition.<locals>.build at 0x108a7c300>)
+
+    @pytest.mark.parametrize("spec", [pytest.param(s, id=s.id) for s in ROOTS])
+    def test_actor_outside_the_label_rule_is_refused_by_every_deletion(
+        db: Db, evaldb: ModuleType, spec: Any
+    ) -> None:
+        """E14. E-mail addresses, empty, over 128 characters, a leading punctuation mark, non-ASCII,
+        spaces and a trailing newline are a ``ValueError`` naming the actor (the existing error), not
+        echoing the value; the check runs before any statement and nothing is written."""
+        world = World(db.engine)
+        built = spec.build(world)
+        before = raw_dump(db.engine)
+        with recording_statements(db.engine) as statements:
+            for actor in PATTERN_REJECTED:
+>               with pytest.raises(ValueError, match="actor") as caught:
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               Failed: DID NOT RAISE ValueError
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:420: Failed
+_ test_actor_outside_the_label_rule_is_refused_by_every_deletion[postgres-dataset] _
+
+db = Db(store=<conftest.StoreHandle object at 0x109b1bee0>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x109c301d0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+spec = RootSpec(id='dataset', root_kind='dataset', function='delete_definition', build=<function _build_definition.<locals>.build at 0x108a7c460>)
+
+    @pytest.mark.parametrize("spec", [pytest.param(s, id=s.id) for s in ROOTS])
+    def test_actor_outside_the_label_rule_is_refused_by_every_deletion(
+        db: Db, evaldb: ModuleType, spec: Any
+    ) -> None:
+        """E14. E-mail addresses, empty, over 128 characters, a leading punctuation mark, non-ASCII,
+        spaces and a trailing newline are a ``ValueError`` naming the actor (the existing error), not
+        echoing the value; the check runs before any statement and nothing is written."""
+        world = World(db.engine)
+        built = spec.build(world)
+        before = raw_dump(db.engine)
+        with recording_statements(db.engine) as statements:
+            for actor in PATTERN_REJECTED:
+>               with pytest.raises(ValueError, match="actor") as caught:
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               Failed: DID NOT RAISE ValueError
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:420: Failed
+_ test_actor_outside_the_label_rule_is_refused_by_every_deletion[postgres-dataset_item] _
+
+db = Db(store=<conftest.StoreHandle object at 0x109c8b850>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x109c32ab0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+spec = RootSpec(id='dataset_item', root_kind='dataset_item', function='delete_dataset_item', build=<function _build_dataset_item at 0x108a6b530>)
+
+    @pytest.mark.parametrize("spec", [pytest.param(s, id=s.id) for s in ROOTS])
+    def test_actor_outside_the_label_rule_is_refused_by_every_deletion(
+        db: Db, evaldb: ModuleType, spec: Any
+    ) -> None:
+        """E14. E-mail addresses, empty, over 128 characters, a leading punctuation mark, non-ASCII,
+        spaces and a trailing newline are a ``ValueError`` naming the actor (the existing error), not
+        echoing the value; the check runs before any statement and nothing is written."""
+        world = World(db.engine)
+        built = spec.build(world)
+        before = raw_dump(db.engine)
+        with recording_statements(db.engine) as statements:
+            for actor in PATTERN_REJECTED:
+>               with pytest.raises(ValueError, match="actor") as caught:
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               Failed: DID NOT RAISE ValueError
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:420: Failed
+_ test_actor_outside_the_label_rule_is_refused_by_every_deletion[postgres-export_bundle] _
+
+db = Db(store=<conftest.StoreHandle object at 0x109c3d630>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x109c9fd70>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+spec = RootSpec(id='export_bundle', root_kind='export_bundle', function='delete_export', build=<function _build_export at 0x108a6b690>)
+
+    @pytest.mark.parametrize("spec", [pytest.param(s, id=s.id) for s in ROOTS])
+    def test_actor_outside_the_label_rule_is_refused_by_every_deletion(
+        db: Db, evaldb: ModuleType, spec: Any
+    ) -> None:
+        """E14. E-mail addresses, empty, over 128 characters, a leading punctuation mark, non-ASCII,
+        spaces and a trailing newline are a ``ValueError`` naming the actor (the existing error), not
+        echoing the value; the check runs before any statement and nothing is written."""
+        world = World(db.engine)
+        built = spec.build(world)
+        before = raw_dump(db.engine)
+        with recording_statements(db.engine) as statements:
+            for actor in PATTERN_REJECTED:
+>               with pytest.raises(ValueError, match="actor") as caught:
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               Failed: DID NOT RAISE ValueError
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:420: Failed
+_ test_actor_outside_the_label_rule_is_refused_by_every_deletion[postgres-config_snapshot] _
+
+db = Db(store=<conftest.StoreHandle object at 0x109d93310>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x109cbbe90>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+spec = RootSpec(id='config_snapshot', root_kind='config_snapshot', function='delete_snapshot', build=<function _build_snapshot at 0x108a6b7f0>)
+
+    @pytest.mark.parametrize("spec", [pytest.param(s, id=s.id) for s in ROOTS])
+    def test_actor_outside_the_label_rule_is_refused_by_every_deletion(
+        db: Db, evaldb: ModuleType, spec: Any
+    ) -> None:
+        """E14. E-mail addresses, empty, over 128 characters, a leading punctuation mark, non-ASCII,
+        spaces and a trailing newline are a ``ValueError`` naming the actor (the existing error), not
+        echoing the value; the check runs before any statement and nothing is written."""
+        world = World(db.engine)
+        built = spec.build(world)
+        before = raw_dump(db.engine)
+        with recording_statements(db.engine) as statements:
+            for actor in PATTERN_REJECTED:
+>               with pytest.raises(ValueError, match="actor") as caught:
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               Failed: DID NOT RAISE ValueError
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:420: Failed
+_ test_store_functions_refuse_an_engine_that_does_not_hide_parameters[postgres] _
+
+db = Db(store=<conftest.StoreHandle object at 0x109f45630>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10a004170>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+tmp_path = PosixPath('<tmp>')
+
+    def test_store_functions_refuse_an_engine_that_does_not_hide_parameters(
+        db: Db, evaldb: ModuleType, tmp_path: Path
+    ) -> None:
+        """E10. Every store function (repository, deletion, verify) refuses an Engine with
+        ``hide_parameters`` false with ``UnsafeEngine`` before it sends a statement or takes a
+        connection; the message names the rule and holds nothing of the URL."""
+        plain = _plain_engine(db.store.url)
+        checkouts: list[int] = []
+        sa.event.listen(plain, "checkout", lambda *args: checkouts.append(1))
+        try:
+            with recording_statements(plain) as statements:
+                for function, run in _store_calls(evaldb).items():
+>                   with pytest.raises(evaldb.UnsafeEngine) as caught:
+                                       ^^^^^^^^^^^^^^^^^^^
+E                   AttributeError: module 'tracer_evaldb' has no attribute 'UnsafeEngine'
+
+packages/evaldb/tests/test_evaldb_audit_fixes.py:730: AttributeError
+_ test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[postgres-test_profile] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10aeb2f20>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10ae80cb0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'test_profile'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member(
+        db: Db, evaldb: ModuleType, kind: str
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        record = _delete(evaldb, db, bundle, kind)
+        assert _present(db, kind, record) == 0
+        before = raw_dump(db.engine)
+        with recording(db.engine) as statements:
+            result = evaldb.store_run_bundle(db.engine, bundle)
+        assert result.created is False
+>       assert dict(result.inserted) == {}
+E       AssertionError: assert {'test_profile': 1} == {}
+E         
+E         Left contains 1 more item:
+E         {'test_profile': 1}
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_repair_members.py:181: AssertionError
+_ test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[postgres-pricing_catalog] _
+
+db = Db(store=<conftest.StoreHandle object at 0x109fe50f0>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10ae915b0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'pricing_catalog'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member(
+        db: Db, evaldb: ModuleType, kind: str
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        record = _delete(evaldb, db, bundle, kind)
+        assert _present(db, kind, record) == 0
+        before = raw_dump(db.engine)
+        with recording(db.engine) as statements:
+            result = evaldb.store_run_bundle(db.engine, bundle)
+        assert result.created is False
+>       assert dict(result.inserted) == {}
+E       AssertionError: assert {'pricing_catalog': 1} == {}
+E         
+E         Left contains 1 more item:
+E         {'pricing_catalog': 1}
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_repair_members.py:181: AssertionError
+_ test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[postgres-persona] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10aeb5010>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10ae525d0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'persona'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member(
+        db: Db, evaldb: ModuleType, kind: str
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        record = _delete(evaldb, db, bundle, kind)
+        assert _present(db, kind, record) == 0
+        before = raw_dump(db.engine)
+        with recording(db.engine) as statements:
+            result = evaldb.store_run_bundle(db.engine, bundle)
+        assert result.created is False
+>       assert dict(result.inserted) == {}
+E       AssertionError: assert {'persona': 1} == {}
+E         
+E         Left contains 1 more item:
+E         {'persona': 1}
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_repair_members.py:181: AssertionError
+_ test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[postgres-rubric] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10b10f000>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10a2a0e90>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'rubric'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member(
+        db: Db, evaldb: ModuleType, kind: str
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        record = _delete(evaldb, db, bundle, kind)
+        assert _present(db, kind, record) == 0
+        before = raw_dump(db.engine)
+        with recording(db.engine) as statements:
+            result = evaldb.store_run_bundle(db.engine, bundle)
+        assert result.created is False
+>       assert dict(result.inserted) == {}
+E       AssertionError: assert {'rubric': 1} == {}
+E         
+E         Left contains 1 more item:
+E         {'rubric': 1}
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_repair_members.py:181: AssertionError
+_ test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[postgres-evaluator] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10b189710>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10a2a2cf0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'evaluator'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member(
+        db: Db, evaldb: ModuleType, kind: str
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        record = _delete(evaldb, db, bundle, kind)
+        assert _present(db, kind, record) == 0
+        before = raw_dump(db.engine)
+        with recording(db.engine) as statements:
+            result = evaldb.store_run_bundle(db.engine, bundle)
+        assert result.created is False
+>       assert dict(result.inserted) == {}
+E       AssertionError: assert {'evaluator': 1} == {}
+E         
+E         Left contains 1 more item:
+E         {'evaluator': 1}
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_repair_members.py:181: AssertionError
+_ test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[postgres-metric_definition] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10b27e0b0>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b1756d0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'metric_definition'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member(
+        db: Db, evaldb: ModuleType, kind: str
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        record = _delete(evaldb, db, bundle, kind)
+        assert _present(db, kind, record) == 0
+        before = raw_dump(db.engine)
+        with recording(db.engine) as statements:
+            result = evaldb.store_run_bundle(db.engine, bundle)
+        assert result.created is False
+>       assert dict(result.inserted) == {}
+E       AssertionError: assert {'metric_definition': 1} == {}
+E         
+E         Left contains 1 more item:
+E         {'metric_definition': 1}
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_repair_members.py:181: AssertionError
+_ test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[postgres-metric_binding] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10b496ba0>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b316810>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'metric_binding'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member(
+        db: Db, evaldb: ModuleType, kind: str
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        record = _delete(evaldb, db, bundle, kind)
+        assert _present(db, kind, record) == 0
+        before = raw_dump(db.engine)
+        with recording(db.engine) as statements:
+            result = evaldb.store_run_bundle(db.engine, bundle)
+        assert result.created is False
+>       assert dict(result.inserted) == {}
+E       AssertionError: assert {'metric_binding': 1} == {}
+E         
+E         Left contains 1 more item:
+E         {'metric_binding': 1}
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_repair_members.py:181: AssertionError
+_____ test_default_and_explicit_false_behave_alike[postgres-test_profile] ______
+
+db = Db(store=<conftest.StoreHandle object at 0x10b43c910>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b49f1d0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'test_profile'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_default_and_explicit_false_behave_alike(db: Db, evaldb: ModuleType, kind: str) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        record = _delete(evaldb, db, bundle, kind)
+        before = raw_dump(db.engine)
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=False)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:195: TypeError
+____ test_default_and_explicit_false_behave_alike[postgres-pricing_catalog] ____
+
+db = Db(store=<conftest.StoreHandle object at 0x10ae72a50>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b3c1610>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'pricing_catalog'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_default_and_explicit_false_behave_alike(db: Db, evaldb: ModuleType, kind: str) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        record = _delete(evaldb, db, bundle, kind)
+        before = raw_dump(db.engine)
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=False)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:195: TypeError
+________ test_default_and_explicit_false_behave_alike[postgres-persona] ________
+
+db = Db(store=<conftest.StoreHandle object at 0x10aeb0fa0>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10a09ba70>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'persona'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_default_and_explicit_false_behave_alike(db: Db, evaldb: ModuleType, kind: str) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        record = _delete(evaldb, db, bundle, kind)
+        before = raw_dump(db.engine)
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=False)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:195: TypeError
+________ test_default_and_explicit_false_behave_alike[postgres-rubric] _________
+
+db = Db(store=<conftest.StoreHandle object at 0x109fe4280>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b3c3d70>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'rubric'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_default_and_explicit_false_behave_alike(db: Db, evaldb: ModuleType, kind: str) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        record = _delete(evaldb, db, bundle, kind)
+        before = raw_dump(db.engine)
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=False)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:195: TypeError
+_______ test_default_and_explicit_false_behave_alike[postgres-evaluator] _______
+
+db = Db(store=<conftest.StoreHandle object at 0x109e09c50>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10ae26330>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'evaluator'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_default_and_explicit_false_behave_alike(db: Db, evaldb: ModuleType, kind: str) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        record = _delete(evaldb, db, bundle, kind)
+        before = raw_dump(db.engine)
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=False)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:195: TypeError
+___ test_default_and_explicit_false_behave_alike[postgres-metric_definition] ___
+
+db = Db(store=<conftest.StoreHandle object at 0x109ae6e40>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b3c1cd0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'metric_definition'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_default_and_explicit_false_behave_alike(db: Db, evaldb: ModuleType, kind: str) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        record = _delete(evaldb, db, bundle, kind)
+        before = raw_dump(db.engine)
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=False)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:195: TypeError
+____ test_default_and_explicit_false_behave_alike[postgres-metric_binding] _____
+
+db = Db(store=<conftest.StoreHandle object at 0x1096df620>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x109ef7b90>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'metric_binding'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_default_and_explicit_false_behave_alike(db: Db, evaldb: ModuleType, kind: str) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        record = _delete(evaldb, db, bundle, kind)
+        before = raw_dump(db.engine)
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=False)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:195: TypeError
+_ test_a_deleted_test_profile_leaves_no_personal_data_after_a_second_store[postgres] _
+
+db = Db(store=<conftest.StoreHandle object at 0x109aa22e0>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10ae8be90>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+
+    def test_a_deleted_test_profile_leaves_no_personal_data_after_a_second_store(
+        db: Db, evaldb: ModuleType
+    ) -> None:
+        """The test profile is personal data: after ``delete_test_profile`` and a store of the same
+        bundle, no string of the profile is in any row of any table."""
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        needles = _profile_texts(bundle.test_profiles[0])
+        assert needles
+        stored = "\n".join(line for rows in raw_dump(db.engine).values() for line in rows)
+        assert any(n in stored for n in needles), "the needles are not what the store holds"
+        _delete(evaldb, db, bundle, "test_profile")
+        evaldb.store_run_bundle(db.engine, bundle)
+>       evaldb.store_run_bundle(db.engine, bundle, repair_members=False)
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:214: TypeError
+_ test_a_rescoring_of_a_stored_run_does_not_bring_back_the_deleted_member[postgres] _
+
+db = Db(store=<conftest.StoreHandle object at 0x1097be6d0>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x109f494f0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+
+    def test_a_rescoring_of_a_stored_run_does_not_bring_back_the_deleted_member(
+        db: Db, evaldb: ModuleType
+    ) -> None:
+        """A different bundle of the same stored run (new results and verdict) is stored; the
+        deleted profile that the first bundle listed stays absent; the new rows are inserted."""
+        doc = _doc()
+        first = load_run_bundle_doc(doc)
+        store_bundle(db.engine, evaldb, first)
+        profile = _delete(evaldb, db, first, "test_profile")
+        second = load_run_bundle_doc(renew_ids(doc, lists=["results"], verdict=True))
+        result = evaldb.store_run_bundle(db.engine, second)
+        assert result.created is True
+>       assert "test_profile" not in result.inserted
+E       AssertionError: assert 'test_profile' not in mappingproxy({'test_profile': 1, 'metric_result': 2, 'run_verdict': 1, 'run_bundle': 1})
+E        +  where mappingproxy({'test_profile': 1, 'metric_result': 2, 'run_verdict': 1, 'run_bundle': 1}) = StoreResult(kind='run_bundle', entity_id=RunBundleId('rbnd_01a16f4e-8db8-77d3-9d33-245843270966'), version=None, created=True, inserted=mappingproxy({'test_profile': 1, 'metric_result': 2, 'run_verdict': 1, 'run_bundle': 1})).inserted
+
+packages/evaldb/tests/test_evaldb_repair_members.py:231: AssertionError
+__ test_storing_a_bundle_twice_without_a_deletion_is_still_a_no_op[postgres] ___
+
+db = Db(store=<conftest.StoreHandle object at 0x10b2c6580>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b49cbf0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+
+    def test_storing_a_bundle_twice_without_a_deletion_is_still_a_no_op(
+        db: Db, evaldb: ModuleType
+    ) -> None:
+        bundle = _bundle()
+        first = store_bundle(db.engine, evaldb, bundle)
+        assert first.created is True
+        before = raw_dump(db.engine)
+        for kwargs in ({}, {"repair_members": False}, {"repair_members": True}):
+            with recording(db.engine) as statements:
+>               again = evaldb.store_run_bundle(db.engine, bundle, **kwargs)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:246: TypeError
+_ test_verify_database_keeps_the_absent_member_note_after_a_second_store[postgres] _
+
+db = Db(store=<conftest.StoreHandle object at 0x109e17850>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x1096d23f0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+
+    def test_verify_database_keeps_the_absent_member_note_after_a_second_store(
+        db: Db, evaldb: ModuleType
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        _delete(evaldb, db, bundle, "test_profile")
+        evaldb.store_run_bundle(db.engine, bundle)
+        report = evaldb.verify_database(db.engine)
+        assert report.findings == ()
+>       assert [(f.kind, f.problem, f.location) for f in report.informational] == [
+            ("run_bundle", "bundle_member_absent", "test_profile")
+        ]
+E       AssertionError: assert [] == [('run_bundle...est_profile')]
+E         
+E         Right contains one more item: ('run_bundle', 'bundle_member_absent', 'test_profile')
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_repair_members.py:262: AssertionError
+_ test_repair_members_inserts_the_deleted_member_again[postgres-test_profile] __
+
+db = Db(store=<conftest.StoreHandle object at 0x10b3e8050>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b2da750>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'test_profile'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_repair_members_inserts_the_deleted_member_again(
+        db: Db, evaldb: ModuleType, kind: str
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        audit_before = audit_rows(db.engine, db.metadata)
+        record = _delete(evaldb, db, bundle, kind)
+        audit_after_delete = audit_rows(db.engine, db.metadata)
+        assert len(audit_after_delete) == len(audit_before) + 1
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:298: TypeError
+_ test_repair_members_inserts_the_deleted_member_again[postgres-pricing_catalog] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10b082ac0>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b0c7b90>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'pricing_catalog'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_repair_members_inserts_the_deleted_member_again(
+        db: Db, evaldb: ModuleType, kind: str
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        audit_before = audit_rows(db.engine, db.metadata)
+        record = _delete(evaldb, db, bundle, kind)
+        audit_after_delete = audit_rows(db.engine, db.metadata)
+        assert len(audit_after_delete) == len(audit_before) + 1
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:298: TypeError
+____ test_repair_members_inserts_the_deleted_member_again[postgres-persona] ____
+
+db = Db(store=<conftest.StoreHandle object at 0x10b20e660>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b116ed0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'persona'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_repair_members_inserts_the_deleted_member_again(
+        db: Db, evaldb: ModuleType, kind: str
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        audit_before = audit_rows(db.engine, db.metadata)
+        record = _delete(evaldb, db, bundle, kind)
+        audit_after_delete = audit_rows(db.engine, db.metadata)
+        assert len(audit_after_delete) == len(audit_before) + 1
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:298: TypeError
+____ test_repair_members_inserts_the_deleted_member_again[postgres-rubric] _____
+
+db = Db(store=<conftest.StoreHandle object at 0x10b65d010>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b17f9b0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'rubric'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_repair_members_inserts_the_deleted_member_again(
+        db: Db, evaldb: ModuleType, kind: str
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        audit_before = audit_rows(db.engine, db.metadata)
+        record = _delete(evaldb, db, bundle, kind)
+        audit_after_delete = audit_rows(db.engine, db.metadata)
+        assert len(audit_after_delete) == len(audit_before) + 1
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:298: TypeError
+___ test_repair_members_inserts_the_deleted_member_again[postgres-evaluator] ___
+
+db = Db(store=<conftest.StoreHandle object at 0x10b71ac80>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b69ee70>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'evaluator'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_repair_members_inserts_the_deleted_member_again(
+        db: Db, evaldb: ModuleType, kind: str
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        audit_before = audit_rows(db.engine, db.metadata)
+        record = _delete(evaldb, db, bundle, kind)
+        audit_after_delete = audit_rows(db.engine, db.metadata)
+        assert len(audit_after_delete) == len(audit_before) + 1
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:298: TypeError
+_ test_repair_members_inserts_the_deleted_member_again[postgres-metric_definition] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10b84f070>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b69ca10>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'metric_definition'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_repair_members_inserts_the_deleted_member_again(
+        db: Db, evaldb: ModuleType, kind: str
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        audit_before = audit_rows(db.engine, db.metadata)
+        record = _delete(evaldb, db, bundle, kind)
+        audit_after_delete = audit_rows(db.engine, db.metadata)
+        assert len(audit_after_delete) == len(audit_before) + 1
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:298: TypeError
+_ test_repair_members_inserts_the_deleted_member_again[postgres-metric_binding] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10b9474d0>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b899bb0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+kind = 'metric_binding'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_repair_members_inserts_the_deleted_member_again(
+        db: Db, evaldb: ModuleType, kind: str
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        audit_before = audit_rows(db.engine, db.metadata)
+        record = _delete(evaldb, db, bundle, kind)
+        audit_after_delete = audit_rows(db.engine, db.metadata)
+        assert len(audit_after_delete) == len(audit_before) + 1
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:298: TypeError
+____ test_repair_members_inserts_every_deleted_member_in_one_call[postgres] ____
+
+db = Db(store=<conftest.StoreHandle object at 0x10ba73d90>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10b9aa2d0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+
+    def test_repair_members_inserts_every_deleted_member_in_one_call(
+        db: Db, evaldb: ModuleType
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        for kind in KINDS:
+            _delete(evaldb, db, bundle, kind)
+        assert sorted(_missing_kinds(evaldb, db, bundle)) == sorted(BUNDLE_MEMBERS)
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:318: TypeError
+__ test_repair_members_on_a_store_that_lost_nothing_changes_nothing[postgres] __
+
+db = Db(store=<conftest.StoreHandle object at 0x10babdd30>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10bb4b0b0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+
+    def test_repair_members_on_a_store_that_lost_nothing_changes_nothing(
+        db: Db, evaldb: ModuleType
+    ) -> None:
+        bundle = _bundle()
+        store_bundle(db.engine, evaldb, bundle)
+        before = raw_dump(db.engine)
+>       result = evaldb.store_run_bundle(db.engine, bundle, repair_members=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:330: TypeError
+_ test_repair_members_makes_no_difference_for_a_run_that_is_not_stored[postgres] _
+
+db = Db(store=<conftest.StoreHandle object at 0x10bd1b7e0>, evaldb=<module 'tracer_evaldb' from '<repo>/...27.0.0.1:53850/tracer_test), backend='postgres', metadata=MetaData(), rows=<evaldb_support.Rows object at 0x10bc140b0>)
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+
+    def test_repair_members_makes_no_difference_for_a_run_that_is_not_stored(
+        db: Db, evaldb: ModuleType
+    ) -> None:
+        """For a run that is not stored the flag changes nothing: the same inserts either way."""
+        first, second = _bundle(), _bundle()
+        evaldb.store_project(db.engine, _support.load_entity("Project", _project_text(first)))
+        evaldb.store_project(db.engine, _support.load_entity("Project", _project_text(second)))
+        plain = evaldb.store_run_bundle(db.engine, first)
+>       repaired = evaldb.store_run_bundle(db.engine, second, repair_members=True)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: store_run_bundle() got an unexpected keyword argument 'repair_members'
+
+packages/evaldb/tests/test_evaldb_repair_members.py:343: TypeError
+=========================== short test summary info ============================
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_untranslated_integrity_error_chain_text_holds_no_row_detail[postgres-check]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_untranslated_integrity_error_chain_text_holds_no_row_detail[postgres-unique]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_untranslated_integrity_error_chain_text_holds_no_row_detail[postgres-not_null]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_untranslated_integrity_error_chain_text_holds_no_row_detail[postgres-foreign_key]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_untranslated_integrity_error_chain_text_holds_no_row_detail[postgres-restrict]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_untranslated_integrity_error_params_hold_no_bound_value[postgres-check]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_untranslated_integrity_error_params_hold_no_bound_value[postgres-unique]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_untranslated_integrity_error_params_hold_no_bound_value[postgres-not_null]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_untranslated_integrity_error_params_hold_no_bound_value[postgres-foreign_key]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_untranslated_integrity_error_params_hold_no_bound_value[postgres-restrict]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_untranslated_integrity_error_params_hold_no_bound_value[postgres-immutable_update]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_untranslated_integrity_error_params_hold_no_bound_value[postgres-immutable_delete]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_driver_error_args_along_the_chain_are_scrubbed[postgres-check]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_driver_error_args_along_the_chain_are_scrubbed[postgres-unique]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_driver_error_args_along_the_chain_are_scrubbed[postgres-not_null]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_driver_error_args_along_the_chain_are_scrubbed[postgres-foreign_key]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_driver_error_args_along_the_chain_are_scrubbed[postgres-restrict]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_driver_error_args_along_the_chain_are_scrubbed[postgres-immutable_update]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_driver_error_args_along_the_chain_are_scrubbed[postgres-immutable_delete]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_repository_store_error_chain_holds_no_stored_text_or_id[postgres]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_actor_outside_the_label_rule_is_refused_by_every_deletion[postgres-run]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_actor_outside_the_label_rule_is_refused_by_every_deletion[postgres-project]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_actor_outside_the_label_rule_is_refused_by_every_deletion[postgres-test_profile]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_actor_outside_the_label_rule_is_refused_by_every_deletion[postgres-agent_target]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_actor_outside_the_label_rule_is_refused_by_every_deletion[postgres-persona]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_actor_outside_the_label_rule_is_refused_by_every_deletion[postgres-evaluator]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_actor_outside_the_label_rule_is_refused_by_every_deletion[postgres-metric_definition]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_actor_outside_the_label_rule_is_refused_by_every_deletion[postgres-metric_binding]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_actor_outside_the_label_rule_is_refused_by_every_deletion[postgres-rubric]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_actor_outside_the_label_rule_is_refused_by_every_deletion[postgres-pricing_catalog]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_actor_outside_the_label_rule_is_refused_by_every_deletion[postgres-dataset]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_actor_outside_the_label_rule_is_refused_by_every_deletion[postgres-dataset_item]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_actor_outside_the_label_rule_is_refused_by_every_deletion[postgres-export_bundle]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_actor_outside_the_label_rule_is_refused_by_every_deletion[postgres-config_snapshot]
+FAILED packages/evaldb/tests/test_evaldb_audit_fixes.py::test_store_functions_refuse_an_engine_that_does_not_hide_parameters[postgres]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[postgres-test_profile]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[postgres-pricing_catalog]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[postgres-persona]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[postgres-rubric]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[postgres-evaluator]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[postgres-metric_definition]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_storing_the_same_bundle_again_does_not_bring_back_a_deleted_member[postgres-metric_binding]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_default_and_explicit_false_behave_alike[postgres-test_profile]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_default_and_explicit_false_behave_alike[postgres-pricing_catalog]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_default_and_explicit_false_behave_alike[postgres-persona]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_default_and_explicit_false_behave_alike[postgres-rubric]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_default_and_explicit_false_behave_alike[postgres-evaluator]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_default_and_explicit_false_behave_alike[postgres-metric_definition]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_default_and_explicit_false_behave_alike[postgres-metric_binding]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_a_deleted_test_profile_leaves_no_personal_data_after_a_second_store[postgres]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_a_rescoring_of_a_stored_run_does_not_bring_back_the_deleted_member[postgres]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_storing_a_bundle_twice_without_a_deletion_is_still_a_no_op[postgres]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_verify_database_keeps_the_absent_member_note_after_a_second_store[postgres]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_repair_members_inserts_the_deleted_member_again[postgres-test_profile]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_repair_members_inserts_the_deleted_member_again[postgres-pricing_catalog]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_repair_members_inserts_the_deleted_member_again[postgres-persona]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_repair_members_inserts_the_deleted_member_again[postgres-rubric]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_repair_members_inserts_the_deleted_member_again[postgres-evaluator]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_repair_members_inserts_the_deleted_member_again[postgres-metric_definition]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_repair_members_inserts_the_deleted_member_again[postgres-metric_binding]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_repair_members_inserts_every_deleted_member_in_one_call[postgres]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_repair_members_on_a_store_that_lost_nothing_changes_nothing[postgres]
+FAILED packages/evaldb/tests/test_evaldb_repair_members.py::test_repair_members_makes_no_difference_for_a_run_that_is_not_stored[postgres]
+63 failed, 40 passed, 134 deselected in 28.12s
+exit code: 1

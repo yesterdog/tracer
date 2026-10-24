@@ -1,0 +1,60 @@
+# oracle regression: all postgres-marked evaldb tests (Postgres 15), oracle with the actor spec change applied
+........................................................................ [  5%]
+........................................................................ [ 11%]
+........................................................................ [ 16%]
+........................................................................ [ 22%]
+........................................................................ [ 28%]
+........................................................................ [ 33%]
+........................................................................ [ 39%]
+........................................................................ [ 44%]
+........................................................................ [ 50%]
+........................................................................ [ 56%]
+........................................................................ [ 61%]
+........................................................................ [ 67%]
+........................................................................ [ 73%]
+........................................................................ [ 78%]
+......F................................................................. [ 84%]
+........................................................................ [ 89%]
+........................................................................ [ 95%]
+.........................................................                [100%]
+=================================== FAILURES ===================================
+_______ test_storage_policy_parity_table_matches_column_types[postgres] ________
+
+store = <conftest.StoreHandle object at 0x10e26a200>
+evaldb = <module 'tracer_evaldb' from '<oracle>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+
+    def test_storage_policy_parity_table_matches_column_types(store: Any, evaldb: ModuleType) -> None:
+        """P2-25: the parity table of the policy equals the real column types of both backends.
+    
+        The table (section 2) has the header ``Logical type | Postgres | SQLite (STRICT)`` and one row
+        for each of the eight column types in the pinned order, every cell one backticked token. Each
+        cell is compared (a) with the DDL type SQLAlchemy writes for the column type on each dialect,
+        (b) with the DDL type of every real column of the 37 tables, and (c) with what the database
+        itself reports for a scratch table of that type on the backend under test: the type, and the
+        collation (Postgres ``COLLATE "C"``, SQLite ``COLLATE "BINARY"`` in the table definition)."""
+>       rows = parity_rows()
+               ^^^^^^^^^^^^^
+
+packages/evaldb/tests/test_evaldb_storage_policy.py:339: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evaldb/tests/test_evaldb_storage_policy.py:312: in parity_rows
+    (table,) = docs.tables(sections()[2].lines)
+                           ^^^^^^^^^^
+packages/evaldb/tests/test_evaldb_storage_policy.py:73: in sections
+    return {s.number: s for s in docs.numbered_sections(policy_text())}
+                                                        ^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def policy_text() -> str:
+>       assert docs.STORAGE_POLICY.is_file(), "packages/evaldb/STORAGE_POLICY.md does not exist yet"
+E       AssertionError: packages/evaldb/STORAGE_POLICY.md does not exist yet
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('<oracle>/packages/evaldb/STORAGE_POLICY.md').is_file
+E        +      where PosixPath('<oracle>/packages/evaldb/STORAGE_POLICY.md') = docs.STORAGE_POLICY
+
+packages/evaldb/tests/test_evaldb_storage_policy.py:67: AssertionError
+=========================== short test summary info ============================
+FAILED packages/evaldb/tests/test_evaldb_storage_policy.py::test_storage_policy_parity_table_matches_column_types[postgres]
+1 failed, 1280 passed, 1763 deselected in 471.17s (0:07:51)
+exit code: 1

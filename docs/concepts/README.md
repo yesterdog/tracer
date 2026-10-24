@@ -16,6 +16,7 @@ field-level details are in the generated [field reference](../schema/README.md).
 | [display-safety.md](display-safety.md) | exact text storage, bidi controls, `display_safe()` |
 | [versioning.md](versioning.md) | schema version, compatibility, versioned entities |
 | [mappings-and-gaps.md](mappings-and-gaps.md) | source mappings, no fabrication, the gap register |
+| [storage.md](storage.md) | the relational store (`tracer-evaldb`): documents and projections, two backends, what the database does not do, deletion, migrations |
 
 Scope, in one paragraph: only the AI agent is evaluated. The caller is a human (recordings of
 real calls) or a simulator (test calls). Speaker roles are `caller`, `agent` and `unknown`;

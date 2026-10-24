@@ -1,0 +1,61 @@
+Mutants of the batch F tests (scratch oracle: HEAD + the batch F tests + minimal documents + the E5 patch). Each mutant edits one thing in src or in a document and runs the three batch F test files on SQLite (py3.14). CAUGHT = at least one test fails.
+
+CAUGHT   S1 | a new f-string text() in a Core-only file -> test_no_string_built_sql
+CAUGHT   S2 | a reviewed site interpolates one more piece -> test_no_string_built_sql
+CAUGHT   S3 | the noqa of a reviewed S608 site is removed (ruff S608 fires) -> test_no_string_built_sql
+CAUGHT   S4 | a concatenation in a migration helper -> test_no_string_built_sql
+CAUGHT   S5 | revision 0002 draws a piece from a call -> test_no_string_built_sql
+CAUGHT   S6 | a reviewed site disappears (stale entry) -> test_no_string_built_sql
+CAUGHT   S7 | percent formatting in a statement of the repository -> test_no_string_built_sql
+CAUGHT   S8 | a stored value is put into the statement text by a statement hook -> test_sent_statements_hold_no_stored_value, test_store_errors_hide_input
+CAUGHT   C1 | a column named auth_token -> test_sent_statements_hold_no_stored_value, test_store_errors_hide_input, test_store_has_no_secret_columns
+CAUGHT   E1 | a refused integer is quoted in the message -> test_store_errors_hide_input
+CAUGHT   E3 | bound parameters are no longer hidden -> test_store_errors_hide_input
+CAUGHT   E4 | the translated constraint error carries the driver message with the row -> test_store_errors_hide_input
+CAUGHT   E2 | a stored document is quoted in StoreIntegrityError -> test_store_errors_hide_input
+CAUGHT   E5 | a projection mismatch quotes the stored value -> test_store_errors_hide_input
+CAUGHT   E7 | verify_database report quotes a damaged value in the location -> test_store_errors_hide_input
+CAUGHT   P1 | parity cell of KeyCol says text instead of varchar -> test_storage_policy_parity_table_matches_column_types
+CAUGHT   P2 | parity cell of InstantCol says timestamp instead of timestamptz -> test_storage_policy_parity_table_matches_column_types
+CAUGHT   P3 | a parity row is missing -> test_storage_policy_parity_table_matches_column_types
+CAUGHT   P4 | the parity header is renamed -> test_storage_policy_parity_table_matches_column_types
+CAUGHT   P5 | SQLite KeyCol collation dropped -> test_storage_policy_parity_table_matches_column_types
+CAUGHT   P6 | a statement without citation or marker -> test_every_statement_of_the_storage_policy_is_tested_or_marked_unverified
+CAUGHT   P7 | a citation of a test that does not exist -> test_every_statement_of_the_storage_policy_is_tested_or_marked_unverified
+CAUGHT   P9 | register lacks a marked sentence -> test_every_statement_of_the_storage_policy_is_tested_or_marked_unverified, test_the_register_of_unverified_statements_matches_the_marked_sentences
+CAUGHT   P10 | the not-validation-boundary sentence loses its citation to the behaviour test -> test_storage_policy_states_db_is_not_validation_boundary, test_the_storage_policy_cites_a_test_for_each_statement_the_owner_asked_for
+CAUGHT   P11 | the sentence is reworded -> test_storage_policy_states_db_is_not_validation_boundary, test_the_storage_policy_cites_a_test_for_each_statement_the_owner_asked_for
+CAUGHT   P12 | the not-encrypted sentence loses the plain-text test -> test_every_statement_of_the_storage_policy_is_tested_or_marked_unverified, test_storage_policy_states_the_database_is_not_encrypted_at_rest, test_the_register_of_unverified_statements_matches_the_marked_sentences, test_the_storage_policy_cites_a_test_for_each_statement_the_owner_asked_for
+CAUGHT   P13 | the limits lose the SQLite minimum -> test_storage_policy_limits_state_the_numbers_of_the_code
+CAUGHT   P14 | a limit number changes (document size) -> test_every_statement_of_the_storage_policy_is_tested_or_marked_unverified, test_storage_policy_limits_state_the_numbers_of_the_code, test_the_register_of_unverified_statements_matches_the_marked_sentences
+CAUGHT   P15 | a section is renamed -> test_storage_policy_exists_with_the_pinned_structure
+CAUGHT   P16 | a tab and a non-ASCII character -> test_storage_policy_exists_with_the_pinned_structure, test_the_documents_of_this_batch_are_ascii_and_free_of_machine_paths
+CAUGHT   P17 | a code fence -> test_every_statement_of_the_storage_policy_is_tested_or_marked_unverified, test_storage_policy_exists_with_the_pinned_structure
+CAUGHT   P18 | a second table -> test_storage_policy_exists_with_the_pinned_structure
+CAUGHT   P19 | the plain digest section loses the brute-force limitation -> test_storage_policy_states_the_plain_profile_digest_limitation
+CAUGHT   P20 | the deletion section loses data_subject_request -> test_storage_policy_covers_deletion_and_audit
+CAUGHT   P21 | the migration pointer path is wrong -> test_every_statement_of_the_storage_policy_is_tested_or_marked_unverified, test_storage_policy_points_to_the_migration_policy
+CAUGHT   P22 | phase 5 risk loses P2-F4 -> test_storage_policy_names_the_phase5_risks
+CAUGHT   P23 | a pointer sentence names a path that does not exist -> test_every_statement_of_the_storage_policy_is_tested_or_marked_unverified
+CAUGHT   P24 | an abbreviation with periods -> test_storage_policy_exists_with_the_pinned_structure
+CAUGHT   P25 | a sentence with both a citation and the marker -> test_every_statement_of_the_storage_policy_is_tested_or_marked_unverified, test_the_register_of_unverified_statements_matches_the_marked_sentences
+CAUGHT   L1 | changelog entry for another version -> test_evaldb_changelog_has_entry_for_version
+CAUGHT   L2 | changelog loses a finding -> test_evaldb_changelog_has_entry_for_version
+CAUGHT   L3 | changelog loses the section Migrations -> test_evaldb_changelog_has_entry_for_version
+CAUGHT   R1 | README loses the Security and privacy section -> test_evaldb_readme_has_the_documented_sections
+CAUGHT   R2 | README quick start raises -> test_evaldb_readme_quick_start_runs
+CAUGHT   R3 | README quick start imports something unlisted -> test_evaldb_readme_quick_start_runs
+CAUGHT   R4 | README quick start reads the environment -> test_evaldb_readme_quick_start_runs
+CAUGHT   R5 | README does not say personal data -> test_evaldb_readme_has_the_documented_sections
+CAUGHT   R6 | README quick start writes no database file -> test_evaldb_readme_quick_start_runs
+CAUGHT   K1 | concept page loses an ADR link -> test_concept_page_storage_exists_and_is_linked
+CAUGHT   K2 | concept page loses a section -> test_concept_page_storage_exists_and_is_linked
+CAUGHT   K3 | concept page cites a missing test -> test_concept_page_storage_exists_and_is_linked
+CAUGHT   K4 | the concepts index misses the row -> test_concept_page_storage_exists_and_is_linked
+CAUGHT   M1 | the pointer appears twice in SCHEMA_POLICY -> test_schema_policy_database_bullet_points_to_the_storage_policy
+CAUGHT   M2 | SCHEMA_POLICY changed elsewhere -> test_schema_policy_database_bullet_points_to_the_storage_policy
+CAUGHT   M3 | the pointer is not the last sentence of the bullet -> test_schema_policy_database_bullet_points_to_the_storage_policy
+CAUGHT   M4 | the pointer sentence is removed -> test_schema_policy_database_bullet_points_to_the_storage_policy
+CAUGHT   M5 | the pointer path is wrong -> test_schema_policy_database_bullet_points_to_the_storage_policy, test_the_schema_policy_baseline_is_the_text_without_a_pointer
+
+57 of 57 mutants caught.

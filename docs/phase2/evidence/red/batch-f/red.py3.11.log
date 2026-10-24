@@ -1,0 +1,452 @@
+..........FFFF.F.FF.FFFFFFF.FF.FF.F                                      [100%]
+=================================== FAILURES ===================================
+_____________ test_storage_policy_exists_with_the_pinned_structure _____________
+
+    def test_storage_policy_exists_with_the_pinned_structure() -> None:
+        """The file, its title, the ten sections, ASCII, one table."""
+>       assert structure_problems(policy_text()) == []
+                                  ^^^^^^^^^^^^^
+
+packages/evaldb/tests/test_evaldb_storage_policy.py:266: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def policy_text() -> str:
+>       assert docs.STORAGE_POLICY.is_file(), "packages/evaldb/STORAGE_POLICY.md does not exist yet"
+E       AssertionError: packages/evaldb/STORAGE_POLICY.md does not exist yet
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('<repo>/packages/evaldb/STORAGE_POLICY.md').is_file
+E        +      where PosixPath('<repo>/packages/evaldb/STORAGE_POLICY.md') = docs.STORAGE_POLICY
+
+packages/evaldb/tests/test_evaldb_storage_policy.py:67: AssertionError
+__ test_every_statement_of_the_storage_policy_is_tested_or_marked_unverified ___
+
+    def test_every_statement_of_the_storage_policy_is_tested_or_marked_unverified() -> None:
+        """P2-25: 'every statement is tested or marked (unverified)' (contract section 5). Each
+        sentence of sections 1 to 9 cites a test that exists (a backticked ``test_...`` name) or
+        carries the marker ``(unverified)``, never both; a sentence that only points (``See `path`.``)
+        needs neither; section 10 repeats every marked sentence, in order."""
+>       problems = statement_problems(policy_text(), docs.collected_test_names())
+                                      ^^^^^^^^^^^^^
+
+packages/evaldb/tests/test_evaldb_storage_policy.py:274: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def policy_text() -> str:
+>       assert docs.STORAGE_POLICY.is_file(), "packages/evaldb/STORAGE_POLICY.md does not exist yet"
+E       AssertionError: packages/evaldb/STORAGE_POLICY.md does not exist yet
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('<repo>/packages/evaldb/STORAGE_POLICY.md').is_file
+E        +      where PosixPath('<repo>/packages/evaldb/STORAGE_POLICY.md') = docs.STORAGE_POLICY
+
+packages/evaldb/tests/test_evaldb_storage_policy.py:67: AssertionError
+_ test_the_storage_policy_cites_a_test_for_each_statement_the_owner_asked_for __
+
+    def test_the_storage_policy_cites_a_test_for_each_statement_the_owner_asked_for() -> None:
+        """Four citations are pinned by name (contract section 5.3): the parity table sentence, the
+        sentence that says the database is not a validation boundary, and the two sentences that say
+        the database is not encrypted and that its internal data is personal data."""
+>       found = sections()
+                ^^^^^^^^^^
+
+packages/evaldb/tests/test_evaldb_storage_policy.py:282: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evaldb/tests/test_evaldb_storage_policy.py:73: in sections
+    return {s.number: s for s in docs.numbered_sections(policy_text())}
+                                                        ^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def policy_text() -> str:
+>       assert docs.STORAGE_POLICY.is_file(), "packages/evaldb/STORAGE_POLICY.md does not exist yet"
+E       AssertionError: packages/evaldb/STORAGE_POLICY.md does not exist yet
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('<repo>/packages/evaldb/STORAGE_POLICY.md').is_file
+E        +      where PosixPath('<repo>/packages/evaldb/STORAGE_POLICY.md') = docs.STORAGE_POLICY
+
+packages/evaldb/tests/test_evaldb_storage_policy.py:67: AssertionError
+________ test_storage_policy_parity_table_matches_column_types[sqlite] _________
+
+store = <conftest.StoreHandle object at 0x10904eed0>
+evaldb = <module 'tracer_evaldb' from '<repo>/packages/evaldb/src/tracer_evaldb/__init__.py'>
+
+    def test_storage_policy_parity_table_matches_column_types(store: Any, evaldb: ModuleType) -> None:
+        """P2-25: the parity table of the policy equals the real column types of both backends.
+    
+        The table (section 2) has the header ``Logical type | Postgres | SQLite (STRICT)`` and one row
+        for each of the eight column types in the pinned order, every cell one backticked token. Each
+        cell is compared (a) with the DDL type SQLAlchemy writes for the column type on each dialect,
+        (b) with the DDL type of every real column of the 37 tables, and (c) with what the database
+        itself reports for a scratch table of that type on the backend under test: the type, and the
+        collation (Postgres ``COLLATE "C"``, SQLite ``COLLATE "BINARY"`` in the table definition)."""
+>       rows = parity_rows()
+               ^^^^^^^^^^^^^
+
+packages/evaldb/tests/test_evaldb_storage_policy.py:339: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evaldb/tests/test_evaldb_storage_policy.py:312: in parity_rows
+    (table,) = docs.tables(sections()[2].lines)
+                           ^^^^^^^^^^
+packages/evaldb/tests/test_evaldb_storage_policy.py:73: in sections
+    return {s.number: s for s in docs.numbered_sections(policy_text())}
+                                                        ^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def policy_text() -> str:
+>       assert docs.STORAGE_POLICY.is_file(), "packages/evaldb/STORAGE_POLICY.md does not exist yet"
+E       AssertionError: packages/evaldb/STORAGE_POLICY.md does not exist yet
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('<repo>/packages/evaldb/STORAGE_POLICY.md').is_file
+E        +      where PosixPath('<repo>/packages/evaldb/STORAGE_POLICY.md') = docs.STORAGE_POLICY
+
+packages/evaldb/tests/test_evaldb_storage_policy.py:67: AssertionError
+___________ test_storage_policy_states_db_is_not_validation_boundary ___________
+
+    def test_storage_policy_states_db_is_not_validation_boundary() -> None:
+        """P2-25: section 3 says 'the DB is not a validation boundary, the repository is', says what
+        follows (a raw INSERT is accepted, the update triggers refuse only edits), and points to the
+        admin check ``verify_database``. The sentence is backed by
+        ``test_the_database_accepts_what_the_models_reject_and_verify_database_finds_it``."""
+>       section = sections()[3]
+                  ^^^^^^^^^^
+
+packages/evaldb/tests/test_evaldb_storage_policy.py:408: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evaldb/tests/test_evaldb_storage_policy.py:73: in sections
+    return {s.number: s for s in docs.numbered_sections(policy_text())}
+                                                        ^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def policy_text() -> str:
+>       assert docs.STORAGE_POLICY.is_file(), "packages/evaldb/STORAGE_POLICY.md does not exist yet"
+E       AssertionError: packages/evaldb/STORAGE_POLICY.md does not exist yet
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('<repo>/packages/evaldb/STORAGE_POLICY.md').is_file
+E        +      where PosixPath('<repo>/packages/evaldb/STORAGE_POLICY.md') = docs.STORAGE_POLICY
+
+packages/evaldb/tests/test_evaldb_storage_policy.py:67: AssertionError
+___________ test_storage_policy_limits_state_the_numbers_of_the_code ___________
+
+    def test_storage_policy_limits_state_the_numbers_of_the_code() -> None:
+        """Section 4 names each limit with its number: the stored integer range (2**53 - 1), SQLite
+        3.37, Postgres 15, UTF8, the place of U+0000, the years 0001 to 9999 and the size of a document
+        (``tracer_evalschema.loader.DEFAULT_MAX_BUNDLE_BYTES``, in MiB). Each limit is a statement that
+        is tested or marked like any other."""
+>       text = docs.flat(docs.section_text(sections()[4]))
+                                           ^^^^^^^^^^
+
+packages/evaldb/tests/test_evaldb_storage_policy.py:476: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evaldb/tests/test_evaldb_storage_policy.py:73: in sections
+    return {s.number: s for s in docs.numbered_sections(policy_text())}
+                                                        ^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def policy_text() -> str:
+>       assert docs.STORAGE_POLICY.is_file(), "packages/evaldb/STORAGE_POLICY.md does not exist yet"
+E       AssertionError: packages/evaldb/STORAGE_POLICY.md does not exist yet
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('<repo>/packages/evaldb/STORAGE_POLICY.md').is_file
+E        +      where PosixPath('<repo>/packages/evaldb/STORAGE_POLICY.md') = docs.STORAGE_POLICY
+
+packages/evaldb/tests/test_evaldb_storage_policy.py:67: AssertionError
+_______ test_storage_policy_states_the_database_is_not_encrypted_at_rest _______
+
+    def test_storage_policy_states_the_database_is_not_encrypted_at_rest() -> None:
+        """Section 5: tracer does not encrypt the database, so the stored internal data (which is
+        personal data) is as readable as the file or the server volume; Postgres storage is the
+        operator's, and that sentence is marked (unverified) because nothing in CI can see a server
+        disk. The sentence 'not encrypted' is backed by ``test_the_sqlite_file_holds_documents_in_plain
+        _text``."""
+>       section = sections()[5]
+                  ^^^^^^^^^^
+
+packages/evaldb/tests/test_evaldb_storage_policy.py:491: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evaldb/tests/test_evaldb_storage_policy.py:73: in sections
+    return {s.number: s for s in docs.numbered_sections(policy_text())}
+                                                        ^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def policy_text() -> str:
+>       assert docs.STORAGE_POLICY.is_file(), "packages/evaldb/STORAGE_POLICY.md does not exist yet"
+E       AssertionError: packages/evaldb/STORAGE_POLICY.md does not exist yet
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('<repo>/packages/evaldb/STORAGE_POLICY.md').is_file
+E        +      where PosixPath('<repo>/packages/evaldb/STORAGE_POLICY.md') = docs.STORAGE_POLICY
+
+packages/evaldb/tests/test_evaldb_storage_policy.py:67: AssertionError
+________ test_storage_policy_states_the_plain_profile_digest_limitation ________
+
+    def test_storage_policy_states_the_plain_profile_digest_limitation() -> None:
+        """Section 6 repeats, for the store, what SCHEMA_POLICY says of ADR 0006 Decision 6: a plain
+        SHA-256 digest of a low-entropy profile can be brute-forced; the store keeps internal data,
+        which carries the plain digest (a snapshot with an absent or keyed digest is refused:
+        ``InternalSnapshotRefused``); a shared export drops or keys it. It cites ADR 0006 Decision 6."""
+>       section = sections()[6]
+                  ^^^^^^^^^^
+
+packages/evaldb/tests/test_evaldb_storage_policy.py:539: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evaldb/tests/test_evaldb_storage_policy.py:73: in sections
+    return {s.number: s for s in docs.numbered_sections(policy_text())}
+                                                        ^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def policy_text() -> str:
+>       assert docs.STORAGE_POLICY.is_file(), "packages/evaldb/STORAGE_POLICY.md does not exist yet"
+E       AssertionError: packages/evaldb/STORAGE_POLICY.md does not exist yet
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('<repo>/packages/evaldb/STORAGE_POLICY.md').is_file
+E        +      where PosixPath('<repo>/packages/evaldb/STORAGE_POLICY.md') = docs.STORAGE_POLICY
+
+packages/evaldb/tests/test_evaldb_storage_policy.py:67: AssertionError
+________________ test_storage_policy_covers_deletion_and_audit _________________
+
+    def test_storage_policy_covers_deletion_and_audit() -> None:
+        """Section 7 names the seven deletion roots, ``deletion_audit`` (append-only, no content,
+        ``actor`` and ``reason`` required, the three reasons), the cascade, the incomplete bundles a
+        deletion leaves (``IncompleteRunBundle``) and that retention is recorded, not enforced."""
+>       raw = docs.section_text(sections()[7])
+                                ^^^^^^^^^^
+
+packages/evaldb/tests/test_evaldb_storage_policy.py:572: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evaldb/tests/test_evaldb_storage_policy.py:73: in sections
+    return {s.number: s for s in docs.numbered_sections(policy_text())}
+                                                        ^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def policy_text() -> str:
+>       assert docs.STORAGE_POLICY.is_file(), "packages/evaldb/STORAGE_POLICY.md does not exist yet"
+E       AssertionError: packages/evaldb/STORAGE_POLICY.md does not exist yet
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('<repo>/packages/evaldb/STORAGE_POLICY.md').is_file
+E        +      where PosixPath('<repo>/packages/evaldb/STORAGE_POLICY.md') = docs.STORAGE_POLICY
+
+packages/evaldb/tests/test_evaldb_storage_policy.py:67: AssertionError
+______________ test_storage_policy_points_to_the_migration_policy ______________
+
+    def test_storage_policy_points_to_the_migration_policy() -> None:
+        """Section 8 points to ADR 0021 by path (the pointer sentence is checked to exist), and says
+        the store is never migrated by opening it: ``open_store`` refuses, ``upgrade`` and
+        ``downgrade`` are explicit, a downgrade that would lose rows needs ``allow_data_loss``."""
+>       section = sections()[8]
+                  ^^^^^^^^^^
+
+packages/evaldb/tests/test_evaldb_storage_policy.py:592: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evaldb/tests/test_evaldb_storage_policy.py:73: in sections
+    return {s.number: s for s in docs.numbered_sections(policy_text())}
+                                                        ^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def policy_text() -> str:
+>       assert docs.STORAGE_POLICY.is_file(), "packages/evaldb/STORAGE_POLICY.md does not exist yet"
+E       AssertionError: packages/evaldb/STORAGE_POLICY.md does not exist yet
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('<repo>/packages/evaldb/STORAGE_POLICY.md').is_file
+E        +      where PosixPath('<repo>/packages/evaldb/STORAGE_POLICY.md') = docs.STORAGE_POLICY
+
+packages/evaldb/tests/test_evaldb_storage_policy.py:67: AssertionError
+__________________ test_storage_policy_names_the_phase5_risks __________________
+
+    def test_storage_policy_names_the_phase5_risks() -> None:
+        """Section 9 carries the risks Phase 5 inherits: the pg8000 store time of a large bundle
+        (P2-F4, ``executemany``, with no timing threshold), concurrent writers, and the digest-changing
+        upgrade that cannot be done in place."""
+>       raw = docs.section_text(sections()[9])
+                                ^^^^^^^^^^
+
+packages/evaldb/tests/test_evaldb_storage_policy.py:610: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evaldb/tests/test_evaldb_storage_policy.py:73: in sections
+    return {s.number: s for s in docs.numbered_sections(policy_text())}
+                                                        ^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def policy_text() -> str:
+>       assert docs.STORAGE_POLICY.is_file(), "packages/evaldb/STORAGE_POLICY.md does not exist yet"
+E       AssertionError: packages/evaldb/STORAGE_POLICY.md does not exist yet
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('<repo>/packages/evaldb/STORAGE_POLICY.md').is_file
+E        +      where PosixPath('<repo>/packages/evaldb/STORAGE_POLICY.md') = docs.STORAGE_POLICY
+
+packages/evaldb/tests/test_evaldb_storage_policy.py:67: AssertionError
+___ test_the_register_of_unverified_statements_matches_the_marked_sentences ____
+
+    def test_the_register_of_unverified_statements_matches_the_marked_sentences() -> None:
+        """Section 10 lists every marked sentence of sections 1 to 9, in order, once each (the rule
+        is part of ``statement_problems``; this test says it on its own so a failure names it)."""
+>       found = sections()
+                ^^^^^^^^^^
+
+packages/evaldb/tests/test_evaldb_storage_policy.py:625: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evaldb/tests/test_evaldb_storage_policy.py:73: in sections
+    return {s.number: s for s in docs.numbered_sections(policy_text())}
+                                                        ^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def policy_text() -> str:
+>       assert docs.STORAGE_POLICY.is_file(), "packages/evaldb/STORAGE_POLICY.md does not exist yet"
+E       AssertionError: packages/evaldb/STORAGE_POLICY.md does not exist yet
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('<repo>/packages/evaldb/STORAGE_POLICY.md').is_file
+E        +      where PosixPath('<repo>/packages/evaldb/STORAGE_POLICY.md') = docs.STORAGE_POLICY
+
+packages/evaldb/tests/test_evaldb_storage_policy.py:67: AssertionError
+____________ test_the_policy_text_names_no_machine_path_and_no_key _____________
+
+    def test_the_policy_text_names_no_machine_path_and_no_key() -> None:
+        """The policy is read by users: no home directory, no tool scratch path, no key-shaped value."""
+>       text = policy_text()
+               ^^^^^^^^^^^^^
+
+packages/evaldb/tests/test_evaldb_storage_policy.py:638: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def policy_text() -> str:
+>       assert docs.STORAGE_POLICY.is_file(), "packages/evaldb/STORAGE_POLICY.md does not exist yet"
+E       AssertionError: packages/evaldb/STORAGE_POLICY.md does not exist yet
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('<repo>/packages/evaldb/STORAGE_POLICY.md').is_file
+E        +      where PosixPath('<repo>/packages/evaldb/STORAGE_POLICY.md') = docs.STORAGE_POLICY
+
+packages/evaldb/tests/test_evaldb_storage_policy.py:67: AssertionError
+_________________ test_evaldb_changelog_has_entry_for_version __________________
+
+    def test_evaldb_changelog_has_entry_for_version() -> None:
+        """P2-25: ``packages/evaldb/CHANGELOG.md`` exists and has an entry for the package version
+        (``pyproject.toml`` and the installed distribution agree on it): the newest H2 is
+        ``## <version> (unreleased)`` or ``(<date>)``, with the sections Package, Storage, Migrations
+        and Findings, the four findings P2-F1 to P2-F4, ``Status: not released.`` while unreleased and
+        a pointer to STORAGE_POLICY.md."""
+>       assert docs.CHANGELOG.is_file(), f"{CHANGELOG_PATH} does not exist yet"
+E       AssertionError: packages/evaldb/CHANGELOG.md does not exist yet
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('<repo>/packages/evaldb/CHANGELOG.md').is_file
+E        +      where PosixPath('<repo>/packages/evaldb/CHANGELOG.md') = docs.CHANGELOG
+
+packages/evaldb/tests/test_evaldb_docs.py:91: AssertionError
+________________ test_evaldb_readme_has_the_documented_sections ________________
+
+    def test_evaldb_readme_has_the_documented_sections() -> None:
+        """P2-25: the README keeps its earlier content and has the H2 sections Install, Quick start,
+        Storage policy, Security and privacy and Status. It names the three documents (backticked
+        repository paths that exist), says the store is not encrypted by tracer and that its data is
+        personal data, that ``expected_purpose`` is required at both export entry points, and
+        states the version and that it is unreleased."""
+        text = docs.read(docs.README)
+        assert text.isascii()
+        found = readme_sections(text)
+        missing = [name for name in README_SECTIONS if name not in found]
+>       assert missing == [], missing
+E       AssertionError: ['Install', 'Quick start', 'Storage policy', 'Security and privacy', 'Status']
+E       assert ['Install', '...cy', 'Status'] == []
+E         
+E         Left contains 5 more items, first extra item: 'Install'
+E         Use -v to get more diff
+
+packages/evaldb/tests/test_evaldb_docs.py:173: AssertionError
+_____________________ test_evaldb_readme_quick_start_runs ______________________
+
+tmp_path = PosixPath('<tmp>')
+
+    def test_evaldb_readme_quick_start_runs(tmp_path: Path) -> None:
+        """The ```python block of the Quick start section runs as written, in an empty directory and
+        with a clean interpreter (``-I``): it imports only ``tracer_evaldb``, ``tracer_evalschema``,
+        ``sqlalchemy`` and the standard library modules of ``ALLOWED_IMPORTS``, writes a SQLite
+        database file below the directory, and leaves a store that ``open_store`` accepts, that
+        holds at least one row and that ``verify_database`` finds clean. It needs no key and no
+        network."""
+>       code = python_block(readme_sections(docs.read(docs.README))["Quick start"])
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'Quick start'
+
+packages/evaldb/tests/test_evaldb_docs.py:202: KeyError
+________________ test_concept_page_storage_exists_and_is_linked ________________
+
+    def test_concept_page_storage_exists_and_is_linked() -> None:
+        """P2-25: ``docs/concepts/storage.md`` exists in the style of the other concept pages: H1
+        ``# Storage``, the six H2 sections of ``CONCEPT_SECTIONS``, relative links to the four ADRs
+        that resolve, a pointer to STORAGE_POLICY.md, at least three citations of tests that exist, and
+        the two sentences 'not a validation boundary' and 'not encrypted'. ``docs/concepts/README.md``
+        lists it in its table."""
+>       assert docs.CONCEPT.is_file(), f"{CONCEPT_PATH} does not exist yet"
+E       AssertionError: docs/concepts/storage.md does not exist yet
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('<repo>/docs/concepts/storage.md').is_file
+E        +      where PosixPath('<repo>/docs/concepts/storage.md') = docs.CONCEPT
+
+packages/evaldb/tests/test_evaldb_docs.py:275: AssertionError
+_______ test_schema_policy_database_bullet_points_to_the_storage_policy ________
+
+    def test_schema_policy_database_bullet_points_to_the_storage_policy() -> None:
+        """P2-25: section 3 'Database' of SCHEMA_POLICY.md gains exactly one sentence, the last of the
+        bullet, that contains the backticked path ``packages/evaldb/STORAGE_POLICY.md`` (the path
+        occurs nowhere else in the file). Apart from that sentence the file is the text of the batch E
+        commit, up to white space (``SCHEMA_POLICY_BASELINE``): the Phase 1 policy tests keep reading
+        the same document."""
+        text = docs.read(docs.SCHEMA_POLICY)
+>       assert text.count(POLICY_PATH) == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = <built-in method count of str object at 0xbff688000>('packages/evaldb/STORAGE_POLICY.md')
+E        +    where <built-in method count of str object at 0xbff688000> = '# Schema policy: `tracer-evalschema` 0.0.1\n\nStatus: policy for schema version `0.0.1`, which is **unreleased** (no ...ly on 2026-10-24 (the `jsonschema` behaviour of sections 2.5 and 2.6, the Unicode database\nversions of section 15).\n'.count
+
+packages/evaldb/tests/test_evaldb_docs.py:315: AssertionError
+_____ test_the_documents_of_this_batch_are_ascii_and_free_of_machine_paths _____
+
+    def test_the_documents_of_this_batch_are_ascii_and_free_of_machine_paths() -> None:
+        """Every document the batch adds or edits is ASCII, has no tab and no trailing white space at
+        the end of a line, names no home directory and holds no key-shaped string. (SCHEMA_POLICY.md
+        holds three non-ASCII characters from Phase 1; only its new sentence is checked, above.)"""
+        paths = [
+            docs.STORAGE_POLICY,
+            docs.CHANGELOG,
+            docs.README,
+            docs.CONCEPT,
+            docs.CONCEPTS_INDEX,
+        ]
+        for path in paths:
+>           assert path.is_file(), f"{path.relative_to(docs.ROOT)} does not exist yet"
+E           AssertionError: packages/evaldb/STORAGE_POLICY.md does not exist yet
+E           assert False
+E            +  where False = is_file()
+E            +    where is_file = PosixPath('<repo>/packages/evaldb/STORAGE_POLICY.md').is_file
+
+packages/evaldb/tests/test_evaldb_docs.py:369: AssertionError
+=========================== short test summary info ============================
+FAILED packages/evaldb/tests/test_evaldb_storage_policy.py::test_storage_policy_exists_with_the_pinned_structure
+FAILED packages/evaldb/tests/test_evaldb_storage_policy.py::test_every_statement_of_the_storage_policy_is_tested_or_marked_unverified
+FAILED packages/evaldb/tests/test_evaldb_storage_policy.py::test_the_storage_policy_cites_a_test_for_each_statement_the_owner_asked_for
+FAILED packages/evaldb/tests/test_evaldb_storage_policy.py::test_storage_policy_parity_table_matches_column_types[sqlite]
+FAILED packages/evaldb/tests/test_evaldb_storage_policy.py::test_storage_policy_states_db_is_not_validation_boundary
+FAILED packages/evaldb/tests/test_evaldb_storage_policy.py::test_storage_policy_limits_state_the_numbers_of_the_code
+FAILED packages/evaldb/tests/test_evaldb_storage_policy.py::test_storage_policy_states_the_database_is_not_encrypted_at_rest
+FAILED packages/evaldb/tests/test_evaldb_storage_policy.py::test_storage_policy_states_the_plain_profile_digest_limitation
+FAILED packages/evaldb/tests/test_evaldb_storage_policy.py::test_storage_policy_covers_deletion_and_audit
+FAILED packages/evaldb/tests/test_evaldb_storage_policy.py::test_storage_policy_points_to_the_migration_policy
+FAILED packages/evaldb/tests/test_evaldb_storage_policy.py::test_storage_policy_names_the_phase5_risks
+FAILED packages/evaldb/tests/test_evaldb_storage_policy.py::test_the_register_of_unverified_statements_matches_the_marked_sentences
+FAILED packages/evaldb/tests/test_evaldb_storage_policy.py::test_the_policy_text_names_no_machine_path_and_no_key
+FAILED packages/evaldb/tests/test_evaldb_docs.py::test_evaldb_changelog_has_entry_for_version
+FAILED packages/evaldb/tests/test_evaldb_docs.py::test_evaldb_readme_has_the_documented_sections
+FAILED packages/evaldb/tests/test_evaldb_docs.py::test_evaldb_readme_quick_start_runs
+FAILED packages/evaldb/tests/test_evaldb_docs.py::test_concept_page_storage_exists_and_is_linked
+FAILED packages/evaldb/tests/test_evaldb_docs.py::test_schema_policy_database_bullet_points_to_the_storage_policy
+FAILED packages/evaldb/tests/test_evaldb_docs.py::test_the_documents_of_this_batch_are_ascii_and_free_of_machine_paths
+19 failed, 16 passed, 5 deselected in 2.84s

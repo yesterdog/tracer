@@ -1,7 +1,7 @@
 # ADR 0020: Deletion roots, cascade graph, deletion audit and retention data
 
 - Status: Accepted (Phase 2 batch 0, task P2-00b). Records the questions Q10, Q11, Q12, Q13, Q14 and the deletion side of Q16 of `docs/phase2/SCOPE.md` section 3, auto-approved by the lead on the recommended option under the owner's standing rule of 2026-10-23 (decision log "PHASE 2 SCOPE delivered"), and the owner's deletion decision in the decision log (deletion is allowed; `ON DELETE CASCADE` or an equivalent; run-owned facts cascade from the run; definitions embedded in snapshots are safe to delete because snapshots embed them; a minimal deletion audit of what kind, when and who, with no content). The points where the SCOPE was ambiguous are listed under "Ambiguities resolved" with the recommendation the lead auto-approves. Revision 35 (2026-10-24, docs only): Decision 6 states that `reason` and `root_kind` are database CHECKs (batch B A10, auto-approved; SCOPE Decisions D4). Revision 36 (2026-10-24, docs only): Decision 7 states the error the triggers raise (batch C A7) and Ambiguity 6 records the row of its test (batch C A11; SCOPE Decisions D5). Open [Proposed] items: none.
-- Date: 2026-10-24 (revision 36: Decision 7 and Ambiguity 6 notes)
+- Date: 2026-10-24 (revision 36: Decision 7 and Ambiguity 6 notes); amended 2026-10-25 (Decision 6: the `actor` label rule, P2-24 finding E14)
 - Task: P2-00b (implemented by P2-10, P2-16, P2-17a, P2-17b, P2-18)
 
 ## Context
@@ -67,7 +67,7 @@ Facts in the code that drive the design: a `Dataset` version lists `item_ids` an
 6. **The deletion audit row (Q12, Q13).** `deletion_audit` has exactly these columns:
    - `audit_uuid` (`UuidCol`): a UUIDv7 minted by the store, without a prefix, never exported and never shown as an entity ID;
    - `deleted_at` (`InstantCol`): the commit time of the deletion, from the store's clock;
-   - `actor` (`KeyCol`): a required label naming who asked, with no default; it follows the `HumanLabel` rules (non-empty, no control, separator or default-ignorable character) and is refused when `credentials.credential_reason` flags it; the error names the rule, never the value;
+   - `actor` (`KeyCol`): a required machine-style label naming who asked, with no default. It must match, in full, `^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$` (an ASCII letter or digit first, then up to 127 letters, digits, `.`, `_`, `:` or `-`; so no space, no e-mail address, no non-ASCII character, no control character and at most 128 characters), and it is also refused when `credentials.credential_reason` flags it (both checks are needed: a credential shape can match the pattern). The error is a `ValueError` that names the rule, never the value, raised before any statement. (Amended 2026-10-25 for the P2-24 audit finding E14, `docs/phase2/api-surface-batch-g.md` section 3: this supersedes the earlier text, and the batch D contract statement, that the actor follows the `HumanLabel` rules. Rejected: keeping `HumanLabel`, which admits names of people and e-mail addresses into an append-only table that a deletion can never remove; a database CHECK, which would need a revision 0003 for an API rule.);
    - `reason` (`KeyCol`): required, the closed set `operator_request`, `retention_policy`, `data_subject_request`;
    - `root_kind` (`KeyCol`): the closed set of the `root_kind` column of Decision 2 (fourteen kinds);
    - both closed sets are also database CHECKs (revision 35, batch B A10; ADR 0019 Table 2);
@@ -123,7 +123,7 @@ Facts in the code that drive the design: a `Dataset` version lists `item_ids` an
 - I8. A concurrent insert during a run deletion never leaves an orphan (Postgres). Test: `test_concurrent_insert_during_run_delete_never_orphans`.
 - I9. A deletion and its audit row are atomic. Test: `test_delete_is_atomic_with_audit`.
 - I10. The audit row holds no ID, uuid hex, text, digest or metadata value of the deleted records, and its counts are exact. Tests: `test_deletion_audit_is_content_free`, `test_deletion_audit_counts_per_kind_exact`.
-- I11. `actor` and `reason` are required, without defaults, and a credential-shaped actor is refused. Tests: `test_deletion_requires_actor_and_reason`, `test_deletion_actor_rejects_credential_shaped_value`.
+- I11. `actor` and `reason` are required, without defaults, the actor is a machine-style label (Decision 6), and a credential-shaped actor is refused. Tests: `test_deletion_requires_actor_and_reason`, `test_deletion_actor_rejects_credential_shaped_value`, `test_actor_outside_the_label_rule_is_refused_by_every_deletion`, `test_actor_labels_that_follow_the_rule_are_accepted_and_stored_exactly`.
 - I12. No UPDATE succeeds on any table, and the triggers exist after every migration. Tests: `test_update_rejected_on_every_table`, `test_immutability_triggers_exist_after_migrations`.
 - I13. Retention columns mirror the privacy marker, absent is NULL, and `retain_until` is indexed. Tests: `test_retention_columns_mirror_privacy_marker`, `test_retention_absent_is_null_never_false`, `test_retain_until_index_exists`.
 - I14. A bundle that lost a member loads as incomplete, never as a silent partial. Test: `test_run_bundle_load_reports_incomplete_after_member_deletion`.
