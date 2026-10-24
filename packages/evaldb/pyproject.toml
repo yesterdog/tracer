@@ -1,0 +1,36 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 The Tracer contributors
+[build-system]
+requires = ["hatchling==1.32.4"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tracer-evaldb"
+version = "0.0.1"
+description = "Relational storage (SQLite and Postgres) for Tracer evaluation entities."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+dependencies = [
+    # The schema version of the stored data, not a library range (ADR 0021).
+    "tracer-evalschema==0.0.1",
+    "sqlalchemy>=2.1.6,<3",
+    "alembic>=1.20.1,<2",
+]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
+]
+
+[project.optional-dependencies]
+postgres = ["pg8000>=1.31.5,<2"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/tracer_evaldb"]

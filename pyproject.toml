@@ -18,6 +18,7 @@ test = [
 ]
 dev = [
     "tracer-evalschema",
+    "tracer-evaldb[postgres]",  # pg8000 must be installed for the Postgres job
     { include-group = "test" },
     "pytest==9.1.1",
     "ruff==0.17.1",
@@ -45,11 +46,18 @@ members = ["packages/*"]
 
 [tool.uv.sources]
 tracer-evalschema = { workspace = true }
+tracer-evaldb = { workspace = true }
 
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-src = ["packages/evalschema/src", "packages/evalschema/tests", "scripts"]
+src = [
+    "packages/evalschema/src",
+    "packages/evalschema/tests",
+    "packages/evaldb/src",
+    "packages/evaldb/tests",
+    "scripts",
+]
 # Evidence scripts under docs/phase1/evidence are records of one-off runs, not maintained code.
 extend-exclude = ["packages/evalschema/tests/fixtures/private", "docs/phase1/evidence"]
 
@@ -63,16 +71,23 @@ select = ["E", "F", "W", "I", "B", "UP", "SIM", "C4", "PT", "RUF", "S"]
 [tool.mypy]
 strict = true
 python_version = "3.11"
-files = ["packages/evalschema/src", "packages/evalschema/tests", "scripts"]
+files = [
+    "packages/evalschema/src",
+    "packages/evalschema/tests",
+    "packages/evaldb/src",
+    "packages/evaldb/tests",
+    "scripts",
+]
 exclude = ["packages/evalschema/tests/fixtures/"]
-mypy_path = "packages/evalschema/src"
+mypy_path = "packages/evalschema/src:packages/evaldb/src"
 explicit_package_bases = true
 namespace_packages = true
 
 [tool.pytest.ini_options]
-testpaths = ["packages/evalschema/tests"]
-addopts = "-ra --strict-markers --strict-config -m 'not private_fixtures and not local_only'"
+testpaths = ["packages/evalschema/tests", "packages/evaldb/tests"]
+addopts = "-ra --strict-markers --strict-config -m 'not private_fixtures and not local_only and not postgres'"
 markers = [
     "private_fixtures: needs the gitignored private fixtures; deselected by default (run locally with -m private_fixtures)",
     "local_only: needs a local-only resource not available in CI; deselected by default (run locally with -m local_only)",
+    "postgres: needs a Postgres server (TRACER_TEST_POSTGRES_URL); deselected by default, selected in the Postgres CI job with -m postgres",
 ]

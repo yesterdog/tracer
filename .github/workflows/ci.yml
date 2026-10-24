@@ -62,6 +62,7 @@ jobs:
       - run: uv sync --locked --all-groups
       - run: uv run --locked --all-groups python scripts/check_licenses.py
       - run: uv build --package tracer-evalschema --out-dir dist
+      - run: uv build --package tracer-evaldb --out-dir dist
       - run: uv run --locked --all-groups python scripts/check_licenses.py --wheel dist --artifacts-only
 
   test:
@@ -114,6 +115,137 @@ jobs:
           python-version: "3.12"
       - run: uv sync --locked --all-groups
       - run: uv run --locked --all-groups --with "pydantic==2.11.0" pytest --deselect packages/evalschema/tests/test_repo_contract.py::test_runtime_deps_license_allowlist
+
+  # Postgres 15 (floor) and 18 (latest) against the oldest and newest required Python; the SQLite
+  # side of the evaldb suite runs in the test jobs above and below through testpaths.
+  test-postgres:
+    name: test-postgres (py${{ matrix.python-version }}, pg${{ matrix.postgres }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - python-version: "3.11"
+            postgres: "15"
+            image: "postgres:15@sha256:baa22e6286bf832cb147b8bb5aa9d8bc999846d69c21d11bf63f58fbeed1fa48"
+          - python-version: "3.11"
+            postgres: "18"
+            image: "postgres:18@sha256:edb0c08dc33befd0262ab3b5cf1c4f3f8cfd8b09e88c05b45adee29d6761ddb6"
+          - python-version: "3.14"
+            postgres: "15"
+            image: "postgres:15@sha256:baa22e6286bf832cb147b8bb5aa9d8bc999846d69c21d11bf63f58fbeed1fa48"
+          - python-version: "3.14"
+            postgres: "18"
+            image: "postgres:18@sha256:edb0c08dc33befd0262ab3b5cf1c4f3f8cfd8b09e88c05b45adee29d6761ddb6"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+        with:
+          version: ${{ env.UV_VERSION }}
+          python-version: ${{ matrix.python-version }}
+      - run: uv sync --locked --all-groups
+      # The password is generated per job and masked before it is written anywhere; the server
+      # listens on the loopback interface only. SQL_ASCII database: the encoding refusal test.
+      # Asia/Kolkata as the database time zone: the store must not depend on it.
+      - name: start postgres (generated, masked password)
+        run: |
+          PG_PASSWORD="$(openssl rand -hex 24)"
+          echo "::add-mask::$PG_PASSWORD"
+          echo "PG_PASSWORD=$PG_PASSWORD" >> "$GITHUB_ENV"
+          docker run --detach --name pg -e POSTGRES_PASSWORD="$PG_PASSWORD" -p 127.0.0.1:5432:5432 ${{ matrix.image }}
+          # TCP readiness: the image first runs a temporary server that listens on a socket only
+          for i in $(seq 1 60); do docker exec pg pg_isready -h 127.0.0.1 -U postgres && break; sleep 1; done
+          docker exec pg pg_isready -h 127.0.0.1 -U postgres
+          docker exec -e PGPASSWORD="$PG_PASSWORD" pg psql -h 127.0.0.1 -U postgres -v ON_ERROR_STOP=1 \
+            -c "CREATE DATABASE tracer_test" \
+            -c "CREATE DATABASE tracer_ascii ENCODING 'SQL_ASCII' LC_COLLATE 'C' LC_CTYPE 'C' TEMPLATE template0" \
+            -c "ALTER DATABASE tracer_test SET timezone TO 'Asia/Kolkata'"
+          echo "TRACER_TEST_POSTGRES_URL=postgresql+pg8000://postgres:${PG_PASSWORD}@127.0.0.1:5432/tracer_test" >> "$GITHUB_ENV"
+          echo "TRACER_TEST_POSTGRES_SQL_ASCII_URL=postgresql+pg8000://postgres:${PG_PASSWORD}@127.0.0.1:5432/tracer_ascii" >> "$GITHUB_ENV"
+      - run: uv run --locked --all-groups pytest -m postgres packages/evaldb/tests
+
+  test-postgres-py315:
+    name: test-postgres (py3.15, pg18, non-blocking)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - python-version: "3.15"
+            postgres: "18"
+            image: "postgres:18@sha256:edb0c08dc33befd0262ab3b5cf1c4f3f8cfd8b09e88c05b45adee29d6761ddb6"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+        with:
+          version: ${{ env.UV_VERSION }}
+          python-version: ${{ matrix.python-version }}
+      - run: uv sync --locked --all-groups
+      # The password is generated per job and masked before it is written anywhere; the server
+      # listens on the loopback interface only. SQL_ASCII database: the encoding refusal test.
+      # Asia/Kolkata as the database time zone: the store must not depend on it.
+      - name: start postgres (generated, masked password)
+        run: |
+          PG_PASSWORD="$(openssl rand -hex 24)"
+          echo "::add-mask::$PG_PASSWORD"
+          echo "PG_PASSWORD=$PG_PASSWORD" >> "$GITHUB_ENV"
+          docker run --detach --name pg -e POSTGRES_PASSWORD="$PG_PASSWORD" -p 127.0.0.1:5432:5432 ${{ matrix.image }}
+          # TCP readiness: the image first runs a temporary server that listens on a socket only
+          for i in $(seq 1 60); do docker exec pg pg_isready -h 127.0.0.1 -U postgres && break; sleep 1; done
+          docker exec pg pg_isready -h 127.0.0.1 -U postgres
+          docker exec -e PGPASSWORD="$PG_PASSWORD" pg psql -h 127.0.0.1 -U postgres -v ON_ERROR_STOP=1 \
+            -c "CREATE DATABASE tracer_test" \
+            -c "CREATE DATABASE tracer_ascii ENCODING 'SQL_ASCII' LC_COLLATE 'C' LC_CTYPE 'C' TEMPLATE template0" \
+            -c "ALTER DATABASE tracer_test SET timezone TO 'Asia/Kolkata'"
+          echo "TRACER_TEST_POSTGRES_URL=postgresql+pg8000://postgres:${PG_PASSWORD}@127.0.0.1:5432/tracer_test" >> "$GITHUB_ENV"
+          echo "TRACER_TEST_POSTGRES_SQL_ASCII_URL=postgresql+pg8000://postgres:${PG_PASSWORD}@127.0.0.1:5432/tracer_ascii" >> "$GITHUB_ENV"
+      - run: uv run --locked --all-groups pytest -m postgres packages/evaldb/tests
+
+  # Every evaldb runtime dependency at the lower bound of its range. uv --resolution lowest-direct
+  # lowers the direct dependencies only: full "lowest" fails on an old transitive dependency
+  # (docs/security/P2-02-licenses.md section 6.1). It also lowers pydantic and rfc8785 of the other
+  # workspace member, which tests the evalschema ranges too. The SQLite and the Postgres 15 cases
+  # run together. The lock of this throwaway checkout is re-resolved first (the committed lock is
+  # the highest resolution, so --locked alone would refuse the other mode); every uv call stays
+  # --locked. Deselected: the tests that compare the installed versions or the closure with the
+  # committed uv.lock, which cannot hold after the deliberate downgrade (they run in every other
+  # leg).
+  test-oldest-evaldb-deps:
+    name: test (lowest-direct evaldb deps, py3.11, pg15)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+        with:
+          version: ${{ env.UV_VERSION }}
+          python-version: "3.11"
+      # The password is generated per job and masked before it is written anywhere; the server
+      # listens on the loopback interface only. SQL_ASCII database: the encoding refusal test.
+      # Asia/Kolkata as the database time zone: the store must not depend on it.
+      - name: start postgres (generated, masked password)
+        run: |
+          PG_PASSWORD="$(openssl rand -hex 24)"
+          echo "::add-mask::$PG_PASSWORD"
+          echo "PG_PASSWORD=$PG_PASSWORD" >> "$GITHUB_ENV"
+          docker run --detach --name pg -e POSTGRES_PASSWORD="$PG_PASSWORD" -p 127.0.0.1:5432:5432 postgres:15@sha256:baa22e6286bf832cb147b8bb5aa9d8bc999846d69c21d11bf63f58fbeed1fa48
+          # TCP readiness: the image first runs a temporary server that listens on a socket only
+          for i in $(seq 1 60); do docker exec pg pg_isready -h 127.0.0.1 -U postgres && break; sleep 1; done
+          docker exec pg pg_isready -h 127.0.0.1 -U postgres
+          docker exec -e PGPASSWORD="$PG_PASSWORD" pg psql -h 127.0.0.1 -U postgres -v ON_ERROR_STOP=1 \
+            -c "CREATE DATABASE tracer_test" \
+            -c "CREATE DATABASE tracer_ascii ENCODING 'SQL_ASCII' LC_COLLATE 'C' LC_CTYPE 'C' TEMPLATE template0" \
+            -c "ALTER DATABASE tracer_test SET timezone TO 'Asia/Kolkata'"
+          echo "TRACER_TEST_POSTGRES_URL=postgresql+pg8000://postgres:${PG_PASSWORD}@127.0.0.1:5432/tracer_test" >> "$GITHUB_ENV"
+          echo "TRACER_TEST_POSTGRES_SQL_ASCII_URL=postgresql+pg8000://postgres:${PG_PASSWORD}@127.0.0.1:5432/tracer_ascii" >> "$GITHUB_ENV"
+      - run: uv lock --resolution lowest-direct
+      - run: uv run --locked --resolution lowest-direct --all-groups pytest -m "not private_fixtures and not local_only" packages/evaldb/tests --deselect packages/evaldb/tests/test_evaldb_scaffold.py::test_evaldb_locked_closure_is_the_reviewed_one --deselect packages/evaldb/tests/test_evaldb_licenses.py
 
   secrets:
     name: secret scan (gitleaks)

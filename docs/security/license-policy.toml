@@ -33,6 +33,52 @@ closure = [
 # Exact Requires-Dist of the built wheel/sdist (no extras, nothing test-only).
 requires_dist = ["pydantic>=2.11,<3", "rfc8785>=0.1.4,<0.2"]
 
+[runtime.evaldb]
+# Runtime closure of tracer-evaldb (docs/security/P2-02-licenses.md). The workspace package
+# tracer-evalschema is excluded; its closure is the [runtime] table above. The [postgres] extra is
+# listed separately. Any change must be a conscious edit.
+closure = [
+    "alembic",
+    "annotated-types",
+    "mako",
+    "markupsafe",
+    "pydantic",
+    "pydantic-core",
+    "rfc8785",
+    "sqlalchemy",
+    "typing-extensions",
+    "typing-inspection",
+]
+extras_postgres = [
+    "asn1crypto",
+    "pg8000",
+    "python-dateutil",
+    "scramp",
+    "six",
+    "tzdata",
+]
+# Requires-Dist of the built wheel, compared as normalised requirements (specifier order is free).
+requires_dist = [
+    "tracer-evalschema==0.0.1",
+    "sqlalchemy>=2.1.6,<3",
+    "alembic>=1.20.1,<2",
+    "pg8000>=1.31.5,<2; extra == 'postgres'",
+]
+
+# ---------------------------------------------------------------------------------------------
+# Rejected: packages considered and refused. Recorded so that nobody adds them without a decision.
+# ---------------------------------------------------------------------------------------------
+
+[[rejected]]
+name = "psycopg"
+spdx = "LGPL-3.0-only"
+reason = "Copyleft (LGPL-3.0-only); the Postgres driver is pg8000 (BSD-3-Clause). See docs/security/P2-02-licenses.md."
+
+[[rejected]]
+name = "psycopg-binary"
+spdx = "LGPL-3.0-only"
+reason = "The binary distribution of psycopg, with the same LGPL-3.0-only licence."
+
 # ---------------------------------------------------------------------------------------------
 # Exceptions: copyleft licenses allowed by name, version and dependency group.
 # ---------------------------------------------------------------------------------------------
@@ -126,3 +172,21 @@ scope = "dev"
 license_file = "licenses/LICENSE"
 license_file_sha256 = "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
 reason = "Added by pinning hatchling; classifier-only metadata ('Apache Software License'); LICENSE is the Apache License 2.0 text."
+
+[[overrides]]
+name = "pg8000"
+version = "1.31.5"
+spdx = "BSD-3-Clause"
+scope = "runtime"
+license_file = "licenses/LICENSE"
+license_file_sha256 = "f63e001d98a1bff7a5ed37d87e3ecee239979b00b9176acc8cea8338f3bd0523"
+reason = "License field is the non-SPDX text 'BSD 3-Clause License' and the only classifier is 'BSD License'; LICENSE is the 3-clause text. Optional extra [postgres] of tracer-evaldb."
+
+[[overrides]]
+name = "python-dateutil"
+version = "3.0.0"
+spdx = "Apache-2.0 AND BSD-3-Clause"
+scope = "runtime"
+license_file = "licenses/LICENSE"
+license_file_sha256 = "ba00f51a0d92823b5a1cde27d8b5b9d2321e67ed8da9bc163eff96d5e17e577e"
+reason = "License field is 'Dual License' (non-SPDX); LICENSE holds an Apache-2.0 notice for post-2017 code and the BSD-3-Clause text for all code. Transitive of pg8000 (extra [postgres])."

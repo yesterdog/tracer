@@ -33,6 +33,8 @@ DEFAULT_LOCK = ROOT / "uv.lock"
 DEFAULT_POLICY = ROOT / "docs" / "security" / "license-policy.toml"
 ROOT_PROJECT = "tracer-workspace"
 RUNTIME_PROJECT = "tracer-evalschema"
+EVALDB_PROJECT = "tracer-evaldb"
+EVALDB_EXTRA = "postgres"
 MAX_LICENSE_FILE_BYTES = 1_000_000
 MAX_ARTIFACT_METADATA_BYTES = 10_000_000
 _REQ_NAME_RE = re.compile(r"^\s*([A-Za-z0-9][A-Za-z0-9._-]*)")
@@ -55,6 +57,9 @@ def _normal_requirement(requirement: str) -> str:
     """A requirement with its specifiers sorted (build backends write ``<3,>=2.11`` for
     ``>=2.11,<3``); the constraint is the same, only the order differs."""
     text = requirement.replace(" ", "")
+    if ";" in text:  # an environment marker: only the quote style differs between writers
+        head, marker = text.split(";", 1)
+        return _normal_requirement(head) + ";" + marker.replace("'", '"')
     match = re.match(r"([A-Za-z0-9_.-]+)(.*)", text)
     if match is None:
         return text
@@ -70,6 +75,9 @@ class Policy:
     allowed: frozenset[str]
     runtime_closure: frozenset[str]
     runtime_requires_dist: frozenset[str]
+    evaldb_closure: frozenset[str]
+    evaldb_extras: frozenset[str]
+    evaldb_requires_dist: frozenset[str]
     overrides: list[dict[str, Any]]
     exceptions: list[dict[str, Any]]
 
@@ -77,10 +85,14 @@ class Policy:
     def load(cls, path: Path) -> Policy:
         data = tomllib.loads(path.read_text(encoding="utf-8"))
         runtime = data.get("runtime", {})
+        evaldb = runtime.get("evaldb", {})
         return cls(
             allowed=frozenset(s.lower() for s in data["allowlist"]["spdx"]),
             runtime_closure=frozenset(norm_name(n) for n in runtime.get("closure", [])),
             runtime_requires_dist=frozenset(runtime.get("requires_dist", [])),
+            evaldb_closure=frozenset(norm_name(n) for n in evaldb.get("closure", [])),
+            evaldb_extras=frozenset(norm_name(n) for n in evaldb.get("extras_postgres", [])),
+            evaldb_requires_dist=frozenset(evaldb.get("requires_dist", [])),
             overrides=list(data.get("overrides", [])),
             exceptions=list(data.get("exceptions", [])),
         )
@@ -241,6 +253,7 @@ class LockPackage:
     version: str
     source: dict[str, Any]
     deps: list[str]
+    extra_deps: dict[str, list[str]]
     requires_dist: list[dict[str, Any]]
 
 
@@ -262,6 +275,10 @@ class Lock:
                 version=p.get("version", ""),
                 source=p.get("source", {}),
                 deps=deps,
+                extra_deps={
+                    extra: [norm_name(d["name"]) for d in items]
+                    for extra, items in p.get("optional-dependencies", {}).items()
+                },
                 requires_dist=p.get("metadata", {}).get("requires-dist", []),
             )
             if key == norm_name(ROOT_PROJECT):
@@ -269,15 +286,20 @@ class Lock:
                     groups[g] = [norm_name(i["name"]) for i in items]
         return cls(packages=pkgs, groups=groups)
 
-    def closure(self, roots: Iterable[str]) -> set[str]:
+    def closure(self, roots: Iterable[str], extras: Iterable[str] = ()) -> set[str]:
+        """Packages reachable from the roots; ``extras`` are those of the roots only."""
         seen: set[str] = set()
         stack = [norm_name(r) for r in roots]
+        root_keys = set(stack)
         while stack:
             n = stack.pop()
             if n in seen or n not in self.packages:
                 continue
             seen.add(n)
             stack.extend(self.packages[n].deps)
+            if n in root_keys:
+                for extra in extras:
+                    stack.extend(self.packages[n].extra_deps.get(extra, []))
         return seen
 
 
@@ -479,6 +501,7 @@ def runtime_findings(lock: Lock, policy: Policy, runtime: set[str]) -> list[Find
                 f"missing {sorted(expected - runtime)}",
             )
         )
+    out.extend(evaldb_findings(lock, policy))
     lp = lock.packages.get(norm_name(RUNTIME_PROJECT))
     if lp is not None:
         for r in lp.requires_dist:
@@ -498,6 +521,38 @@ def runtime_findings(lock: Lock, policy: Policy, runtime: set[str]) -> list[Find
                         f"runtime dependency {r['name']} not declared as a bounded range (>=X,<Y)",
                     )
                 )
+    return out
+
+
+def evaldb_findings(lock: Lock, policy: Policy) -> list[Finding]:
+    """The second published package: its base closure and its [postgres] extra are frozen too."""
+    out: list[Finding] = []
+    lp = lock.packages.get(norm_name(EVALDB_PROJECT))
+    if lp is None or not policy.evaldb_closure:
+        return out
+
+    def fail(note: str) -> None:
+        out.append(Finding(EVALDB_PROJECT, lp.version, "?", "FAIL", note))
+
+    own = {norm_name(EVALDB_PROJECT)}
+    base = lock.closure([EVALDB_PROJECT]) - own
+    expected = set(policy.evaldb_closure) | {norm_name(RUNTIME_PROJECT)}
+    if base != expected:
+        fail(
+            f"runtime closure changed: extra {sorted(base - expected)}, "
+            f"missing {sorted(expected - base)}"
+        )
+    extra_only = lock.closure([EVALDB_PROJECT], [EVALDB_EXTRA]) - own - base
+    if extra_only != policy.evaldb_extras:
+        fail(
+            f"{EVALDB_EXTRA} extra closure changed: got {sorted(extra_only)}, "
+            f"policy {sorted(policy.evaldb_extras)}"
+        )
+    for r in lp.requires_dist:
+        if norm_name(r["name"]) == norm_name(RUNTIME_PROJECT):
+            continue  # the workspace package: pinned exactly in pyproject, an editable source here
+        if not re.fullmatch(r">=\d+(\.\d+)*,<\d+(\.\d+)*", str(r.get("specifier", ""))):
+            fail(f"runtime dependency {r['name']} not declared as a bounded range (>=X,<Y)")
     return out
 
 
@@ -540,11 +595,13 @@ def check_artifact(path: Path, policy: Policy) -> list[Finding]:
     if verdict.klass != ALLOWED:
         fail(f"artifact license {CLASS_NAMES[verdict.klass]}: {verdict.declared}")
     requires = {_normal_requirement(r) for r in meta.get_all("Requires-Dist") or []}
-    wanted = {_normal_requirement(r) for r in policy.runtime_requires_dist}
-    if policy.runtime_requires_dist and requires != wanted:
+    is_evaldb = norm_name(str(meta.get("Name", ""))) == norm_name(EVALDB_PROJECT)
+    wanted_dist = policy.evaldb_requires_dist if is_evaldb else policy.runtime_requires_dist
+    wanted = {_normal_requirement(r) for r in wanted_dist}
+    if wanted_dist and requires != wanted:
         fail(f"Requires-Dist {sorted(requires)} != policy {sorted(wanted)}")
-    if meta.get_all("Provides-Extra"):
-        fail("artifact declares extras")
+    if (meta.get_all("Provides-Extra") or []) != ([EVALDB_EXTRA] if is_evaldb else []):
+        fail("artifact declares unexpected extras")
     for e in policy.exceptions:
         pkg = norm_name(e["name"])
         if any((m := _REQ_NAME_RE.match(r)) and norm_name(m.group(1)) == pkg for r in requires):
