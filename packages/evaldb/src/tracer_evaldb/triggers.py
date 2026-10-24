@@ -30,6 +30,7 @@ __all__ = [
     "UPDATE_TRIGGER_FUNCTION",
     "create_statements",
     "delete_trigger_name",
+    "drop_statements",
     "function_statements",
     "update_trigger_name",
 ]
@@ -91,6 +92,15 @@ def create_statements(table: str, dialect: str) -> list[str]:
         else:
             raise ValueError("dialect must be sqlite or postgresql")
     return statements
+
+
+def drop_statements(table: str, dialect: str) -> list[str]:
+    """The ``DROP TRIGGER IF EXISTS`` statements of one table's triggers (the inverse of
+    ``create_statements``, for migrations that rewrite rows)."""
+    if dialect not in ("sqlite", "postgresql"):
+        raise ValueError("dialect must be sqlite or postgresql")
+    on_table = f' ON "{table}"' if dialect == "postgresql" else ""
+    return [f'DROP TRIGGER IF EXISTS "{name}"{on_table}' for name, _, _ in _operations(table)]
 
 
 def install(target: MetaData) -> None:

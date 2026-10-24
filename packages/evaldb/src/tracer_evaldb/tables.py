@@ -394,6 +394,15 @@ def _table_specific(table: str) -> list[SchemaItem]:
     return []
 
 
+# Partial indexes on the retention date (ADR 0020 Decision 8): only rows that carry a date.
+_RETENTION_INDEXED = {
+    "artifact": "retain_until",
+    "transcript": "retain_until",
+    "dataset_item": "retain_until",
+    "run": "caller_retain_until",
+}
+
+
 def _entity_table(table: str) -> sa.Table:
     projected = _ENTITIES[table][1]
     versioned = table in _VERSIONED
@@ -419,6 +428,14 @@ def _entity_table(table: str) -> sa.Table:
     if table in _RUN_OWNED:
         items.append(_fk(table, ["run_id"], "run", ["id"]))
     items.extend(_table_specific(table))
+    retention = _RETENTION_INDEXED.get(table)
+    if retention is not None:
+        dated = _col(retention).is_not(None)
+        items.append(
+            sa.Index(
+                f"ix_{table}_{retention}", retention, sqlite_where=dated, postgresql_where=dated
+            )
+        )
     return sa.Table(table, metadata, *items, sqlite_strict=True, sqlite_with_rowid=False)
 
 

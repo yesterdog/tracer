@@ -28,6 +28,7 @@ from .errors import (
 )
 
 __all__ = [
+    "BEGIN_OPTION",
     "INTEGRITY_SQLSTATE_CLASS",
     "create_store_engine",
     "is_integrity_sqlstate",
@@ -35,6 +36,8 @@ __all__ = [
 ]
 
 INTEGRITY_SQLSTATE_CLASS = "23"
+# Execution option naming the statement that opens a SQLite transaction ("BEGIN IMMEDIATE").
+BEGIN_OPTION = "tracer_sqlite_begin"
 # The fields of a Postgres error that name no row value: severity, SQLSTATE, message, schema, table,
 # column, data type, constraint. The detail ("Failing row contains ...", "Key (id)=(...)"), hint,
 # context and source position are dropped.
@@ -127,7 +130,9 @@ def _sqlite_engine(url: URL, busy_timeout_ms: int) -> Engine:
 
     @event.listens_for(engine, "begin")
     def _begin(connection: Connection) -> None:
-        connection.exec_driver_sql("BEGIN")
+        # A deletion asks for BEGIN IMMEDIATE: it takes the write lock before it reads anything.
+        statement = connection.get_execution_options().get(BEGIN_OPTION, "BEGIN")
+        connection.exec_driver_sql(statement)
 
     _probe(engine).close()
     return engine

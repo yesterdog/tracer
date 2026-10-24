@@ -14,18 +14,29 @@ if TYPE_CHECKING:
     from .repository import MissingMember
 
 __all__ = [
+    "DigestChangingUpgrade",
+    "DowngradeDataLoss",
     "ExportReferenceNotStored",
     "IncompleteRunBundle",
     "InternalSnapshotRefused",
+    "IrreversibleMigration",
+    "MigrationIntegrityError",
+    "MixedSchemaVersions",
     "ProjectNotStored",
     "RecordNotStored",
     "RecordOwnershipConflict",
     "ReimportConflict",
+    "SnapshotInUse",
     "StoreConfigurationError",
     "StoreConnectionError",
     "StoreConstraintViolation",
     "StoreError",
     "StoreIntegrityError",
+    "StoreNotMigrated",
+    "StoreRevisionUnknown",
+    "StoreSchemaVersionError",
+    "StoreSchemaVersionMismatch",
+    "StoreSchemaVersionTooNew",
     "StoreValueOutOfRange",
     "UnsupportedServerEncoding",
     "UnsupportedSqliteVersion",
@@ -175,3 +186,93 @@ class StoreConstraintViolation(StoreError):
         if constraint is not None:
             text += f" (constraint {constraint!r})"
         super().__init__(text)
+
+
+class StoreNotMigrated(StoreError):
+    """The database has no revision, or is not at the head revision this evaldb ships."""
+
+    def __init__(self, revision: str | None, head: str) -> None:
+        self.revision = revision
+        self.head = head
+        found = "no revision" if revision is None else f"revision {revision}"
+        super().__init__(
+            f"the database is not migrated: it is at {found} and this evaldb ships {head}; "
+            "run tracer_evaldb.migrate.upgrade(engine)"
+        )
+
+
+class StoreRevisionUnknown(StoreError):
+    """The database is at a revision this evaldb does not ship (a newer evaldb migrated it)."""
+
+    def __init__(self, revision: str) -> None:
+        self.revision = revision
+        super().__init__(f"the database is at revision {revision}, which this evaldb does not ship")
+
+
+class StoreSchemaVersionError(StoreError):
+    """The schema version recorded in ``tracer_meta`` is not the installed one."""
+
+    def __init__(self, stored: str | None, installed: str, problem: str) -> None:
+        self.stored = stored
+        self.installed = installed
+        found = "no version" if stored is None else repr(stored)
+        super().__init__(f"{problem}: the store records {found}, installed is {installed!r}")
+
+
+class StoreSchemaVersionTooNew(StoreSchemaVersionError):
+    """The store holds documents of a newer schema version than the installed evalschema reads."""
+
+
+class StoreSchemaVersionMismatch(StoreSchemaVersionError):
+    """The store holds documents of an older, unreadable or unrecorded schema version."""
+
+
+class IrreversibleMigration(StoreError):
+    """A data migration cannot restore every stored byte on downgrade; raised before any change."""
+
+    def __init__(self, table: str) -> None:
+        self.table = table
+        super().__init__(f"the migration cannot be reversed byte for byte (table {table!r})")
+
+
+class DigestChangingUpgrade(StoreError):
+    """An upgrade would change the content digest of a versioned entity or a snapshot."""
+
+    def __init__(self, table: str) -> None:
+        self.table = table
+        super().__init__(f"the upgrade would change a content digest (table {table!r})")
+
+
+class MixedSchemaVersions(StoreError):
+    """A data migration left a document at a schema version other than its target."""
+
+    def __init__(self, table: str) -> None:
+        self.table = table
+        super().__init__(f"a document of table {table!r} is not at the target schema version")
+
+
+class DowngradeDataLoss(StoreError):
+    """A downgrade would destroy rows; pass ``allow_data_loss=True`` to accept."""
+
+    def __init__(self, tables: Sequence[str]) -> None:
+        self.tables = tuple(sorted(set(tables)))
+        super().__init__(
+            f"the downgrade would destroy rows of: {', '.join(self.tables)}; "
+            "pass allow_data_loss=True to accept"
+        )
+
+
+class MigrationIntegrityError(StoreError):
+    """``PRAGMA foreign_key_check`` reported rows after a migration step (rolled back)."""
+
+    def __init__(self, tables: Sequence[str]) -> None:
+        self.tables = tuple(sorted(set(tables)))
+        super().__init__(f"the migration left foreign key violations in: {', '.join(self.tables)}")
+
+
+class SnapshotInUse(StoreError):
+    """A snapshot that a run references cannot be deleted."""
+
+    def __init__(self, snapshot_id: TypedId) -> None:
+        self.snapshot_id = snapshot_id
+        super().__init__(f"snapshot {snapshot_id} is referenced by a run and cannot be deleted")

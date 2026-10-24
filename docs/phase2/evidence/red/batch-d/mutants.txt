@@ -1,0 +1,369 @@
+# Phase 2 batch D: mutants of the scratch oracle
+
+Method: a runner applies ONE text edit to a pristine copy of the oracle source (migrate.py, versioning.py, deletion.py, errors.py, engine.py, tables.py, __init__.py, migrations/env.py, migrations/helpers.py, migrations/versions/0001_initial_schema.py), runs the batch D test files and the batch A scaffold file (SQLite side, Python 3.14, stop at the first failure) or, for the mutants that only Postgres can see, the matching tests with -m postgres against a throwaway Postgres 18.6 (-k selection), restores the pristine files and reads the failures. Four worker copies of the oracle ran in parallel. The tests of the run are the final ones.
+
+121 mutants: 113 caught by the runner, 8 survivors; one survivor (MG20) is caught when the edit is made in the tree the environment installs; the other seven are equivalent and explained below. So 114 of 121 mutants are caught and 7 are equivalent.
+
+MG02 [CAUGHT] sqlite: current_revision says 'base' for a never migrated database
+    summary: 1 failed, 7 passed, 252 deselected in 1.40s
+    test_migrations_ship_in_wheel
+MG03 [CAUGHT] sqlite: head_revision returns 'head'
+    summary: 1 failed, 252 deselected in 0.59s
+    test_revision_chain_is_linear_and_follows_the_naming_convention
+MG04 [CAUGHT] sqlite: downgrade ignores allow_data_loss
+    summary: 1 failed, 24 passed, 252 deselected in 8.02s
+    test_downgrade_base_on_populated_db_requires_explicit_data_loss_flag
+MG05 [CAUGHT] sqlite: data loss looks at the last undone revision only
+    summary: 1 failed, 27 passed, 252 deselected in 8.10s
+    test_a_multi_step_downgrade_is_refused_whole_before_the_first_step
+MG06 [CAUGHT] sqlite: data loss when the table exists, rows or not
+    summary: 1 failed, 8 passed, 252 deselected in 1.12s
+    test_programmatic_upgrade_api
+MG07 [CAUGHT] sqlite: a column entry counts the rows of its table
+    summary: 1 failed, 23 passed, 252 deselected in 5.09s
+    test_migration_stairway_up_down_up
+MG09 [CAUGHT] sqlite: tables of the refusal in reverse order
+    summary: 1 failed, 24 passed, 252 deselected in 7.53s
+    test_downgrade_base_on_populated_db_requires_explicit_data_loss_flag
+MG10 [CAUGHT] sqlite: allow_data_loss accepts any value
+    summary: 1 failed, 9 passed, 252 deselected in 1.00s
+    test_migrate_arguments_are_checked_before_any_statement
+MG12 [CAUGHT] sqlite: unknown target revision is a CommandError
+    summary: 1 failed, 9 passed, 252 deselected in 1.12s
+    test_migrate_arguments_are_checked_before_any_statement
+MG13 [SURVIVED] sqlite: empty revision accepted
+    summary: 295 passed, 252 deselected in 31.08s
+    -> equivalent: an empty revision still reaches the unknown-target check, which is a ValueError that contains "revision" too
+MG14 [CAUGHT] sqlite: the config carries the URL
+    summary: 1 failed, 10 passed, 252 deselected in 1.23s
+    test_alembic_config_carries_the_engine_and_no_url
+MG15 [CAUGHT] sqlite: upgrade does not refuse an unknown revision
+    summary: 1 failed, 62 passed, 252 deselected in 9.10s
+    test_migrate_refuses_a_database_at_an_unknown_revision
+MG16 [CAUGHT] sqlite: version_locations ignored
+    summary: 1 failed, 3 passed, 252 deselected in 0.32s
+    test_revision_template_generates_a_headed_typed_revision
+MG17 [CAUGHT] sqlite: version_locations replace the shipped directory
+    summary: 1 failed, 3 passed, 252 deselected in 0.44s
+    test_revision_template_generates_a_headed_typed_revision
+MG18 [CAUGHT] sqlite: upgrade disposes the caller's engine
+    summary: 1 failed, 8 passed, 252 deselected in 1.24s
+    test_programmatic_upgrade_api
+MG19 [CAUGHT] sqlite: downgrade does not refuse an unknown revision
+    summary: 1 failed, 62 passed, 252 deselected in 10.59s
+    test_migrate_refuses_a_database_at_an_unknown_revision
+MG20 [SURVIVED] sqlite: alembic imported at module level
+    summary: 295 passed, 252 deselected in 31.01s
+    -> caught in the main oracle tree: the worker copies run the tests with PYTHONPATH, which the subprocess of test_importing_the_package_does_not_load_alembic (python -I) ignores; with the edit in the tree that the environment installs, test_importing_the_package_does_not_load_alembic fails (and so does the batch A whitelist test)
+MG21 [CAUGHT] sqlite: downgrade of a never migrated database raises
+    summary: 1 failed, 8 passed, 252 deselected in 1.08s
+    test_programmatic_upgrade_api
+VR01 [CAUGHT] sqlite: open_store migrates an unmigrated database
+    summary: 1 failed, 15 passed, 252 deselected in 1.48s
+    test_open_store_refuses_unmigrated_database
+VR02 [SURVIVED] sqlite: open_store accepts an older shipped revision
+    summary: 295 passed, 252 deselected in 30.92s
+    -> equivalent today: with one shipped revision there is no shipped revision below the head, so the case is the never-migrated one (contract A10); it becomes testable when revision 0002 ships
+VR03 [CAUGHT] sqlite: open_store does not tell an unknown revision
+    summary: 1 failed, 61 passed, 252 deselected in 9.04s
+    test_open_store_unknown_revision_raises_revision_unknown
+VR04 [CAUGHT] sqlite: every other version is too new
+    summary: 1 failed, 50 passed, 252 deselected in 8.68s
+    test_open_store_older_schema_version_raises_mismatch
+VR06 [CAUGHT] sqlite: an unparsable version is too new
+    summary: 1 failed, 53 passed, 252 deselected in 10.40s
+    test_open_store_older_schema_version_raises_mismatch
+VR07 [CAUGHT] sqlite: no tracer_meta row is assumed current
+    summary: 1 failed, 60 passed, 252 deselected in 9.37s
+    test_open_store_without_a_tracer_meta_row_is_a_mismatch_not_a_default
+VR08 [CAUGHT] sqlite: evaldb_version must equal the installed one
+    summary: 1 failed, 7 passed, 252 deselected in 1.08s
+    test_migrations_ship_in_wheel
+VR09 [CAUGHT] sqlite: StoreInfo is not frozen
+    summary: 1 failed, 15 passed, 252 deselected in 1.47s
+    test_open_store_refuses_unmigrated_database
+VR10 [CAUGHT] sqlite: NotMigrated names the database
+    summary: 1 failed, 15 passed, 252 deselected in 1.39s
+    test_open_store_refuses_unmigrated_database
+VR11 [CAUGHT] sqlite: the schema version is not checked at head
+    summary: 1 failed, 44 passed, 252 deselected in 9.26s
+    test_open_store_newer_schema_version_raises_too_new
+VR12 [SURVIVED] sqlite: open_store takes a connection
+    summary: 295 passed, 252 deselected in 31.66s
+    -> equivalent: current_revision, which open_store calls next, type-checks the engine and raises the same TypeError before any statement
+ER01 [CAUGHT] sqlite: TooNew is a Mismatch
+    summary: 1 failed, 44 passed, 252 deselected in 9.17s
+    test_open_store_newer_schema_version_raises_too_new
+ER02 [CAUGHT] sqlite: version errors are not store errors
+    summary: 1 failed, 44 passed, 252 deselected in 8.65s
+    test_open_store_newer_schema_version_raises_too_new
+ER03 [CAUGHT] sqlite: IrreversibleMigration is not a store error
+    summary: 1 failed, 66 passed, 252 deselected in 12.93s
+    test_irreversible_data_migration_is_refused_before_any_change
+ER05 [CAUGHT] sqlite: SnapshotInUse is not a store error
+    summary: 1 failed, 146 passed, 252 deselected in 21.49s
+    test_delete_snapshot_refused_while_a_run_references_it
+ER06 [CAUGHT] sqlite: NotMigrated has no head
+    summary: 1 failed, 15 passed, 252 deselected in 1.43s
+    test_open_store_refuses_unmigrated_database
+ER07 [CAUGHT] sqlite: DowngradeDataLoss keeps a list
+    summary: 1 failed, 25 passed, 252 deselected in 8.19s
+    test_the_only_audit_row_is_enough_to_require_the_flag
+HP01 [CAUGHT] sqlite: batch alter does not recreate triggers
+    summary: 1 failed, 4 passed, 252 deselected in 0.76s
+    test_importing_the_package_does_not_load_alembic
+HP02 [SURVIVED] sqlite: batch alter loses STRICT
+    summary: 295 passed, 252 deselected in 33.74s
+    -> equivalent: Alembic 1.20.1 with SQLAlchemy 2.1.6 reflects STRICT of a rebuilt table (contract F2)
+HP03 [SURVIVED] sqlite: batch alter loses WITHOUT ROWID
+    summary: 295 passed, 252 deselected in 31.43s
+    -> equivalent: the same reflection keeps WITHOUT ROWID
+HP04 [CAUGHT] sqlite: only the first trigger of a table is created again
+    summary: 1 failed, 37 passed, 252 deselected in 9.01s
+    test_sqlite_batch_migration_preserves_strict_and_triggers
+HP05 [CAUGHT] sqlite: rewriting keeps the triggers
+    summary: 1 failed, 22 passed, 252 deselected in 3.63s
+    test_migration_stairway_up_down_up
+HP06 [CAUGHT] sqlite: rewriting does not create them again
+    summary: 1 failed, 100 passed, 252 deselected in 19.84s
+    test_rewriting_alone_takes_the_triggers_away_and_brings_them_back
+HP06P [CAUGHT] pg: rewriting does not create them again (Postgres, where no batch alter hides it)
+    summary: 1 failed, 543 deselected in 1.56s
+    test_fake_data_migration_rewrites_schema_version_and_preserves_digests
+HP08 [CAUGHT] sqlite: no reversibility check
+    summary: 1 failed, 4 passed, 252 deselected in 0.85s
+    test_importing_the_package_does_not_load_alembic
+HP09 [CAUGHT] sqlite: no mixed version check
+    summary: 1 failed, 98 passed, 252 deselected in 15.57s
+    test_mixed_schema_versions_in_one_database_rejected
+HP10 [CAUGHT] sqlite: no digest member check
+    summary: 1 failed, 68 passed, 252 deselected in 14.33s
+    test_digest_changing_upgrade_of_versioned_entity_refused
+HP11 [CAUGHT] sqlite: a digest mismatch of validate propagates raw
+    summary: 1 failed, 69 passed, 252 deselected in 18.13s
+    test_digest_changing_upgrade_of_versioned_entity_refused
+HP12 [CAUGHT] sqlite: other validation errors are swallowed
+    summary: 1 failed, 97 passed, 252 deselected in 16.30s
+    test_a_validation_failure_of_the_new_models_propagates_and_rolls_back
+HP13 [CAUGHT] sqlite: doc_sha256 keeps the old hash
+    summary: 1 failed, 23 passed, 252 deselected in 6.75s
+    test_migration_stairway_up_down_up
+HP14 [CAUGHT] sqlite: doc_sha256 over the raw text
+    summary: 1 failed, 23 passed, 252 deselected in 7.05s
+    test_migration_stairway_up_down_up
+HP15 [CAUGHT] sqlite: schema_version column not updated
+    summary: 1 failed, 23 passed, 252 deselected in 8.59s
+    test_migration_stairway_up_down_up
+HP16 [CAUGHT] sqlite: tracer_meta keeps the old version
+    summary: 1 failed, 22 passed, 252 deselected in 3.78s
+    test_migration_stairway_up_down_up
+HP17 [CAUGHT] sqlite: the new CHECK keeps the old literal
+    summary: 1 failed, 22 passed, 252 deselected in 3.85s
+    test_migration_stairway_up_down_up
+HP19 [CAUGHT] sqlite: tracer_meta is left out of the rewrite
+    summary: 1 failed, 22 passed, 252 deselected in 3.85s
+    test_migration_stairway_up_down_up
+HP21 [CAUGHT] sqlite: snapshots are not digest-checked
+    summary: 1 failed, 95 passed, 252 deselected in 20.74s
+    test_digest_changing_upgrade_of_config_snapshot_refused
+HP22 [CAUGHT] sqlite: export_bundle is not rewritten
+    summary: 1 failed, 64 passed, 252 deselected in 10.71s
+    test_fake_data_migration_rewrites_schema_version_and_preserves_digests
+HP23 [CAUGHT] sqlite: validate is never called
+    summary: 1 failed, 69 passed, 252 deselected in 13.59s
+    test_digest_changing_upgrade_of_versioned_entity_refused
+HP24 [CAUGHT] sqlite: a write happens before the preflight ends (first row of every table)
+    summary: 1 failed, 70 passed, 252 deselected in 14.80s
+    test_digest_changing_upgrade_of_versioned_entity_refused
+EV01 [CAUGHT] sqlite: foreign keys stay on during a migration
+    summary: 1 failed, 23 passed, 252 deselected in 7.43s
+    test_migration_stairway_up_down_up
+EV02 [CAUGHT] sqlite: foreign keys are not turned on again
+    summary: 1 failed, 28 passed, 252 deselected in 9.87s
+    test_sqlite_foreign_keys_are_off_during_a_migration_and_on_after
+EV03 [CAUGHT] sqlite: no foreign_key_check
+    summary: 1 failed, 38 passed, 252 deselected in 10.03s
+    test_sqlite_foreign_key_check_failure_rolls_the_revision_back
+EV04 [CAUGHT] sqlite: foreign_key_check reports nothing
+    summary: 1 failed, 38 passed, 252 deselected in 10.68s
+    test_sqlite_foreign_key_check_failure_rolls_the_revision_back
+EV05 [CAUGHT] sqlite: one transaction for the whole run
+    summary: 1 failed, 39 passed, 252 deselected in 12.26s
+    test_failed_migration_rolls_back_to_the_previous_revision
+EV06 [SURVIVED] sqlite: no transactional DDL
+    summary: 295 passed, 252 deselected in 40.55s
+    -> equivalent: create_store_engine begins a real transaction on every SQLite connection and Alembic commits after each step, so a revision is one transaction either way (contract section 2.2)
+EV08 [CAUGHT] sqlite: -x url is not read
+    summary: 1 failed, 19 passed, 252 deselected in 1.83s
+    test_alembic_command_line_upgrades_and_checks_with_x_url
+EV09 [CAUGHT] sqlite: foreign keys are turned on again only after a success
+    summary: 1 failed, 38 passed, 252 deselected in 11.63s
+    test_sqlite_foreign_key_check_failure_rolls_the_revision_back
+EV10 [SURVIVED] sqlite: alembic_version is compared
+    summary: 295 passed, 252 deselected in 43.82s
+    -> equivalent: Alembic never proposes to remove its own version table, so excluding it by hand changes nothing
+EV11 [CAUGHT] sqlite: foreign_key_check names the child tables as an empty tuple
+    summary: 1 failed, 38 passed, 252 deselected in 11.82s
+    test_sqlite_foreign_key_check_failure_rolls_the_revision_back
+RV01 [CAUGHT] sqlite: no tracer_meta row
+    summary: 1 failed, 7 passed, 252 deselected in 1.14s
+    test_migrations_ship_in_wheel
+RV02 [CAUGHT] sqlite: evaldb_version is a constant
+    summary: 1 failed, 14 passed, 252 deselected in 2.16s
+    test_revision_0001_writes_the_tracer_meta_row
+RV03 [CAUGHT] sqlite: the last table gets no triggers
+    summary: 1 failed, 11 passed, 252 deselected in 1.70s
+    test_alembic_head_matches_metadata_exactly
+RV04 [CAUGHT] pg: downgrade keeps the trigger functions
+    summary: 1 failed, 546 deselected in 1.42s
+    test_downgrade_base_on_populated_db_requires_explicit_data_loss_flag
+RV05 [CAUGHT] sqlite: DOWNGRADE_DROPS forgets a table
+    summary: 1 failed, 1 passed, 252 deselected in 0.47s
+    test_every_shipped_revision_declares_what_a_downgrade_drops
+RV06 [CAUGHT] sqlite: DOWNGRADE_DROPS lists tracer_meta
+    summary: 1 failed, 1 passed, 252 deselected in 0.37s
+    test_every_shipped_revision_declares_what_a_downgrade_drops
+RV07 [CAUGHT] sqlite: revision 0001 reads the live metadata
+    summary: 1 failed, 2 passed, 252 deselected in 0.58s
+    test_revision_0001_is_frozen_text_and_never_reads_the_live_metadata
+RV08 [CAUGHT] sqlite: the retention index of artifact is not partial
+    summary: 1 failed, 11 passed, 252 deselected in 1.58s
+    test_alembic_head_matches_metadata_exactly
+RV09 [CAUGHT] sqlite: tracer_meta pins 0.0.2
+    summary: 1 failed, 7 passed, 252 deselected in 1.56s
+    test_migrations_ship_in_wheel
+RV10 [CAUGHT] sqlite: revision 0001 has a down_revision
+    summary: 1 failed, 252 deselected, 1 warning in 0.41s
+    test_revision_chain_is_linear_and_follows_the_naming_convention
+RV11 [CAUGHT] sqlite: downgrade leaves a table
+    summary: 1 failed, 8 passed, 252 deselected in 1.62s
+    test_programmatic_upgrade_api
+TB01 [CAUGHT] sqlite: no retention index on run
+    summary: 1 failed, 11 passed, 252 deselected in 1.57s
+    test_alembic_head_matches_metadata_exactly
+TB02 [CAUGHT] sqlite: retention index is not partial on SQLite
+    summary: 1 failed, 11 passed, 252 deselected in 1.76s
+    test_alembic_head_matches_metadata_exactly
+TB04 [CAUGHT] sqlite: retention index is unique
+    summary: 1 failed, 11 passed, 252 deselected in 1.24s
+    test_alembic_head_matches_metadata_exactly
+EN01 [CAUGHT] sqlite: BEGIN IMMEDIATE is never used
+    summary: 1 failed, 176 passed, 252 deselected in 30.38s
+    test_a_deletion_locks_before_it_reads_or_deletes
+IN01 [CAUGHT] sqlite: delete_snapshot is not exported
+    summary: 1 failed, 104 passed, 252 deselected in 25.43s
+    test_deletion_api_shape
+DL01 [CAUGHT] sqlite: delete_run keeps the dataset items of the run
+    summary: 1 failed, 128 passed, 252 deselected in 28.02s
+    test_delete_run_cascades_every_run_owned_kind
+DL02 [CAUGHT] sqlite: delete_run also deletes items linked by source_run_id
+    summary: 1 failed, 128 passed, 252 deselected in 23.30s
+    test_delete_run_cascades_every_run_owned_kind
+DL03 [CAUGHT] sqlite: delete_run keeps exports linked by run
+    summary: 1 failed, 128 passed, 252 deselected in 28.21s
+    test_delete_run_cascades_every_run_owned_kind
+DL04 [CAUGHT] sqlite: delete_run keeps exports that embed a deleted item
+    summary: 1 failed, 128 passed, 252 deselected in 29.82s
+    test_delete_run_cascades_every_run_owned_kind
+DL05 [CAUGHT] sqlite: delete_run deletes a shared snapshot
+    summary: 1 failed, 129 passed, 252 deselected in 28.55s
+    test_delete_run_removes_orphaned_snapshot_only
+DL06 [CAUGHT] sqlite: delete_run never deletes the snapshot
+    summary: 1 failed, 128 passed, 252 deselected in 26.64s
+    test_delete_run_cascades_every_run_owned_kind
+DL08 [CAUGHT] sqlite: transcripts are not counted
+    summary: 1 failed, 128 passed, 252 deselected in 28.39s
+    test_delete_run_cascades_every_run_owned_kind
+DL09 [CAUGHT] sqlite: actor is stored lower-cased
+    summary: 1 failed, 195 passed, 252 deselected in 35.32s
+    test_deletion_audit_counts_per_kind_exact
+DL10 [CAUGHT] sqlite: root_kind of a project is run
+    summary: 1 failed, 133 passed, 252 deselected in 29.59s
+    test_delete_project_cascades_runs
+DL11 [CAUGHT] sqlite: zero counts are left out
+    summary: 1 failed, 210 passed, 252 deselected in 33.98s
+    test_zero_counts_are_written_not_left_out
+DL12 [CAUGHT] sqlite: counts text is not canonical
+    summary: 1 failed, 195 passed, 252 deselected in 35.02s
+    test_deletion_audit_counts_per_kind_exact
+DL13 [CAUGHT] sqlite: the actor column leaks the root id
+    summary: 1 failed, 195 passed, 252 deselected in 35.03s
+    test_deletion_audit_counts_per_kind_exact
+DL16 [CAUGHT] sqlite: delete_project leaves the run cascades to the foreign key
+    summary: 1 failed, 133 passed, 252 deselected in 30.80s
+    test_delete_project_cascades_runs
+DL17 [CAUGHT] pg: delete_project locks snapshots one run at a time
+    summary: 1 failed, 1 passed, 533 deselected in 1.15s
+    test_deletion_takes_its_locks_before_it_deletes
+DL18 [CAUGHT] sqlite: delete_test_profile removes the first version only
+    summary: 1 failed, 135 passed, 252 deselected in 28.85s
+    test_delete_test_profile_removes_all_versions_snapshots_report_unresolved
+DL19 [CAUGHT] sqlite: delete_test_profile keeps the exports
+    summary: 1 failed, 135 passed, 252 deselected in 30.63s
+    test_delete_test_profile_removes_all_versions_snapshots_report_unresolved
+DL20 [CAUGHT] sqlite: delete_definition removes version 1 only
+    summary: 1 failed, 141 passed, 252 deselected in 26.26s
+    test_delete_definition_removes_every_version_and_only_that_id
+DL22 [CAUGHT] sqlite: delete_definition takes a test profile
+    summary: 1 failed, 112 passed, 252 deselected in 26.47s
+    test_delete_definition_refuses_test_profile_and_names_the_right_root
+DL23 [CAUGHT] sqlite: delete_snapshot leaves the refusal to the foreign key
+    summary: 1 failed, 146 passed, 252 deselected in 30.15s
+    test_delete_snapshot_refused_while_a_run_references_it
+DL25 [CAUGHT] sqlite: an unknown dataset item is a ValueError
+    summary: 1 failed, 125 passed, 252 deselected in 29.20s
+    test_delete_unknown_root_is_typed_error_and_writes_no_audit
+DL26 [CAUGHT] sqlite: an audit row is written before the root is looked up
+    summary: 1 failed, 126 passed, 252 deselected in 22.80s
+    test_delete_unknown_root_is_typed_error_and_writes_no_audit
+DL27 [CAUGHT] pg: no row locks
+    summary: 1 failed, 529 deselected in 0.81s
+    test_deletion_takes_its_locks_before_it_deletes
+DL27R [CAUGHT] pg: no row locks: the races must show an orphan
+    summary: 1 failed, 543 deselected in 0.77s
+    test_concurrent_insert_during_run_delete_never_orphans
+DL28 [CAUGHT] pg: the snapshot of a run is not locked
+    summary: 1 failed, 533 deselected in 0.79s
+    test_deletion_takes_its_locks_before_it_deletes
+DL29 [CAUGHT] sqlite: a deletion does not ask for BEGIN IMMEDIATE
+    summary: 1 failed, 176 passed, 252 deselected in 32.64s
+    test_a_deletion_locks_before_it_reads_or_deletes
+DL30 [CAUGHT] sqlite: credential-shaped actors are accepted
+    summary: 1 failed, 251 passed, 252 deselected in 41.57s
+    test_deletion_actor_rejects_credential_shaped_value
+DL31 [CAUGHT] sqlite: any reason is accepted
+    summary: 1 failed, 243 passed, 252 deselected in 41.38s
+    test_deletion_requires_actor_and_reason
+DL33 [CAUGHT] sqlite: labels are not checked
+    summary: 1 failed, 243 passed, 252 deselected in 22.61s
+    test_deletion_requires_actor_and_reason
+DL34 [CAUGHT] sqlite: actor has a default
+    summary: 1 failed, 104 passed, 252 deselected in 25.45s
+    test_deletion_api_shape
+DL36 [CAUGHT] sqlite: deleted_at is an hour old
+    summary: 1 failed, 195 passed, 252 deselected in 34.72s
+    test_deletion_audit_counts_per_kind_exact
+DL38 [CAUGHT] sqlite: counts is a plain dict
+    summary: 1 failed, 104 passed, 252 deselected in 22.25s
+    test_deletion_api_shape
+DL39 [CAUGHT] sqlite: DeletionResult is not frozen
+    summary: 1 failed, 104 passed, 252 deselected in 13.34s
+    test_deletion_api_shape
+DL40 [CAUGHT] sqlite: the result carries another audit uuid
+    summary: 1 failed, 195 passed, 252 deselected in 30.08s
+    test_deletion_audit_counts_per_kind_exact
+DL41 [CAUGHT] sqlite: a shared snapshot is counted as deleted
+    summary: 1 failed, 129 passed, 252 deselected in 30.21s
+    test_delete_run_removes_orphaned_snapshot_only
+DL42 [CAUGHT] sqlite: delete_dataset_item keeps the exports
+    summary: 1 failed, 143 passed, 252 deselected in 26.35s
+    test_delete_dataset_item_removes_the_exports_that_embed_it
+DL44 [CAUGHT] sqlite: delete_project does not count the project
+    summary: 1 failed, 133 passed, 252 deselected in 15.71s
+    test_delete_project_cascades_runs
+DL46 [CAUGHT] sqlite: delete_run deletes one linked export only
+    summary: 1 failed, 128 passed, 252 deselected in 22.71s
+    test_delete_run_cascades_every_run_owned_kind
+DL47 [CAUGHT] sqlite: the audit is written in a second transaction
+    summary: 1 failed, 104 passed, 252 deselected in 26.07s
+    test_deletion_api_shape

@@ -1,0 +1,3087 @@
+diff -ruN a/packages/evaldb/alembic.ini b/packages/evaldb/alembic.ini
+--- a/packages/evaldb/alembic.ini	1970-01-01 05:30:00
++++ b/packages/evaldb/alembic.ini	2026-10-24 17:04:15
+@@ -0,0 +1,6 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++# Alembic configuration for the command line (alembic -c packages/evaldb/alembic.ini ...).
++# It holds no database URL and no credential: pass the target with  -x url=<database URL>.
++[alembic]
++script_location = %(here)s/src/tracer_evaldb/migrations
+diff -ruN a/packages/evaldb/src/tracer_evaldb/__init__.py b/packages/evaldb/src/tracer_evaldb/__init__.py
+--- a/packages/evaldb/src/tracer_evaldb/__init__.py	2026-10-24 16:50:35
++++ b/packages/evaldb/src/tracer_evaldb/__init__.py	2026-10-24 17:05:27
+@@ -6,20 +6,42 @@
+ 
+ from . import tables, triggers
+ from .columns import BigIntCol, BoolCol, DecimalCol, DocCol, InstantCol, KeyCol, Sha256Col, UuidCol
++from . import deletion, migrate
++from .deletion import (
++    DeletionResult,
++    delete_dataset_item,
++    delete_definition,
++    delete_export,
++    delete_project,
++    delete_run,
++    delete_snapshot,
++    delete_test_profile,
++)
+ from .engine import create_store_engine
+ from .errors import (
++    DigestChangingUpgrade,
++    DowngradeDataLoss,
+     ExportReferenceNotStored,
+     IncompleteRunBundle,
+     InternalSnapshotRefused,
++    IrreversibleMigration,
++    MigrationIntegrityError,
++    MixedSchemaVersions,
+     ProjectNotStored,
+     RecordNotStored,
+     RecordOwnershipConflict,
+     ReimportConflict,
++    SnapshotInUse,
+     StoreConfigurationError,
+     StoreConnectionError,
+     StoreConstraintViolation,
+     StoreError,
+     StoreIntegrityError,
++    StoreNotMigrated,
++    StoreRevisionUnknown,
++    StoreSchemaVersionError,
++    StoreSchemaVersionMismatch,
++    StoreSchemaVersionTooNew,
+     StoreValueOutOfRange,
+     UnsupportedServerEncoding,
+     UnsupportedSqliteVersion,
+@@ -46,8 +68,32 @@
+     store_snapshot,
+ )
+ from .schema import metadata
++from .versioning import StoreInfo, open_store
+ 
+ __all__ = [
++    "DeletionResult",
++    "DigestChangingUpgrade",
++    "DowngradeDataLoss",
++    "IrreversibleMigration",
++    "MigrationIntegrityError",
++    "MixedSchemaVersions",
++    "SnapshotInUse",
++    "StoreInfo",
++    "StoreNotMigrated",
++    "StoreRevisionUnknown",
++    "StoreSchemaVersionError",
++    "StoreSchemaVersionMismatch",
++    "StoreSchemaVersionTooNew",
++    "delete_dataset_item",
++    "delete_definition",
++    "delete_export",
++    "delete_project",
++    "delete_run",
++    "delete_snapshot",
++    "delete_test_profile",
++    "deletion",
++    "migrate",
++    "open_store",
+     "BigIntCol",
+     "BoolCol",
+     "DecimalCol",
+diff -ruN a/packages/evaldb/src/tracer_evaldb/deletion.py b/packages/evaldb/src/tracer_evaldb/deletion.py
+--- a/packages/evaldb/src/tracer_evaldb/deletion.py	1970-01-01 05:30:00
++++ b/packages/evaldb/src/tracer_evaldb/deletion.py	2026-10-24 17:25:32
+@@ -0,0 +1,327 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Deletion roots, application-level cascades and the deletion audit (ADR 0020)."""
++
++from __future__ import annotations
++
++import contextlib
++import datetime as dt
++import json
++import uuid
++from collections.abc import Iterator, Mapping, Sequence
++from dataclasses import dataclass
++from types import MappingProxyType
++from typing import Any
++
++import sqlalchemy as sa
++from sqlalchemy.engine import Connection, Engine
++
++from tracer_evalschema import ids as ev_ids
++from tracer_evalschema.credentials import credential_reason
++from tracer_evalschema.text import _check_label
++
++from .errors import RecordNotStored, SnapshotInUse, StoreConstraintViolation
++from .repository import _engine, _uuid_of, translate_integrity_error
++from .schema import metadata
++
++__all__ = [
++    "DELETION_REASONS",
++    "DeletionResult",
++    "delete_dataset_item",
++    "delete_definition",
++    "delete_export",
++    "delete_project",
++    "delete_run",
++    "delete_snapshot",
++    "delete_test_profile",
++]
++
++DELETION_REASONS = ("operator_request", "retention_policy", "data_subject_request")
++RUN_KEYS = (
++    "run",
++    "artifact",
++    "transcript",
++    "turn",
++    "exchange",
++    "tool_call_event",
++    "stage_span",
++    "metric_result",
++    "run_verdict",
++    "usage_record",
++    "cost_record",
++    "cost_summary",
++    "run_bundle",
++    "config_snapshot",
++    "dataset_item",
++    "export_bundle",
++)
++_RUN_OWNED = RUN_KEYS[1:13]
++DEFINITION_KINDS = (
++    "agent_target",
++    "persona",
++    "evaluator",
++    "metric_definition",
++    "metric_binding",
++    "rubric",
++    "pricing_catalog",
++    "dataset",
++)
++
++
++@dataclass(frozen=True)
++class DeletionResult:
++    root_kind: str
++    counts: Mapping[str, int]
++    audit_uuid: uuid.UUID
++
++
++def _t(name: str) -> sa.Table:
++    return metadata.tables[name]
++
++
++def _arguments(actor: object, reason: object) -> tuple[str, str]:
++    if not isinstance(actor, str):
++        raise TypeError("actor must be a str")
++    if not isinstance(reason, str):
++        raise TypeError("reason must be a str")
++    if reason not in DELETION_REASONS:
++        raise ValueError(f"reason must be one of: {', '.join(DELETION_REASONS)}")
++    if not actor:
++        raise ValueError("actor must not be empty")
++    try:
++        _check_label(actor)
++    except ValueError:
++        raise ValueError("actor is not a valid label (rule: no control, separator or invisible)") from None
++    flagged = credential_reason(actor)
++    if flagged is not None:
++        raise ValueError(f"actor looks like a credential (rule: {flagged})")
++    return actor, reason
++
++
++class _Root:
++    """The state of one deletion: its counts, and the audit uuid once the audit row is written."""
++
++    def __init__(self, kind: str, keys: Sequence[str]) -> None:
++        self.kind = kind
++        self.keys = tuple(keys)
++        self.counts: dict[str, int] = {}
++        self.audit_uuid: uuid.UUID | None = None
++
++    def result(self) -> DeletionResult:
++        assert self.audit_uuid is not None
++        full = {key: self.counts.get(key, 0) for key in self.keys}
++        return DeletionResult(self.kind, MappingProxyType(full), self.audit_uuid)
++
++
++@contextlib.contextmanager
++def _root(engine: Engine, actor: str, reason: str, kind: str, keys: Sequence[str]) -> Iterator[tuple[Connection, _Root]]:
++    root = _Root(kind, keys)
++    options = {"tracer_sqlite_begin": "BEGIN IMMEDIATE"}
++    try:
++        with engine.connect().execution_options(**options) as connection:
++            with connection.begin():
++                yield connection, root
++                unexpected = set(root.counts) - set(root.keys)
++                assert not unexpected, unexpected
++                full = {key: root.counts.get(key, 0) for key in root.keys}
++                root.audit_uuid = ev_ids.uuid7()
++                connection.execute(
++                    sa.insert(_t("deletion_audit")).values(
++                        audit_uuid=root.audit_uuid,
++                        deleted_at=dt.datetime.now(dt.UTC),
++                        actor=actor,
++                        reason=reason,
++                        root_kind=kind,
++                        counts=json.dumps(full, sort_keys=True, separators=(",", ":")),
++                    )
++                )
++    except sa.exc.IntegrityError as error:
++        raise translate_integrity_error(error) from None
++
++
++def _lock(connection: Connection, statement: Any) -> Any:
++    if connection.dialect.name == "postgresql":
++        statement = statement.with_for_update()
++    return statement
++
++
++def _run_flow(connection: Connection, run_uuid: uuid.UUID, counts: dict[str, int]) -> None:
++    run = _t("run")
++    row = connection.execute(_lock(connection, sa.select(run.c.config_snapshot_id).where(run.c.id == run_uuid))).first()
++    snapshot_id = row[0]
++    snap = _t("config_snapshot")
++    connection.execute(_lock(connection, sa.select(snap.c.id).where(snap.c.id == snapshot_id))).all()
++    artifact, transcript = _t("artifact"), _t("transcript")
++    a_ids = list(connection.execute(sa.select(artifact.c.id).where(artifact.c.run_id == run_uuid)).scalars())
++    t_ids = list(connection.execute(sa.select(transcript.c.id).where(transcript.c.run_id == run_uuid)).scalars())
++    item = _t("dataset_item")
++    conditions = []
++    if a_ids:
++        conditions.append(item.c.artifact_id.in_(a_ids))
++    if t_ids:
++        conditions.append(item.c.transcript_id.in_(t_ids))
++    item_ids: list[uuid.UUID] = []
++    if conditions:
++        item_ids = list(connection.execute(_lock(connection, sa.select(item.c.id).where(sa.or_(*conditions)))).scalars())
++    link_run, link_item = _t("export_bundle_run"), _t("export_bundle_item")
++    export_ids = set(connection.execute(sa.select(link_run.c.export_id).where(link_run.c.run_id == run_uuid)).scalars())
++    if item_ids:
++        export_ids |= set(connection.execute(sa.select(link_item.c.export_id).where(link_item.c.item_id.in_(item_ids))).scalars())
++    export = _t("export_bundle")
++    if export_ids:
++        connection.execute(_lock(connection, sa.select(export.c.id).where(export.c.id.in_(export_ids)))).all()
++        connection.execute(sa.delete(export).where(export.c.id.in_(export_ids)))
++    if item_ids:
++        connection.execute(sa.delete(item).where(item.c.id.in_(item_ids)))
++    for table in _RUN_OWNED:
++        t = _t(table)
++        n = connection.execute(sa.select(sa.func.count()).select_from(t).where(t.c.run_id == run_uuid)).scalar_one()
++        counts[table] = counts.get(table, 0) + int(n)
++    connection.execute(sa.delete(run).where(run.c.id == run_uuid))
++    counts["run"] = counts.get("run", 0) + 1
++    counts["dataset_item"] = counts.get("dataset_item", 0) + len(item_ids)
++    counts["export_bundle"] = counts.get("export_bundle", 0) + len(export_ids)
++    still = connection.execute(sa.select(sa.func.count()).select_from(run).where(run.c.config_snapshot_id == snapshot_id)).scalar_one()
++    if not still:
++        connection.execute(sa.delete(snap).where(snap.c.id == snapshot_id))
++        counts["config_snapshot"] = counts.get("config_snapshot", 0) + 1
++
++
++def delete_run(engine: Engine, run_id: Any, *, actor: str, reason: str) -> DeletionResult:
++    _engine(engine)
++    run_uuid = _uuid_of(run_id, ev_ids.RunId)
++    actor, reason = _arguments(actor, reason)
++    with _root(engine, actor, reason, "run", RUN_KEYS) as (connection, root):
++        counts = root.counts
++        run = _t("run")
++        found = connection.execute(_lock(connection, sa.select(run.c.id).where(run.c.id == run_uuid))).first()
++        if found is None:
++            raise RecordNotStored("run", ev_ids.RunId(run_uuid))
++        _run_flow(connection, run_uuid, counts)
++    return root.result()
++
++
++def delete_project(engine: Engine, project_id: Any, *, actor: str, reason: str) -> DeletionResult:
++    _engine(engine)
++    project_uuid = _uuid_of(project_id, ev_ids.ProjectId)
++    actor, reason = _arguments(actor, reason)
++    with _root(engine, actor, reason, "project", ("project", *RUN_KEYS)) as (connection, root):
++        counts = root.counts
++        project, run = _t("project"), _t("run")
++        found = connection.execute(_lock(connection, sa.select(project.c.id).where(project.c.id == project_uuid))).first()
++        if found is None:
++            raise RecordNotStored("project", ev_ids.ProjectId(project_uuid))
++        run_ids = list(connection.execute(_lock(connection, sa.select(run.c.id).where(run.c.project_id == project_uuid).order_by(run.c.id))).scalars())
++        snapshots = _t("config_snapshot")
++        wanted = set(connection.execute(sa.select(run.c.config_snapshot_id).where(run.c.project_id == project_uuid)).scalars())
++        if wanted:
++            connection.execute(_lock(connection, sa.select(snapshots.c.id).where(snapshots.c.id.in_(wanted)))).all()
++        for run_uuid in run_ids:
++            _run_flow(connection, run_uuid, counts)
++        connection.execute(sa.delete(project).where(project.c.id == project_uuid))
++        counts["project"] = 1
++    return root.result()
++
++
++def delete_test_profile(engine: Engine, profile_id: Any, *, actor: str, reason: str) -> DeletionResult:
++    _engine(engine)
++    profile_uuid = _uuid_of(profile_id, ev_ids.TestProfileId)
++    actor, reason = _arguments(actor, reason)
++    with _root(engine, actor, reason, "test_profile", ("test_profile", "export_bundle")) as (connection, root):
++        counts = root.counts
++        profile, link, export = _t("test_profile"), _t("export_bundle_profile"), _t("export_bundle")
++        rows = connection.execute(_lock(connection, sa.select(profile.c.id).where(profile.c.id == profile_uuid))).all()
++        if not rows:
++            raise RecordNotStored("test_profile", ev_ids.TestProfileId(profile_uuid))
++        export_ids = set(connection.execute(sa.select(link.c.export_id).where(link.c.profile_id == profile_uuid)).scalars())
++        if export_ids:
++            connection.execute(_lock(connection, sa.select(export.c.id).where(export.c.id.in_(export_ids)))).all()
++            connection.execute(sa.delete(export).where(export.c.id.in_(export_ids)))
++        connection.execute(sa.delete(profile).where(profile.c.id == profile_uuid))
++        counts["test_profile"] = len(rows)
++        counts["export_bundle"] = len(export_ids)
++    return root.result()
++
++
++_ID_CLASSES = {
++    "agent_target": ev_ids.AgentTargetId,
++    "persona": ev_ids.PersonaId,
++    "evaluator": ev_ids.EvaluatorId,
++    "metric_definition": ev_ids.MetricDefinitionId,
++    "metric_binding": ev_ids.MetricBindingId,
++    "rubric": ev_ids.RubricId,
++    "pricing_catalog": ev_ids.PricingCatalogId,
++    "dataset": ev_ids.DatasetId,
++}
++
++
++def delete_definition(engine: Engine, kind: str, definition_id: Any, *, actor: str, reason: str) -> DeletionResult:
++    _engine(engine)
++    if kind == "test_profile":
++        raise ValueError("use delete_test_profile for a test profile")
++    if not isinstance(kind, str) or kind not in DEFINITION_KINDS:
++        raise ValueError(f"kind must be one of: {', '.join(DEFINITION_KINDS)}")
++    def_uuid = _uuid_of(definition_id, _ID_CLASSES[kind])
++    actor, reason = _arguments(actor, reason)
++    with _root(engine, actor, reason, kind, (kind,)) as (connection, root):
++        counts = root.counts
++        table = _t(kind)
++        rows = connection.execute(_lock(connection, sa.select(table.c.id).where(table.c.id == def_uuid))).all()
++        if not rows:
++            raise RecordNotStored(kind, _ID_CLASSES[kind](def_uuid))
++        connection.execute(sa.delete(table).where(table.c.id == def_uuid))
++        counts[kind] = len(rows)
++    return root.result()
++
++
++def delete_dataset_item(engine: Engine, item_id: Any, *, actor: str, reason: str) -> DeletionResult:
++    _engine(engine)
++    item_uuid = _uuid_of(item_id, ev_ids.DatasetItemId)
++    actor, reason = _arguments(actor, reason)
++    with _root(engine, actor, reason, "dataset_item", ("dataset_item", "export_bundle")) as (connection, root):
++        counts = root.counts
++        item, link, export = _t("dataset_item"), _t("export_bundle_item"), _t("export_bundle")
++        found = connection.execute(_lock(connection, sa.select(item.c.id).where(item.c.id == item_uuid))).first()
++        if found is None:
++            raise RecordNotStored("dataset_item", ev_ids.DatasetItemId(item_uuid))
++        export_ids = set(connection.execute(sa.select(link.c.export_id).where(link.c.item_id == item_uuid)).scalars())
++        if export_ids:
++            connection.execute(_lock(connection, sa.select(export.c.id).where(export.c.id.in_(export_ids)))).all()
++            connection.execute(sa.delete(export).where(export.c.id.in_(export_ids)))
++        connection.execute(sa.delete(item).where(item.c.id == item_uuid))
++        counts["dataset_item"] = 1
++        counts["export_bundle"] = len(export_ids)
++    return root.result()
++
++
++def delete_export(engine: Engine, export_id: Any, *, actor: str, reason: str) -> DeletionResult:
++    _engine(engine)
++    export_uuid = _uuid_of(export_id, ev_ids.ExportBundleId)
++    actor, reason = _arguments(actor, reason)
++    with _root(engine, actor, reason, "export_bundle", ("export_bundle",)) as (connection, root):
++        counts = root.counts
++        export = _t("export_bundle")
++        found = connection.execute(_lock(connection, sa.select(export.c.id).where(export.c.id == export_uuid))).first()
++        if found is None:
++            raise RecordNotStored("export_bundle", ev_ids.ExportBundleId(export_uuid))
++        connection.execute(sa.delete(export).where(export.c.id == export_uuid))
++        counts["export_bundle"] = 1
++    return root.result()
++
++
++def delete_snapshot(engine: Engine, snapshot_id: Any, *, actor: str, reason: str) -> DeletionResult:
++    _engine(engine)
++    snapshot_uuid = _uuid_of(snapshot_id, ev_ids.ConfigSnapshotId)
++    actor, reason = _arguments(actor, reason)
++    with _root(engine, actor, reason, "config_snapshot", ("config_snapshot",)) as (connection, root):
++        counts = root.counts
++        snap, run = _t("config_snapshot"), _t("run")
++        found = connection.execute(_lock(connection, sa.select(snap.c.id).where(snap.c.id == snapshot_uuid))).first()
++        if found is None:
++            raise RecordNotStored("config_snapshot", ev_ids.ConfigSnapshotId(snapshot_uuid))
++        users = connection.execute(sa.select(sa.func.count()).select_from(run).where(run.c.config_snapshot_id == snapshot_uuid)).scalar_one()
++        if users:
++            raise SnapshotInUse(ev_ids.ConfigSnapshotId(snapshot_uuid))
++        connection.execute(sa.delete(snap).where(snap.c.id == snapshot_uuid))
++        counts["config_snapshot"] = 1
++    return root.result()
+diff -ruN a/packages/evaldb/src/tracer_evaldb/engine.py b/packages/evaldb/src/tracer_evaldb/engine.py
+--- a/packages/evaldb/src/tracer_evaldb/engine.py	2026-10-24 16:50:35
++++ b/packages/evaldb/src/tracer_evaldb/engine.py	2026-10-24 17:03:31
+@@ -127,7 +127,9 @@
+ 
+     @event.listens_for(engine, "begin")
+     def _begin(connection: Connection) -> None:
+-        connection.exec_driver_sql("BEGIN")
++        # A write root (deletion) asks for BEGIN IMMEDIATE so that it holds the write lock first.
++        statement = connection.get_execution_options().get("tracer_sqlite_begin", "BEGIN")
++        connection.exec_driver_sql(statement)
+ 
+     _probe(engine).close()
+     return engine
+diff -ruN a/packages/evaldb/src/tracer_evaldb/errors.py b/packages/evaldb/src/tracer_evaldb/errors.py
+--- a/packages/evaldb/src/tracer_evaldb/errors.py	2026-10-24 16:50:35
++++ b/packages/evaldb/src/tracer_evaldb/errors.py	2026-10-24 17:03:23
+@@ -14,18 +14,29 @@
+     from .repository import MissingMember
+ 
+ __all__ = [
++    "DigestChangingUpgrade",
++    "DowngradeDataLoss",
+     "ExportReferenceNotStored",
+     "IncompleteRunBundle",
+     "InternalSnapshotRefused",
++    "IrreversibleMigration",
++    "MigrationIntegrityError",
++    "MixedSchemaVersions",
+     "ProjectNotStored",
+     "RecordNotStored",
+     "RecordOwnershipConflict",
+     "ReimportConflict",
++    "SnapshotInUse",
+     "StoreConfigurationError",
+     "StoreConnectionError",
+     "StoreConstraintViolation",
+     "StoreError",
+     "StoreIntegrityError",
++    "StoreNotMigrated",
++    "StoreRevisionUnknown",
++    "StoreSchemaVersionError",
++    "StoreSchemaVersionMismatch",
++    "StoreSchemaVersionTooNew",
+     "StoreValueOutOfRange",
+     "UnsupportedServerEncoding",
+     "UnsupportedSqliteVersion",
+@@ -175,3 +186,93 @@
+         if constraint is not None:
+             text += f" (constraint {constraint!r})"
+         super().__init__(text)
++
++
++class StoreNotMigrated(StoreError):
++    """The database is empty or not at the head revision this evaldb ships (ADR 0021 rule 3)."""
++
++    def __init__(self, revision: str | None, head: str) -> None:
++        self.revision = revision
++        self.head = head
++        found = "no revision" if revision is None else f"revision {revision}"
++        super().__init__(
++            f"the database is not migrated: it has {found}, this evaldb ships {head}; "
++            "run tracer_evaldb.migrate.upgrade(engine)"
++        )
++
++
++class StoreRevisionUnknown(StoreError):
++    """The database is at a revision this evaldb does not ship (a newer evaldb migrated it)."""
++
++    def __init__(self, revision: str) -> None:
++        self.revision = revision
++        super().__init__(f"the database is at revision {revision}, which this evaldb does not ship")
++
++
++class StoreSchemaVersionError(StoreError):
++    """The schema version recorded in ``tracer_meta`` is not the installed one."""
++
++    def __init__(self, stored: str | None, installed: str, problem: str) -> None:
++        self.stored = stored
++        self.installed = installed
++        found = "none" if stored is None else repr(stored)
++        super().__init__(f"{problem}: the store records {found}, installed is {installed!r}")
++
++
++class StoreSchemaVersionTooNew(StoreSchemaVersionError):
++    """The store holds documents of a newer schema version than the installed evalschema."""
++
++
++class StoreSchemaVersionMismatch(StoreSchemaVersionError):
++    """The store holds documents of an older (or unreadable) schema version."""
++
++
++class IrreversibleMigration(StoreError):
++    """A data migration cannot restore every stored byte on downgrade; raised before any change."""
++
++    def __init__(self, table: str) -> None:
++        self.table = table
++        super().__init__(f"the migration cannot be reversed byte for byte (table {table!r})")
++
++
++class DigestChangingUpgrade(StoreError):
++    """An upgrade would change the content digest of a versioned entity or a snapshot."""
++
++    def __init__(self, table: str) -> None:
++        self.table = table
++        super().__init__(f"the upgrade would change a content digest (table {table!r})")
++
++
++class MixedSchemaVersions(StoreError):
++    """A data migration left a document at a schema version other than its target."""
++
++    def __init__(self, table: str) -> None:
++        self.table = table
++        super().__init__(f"a document of table {table!r} is not at the target schema version")
++
++
++class DowngradeDataLoss(StoreError):
++    """A downgrade would drop tables or columns that hold rows; pass ``allow_data_loss=True``."""
++
++    def __init__(self, tables: Sequence[str]) -> None:
++        self.tables = tuple(tables)
++        super().__init__(
++            "the downgrade would drop rows of: " + ", ".join(self.tables)
++            + "; pass allow_data_loss=True to accept"
++        )
++
++
++class MigrationIntegrityError(StoreError):
++    """``PRAGMA foreign_key_check`` reported rows after a migration; it was rolled back."""
++
++    def __init__(self, tables: Sequence[str]) -> None:
++        self.tables = tuple(tables)
++        super().__init__("the migration left foreign key violations in: " + ", ".join(self.tables))
++
++
++class SnapshotInUse(StoreError):
++    """A snapshot that a run references cannot be deleted (RESTRICT)."""
++
++    def __init__(self, snapshot_id: TypedId) -> None:
++        self.snapshot_id = snapshot_id
++        super().__init__(f"snapshot {snapshot_id} is referenced by a run and cannot be deleted")
+diff -ruN a/packages/evaldb/src/tracer_evaldb/migrate.py b/packages/evaldb/src/tracer_evaldb/migrate.py
+--- a/packages/evaldb/src/tracer_evaldb/migrate.py	1970-01-01 05:30:00
++++ b/packages/evaldb/src/tracer_evaldb/migrate.py	2026-10-24 18:09:39
+@@ -0,0 +1,173 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Programmatic migrations (ADR 0021 rules 3 and 4): ``upgrade``, ``downgrade``, the revision
++queries. Nothing here runs by itself; ``open_store`` never calls it."""
++
++from __future__ import annotations
++
++import os
++from collections.abc import Sequence
++from importlib import resources
++from typing import TYPE_CHECKING
++
++import sqlalchemy as sa
++from sqlalchemy.engine import Engine
++
++if TYPE_CHECKING:  # alembic is imported inside the functions: `import tracer_evaldb` loads none of it
++    from alembic.config import Config
++    from alembic.script import ScriptDirectory
++
++from .errors import DowngradeDataLoss, StoreRevisionUnknown
++
++__all__ = [
++    "alembic_config",
++    "current_revision",
++    "downgrade",
++    "head_revision",
++    "upgrade",
++]
++
++
++def _engine(engine: object) -> Engine:
++    if not isinstance(engine, Engine):
++        raise TypeError("the first argument must be the Engine of create_store_engine")
++    return engine
++
++
++def alembic_config(
++    engine: Engine | None = None,
++    *,
++    version_locations: Sequence[str | os.PathLike[str]] = (),
++) -> "Config":
++    """A ``Config`` for the shipped migrations (and any extra revision directories)."""
++    from alembic.config import Config
++
++    config = Config()
++    location = str(resources.files("tracer_evaldb") / "migrations")
++    config.set_main_option("script_location", location)
++    if version_locations:
++        shipped = os.path.join(location, "versions")
++        paths = [shipped, *(os.fspath(p) for p in version_locations)]
++        config.set_main_option("version_locations", os.pathsep.join(paths))
++        config.set_main_option("path_separator", "os")
++    if engine is not None:
++        config.attributes["engine"] = _engine(engine)
++    return config
++
++
++def head_revision() -> str:
++    """The head of the migrations this evaldb ships."""
++    from alembic.script import ScriptDirectory
++
++    head = ScriptDirectory.from_config(alembic_config()).get_current_head()
++    assert head is not None
++    return head
++
++
++def current_revision(engine: Engine) -> str | None:
++    """The revision the database is at, or ``None`` for a database that was never migrated."""
++    from alembic.migration import MigrationContext
++
++    with _engine(engine).connect() as connection:
++        found = MigrationContext.configure(connection).get_current_revision()
++        connection.rollback()
++    return found
++
++
++def is_known(script: "ScriptDirectory", revision: str) -> bool:
++    """True when the shipped (and extra) revisions include ``revision``."""
++    try:
++        return script.get_revision(revision) is not None
++    except Exception:
++        return False
++
++
++def _check_revision(revision: object) -> str:
++    if not isinstance(revision, str):
++        raise TypeError("revision must be a str")
++    if not revision:
++        raise ValueError("revision must not be empty")
++    return revision
++
++
++def upgrade(
++    engine: Engine,
++    revision: str = "head",
++    *,
++    version_locations: Sequence[str | os.PathLike[str]] = (),
++) -> None:
++    """Migrate the database up to ``revision``. Each revision runs in its own transaction."""
++    from alembic import command
++    from alembic.script import ScriptDirectory
++
++    _engine(engine)
++    revision = _check_revision(revision)
++    config = alembic_config(engine, version_locations=version_locations)
++    script = ScriptDirectory.from_config(config)
++    current = current_revision(engine)
++    if current is not None and not is_known(script, current):
++        raise StoreRevisionUnknown(current)
++    try:
++        script.get_revision(revision)
++    except Exception:
++        raise ValueError("unknown target revision") from None
++    command.upgrade(config, revision)
++
++
++def _data_loss(engine: Engine, script: "ScriptDirectory", current: str, target: str) -> list[str]:
++    undone = []
++    resolved = None if target == "base" else script.get_revision(target)
++    for rev in script.iterate_revisions(current, target):
++        if resolved is not None and rev.revision == resolved.revision:
++            continue
++        undone.append(rev)
++    lost: set[str] = set()
++    with engine.connect() as connection:
++        inspector = sa.inspect(connection)
++        for rev in undone:
++            for entry in getattr(rev.module, "DOWNGRADE_DROPS", ()):
++                table, _, column = entry.partition(".")
++                if not inspector.has_table(table):
++                    continue
++                quoted = f'"{table}"'
++                where = f' WHERE "{column}" IS NOT NULL' if column else ""
++                found = connection.exec_driver_sql(f"SELECT count(*) FROM {quoted}{where}").scalar()
++                if found:
++                    lost.add(table)
++        connection.rollback()
++    return sorted(lost)
++
++
++def downgrade(
++    engine: Engine,
++    revision: str,
++    *,
++    allow_data_loss: bool = False,
++    version_locations: Sequence[str | os.PathLike[str]] = (),
++) -> None:
++    """Migrate the database down to ``revision`` (``"base"`` for nothing). A downgrade that would
++    drop rows is refused before anything changes unless ``allow_data_loss`` is true."""
++    from alembic import command
++    from alembic.script import ScriptDirectory
++
++    _engine(engine)
++    revision = _check_revision(revision)
++    if type(allow_data_loss) is not bool:
++        raise TypeError("allow_data_loss must be a bool")
++    config = alembic_config(engine, version_locations=version_locations)
++    script = ScriptDirectory.from_config(config)
++    current = current_revision(engine)
++    if current is None:
++        return
++    if not is_known(script, current):
++        raise StoreRevisionUnknown(current)
++    try:
++        if revision != "base":
++            script.get_revision(revision)
++    except Exception:
++        raise ValueError("unknown target revision") from None
++    if not allow_data_loss:
++        lost = _data_loss(engine, script, current, revision)
++        if lost:
++            raise DowngradeDataLoss(lost)
++    command.downgrade(config, revision)
+diff -ruN a/packages/evaldb/src/tracer_evaldb/migrations/__init__.py b/packages/evaldb/src/tracer_evaldb/migrations/__init__.py
+--- a/packages/evaldb/src/tracer_evaldb/migrations/__init__.py	1970-01-01 05:30:00
++++ b/packages/evaldb/src/tracer_evaldb/migrations/__init__.py	2026-10-24 17:04:15
+@@ -0,0 +1,3 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Alembic environment, revisions and revision helpers of the store (ADR 0021)."""
+diff -ruN a/packages/evaldb/src/tracer_evaldb/migrations/env.py b/packages/evaldb/src/tracer_evaldb/migrations/env.py
+--- a/packages/evaldb/src/tracer_evaldb/migrations/env.py	2026-10-24 16:50:35
++++ b/packages/evaldb/src/tracer_evaldb/migrations/env.py	2026-10-24 17:14:07
+@@ -1,3 +1,80 @@
+ # SPDX-License-Identifier: Apache-2.0
+ # Copyright 2026 The Tracer contributors
+-"""Alembic environment (filled by the migrations batch)."""
++"""Alembic environment. The engine comes from the caller (``config.attributes["engine"]``) or, on
++the command line, from ``-x url=<database URL>``; nothing is read from ``alembic.ini``."""
++
++from __future__ import annotations
++
++from typing import Any
++
++from alembic import context
++from sqlalchemy.engine import Connection, Engine
++
++from tracer_evaldb import create_store_engine, metadata
++from tracer_evaldb.errors import MigrationIntegrityError, StoreConfigurationError
++
++config = context.config
++
++
++def _engine() -> tuple[Engine, bool]:
++    engine = config.attributes.get("engine")
++    if engine is not None:
++        return engine, False
++    url = context.get_x_argument(as_dictionary=True).get("url")
++    if not url:
++        raise StoreConfigurationError("no engine given: pass -x url=<database URL>")
++    return create_store_engine(url), True
++
++
++def _include_object(obj: Any, name: str | None, type_: str, reflected: bool, compare_to: Any) -> bool:
++    return not (type_ == "table" and name == "alembic_version")
++
++
++def _foreign_key_check(context_: Any, **_kw: Any) -> None:
++    rows = context_.connection.exec_driver_sql("PRAGMA foreign_key_check").all()
++    if rows:
++        raise MigrationIntegrityError(sorted({str(row[0]) for row in rows}))
++
++
++def run() -> None:
++    engine, owned = _engine()
++    try:
++        with engine.connect() as connection:
++            sqlite = connection.dialect.name == "sqlite"
++            dbapi = connection.connection.dbapi_connection
++            if sqlite:
++                # outside any transaction: the pragma is a no-op inside one (ADR 0021 rule 7)
++                dbapi.execute("PRAGMA foreign_keys=OFF")  # type: ignore[union-attr]
++            try:
++                _migrate(connection, sqlite)
++            finally:
++                if sqlite:
++                    if connection.in_transaction():
++                        connection.rollback()
++                    dbapi.execute("PRAGMA foreign_keys=ON")  # type: ignore[union-attr]
++    finally:
++        if owned:
++            engine.dispose()
++
++
++def _migrate(connection: Connection, sqlite: bool) -> None:
++    def on_apply(*, ctx: Any, step: Any, heads: Any, run_args: Any) -> None:
++        if sqlite:
++            _foreign_key_check(ctx)
++
++    context.configure(
++        connection=connection,
++        target_metadata=metadata,
++        render_as_batch=True,
++        transactional_ddl=True,
++        transaction_per_migration=True,
++        compare_type=True,
++        compare_server_default=True,
++        include_object=_include_object,
++        on_version_apply=on_apply,
++    )
++    with context.begin_transaction():
++        context.run_migrations()
++
++
++run()
+diff -ruN a/packages/evaldb/src/tracer_evaldb/migrations/helpers.py b/packages/evaldb/src/tracer_evaldb/migrations/helpers.py
+--- a/packages/evaldb/src/tracer_evaldb/migrations/helpers.py	1970-01-01 05:30:00
++++ b/packages/evaldb/src/tracer_evaldb/migrations/helpers.py	2026-10-24 17:51:44
+@@ -0,0 +1,142 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Helpers for revisions (ADR 0021 rules 7, 9 to 12): batch alters that keep STRICT, WITHOUT ROWID
++and the immutability triggers, trigger-free windows for data rewrites, and the document rewrite."""
++
++from __future__ import annotations
++
++import contextlib
++import json
++from collections.abc import Callable, Iterator
++from typing import Any
++
++import sqlalchemy as sa
++from alembic import op
++from alembic.operations.base import BatchOperations
++
++from tracer_evalschema import digest as ev_digest
++from tracer_evalschema.errors import DigestMismatch
++from tracer_evaldb import tables, triggers
++from tracer_evaldb.errors import DigestChangingUpgrade, IrreversibleMigration, MixedSchemaVersions
++
++__all__ = ["batch_alter_table", "rewrite_documents", "rewriting"]
++
++PIN = "schema_version_pinned"
++_VERSIONED = frozenset(
++    {
++        "agent_target",
++        "persona",
++        "test_profile",
++        "evaluator",
++        "metric_definition",
++        "metric_binding",
++        "rubric",
++        "pricing_catalog",
++        "dataset",
++    }
++)
++_DIGESTED = _VERSIONED | {"config_snapshot"}
++
++
++def _dialect() -> str:
++    return op.get_bind().dialect.name
++
++
++def _drop_triggers(table: str) -> None:
++    dialect = _dialect()
++    for name, _operation, _function in triggers._operations(table):
++        if dialect == "sqlite":
++            op.execute(f'DROP TRIGGER IF EXISTS "{name}"')
++        else:
++            op.execute(f'DROP TRIGGER IF EXISTS "{name}" ON "{table}"')
++
++
++def _create_triggers(table: str) -> None:
++    for statement in triggers.create_statements(table, _dialect()):
++        op.execute(statement)
++
++
++@contextlib.contextmanager
++def batch_alter_table(table_name: str, **kwargs: Any) -> Iterator[BatchOperations]:
++    """``op.batch_alter_table`` that keeps STRICT and WITHOUT ROWID on SQLite and creates the
++    table's immutability triggers again when it ends (a recreate drops them)."""
++    if _dialect() == "sqlite":
++        kwargs.setdefault("table_kwargs", {"sqlite_strict": True, "sqlite_with_rowid": False})
++    with op.batch_alter_table(table_name, **kwargs) as batch:
++        yield batch
++    if _dialect() == "sqlite":
++        _drop_triggers(table_name)
++        _create_triggers(table_name)
++
++
++@contextlib.contextmanager
++def rewriting(*table_names: str) -> Iterator[None]:
++    """Drop the immutability triggers of these tables, let the caller rewrite rows, and create the
++    triggers again. All inside the revision's transaction."""
++    for table in table_names:
++        _drop_triggers(table)
++    yield
++    for table in table_names:
++        _create_triggers(table)
++
++
++def _entity_tables() -> list[str]:
++    return [table.name for table in tables.ENTITY_TABLES.values()]
++
++
++def rewrite_documents(
++    old_version: str,
++    new_version: str,
++    *,
++    forward: Callable[[str, str], str],
++    backward: Callable[[str, str], str],
++    validate: Callable[[str, str], None],
++) -> None:
++    bind = op.get_bind()
++    names = _entity_tables()
++    plan: list[tuple[str, dict[str, Any], str, bytes]] = []
++    for table in names:
++        keys = ["id", "version"] if table in _VERSIONED else ["id"]
++        extra = ", content_digest_value" if table in _DIGESTED else ""
++        columns = ", ".join(f'"{k}"' for k in keys)
++        rows = bind.execute(sa.text(f'SELECT {columns}, doc{extra} FROM "{table}"')).mappings().all()
++        for row in rows:
++            text = row["doc"]
++            new_text = forward(table, text)
++            if backward(table, new_text) != text:
++                raise IrreversibleMigration(table)
++            parsed = json.loads(new_text)
++            if parsed.get("schema_version") != new_version:
++                raise MixedSchemaVersions(table)
++            if table in _DIGESTED:
++                before = json.loads(text).get("content_digest")
++                if parsed.get("content_digest") != before:
++                    raise DigestChangingUpgrade(table)
++            try:
++                validate(table, new_text)
++            except DigestMismatch:
++                raise DigestChangingUpgrade(table) from None
++            digest = bytes.fromhex(ev_digest.sha256_hex(ev_digest.jcs_bytes(parsed)))
++            plan.append((table, {k: row[k] for k in keys}, new_text, digest))
++
++    all_tables = [*names, "tracer_meta"]
++    for table in all_tables:
++        with batch_alter_table(table) as batch:
++            batch.drop_constraint(PIN, type_="check")
++    with rewriting(*all_tables):
++        for table, key, new_text, digest in plan:
++            where = " AND ".join(f'"{k}" = :k_{k}' for k in key)
++            bind.execute(
++                sa.text(
++                    f'UPDATE "{table}" SET doc = :doc, doc_sha256 = :sha, '
++                    f"schema_version = :version WHERE {where}"
++                ),
++                {"doc": new_text, "sha": digest, "version": new_version}
++                | {f"k_{k}": v for k, v in key.items()},
++            )
++        bind.execute(
++            sa.text("UPDATE tracer_meta SET schema_version = :version"), {"version": new_version}
++        )
++    for table in all_tables:
++        with batch_alter_table(table) as batch:
++            batch.create_check_constraint(PIN, f"schema_version = '{new_version}'")
+diff -ruN a/packages/evaldb/src/tracer_evaldb/migrations/script.py.mako b/packages/evaldb/src/tracer_evaldb/migrations/script.py.mako
+--- a/packages/evaldb/src/tracer_evaldb/migrations/script.py.mako	2026-10-24 16:50:35
++++ b/packages/evaldb/src/tracer_evaldb/migrations/script.py.mako	2026-10-24 17:04:15
+@@ -1 +1,25 @@
+-<%text># Alembic revision template (filled by the migrations batch)</%text>
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""${message}"""
++
++from __future__ import annotations
++
++import sqlalchemy as sa
++from alembic import op
++${imports if imports else ""}
++
++revision = ${repr(up_revision)}
++down_revision = ${repr(down_revision)}
++branch_labels = ${repr(branch_labels)}
++depends_on = ${repr(depends_on)}
++
++# Tables (or "table.column" entries) whose rows a downgrade of this revision destroys.
++DOWNGRADE_DROPS: tuple[str, ...] = ()
++
++
++def upgrade() -> None:
++    ${upgrades if upgrades else "pass"}
++
++
++def downgrade() -> None:
++    ${downgrades if downgrades else "pass"}
+diff -ruN a/packages/evaldb/src/tracer_evaldb/migrations/versions/0001_initial_schema.py b/packages/evaldb/src/tracer_evaldb/migrations/versions/0001_initial_schema.py
+--- a/packages/evaldb/src/tracer_evaldb/migrations/versions/0001_initial_schema.py	1970-01-01 05:30:00
++++ b/packages/evaldb/src/tracer_evaldb/migrations/versions/0001_initial_schema.py	2026-10-24 17:04:02
+@@ -0,0 +1,1990 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Initial schema of the store (revision 0001): 37 tables, their indexes, the immutability triggers
++and the single ``tracer_meta`` row. Frozen text: it never reads ``tracer_evaldb.metadata``."""
++
++from __future__ import annotations
++
++from importlib.metadata import version
++
++import sqlalchemy as sa
++from alembic import op
++
++from tracer_evaldb import triggers
++
++revision = "0001"
++down_revision = None
++branch_labels = None
++depends_on = None
++
++# a downgrade drops these tables with their rows (tracer_meta holds the migration's own row)
++DOWNGRADE_DROPS = ('agent_target',
++ 'artifact',
++ 'config_snapshot',
++ 'cost_record',
++ 'cost_summary',
++ 'dataset',
++ 'dataset_item',
++ 'dataset_member',
++ 'deletion_audit',
++ 'evaluator',
++ 'exchange',
++ 'export_bundle',
++ 'export_bundle_item',
++ 'export_bundle_profile',
++ 'export_bundle_run',
++ 'external_ref_index',
++ 'metric_binding',
++ 'metric_definition',
++ 'metric_result',
++ 'persona',
++ 'pricing_catalog',
++ 'project',
++ 'rubric',
++ 'run',
++ 'run_bundle',
++ 'run_bundle_member',
++ 'run_bundle_withheld',
++ 'run_verdict',
++ 'snapshot_member',
++ 'snapshot_profile_ref',
++ 'stage_span',
++ 'test_profile',
++ 'tool_call_event',
++ 'transcript',
++ 'turn',
++ 'usage_record')
++
++TABLES = ('agent_target',
++ 'config_snapshot',
++ 'dataset',
++ 'dataset_item',
++ 'deletion_audit',
++ 'evaluator',
++ 'export_bundle',
++ 'metric_binding',
++ 'metric_definition',
++ 'persona',
++ 'pricing_catalog',
++ 'project',
++ 'rubric',
++ 'test_profile',
++ 'tracer_meta',
++ 'dataset_member',
++ 'export_bundle_item',
++ 'export_bundle_profile',
++ 'export_bundle_run',
++ 'run',
++ 'snapshot_member',
++ 'snapshot_profile_ref',
++ 'artifact',
++ 'cost_record',
++ 'cost_summary',
++ 'exchange',
++ 'external_ref_index',
++ 'metric_result',
++ 'run_bundle',
++ 'run_verdict',
++ 'stage_span',
++ 'tool_call_event',
++ 'transcript',
++ 'turn',
++ 'usage_record',
++ 'run_bundle_member',
++ 'run_bundle_withheld')
++
++DDL = {'postgresql': ['CREATE TABLE agent_target (\n'
++                '\tid UUID NOT NULL, \n'
++                '\tversion BIGINT NOT NULL, \n'
++                '\tschema_version VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n'
++                '\tdoc TEXT NOT NULL, \n'
++                '\tdoc_sha256 BYTEA NOT NULL, \n'
++                '\tcontent_digest_scheme VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcontent_digest_value BYTEA NOT NULL, \n'
++                '\ttransport VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tPRIMARY KEY (id, version), \n'
++                "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++                '\tCONSTRAINT version_ge_1 CHECK (version >= 1), \n'
++                '\tCONSTRAINT content_digest_scheme_closed CHECK (content_digest_scheme IN '
++                "('sha256-jcs/v1', 'hmac-sha256-jcs/v1')), \n"
++                "\tCONSTRAINT transport_closed CHECK (transport IN ('ws', 'webrtc', 'sip')), \n"
++                "\tCONSTRAINT id_uuid_v7 CHECK (substr(id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT doc_sha256_sha256_len CHECK (octet_length(doc_sha256) = 32), \n'
++                '\tCONSTRAINT content_digest_value_sha256_len CHECK '
++                '(octet_length(content_digest_value) = 32)\n'
++                ')',
++                'CREATE TABLE config_snapshot (\n'
++                '\tid UUID NOT NULL, \n'
++                '\tschema_version VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n'
++                '\tdoc TEXT NOT NULL, \n'
++                '\tdoc_sha256 BYTEA NOT NULL, \n'
++                '\tcontent_digest_scheme VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcontent_digest_value BYTEA NOT NULL, \n'
++                '\tevaluator_id UUID NOT NULL, \n'
++                '\tevaluator_version BIGINT NOT NULL, \n'
++                '\trubric_id UUID NOT NULL, \n'
++                '\trubric_version BIGINT NOT NULL, \n'
++                '\tpricing_catalog_id UUID, \n'
++                '\tpricing_catalog_version BIGINT, \n'
++                '\tPRIMARY KEY (id), \n'
++                "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++                '\tCONSTRAINT content_digest_scheme_closed CHECK (content_digest_scheme IN '
++                "('sha256-jcs/v1', 'hmac-sha256-jcs/v1')), \n"
++                '\tCONSTRAINT catalog_pair CHECK (pricing_catalog_id IS NULL AND '
++                'pricing_catalog_version IS NULL OR pricing_catalog_id IS NOT NULL AND '
++                'pricing_catalog_version IS NOT NULL), \n'
++                "\tCONSTRAINT id_uuid_v7 CHECK (substr(id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT doc_sha256_sha256_len CHECK (octet_length(doc_sha256) = 32), \n'
++                '\tCONSTRAINT content_digest_value_sha256_len CHECK '
++                '(octet_length(content_digest_value) = 32), \n'
++                '\tCONSTRAINT evaluator_id_uuid_v7 CHECK (substr(evaluator_id::text, 15, 1) = '
++                "'7'), \n"
++                '\tCONSTRAINT rubric_id_uuid_v7 CHECK (substr(rubric_id::text, 15, 1) = '
++                "'7'), \n"
++                '\tCONSTRAINT pricing_catalog_id_uuid_v7 CHECK '
++                "(substr(pricing_catalog_id::text, 15, 1) = '7')\n"
++                ')',
++                'CREATE TABLE dataset (\n'
++                '\tid UUID NOT NULL, \n'
++                '\tversion BIGINT NOT NULL, \n'
++                '\tschema_version VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n'
++                '\tdoc TEXT NOT NULL, \n'
++                '\tdoc_sha256 BYTEA NOT NULL, \n'
++                '\tcontent_digest_scheme VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcontent_digest_value BYTEA NOT NULL, \n'
++                '\tPRIMARY KEY (id, version), \n'
++                "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++                '\tCONSTRAINT version_ge_1 CHECK (version >= 1), \n'
++                '\tCONSTRAINT content_digest_scheme_closed CHECK (content_digest_scheme IN '
++                "('sha256-jcs/v1', 'hmac-sha256-jcs/v1')), \n"
++                "\tCONSTRAINT id_uuid_v7 CHECK (substr(id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT doc_sha256_sha256_len CHECK (octet_length(doc_sha256) = 32), \n'
++                '\tCONSTRAINT content_digest_value_sha256_len CHECK '
++                '(octet_length(content_digest_value) = 32)\n'
++                ')',
++                'CREATE TABLE dataset_item (\n'
++                '\tid UUID NOT NULL, \n'
++                '\tschema_version VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n'
++                '\tdoc TEXT NOT NULL, \n'
++                '\tdoc_sha256 BYTEA NOT NULL, \n'
++                '\tartifact_id UUID, \n'
++                '\ttranscript_id UUID, \n'
++                '\tsource_run_id UUID, \n'
++                '\tlanguage VARCHAR COLLATE "C" NOT NULL, \n'
++                '\thuman_subject BOOLEAN, \n'
++                '\thuman_subject_reason VARCHAR COLLATE "C", \n'
++                '\tconsent_status VARCHAR COLLATE "C", \n'
++                '\tretain_until TIMESTAMP WITH TIME ZONE, \n'
++                '\tdelete_on_expiry BOOLEAN, \n'
++                '\tpolicy_ref VARCHAR COLLATE "C", \n'
++                '\tPRIMARY KEY (id), \n'
++                "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++                '\tCONSTRAINT human_subject_reason_closed CHECK (human_subject_reason IN '
++                "('marked_before_role_evidence', 'real_person_likeness', 'manual')), \n"
++                "\tCONSTRAINT consent_status_closed CHECK (consent_status IN ('obtained', "
++                "'not_obtained', 'unknown')), \n"
++                '\tCONSTRAINT privacy_projection CHECK (human_subject IS NULL AND '
++                'human_subject_reason IS NULL AND consent_status IS NULL AND retain_until IS '
++                'NULL AND delete_on_expiry IS NULL AND policy_ref IS NULL OR human_subject IS '
++                'true AND consent_status IS NOT NULL AND delete_on_expiry IS NOT NULL OR '
++                'human_subject IS false AND human_subject_reason IS NULL AND consent_status IS '
++                'NULL AND retain_until IS NULL AND delete_on_expiry IS NULL AND policy_ref IS '
++                'NULL), \n'
++                "\tCONSTRAINT id_uuid_v7 CHECK (substr(id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT doc_sha256_sha256_len CHECK (octet_length(doc_sha256) = 32), \n'
++                '\tCONSTRAINT artifact_id_uuid_v7 CHECK (substr(artifact_id::text, 15, 1) = '
++                "'7'), \n"
++                '\tCONSTRAINT transcript_id_uuid_v7 CHECK (substr(transcript_id::text, 15, 1) '
++                "= '7'), \n"
++                '\tCONSTRAINT source_run_id_uuid_v7 CHECK (substr(source_run_id::text, 15, 1) '
++                "= '7'), \n"
++                '\tCONSTRAINT human_subject_bool CHECK (human_subject IN (TRUE, FALSE)), \n'
++                '\tCONSTRAINT delete_on_expiry_bool CHECK (delete_on_expiry IN (TRUE, FALSE))\n'
++                ')',
++                'CREATE INDEX ix_dataset_item_retain_until ON dataset_item (retain_until) '
++                'WHERE retain_until IS NOT NULL',
++                'CREATE TABLE deletion_audit (\n'
++                '\taudit_uuid UUID NOT NULL, \n'
++                '\tdeleted_at TIMESTAMP WITH TIME ZONE NOT NULL, \n'
++                '\tactor VARCHAR COLLATE "C" NOT NULL, \n'
++                '\treason VARCHAR COLLATE "C" NOT NULL, \n'
++                '\troot_kind VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcounts TEXT NOT NULL, \n'
++                '\tPRIMARY KEY (audit_uuid), \n'
++                "\tCONSTRAINT reason_closed CHECK (reason IN ('operator_request', "
++                "'retention_policy', 'data_subject_request')), \n"
++                "\tCONSTRAINT root_kind_closed CHECK (root_kind IN ('run', 'project', "
++                "'test_profile', 'agent_target', 'persona', 'evaluator', 'metric_definition', "
++                "'metric_binding', 'rubric', 'pricing_catalog', 'dataset', 'dataset_item', "
++                "'export_bundle', 'config_snapshot')), \n"
++                '\tCONSTRAINT audit_uuid_uuid_v7 CHECK (substr(audit_uuid::text, 15, 1) = '
++                "'7')\n"
++                ')',
++                'CREATE TABLE evaluator (\n'
++                '\tid UUID NOT NULL, \n'
++                '\tversion BIGINT NOT NULL, \n'
++                '\tschema_version VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n'
++                '\tdoc TEXT NOT NULL, \n'
++                '\tdoc_sha256 BYTEA NOT NULL, \n'
++                '\tcontent_digest_scheme VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcontent_digest_value BYTEA NOT NULL, \n'
++                '\tpersona_id UUID NOT NULL, \n'
++                '\tpersona_version BIGINT NOT NULL, \n'
++                '\ttest_profile_id UUID, \n'
++                '\ttest_profile_version BIGINT, \n'
++                '\tPRIMARY KEY (id, version), \n'
++                "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++                '\tCONSTRAINT version_ge_1 CHECK (version >= 1), \n'
++                '\tCONSTRAINT content_digest_scheme_closed CHECK (content_digest_scheme IN '
++                "('sha256-jcs/v1', 'hmac-sha256-jcs/v1')), \n"
++                '\tCONSTRAINT profile_pair CHECK (test_profile_id IS NULL AND '
++                'test_profile_version IS NULL OR test_profile_id IS NOT NULL AND '
++                'test_profile_version IS NOT NULL), \n'
++                "\tCONSTRAINT id_uuid_v7 CHECK (substr(id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT doc_sha256_sha256_len CHECK (octet_length(doc_sha256) = 32), \n'
++                '\tCONSTRAINT content_digest_value_sha256_len CHECK '
++                '(octet_length(content_digest_value) = 32), \n'
++                '\tCONSTRAINT persona_id_uuid_v7 CHECK (substr(persona_id::text, 15, 1) = '
++                "'7'), \n"
++                '\tCONSTRAINT test_profile_id_uuid_v7 CHECK (substr(test_profile_id::text, 15, '
++                "1) = '7')\n"
++                ')',
++                'CREATE TABLE export_bundle (\n'
++                '\tid UUID NOT NULL, \n'
++                '\tschema_version VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n'
++                '\tdoc TEXT NOT NULL, \n'
++                '\tdoc_sha256 BYTEA NOT NULL, \n'
++                '\tpurpose VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tbyte_length BIGINT NOT NULL, \n'
++                '\tPRIMARY KEY (id), \n'
++                "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++                "\tCONSTRAINT purpose_closed CHECK (purpose IN ('internal', 'shared_export', "
++                "'benchmark')), \n"
++                "\tCONSTRAINT id_uuid_v7 CHECK (substr(id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT doc_sha256_sha256_len CHECK (octet_length(doc_sha256) = 32)\n'
++                ')',
++                'CREATE TABLE metric_binding (\n'
++                '\tid UUID NOT NULL, \n'
++                '\tversion BIGINT NOT NULL, \n'
++                '\tschema_version VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n'
++                '\tdoc TEXT NOT NULL, \n'
++                '\tdoc_sha256 BYTEA NOT NULL, \n'
++                '\tcontent_digest_scheme VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcontent_digest_value BYTEA NOT NULL, \n'
++                '\tevaluator_id UUID NOT NULL, \n'
++                '\tmetric_id UUID NOT NULL, \n'
++                '\tmetric_version BIGINT NOT NULL, \n'
++                '\tPRIMARY KEY (id, version), \n'
++                "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++                '\tCONSTRAINT version_ge_1 CHECK (version >= 1), \n'
++                '\tCONSTRAINT content_digest_scheme_closed CHECK (content_digest_scheme IN '
++                "('sha256-jcs/v1', 'hmac-sha256-jcs/v1')), \n"
++                "\tCONSTRAINT id_uuid_v7 CHECK (substr(id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT doc_sha256_sha256_len CHECK (octet_length(doc_sha256) = 32), \n'
++                '\tCONSTRAINT content_digest_value_sha256_len CHECK '
++                '(octet_length(content_digest_value) = 32), \n'
++                '\tCONSTRAINT evaluator_id_uuid_v7 CHECK (substr(evaluator_id::text, 15, 1) = '
++                "'7'), \n"
++                "\tCONSTRAINT metric_id_uuid_v7 CHECK (substr(metric_id::text, 15, 1) = '7')\n"
++                ')',
++                'CREATE TABLE metric_definition (\n'
++                '\tid UUID NOT NULL, \n'
++                '\tversion BIGINT NOT NULL, \n'
++                '\tschema_version VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n'
++                '\tdoc TEXT NOT NULL, \n'
++                '\tdoc_sha256 BYTEA NOT NULL, \n'
++                '\tcontent_digest_scheme VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcontent_digest_value BYTEA NOT NULL, \n'
++                '\tkey VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tkind VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tvalue_type VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tPRIMARY KEY (id, version), \n'
++                "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++                '\tCONSTRAINT version_ge_1 CHECK (version >= 1), \n'
++                '\tCONSTRAINT content_digest_scheme_closed CHECK (content_digest_scheme IN '
++                "('sha256-jcs/v1', 'hmac-sha256-jcs/v1')), \n"
++                "\tCONSTRAINT kind_closed CHECK (kind IN ('deterministic', 'llm_judge', "
++                "'audio', 'latency')), \n"
++                "\tCONSTRAINT value_type_closed CHECK (value_type IN ('boolean', 'rating', "
++                "'enum', 'numeric')), \n"
++                "\tCONSTRAINT id_uuid_v7 CHECK (substr(id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT doc_sha256_sha256_len CHECK (octet_length(doc_sha256) = 32), \n'
++                '\tCONSTRAINT content_digest_value_sha256_len CHECK '
++                '(octet_length(content_digest_value) = 32)\n'
++                ')',
++                'CREATE TABLE persona (\n'
++                '\tid UUID NOT NULL, \n'
++                '\tversion BIGINT NOT NULL, \n'
++                '\tschema_version VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n'
++                '\tdoc TEXT NOT NULL, \n'
++                '\tdoc_sha256 BYTEA NOT NULL, \n'
++                '\tcontent_digest_scheme VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcontent_digest_value BYTEA NOT NULL, \n'
++                '\tlanguage VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tPRIMARY KEY (id, version), \n'
++                "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++                '\tCONSTRAINT version_ge_1 CHECK (version >= 1), \n'
++                '\tCONSTRAINT content_digest_scheme_closed CHECK (content_digest_scheme IN '
++                "('sha256-jcs/v1', 'hmac-sha256-jcs/v1')), \n"
++                "\tCONSTRAINT id_uuid_v7 CHECK (substr(id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT doc_sha256_sha256_len CHECK (octet_length(doc_sha256) = 32), \n'
++                '\tCONSTRAINT content_digest_value_sha256_len CHECK '
++                '(octet_length(content_digest_value) = 32)\n'
++                ')',
++                'CREATE TABLE pricing_catalog (\n'
++                '\tid UUID NOT NULL, \n'
++                '\tversion BIGINT NOT NULL, \n'
++                '\tschema_version VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n'
++                '\tdoc TEXT NOT NULL, \n'
++                '\tdoc_sha256 BYTEA NOT NULL, \n'
++                '\tcontent_digest_scheme VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcontent_digest_value BYTEA NOT NULL, \n'
++                '\tPRIMARY KEY (id, version), \n'
++                "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++                '\tCONSTRAINT version_ge_1 CHECK (version >= 1), \n'
++                '\tCONSTRAINT content_digest_scheme_closed CHECK (content_digest_scheme IN '
++                "('sha256-jcs/v1', 'hmac-sha256-jcs/v1')), \n"
++                "\tCONSTRAINT id_uuid_v7 CHECK (substr(id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT doc_sha256_sha256_len CHECK (octet_length(doc_sha256) = 32), \n'
++                '\tCONSTRAINT content_digest_value_sha256_len CHECK '
++                '(octet_length(content_digest_value) = 32)\n'
++                ')',
++                'CREATE TABLE project (\n'
++                '\tid UUID NOT NULL, \n'
++                '\tschema_version VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n'
++                '\tdoc TEXT NOT NULL, \n'
++                '\tdoc_sha256 BYTEA NOT NULL, \n'
++                '\tname VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tPRIMARY KEY (id), \n'
++                "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++                "\tCONSTRAINT id_uuid_v7 CHECK (substr(id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT doc_sha256_sha256_len CHECK (octet_length(doc_sha256) = 32)\n'
++                ')',
++                'CREATE TABLE rubric (\n'
++                '\tid UUID NOT NULL, \n'
++                '\tversion BIGINT NOT NULL, \n'
++                '\tschema_version VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n'
++                '\tdoc TEXT NOT NULL, \n'
++                '\tdoc_sha256 BYTEA NOT NULL, \n'
++                '\tcontent_digest_scheme VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcontent_digest_value BYTEA NOT NULL, \n'
++                '\tPRIMARY KEY (id, version), \n'
++                "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++                '\tCONSTRAINT version_ge_1 CHECK (version >= 1), \n'
++                '\tCONSTRAINT content_digest_scheme_closed CHECK (content_digest_scheme IN '
++                "('sha256-jcs/v1', 'hmac-sha256-jcs/v1')), \n"
++                "\tCONSTRAINT id_uuid_v7 CHECK (substr(id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT doc_sha256_sha256_len CHECK (octet_length(doc_sha256) = 32), \n'
++                '\tCONSTRAINT content_digest_value_sha256_len CHECK '
++                '(octet_length(content_digest_value) = 32)\n'
++                ')',
++                'CREATE TABLE test_profile (\n'
++                '\tid UUID NOT NULL, \n'
++                '\tversion BIGINT NOT NULL, \n'
++                '\tschema_version VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n'
++                '\tdoc TEXT NOT NULL, \n'
++                '\tdoc_sha256 BYTEA NOT NULL, \n'
++                '\tcontent_digest_scheme VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcontent_digest_value BYTEA NOT NULL, \n'
++                '\tPRIMARY KEY (id, version), \n'
++                "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++                '\tCONSTRAINT version_ge_1 CHECK (version >= 1), \n'
++                '\tCONSTRAINT content_digest_scheme_closed CHECK (content_digest_scheme IN '
++                "('sha256-jcs/v1', 'hmac-sha256-jcs/v1')), \n"
++                "\tCONSTRAINT id_uuid_v7 CHECK (substr(id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT doc_sha256_sha256_len CHECK (octet_length(doc_sha256) = 32), \n'
++                '\tCONSTRAINT content_digest_value_sha256_len CHECK '
++                '(octet_length(content_digest_value) = 32)\n'
++                ')',
++                'CREATE TABLE tracer_meta (\n'
++                '\tsingleton BIGINT NOT NULL, \n'
++                '\tschema_version VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tevaldb_version VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tPRIMARY KEY (singleton), \n'
++                '\tCONSTRAINT singleton_is_1 CHECK (singleton = 1), \n'
++                "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1')\n"
++                ')',
++                'CREATE TABLE dataset_member (\n'
++                '\tdataset_id UUID NOT NULL, \n'
++                '\tdataset_version BIGINT NOT NULL, \n'
++                '\tordinal BIGINT NOT NULL, \n'
++                '\titem_id UUID NOT NULL, \n'
++                '\tPRIMARY KEY (dataset_id, dataset_version, ordinal), \n'
++                '\tCONSTRAINT fk_dataset_member_dataset_id_dataset_version FOREIGN '
++                'KEY(dataset_id, dataset_version) REFERENCES dataset (id, version) ON DELETE '
++                'CASCADE, \n'
++                '\tCONSTRAINT ordinal_ge_0 CHECK (ordinal >= 0), \n'
++                '\tCONSTRAINT dataset_id_uuid_v7 CHECK (substr(dataset_id::text, 15, 1) = '
++                "'7'), \n"
++                "\tCONSTRAINT item_id_uuid_v7 CHECK (substr(item_id::text, 15, 1) = '7')\n"
++                ')',
++                'CREATE INDEX ix_dataset_member_item_id ON dataset_member (item_id)',
++                'CREATE TABLE export_bundle_item (\n'
++                '\texport_id UUID NOT NULL, \n'
++                '\titem_id UUID NOT NULL, \n'
++                '\tPRIMARY KEY (export_id, item_id), \n'
++                '\tCONSTRAINT fk_export_bundle_item_export_id FOREIGN KEY(export_id) '
++                'REFERENCES export_bundle (id) ON DELETE CASCADE, \n'
++                '\tCONSTRAINT export_id_uuid_v7 CHECK (substr(export_id::text, 15, 1) = '
++                "'7'), \n"
++                "\tCONSTRAINT item_id_uuid_v7 CHECK (substr(item_id::text, 15, 1) = '7')\n"
++                ')',
++                'CREATE INDEX ix_export_bundle_item_item_id ON export_bundle_item (item_id)',
++                'CREATE TABLE export_bundle_profile (\n'
++                '\texport_id UUID NOT NULL, \n'
++                '\tprofile_id UUID NOT NULL, \n'
++                '\tPRIMARY KEY (export_id, profile_id), \n'
++                '\tCONSTRAINT fk_export_bundle_profile_export_id FOREIGN KEY(export_id) '
++                'REFERENCES export_bundle (id) ON DELETE CASCADE, \n'
++                '\tCONSTRAINT export_id_uuid_v7 CHECK (substr(export_id::text, 15, 1) = '
++                "'7'), \n"
++                '\tCONSTRAINT profile_id_uuid_v7 CHECK (substr(profile_id::text, 15, 1) = '
++                "'7')\n"
++                ')',
++                'CREATE INDEX ix_export_bundle_profile_profile_id ON export_bundle_profile '
++                '(profile_id)',
++                'CREATE TABLE export_bundle_run (\n'
++                '\texport_id UUID NOT NULL, \n'
++                '\trun_id UUID NOT NULL, \n'
++                '\tPRIMARY KEY (export_id, run_id), \n'
++                '\tCONSTRAINT fk_export_bundle_run_export_id FOREIGN KEY(export_id) REFERENCES '
++                'export_bundle (id) ON DELETE CASCADE, \n'
++                '\tCONSTRAINT export_id_uuid_v7 CHECK (substr(export_id::text, 15, 1) = '
++                "'7'), \n"
++                "\tCONSTRAINT run_id_uuid_v7 CHECK (substr(run_id::text, 15, 1) = '7')\n"
++                ')',
++                'CREATE INDEX ix_export_bundle_run_run_id ON export_bundle_run (run_id)',
++                'CREATE TABLE run (\n'
++                '\tid UUID NOT NULL, \n'
++                '\tschema_version VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n'
++                '\tdoc TEXT NOT NULL, \n'
++                '\tdoc_sha256 BYTEA NOT NULL, \n'
++                '\tproject_id UUID NOT NULL, \n'
++                '\tconfig_snapshot_id UUID NOT NULL, \n'
++                '\tagent_target_id UUID NOT NULL, \n'
++                '\tagent_target_version BIGINT NOT NULL, \n'
++                '\tmode VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcaller_origin VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tobserved_tier VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tstarted_at TIMESTAMP WITH TIME ZONE, \n'
++                '\tcaller_human_subject BOOLEAN, \n'
++                '\tcaller_human_subject_reason VARCHAR COLLATE "C", \n'
++                '\tcaller_consent_status VARCHAR COLLATE "C", \n'
++                '\tcaller_retain_until TIMESTAMP WITH TIME ZONE, \n'
++                '\tcaller_delete_on_expiry BOOLEAN, \n'
++                '\tcaller_policy_ref VARCHAR COLLATE "C", \n'
++                '\tPRIMARY KEY (id), \n'
++                "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++                "\tCONSTRAINT mode_closed CHECK (mode IN ('simulated', 'recorded')), \n"
++                "\tCONSTRAINT caller_origin_closed CHECK (caller_origin IN ('simulated', "
++                "'human')), \n"
++                "\tCONSTRAINT observed_tier_closed CHECK (observed_tier IN ('T0', 'T1', "
++                "'T2')), \n"
++                '\tCONSTRAINT caller_human_subject_reason_closed CHECK '
++                "(caller_human_subject_reason IN ('marked_before_role_evidence', "
++                "'real_person_likeness', 'manual')), \n"
++                '\tCONSTRAINT caller_consent_status_closed CHECK (caller_consent_status IN '
++                "('obtained', 'not_obtained', 'unknown')), \n"
++                '\tCONSTRAINT fk_run_project_id FOREIGN KEY(project_id) REFERENCES project '
++                '(id) ON DELETE CASCADE, \n'
++                '\tCONSTRAINT fk_run_config_snapshot_id FOREIGN KEY(config_snapshot_id) '
++                'REFERENCES config_snapshot (id) ON DELETE RESTRICT, \n'
++                '\tCONSTRAINT caller_privacy_projection CHECK (caller_human_subject IS NULL '
++                'AND caller_human_subject_reason IS NULL AND caller_consent_status IS NULL AND '
++                'caller_retain_until IS NULL AND caller_delete_on_expiry IS NULL AND '
++                'caller_policy_ref IS NULL OR caller_human_subject IS true AND '
++                'caller_consent_status IS NOT NULL AND caller_delete_on_expiry IS NOT NULL OR '
++                'caller_human_subject IS false AND caller_human_subject_reason IS NULL AND '
++                'caller_consent_status IS NULL AND caller_retain_until IS NULL AND '
++                'caller_delete_on_expiry IS NULL AND caller_policy_ref IS NULL), \n'
++                "\tCONSTRAINT id_uuid_v7 CHECK (substr(id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT doc_sha256_sha256_len CHECK (octet_length(doc_sha256) = 32), \n'
++                '\tCONSTRAINT project_id_uuid_v7 CHECK (substr(project_id::text, 15, 1) = '
++                "'7'), \n"
++                '\tCONSTRAINT config_snapshot_id_uuid_v7 CHECK '
++                "(substr(config_snapshot_id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT agent_target_id_uuid_v7 CHECK (substr(agent_target_id::text, 15, '
++                "1) = '7'), \n"
++                '\tCONSTRAINT caller_human_subject_bool CHECK (caller_human_subject IN (TRUE, '
++                'FALSE)), \n'
++                '\tCONSTRAINT caller_delete_on_expiry_bool CHECK (caller_delete_on_expiry IN '
++                '(TRUE, FALSE))\n'
++                ')',
++                'CREATE INDEX ix_run_caller_retain_until ON run (caller_retain_until) WHERE '
++                'caller_retain_until IS NOT NULL',
++                'CREATE TABLE snapshot_member (\n'
++                '\tsnapshot_id UUID NOT NULL, \n'
++                '\tkind VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tordinal BIGINT NOT NULL, \n'
++                '\tdef_id UUID NOT NULL, \n'
++                '\tdef_version BIGINT NOT NULL, \n'
++                '\tPRIMARY KEY (snapshot_id, kind, ordinal), \n'
++                '\tCONSTRAINT fk_snapshot_member_snapshot_id FOREIGN KEY(snapshot_id) '
++                'REFERENCES config_snapshot (id) ON DELETE CASCADE, \n'
++                "\tCONSTRAINT kind_closed CHECK (kind IN ('evaluator', 'persona', 'rubric', "
++                "'metric_definition', 'metric_binding')), \n"
++                '\tCONSTRAINT ordinal_ge_0 CHECK (ordinal >= 0), \n'
++                '\tCONSTRAINT def_version_ge_1 CHECK (def_version >= 1), \n'
++                '\tCONSTRAINT snapshot_id_uuid_v7 CHECK (substr(snapshot_id::text, 15, 1) = '
++                "'7'), \n"
++                "\tCONSTRAINT def_id_uuid_v7 CHECK (substr(def_id::text, 15, 1) = '7')\n"
++                ')',
++                'CREATE INDEX ix_snapshot_member_kind_def_id_def_version ON snapshot_member '
++                '(kind, def_id, def_version)',
++                'CREATE TABLE snapshot_profile_ref (\n'
++                '\tsnapshot_id UUID NOT NULL, \n'
++                '\tprofile_id UUID NOT NULL, \n'
++                '\tprofile_version BIGINT NOT NULL, \n'
++                '\tPRIMARY KEY (snapshot_id), \n'
++                '\tCONSTRAINT fk_snapshot_profile_ref_snapshot_id FOREIGN KEY(snapshot_id) '
++                'REFERENCES config_snapshot (id) ON DELETE CASCADE, \n'
++                '\tCONSTRAINT profile_version_ge_1 CHECK (profile_version >= 1), \n'
++                '\tCONSTRAINT snapshot_id_uuid_v7 CHECK (substr(snapshot_id::text, 15, 1) = '
++                "'7'), \n"
++                '\tCONSTRAINT profile_id_uuid_v7 CHECK (substr(profile_id::text, 15, 1) = '
++                "'7')\n"
++                ')',
++                'CREATE INDEX ix_snapshot_profile_ref_profile_id_profile_version ON '
++                'snapshot_profile_ref (profile_id, profile_version)',
++                'CREATE TABLE artifact (\n'
++                '\tid UUID NOT NULL, \n'
++                '\tschema_version VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n'
++                '\tdoc TEXT NOT NULL, \n'
++                '\tdoc_sha256 BYTEA NOT NULL, \n'
++                '\trun_id UUID NOT NULL, \n'
++                '\tsha256 BYTEA NOT NULL, \n'
++                '\tturn_ref UUID, \n'
++                '\thuman_subject BOOLEAN NOT NULL, \n'
++                '\thuman_subject_reason VARCHAR COLLATE "C", \n'
++                '\tconsent_status VARCHAR COLLATE "C", \n'
++                '\tretain_until TIMESTAMP WITH TIME ZONE, \n'
++                '\tdelete_on_expiry BOOLEAN, \n'
++                '\tpolicy_ref VARCHAR COLLATE "C", \n'
++                '\tPRIMARY KEY (id), \n'
++                "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++                '\tCONSTRAINT human_subject_reason_closed CHECK (human_subject_reason IN '
++                "('marked_before_role_evidence', 'real_person_likeness', 'manual')), \n"
++                "\tCONSTRAINT consent_status_closed CHECK (consent_status IN ('obtained', "
++                "'not_obtained', 'unknown')), \n"
++                '\tCONSTRAINT fk_artifact_run_id FOREIGN KEY(run_id) REFERENCES run (id) ON '
++                'DELETE CASCADE, \n'
++                '\tCONSTRAINT privacy_projection CHECK (human_subject IS NULL AND '
++                'human_subject_reason IS NULL AND consent_status IS NULL AND retain_until IS '
++                'NULL AND delete_on_expiry IS NULL AND policy_ref IS NULL OR human_subject IS '
++                'true AND consent_status IS NOT NULL AND delete_on_expiry IS NOT NULL OR '
++                'human_subject IS false AND human_subject_reason IS NULL AND consent_status IS '
++                'NULL AND retain_until IS NULL AND delete_on_expiry IS NULL AND policy_ref IS '
++                'NULL), \n'
++                "\tCONSTRAINT id_uuid_v7 CHECK (substr(id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT doc_sha256_sha256_len CHECK (octet_length(doc_sha256) = 32), \n'
++                "\tCONSTRAINT run_id_uuid_v7 CHECK (substr(run_id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT sha256_sha256_len CHECK (octet_length(sha256) = 32), \n'
++                "\tCONSTRAINT turn_ref_uuid_v7 CHECK (substr(turn_ref::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT human_subject_bool CHECK (human_subject IN (TRUE, FALSE)), \n'
++                '\tCONSTRAINT delete_on_expiry_bool CHECK (delete_on_expiry IN (TRUE, FALSE))\n'
++                ')',
++                'CREATE INDEX ix_artifact_retain_until ON artifact (retain_until) WHERE '
++                'retain_until IS NOT NULL',
++                'CREATE TABLE cost_record (\n'
++                '\tid UUID NOT NULL, \n'
++                '\tschema_version VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n'
++                '\tdoc TEXT NOT NULL, \n'
++                '\tdoc_sha256 BYTEA NOT NULL, \n'
++                '\trun_id UUID NOT NULL, \n'
++                '\tstatus VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tbasis VARCHAR COLLATE "C", \n'
++                '\tamount NUMERIC, \n'
++                '\tcurrency VARCHAR COLLATE "C", \n'
++                '\tna_reason VARCHAR COLLATE "C", \n'
++                '\tPRIMARY KEY (id), \n'
++                "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++                "\tCONSTRAINT status_closed CHECK (status IN ('available', "
++                "'not_available')), \n"
++                "\tCONSTRAINT basis_closed CHECK (basis IN ('reported', 'computed')), \n"
++                "\tCONSTRAINT currency_closed CHECK (currency IN ('USD')), \n"
++                "\tCONSTRAINT na_reason_closed CHECK (na_reason IN ('no_price_for_model', "
++                "'unit_unpriced', 'no_usage', 'ambiguous_price', 'billing_rules_missing', "
++                "'usage_not_reported', 'unsupported_currency', 'currency_not_reported', "
++                "'amount_unparseable', 'currency_conflict')), \n"
++                '\tCONSTRAINT fk_cost_record_run_id FOREIGN KEY(run_id) REFERENCES run (id) ON '
++                'DELETE CASCADE, \n'
++                '\tCONSTRAINT amount_non_negative CHECK (amount >= 0), \n'
++                "\tCONSTRAINT not_available_is_empty CHECK (status != 'not_available' OR "
++                'amount IS NULL AND basis IS NULL AND currency IS NULL), \n'
++                '\tCONSTRAINT currency_with_amount CHECK (amount IS NULL AND currency IS NULL '
++                'OR amount IS NOT NULL AND currency IS NOT NULL), \n'
++                "\tCONSTRAINT id_uuid_v7 CHECK (substr(id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT doc_sha256_sha256_len CHECK (octet_length(doc_sha256) = 32), \n'
++                "\tCONSTRAINT run_id_uuid_v7 CHECK (substr(run_id::text, 15, 1) = '7')\n"
++                ')',
++                'CREATE TABLE cost_summary (\n'
++                '\tid UUID NOT NULL, \n'
++                '\tschema_version VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n'
++                '\tdoc TEXT NOT NULL, \n'
++                '\tdoc_sha256 BYTEA NOT NULL, \n'
++                '\trun_id UUID NOT NULL, \n'
++                '\tcompleteness VARCHAR COLLATE "C" NOT NULL, \n'
++                '\ttotal NUMERIC, \n'
++                '\tcurrency VARCHAR COLLATE "C", \n'
++                '\tPRIMARY KEY (id), \n'
++                "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++                "\tCONSTRAINT completeness_closed CHECK (completeness IN ('complete', "
++                "'partial', 'none')), \n"
++                "\tCONSTRAINT currency_closed CHECK (currency IN ('USD')), \n"
++                '\tCONSTRAINT fk_cost_summary_run_id FOREIGN KEY(run_id) REFERENCES run (id) '
++                'ON DELETE CASCADE, \n'
++                '\tCONSTRAINT total_non_negative CHECK (total >= 0), \n'
++                '\tCONSTRAINT currency_with_total CHECK (total IS NULL AND currency IS NULL OR '
++                'total IS NOT NULL AND currency IS NOT NULL), \n'
++                "\tCONSTRAINT id_uuid_v7 CHECK (substr(id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT doc_sha256_sha256_len CHECK (octet_length(doc_sha256) = 32), \n'
++                "\tCONSTRAINT run_id_uuid_v7 CHECK (substr(run_id::text, 15, 1) = '7')\n"
++                ')',
++                'CREATE TABLE exchange (\n'
++                '\tid UUID NOT NULL, \n'
++                '\tschema_version VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n'
++                '\tdoc TEXT NOT NULL, \n'
++                '\tdoc_sha256 BYTEA NOT NULL, \n'
++                '\trun_id UUID NOT NULL, \n'
++                '\tindex BIGINT NOT NULL, \n'
++                '\tPRIMARY KEY (id), \n'
++                "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++                '\tCONSTRAINT fk_exchange_run_id FOREIGN KEY(run_id) REFERENCES run (id) ON '
++                'DELETE CASCADE, \n'
++                "\tCONSTRAINT id_uuid_v7 CHECK (substr(id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT doc_sha256_sha256_len CHECK (octet_length(doc_sha256) = 32), \n'
++                "\tCONSTRAINT run_id_uuid_v7 CHECK (substr(run_id::text, 15, 1) = '7')\n"
++                ')',
++                'CREATE TABLE external_ref_index (\n'
++                '\tentity_kind VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tentity_id UUID NOT NULL, \n'
++                '\tkey_sha256 BYTEA NOT NULL, \n'
++                '\trun_id UUID NOT NULL, \n'
++                '\tPRIMARY KEY (entity_kind, entity_id, key_sha256), \n'
++                '\tCONSTRAINT fk_external_ref_index_run_id FOREIGN KEY(run_id) REFERENCES run '
++                '(id) ON DELETE CASCADE, \n'
++                "\tCONSTRAINT entity_kind_closed CHECK (entity_kind IN ('run', 'span', "
++                "'transcript', 'usage_record')), \n"
++                '\tCONSTRAINT entity_id_uuid_v7 CHECK (substr(entity_id::text, 15, 1) = '
++                "'7'), \n"
++                '\tCONSTRAINT key_sha256_sha256_len CHECK (octet_length(key_sha256) = 32), \n'
++                "\tCONSTRAINT run_id_uuid_v7 CHECK (substr(run_id::text, 15, 1) = '7')\n"
++                ')',
++                'CREATE INDEX ix_external_ref_index_run_id_entity_kind_key_sha256 ON '
++                'external_ref_index (run_id, entity_kind, key_sha256)',
++                'CREATE UNIQUE INDEX ux_external_ref_index_run_key ON external_ref_index '
++                "(entity_kind, key_sha256) WHERE entity_kind = 'run'",
++                'CREATE TABLE metric_result (\n'
++                '\tid UUID NOT NULL, \n'
++                '\tschema_version VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n'
++                '\tdoc TEXT NOT NULL, \n'
++                '\tdoc_sha256 BYTEA NOT NULL, \n'
++                '\trun_id UUID NOT NULL, \n'
++                '\tmetric_id UUID NOT NULL, \n'
++                '\tmetric_version BIGINT NOT NULL, \n'
++                '\tstatus VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tna_reason VARCHAR COLLATE "C", \n'
++                '\tpassed BOOLEAN, \n'
++                '\tPRIMARY KEY (id), \n'
++                "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++                "\tCONSTRAINT status_closed CHECK (status IN ('scored', 'not_applicable', "
++                "'error')), \n"
++                "\tCONSTRAINT na_reason_closed CHECK (na_reason IN ('missing_input', "
++                "'agent_channel_unknown', 'language_not_observed', 'unsupported_language', "
++                "'unsupported_script')), \n"
++                '\tCONSTRAINT fk_metric_result_run_id FOREIGN KEY(run_id) REFERENCES run (id) '
++                'ON DELETE CASCADE, \n'
++                "\tCONSTRAINT na_has_no_passed CHECK (status != 'not_applicable' OR passed IS "
++                'NULL), \n'
++                "\tCONSTRAINT id_uuid_v7 CHECK (substr(id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT doc_sha256_sha256_len CHECK (octet_length(doc_sha256) = 32), \n'
++                "\tCONSTRAINT run_id_uuid_v7 CHECK (substr(run_id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT metric_id_uuid_v7 CHECK (substr(metric_id::text, 15, 1) = '
++                "'7'), \n"
++                '\tCONSTRAINT passed_bool CHECK (passed IN (TRUE, FALSE))\n'
++                ')',
++                'CREATE TABLE run_bundle (\n'
++                '\tid UUID NOT NULL, \n'
++                '\tschema_version VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n'
++                '\tdoc TEXT NOT NULL, \n'
++                '\tdoc_sha256 BYTEA NOT NULL, \n'
++                '\trun_id UUID NOT NULL, \n'
++                '\tPRIMARY KEY (id), \n'
++                "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++                '\tCONSTRAINT fk_run_bundle_run_id FOREIGN KEY(run_id) REFERENCES run (id) ON '
++                'DELETE CASCADE, \n'
++                "\tCONSTRAINT id_uuid_v7 CHECK (substr(id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT doc_sha256_sha256_len CHECK (octet_length(doc_sha256) = 32), \n'
++                "\tCONSTRAINT run_id_uuid_v7 CHECK (substr(run_id::text, 15, 1) = '7')\n"
++                ')',
++                'CREATE TABLE run_verdict (\n'
++                '\tid UUID NOT NULL, \n'
++                '\tschema_version VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n'
++                '\tdoc TEXT NOT NULL, \n'
++                '\tdoc_sha256 BYTEA NOT NULL, \n'
++                '\trun_id UUID NOT NULL, \n'
++                '\tstatus VARCHAR COLLATE "C" NOT NULL, \n'
++                '\trequired_total BIGINT NOT NULL, \n'
++                '\tpassed BIGINT NOT NULL, \n'
++                '\tfailed BIGINT NOT NULL, \n'
++                '\tnot_applicable BIGINT NOT NULL, \n'
++                '\terrored BIGINT NOT NULL, \n'
++                '\tPRIMARY KEY (id), \n'
++                "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++                "\tCONSTRAINT status_closed CHECK (status IN ('pass', 'fail', "
++                "'inconclusive')), \n"
++                '\tCONSTRAINT fk_run_verdict_run_id FOREIGN KEY(run_id) REFERENCES run (id) ON '
++                'DELETE CASCADE, \n'
++                "\tCONSTRAINT id_uuid_v7 CHECK (substr(id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT doc_sha256_sha256_len CHECK (octet_length(doc_sha256) = 32), \n'
++                "\tCONSTRAINT run_id_uuid_v7 CHECK (substr(run_id::text, 15, 1) = '7')\n"
++                ')',
++                'CREATE TABLE stage_span (\n'
++                '\tid UUID NOT NULL, \n'
++                '\tschema_version VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n'
++                '\tdoc TEXT NOT NULL, \n'
++                '\tdoc_sha256 BYTEA NOT NULL, \n'
++                '\trun_id UUID NOT NULL, \n'
++                '\tstage VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tPRIMARY KEY (id), \n'
++                "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++                "\tCONSTRAINT stage_closed CHECK (stage IN ('stt', 'llm', 'tts', 'judge', "
++                "'sim_caller_llm', 'sim_caller_tts', 'realtime', 'other')), \n"
++                '\tCONSTRAINT fk_stage_span_run_id FOREIGN KEY(run_id) REFERENCES run (id) ON '
++                'DELETE CASCADE, \n'
++                "\tCONSTRAINT id_uuid_v7 CHECK (substr(id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT doc_sha256_sha256_len CHECK (octet_length(doc_sha256) = 32), \n'
++                "\tCONSTRAINT run_id_uuid_v7 CHECK (substr(run_id::text, 15, 1) = '7')\n"
++                ')',
++                'CREATE TABLE tool_call_event (\n'
++                '\tid UUID NOT NULL, \n'
++                '\tschema_version VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n'
++                '\tdoc TEXT NOT NULL, \n'
++                '\tdoc_sha256 BYTEA NOT NULL, \n'
++                '\trun_id UUID NOT NULL, \n'
++                '\tsource VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tPRIMARY KEY (id), \n'
++                "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++                "\tCONSTRAINT source_closed CHECK (source IN ('agent_export', "
++                "'agent_telemetry', 'observer')), \n"
++                '\tCONSTRAINT fk_tool_call_event_run_id FOREIGN KEY(run_id) REFERENCES run '
++                '(id) ON DELETE CASCADE, \n'
++                "\tCONSTRAINT id_uuid_v7 CHECK (substr(id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT doc_sha256_sha256_len CHECK (octet_length(doc_sha256) = 32), \n'
++                "\tCONSTRAINT run_id_uuid_v7 CHECK (substr(run_id::text, 15, 1) = '7')\n"
++                ')',
++                'CREATE TABLE transcript (\n'
++                '\tid UUID NOT NULL, \n'
++                '\tschema_version VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n'
++                '\tdoc TEXT NOT NULL, \n'
++                '\tdoc_sha256 BYTEA NOT NULL, \n'
++                '\trun_id UUID NOT NULL, \n'
++                '\tsource VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tdetected_language VARCHAR COLLATE "C", \n'
++                '\thuman_subject BOOLEAN NOT NULL, \n'
++                '\thuman_subject_reason VARCHAR COLLATE "C", \n'
++                '\tconsent_status VARCHAR COLLATE "C", \n'
++                '\tretain_until TIMESTAMP WITH TIME ZONE, \n'
++                '\tdelete_on_expiry BOOLEAN, \n'
++                '\tpolicy_ref VARCHAR COLLATE "C", \n'
++                '\tPRIMARY KEY (id), \n'
++                "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++                "\tCONSTRAINT source_closed CHECK (source IN ('our_stt', 'agent_export', "
++                "'agent_telemetry', 'observer', 'script', 'human_reference')), \n"
++                '\tCONSTRAINT human_subject_reason_closed CHECK (human_subject_reason IN '
++                "('marked_before_role_evidence', 'real_person_likeness', 'manual')), \n"
++                "\tCONSTRAINT consent_status_closed CHECK (consent_status IN ('obtained', "
++                "'not_obtained', 'unknown')), \n"
++                '\tCONSTRAINT fk_transcript_run_id FOREIGN KEY(run_id) REFERENCES run (id) ON '
++                'DELETE CASCADE, \n'
++                '\tCONSTRAINT privacy_projection CHECK (human_subject IS NULL AND '
++                'human_subject_reason IS NULL AND consent_status IS NULL AND retain_until IS '
++                'NULL AND delete_on_expiry IS NULL AND policy_ref IS NULL OR human_subject IS '
++                'true AND consent_status IS NOT NULL AND delete_on_expiry IS NOT NULL OR '
++                'human_subject IS false AND human_subject_reason IS NULL AND consent_status IS '
++                'NULL AND retain_until IS NULL AND delete_on_expiry IS NULL AND policy_ref IS '
++                'NULL), \n'
++                "\tCONSTRAINT id_uuid_v7 CHECK (substr(id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT doc_sha256_sha256_len CHECK (octet_length(doc_sha256) = 32), \n'
++                "\tCONSTRAINT run_id_uuid_v7 CHECK (substr(run_id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT human_subject_bool CHECK (human_subject IN (TRUE, FALSE)), \n'
++                '\tCONSTRAINT delete_on_expiry_bool CHECK (delete_on_expiry IN (TRUE, FALSE))\n'
++                ')',
++                'CREATE INDEX ix_transcript_retain_until ON transcript (retain_until) WHERE '
++                'retain_until IS NOT NULL',
++                'CREATE TABLE turn (\n'
++                '\tid UUID NOT NULL, \n'
++                '\tschema_version VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n'
++                '\tdoc TEXT NOT NULL, \n'
++                '\tdoc_sha256 BYTEA NOT NULL, \n'
++                '\trun_id UUID NOT NULL, \n'
++                '\ttranscript_id UUID NOT NULL, \n'
++                '\tseq BIGINT NOT NULL, \n'
++                '\trole VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tstart_ms BIGINT, \n'
++                '\tPRIMARY KEY (id), \n'
++                "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++                "\tCONSTRAINT role_closed CHECK (role IN ('caller', 'agent', 'unknown')), \n"
++                '\tCONSTRAINT fk_turn_run_id FOREIGN KEY(run_id) REFERENCES run (id) ON DELETE '
++                'CASCADE, \n'
++                '\tCONSTRAINT uq_turn_transcript_seq UNIQUE (transcript_id, seq), \n'
++                "\tCONSTRAINT id_uuid_v7 CHECK (substr(id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT doc_sha256_sha256_len CHECK (octet_length(doc_sha256) = 32), \n'
++                "\tCONSTRAINT run_id_uuid_v7 CHECK (substr(run_id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT transcript_id_uuid_v7 CHECK (substr(transcript_id::text, 15, 1) '
++                "= '7')\n"
++                ')',
++                'CREATE TABLE usage_record (\n'
++                '\tid UUID NOT NULL, \n'
++                '\tschema_version VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tcreated_at TIMESTAMP WITH TIME ZONE NOT NULL, \n'
++                '\tdoc TEXT NOT NULL, \n'
++                '\tdoc_sha256 BYTEA NOT NULL, \n'
++                '\trun_id UUID NOT NULL, \n'
++                '\tdomain VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tsource VARCHAR COLLATE "C" NOT NULL, \n'
++                '\toccurred_at TIMESTAMP WITH TIME ZONE, \n'
++                '\tPRIMARY KEY (id), \n'
++                "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++                "\tCONSTRAINT domain_closed CHECK (domain IN ('evaluation', "
++                "'agent_under_test')), \n"
++                "\tCONSTRAINT source_closed CHECK (source IN ('provider_reported', "
++                "'telemetry', 'measured')), \n"
++                '\tCONSTRAINT fk_usage_record_run_id FOREIGN KEY(run_id) REFERENCES run (id) '
++                'ON DELETE CASCADE, \n'
++                "\tCONSTRAINT id_uuid_v7 CHECK (substr(id::text, 15, 1) = '7'), \n"
++                '\tCONSTRAINT doc_sha256_sha256_len CHECK (octet_length(doc_sha256) = 32), \n'
++                "\tCONSTRAINT run_id_uuid_v7 CHECK (substr(run_id::text, 15, 1) = '7')\n"
++                ')',
++                'CREATE TABLE run_bundle_member (\n'
++                '\tbundle_id UUID NOT NULL, \n'
++                '\tkind VARCHAR COLLATE "C" NOT NULL, \n'
++                '\tordinal BIGINT NOT NULL, \n'
++                '\trecord_id UUID NOT NULL, \n'
++                '\trecord_version BIGINT, \n'
++                '\tPRIMARY KEY (bundle_id, kind, ordinal), \n'
++                '\tCONSTRAINT fk_run_bundle_member_bundle_id FOREIGN KEY(bundle_id) REFERENCES '
++                'run_bundle (id) ON DELETE CASCADE, \n'
++                "\tCONSTRAINT kind_closed CHECK (kind IN ('run', 'snapshot', "
++                "'pricing_catalog', 'test_profile', 'artifact', 'transcript', 'turn', "
++                "'exchange', 'tool_call', 'span', 'result', 'verdict', 'usage_record', "
++                "'cost_record', 'cost_summary')), \n"
++                '\tCONSTRAINT ordinal_ge_0 CHECK (ordinal >= 0), \n'
++                '\tCONSTRAINT record_version_for_versioned_kinds CHECK (kind IN '
++                "('pricing_catalog', 'test_profile') AND record_version IS NOT NULL OR (kind "
++                "NOT IN ('pricing_catalog', 'test_profile')) AND record_version IS NULL), \n"
++                '\tCONSTRAINT bundle_id_uuid_v7 CHECK (substr(bundle_id::text, 15, 1) = '
++                "'7'), \n"
++                "\tCONSTRAINT record_id_uuid_v7 CHECK (substr(record_id::text, 15, 1) = '7')\n"
++                ')',
++                'CREATE INDEX ix_run_bundle_member_kind_record_id ON run_bundle_member (kind, '
++                'record_id)',
++                'CREATE TABLE run_bundle_withheld (\n'
++                '\tbundle_id UUID NOT NULL, \n'
++                '\tordinal BIGINT NOT NULL, \n'
++                '\tkind VARCHAR COLLATE "C" NOT NULL, \n'
++                '\trecord_id UUID NOT NULL, \n'
++                '\tPRIMARY KEY (bundle_id, ordinal), \n'
++                '\tCONSTRAINT fk_run_bundle_withheld_bundle_id FOREIGN KEY(bundle_id) '
++                'REFERENCES run_bundle (id) ON DELETE CASCADE, \n'
++                "\tCONSTRAINT kind_closed CHECK (kind IN ('artifact', 'transcript', 'turn', "
++                "'exchange', 'tool_call', 'span', 'result', 'usage_record', 'cost_record')), \n"
++                '\tCONSTRAINT bundle_id_uuid_v7 CHECK (substr(bundle_id::text, 15, 1) = '
++                "'7'), \n"
++                "\tCONSTRAINT record_id_uuid_v7 CHECK (substr(record_id::text, 15, 1) = '7')\n"
++                ')'],
++ 'sqlite': ['CREATE TABLE agent_target (\n'
++            '\tid BLOB NOT NULL, \n'
++            '\tversion INTEGER NOT NULL, \n'
++            '\tschema_version TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcreated_at TEXT NOT NULL, \n'
++            '\tdoc TEXT NOT NULL, \n'
++            '\tdoc_sha256 BLOB NOT NULL, \n'
++            '\tcontent_digest_scheme TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcontent_digest_value BLOB NOT NULL, \n'
++            '\ttransport TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tPRIMARY KEY (id, version), \n'
++            "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++            '\tCONSTRAINT version_ge_1 CHECK (version >= 1), \n'
++            '\tCONSTRAINT content_digest_scheme_closed CHECK (content_digest_scheme IN '
++            "('sha256-jcs/v1', 'hmac-sha256-jcs/v1')), \n"
++            "\tCONSTRAINT transport_closed CHECK (transport IN ('ws', 'webrtc', 'sip')), \n"
++            '\tCONSTRAINT id_uuid_v7 CHECK ((id IS NULL OR (length(id) = 16 AND '
++            "substr(hex(id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT created_at_instant_shape CHECK (length(created_at) = 27 AND '
++            'created_at GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT doc_sha256_sha256_len CHECK (length(doc_sha256) = 32), \n'
++            '\tCONSTRAINT content_digest_value_sha256_len CHECK (length(content_digest_value) '
++            '= 32)\n'
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE TABLE config_snapshot (\n'
++            '\tid BLOB NOT NULL, \n'
++            '\tschema_version TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcreated_at TEXT NOT NULL, \n'
++            '\tdoc TEXT NOT NULL, \n'
++            '\tdoc_sha256 BLOB NOT NULL, \n'
++            '\tcontent_digest_scheme TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcontent_digest_value BLOB NOT NULL, \n'
++            '\tevaluator_id BLOB NOT NULL, \n'
++            '\tevaluator_version INTEGER NOT NULL, \n'
++            '\trubric_id BLOB NOT NULL, \n'
++            '\trubric_version INTEGER NOT NULL, \n'
++            '\tpricing_catalog_id BLOB, \n'
++            '\tpricing_catalog_version INTEGER, \n'
++            '\tPRIMARY KEY (id), \n'
++            "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++            '\tCONSTRAINT content_digest_scheme_closed CHECK (content_digest_scheme IN '
++            "('sha256-jcs/v1', 'hmac-sha256-jcs/v1')), \n"
++            '\tCONSTRAINT catalog_pair CHECK (pricing_catalog_id IS NULL AND '
++            'pricing_catalog_version IS NULL OR pricing_catalog_id IS NOT NULL AND '
++            'pricing_catalog_version IS NOT NULL), \n'
++            '\tCONSTRAINT id_uuid_v7 CHECK ((id IS NULL OR (length(id) = 16 AND '
++            "substr(hex(id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT created_at_instant_shape CHECK (length(created_at) = 27 AND '
++            'created_at GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT doc_sha256_sha256_len CHECK (length(doc_sha256) = 32), \n'
++            '\tCONSTRAINT content_digest_value_sha256_len CHECK (length(content_digest_value) '
++            '= 32), \n'
++            '\tCONSTRAINT evaluator_id_uuid_v7 CHECK ((evaluator_id IS NULL OR '
++            "(length(evaluator_id) = 16 AND substr(hex(evaluator_id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT rubric_id_uuid_v7 CHECK ((rubric_id IS NULL OR (length(rubric_id) = '
++            "16 AND substr(hex(rubric_id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT pricing_catalog_id_uuid_v7 CHECK ((pricing_catalog_id IS NULL OR '
++            '(length(pricing_catalog_id) = 16 AND substr(hex(pricing_catalog_id), 13, 1) = '
++            "'7')))\n"
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE TABLE dataset (\n'
++            '\tid BLOB NOT NULL, \n'
++            '\tversion INTEGER NOT NULL, \n'
++            '\tschema_version TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcreated_at TEXT NOT NULL, \n'
++            '\tdoc TEXT NOT NULL, \n'
++            '\tdoc_sha256 BLOB NOT NULL, \n'
++            '\tcontent_digest_scheme TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcontent_digest_value BLOB NOT NULL, \n'
++            '\tPRIMARY KEY (id, version), \n'
++            "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++            '\tCONSTRAINT version_ge_1 CHECK (version >= 1), \n'
++            '\tCONSTRAINT content_digest_scheme_closed CHECK (content_digest_scheme IN '
++            "('sha256-jcs/v1', 'hmac-sha256-jcs/v1')), \n"
++            '\tCONSTRAINT id_uuid_v7 CHECK ((id IS NULL OR (length(id) = 16 AND '
++            "substr(hex(id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT created_at_instant_shape CHECK (length(created_at) = 27 AND '
++            'created_at GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT doc_sha256_sha256_len CHECK (length(doc_sha256) = 32), \n'
++            '\tCONSTRAINT content_digest_value_sha256_len CHECK (length(content_digest_value) '
++            '= 32)\n'
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE TABLE dataset_item (\n'
++            '\tid BLOB NOT NULL, \n'
++            '\tschema_version TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcreated_at TEXT NOT NULL, \n'
++            '\tdoc TEXT NOT NULL, \n'
++            '\tdoc_sha256 BLOB NOT NULL, \n'
++            '\tartifact_id BLOB, \n'
++            '\ttranscript_id BLOB, \n'
++            '\tsource_run_id BLOB, \n'
++            '\tlanguage TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\thuman_subject INTEGER, \n'
++            '\thuman_subject_reason TEXT COLLATE "BINARY", \n'
++            '\tconsent_status TEXT COLLATE "BINARY", \n'
++            '\tretain_until TEXT, \n'
++            '\tdelete_on_expiry INTEGER, \n'
++            '\tpolicy_ref TEXT COLLATE "BINARY", \n'
++            '\tPRIMARY KEY (id), \n'
++            "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++            '\tCONSTRAINT human_subject_reason_closed CHECK (human_subject_reason IN '
++            "('marked_before_role_evidence', 'real_person_likeness', 'manual')), \n"
++            "\tCONSTRAINT consent_status_closed CHECK (consent_status IN ('obtained', "
++            "'not_obtained', 'unknown')), \n"
++            '\tCONSTRAINT privacy_projection CHECK (human_subject IS NULL AND '
++            'human_subject_reason IS NULL AND consent_status IS NULL AND retain_until IS NULL '
++            'AND delete_on_expiry IS NULL AND policy_ref IS NULL OR human_subject IS 1 AND '
++            'consent_status IS NOT NULL AND delete_on_expiry IS NOT NULL OR human_subject IS 0 '
++            'AND human_subject_reason IS NULL AND consent_status IS NULL AND retain_until IS '
++            'NULL AND delete_on_expiry IS NULL AND policy_ref IS NULL), \n'
++            '\tCONSTRAINT id_uuid_v7 CHECK ((id IS NULL OR (length(id) = 16 AND '
++            "substr(hex(id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT created_at_instant_shape CHECK (length(created_at) = 27 AND '
++            'created_at GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT doc_sha256_sha256_len CHECK (length(doc_sha256) = 32), \n'
++            '\tCONSTRAINT artifact_id_uuid_v7 CHECK ((artifact_id IS NULL OR '
++            "(length(artifact_id) = 16 AND substr(hex(artifact_id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT transcript_id_uuid_v7 CHECK ((transcript_id IS NULL OR '
++            "(length(transcript_id) = 16 AND substr(hex(transcript_id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT source_run_id_uuid_v7 CHECK ((source_run_id IS NULL OR '
++            "(length(source_run_id) = 16 AND substr(hex(source_run_id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT human_subject_bool CHECK (human_subject IN (0, 1)), \n'
++            '\tCONSTRAINT retain_until_instant_shape CHECK (length(retain_until) = 27 AND '
++            'retain_until GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT delete_on_expiry_bool CHECK (delete_on_expiry IN (0, 1))\n'
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE INDEX ix_dataset_item_retain_until ON dataset_item (retain_until) WHERE '
++            'retain_until IS NOT NULL',
++            'CREATE TABLE deletion_audit (\n'
++            '\taudit_uuid BLOB NOT NULL, \n'
++            '\tdeleted_at TEXT NOT NULL, \n'
++            '\tactor TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\treason TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\troot_kind TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcounts TEXT NOT NULL, \n'
++            '\tPRIMARY KEY (audit_uuid), \n'
++            "\tCONSTRAINT reason_closed CHECK (reason IN ('operator_request', "
++            "'retention_policy', 'data_subject_request')), \n"
++            "\tCONSTRAINT root_kind_closed CHECK (root_kind IN ('run', 'project', "
++            "'test_profile', 'agent_target', 'persona', 'evaluator', 'metric_definition', "
++            "'metric_binding', 'rubric', 'pricing_catalog', 'dataset', 'dataset_item', "
++            "'export_bundle', 'config_snapshot')), \n"
++            '\tCONSTRAINT audit_uuid_uuid_v7 CHECK ((audit_uuid IS NULL OR (length(audit_uuid) '
++            "= 16 AND substr(hex(audit_uuid), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT deleted_at_instant_shape CHECK (length(deleted_at) = 27 AND '
++            'deleted_at GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z')\n"
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE TABLE evaluator (\n'
++            '\tid BLOB NOT NULL, \n'
++            '\tversion INTEGER NOT NULL, \n'
++            '\tschema_version TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcreated_at TEXT NOT NULL, \n'
++            '\tdoc TEXT NOT NULL, \n'
++            '\tdoc_sha256 BLOB NOT NULL, \n'
++            '\tcontent_digest_scheme TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcontent_digest_value BLOB NOT NULL, \n'
++            '\tpersona_id BLOB NOT NULL, \n'
++            '\tpersona_version INTEGER NOT NULL, \n'
++            '\ttest_profile_id BLOB, \n'
++            '\ttest_profile_version INTEGER, \n'
++            '\tPRIMARY KEY (id, version), \n'
++            "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++            '\tCONSTRAINT version_ge_1 CHECK (version >= 1), \n'
++            '\tCONSTRAINT content_digest_scheme_closed CHECK (content_digest_scheme IN '
++            "('sha256-jcs/v1', 'hmac-sha256-jcs/v1')), \n"
++            '\tCONSTRAINT profile_pair CHECK (test_profile_id IS NULL AND test_profile_version '
++            'IS NULL OR test_profile_id IS NOT NULL AND test_profile_version IS NOT NULL), \n'
++            '\tCONSTRAINT id_uuid_v7 CHECK ((id IS NULL OR (length(id) = 16 AND '
++            "substr(hex(id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT created_at_instant_shape CHECK (length(created_at) = 27 AND '
++            'created_at GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT doc_sha256_sha256_len CHECK (length(doc_sha256) = 32), \n'
++            '\tCONSTRAINT content_digest_value_sha256_len CHECK (length(content_digest_value) '
++            '= 32), \n'
++            '\tCONSTRAINT persona_id_uuid_v7 CHECK ((persona_id IS NULL OR (length(persona_id) '
++            "= 16 AND substr(hex(persona_id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT test_profile_id_uuid_v7 CHECK ((test_profile_id IS NULL OR '
++            "(length(test_profile_id) = 16 AND substr(hex(test_profile_id), 13, 1) = '7')))\n"
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE TABLE export_bundle (\n'
++            '\tid BLOB NOT NULL, \n'
++            '\tschema_version TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcreated_at TEXT NOT NULL, \n'
++            '\tdoc TEXT NOT NULL, \n'
++            '\tdoc_sha256 BLOB NOT NULL, \n'
++            '\tpurpose TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tbyte_length INTEGER NOT NULL, \n'
++            '\tPRIMARY KEY (id), \n'
++            "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++            "\tCONSTRAINT purpose_closed CHECK (purpose IN ('internal', 'shared_export', "
++            "'benchmark')), \n"
++            '\tCONSTRAINT id_uuid_v7 CHECK ((id IS NULL OR (length(id) = 16 AND '
++            "substr(hex(id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT created_at_instant_shape CHECK (length(created_at) = 27 AND '
++            'created_at GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT doc_sha256_sha256_len CHECK (length(doc_sha256) = 32)\n'
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE TABLE metric_binding (\n'
++            '\tid BLOB NOT NULL, \n'
++            '\tversion INTEGER NOT NULL, \n'
++            '\tschema_version TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcreated_at TEXT NOT NULL, \n'
++            '\tdoc TEXT NOT NULL, \n'
++            '\tdoc_sha256 BLOB NOT NULL, \n'
++            '\tcontent_digest_scheme TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcontent_digest_value BLOB NOT NULL, \n'
++            '\tevaluator_id BLOB NOT NULL, \n'
++            '\tmetric_id BLOB NOT NULL, \n'
++            '\tmetric_version INTEGER NOT NULL, \n'
++            '\tPRIMARY KEY (id, version), \n'
++            "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++            '\tCONSTRAINT version_ge_1 CHECK (version >= 1), \n'
++            '\tCONSTRAINT content_digest_scheme_closed CHECK (content_digest_scheme IN '
++            "('sha256-jcs/v1', 'hmac-sha256-jcs/v1')), \n"
++            '\tCONSTRAINT id_uuid_v7 CHECK ((id IS NULL OR (length(id) = 16 AND '
++            "substr(hex(id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT created_at_instant_shape CHECK (length(created_at) = 27 AND '
++            'created_at GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT doc_sha256_sha256_len CHECK (length(doc_sha256) = 32), \n'
++            '\tCONSTRAINT content_digest_value_sha256_len CHECK (length(content_digest_value) '
++            '= 32), \n'
++            '\tCONSTRAINT evaluator_id_uuid_v7 CHECK ((evaluator_id IS NULL OR '
++            "(length(evaluator_id) = 16 AND substr(hex(evaluator_id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT metric_id_uuid_v7 CHECK ((metric_id IS NULL OR (length(metric_id) = '
++            "16 AND substr(hex(metric_id), 13, 1) = '7')))\n"
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE TABLE metric_definition (\n'
++            '\tid BLOB NOT NULL, \n'
++            '\tversion INTEGER NOT NULL, \n'
++            '\tschema_version TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcreated_at TEXT NOT NULL, \n'
++            '\tdoc TEXT NOT NULL, \n'
++            '\tdoc_sha256 BLOB NOT NULL, \n'
++            '\tcontent_digest_scheme TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcontent_digest_value BLOB NOT NULL, \n'
++            '\t"key" TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tkind TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tvalue_type TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tPRIMARY KEY (id, version), \n'
++            "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++            '\tCONSTRAINT version_ge_1 CHECK (version >= 1), \n'
++            '\tCONSTRAINT content_digest_scheme_closed CHECK (content_digest_scheme IN '
++            "('sha256-jcs/v1', 'hmac-sha256-jcs/v1')), \n"
++            "\tCONSTRAINT kind_closed CHECK (kind IN ('deterministic', 'llm_judge', 'audio', "
++            "'latency')), \n"
++            "\tCONSTRAINT value_type_closed CHECK (value_type IN ('boolean', 'rating', 'enum', "
++            "'numeric')), \n"
++            '\tCONSTRAINT id_uuid_v7 CHECK ((id IS NULL OR (length(id) = 16 AND '
++            "substr(hex(id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT created_at_instant_shape CHECK (length(created_at) = 27 AND '
++            'created_at GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT doc_sha256_sha256_len CHECK (length(doc_sha256) = 32), \n'
++            '\tCONSTRAINT content_digest_value_sha256_len CHECK (length(content_digest_value) '
++            '= 32)\n'
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE TABLE persona (\n'
++            '\tid BLOB NOT NULL, \n'
++            '\tversion INTEGER NOT NULL, \n'
++            '\tschema_version TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcreated_at TEXT NOT NULL, \n'
++            '\tdoc TEXT NOT NULL, \n'
++            '\tdoc_sha256 BLOB NOT NULL, \n'
++            '\tcontent_digest_scheme TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcontent_digest_value BLOB NOT NULL, \n'
++            '\tlanguage TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tPRIMARY KEY (id, version), \n'
++            "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++            '\tCONSTRAINT version_ge_1 CHECK (version >= 1), \n'
++            '\tCONSTRAINT content_digest_scheme_closed CHECK (content_digest_scheme IN '
++            "('sha256-jcs/v1', 'hmac-sha256-jcs/v1')), \n"
++            '\tCONSTRAINT id_uuid_v7 CHECK ((id IS NULL OR (length(id) = 16 AND '
++            "substr(hex(id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT created_at_instant_shape CHECK (length(created_at) = 27 AND '
++            'created_at GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT doc_sha256_sha256_len CHECK (length(doc_sha256) = 32), \n'
++            '\tCONSTRAINT content_digest_value_sha256_len CHECK (length(content_digest_value) '
++            '= 32)\n'
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE TABLE pricing_catalog (\n'
++            '\tid BLOB NOT NULL, \n'
++            '\tversion INTEGER NOT NULL, \n'
++            '\tschema_version TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcreated_at TEXT NOT NULL, \n'
++            '\tdoc TEXT NOT NULL, \n'
++            '\tdoc_sha256 BLOB NOT NULL, \n'
++            '\tcontent_digest_scheme TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcontent_digest_value BLOB NOT NULL, \n'
++            '\tPRIMARY KEY (id, version), \n'
++            "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++            '\tCONSTRAINT version_ge_1 CHECK (version >= 1), \n'
++            '\tCONSTRAINT content_digest_scheme_closed CHECK (content_digest_scheme IN '
++            "('sha256-jcs/v1', 'hmac-sha256-jcs/v1')), \n"
++            '\tCONSTRAINT id_uuid_v7 CHECK ((id IS NULL OR (length(id) = 16 AND '
++            "substr(hex(id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT created_at_instant_shape CHECK (length(created_at) = 27 AND '
++            'created_at GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT doc_sha256_sha256_len CHECK (length(doc_sha256) = 32), \n'
++            '\tCONSTRAINT content_digest_value_sha256_len CHECK (length(content_digest_value) '
++            '= 32)\n'
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE TABLE project (\n'
++            '\tid BLOB NOT NULL, \n'
++            '\tschema_version TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcreated_at TEXT NOT NULL, \n'
++            '\tdoc TEXT NOT NULL, \n'
++            '\tdoc_sha256 BLOB NOT NULL, \n'
++            '\tname TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tPRIMARY KEY (id), \n'
++            "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++            '\tCONSTRAINT id_uuid_v7 CHECK ((id IS NULL OR (length(id) = 16 AND '
++            "substr(hex(id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT created_at_instant_shape CHECK (length(created_at) = 27 AND '
++            'created_at GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT doc_sha256_sha256_len CHECK (length(doc_sha256) = 32)\n'
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE TABLE rubric (\n'
++            '\tid BLOB NOT NULL, \n'
++            '\tversion INTEGER NOT NULL, \n'
++            '\tschema_version TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcreated_at TEXT NOT NULL, \n'
++            '\tdoc TEXT NOT NULL, \n'
++            '\tdoc_sha256 BLOB NOT NULL, \n'
++            '\tcontent_digest_scheme TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcontent_digest_value BLOB NOT NULL, \n'
++            '\tPRIMARY KEY (id, version), \n'
++            "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++            '\tCONSTRAINT version_ge_1 CHECK (version >= 1), \n'
++            '\tCONSTRAINT content_digest_scheme_closed CHECK (content_digest_scheme IN '
++            "('sha256-jcs/v1', 'hmac-sha256-jcs/v1')), \n"
++            '\tCONSTRAINT id_uuid_v7 CHECK ((id IS NULL OR (length(id) = 16 AND '
++            "substr(hex(id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT created_at_instant_shape CHECK (length(created_at) = 27 AND '
++            'created_at GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT doc_sha256_sha256_len CHECK (length(doc_sha256) = 32), \n'
++            '\tCONSTRAINT content_digest_value_sha256_len CHECK (length(content_digest_value) '
++            '= 32)\n'
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE TABLE test_profile (\n'
++            '\tid BLOB NOT NULL, \n'
++            '\tversion INTEGER NOT NULL, \n'
++            '\tschema_version TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcreated_at TEXT NOT NULL, \n'
++            '\tdoc TEXT NOT NULL, \n'
++            '\tdoc_sha256 BLOB NOT NULL, \n'
++            '\tcontent_digest_scheme TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcontent_digest_value BLOB NOT NULL, \n'
++            '\tPRIMARY KEY (id, version), \n'
++            "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++            '\tCONSTRAINT version_ge_1 CHECK (version >= 1), \n'
++            '\tCONSTRAINT content_digest_scheme_closed CHECK (content_digest_scheme IN '
++            "('sha256-jcs/v1', 'hmac-sha256-jcs/v1')), \n"
++            '\tCONSTRAINT id_uuid_v7 CHECK ((id IS NULL OR (length(id) = 16 AND '
++            "substr(hex(id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT created_at_instant_shape CHECK (length(created_at) = 27 AND '
++            'created_at GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT doc_sha256_sha256_len CHECK (length(doc_sha256) = 32), \n'
++            '\tCONSTRAINT content_digest_value_sha256_len CHECK (length(content_digest_value) '
++            '= 32)\n'
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE TABLE tracer_meta (\n'
++            '\tsingleton INTEGER NOT NULL, \n'
++            '\tschema_version TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tevaldb_version TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tPRIMARY KEY (singleton), \n'
++            '\tCONSTRAINT singleton_is_1 CHECK (singleton = 1), \n'
++            "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1')\n"
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE TABLE dataset_member (\n'
++            '\tdataset_id BLOB NOT NULL, \n'
++            '\tdataset_version INTEGER NOT NULL, \n'
++            '\tordinal INTEGER NOT NULL, \n'
++            '\titem_id BLOB NOT NULL, \n'
++            '\tPRIMARY KEY (dataset_id, dataset_version, ordinal), \n'
++            '\tCONSTRAINT fk_dataset_member_dataset_id_dataset_version FOREIGN KEY(dataset_id, '
++            'dataset_version) REFERENCES dataset (id, version) ON DELETE CASCADE, \n'
++            '\tCONSTRAINT ordinal_ge_0 CHECK (ordinal >= 0), \n'
++            '\tCONSTRAINT dataset_id_uuid_v7 CHECK ((dataset_id IS NULL OR (length(dataset_id) '
++            "= 16 AND substr(hex(dataset_id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT item_id_uuid_v7 CHECK ((item_id IS NULL OR (length(item_id) = 16 AND '
++            "substr(hex(item_id), 13, 1) = '7')))\n"
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE INDEX ix_dataset_member_item_id ON dataset_member (item_id)',
++            'CREATE TABLE export_bundle_item (\n'
++            '\texport_id BLOB NOT NULL, \n'
++            '\titem_id BLOB NOT NULL, \n'
++            '\tPRIMARY KEY (export_id, item_id), \n'
++            '\tCONSTRAINT fk_export_bundle_item_export_id FOREIGN KEY(export_id) REFERENCES '
++            'export_bundle (id) ON DELETE CASCADE, \n'
++            '\tCONSTRAINT export_id_uuid_v7 CHECK ((export_id IS NULL OR (length(export_id) = '
++            "16 AND substr(hex(export_id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT item_id_uuid_v7 CHECK ((item_id IS NULL OR (length(item_id) = 16 AND '
++            "substr(hex(item_id), 13, 1) = '7')))\n"
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE INDEX ix_export_bundle_item_item_id ON export_bundle_item (item_id)',
++            'CREATE TABLE export_bundle_profile (\n'
++            '\texport_id BLOB NOT NULL, \n'
++            '\tprofile_id BLOB NOT NULL, \n'
++            '\tPRIMARY KEY (export_id, profile_id), \n'
++            '\tCONSTRAINT fk_export_bundle_profile_export_id FOREIGN KEY(export_id) REFERENCES '
++            'export_bundle (id) ON DELETE CASCADE, \n'
++            '\tCONSTRAINT export_id_uuid_v7 CHECK ((export_id IS NULL OR (length(export_id) = '
++            "16 AND substr(hex(export_id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT profile_id_uuid_v7 CHECK ((profile_id IS NULL OR (length(profile_id) '
++            "= 16 AND substr(hex(profile_id), 13, 1) = '7')))\n"
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE INDEX ix_export_bundle_profile_profile_id ON export_bundle_profile '
++            '(profile_id)',
++            'CREATE TABLE export_bundle_run (\n'
++            '\texport_id BLOB NOT NULL, \n'
++            '\trun_id BLOB NOT NULL, \n'
++            '\tPRIMARY KEY (export_id, run_id), \n'
++            '\tCONSTRAINT fk_export_bundle_run_export_id FOREIGN KEY(export_id) REFERENCES '
++            'export_bundle (id) ON DELETE CASCADE, \n'
++            '\tCONSTRAINT export_id_uuid_v7 CHECK ((export_id IS NULL OR (length(export_id) = '
++            "16 AND substr(hex(export_id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT run_id_uuid_v7 CHECK ((run_id IS NULL OR (length(run_id) = 16 AND '
++            "substr(hex(run_id), 13, 1) = '7')))\n"
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE INDEX ix_export_bundle_run_run_id ON export_bundle_run (run_id)',
++            'CREATE TABLE run (\n'
++            '\tid BLOB NOT NULL, \n'
++            '\tschema_version TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcreated_at TEXT NOT NULL, \n'
++            '\tdoc TEXT NOT NULL, \n'
++            '\tdoc_sha256 BLOB NOT NULL, \n'
++            '\tproject_id BLOB NOT NULL, \n'
++            '\tconfig_snapshot_id BLOB NOT NULL, \n'
++            '\tagent_target_id BLOB NOT NULL, \n'
++            '\tagent_target_version INTEGER NOT NULL, \n'
++            '\tmode TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcaller_origin TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tobserved_tier TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tstarted_at TEXT, \n'
++            '\tcaller_human_subject INTEGER, \n'
++            '\tcaller_human_subject_reason TEXT COLLATE "BINARY", \n'
++            '\tcaller_consent_status TEXT COLLATE "BINARY", \n'
++            '\tcaller_retain_until TEXT, \n'
++            '\tcaller_delete_on_expiry INTEGER, \n'
++            '\tcaller_policy_ref TEXT COLLATE "BINARY", \n'
++            '\tPRIMARY KEY (id), \n'
++            "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++            "\tCONSTRAINT mode_closed CHECK (mode IN ('simulated', 'recorded')), \n"
++            "\tCONSTRAINT caller_origin_closed CHECK (caller_origin IN ('simulated', "
++            "'human')), \n"
++            "\tCONSTRAINT observed_tier_closed CHECK (observed_tier IN ('T0', 'T1', 'T2')), \n"
++            '\tCONSTRAINT caller_human_subject_reason_closed CHECK '
++            "(caller_human_subject_reason IN ('marked_before_role_evidence', "
++            "'real_person_likeness', 'manual')), \n"
++            '\tCONSTRAINT caller_consent_status_closed CHECK (caller_consent_status IN '
++            "('obtained', 'not_obtained', 'unknown')), \n"
++            '\tCONSTRAINT fk_run_project_id FOREIGN KEY(project_id) REFERENCES project (id) ON '
++            'DELETE CASCADE, \n'
++            '\tCONSTRAINT fk_run_config_snapshot_id FOREIGN KEY(config_snapshot_id) REFERENCES '
++            'config_snapshot (id) ON DELETE RESTRICT, \n'
++            '\tCONSTRAINT caller_privacy_projection CHECK (caller_human_subject IS NULL AND '
++            'caller_human_subject_reason IS NULL AND caller_consent_status IS NULL AND '
++            'caller_retain_until IS NULL AND caller_delete_on_expiry IS NULL AND '
++            'caller_policy_ref IS NULL OR caller_human_subject IS 1 AND caller_consent_status '
++            'IS NOT NULL AND caller_delete_on_expiry IS NOT NULL OR caller_human_subject IS 0 '
++            'AND caller_human_subject_reason IS NULL AND caller_consent_status IS NULL AND '
++            'caller_retain_until IS NULL AND caller_delete_on_expiry IS NULL AND '
++            'caller_policy_ref IS NULL), \n'
++            '\tCONSTRAINT id_uuid_v7 CHECK ((id IS NULL OR (length(id) = 16 AND '
++            "substr(hex(id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT created_at_instant_shape CHECK (length(created_at) = 27 AND '
++            'created_at GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT doc_sha256_sha256_len CHECK (length(doc_sha256) = 32), \n'
++            '\tCONSTRAINT project_id_uuid_v7 CHECK ((project_id IS NULL OR (length(project_id) '
++            "= 16 AND substr(hex(project_id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT config_snapshot_id_uuid_v7 CHECK ((config_snapshot_id IS NULL OR '
++            '(length(config_snapshot_id) = 16 AND substr(hex(config_snapshot_id), 13, 1) = '
++            "'7'))), \n"
++            '\tCONSTRAINT agent_target_id_uuid_v7 CHECK ((agent_target_id IS NULL OR '
++            "(length(agent_target_id) = 16 AND substr(hex(agent_target_id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT started_at_instant_shape CHECK (length(started_at) = 27 AND '
++            'started_at GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT caller_human_subject_bool CHECK (caller_human_subject IN (0, 1)), \n'
++            '\tCONSTRAINT caller_retain_until_instant_shape CHECK (length(caller_retain_until) '
++            '= 27 AND caller_retain_until GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT caller_delete_on_expiry_bool CHECK (caller_delete_on_expiry IN (0, '
++            '1))\n'
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE INDEX ix_run_caller_retain_until ON run (caller_retain_until) WHERE '
++            'caller_retain_until IS NOT NULL',
++            'CREATE TABLE snapshot_member (\n'
++            '\tsnapshot_id BLOB NOT NULL, \n'
++            '\tkind TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tordinal INTEGER NOT NULL, \n'
++            '\tdef_id BLOB NOT NULL, \n'
++            '\tdef_version INTEGER NOT NULL, \n'
++            '\tPRIMARY KEY (snapshot_id, kind, ordinal), \n'
++            '\tCONSTRAINT fk_snapshot_member_snapshot_id FOREIGN KEY(snapshot_id) REFERENCES '
++            'config_snapshot (id) ON DELETE CASCADE, \n'
++            "\tCONSTRAINT kind_closed CHECK (kind IN ('evaluator', 'persona', 'rubric', "
++            "'metric_definition', 'metric_binding')), \n"
++            '\tCONSTRAINT ordinal_ge_0 CHECK (ordinal >= 0), \n'
++            '\tCONSTRAINT def_version_ge_1 CHECK (def_version >= 1), \n'
++            '\tCONSTRAINT snapshot_id_uuid_v7 CHECK ((snapshot_id IS NULL OR '
++            "(length(snapshot_id) = 16 AND substr(hex(snapshot_id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT def_id_uuid_v7 CHECK ((def_id IS NULL OR (length(def_id) = 16 AND '
++            "substr(hex(def_id), 13, 1) = '7')))\n"
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE INDEX ix_snapshot_member_kind_def_id_def_version ON snapshot_member (kind, '
++            'def_id, def_version)',
++            'CREATE TABLE snapshot_profile_ref (\n'
++            '\tsnapshot_id BLOB NOT NULL, \n'
++            '\tprofile_id BLOB NOT NULL, \n'
++            '\tprofile_version INTEGER NOT NULL, \n'
++            '\tPRIMARY KEY (snapshot_id), \n'
++            '\tCONSTRAINT fk_snapshot_profile_ref_snapshot_id FOREIGN KEY(snapshot_id) '
++            'REFERENCES config_snapshot (id) ON DELETE CASCADE, \n'
++            '\tCONSTRAINT profile_version_ge_1 CHECK (profile_version >= 1), \n'
++            '\tCONSTRAINT snapshot_id_uuid_v7 CHECK ((snapshot_id IS NULL OR '
++            "(length(snapshot_id) = 16 AND substr(hex(snapshot_id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT profile_id_uuid_v7 CHECK ((profile_id IS NULL OR (length(profile_id) '
++            "= 16 AND substr(hex(profile_id), 13, 1) = '7')))\n"
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE INDEX ix_snapshot_profile_ref_profile_id_profile_version ON '
++            'snapshot_profile_ref (profile_id, profile_version)',
++            'CREATE TABLE artifact (\n'
++            '\tid BLOB NOT NULL, \n'
++            '\tschema_version TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcreated_at TEXT NOT NULL, \n'
++            '\tdoc TEXT NOT NULL, \n'
++            '\tdoc_sha256 BLOB NOT NULL, \n'
++            '\trun_id BLOB NOT NULL, \n'
++            '\tsha256 BLOB NOT NULL, \n'
++            '\tturn_ref BLOB, \n'
++            '\thuman_subject INTEGER NOT NULL, \n'
++            '\thuman_subject_reason TEXT COLLATE "BINARY", \n'
++            '\tconsent_status TEXT COLLATE "BINARY", \n'
++            '\tretain_until TEXT, \n'
++            '\tdelete_on_expiry INTEGER, \n'
++            '\tpolicy_ref TEXT COLLATE "BINARY", \n'
++            '\tPRIMARY KEY (id), \n'
++            "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++            '\tCONSTRAINT human_subject_reason_closed CHECK (human_subject_reason IN '
++            "('marked_before_role_evidence', 'real_person_likeness', 'manual')), \n"
++            "\tCONSTRAINT consent_status_closed CHECK (consent_status IN ('obtained', "
++            "'not_obtained', 'unknown')), \n"
++            '\tCONSTRAINT fk_artifact_run_id FOREIGN KEY(run_id) REFERENCES run (id) ON DELETE '
++            'CASCADE, \n'
++            '\tCONSTRAINT privacy_projection CHECK (human_subject IS NULL AND '
++            'human_subject_reason IS NULL AND consent_status IS NULL AND retain_until IS NULL '
++            'AND delete_on_expiry IS NULL AND policy_ref IS NULL OR human_subject IS 1 AND '
++            'consent_status IS NOT NULL AND delete_on_expiry IS NOT NULL OR human_subject IS 0 '
++            'AND human_subject_reason IS NULL AND consent_status IS NULL AND retain_until IS '
++            'NULL AND delete_on_expiry IS NULL AND policy_ref IS NULL), \n'
++            '\tCONSTRAINT id_uuid_v7 CHECK ((id IS NULL OR (length(id) = 16 AND '
++            "substr(hex(id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT created_at_instant_shape CHECK (length(created_at) = 27 AND '
++            'created_at GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT doc_sha256_sha256_len CHECK (length(doc_sha256) = 32), \n'
++            '\tCONSTRAINT run_id_uuid_v7 CHECK ((run_id IS NULL OR (length(run_id) = 16 AND '
++            "substr(hex(run_id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT sha256_sha256_len CHECK (length(sha256) = 32), \n'
++            '\tCONSTRAINT turn_ref_uuid_v7 CHECK ((turn_ref IS NULL OR (length(turn_ref) = 16 '
++            "AND substr(hex(turn_ref), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT human_subject_bool CHECK (human_subject IN (0, 1)), \n'
++            '\tCONSTRAINT retain_until_instant_shape CHECK (length(retain_until) = 27 AND '
++            'retain_until GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT delete_on_expiry_bool CHECK (delete_on_expiry IN (0, 1))\n'
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE INDEX ix_artifact_retain_until ON artifact (retain_until) WHERE '
++            'retain_until IS NOT NULL',
++            'CREATE TABLE cost_record (\n'
++            '\tid BLOB NOT NULL, \n'
++            '\tschema_version TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcreated_at TEXT NOT NULL, \n'
++            '\tdoc TEXT NOT NULL, \n'
++            '\tdoc_sha256 BLOB NOT NULL, \n'
++            '\trun_id BLOB NOT NULL, \n'
++            '\tstatus TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tbasis TEXT COLLATE "BINARY", \n'
++            '\tamount TEXT, \n'
++            '\tcurrency TEXT COLLATE "BINARY", \n'
++            '\tna_reason TEXT COLLATE "BINARY", \n'
++            '\tPRIMARY KEY (id), \n'
++            "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++            "\tCONSTRAINT status_closed CHECK (status IN ('available', 'not_available')), \n"
++            "\tCONSTRAINT basis_closed CHECK (basis IN ('reported', 'computed')), \n"
++            "\tCONSTRAINT currency_closed CHECK (currency IN ('USD')), \n"
++            "\tCONSTRAINT na_reason_closed CHECK (na_reason IN ('no_price_for_model', "
++            "'unit_unpriced', 'no_usage', 'ambiguous_price', 'billing_rules_missing', "
++            "'usage_not_reported', 'unsupported_currency', 'currency_not_reported', "
++            "'amount_unparseable', 'currency_conflict')), \n"
++            '\tCONSTRAINT fk_cost_record_run_id FOREIGN KEY(run_id) REFERENCES run (id) ON '
++            'DELETE CASCADE, \n'
++            "\tCONSTRAINT amount_non_negative CHECK (amount NOT GLOB '-*'), \n"
++            "\tCONSTRAINT not_available_is_empty CHECK (status != 'not_available' OR amount IS "
++            'NULL AND basis IS NULL AND currency IS NULL), \n'
++            '\tCONSTRAINT currency_with_amount CHECK (amount IS NULL AND currency IS NULL OR '
++            'amount IS NOT NULL AND currency IS NOT NULL), \n'
++            '\tCONSTRAINT id_uuid_v7 CHECK ((id IS NULL OR (length(id) = 16 AND '
++            "substr(hex(id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT created_at_instant_shape CHECK (length(created_at) = 27 AND '
++            'created_at GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT doc_sha256_sha256_len CHECK (length(doc_sha256) = 32), \n'
++            '\tCONSTRAINT run_id_uuid_v7 CHECK ((run_id IS NULL OR (length(run_id) = 16 AND '
++            "substr(hex(run_id), 13, 1) = '7'))), \n"
++            "\tCONSTRAINT amount_decimal_shape CHECK ((amount GLOB '[0-9]*' OR amount GLOB "
++            "'-[0-9]*') AND amount GLOB '*[0-9]' AND amount NOT GLOB '*[^0-9.-]*' AND amount "
++            "NOT GLOB '?*-*' AND amount NOT GLOB '*.*.*')\n"
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE TABLE cost_summary (\n'
++            '\tid BLOB NOT NULL, \n'
++            '\tschema_version TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcreated_at TEXT NOT NULL, \n'
++            '\tdoc TEXT NOT NULL, \n'
++            '\tdoc_sha256 BLOB NOT NULL, \n'
++            '\trun_id BLOB NOT NULL, \n'
++            '\tcompleteness TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\ttotal TEXT, \n'
++            '\tcurrency TEXT COLLATE "BINARY", \n'
++            '\tPRIMARY KEY (id), \n'
++            "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++            "\tCONSTRAINT completeness_closed CHECK (completeness IN ('complete', 'partial', "
++            "'none')), \n"
++            "\tCONSTRAINT currency_closed CHECK (currency IN ('USD')), \n"
++            '\tCONSTRAINT fk_cost_summary_run_id FOREIGN KEY(run_id) REFERENCES run (id) ON '
++            'DELETE CASCADE, \n'
++            "\tCONSTRAINT total_non_negative CHECK (total NOT GLOB '-*'), \n"
++            '\tCONSTRAINT currency_with_total CHECK (total IS NULL AND currency IS NULL OR '
++            'total IS NOT NULL AND currency IS NOT NULL), \n'
++            '\tCONSTRAINT id_uuid_v7 CHECK ((id IS NULL OR (length(id) = 16 AND '
++            "substr(hex(id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT created_at_instant_shape CHECK (length(created_at) = 27 AND '
++            'created_at GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT doc_sha256_sha256_len CHECK (length(doc_sha256) = 32), \n'
++            '\tCONSTRAINT run_id_uuid_v7 CHECK ((run_id IS NULL OR (length(run_id) = 16 AND '
++            "substr(hex(run_id), 13, 1) = '7'))), \n"
++            "\tCONSTRAINT total_decimal_shape CHECK ((total GLOB '[0-9]*' OR total GLOB "
++            "'-[0-9]*') AND total GLOB '*[0-9]' AND total NOT GLOB '*[^0-9.-]*' AND total NOT "
++            "GLOB '?*-*' AND total NOT GLOB '*.*.*')\n"
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE TABLE exchange (\n'
++            '\tid BLOB NOT NULL, \n'
++            '\tschema_version TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcreated_at TEXT NOT NULL, \n'
++            '\tdoc TEXT NOT NULL, \n'
++            '\tdoc_sha256 BLOB NOT NULL, \n'
++            '\trun_id BLOB NOT NULL, \n'
++            '\t"index" INTEGER NOT NULL, \n'
++            '\tPRIMARY KEY (id), \n'
++            "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++            '\tCONSTRAINT fk_exchange_run_id FOREIGN KEY(run_id) REFERENCES run (id) ON DELETE '
++            'CASCADE, \n'
++            '\tCONSTRAINT id_uuid_v7 CHECK ((id IS NULL OR (length(id) = 16 AND '
++            "substr(hex(id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT created_at_instant_shape CHECK (length(created_at) = 27 AND '
++            'created_at GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT doc_sha256_sha256_len CHECK (length(doc_sha256) = 32), \n'
++            '\tCONSTRAINT run_id_uuid_v7 CHECK ((run_id IS NULL OR (length(run_id) = 16 AND '
++            "substr(hex(run_id), 13, 1) = '7')))\n"
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE TABLE external_ref_index (\n'
++            '\tentity_kind TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tentity_id BLOB NOT NULL, \n'
++            '\tkey_sha256 BLOB NOT NULL, \n'
++            '\trun_id BLOB NOT NULL, \n'
++            '\tPRIMARY KEY (entity_kind, entity_id, key_sha256), \n'
++            '\tCONSTRAINT fk_external_ref_index_run_id FOREIGN KEY(run_id) REFERENCES run (id) '
++            'ON DELETE CASCADE, \n'
++            "\tCONSTRAINT entity_kind_closed CHECK (entity_kind IN ('run', 'span', "
++            "'transcript', 'usage_record')), \n"
++            '\tCONSTRAINT entity_id_uuid_v7 CHECK ((entity_id IS NULL OR (length(entity_id) = '
++            "16 AND substr(hex(entity_id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT key_sha256_sha256_len CHECK (length(key_sha256) = 32), \n'
++            '\tCONSTRAINT run_id_uuid_v7 CHECK ((run_id IS NULL OR (length(run_id) = 16 AND '
++            "substr(hex(run_id), 13, 1) = '7')))\n"
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE INDEX ix_external_ref_index_run_id_entity_kind_key_sha256 ON '
++            'external_ref_index (run_id, entity_kind, key_sha256)',
++            'CREATE UNIQUE INDEX ux_external_ref_index_run_key ON external_ref_index '
++            "(entity_kind, key_sha256) WHERE entity_kind = 'run'",
++            'CREATE TABLE metric_result (\n'
++            '\tid BLOB NOT NULL, \n'
++            '\tschema_version TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcreated_at TEXT NOT NULL, \n'
++            '\tdoc TEXT NOT NULL, \n'
++            '\tdoc_sha256 BLOB NOT NULL, \n'
++            '\trun_id BLOB NOT NULL, \n'
++            '\tmetric_id BLOB NOT NULL, \n'
++            '\tmetric_version INTEGER NOT NULL, \n'
++            '\tstatus TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tna_reason TEXT COLLATE "BINARY", \n'
++            '\tpassed INTEGER, \n'
++            '\tPRIMARY KEY (id), \n'
++            "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++            "\tCONSTRAINT status_closed CHECK (status IN ('scored', 'not_applicable', "
++            "'error')), \n"
++            "\tCONSTRAINT na_reason_closed CHECK (na_reason IN ('missing_input', "
++            "'agent_channel_unknown', 'language_not_observed', 'unsupported_language', "
++            "'unsupported_script')), \n"
++            '\tCONSTRAINT fk_metric_result_run_id FOREIGN KEY(run_id) REFERENCES run (id) ON '
++            'DELETE CASCADE, \n'
++            "\tCONSTRAINT na_has_no_passed CHECK (status != 'not_applicable' OR passed IS "
++            'NULL), \n'
++            '\tCONSTRAINT id_uuid_v7 CHECK ((id IS NULL OR (length(id) = 16 AND '
++            "substr(hex(id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT created_at_instant_shape CHECK (length(created_at) = 27 AND '
++            'created_at GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT doc_sha256_sha256_len CHECK (length(doc_sha256) = 32), \n'
++            '\tCONSTRAINT run_id_uuid_v7 CHECK ((run_id IS NULL OR (length(run_id) = 16 AND '
++            "substr(hex(run_id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT metric_id_uuid_v7 CHECK ((metric_id IS NULL OR (length(metric_id) = '
++            "16 AND substr(hex(metric_id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT passed_bool CHECK (passed IN (0, 1))\n'
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE TABLE run_bundle (\n'
++            '\tid BLOB NOT NULL, \n'
++            '\tschema_version TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcreated_at TEXT NOT NULL, \n'
++            '\tdoc TEXT NOT NULL, \n'
++            '\tdoc_sha256 BLOB NOT NULL, \n'
++            '\trun_id BLOB NOT NULL, \n'
++            '\tPRIMARY KEY (id), \n'
++            "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++            '\tCONSTRAINT fk_run_bundle_run_id FOREIGN KEY(run_id) REFERENCES run (id) ON '
++            'DELETE CASCADE, \n'
++            '\tCONSTRAINT id_uuid_v7 CHECK ((id IS NULL OR (length(id) = 16 AND '
++            "substr(hex(id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT created_at_instant_shape CHECK (length(created_at) = 27 AND '
++            'created_at GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT doc_sha256_sha256_len CHECK (length(doc_sha256) = 32), \n'
++            '\tCONSTRAINT run_id_uuid_v7 CHECK ((run_id IS NULL OR (length(run_id) = 16 AND '
++            "substr(hex(run_id), 13, 1) = '7')))\n"
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE TABLE run_verdict (\n'
++            '\tid BLOB NOT NULL, \n'
++            '\tschema_version TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcreated_at TEXT NOT NULL, \n'
++            '\tdoc TEXT NOT NULL, \n'
++            '\tdoc_sha256 BLOB NOT NULL, \n'
++            '\trun_id BLOB NOT NULL, \n'
++            '\tstatus TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\trequired_total INTEGER NOT NULL, \n'
++            '\tpassed INTEGER NOT NULL, \n'
++            '\tfailed INTEGER NOT NULL, \n'
++            '\tnot_applicable INTEGER NOT NULL, \n'
++            '\terrored INTEGER NOT NULL, \n'
++            '\tPRIMARY KEY (id), \n'
++            "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++            "\tCONSTRAINT status_closed CHECK (status IN ('pass', 'fail', 'inconclusive')), \n"
++            '\tCONSTRAINT fk_run_verdict_run_id FOREIGN KEY(run_id) REFERENCES run (id) ON '
++            'DELETE CASCADE, \n'
++            '\tCONSTRAINT id_uuid_v7 CHECK ((id IS NULL OR (length(id) = 16 AND '
++            "substr(hex(id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT created_at_instant_shape CHECK (length(created_at) = 27 AND '
++            'created_at GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT doc_sha256_sha256_len CHECK (length(doc_sha256) = 32), \n'
++            '\tCONSTRAINT run_id_uuid_v7 CHECK ((run_id IS NULL OR (length(run_id) = 16 AND '
++            "substr(hex(run_id), 13, 1) = '7')))\n"
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE TABLE stage_span (\n'
++            '\tid BLOB NOT NULL, \n'
++            '\tschema_version TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcreated_at TEXT NOT NULL, \n'
++            '\tdoc TEXT NOT NULL, \n'
++            '\tdoc_sha256 BLOB NOT NULL, \n'
++            '\trun_id BLOB NOT NULL, \n'
++            '\tstage TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tPRIMARY KEY (id), \n'
++            "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++            "\tCONSTRAINT stage_closed CHECK (stage IN ('stt', 'llm', 'tts', 'judge', "
++            "'sim_caller_llm', 'sim_caller_tts', 'realtime', 'other')), \n"
++            '\tCONSTRAINT fk_stage_span_run_id FOREIGN KEY(run_id) REFERENCES run (id) ON '
++            'DELETE CASCADE, \n'
++            '\tCONSTRAINT id_uuid_v7 CHECK ((id IS NULL OR (length(id) = 16 AND '
++            "substr(hex(id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT created_at_instant_shape CHECK (length(created_at) = 27 AND '
++            'created_at GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT doc_sha256_sha256_len CHECK (length(doc_sha256) = 32), \n'
++            '\tCONSTRAINT run_id_uuid_v7 CHECK ((run_id IS NULL OR (length(run_id) = 16 AND '
++            "substr(hex(run_id), 13, 1) = '7')))\n"
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE TABLE tool_call_event (\n'
++            '\tid BLOB NOT NULL, \n'
++            '\tschema_version TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcreated_at TEXT NOT NULL, \n'
++            '\tdoc TEXT NOT NULL, \n'
++            '\tdoc_sha256 BLOB NOT NULL, \n'
++            '\trun_id BLOB NOT NULL, \n'
++            '\tsource TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tPRIMARY KEY (id), \n'
++            "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++            "\tCONSTRAINT source_closed CHECK (source IN ('agent_export', 'agent_telemetry', "
++            "'observer')), \n"
++            '\tCONSTRAINT fk_tool_call_event_run_id FOREIGN KEY(run_id) REFERENCES run (id) ON '
++            'DELETE CASCADE, \n'
++            '\tCONSTRAINT id_uuid_v7 CHECK ((id IS NULL OR (length(id) = 16 AND '
++            "substr(hex(id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT created_at_instant_shape CHECK (length(created_at) = 27 AND '
++            'created_at GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT doc_sha256_sha256_len CHECK (length(doc_sha256) = 32), \n'
++            '\tCONSTRAINT run_id_uuid_v7 CHECK ((run_id IS NULL OR (length(run_id) = 16 AND '
++            "substr(hex(run_id), 13, 1) = '7')))\n"
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE TABLE transcript (\n'
++            '\tid BLOB NOT NULL, \n'
++            '\tschema_version TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcreated_at TEXT NOT NULL, \n'
++            '\tdoc TEXT NOT NULL, \n'
++            '\tdoc_sha256 BLOB NOT NULL, \n'
++            '\trun_id BLOB NOT NULL, \n'
++            '\tsource TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tdetected_language TEXT COLLATE "BINARY", \n'
++            '\thuman_subject INTEGER NOT NULL, \n'
++            '\thuman_subject_reason TEXT COLLATE "BINARY", \n'
++            '\tconsent_status TEXT COLLATE "BINARY", \n'
++            '\tretain_until TEXT, \n'
++            '\tdelete_on_expiry INTEGER, \n'
++            '\tpolicy_ref TEXT COLLATE "BINARY", \n'
++            '\tPRIMARY KEY (id), \n'
++            "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++            "\tCONSTRAINT source_closed CHECK (source IN ('our_stt', 'agent_export', "
++            "'agent_telemetry', 'observer', 'script', 'human_reference')), \n"
++            '\tCONSTRAINT human_subject_reason_closed CHECK (human_subject_reason IN '
++            "('marked_before_role_evidence', 'real_person_likeness', 'manual')), \n"
++            "\tCONSTRAINT consent_status_closed CHECK (consent_status IN ('obtained', "
++            "'not_obtained', 'unknown')), \n"
++            '\tCONSTRAINT fk_transcript_run_id FOREIGN KEY(run_id) REFERENCES run (id) ON '
++            'DELETE CASCADE, \n'
++            '\tCONSTRAINT privacy_projection CHECK (human_subject IS NULL AND '
++            'human_subject_reason IS NULL AND consent_status IS NULL AND retain_until IS NULL '
++            'AND delete_on_expiry IS NULL AND policy_ref IS NULL OR human_subject IS 1 AND '
++            'consent_status IS NOT NULL AND delete_on_expiry IS NOT NULL OR human_subject IS 0 '
++            'AND human_subject_reason IS NULL AND consent_status IS NULL AND retain_until IS '
++            'NULL AND delete_on_expiry IS NULL AND policy_ref IS NULL), \n'
++            '\tCONSTRAINT id_uuid_v7 CHECK ((id IS NULL OR (length(id) = 16 AND '
++            "substr(hex(id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT created_at_instant_shape CHECK (length(created_at) = 27 AND '
++            'created_at GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT doc_sha256_sha256_len CHECK (length(doc_sha256) = 32), \n'
++            '\tCONSTRAINT run_id_uuid_v7 CHECK ((run_id IS NULL OR (length(run_id) = 16 AND '
++            "substr(hex(run_id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT human_subject_bool CHECK (human_subject IN (0, 1)), \n'
++            '\tCONSTRAINT retain_until_instant_shape CHECK (length(retain_until) = 27 AND '
++            'retain_until GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT delete_on_expiry_bool CHECK (delete_on_expiry IN (0, 1))\n'
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE INDEX ix_transcript_retain_until ON transcript (retain_until) WHERE '
++            'retain_until IS NOT NULL',
++            'CREATE TABLE turn (\n'
++            '\tid BLOB NOT NULL, \n'
++            '\tschema_version TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcreated_at TEXT NOT NULL, \n'
++            '\tdoc TEXT NOT NULL, \n'
++            '\tdoc_sha256 BLOB NOT NULL, \n'
++            '\trun_id BLOB NOT NULL, \n'
++            '\ttranscript_id BLOB NOT NULL, \n'
++            '\tseq INTEGER NOT NULL, \n'
++            '\trole TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tstart_ms INTEGER, \n'
++            '\tPRIMARY KEY (id), \n'
++            "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++            "\tCONSTRAINT role_closed CHECK (role IN ('caller', 'agent', 'unknown')), \n"
++            '\tCONSTRAINT fk_turn_run_id FOREIGN KEY(run_id) REFERENCES run (id) ON DELETE '
++            'CASCADE, \n'
++            '\tCONSTRAINT uq_turn_transcript_seq UNIQUE (transcript_id, seq), \n'
++            '\tCONSTRAINT id_uuid_v7 CHECK ((id IS NULL OR (length(id) = 16 AND '
++            "substr(hex(id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT created_at_instant_shape CHECK (length(created_at) = 27 AND '
++            'created_at GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT doc_sha256_sha256_len CHECK (length(doc_sha256) = 32), \n'
++            '\tCONSTRAINT run_id_uuid_v7 CHECK ((run_id IS NULL OR (length(run_id) = 16 AND '
++            "substr(hex(run_id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT transcript_id_uuid_v7 CHECK ((transcript_id IS NULL OR '
++            "(length(transcript_id) = 16 AND substr(hex(transcript_id), 13, 1) = '7')))\n"
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE TABLE usage_record (\n'
++            '\tid BLOB NOT NULL, \n'
++            '\tschema_version TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tcreated_at TEXT NOT NULL, \n'
++            '\tdoc TEXT NOT NULL, \n'
++            '\tdoc_sha256 BLOB NOT NULL, \n'
++            '\trun_id BLOB NOT NULL, \n'
++            '\tdomain TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tsource TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\toccurred_at TEXT, \n'
++            '\tPRIMARY KEY (id), \n'
++            "\tCONSTRAINT schema_version_pinned CHECK (schema_version = '0.0.1'), \n"
++            "\tCONSTRAINT domain_closed CHECK (domain IN ('evaluation', "
++            "'agent_under_test')), \n"
++            "\tCONSTRAINT source_closed CHECK (source IN ('provider_reported', 'telemetry', "
++            "'measured')), \n"
++            '\tCONSTRAINT fk_usage_record_run_id FOREIGN KEY(run_id) REFERENCES run (id) ON '
++            'DELETE CASCADE, \n'
++            '\tCONSTRAINT id_uuid_v7 CHECK ((id IS NULL OR (length(id) = 16 AND '
++            "substr(hex(id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT created_at_instant_shape CHECK (length(created_at) = 27 AND '
++            'created_at GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z'), \n"
++            '\tCONSTRAINT doc_sha256_sha256_len CHECK (length(doc_sha256) = 32), \n'
++            '\tCONSTRAINT run_id_uuid_v7 CHECK ((run_id IS NULL OR (length(run_id) = 16 AND '
++            "substr(hex(run_id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT occurred_at_instant_shape CHECK (length(occurred_at) = 27 AND '
++            'occurred_at GLOB '
++            "'[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]Z')\n"
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE TABLE run_bundle_member (\n'
++            '\tbundle_id BLOB NOT NULL, \n'
++            '\tkind TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\tordinal INTEGER NOT NULL, \n'
++            '\trecord_id BLOB NOT NULL, \n'
++            '\trecord_version INTEGER, \n'
++            '\tPRIMARY KEY (bundle_id, kind, ordinal), \n'
++            '\tCONSTRAINT fk_run_bundle_member_bundle_id FOREIGN KEY(bundle_id) REFERENCES '
++            'run_bundle (id) ON DELETE CASCADE, \n'
++            "\tCONSTRAINT kind_closed CHECK (kind IN ('run', 'snapshot', 'pricing_catalog', "
++            "'test_profile', 'artifact', 'transcript', 'turn', 'exchange', 'tool_call', "
++            "'span', 'result', 'verdict', 'usage_record', 'cost_record', 'cost_summary')), \n"
++            '\tCONSTRAINT ordinal_ge_0 CHECK (ordinal >= 0), \n'
++            '\tCONSTRAINT record_version_for_versioned_kinds CHECK (kind IN '
++            "('pricing_catalog', 'test_profile') AND record_version IS NOT NULL OR (kind NOT "
++            "IN ('pricing_catalog', 'test_profile')) AND record_version IS NULL), \n"
++            '\tCONSTRAINT bundle_id_uuid_v7 CHECK ((bundle_id IS NULL OR (length(bundle_id) = '
++            "16 AND substr(hex(bundle_id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT record_id_uuid_v7 CHECK ((record_id IS NULL OR (length(record_id) = '
++            "16 AND substr(hex(record_id), 13, 1) = '7')))\n"
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT',
++            'CREATE INDEX ix_run_bundle_member_kind_record_id ON run_bundle_member (kind, '
++            'record_id)',
++            'CREATE TABLE run_bundle_withheld (\n'
++            '\tbundle_id BLOB NOT NULL, \n'
++            '\tordinal INTEGER NOT NULL, \n'
++            '\tkind TEXT COLLATE "BINARY" NOT NULL, \n'
++            '\trecord_id BLOB NOT NULL, \n'
++            '\tPRIMARY KEY (bundle_id, ordinal), \n'
++            '\tCONSTRAINT fk_run_bundle_withheld_bundle_id FOREIGN KEY(bundle_id) REFERENCES '
++            'run_bundle (id) ON DELETE CASCADE, \n'
++            "\tCONSTRAINT kind_closed CHECK (kind IN ('artifact', 'transcript', 'turn', "
++            "'exchange', 'tool_call', 'span', 'result', 'usage_record', 'cost_record')), \n"
++            '\tCONSTRAINT bundle_id_uuid_v7 CHECK ((bundle_id IS NULL OR (length(bundle_id) = '
++            "16 AND substr(hex(bundle_id), 13, 1) = '7'))), \n"
++            '\tCONSTRAINT record_id_uuid_v7 CHECK ((record_id IS NULL OR (length(record_id) = '
++            "16 AND substr(hex(record_id), 13, 1) = '7')))\n"
++            ')\n'
++            ' WITHOUT ROWID,\n'
++            ' STRICT']}
++
++
++def upgrade() -> None:
++    dialect = op.get_bind().dialect.name
++    if dialect == "postgresql":
++        for statement in triggers.function_statements():
++            op.execute(statement)
++    for statement in DDL[dialect]:
++        op.execute(statement)
++    for table in TABLES:
++        for statement in triggers.create_statements(table, dialect):
++            op.execute(statement)
++    op.execute(
++        sa.text(
++            "INSERT INTO tracer_meta (singleton, schema_version, evaldb_version) "
++            "VALUES (1, '0.0.1', :evaldb_version)"
++        ).bindparams(evaldb_version=version("tracer-evaldb"))
++    )
++
++
++def downgrade() -> None:
++    dialect = op.get_bind().dialect.name
++    for table in reversed(TABLES):
++        op.execute(sa.text(f'DROP TABLE "{table}"'))
++    if dialect == "postgresql":
++        op.execute(f"DROP FUNCTION {triggers.UPDATE_TRIGGER_FUNCTION}()")
++        op.execute(f"DROP FUNCTION {triggers.DELETE_TRIGGER_FUNCTION}()")
+diff -ruN a/packages/evaldb/src/tracer_evaldb/tables.py b/packages/evaldb/src/tracer_evaldb/tables.py
+--- a/packages/evaldb/src/tracer_evaldb/tables.py	2026-10-24 16:50:35
++++ b/packages/evaldb/src/tracer_evaldb/tables.py	2026-10-24 17:03:31
+@@ -419,6 +419,12 @@
+     if table in _RUN_OWNED:
+         items.append(_fk(table, ["run_id"], "run", ["id"]))
+     items.extend(_table_specific(table))
++    retain = {"artifact": "retain_until", "transcript": "retain_until", "dataset_item": "retain_until", "run": "caller_retain_until"}.get(table)
++    if retain is not None:
++        present = _col(retain).is_not(None)
++        items.append(
++            sa.Index(f"ix_{table}_{retain}", retain, sqlite_where=present, postgresql_where=present)
++        )
+     return sa.Table(table, metadata, *items, sqlite_strict=True, sqlite_with_rowid=False)
+ 
+ 
+diff -ruN a/packages/evaldb/src/tracer_evaldb/versioning.py b/packages/evaldb/src/tracer_evaldb/versioning.py
+--- a/packages/evaldb/src/tracer_evaldb/versioning.py	1970-01-01 05:30:00
++++ b/packages/evaldb/src/tracer_evaldb/versioning.py	2026-10-24 17:35:58
+@@ -0,0 +1,67 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""``open_store``: the read-only check that a database is at this evaldb's head revision and holds
++the installed schema version (ADR 0021 rule 3). It never migrates."""
++
++from __future__ import annotations
++
++from dataclasses import dataclass
++
++import sqlalchemy as sa
++from sqlalchemy.engine import Engine
++
++from tracer_evalschema import SCHEMA_VERSION
++
++from .errors import (
++    StoreNotMigrated,
++    StoreRevisionUnknown,
++    StoreSchemaVersionMismatch,
++    StoreSchemaVersionTooNew,
++)
++from .migrate import current_revision, head_revision
++from .migrate import alembic_config, is_known
++
++__all__ = ["StoreInfo", "open_store"]
++
++
++@dataclass(frozen=True)
++class StoreInfo:
++    revision: str
++    schema_version: str
++    evaldb_version: str
++
++
++def _numbers(version: str) -> tuple[int, ...] | None:
++    parts = version.split(".")
++    if not all(p.isascii() and p.isdigit() for p in parts):
++        return None
++    return tuple(int(p) for p in parts)
++
++
++def open_store(engine: Engine) -> StoreInfo:
++    if not isinstance(engine, Engine):
++        raise TypeError("the first argument must be the Engine of create_store_engine")
++    from alembic.script import ScriptDirectory
++
++    head = head_revision()
++    revision = current_revision(engine)
++    if revision is None:
++        raise StoreNotMigrated(None, head)
++    if not is_known(ScriptDirectory.from_config(alembic_config()), revision):
++        raise StoreRevisionUnknown(revision)
++    if revision != head:
++        raise StoreNotMigrated(revision, head)
++    with engine.connect() as connection:
++        row = connection.execute(
++            sa.text("SELECT schema_version, evaldb_version FROM tracer_meta WHERE singleton = 1")
++        ).first()
++        connection.rollback()
++    if row is None:
++        raise StoreSchemaVersionMismatch(None, SCHEMA_VERSION, "tracer_meta has no row")
++    stored, evaldb_version = str(row[0]), str(row[1])
++    if stored != SCHEMA_VERSION:
++        found, wanted = _numbers(stored), _numbers(SCHEMA_VERSION)
++        if found is not None and wanted is not None and found > wanted:
++            raise StoreSchemaVersionTooNew(stored, SCHEMA_VERSION, "the store is newer")
++        raise StoreSchemaVersionMismatch(stored, SCHEMA_VERSION, "the store is older or unreadable")
++    return StoreInfo(revision, stored, evaldb_version)

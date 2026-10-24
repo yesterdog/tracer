@@ -45,3 +45,26 @@ creates a `BEFORE UPDATE` trigger on each of the 37 tables and a `BEFORE DELETE`
 `deletion_audit` (on Postgres the two trigger functions first; they raise SQLSTATE `23001`). Both
 engines hide bound parameters in errors, and the Postgres engine raises every SQLSTATE of class 23
 as `sqlalchemy.exc.IntegrityError`, without the failing row.
+
+## Migrations, version policy, deletion and retention (batch D)
+
+- `tracer_evaldb.migrate`: `upgrade(engine, revision="head")`, `downgrade(engine, revision, *,
+  allow_data_loss=False)`, `current_revision`, `head_revision` and `alembic_config`. Revision 0001
+  creates the 37 tables, the immutability triggers and the one `tracer_meta` row. Each revision runs
+  in one transaction, DDL included. A downgrade that would destroy rows is refused whole
+  (`DowngradeDataLoss`) unless `allow_data_loss=True`. Command line:
+  `alembic -c packages/evaldb/alembic.ini -x url=<database URL> upgrade head` (`alembic.ini` holds
+  no URL).
+- `open_store(engine) -> StoreInfo`: read-only; never migrates. Raises `StoreNotMigrated`,
+  `StoreRevisionUnknown`, `StoreSchemaVersionTooNew` or `StoreSchemaVersionMismatch`.
+- `tracer_evaldb.migrations.helpers` (for revisions): `batch_alter_table`, `rewriting` and
+  `rewrite_documents`; errors `IrreversibleMigration`, `DigestChangingUpgrade`,
+  `MixedSchemaVersions`, `MigrationIntegrityError`.
+- Deletion, each in one transaction with a content-free audit row (`actor` and `reason` required;
+  reasons `operator_request`, `retention_policy`, `data_subject_request`): `delete_run`,
+  `delete_project`, `delete_test_profile`, `delete_definition(engine, kind, id)`,
+  `delete_dataset_item`, `delete_export`, `delete_snapshot` (`SnapshotInUse` while a run uses it).
+  Each returns a `DeletionResult(root_kind, counts, audit_uuid)`.
+- Retention: the privacy columns have partial indexes on the retention date
+  (`ix_artifact_retain_until`, `ix_transcript_retain_until`, `ix_dataset_item_retain_until`,
+  `ix_run_caller_retain_until`). Nothing enforces retention; a later phase does.
