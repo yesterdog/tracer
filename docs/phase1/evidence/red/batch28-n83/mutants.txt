@@ -1,0 +1,20 @@
+# N83 mutants, 2026-10-24. Scratch copy of the tree with the oracle change (path replacement before step 0 of import_reported_cost), Python 3.14,
+# pytest -x on test_cost_import_n83.py + test_cost_import.py. name | verdict | first failing test | description
+N01_only_currency_path | KILLED | test_surrogate_in_amount_path_is_replaced_and_records_nothing_extra[decimal_normalized-/a/ | amount path not replaced
+N02_only_amount_path | KILLED | test_surrogate_in_currency_path_is_replaced_and_records_nothing_extra[label_normalized-/a/ | currency path not replaced
+N03_no_replacement | KILLED | test_surrogate_in_currency_path_is_replaced_and_records_nothing_extra[label_normalized-/a/ | no path replacement (current behaviour)
+N04_replace_after_step0 | KILLED | test_surrogate_in_currency_path_is_replaced_and_records_nothing_extra[damaged_label-/a/\ud | replacement placed after the N82 warnings (the damaged-field warnings still raise)
+N05_question_mark | KILLED | test_surrogate_in_currency_path_is_replaced_and_records_nothing_extra[label_normalized-/a/ | ? instead of U+FFFD
+N06_delete | KILLED | test_surrogate_in_currency_path_is_replaced_and_records_nothing_extra[label_normalized-/a/ | surrogates deleted, not replaced one for one
+N07_utf16_pairing | KILLED | test_surrogate_in_currency_path_is_replaced_and_records_nothing_extra[label_normalized-\ud | valid-looking pair of surrogates combined into an astral character; reversed pair gives one U+FFFD
+N08_ascii_only | KILLED | test_surrogate_in_currency_path_is_replaced_and_records_nothing_extra[label_normalized-/a/ | every non-ASCII code point replaced (valid paths altered)
+N09_path_to_none | KILLED | test_surrogate_in_currency_path_is_replaced_and_records_nothing_extra[label_normalized-/a/ | damaged path dropped (path absent)
+N10_extra_warning | KILLED | test_surrogate_in_currency_path_is_replaced_and_records_nothing_extra[label_normalized-/a/ | an extra warning for a replaced currency path (option C, rejected)
+N11_contract_swallowed | KILLED | test_contract_currency_with_a_lone_surrogate_stays_a_value_error[USD\ud800-USD] | contract.currency surrogate replaced silently (option C, rejected)
+N12_replace_cited_only_in_conflict | KILLED | test_contract_currency_with_a_lone_surrogate_stays_a_value_error[USD\ud800-USD] | a cited contract with non-ASCII currency is ignored (no ValueError)
+# Message-test mutants (against the landed source, scratch copy, python 3.14, test_cost_import_n83.py)
+M01_echo_value | KILLED | test_contract_currency_surrogate_message_names_the_rule_and_never_echoes_the_value | message echoes the value
+M02_echo_codepoint | KILLED | same test | message names the code point
+M03_check_dropped | KILLED | same test | check dropped
+M04_uncited_raises | KILLED | test_uncited_contract_with_a_surrogate_currency_still_does_not_raise | uncited contract also checked
+M05_wrong_text | KILLED | same test | message without the rule name

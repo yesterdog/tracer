@@ -11,7 +11,10 @@ safe only when it is shown. Decisions: [ADR 0017](../adr/0017-bidi-and-display-s
   different values. ZWJ (U+200D) and ZWNJ (U+200C), which Indic scripts need, are kept in every
   text type.
 - Lone surrogates cannot be written as UTF-8 and are rejected by the type. Importers never fail
-  on them: they replace each with U+FFFD and record the warning `text_not_valid_unicode`.
+  on them: they replace each with U+FFFD and record the warning `text_not_valid_unicode`. A
+  warning path passed by the caller is a locator, not data: its lone surrogates are replaced
+  the same way with no warning. A cited API contract's currency code is mapping configuration:
+  a lone surrogate there is an error.
 - `contains_bidi_controls` is computed from the text (U+202A to U+202E, U+2066 to U+2069) and
   verified when a document is loaded; a wrong stored flag is rejected.
 

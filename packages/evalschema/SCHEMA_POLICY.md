@@ -620,7 +620,10 @@ register row `CO-BUNDLE-CROSS-RECORD`.
 
 - Free text is stored code point for code point: no normalization, no trimming. NFC and NFD
   forms are different values. ZWJ and ZWNJ are preserved everywhere. Lone surrogates are rejected
-  by the type; importers replace them with U+FFFD and record `text_not_valid_unicode`.
+  by the type; importers replace them with U+FFFD and record `text_not_valid_unicode`. A lone
+  surrogate in a warning path the caller passes is replaced the same way with no warning (a path
+  is a locator, not data); one in a cited API contract's currency code is a `ValueError` (mapping
+  configuration; ADR 0014 Decision 12c step 0, N83).
 - `contains_bidi_controls` is computed from the text and verified on load.
 - Untrusted text must be shown through `text.display_safe()`, which isolates it (FSI ... PDI) and
   shows bidi control characters as visible markers such as `[RLO]`.
