@@ -1,0 +1,239 @@
+# Mutants of the oracle (scratch tracer_evalcore normalise, tokens, align, spans, flags), Phase 3 batch C.
+# Each entry: one change made to one oracle module, then the 185 staged batch C tests run on Python 3.13 with -x (the first failing
+# test is named). CAUGHT = at least one test fails. 114 mutants: 113 caught, 1 survived.
+# History: a first run of 108 mutants left 7 survivors; each led to a test change and the whole list was run again:
+#   A1 plain Levenshtein and A2 no secondary cost (the exhaustive small-pair test agreed with the plain aligner on every pair up to length 4;
+#   a search found pairs of total length 7 that differ, e.g. [a,b,a] against [b,c,a,b]: H1 S2 I1 against H2 D1 I2), A17 cap 0 accepted (the
+#   cap error is itself a ValueError), A20 case-insensitive key compare, T17 and T18 (segment text type and a backwards segment), and a missing
+#   TypeError probe on comparison_key. One mutant of the second run, N21, was equivalent (see below).
+# Survivor N21: the type check of check_text() removed; comparison_key(None) then fails inside re.search with the same TypeError, so the
+#   behaviour is identical. Equivalent mutant, not a gap.
+# Not mutated (no code in the oracle for them): the 3.15 leg, Windows paths, SIGALRM-less platforms.
+N1 [CAUGHT] NFKC instead of NFC
+    caught by: test_normaliser_mr.py::test_normaliser_mr_fixture_cases[nfkc-fullwidth-latin]
+N2 [CAUGHT] no NFC
+    caught by: test_normaliser_mr.py::test_normaliser_mr_fixture_cases[nfc-precomposed-za-word]
+N3 [CAUGHT] lower() instead of casefold
+    caught by: test_normaliser_mr.py::test_normaliser_mr_fixture_cases[case-sharp-s]
+N4 [CAUGHT] digits not folded
+    caught by: test_normaliser_mr.py::test_normaliser_mr_fixture_cases[ref-mr-004]
+N5 [CAUGHT] other digit blocks folded
+    caught by: test_normaliser_mr.py::test_normaliser_mr_fixture_cases[nfkc-fullwidth-digits-not-folded]
+N6 [CAUGHT] ZWJ kept in key
+    caught by: test_normaliser_mr.py::test_normaliser_mr_fixture_cases[ref-mr-006]
+N7 [CAUGHT] ZWNJ kept in key
+    caught by: test_normaliser_mr.py::test_normaliser_mr_fixture_cases[ref-mr-006]
+N8 [CAUGHT] bidi embeddings kept in key
+    caught by: test_normaliser_mr.py::test_normaliser_mr_fixture_cases[bidi-rlo-inside-number]
+N9 [CAUGHT] soft hyphen kept in key
+    caught by: test_normaliser_mr.py::test_normaliser_mr_fixture_cases[invisible-soft-hyphen]
+N10 [CAUGHT] word joiner and BOM kept
+    caught by: test_normaliser_mr.py::test_normaliser_mr_fixture_cases[invisible-word-joiner-and-bom]
+N11 [CAUGHT] marks kept
+    caught by: test_normaliser_mr.py::test_normaliser_mr_fixture_cases[bidi-rlm-inside-token]
+N12 [CAUGHT] isolates kept
+    caught by: test_normaliser_mr.py::test_normaliser_bidi_controls_dropped_in_key_only
+N13 [CAUGHT] lone surrogate accepted
+    caught by: test_normaliser_mr.py::test_normaliser_refuses_lone_surrogate
+N14 [CAUGHT] surrogate error echoes text
+    caught by: test_normaliser_mr.py::test_normaliser_refuses_lone_surrogate
+N15 [CAUGHT] any normaliser id accepted
+    caught by: test_normaliser_mr.py::test_normaliser_id_is_versioned_and_recorded
+N16 [CAUGHT] R18 not implemented
+    caught by: test_normaliser_mr.py::test_normaliser_fixture_has_all_cases_and_the_rules_are_exercised
+N17 [CAUGHT] wrong unicode version
+    caught by: test_normaliser_mr.py::test_normaliser_id_is_versioned_and_recorded
+N18 [CAUGHT] extra id
+    caught by: test_normaliser_mr.py::test_normaliser_id_is_versioned_and_recorded
+N19 [CAUGHT] non-str id not a TypeError
+    caught by: test_normaliser_mr.py::test_normaliser_id_is_versioned_and_recorded
+N20 [CAUGHT] digit nine not folded
+    caught by: test_normaliser_mr.py::test_normaliser_mr_fixture_cases[ref-mr-004]
+N22 [CAUGHT] NFC before dropping joiners
+    caught by: test_normaliser_mr.py::test_normaliser_mr_fixture_cases[nfc-joiner-between-base-and-nukta]
+N21 [SURVIVED] non-str text not a TypeError
+    185 passed in 6.71s
+T1 [CAUGHT] utf-16 offsets
+    caught by: test_normaliser_mr.py::test_normaliser_mr_fixture_cases[emoji-astral-offsets]
+T2 [CAUGHT] trailing joiner excluded from span
+    caught by: test_normaliser_mr.py::test_normaliser_id_is_versioned_and_recorded
+T3 [CAUGHT] trailing ignorables included in span
+    caught by: test_normaliser_mr.py::test_normaliser_mr_fixture_cases[bidi-isolates-around-word]
+T4 [CAUGHT] leading ignorables included
+    caught by: test_normaliser_mr.py::test_normaliser_mr_fixture_cases[joiner-leading-after-space]
+T5 [CAUGHT] punctuation is a token character
+    caught by: test_normaliser_mr.py::test_normaliser_mr_fixture_cases[ref-mr-001]
+T6 [CAUGHT] ZWSP ignorable
+    caught by: test_normaliser_mr.py::test_normaliser_mr_fixture_cases[zwsp-separates]
+T21 [CAUGHT] controls ignorable
+    caught by: test_normaliser_mr.py::test_normaliser_mr_fixture_cases[white-space-kinds]
+T22 [CAUGHT] format and control characters are token characters
+    caught by: test_normaliser_mr.py::test_normaliser_mr_fixture_cases[white-space-kinds]
+T7 [CAUGHT] token may start at a mark
+    caught by: test_normaliser_mr.py::test_normaliser_mr_fixture_cases[orphan-marks]
+T8 [CAUGHT] token may not start at a digit
+    caught by: test_normaliser_mr.py::test_normaliser_mr_fixture_cases[ref-mr-004]
+T9 [CAUGHT] no tokens at all
+    caught by: test_normaliser_mr.py::test_normaliser_mr_fixture_cases[ref-mr-001]
+T10 [CAUGHT] turns silently sorted
+    caught by: test_tokens.py::test_tokenise_turns_refuses_turns_out_of_order_and_never_echoes_text
+T11 [CAUGHT] equal seq accepted
+    caught by: test_tokens.py::test_tokenise_turns_refuses_turns_out_of_order_and_never_echoes_text
+T12 [CAUGHT] segments mapped without agreement
+    caught by: test_tokens.py::test_tokenise_turns_maps_tokens_to_segments_only_when_the_texts_agree
+T13 [CAUGHT] turn_index is seq
+    caught by: test_tokens.py::test_tokenise_turns_concatenates_tokens_in_seq_order_with_global_indices
+T14 [CAUGHT] offsets on the NFC text
+    caught by: test_normaliser_mr.py::test_normaliser_mr_fixture_cases[nfc-precomposed-za-word]
+T15 [CAUGHT] tokenise does not refuse surrogates or non-text
+    caught by: test_normaliser_mr.py::test_normaliser_refuses_lone_surrogate
+T16 [CAUGHT] missing segment maps to segment 0
+    caught by: test_tokens.py::test_tokenise_turns_concatenates_tokens_in_seq_order_with_global_indices
+T17 [CAUGHT] segment text unchecked
+    caught by: test_tokens.py::test_tokenise_turns_maps_tokens_to_segments_only_when_the_texts_agree
+T18 [CAUGHT] segment may run backwards
+    caught by: test_tokens.py::test_tokenise_turns_maps_tokens_to_segments_only_when_the_texts_agree
+T19 [CAUGHT] bool accepted as int
+    caught by: test_tokens.py::test_tokenise_turns_refuses_turns_out_of_order_and_never_echoes_text
+T20 [CAUGHT] negative accepted
+    caught by: test_tokens.py::test_tokenise_turns_refuses_turns_out_of_order_and_never_echoes_text
+A1 [CAUGHT] plain Levenshtein
+    caught by: test_alignment.py::test_alignment_tie_break_is_deterministic
+A2 [CAUGHT] no secondary cost
+    caught by: test_alignment.py::test_alignment_tie_break_is_deterministic
+A3 [CAUGHT] secondary prefers indels
+    caught by: test_alignment.py::test_alignment_tie_break_is_deterministic
+A4 [CAUGHT] deletion preferred over match
+    caught by: test_alignment.py::test_alignment_tie_break_is_deterministic
+A5 [CAUGHT] insertion preferred over deletion
+    caught by: test_alignment.py::test_alignment_equals_exhaustive_reference_on_every_small_pair
+A6 [CAUGHT] deletion preferred over match and substitution
+    caught by: test_alignment.py::test_alignment_equals_exhaustive_reference_on_every_small_pair
+A7 [CAUGHT] deletion preferred over substitution
+    caught by: test_alignment.py::test_alignment_tie_break_is_deterministic
+A8 [CAUGHT] cap off by one
+    caught by: test_alignment.py::test_alignment_size_cap_typed_error
+A9 [CAUGHT] cap on export only
+    caught by: test_alignment.py::test_alignment_size_cap_typed_error
+A10 [CAUGHT] cap below 2000
+    caught by: test_alignment.py::test_alignment_types_are_frozen_and_pinned
+A11 [CAUGHT] MER over export length
+    caught by: test_alignment.py::test_alignment_single_substitution_insertion_deletion
+A12 [CAUGHT] empty MER is 0
+    caught by: test_alignment.py::test_mer_in_unit_interval_and_exact_counts
+A13 [CAUGHT] MER rounded
+    caught by: test_alignment.py::test_alignment_single_substitution_insertion_deletion
+A14 [CAUGHT] Alignment counts unchecked
+    caught by: test_alignment.py::test_alignment_counts_must_match_the_ops
+A15 [CAUGHT] str accepted as sequence
+    caught by: test_alignment.py::test_alignment_refuses_non_sequences_of_str
+A16 [CAUGHT] bool cap accepted
+    caught by: test_alignment.py::test_alignment_size_cap_typed_error
+A17 [CAUGHT] cap 0 accepted
+    caught by: test_alignment.py::test_alignment_size_cap_typed_error
+A18 [CAUGHT] export_tokens wrong
+    caught by: test_spans.py::test_spans_are_maximal_non_match_runs
+A20 [CAUGHT] case-insensitive compare
+    caught by: test_alignment.py::test_alignment_compares_keys_exactly
+A21 [CAUGHT] non-str keys accepted
+    caught by: test_alignment.py::test_alignment_refuses_non_sequences_of_str
+A22 [CAUGHT] cap not applied
+    caught by: test_alignment.py::test_alignment_size_cap_typed_error
+S20 [CAUGHT] zero-width anchored in the next token turn
+    caught by: test_spans.py::test_insertion_flag_is_zero_width_at_gap
+S1 [CAUGHT] insertions follow the NEXT export token
+    caught by: test_spans.py::test_insertions_in_a_split_run_follow_the_nearest_export_token
+S2 [CAUGHT] zero-width at next token start
+    caught by: test_spans.py::test_insertion_flag_is_zero_width_at_gap
+S3 [CAUGHT] spans cross turn boundaries
+    caught by: test_spans.py::test_spans_never_cross_turn_boundaries
+S4 [CAUGHT] span ends at first token
+    caught by: test_spans.py::test_spans_are_maximal_non_match_runs
+S5 [CAUGHT] end offset minus one
+    caught by: test_spans.py::test_spans_are_maximal_non_match_runs
+S6 [CAUGHT] head gap at end offset
+    caught by: test_spans.py::test_insertion_flag_is_zero_width_at_gap
+S7 [CAUGHT] first segment end
+    caught by: test_spans.py::test_span_audio_range_from_stt_segments_or_absent
+S8 [CAUGHT] None bound becomes 0
+    caught by: test_spans.py::test_span_audio_range_from_stt_segments_or_absent
+S9 [CAUGHT] unmapped token skipped
+    caught by: test_spans.py::test_span_is_a_frozen_record_with_pinned_fields
+S10 [CAUGHT] turn_seq is index
+    caught by: test_spans.py::test_spans_never_cross_turn_boundaries
+S11 [CAUGHT] stt range shifted
+    caught by: test_spans.py::test_span_is_a_frozen_record_with_pinned_fields
+S12 [CAUGHT] count mismatch accepted
+    caught by: test_spans.py::test_spans_refuse_an_alignment_that_does_not_belong_to_the_sequences
+S13 [CAUGHT] backward range allowed
+    caught by: test_spans.py::test_span_audio_range_from_stt_segments_or_absent
+S14 [CAUGHT] S and D swapped
+    caught by: test_spans.py::test_spans_are_maximal_non_match_runs
+S15 [CAUGHT] export index order unchecked
+    caught by: test_spans.py::test_spans_refuse_an_alignment_that_does_not_belong_to_the_sequences
+S16 [CAUGHT] empty export insertion crashes
+    caught by: test_spans.py::test_spans_refuse_an_insertion_that_has_no_export_token_to_anchor_to
+S17 [CAUGHT] runs bridge a single match
+    caught by: test_spans.py::test_spans_are_maximal_non_match_runs
+S18 [CAUGHT] no STT token gives 0..0
+    caught by: test_spans.py::test_spans_are_maximal_non_match_runs
+S19 [CAUGHT] insertion span without audio
+    caught by: test_spans.py::test_span_audio_range_from_stt_segments_or_absent
+F1 [CAUGHT] half up
+    caught by: test_flags.py::test_confidence_record_and_rounding_half_to_even_to_four_digits
+F2 [CAUGHT] 3 digits
+    caught by: test_flags.py::test_confidence_record_and_rounding_half_to_even_to_four_digits
+F3 [CAUGHT] strictly above
+    caught by: test_flags.py::test_confidence_compares_exactly_never_on_the_rounded_display_value
+F4 [CAUGHT] compares display
+    caught by: test_flags.py::test_confidence_compares_exactly_never_on_the_rounded_display_value
+F5 [CAUGHT] float comparison
+    caught by: test_flags.py::test_confidence_compares_exactly_never_on_the_rounded_display_value
+F6 [CAUGHT] key length plus one
+    caught by: test_flags.py::test_confidence_in_unit_interval_and_deterministic
+F7 [CAUGHT] keys joined without space
+    caught by: test_flags.py::test_confidence_in_unit_interval_and_deterministic
+F8 [CAUGHT] substitution costs 2
+    caught by: test_flags.py::test_levenshtein_is_the_unit_cost_distance_over_code_points
+F9 [CAUGHT] bool threshold accepted
+    caught by: test_flags.py::test_threshold_is_read_as_the_decimal_of_the_shortest_round_trip_spelling
+F10 [CAUGHT] float read exactly
+    caught by: test_flags.py::test_threshold_is_read_as_the_decimal_of_the_shortest_round_trip_spelling
+F11 [CAUGHT] threshold above 1 accepted
+    caught by: test_flags.py::test_threshold_is_read_as_the_decimal_of_the_shortest_round_trip_spelling
+F12 [CAUGHT] no canonical form
+    caught by: test_flags.py::test_threshold_is_written_in_the_canonical_form_of_the_record_schema
+F13 [CAUGHT] no bounds check
+    caught by: test_flags.py::test_near_chunk_boundary_refuses_a_span_that_does_not_belong_to_the_sequence
+F14 [CAUGHT] first token of a chunk ignored
+    caught by: test_flags.py::test_near_chunk_boundary_marked
+F15 [CAUGHT] last token of a chunk ignored
+    caught by: test_flags.py::test_near_chunk_boundary_marked
+F16 [CAUGHT] gap at the head counted
+    caught by: test_flags.py::test_near_chunk_boundary_marked
+F17 [CAUGHT] gap at the tail counted
+    caught by: test_flags.py::test_near_chunk_boundary_marked
+F19 [CAUGHT] unflagged spans dropped
+    caught by: test_flags.py::test_flag_kept_iff_confidence_at_or_above_threshold
+F20 [CAUGHT] signal name unchecked
+    caught by: test_flags.py::test_signal_interface_accepts_second_signal_stub
+F21 [CAUGHT] default threshold
+    caught by: test_flags.py::test_flag_threshold_has_no_default
+F22 [CAUGHT] signal name fixed
+    caught by: test_flags.py::test_flag_kept_iff_confidence_at_or_above_threshold
+F23 [CAUGHT] edit distance above length accepted
+    caught by: test_flags.py::test_confidence_record_and_rounding_half_to_even_to_four_digits
+F24 [CAUGHT] 19+ digits accepted
+    caught by: test_flags.py::test_threshold_is_read_as_the_decimal_of_the_shortest_round_trip_spelling
+F25 [CAUGHT] non-signal accepted
+    caught by: test_flags.py::test_signal_interface_accepts_second_signal_stub
+F26 [CAUGHT] non-Confidence accepted
+    caught by: test_flags.py::test_signal_interface_accepts_second_signal_stub
+F28 [CAUGHT] signal name changed
+    caught by: test_flags.py::test_span_flag_record_is_frozen_with_pinned_fields
+F29 [CAUGHT] format name changed
+    caught by: test_adr0023_recorded_scoring.py::test_adr0023_flags_format_matches_json_schema
+F30 [CAUGHT] display drift for large lengths
+    caught by: test_flags.py::test_confidence_record_and_rounding_half_to_even_to_four_digits
+F31 [CAUGHT] string threshold accepted
+    caught by: test_flags.py::test_threshold_is_read_as_the_decimal_of_the_shortest_round_trip_spelling

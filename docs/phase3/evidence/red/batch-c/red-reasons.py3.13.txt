@@ -1,0 +1,22 @@
+Red run, Python 3.13: the staged batch C tests against the repository WITHOUT the batch C modules.
+
+Failure reasons (count of the line-format traceback tail, one per failed test):
+  113: ModuleNotFoundError: No module named 'tracer_evalcore.tokens'
+  22: ModuleNotFoundError: No module named 'tracer_evalcore.flags'
+  18: ModuleNotFoundError: No module named 'tracer_evalcore.align'
+  11: ModuleNotFoundError: No module named 'tracer_evalcore.normalise'
+  10: ModuleNotFoundError: No module named 'tracer_evalcore.spans'
+
+FAILED 174  PASSED 11  (total 185)
+PASSED (structure guards that read ADR 0023, ADR 0025, SCOPE and the test files; none imports a batch C module):
+  test_normaliser_mr.py::test_normaliser_digest_pins_are_sensitive_to_the_inputs
+  test_adr0025_rule_table.py::test_adr0025_rule_table_code_points_are_real_where_they_name_a_category
+  test_adr0025_rule_table.py::test_adr0025_invariants_cite_tests_that_exist
+  test_adr0023_recorded_scoring.py::test_adr0023_rules_are_tested
+  test_adr0023_recorded_scoring.py::test_every_test_named_by_the_scope_rows_of_batch_c_exists[P3-13]
+  test_adr0023_recorded_scoring.py::test_every_test_named_by_the_scope_rows_of_batch_c_exists[P3-14]
+  test_adr0023_recorded_scoring.py::test_every_test_named_by_the_scope_rows_of_batch_c_exists[P3-15]
+  test_adr0023_recorded_scoring.py::test_every_test_named_by_the_scope_rows_of_batch_c_exists[P3-16]
+  test_adr0023_recorded_scoring.py::test_every_test_named_by_the_scope_rows_of_batch_c_exists[P3-17]
+  test_adr0023_recorded_scoring.py::test_the_batch_c_rows_name_the_exact_tests_of_this_batch
+  test_adr0023_recorded_scoring.py::test_flags_schema_accepts_the_documented_document_and_refuses_each_violation

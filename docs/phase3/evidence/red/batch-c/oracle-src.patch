@@ -1,0 +1,772 @@
+--- /dev/null
++++ b/packages/evalcore/src/tracer_evalcore/normalise.py
+@@ -0,0 +1,83 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Comparison normaliser mr-Deva/1 (scratch oracle of the batch C tests)."""
++
++from __future__ import annotations
++
++import re
++import unicodedata
++from dataclasses import dataclass
++
++from tracer_evalcore.errors import InputRefusedError
++
++__all__ = [
++    "IGNORABLE", "IMPLEMENTED_RULES", "NORMALISER_ID", "SUPPORTED_NORMALISERS", "LoneSurrogateError",
++    "NormaliserError", "NormaliserInfo", "UnknownNormaliserError", "check_text", "char_class",
++    "comparison_key", "normaliser_info", "require_normaliser",
++]
++
++NORMALISER_ID = "mr-Deva/1"
++SUPPORTED_NORMALISERS: tuple[str, ...] = (NORMALISER_ID,)
++IMPLEMENTED_RULES: frozenset[str] = frozenset(f"R{n:02d}" for n in range(1, 19))
++
++IGNORABLE = frozenset(
++    {0x00AD, 0x061C, 0x200C, 0x200D, 0x200E, 0x200F, 0x2060, 0xFEFF}
++    | set(range(0x202A, 0x202F))
++    | set(range(0x2066, 0x206A))
++)
++_DROP = {c: None for c in IGNORABLE}
++_DIGITS = {0x0966 + n: 0x30 + n for n in range(10)}
++_SURROGATE = re.compile("[\ud800-\udfff]")
++
++
++class NormaliserError(InputRefusedError):
++    """The normaliser refused its input or its id."""
++
++
++class UnknownNormaliserError(NormaliserError):
++    """The id names no normaliser this package ships."""
++
++
++class LoneSurrogateError(NormaliserError):
++    """The text holds a lone surrogate; the importers replace them before storing."""
++
++
++@dataclass(frozen=True)
++class NormaliserInfo:
++    id: str
++    unicode_version: str
++
++
++def require_normaliser(normaliser: str) -> str:
++    if not isinstance(normaliser, str):
++        raise TypeError("normaliser must be a str")
++    if normaliser not in SUPPORTED_NORMALISERS:
++        raise UnknownNormaliserError("unknown normaliser id")
++    return normaliser
++
++
++def normaliser_info(normaliser: str) -> NormaliserInfo:
++    return NormaliserInfo(require_normaliser(normaliser), unicodedata.unidata_version)
++
++
++def check_text(text: str) -> None:
++    if not isinstance(text, str):
++        raise TypeError("text must be a str")
++    found = _SURROGATE.search(text)
++    if found is not None:
++        raise LoneSurrogateError(f"lone surrogate at code point index {found.start()}")
++
++
++def char_class(char: str) -> str:
++    if ord(char) in IGNORABLE:
++        return "I"
++    category = unicodedata.category(char)
++    if category[0] in "LM" or category == "Nd":
++        return "T"
++    return "S"
++
++
++def comparison_key(text: str, normaliser: str) -> str:
++    require_normaliser(normaliser)
++    check_text(text)
++    return unicodedata.normalize("NFC", text.translate(_DROP).translate(_DIGITS).casefold())
+--- /dev/null
++++ b/packages/evalcore/src/tracer_evalcore/tokens.py
+@@ -0,0 +1,154 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Tokenizer with code-point offsets (scratch oracle of the batch C tests)."""
++
++from __future__ import annotations
++
++import unicodedata
++from collections.abc import Sequence
++from dataclasses import dataclass
++
++from tracer_evalcore.errors import InputRefusedError
++from tracer_evalcore.normalise import IGNORABLE, check_text, comparison_key, require_normaliser
++
++__all__ = [
++    "TextTurn", "TimedSegment", "Token", "TokenSequence", "TurnOrderError", "TurnToken", "tokenise",
++    "tokenise_turns",
++]
++
++
++class TurnOrderError(InputRefusedError):
++    """Turns are not in strictly increasing seq order."""
++
++
++@dataclass(frozen=True, slots=True)
++class Token:
++    key: str
++    start: int
++    end: int
++
++
++def _int(value: object, name: str, *, none_ok: bool = False) -> None:
++    if value is None and none_ok:
++        return
++    if isinstance(value, bool) or not isinstance(value, int):
++        raise TypeError(f"{name} must be an int")
++    if value < 0:
++        raise ValueError(f"{name} must not be negative")
++
++
++@dataclass(frozen=True, slots=True)
++class TimedSegment:
++    text: str
++    start_ms: int | None
++    end_ms: int | None
++
++    def __post_init__(self) -> None:
++        if not isinstance(self.text, str):
++            raise TypeError("text must be a str")
++        _int(self.start_ms, "start_ms", none_ok=True)
++        _int(self.end_ms, "end_ms", none_ok=True)
++        if self.start_ms is not None and self.end_ms is not None and self.start_ms > self.end_ms:
++            raise ValueError("start_ms is after end_ms")
++
++
++@dataclass(frozen=True, slots=True)
++class TextTurn:
++    seq: int
++    text: str
++    segments: tuple[TimedSegment, ...] = ()
++
++    def __post_init__(self) -> None:
++        _int(self.seq, "seq")
++        if not isinstance(self.text, str):
++            raise TypeError("text must be a str")
++        object.__setattr__(self, "segments", tuple(self.segments))
++
++
++@dataclass(frozen=True, slots=True)
++class TurnToken:
++    turn_index: int
++    turn_seq: int
++    key: str
++    start: int
++    end: int
++    segment_index: int | None
++
++
++@dataclass(frozen=True)
++class TokenSequence:
++    turns: tuple[TextTurn, ...]
++    tokens: tuple[TurnToken, ...]
++
++    @property
++    def keys(self) -> tuple[str, ...]:
++        return tuple(t.key for t in self.tokens)
++
++
++_JOINERS = (0x200C, 0x200D)
++
++
++def tokenise(text: str, normaliser: str) -> tuple[Token, ...]:
++    require_normaliser(normaliser)
++    check_text(text)
++    out: list[Token] = []
++    category = unicodedata.category
++    n = len(text)
++    i = 0
++    while i < n:
++        c = text[i]
++        o = ord(c)
++        if o not in IGNORABLE:
++            cat = category(c)
++            if not (cat[0] in "LM" or cat == "Nd"):
++                i += 1
++                continue
++        j = i
++        first = -1
++        last = -1
++        while j < n:
++            c = text[j]
++            o = ord(c)
++            if o in IGNORABLE:
++                if o in _JOINERS and first >= 0:
++                    last = j + 1
++            else:
++                cat = category(c)
++                if cat[0] in "LM" or cat == "Nd":
++                    if first < 0 and (cat[0] == "L" or cat == "Nd"):
++                        first = j
++                    if first >= 0:
++                        last = j + 1
++                else:
++                    break
++            j += 1
++        if first >= 0:
++            out.append(Token(comparison_key(text[first:last], normaliser), first, last))
++        i = j
++    return tuple(out)
++
++
++def tokenise_turns(turns: Sequence[TextTurn], normaliser: str) -> TokenSequence:
++    require_normaliser(normaliser)
++    turns = tuple(turns)
++    previous = -1
++    for turn in turns:
++        if not isinstance(turn, TextTurn):
++            raise TypeError("turns must be TextTurn")
++        if turn.seq <= previous:
++            raise TurnOrderError(f"turn seq {turn.seq} does not follow {previous}")
++        previous = turn.seq
++    tokens: list[TurnToken] = []
++    for index, turn in enumerate(turns):
++        own = tokenise(turn.text, normaliser)
++        owners: list[int | None] = [None] * len(own)
++        if turn.segments:
++            flat: list[int] = []
++            for seg_index, segment in enumerate(turn.segments):
++                flat.extend([seg_index] * len(tokenise(segment.text, normaliser)))
++            seg_keys = [t.key for s in turn.segments for t in tokenise(s.text, normaliser)]
++            if seg_keys == [t.key for t in own]:
++                owners = list(flat)
++        for token, owner in zip(own, owners, strict=True):
++            tokens.append(TurnToken(index, turn.seq, token.key, token.start, token.end, owner))
++    return TokenSequence(turns, tuple(tokens))
+--- /dev/null
++++ b/packages/evalcore/src/tracer_evalcore/align.py
+@@ -0,0 +1,147 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Word alignment with the cost pair (edits, deletions + insertions) (scratch oracle)."""
++
++from __future__ import annotations
++
++import enum
++from collections.abc import Sequence
++from dataclasses import dataclass
++
++from tracer_evalcore.errors import EvalcoreError, InputRefusedError
++from tracer_evalcore.tokens import TokenSequence
++
++__all__ = [
++    "ALIGN_MAX_TOKENS", "AlignOp", "Alignment", "AlignmentTooLargeError", "EvalcoreError",
++    "InputRefusedError", "OpKind", "UndefinedMerError", "align", "align_keys",
++]
++
++ALIGN_MAX_TOKENS = 20000
++
++
++class OpKind(enum.StrEnum):
++    MATCH = "match"
++    SUBSTITUTION = "substitution"
++    DELETION = "deletion"
++    INSERTION = "insertion"
++
++
++class AlignmentTooLargeError(InputRefusedError):
++    def __init__(self, export_tokens: int, stt_tokens: int, max_tokens: int) -> None:
++        super().__init__(
++            f"alignment input too large: export {export_tokens} tokens, stt {stt_tokens} tokens, "
++            f"cap {max_tokens} per side"
++        )
++        self.export_tokens = export_tokens
++        self.stt_tokens = stt_tokens
++        self.max_tokens = max_tokens
++
++
++class UndefinedMerError(EvalcoreError):
++    """Both sides are empty: the match error rate has a zero denominator."""
++
++
++@dataclass(frozen=True, slots=True)
++class AlignOp:
++    kind: OpKind
++    export_index: int | None
++    stt_index: int | None
++
++
++@dataclass(frozen=True)
++class Alignment:
++    ops: tuple[AlignOp, ...]
++    hits: int
++    substitutions: int
++    deletions: int
++    insertions: int
++
++    def __post_init__(self) -> None:
++        tally = {k: 0 for k in OpKind}
++        for op in self.ops:
++            tally[OpKind(op.kind)] += 1
++        got = (tally[OpKind.MATCH], tally[OpKind.SUBSTITUTION], tally[OpKind.DELETION], tally[OpKind.INSERTION])
++        if got != (self.hits, self.substitutions, self.deletions, self.insertions):
++            raise ValueError("alignment counts do not equal the ops")
++
++    @property
++    def export_tokens(self) -> int:
++        return self.hits + self.substitutions + self.deletions
++
++    @property
++    def stt_tokens(self) -> int:
++        return self.hits + self.substitutions + self.insertions
++
++    @property
++    def edits(self) -> int:
++        return self.substitutions + self.deletions + self.insertions
++
++    @property
++    def mer(self) -> float:
++        total = self.hits + self.edits
++        if total == 0:
++            raise UndefinedMerError("match error rate of two empty texts is undefined")
++        return self.edits / total
++
++
++_BIG = 1 << 32
++
++
++def align_keys(
++    export_keys: Sequence[str], stt_keys: Sequence[str], *, max_tokens: int = ALIGN_MAX_TOKENS
++) -> Alignment:
++    if isinstance(max_tokens, bool) or not isinstance(max_tokens, int):
++        raise TypeError("max_tokens must be an int")
++    if max_tokens < 1:
++        raise ValueError("max_tokens must be at least 1")
++    for side in (export_keys, stt_keys):
++        if isinstance(side, str | bytes) or not isinstance(side, Sequence):
++            raise TypeError("keys must be a sequence of str")
++        if not all(isinstance(k, str) for k in side):
++            raise TypeError("keys must be str")
++    n, m = len(export_keys), len(stt_keys)
++    if n > max_tokens or m > max_tokens:
++        raise AlignmentTooLargeError(n, m, max_tokens)
++    sub, indel = _BIG, _BIG + 1
++    table = [[0] * (m + 1) for _ in range(n + 1)]
++    for j in range(1, m + 1):
++        table[0][j] = j * indel
++    for i in range(1, n + 1):
++        row, above = table[i], table[i - 1]
++        row[0] = i * indel
++        key = export_keys[i - 1]
++        for j in range(1, m + 1):
++            diag = above[j - 1] + (0 if key == stt_keys[j - 1] else sub)
++            best = above[j] + indel
++            left = row[j - 1] + indel
++            if left < best:
++                best = left
++            row[j] = diag if diag < best else best
++    ops: list[AlignOp] = []
++    i, j = n, m
++    while i > 0 or j > 0:
++        here = table[i][j]
++        if i > 0 and j > 0 and export_keys[i - 1] == stt_keys[j - 1] and here == table[i - 1][j - 1]:
++            ops.append(AlignOp(OpKind.MATCH, i - 1, j - 1))
++            i, j = i - 1, j - 1
++        elif i > 0 and j > 0 and export_keys[i - 1] != stt_keys[j - 1] and here == table[i - 1][j - 1] + sub:
++            ops.append(AlignOp(OpKind.SUBSTITUTION, i - 1, j - 1))
++            i, j = i - 1, j - 1
++        elif i > 0 and here == table[i - 1][j] + indel:
++            ops.append(AlignOp(OpKind.DELETION, i - 1, None))
++            i -= 1
++        else:
++            ops.append(AlignOp(OpKind.INSERTION, None, j - 1))
++            j -= 1
++    ops.reverse()
++    counts = {k: 0 for k in OpKind}
++    for op in ops:
++        counts[op.kind] += 1
++    return Alignment(
++        tuple(ops), counts[OpKind.MATCH], counts[OpKind.SUBSTITUTION], counts[OpKind.DELETION],
++        counts[OpKind.INSERTION],
++    )
++
++
++def align(export: TokenSequence, stt: TokenSequence, *, max_tokens: int = ALIGN_MAX_TOKENS) -> Alignment:
++    return align_keys(export.keys, stt.keys, max_tokens=max_tokens)
+--- /dev/null
++++ b/packages/evalcore/src/tracer_evalcore/spans.py
+@@ -0,0 +1,125 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Disagreement spans on the export text (scratch oracle)."""
++
++from __future__ import annotations
++
++from dataclasses import dataclass
++
++from tracer_evalcore.align import Alignment, OpKind
++from tracer_evalcore.errors import InputRefusedError
++from tracer_evalcore.tokens import TokenSequence
++
++__all__ = ["Span", "SpanInputError", "extract_spans"]
++
++
++class SpanInputError(InputRefusedError):
++    """The alignment does not belong to the token sequences, or a span cannot be placed."""
++
++
++@dataclass(frozen=True, slots=True)
++class Span:
++    turn_index: int
++    turn_seq: int
++    start: int
++    end: int
++    export_token_start: int
++    export_token_end: int
++    stt_token_start: int
++    stt_token_end: int
++    substitutions: int
++    deletions: int
++    insertions: int
++    audio_start_ms: int | None
++    audio_end_ms: int | None
++
++    @property
++    def export_tokens(self) -> int:
++        return self.substitutions + self.deletions
++
++
++def _audio(stt: TokenSequence, lo: int, hi: int) -> tuple[int | None, int | None]:
++    if hi <= lo:
++        return None, None
++    held = []
++    for token in stt.tokens[lo:hi]:
++        if token.segment_index is None:
++            return None, None
++        held.append(stt.turns[token.turn_index].segments[token.segment_index])
++    first, last = held[0], held[-1]
++    if first.start_ms is None or last.end_ms is None:
++        return None, None
++    if any(s.start_ms is None or s.end_ms is None for s in held):
++        return None, None
++    if first.start_ms > last.end_ms:
++        return None, None
++    return first.start_ms, last.end_ms
++
++
++def extract_spans(alignment: Alignment, export: TokenSequence, stt: TokenSequence) -> tuple[Span, ...]:
++    ops = alignment.ops
++    if alignment.export_tokens != len(export.tokens) or alignment.stt_tokens != len(stt.tokens):
++        raise SpanInputError("alignment counts do not equal the token counts")
++    e = s = 0
++    export_before: list[int] = []
++    stt_before: list[int] = []
++    for op in ops:
++        if op.export_index is not None:
++            if op.export_index != e:
++                raise SpanInputError("export indices are not in order")
++        if op.stt_index is not None:
++            if op.stt_index != s:
++                raise SpanInputError("stt indices are not in order")
++        export_before.append(e)
++        stt_before.append(s)
++        e += op.export_index is not None
++        s += op.stt_index is not None
++    spans: list[Span] = []
++    k = 0
++    n = len(ops)
++    while k < n:
++        if ops[k].kind == OpKind.MATCH:
++            k += 1
++            continue
++        j = k
++        while j < n and ops[j].kind != OpKind.MATCH:
++            j += 1
++        run = range(k, j)
++        if all(ops[x].export_index is None for x in run):
++            base = export_before[k]
++            if not export.tokens:
++                raise SpanInputError("no export token to anchor an insertion to")
++            anchor = export.tokens[base - 1] if base > 0 else export.tokens[0]
++            where = anchor.end if base > 0 else anchor.start
++            lo, hi = stt_before[k], stt_before[k] + len(run)
++            a, b = _audio(stt, lo, hi)
++            spans.append(Span(anchor.turn_index, anchor.turn_seq, where, where, base, base, lo, hi, 0, 0, len(run), a, b))
++        else:
++            groups: list[int | None] = []
++            last: int | None = None
++            for x in run:
++                if ops[x].export_index is not None:
++                    last = export.tokens[ops[x].export_index].turn_index  # type: ignore[index]
++                groups.append(last)
++            first = next(g for g in groups if g is not None)
++            groups = [first if g is None else g for g in groups]
++            begin = 0
++            for idx in range(1, len(groups) + 1):
++                if idx == len(groups) or groups[idx] != groups[begin]:
++                    members = [run[x] for x in range(begin, idx)]
++                    ex = [ops[x].export_index for x in members if ops[x].export_index is not None]
++                    ft, lt = export.tokens[ex[0]], export.tokens[ex[-1]]
++                    lo = stt_before[members[0]]
++                    hi = lo + sum(1 for x in members if ops[x].stt_index is not None)
++                    a, b = _audio(stt, lo, hi)
++                    spans.append(
++                        Span(
++                            ft.turn_index, ft.turn_seq, ft.start, lt.end, ex[0], ex[-1] + 1, lo, hi,
++                            sum(1 for x in members if ops[x].kind == OpKind.SUBSTITUTION),
++                            sum(1 for x in members if ops[x].kind == OpKind.DELETION),
++                            sum(1 for x in members if ops[x].kind == OpKind.INSERTION), a, b,
++                        )
++                    )
++                    begin = idx
++        k = j
++    return tuple(spans)
+--- /dev/null
++++ b/packages/evalcore/src/tracer_evalcore/flags.py
+@@ -0,0 +1,172 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Flags, confidence and the Signal interface (scratch oracle)."""
++
++from __future__ import annotations
++
++import json
++import re
++from dataclasses import dataclass
++from decimal import Decimal, InvalidOperation
++from fractions import Fraction
++from pathlib import Path
++from typing import Any, Protocol, runtime_checkable
++
++from tracer_evalcore.errors import InputRefusedError
++from tracer_evalcore.spans import Span
++from tracer_evalcore.tokens import TokenSequence
++
++SIGNAL_NAME = "stt_disagreement"
++FLAGS_FORMAT = "tracer.flags/1"
++FLAGS_JSON_SCHEMA: dict[str, Any] = json.loads((Path(__file__).parent / "_schema_json.txt").read_text())
++_NAME = re.compile(r"^[a-z][a-z0-9_]{0,63}$")
++
++
++class ThresholdError(InputRefusedError):
++    """flag_min_confidence is not usable."""
++
++
++def levenshtein(a: str, b: str) -> int:
++    if not isinstance(a, str) or not isinstance(b, str):
++        raise TypeError("levenshtein compares str")
++    while a and b and a[0] == b[0]:
++        a, b = a[1:], b[1:]
++    while a and b and a[-1] == b[-1]:
++        a, b = a[:-1], b[:-1]
++    if not a:
++        return len(b)
++    if not b:
++        return len(a)
++    previous = list(range(len(b) + 1))
++    for i, x in enumerate(a, 1):
++        current = [i]
++        for j, y in enumerate(b, 1):
++            current.append(min(previous[j] + 1, current[j - 1] + 1, previous[j - 1] + (x != y)))
++        previous = current
++    return previous[-1]
++
++
++@dataclass(frozen=True, slots=True)
++class Confidence:
++    edit_distance: int
++    key_length: int
++
++    def __post_init__(self) -> None:
++        for v in (self.edit_distance, self.key_length):
++            if isinstance(v, bool) or not isinstance(v, int):
++                raise TypeError("confidence parts are ints")
++        if self.key_length < 1 or not 0 <= self.edit_distance <= self.key_length:
++            raise ValueError("need 0 <= edit_distance <= key_length and key_length >= 1")
++
++    @property
++    def display(self) -> str:
++        scaled = Fraction(self.edit_distance * 10000, self.key_length)
++        whole = round(scaled)  # Python rounds half to even
++        text = f"{Decimal(whole).scaleb(-4):f}"
++        if "." in text:
++            text = text.rstrip("0").rstrip(".")
++        return text
++
++    def meets(self, threshold: Decimal) -> bool:
++        if not isinstance(threshold, Decimal):
++            raise TypeError("threshold must be a Decimal")
++        return Fraction(self.edit_distance, self.key_length) >= Fraction(threshold)
++
++
++@runtime_checkable
++class Signal(Protocol):
++    @property
++    def name(self) -> str: ...
++
++    def confidence(self, span: Span, export: TokenSequence, stt: TokenSequence) -> Confidence: ...
++
++
++class SttDisagreementSignal:
++    name = SIGNAL_NAME
++
++    def confidence(self, span: Span, export: TokenSequence, stt: TokenSequence) -> Confidence:
++        a = " ".join(t.key for t in export.tokens[span.export_token_start : span.export_token_end])
++        b = " ".join(t.key for t in stt.tokens[span.stt_token_start : span.stt_token_end])
++        return Confidence(levenshtein(a, b), max(len(a), len(b), 1))
++
++
++STT_DISAGREEMENT = SttDisagreementSignal()
++
++
++def parse_threshold(value: int | float | Decimal) -> Decimal:
++    if isinstance(value, bool) or not isinstance(value, int | float | Decimal):
++        raise TypeError("flag_min_confidence must be a number")
++    if isinstance(value, float):
++        value = Decimal(repr(value))
++    elif isinstance(value, int):
++        value = Decimal(value)
++    if not value.is_finite() or value < 0 or value > 1:
++        raise ThresholdError("flag_min_confidence must be finite and within [0, 1]")
++    if value.normalize().as_tuple().exponent < -18:  # type: ignore[operator]
++        raise ThresholdError("flag_min_confidence has more than 18 fractional digits")
++    return value
++
++
++def format_threshold(threshold: Decimal) -> str:
++    if not isinstance(threshold, Decimal):
++        raise TypeError("threshold must be a Decimal")
++    value = parse_threshold(threshold)
++    if value == 0:
++        return "0"
++    text = f"{value.normalize():f}"
++    return text
++
++
++@dataclass(frozen=True, slots=True)
++class SpanFlag:
++    span: Span
++    signal: str
++    edit_distance: int
++    key_length: int
++    confidence: str
++    flagged: bool
++    near_chunk_boundary: bool
++
++
++def near_chunk_boundary(span: Span, stt: TokenSequence) -> bool:
++    tokens = stt.tokens
++    if span.stt_token_end > len(tokens):
++        raise ValueError("span does not belong to this STT sequence")
++    lo, hi = span.stt_token_start, span.stt_token_end
++    if hi > lo:
++        for i in range(lo, hi):
++            turn = tokens[i].turn_index
++            if i == 0 or tokens[i - 1].turn_index != turn:
++                return True
++            if i == len(tokens) - 1 or tokens[i + 1].turn_index != turn:
++                return True
++        return False
++    return 0 < lo < len(tokens) and tokens[lo - 1].turn_index != tokens[lo].turn_index
++
++
++def flag_spans(
++    spans: tuple[Span, ...] | list[Span],
++    export: TokenSequence,
++    stt: TokenSequence,
++    *,
++    signal: Signal,
++    flag_min_confidence: int | float | Decimal,
++) -> tuple[SpanFlag, ...]:
++    threshold = parse_threshold(flag_min_confidence)
++    if not isinstance(signal, Signal):
++        raise TypeError("signal must provide name and confidence")
++    name = signal.name
++    if not isinstance(name, str):
++        raise TypeError("signal name must be a str")
++    if not _NAME.fullmatch(name):
++        raise ValueError("signal name is not a machine key")
++    out = []
++    for span in spans:
++        value = signal.confidence(span, export, stt)
++        if not isinstance(value, Confidence):
++            raise TypeError("signal must return a Confidence")
++        out.append(
++            SpanFlag(span, name, value.edit_distance, value.key_length, value.display,
++                     value.meets(threshold), near_chunk_boundary(span, stt))
++        )
++    return tuple(out)
+--- /dev/null
++++ b/packages/evalcore/src/tracer_evalcore/_schema_json.txt
+@@ -0,0 +1,72 @@
++{
++  "$schema": "https://json-schema.org/draft/2020-12/schema",
++  "title": "tracer.flags/1",
++  "type": "object",
++  "additionalProperties": false,
++  "required": ["format", "signal", "normaliser", "stt", "flag_min_confidence", "alignment", "tokens", "spans"],
++  "properties": {
++    "format": {"type": "string", "enum": ["tracer.flags/1"]},
++    "signal": {"type": "string", "enum": ["stt_disagreement"]},
++    "normaliser": {"type": "string", "pattern": "^[a-z]{2,3}-[A-Z][a-z]{3}/[1-9][0-9]{0,8}$"},
++    "stt": {
++      "type": "object",
++      "additionalProperties": false,
++      "required": ["provider", "model", "model_source"],
++      "properties": {
++        "provider": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,63}$"},
++        "model": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,63}$"},
++        "model_source": {"type": "string", "enum": ["requested"]}
++      }
++    },
++    "flag_min_confidence": {"type": "string", "pattern": "^(?:0|1|0\\.[0-9]{0,17}[1-9])$"},
++    "alignment": {
++      "type": "object",
++      "additionalProperties": false,
++      "required": ["unit", "hits", "substitutions", "deletions", "insertions"],
++      "properties": {
++        "unit": {"type": "string", "enum": ["word"]},
++        "hits": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
++        "substitutions": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
++        "deletions": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
++        "insertions": {"type": "integer", "minimum": 0, "maximum": 9007199254740991}
++      }
++    },
++    "tokens": {
++      "type": "object",
++      "additionalProperties": false,
++      "required": ["export", "stt", "flagged_export"],
++      "properties": {
++        "export": {"type": "integer", "minimum": 1, "maximum": 9007199254740991},
++        "stt": {"type": "integer", "minimum": 1, "maximum": 9007199254740991},
++        "flagged_export": {"type": "integer", "minimum": 0, "maximum": 9007199254740991}
++      }
++    },
++    "spans": {
++      "type": "array",
++      "items": {
++        "type": "object",
++        "additionalProperties": false,
++        "required": ["turn_seq", "start", "end", "export_tokens", "stt_token_start", "stt_token_end", "substitutions", "deletions", "insertions", "edit_distance", "key_length", "confidence", "flagged", "near_chunk_boundary"],
++        "properties": {
++          "turn_seq": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
++          "start": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
++          "end": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
++          "export_tokens": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
++          "stt_token_start": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
++          "stt_token_end": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
++          "substitutions": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
++          "deletions": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
++          "insertions": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
++          "edit_distance": {"type": "integer", "minimum": 1, "maximum": 9007199254740991},
++          "key_length": {"type": "integer", "minimum": 1, "maximum": 9007199254740991},
++          "confidence": {"type": "string", "pattern": "^(?:0|1|0\\.[0-9]{0,3}[1-9])$"},
++          "flagged": {"type": "boolean"},
++          "near_chunk_boundary": {"type": "boolean"},
++          "audio_start_ms": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
++          "audio_end_ms": {"type": "integer", "minimum": 0, "maximum": 9007199254740991}
++        },
++        "dependentRequired": {"audio_start_ms": ["audio_end_ms"], "audio_end_ms": ["audio_start_ms"]}
++      }
++    }
++  }
++}
+\ No newline at end of file
