@@ -1,0 +1,34 @@
+# alignment table measurement (scratch scripts, Python 3.14.7, Apple silicon; times without tracemalloc)
+python 3.14.7
+-- wall clock, no tracemalloc
+n=500 similar: 0.02s  H=425 S=75 D=0 I=0
+n=500 random: 0.02s  H=44 S=443 D=13 I=13
+n=1000 similar: 0.08s  H=860 S=140 D=0 I=0
+n=1000 random: 0.08s  H=98 S=867 D=35 I=35
+n=2000 similar: 0.30s  H=1703 S=297 D=0 I=0
+n=2000 random: 0.31s  H=190 S=1747 D=63 I=63
+n=3000 similar: 0.69s  H=2541 S=459 D=0 I=0
+n=3000 random: 0.70s  H=293 S=2605 D=102 I=102
+n=5000 similar: 1.92s  H=4235 S=765 D=0 I=0
+n=5000 random: 1.97s  H=507 S=4309 D=184 I=184
+n=7000 similar: 3.72s  H=5945 S=1055 D=0 I=0
+n=7000 random: 3.88s  H=690 S=6080 D=230 I=230
+n=10000 similar: 7.66s  H=8475 S=1525 D=0 I=0
+n=10000 random: 7.85s  H=993 S=8682 D=325 I=325
+-- table memory at n=2000 and n=5000 (tracemalloc current bytes after building the table only)
+n=2000 list[list[int]] (naive): 32.2 MB
+n=2000 array('I') rows: 17.2 MB
+n=2000 array('H') rows: 8.7 MB
+n=2000 bytearray rows (chosen): 4.1 MB
+n=5000 list[list[int]] (naive): 200.4 MB
+n=5000 array('I') rows: 106.8 MB
+n=5000 array('H') rows: 53.6 MB
+n=5000 bytearray rows (chosen): 25.3 MB
+-- process resident set growth (ru_maxrss) for one align_keys call, random keys over 50 values
+2000 maxrss before 22.44608 MB after 27.066368 MB
+5000 maxrss before 22.790144 MB after 50.757632 MB
+10000 maxrss before 23.412736 MB after 135.856128 MB
+-- levenshtein (Myers/Hyyro, Python ints) against the two-row reference
+pairs agree with the two-row reference: 20300
+cap-size pair 200000 chars each: 151401 13.88s
+cap error: keys of 200001 and 200000 code points; each may hold at most 200000

@@ -1,0 +1,480 @@
+# Mutants of the oracle (scratch tracer_evalcore/stt.py, tracer_evalproviders/*, the conftest guard and the ADR text), Phase 3 batch B.
+# Each entry: one change made to the oracle source (or, for G and A, to the staged conftest, the ADR copy or the PENDING set), then packages/evalproviders/tests run on
+# Python 3.13 (464 tests, pytest -x). CAUGHT = at least one test fails (or the run hangs and the 240 s runner timeout fires, which counts as a failure; none did).
+# 231 mutants: 225 caught, 6 equivalent, 0 survived. Equivalent = a change that cannot alter behaviour (the reason is given); they are kept so that the list is the one that ran.
+# Per group: M 28 (sarvam/models.py), C 67 (sarvam/client.py), E 7 (sarvam/engine.py), S 20 (secrets.py), P 56 (sarvam/mapping.py), K 12 (cost.py), L 14 (calllog.py), D 8 (dryrun.py), T 6 (tracer_evalcore/stt.py), G 6 (tests/conftest.py, the network guard), A 7 (the ADR 0024 copy and the PENDING set of the ADR test)
+# History: a first run of 223 mutants left 15 survivors; each led to a change of a test or of the mutant, and the whole list (228 with 5 added mutants, then 231 with 3 more) was run again on the final tests:
+#   M14, C49, C62, G04, G06, L14  equivalent mutants (reasons below); kept, now labelled.
+#   M21 (NaN accepted) was dead code behind the strict pre-check: the mutant now removes both the constant hook and the pre-check.
+#   C46 (a Date without a zone read as UTC): Date cases `-0000` and `+0530` added.
+#   E06 (default model recorded instead of the requested one): test_sarvam_the_model_as_requested_is_what_is_sent_and_recorded added.
+#   S11 (key exported into os.environ): an earlier test of the same run had put the same value there; conftest now removes SARVAM_API_KEY before every test and two tests assert its absence (finding F-B7). S24 is the same mutant spelt differently.
+#   P54 (a duplicate response accepted): duplicate cases that are otherwise complete were added.
+#   L05 (error kind unchecked): test_call_log_only_ever_names_a_short_machine_key_as_the_error_kind added.
+#   S10 (any line ending in the variable name matches): decoy lines after the real one.
+#   L03 (mode left to the umask): test_call_log_an_existing_file_with_a_looser_mode_is_tightened added.
+#   P51 (segment text stripped): the verbatim segment text now has blanks around it.
+#   Added after the first run: P55, P56, P57 (chunk-plan key, created_at of usage and turns), S24, C65 (close does not close), C66 to C68 (the URL read from the environment, a second URL literal).
+# Not mutated (no code in the oracle for them): the Python 3.15 leg, Windows, a real network, the hosted CI.
+M01 [CAUGHT] forced mr-IN is sent
+    caught by: test_sarvam_request_sends_unknown_language_and_explicit_model[None]
+M02 [CAUGHT] hi accepted as configured language
+    caught by: test_sarvam_configured_language_other_than_mr_refused[hi]
+M03 [CAUGHT] mr-IN accepted as configured language
+    caught by: test_sarvam_configured_language_other_than_mr_refused[mr-IN]
+M04 [CAUGHT] model not sent
+    caught by: test_sarvam_the_model_as_requested_is_what_is_sent_and_recorded
+M05 [CAUGHT] timestamps off
+    caught by: test_sarvam_request_sends_unknown_language_and_explicit_model[None]
+M06 [CAUGHT] a fifth form field
+    caught by: test_sarvam_request_sends_unknown_language_and_explicit_model[None]
+M07 [CAUGHT] default model changed
+    caught by: test_sarvam_engine_is_an_stt_engine
+M08 [CAUGHT] cap doubled
+    caught by: test_sarvam_response_body_cap_is_exactly_one_mebibyte
+M09 [CAUGHT] floats instead of decimals
+    caught by: test_call_log_has_no_text_no_key
+M10 [CAUGHT] lone surrogate accepted
+    caught by: test_sarvam_response_rejects_wrong_types_and_oversize_body[lone
+M11 [CAUGHT] duplicate keys accepted
+    caught by: test_sarvam_response_rejects_wrong_types_and_oversize_body[duplicate
+M12 [CAUGHT] probability up to 2
+    caught by: test_sarvam_response_rejects_wrong_types_and_oversize_body[probability
+M13 [CAUGHT] probability unchecked
+    caught by: test_sarvam_response_rejects_wrong_types_and_oversize_body[probability
+M14 [EQUIVALENT] bool is a number
+    reason: a JSON true is a Python bool and never a Decimal, so the isinstance(Decimal) test already refuses it
+M15 [CAUGHT] unequal arrays accepted
+    caught by: test_sarvam_response_rejects_wrong_types_and_oversize_body[unequal
+M16 [CAUGHT] end before start accepted
+    caught by: test_sarvam_response_rejects_wrong_types_and_oversize_body[end
+M17 [CAUGHT] negative times accepted
+    caught by: test_sarvam_response_rejects_wrong_types_and_oversize_body[start
+M18 [CAUGHT] null request_id accepted
+    caught by: test_sarvam_invalid_body_is_response_invalid_and_not_retried[request
+M19 [CAUGHT] language_code number accepted
+    caught by: test_sarvam_response_rejects_wrong_types_and_oversize_body[language_code
+M20 [CAUGHT] null transcript accepted
+    caught by: test_sarvam_response_rejects_wrong_types_and_oversize_body[transcript
+M21 [CAUGHT] NaN accepted (constant hook and strict pre-check removed)
+    caught by: test_sarvam_response_rejects_wrong_types_and_oversize_body[NaN]
+M22 [CAUGHT] transcript shown in repr
+    caught by: test_sarvam_response_models_parse_all_captures
+M23 [CAUGHT] null timestamps accepted
+    caught by: test_sarvam_response_rejects_wrong_types_and_oversize_body[timestamps
+M24 [CAUGHT] non-text words accepted
+    caught by: test_sarvam_response_rejects_wrong_types_and_oversize_body[word
+M25 [CAUGHT] path changed
+    caught by: test_sarvam_base_url_not_overridable
+M26 [CAUGHT] plain http
+    caught by: test_sarvam_base_url_not_overridable
+M27 [CAUGHT] arrays accepted
+    caught by: test_sarvam_invalid_body_is_response_invalid_and_not_retried[an
+M28 [CAUGHT] only ValueError caught by the parser guard
+    caught by: test_sarvam_response_rejects_wrong_types_and_oversize_body[duplicate
+C01 [CAUGHT] five attempts
+    caught by: test_sarvam_retry_policy_constants_are_the_adr_values
+C02 [CAUGHT] three attempts
+    caught by: test_sarvam_retries_429_and_503_then_succeeds[500
+C03 [CAUGHT] backoff 1 2 3
+    caught by: test_sarvam_retries_429_and_503_then_succeeds[500
+C04 [CAUGHT] backoff halved
+    caught by: test_sarvam_retries_429_and_503_then_succeeds[429--]
+C05 [CAUGHT] bound 31
+    caught by: test_sarvam_retry_policy_constants_are_the_adr_values
+C06 [CAUGHT] bound 29
+    caught by: test_sarvam_retry_policy_constants_are_the_adr_values
+C07 [CAUGHT] bound exclusive
+    caught by: test_sarvam_honours_bounded_retry_after[steps2-waits2]
+C08 [CAUGHT] retry-after: min not max
+    caught by: test_sarvam_honours_bounded_retry_after[steps0-waits0]
+C09 [CAUGHT] retry-after replaces backoff
+    caught by: test_sarvam_honours_bounded_retry_after[steps3-waits3]
+C10 [CAUGHT] retry-after on 429 only
+    caught by: test_sarvam_honours_bounded_retry_after[steps5-waits5]
+C11 [CAUGHT] retry-after on every error
+    caught by: test_call_log_has_no_text_no_key
+C12 [CAUGHT] no stop at the last attempt
+    caught by: test_sarvam_gives_up_after_bounded_retries[429]
+C13 [CAUGHT] 429 not retried
+    caught by: test_call_log_has_no_text_no_key
+C14 [CAUGHT] 5xx not retried
+    caught by: test_call_log_written_before_and_after_each_send
+C15 [CAUGHT] transport errors not retried
+    caught by: test_call_log_has_no_text_no_key
+C16 [CAUGHT] 400 retried
+    caught by: test_call_log_has_no_text_no_key
+C17 [CAUGHT] 403 retried
+    caught by: test_sarvam_does_not_retry_400_403[401]
+C18 [CAUGHT] redirects followed
+    caught by: test_sarvam_unexpected_status_is_response_invalid_and_never_followed[301-]
+C19 [CAUGHT] read timeout 30
+    caught by: test_sarvam_retry_policy_constants_are_the_adr_values
+C20 [CAUGHT] connect timeout 5
+    caught by: test_sarvam_retry_policy_constants_are_the_adr_values
+C21 [CAUGHT] pool timeout 60
+    caught by: test_sarvam_retry_policy_constants_are_the_adr_values
+C22 [CAUGHT] write timeout 10
+    caught by: test_sarvam_retry_policy_constants_are_the_adr_values
+C23 [CAUGHT] cap off by one
+    caught by: test_sarvam_response_body_cap_is_exactly_one_mebibyte
+C24 [CAUGHT] reading continues past the cap
+    caught by: ..................................
+C25 [CAUGHT] content type unchecked
+    caught by: test_sarvam_200_with_a_wrong_content_type_is_response_invalid
+C26 [CAUGHT] any error code kept
+    caught by: test_sarvam_error_code_is_kept_only_as_a_short_machine_key[xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-unrecognised]
+C27 [CAUGHT] longer error codes
+    caught by: test_sarvam_error_code_is_kept_only_as_a_short_machine_key[xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-unrecognised]
+C28 [CAUGHT] unsafe request id kept
+    caught by: test_sarvam_error_request_id_is_kept_only_when_it_is_a_plain_identifier[{"error":
+C29 [CAUGHT] header request id ignored
+    caught by: test_sarvam_error_request_id_is_kept_only_when_it_is_a_plain_identifier[<html>-headers1-header-id-2]
+C30 [CAUGHT] key in the cause
+    caught by: test_sarvam_the_error_is_raised_with_no_cause_and_no_context
+C31 [CAUGHT] decoding error escapes
+    caught by: test_sarvam_a_corrupt_compressed_body_is_response_invalid
+C32 [CAUGHT] only transport errors caught
+    caught by: test_sarvam_any_other_http_client_error_is_a_typed_transport_error
+C33 [CAUGHT] wrong kind for read timeout
+    caught by: test_call_log_has_no_text_no_key
+C34 [CAUGHT] 3xx treated as an error response
+    caught by: test_sarvam_unexpected_status_is_response_invalid_and_never_followed[301-]
+C35 [CAUGHT] 2xx other than 200 accepted as error
+    caught by: test_sarvam_unexpected_status_is_response_invalid_and_never_followed[204-]
+C36 [CAUGHT] wrong auth header
+    caught by: test_sarvam_retries_429_and_503_then_succeeds[429--]
+C37 [CAUGHT] key in the URL
+    caught by: test_sarvam_base_url_not_overridable
+C38 [CAUGHT] attempt numbers from 0
+    caught by: test_call_log_has_no_text_no_key
+C39 [CAUGHT] elapsed in seconds
+    caught by: test_call_log_elapsed_milliseconds_and_timestamps_come_from_the_injected_clocks
+C40 [CAUGHT] third clock read
+    caught by: test_call_log_elapsed_milliseconds_and_timestamps_come_from_the_injected_clocks
+C41 [CAUGHT] retry-after above the bound is a server error
+    caught by: test_sarvam_honours_bounded_retry_after_above_the_bound_ends_the_attempts[429-31-Fri,
+C42 [CAUGHT] 400 is an auth error
+    caught by: test_sarvam_does_not_retry_400_403[400]
+C43 [CAUGHT] chunk index always 0
+    caught by: test_call_log_has_no_text_no_key
+C44 [CAUGHT] attempts off by one
+    caught by: test_sarvam_gives_up_after_bounded_retries[429]
+C45 [CAUGHT] responded_at from the local clock
+    caught by: test_sarvam_responded_at_is_the_http_date_header_or_nothing[Fri,
+C46 [CAUGHT] naive Date assumed UTC
+    caught by: test_sarvam_responded_at_is_the_http_date_header_or_nothing[Fri,
+C47 [CAUGHT] non-ASCII digits accepted
+    caught by: test_sarvam_honours_bounded_retry_after_ignores_an_unparseable_value[\u0663]
+C48 [CAUGHT] retry-after date against the local clock
+    caught by: test_sarvam_honours_bounded_retry_after_http_date[Fri,
+C49 [EQUIVALENT] negative retry-after not floored
+    reason: the wait is max(backoff, header), so a negative header value can never win
+C50 [CAUGHT] past retry-after date taken as future
+    caught by: test_sarvam_honours_bounded_retry_after_http_date[Fri,
+C51 [CAUGHT] extra sleep
+    caught by: test_sarvam_retries_429_and_503_then_succeeds[429--]
+C52 [CAUGHT] bytes sent is the file only
+    caught by: test_call_log_bytes_audio_seconds_and_chunk_match_the_request
+C53 [CAUGHT] after line written before the send
+    caught by: test_call_log_has_no_text_no_key
+C54 [CAUGHT] no before line
+    caught by: test_call_log_has_no_text_no_key
+C55 [CAUGHT] no after line
+    caught by: test_call_log_has_no_text_no_key
+C56 [CAUGHT] key logged at debug
+    caught by: test_key_never_in_logs_at_debug
+C57 [CAUGHT] headers logged at debug
+    caught by: test_key_never_in_logs_at_debug
+C58 [CAUGHT] model name unchecked
+    caught by: test_sarvam_model_must_be_a_usable_name
+C59 [CAUGHT] file name without .wav
+    caught by: test_sarvam_request_sends_unknown_language_and_explicit_model[None]
+C60 [CAUGHT] file content type guessed
+    caught by: test_sarvam_request_sends_unknown_language_and_explicit_model[None]
+C61 [CAUGHT] file name from the chunk repr
+    caught by: test_sarvam_request_sends_unknown_language_and_explicit_model[None]
+C62 [EQUIVALENT] oversize flag ignored
+    reason: an oversize read leaves body None, so the second test of the same condition already catches it
+C63 [CAUGHT] attempts of the success always 1
+    caught by: test_sarvam_retries_429_and_503_then_succeeds[429--]
+E01 [CAUGHT] failed chunk skipped
+    caught by: test_call_log_has_no_text_no_key
+E02 [CAUGHT] usage of successful chunks dropped
+    caught by: test_sarvam_partial_chunk_failure_yields_no_transcript[auth
+E03 [CAUGHT] language never checked
+    caught by: test_sarvam_configured_language_other_than_mr_refused[en]
+E04 [CAUGHT] chunks sent in reverse
+    caught by: test_call_log_has_no_text_no_key
+E05 [CAUGHT] call log opened before the key is read
+    caught by: test_missing_key_refuses_before_any_request[no
+E06 [CAUGHT] default model recorded instead of the requested one
+    caught by: test_sarvam_the_model_as_requested_is_what_is_sent_and_recorded
+E07 [CAUGHT] wrong provider name
+    caught by: test_sarvam_engine_is_an_stt_engine
+S01 [CAUGHT] str shows the key
+    caught by: test_key_wrapper_prints_a_fixed_placeholder_everywhere
+S02 [CAUGHT] repr shows the key
+    caught by: test_key_wrapper_prints_a_fixed_placeholder_everywhere
+S03 [CAUGHT] format shows the key
+    caught by: test_key_wrapper_prints_a_fixed_placeholder_everywhere
+S04 [CAUGHT] pickling allowed
+    caught by: test_key_wrapper_prints_a_fixed_placeholder_everywhere
+S05 [CAUGHT] control characters accepted in a key
+    caught by: test_key_wrapper_refuses_an_unusable_value_without_quoting_it[a
+S06 [CAUGHT] spaces and non-ASCII accepted in a key
+    caught by: test_key_wrapper_refuses_an_unusable_value_without_quoting_it[a
+S07 [CAUGHT] fallback to the environment
+    caught by: test_env_file_wins_over_the_environment_and_does_not_fall_back
+S08 [CAUGHT] environment wins over the file
+    caught by: test_env_file_wins_over_the_environment_and_does_not_fall_back
+S09 [CAUGHT] export prefix unsupported
+    caught by: test_env_file_reads_only_named_variable[export]
+S10 [CAUGHT] any line that ends in the variable matches
+    caught by: test_env_file_reads_only_named_variable[garbage
+S11 [CAUGHT] key exported into the environment
+    caught by: test_create_sarvam_stt_builds_an_engine_that_uses_the_injected_pieces
+S12 [CAUGHT] path in the message
+    caught by: test_env_file_errors_quote_no_line_and_no_path
+S13 [CAUGHT] OSError kept as context
+    caught by: test_env_file_errors_quote_no_line_and_no_path
+S14 [CAUGHT] quotes kept
+    caught by: test_env_file_reads_only_named_variable[double
+S15 [CAUGHT] white space kept
+    caught by: test_env_file_reads_only_named_variable[trailing
+S16 [CAUGHT] inline comments cut
+    caught by: test_env_file_value_is_kept_whole
+S18 [CAUGHT] config ref scheme
+    caught by: test_key_is_recorded_as_a_name_never_a_value
+S20 [CAUGHT] blank key accepted
+    caught by: test_key_wrapper_refuses_an_unusable_value_without_quoting_it[]
+S21 [CAUGHT] reveal truncated
+    caught by: test_create_sarvam_stt_builds_an_engine_that_uses_the_injected_pieces
+P01 [CAUGHT] empty chunk makes a turn
+    caught by: test_empty_chunk_makes_no_turn_and_is_counted[]
+P02 [CAUGHT] white space chunk makes a turn
+    caught by: test_empty_chunk_makes_no_turn_and_is_counted[
+P03 [CAUGHT] text stripped
+    caught by: test_stt_transcript_text_is_kept_verbatim[
+P04 [CAUGHT] seq is the chunk index
+    caught by: test_empty_chunk_makes_no_turn_and_is_counted[]
+P05 [CAUGHT] role caller
+    caught by: test_stt_transcript_maps_one_turn_per_nonempty_chunk
+P06 [CAUGHT] turn source agent_stt
+    caught by: test_stt_transcript_maps_one_turn_per_nonempty_chunk
+P07 [CAUGHT] language assumed from the configuration
+    caught by: test_stt_turn_language_is_observed_from_unknown_request[mr-IN-mr-IN-mr-IN-None]
+P08 [CAUGHT] raw label dropped
+    caught by: test_stt_turn_language_is_observed_from_unknown_request[mr-IN-mr-IN-mr-IN-None]
+P09 [CAUGHT] detected when any chunk has a tag
+    caught by: test_detected_language_set_only_when_all_chunks_agree[one
+P10 [CAUGHT] null labels ignored in agreement
+    caught by: test_detected_language_set_only_when_all_chunks_agree[a
+P11 [CAUGHT] empty chunk labels count as detection
+    caught by: test_detected_language_ignores_empty_chunks
+P12 [CAUGHT] probability as a float
+    caught by: test_stt_turn_language_probability_is_a_canonical_decimal_string[1.0-1]
+P13 [CAUGHT] probability not canonical
+    caught by: test_stt_turn_language_probability_is_a_canonical_decimal_string[1.0-1]
+P14 [CAUGHT] segments not offset by the chunk start
+    caught by: test_stt_segments_offset_by_chunk_start
+P15 [CAUGHT] ms rounded not floored
+    caught by: test_stt_segments_use_the_floor_rule_of_the_f3_mapper
+P16 [CAUGHT] start and offset floored separately
+    caught by: test_stt_segments_offset_is_exact_for_a_chunk_start_that_has_no_decimal_expansion
+P17 [CAUGHT] float arithmetic
+    caught by: test_stt_segments_use_the_floor_rule_of_the_f3_mapper
+P18 [CAUGHT] granularity word
+    caught by: test_stt_segments_offset_by_chunk_start
+P19 [CAUGHT] timeline origin without offsets
+    caught by: test_sarvam_all_chunks_succeed_one_request_each_in_order
+P20 [CAUGHT] no timeline origin
+    caught by: test_stt_segments_offset_by_chunk_start
+P21 [CAUGHT] phrase ending at the chunk end dropped
+    caught by: test_stt_segments_a_phrase_that_ends_exactly_at_the_chunk_end_is_kept
+P22 [CAUGHT] float comparison
+    caught by: test_stt_phrase_time_outside_chunk_gives_no_segment_and_a_warning
+P23 [CAUGHT] tolerance of 10 ms
+    caught by: test_stt_phrase_time_outside_chunk_gives_no_segment_and_a_warning
+P24 [CAUGHT] no warning for a phrase outside the chunk
+    caught by: test_stt_phrase_time_outside_chunk_gives_no_segment_and_a_warning
+P25 [CAUGHT] segments made even when outside
+    caught by: test_stt_phrase_time_outside_chunk_gives_no_segment_and_a_warning
+P26 [CAUGHT] seconds truncated
+    caught by: test_dry_run_prints_the_rounded_total_when_the_quotient_does_not_end
+P27 [CAUGHT] seconds rounded half up
+    caught by: test_usage_audio_seconds_rounded_half_even_18_digits_and_stated[1-524288-0.000001907348632812-half_even_18]
+P28 [CAUGHT] rounding always stated as rounded
+    caught by: test_dry_run_sends_nothing_and_prints_plan
+P29 [CAUGHT] rounding always stated as exact
+    caught by: test_dry_run_prints_the_rounded_total_when_the_quotient_does_not_end
+P30 [CAUGHT] rounding not stated
+    caught by: test_usage_record_per_chunk_measured_seconds_exact[600000-25]
+P31 [CAUGHT] occurred_at from the context clock
+    caught by: test_cost_without_a_price_date_is_ambiguous_not_guessed
+P32 [CAUGHT] usage raw holds the transcript
+    caught by: test_usage_record_per_chunk_measured_seconds_exact[600000-25]
+P33 [CAUGHT] two requests
+    caught by: test_usage_record_per_chunk_measured_seconds_exact[600000-25]
+P34 [CAUGHT] stage other
+    caught by: test_usage_record_per_chunk_measured_seconds_exact[600000-25]
+P35 [CAUGHT] source provider_reported
+    caught by: test_usage_record_per_chunk_measured_seconds_exact[600000-25]
+P36 [CAUGHT] usage without model
+    caught by: test_cost_computed_with_user_usd_catalog
+P37 [CAUGHT] wrong ref kind
+    caught by: test_usage_record_per_chunk_measured_seconds_exact[600000-25]
+P38 [CAUGHT] transcript call ref set
+    caught by: test_stt_transcript_maps_one_turn_per_nonempty_chunk
+P39 [CAUGHT] empty chunks not counted
+    caught by: test_stt_transcript_maps_one_turn_per_nonempty_chunk
+P40 [CAUGHT] chunk plan not recorded
+    caught by: test_stt_transcript_maps_one_turn_per_nonempty_chunk
+P41 [CAUGHT] model basis not stated on the transcript
+    caught by: test_stt_transcript_maps_one_turn_per_nonempty_chunk
+P42 [CAUGHT] model basis not stated on usage
+    caught by: test_usage_record_per_chunk_measured_seconds_exact[600000-25]
+P43 [CAUGHT] label warnings dropped
+    caught by: test_stt_turn_language_is_observed_from_unknown_request[hi_IN-hi-IN-hi_IN-language_label_normalized]
+P44 [CAUGHT] raw label chosen when raws differ
+    caught by: test_detected_language_set_only_when_all_chunks_agree[same
+P45 [CAUGHT] label not trimmed
+    caught by: test_stt_turn_language_is_observed_from_unknown_request[
+P46 [CAUGHT] no usage for empty chunks
+    caught by: test_empty_chunk_makes_no_turn_and_is_counted[]
+P47 [CAUGHT] usage in reverse order
+    caught by: test_cost_computed_with_user_usd_catalog
+P48 [CAUGHT] turn start from the first segment plus one
+    caught by: test_stt_segments_offset_by_chunk_start
+P49 [CAUGHT] transcript source agent_export
+    caught by: test_stt_transcript_maps_one_turn_per_nonempty_chunk
+P50 [CAUGHT] provider name changed
+    caught by: test_cost_computed_with_user_usd_catalog
+P51 [CAUGHT] segment text stripped
+    caught by: test_stt_segments_text_is_verbatim_with_joiners_and_bidi
+P53 [CAUGHT] incomplete response set accepted
+    caught by: test_mapping_refuses_a_response_set_that_does_not_fit_the_plan
+P54 [CAUGHT] duplicate response accepted
+    caught by: test_mapping_refuses_a_response_set_that_does_not_fit_the_plan
+K01 [CAUGHT] wrong reason without a catalog
+    caught by: test_cost_not_available_without_usd_catalog
+K03 [CAUGHT] shipped price source accepted
+    caught by: test_user_catalog_file_is_refused_with_a_short_code[shipped
+K04 [CAUGHT] low precision
+    caught by: test_dry_run_cost_comes_only_from_a_user_supplied_usd_price
+K05 [CAUGHT] run_started_at ignored
+    caught by: test_dry_run_cost_comes_only_from_a_user_supplied_usd_price
+K06 [CAUGHT] wrong reason for a bad entry
+    caught by: test_inr_price_never_converted
+K07 [CAUGHT] empty entries accepted
+    caught by: test_user_catalog_file_is_refused_with_a_short_code[empty
+K08 [CAUGHT] catalog version 2
+    caught by: test_user_catalog_file_is_sealed_into_a_valid_catalog
+K09 [CAUGHT] wrong reason for bad JSON
+    caught by: test_user_catalog_file_is_refused_with_a_short_code[not
+K10 [CAUGHT] context kept on refusal
+    caught by: test_inr_price_never_converted
+K11 [CAUGHT] message is more than the code
+    caught by: test_user_catalog_file_is_refused_with_a_short_code[not
+K12 [CAUGHT] one cost record for all usage
+    caught by: test_cost_not_available_without_usd_catalog
+K14 [CAUGHT] published_at replaced
+    caught by: test_user_catalog_file_reads_published_at_as_the_schema_reads_an_instant[2026-10-01T00:00:00.000000Z-instant0]
+L01 [CAUGHT] mode 0644
+    caught by: test_call_log_is_private_and_append_only
+L02 [CAUGHT] log truncated at open
+    caught by: test_call_log_is_private_and_append_only
+L03 [CAUGHT] mode left to the umask
+    caught by: test_call_log_an_existing_file_with_a_looser_mode_is_tightened
+L04 [CAUGHT] unsafe request id logged
+    caught by: test_call_log_only_ever_names_a_safe_request_id
+L05 [CAUGHT] error kind unchecked
+    caught by: test_call_log_only_ever_names_a_short_machine_key_as_the_error_kind
+L06 [CAUGHT] audio seconds as a float
+    caught by: test_call_log_has_no_text_no_key
+L07 [CAUGHT] attempt missing
+    caught by: test_call_log_has_no_text_no_key
+L08 [CAUGHT] bytes as text
+    caught by: test_call_log_has_no_text_no_key
+L09 [CAUGHT] timestamp without microseconds or zone
+    caught by: test_call_log_has_no_text_no_key
+L10 [CAUGHT] file path logged
+    caught by: test_call_log_has_no_text_no_key
+L11 [CAUGHT] extra text member
+    caught by: test_call_log_has_no_text_no_key
+L12 [CAUGHT] lines buffered, not flushed
+    caught by: test_call_log_has_no_text_no_key
+L13 [CAUGHT] log file renamed
+    caught by: test_call_log_is_private_and_append_only
+L14 [EQUIVALENT] non-ASCII allowed
+    reason: every value of a log line is ASCII by construction (safe id, machine key, digits), and the writer encodes ASCII
+D01 [CAUGHT] calls counted as attempts
+    caught by: test_dry_run_sends_nothing_and_prints_plan
+D04 [CAUGHT] dry run imports os
+    caught by: test_dry_run_module_reads_no_key_and_opens_no_connection
+D05 [CAUGHT] dry run imports httpx
+    caught by: test_dry_run_module_reads_no_key_and_opens_no_connection
+D06 [CAUGHT] dry run writes a file
+    caught by: test_dry_run_sends_nothing_and_prints_plan
+D07 [CAUGHT] chunks off by one
+    caught by: test_dry_run_sends_nothing_and_prints_plan
+D08 [CAUGHT] zero cost when no price
+    caught by: test_dry_run_sends_nothing_and_prints_plan
+D09 [CAUGHT] price date guessed
+    caught by: test_dry_run_cost_comes_only_from_a_user_supplied_usd_price
+D10 [CAUGHT] audio seconds as a float
+    caught by: test_dry_run_prints_the_rounded_total_when_the_quotient_does_not_end
+T01 [CAUGHT] outcome invariant dropped
+    caught by: test_stt_outcome_holds_a_transcript_or_a_failure_exactly_one
+T02 [CAUGHT] auth error is a ValueError
+    caught by: test_sarvam_error_taxonomy_classes_and_bases
+T04 [CAUGHT] key missing is not a configuration error
+    caught by: test_sarvam_error_taxonomy_classes_and_bases
+T05 [CAUGHT] errors not picklable
+    caught by: test_stt_error_facts_are_keyword_only_and_survive_pickling
+T06 [CAUGHT] status not in the message
+    caught by: test_sarvam_error_taxonomy_matches_captures
+T07 [CAUGHT] configuration error is not a ValueError
+    caught by: test_sarvam_error_taxonomy_classes_and_bases
+G01 [CAUGHT] network guard off
+    caught by: test_unit_tests_open_no_socket
+G02 [CAUGHT] guard raises OSError (an adapter could swallow it)
+    caught by: test_unit_tests_open_no_socket
+G03 [CAUGHT] DNS not guarded
+    caught by: test_unit_tests_open_no_socket
+G04 [EQUIVALENT] asyncio connections not guarded
+    reason: asyncio resolves and connects through socket.getaddrinfo and socket.connect, both guarded; the asyncio patches are defence in depth
+G05 [CAUGHT] socket.connect not guarded
+    caught by: test_unit_tests_open_no_socket
+G06 [EQUIVALENT] create_connection not guarded
+    reason: create_connection resolves through getaddrinfo and connects through socket.connect, both guarded; the patch is defence in depth
+A01 [CAUGHT] rule 3 cites a misspelt test
+    caught by: test_adr0024_rules_are_tested
+A02 [CAUGHT] rule 4 cites no test
+    caught by: test_adr0024_rules_are_tested
+A03 [CAUGHT] invariant I9 cites no test
+    caught by: test_adr0024_rules_are_tested
+A04 [CAUGHT] a pending name that is not on PENDING
+    caught by: test_adr0024_rules_are_tested
+A05 [CAUGHT] rule numbering broken
+    caught by: test_adr0024_rules_are_tested
+A06 [CAUGHT] PENDING holds a name that SCOPE section A does not name
+    caught by: test_adr0024_rules_are_tested
+A07 [CAUGHT] PENDING holds a landed test (stale)
+    caught by: test_adr0024_rules_are_tested
+P55 [CAUGHT] chunk plan key renamed
+    caught by: test_stt_transcript_maps_one_turn_per_nonempty_chunk
+P56 [CAUGHT] usage created_at from the clock
+    caught by: test_sarvam_engine_outcome_records_are_complete_when_nothing_fails
+P57 [CAUGHT] turn created_at from the clock
+    caught by: test_stt_transcript_maps_one_turn_per_nonempty_chunk
+S24 [CAUGHT] key exported into the environment (second spelling)
+    caught by: test_create_sarvam_stt_builds_an_engine_that_uses_the_injected_pieces
+C65 [CAUGHT] close does not close the http client
+    caught by: test_sarvam_client_is_a_context_manager_that_closes_its_http_client
+C66 [CAUGHT] the URL read from the environment
+    caught by: test_sarvam_base_url_not_overridable
+C67 [CAUGHT] a second URL literal in the client
+    caught by: test_sarvam_unexpected_status_is_response_invalid_and_never_followed[100-]
+C68 [CAUGHT] the URL read from the environment (from os import)
+    caught by: test_sarvam_base_url_not_overridable

@@ -1,0 +1,1452 @@
+diff --color -ruN a/packages/evalcore/src/tracer_evalcore/stt.py b/packages/evalcore/src/tracer_evalcore/stt.py
+--- a/packages/evalcore/src/tracer_evalcore/stt.py	1970-01-01 05:30:00
++++ b/packages/evalcore/src/tracer_evalcore/stt.py	2026-10-25 06:09:10
+@@ -0,0 +1,155 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The speech-to-text engine boundary (ADR 0024 rules 1, 10 and 11): a protocol, the typed result
++and the provider-neutral error taxonomy. No network module is imported here."""
++
++from __future__ import annotations
++
++from dataclasses import dataclass
++from datetime import datetime
++from typing import Protocol, runtime_checkable
++
++from tracer_evalschema.events import IngestWarning
++from tracer_evalschema.ids import ArtifactId, RunId
++from tracer_evalschema.privacy import PrivacyMarker
++from tracer_evalschema.transcript import Transcript, Turn
++from tracer_evalschema.usage import UsageRecord
++
++from tracer_evalcore.audio.chunker import ChunkPlan
++from tracer_evalcore.errors import EvalcoreError
++
++__all__ = [
++    "SttAuthError",
++    "SttConfigurationError",
++    "SttContext",
++    "SttEngine",
++    "SttError",
++    "SttKeyMissingError",
++    "SttLanguageNotSupportedError",
++    "SttOutcome",
++    "SttRateLimited",
++    "SttRequestRejected",
++    "SttResponseInvalid",
++    "SttServerError",
++    "SttTransportError",
++]
++
++
++class SttError(EvalcoreError):
++    """Base of every speech-to-text failure. Holds machine facts only: never a message, a body,
++    a header, a key or audio."""
++
++    def __init__(
++        self,
++        *,
++        chunk_index: int | None = None,
++        status: int | None = None,
++        kind: str | None = None,
++        code: str | None = None,
++        request_id: str | None = None,
++        attempts: int | None = None,
++        reason: str | None = None,
++    ) -> None:
++        self.chunk_index = chunk_index
++        self.status = status
++        self.kind = kind
++        self.code = code
++        self.request_id = request_id
++        self.attempts = attempts
++        self.reason = reason
++        parts = []
++        if chunk_index is not None:
++            parts.append(f"chunk {chunk_index}")
++        if status is not None:
++            parts.append(f"HTTP {status}")
++        if kind is not None:
++            parts.append(f"transport {kind}")
++        if code is not None:
++            parts.append(f"code {code}")
++        if reason is not None:
++            parts.append(f"reason {reason}")
++        if request_id is not None:
++            parts.append(f"request {request_id}")
++        if attempts is not None:
++            parts.append(f"{attempts} attempt(s)")
++        super().__init__(f"{type(self).__name__}: " + ", ".join(parts) if parts else "")
++
++    def __reduce__(self) -> tuple[object, ...]:
++        return (_rebuild, (type(self), self.__dict__.copy()))
++
++
++def _rebuild(cls: type[SttError], state: dict[str, object]) -> SttError:
++    return cls(**state)  # type: ignore[arg-type]
++
++
++class SttAuthError(SttError):
++    """HTTP 401 or 403, or ``invalid_api_key_error``. Not retried; the run stops."""
++
++
++class SttRequestRejected(SttError):
++    """Any other 4xx except 429. Not retried."""
++
++
++class SttRateLimited(SttError):
++    """429 after the last attempt, or a ``Retry-After`` above the bound."""
++
++
++class SttServerError(SttError):
++    """5xx after the last attempt."""
++
++
++class SttTransportError(SttError):
++    """Connect, read or write error or timeout after the last attempt."""
++
++
++class SttResponseInvalid(SttError):
++    """A 200 body that is not the documented shape, a body over the cap, a non-JSON content
++    type, or a 1xx or 3xx status. Not retried."""
++
++
++class SttConfigurationError(SttError, ValueError):
++    """The run was configured so that no request may be sent."""
++
++
++class SttKeyMissingError(SttConfigurationError):
++    """The API key is missing, empty or unusable."""
++
++
++class SttLanguageNotSupportedError(SttConfigurationError):
++    """The configured language is not one the engine supports (BL-162)."""
++
++
++@dataclass(frozen=True)
++class SttContext:
++    """What an engine needs besides the audio: the run, the audio artifact, the clock value that
++    stamps every record, the privacy marker and the configured language."""
++
++    run_id: RunId
++    audio_artifact_id: ArtifactId
++    created_at: datetime
++    privacy: PrivacyMarker
++    configured_language: str
++
++
++@dataclass(frozen=True)
++class SttOutcome:
++    """A transcript or a failure, never both (ADR 0024 rule 11)."""
++
++    transcript: Transcript | None
++    turns: tuple[Turn, ...]
++    usage: tuple[UsageRecord, ...]
++    warnings: tuple[IngestWarning, ...]
++    failure: SttError | None
++
++    def __post_init__(self) -> None:
++        if (self.transcript is None) == (self.failure is None):
++            raise ValueError("an outcome holds a transcript or a failure, exactly one")
++        if self.failure is not None and (self.turns or self.warnings):
++            raise ValueError("a failed outcome holds no turn and no warning")
++
++
++@runtime_checkable
++class SttEngine(Protocol):
++    """Chunks in, a typed result or a typed failure out."""
++
++    def transcribe(self, plan: ChunkPlan, context: SttContext) -> SttOutcome: ...
+diff --color -ruN a/packages/evalproviders/src/tracer_evalproviders/calllog.py b/packages/evalproviders/src/tracer_evalproviders/calllog.py
+--- a/packages/evalproviders/src/tracer_evalproviders/calllog.py	1970-01-01 05:30:00
++++ b/packages/evalproviders/src/tracer_evalproviders/calllog.py	2026-10-25 05:30:10
+@@ -0,0 +1,91 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The local call log (ADR 0024 rule 15): two JSON lines per attempt, no text, no key."""
++
++from __future__ import annotations
++
++import json
++import os
++import re
++from collections.abc import Callable
++from datetime import UTC, datetime
++from pathlib import Path
++
++__all__ = ["CALL_LOG_NAME", "CallLog", "safe_request_id"]
++
++CALL_LOG_NAME = "sarvam_call_log.jsonl"
++_SAFE_ID = re.compile(r"^[A-Za-z0-9_.:-]{1,128}$")
++_SAFE_KIND = re.compile(r"^[a-z0-9_]{1,64}$")
++
++
++def safe_request_id(value: object) -> str | None:
++    return value if isinstance(value, str) and _SAFE_ID.fullmatch(value) else None
++
++
++def _now() -> datetime:
++    return datetime.now(UTC)
++
++
++class CallLog:
++    def __init__(self, path: Path, *, clock: Callable[[], datetime] = _now) -> None:
++        self._path = path
++        self._clock = clock
++        descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
++        os.fchmod(descriptor, 0o600)
++        self._descriptor = descriptor
++
++    @classmethod
++    def open(cls, out_dir: str | os.PathLike[str], *, clock: Callable[[], datetime] = _now) -> CallLog:
++        directory = Path(out_dir)
++        directory.mkdir(parents=True, exist_ok=True)
++        return cls(directory / CALL_LOG_NAME, clock=clock)
++
++    @property
++    def path(self) -> Path:
++        return self._path
++
++    def before(self, *, chunk_index: int, attempt: int, bytes_sent: int, audio_seconds: str) -> None:
++        self._write("before", chunk_index, attempt, bytes_sent, audio_seconds, None, None, None, None)
++
++    def after(
++        self,
++        *,
++        chunk_index: int,
++        attempt: int,
++        bytes_sent: int,
++        audio_seconds: str,
++        status: int | None,
++        error_kind: str | None,
++        elapsed_ms: int,
++        request_id: str | None,
++    ) -> None:
++        self._write(
++            "after", chunk_index, attempt, bytes_sent, audio_seconds, status, error_kind,
++            elapsed_ms, request_id,
++        )
++
++    def _write(
++        self, phase: str, chunk: int, attempt: int, sent: int, seconds: str,
++        status: int | None, kind: str | None, elapsed: int | None, request_id: str | None,
++    ) -> None:
++        at = self._clock().astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
++        line = {
++            "at": at,
++            "phase": phase,
++            "chunk": chunk,
++            "attempt": attempt,
++            "bytes_sent": sent,
++            "audio_seconds": seconds,
++            "status": status,
++            "error_kind": kind if kind is not None and _SAFE_KIND.fullmatch(kind) else None,
++            "elapsed_ms": elapsed,
++            "request_id": safe_request_id(request_id),
++        }
++        data = (json.dumps(line, separators=(",", ":"), ensure_ascii=True) + "\n").encode("ascii")
++        os.write(self._descriptor, data)
++        os.fsync(self._descriptor)
++
++    def close(self) -> None:
++        if self._descriptor >= 0:
++            os.close(self._descriptor)
++            self._descriptor = -1
+diff --color -ruN a/packages/evalproviders/src/tracer_evalproviders/cost.py b/packages/evalproviders/src/tracer_evalproviders/cost.py
+--- a/packages/evalproviders/src/tracer_evalproviders/cost.py	1970-01-01 05:30:00
++++ b/packages/evalproviders/src/tracer_evalproviders/cost.py	2026-10-25 05:43:41
+@@ -0,0 +1,149 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Cost of our STT through the evalschema pricing functions (ADR 0024 rule 14; ADR 0014)."""
++
++from __future__ import annotations
++
++from collections.abc import Sequence
++from dataclasses import dataclass
++from datetime import datetime
++from decimal import Context
++from typing import Any
++
++from tracer_evalschema import SCHEMA_VERSION
++from tracer_evalschema.cost import CostRecord, CostSummary, compute_cost, summarize_costs
++from tracer_evalschema.digest import compute_digest
++from tracer_evalschema.ids import CostRecordId, CostSummaryId, PricingCatalogId
++from tracer_evalschema.loader import loads_strict
++from tracer_evalschema.pricing import PriceEntry, PriceProvenance, PricingCatalog
++from tracer_evalschema.usage import UsageRecord
++
++__all__ = ["CatalogRefusedError", "SttCost", "compute_stt_cost", "load_user_catalog"]
++
++
++class CatalogRefusedError(ValueError):
++    """The user's price file was refused. The message holds a short code, never a value."""
++
++    def __init__(self, reason: str) -> None:
++        self.reason = reason
++        super().__init__(reason)
++
++
++@dataclass(frozen=True)
++class SttCost:
++    records: tuple[CostRecord, ...]
++    summary: CostSummary
++
++
++def _parse_catalog(text: str, created_at: datetime) -> PricingCatalog | str:
++    """The catalog, or the short code of the refusal (no exception is raised in here)."""
++    try:
++        document = loads_strict(text)
++    except Exception:  # noqa: BLE001
++        return "catalog_not_json"
++    if (
++        not isinstance(document, dict)
++        or set(document) != {"published_at", "entries"}
++        or not isinstance(document["entries"], list)
++        or not document["entries"]
++    ):
++        return "catalog_shape"
++    try:
++        entries = [PriceEntry.model_validate(e) for e in document["entries"]]
++    except (ValueError, TypeError):
++        return "catalog_entry_invalid"
++    if any(e.price_source != "user_supplied" for e in entries):
++        return "catalog_entry_not_user_supplied"
++    try:  # the schema's own reading of an instant, through a model that has one
++        published = PriceProvenance.model_validate(
++            {"kind": "x", "retrieved_at": document["published_at"]}
++        ).retrieved_at
++    except (ValueError, TypeError):
++        return "catalog_invalid"
++    fields: dict[str, Any] = {
++        "id": PricingCatalogId.new(),
++        "schema_version": SCHEMA_VERSION,
++        "created_at": created_at,
++        "version": 1,
++        "entries": entries,
++        "published_at": published,
++    }
++    try:
++        draft = PricingCatalog.model_construct(**fields, content_digest=None)
++        dumped = draft.model_dump(mode="json", by_alias=True)
++        dumped.pop("content_digest")
++        dumped.setdefault("metadata", {})
++        dumped["metadata_flags"] = []
++        digest = compute_digest(dumped)
++        return PricingCatalog.model_validate(
++            {**dumped, "content_digest": digest.model_dump(mode="json", exclude_none=True)}
++        )
++    except (ValueError, TypeError):
++        return "catalog_invalid"
++
++
++def load_user_catalog(text: str, *, created_at: datetime) -> PricingCatalog:
++    """The user's USD price file ``{"published_at": ..., "entries": [...]}`` as a sealed catalog."""
++    result = _parse_catalog(text, created_at)
++    if isinstance(result, str):
++        raise CatalogRefusedError(result)
++    return result
++
++
++def compute_stt_cost(
++    usages: Sequence[UsageRecord],
++    *,
++    catalog: PricingCatalog | None,
++    created_at: datetime,
++    run_started_at: datetime | None = None,
++) -> SttCost:
++    """One cost record per usage record and their summary. Without a catalog every record is
++    ``not_available`` with ``no_price_for_model``; nothing is ever 0 and nothing is converted."""
++    context = Context(prec=200)
++    records: list[CostRecord] = []
++    groups: list[list[UsageRecord]] = [[u] for u in usages] or [[]]
++    for group in groups:
++        if catalog is None and group:
++            records.append(
++                CostRecord.model_validate(
++                    {
++                        "id": CostRecordId.new(),
++                        "schema_version": SCHEMA_VERSION,
++                        "created_at": created_at,
++                        "domain": "evaluation",
++                        "usage_record_ids": [u.id for u in group],
++                        "status": "not_available",
++                        "na_reason": "no_price_for_model",
++                    }
++                )
++            )
++        elif catalog is None:
++            records.append(
++                CostRecord.model_validate(
++                    {
++                        "id": CostRecordId.new(),
++                        "schema_version": SCHEMA_VERSION,
++                        "created_at": created_at,
++                        "domain": "evaluation",
++                        "usage_record_ids": [],
++                        "status": "not_available",
++                        "na_reason": "no_usage",
++                    }
++                )
++            )
++        else:
++            records.append(
++                compute_cost(
++                    group,
++                    catalog,
++                    domain="evaluation",
++                    record_id=CostRecordId.new(),
++                    created_at=created_at,
++                    context=context,
++                    run_started_at=run_started_at,
++                )
++            )
++    summary = summarize_costs(
++        records, domain="evaluation", summary_id=CostSummaryId.new(), created_at=created_at
++    )
++    return SttCost(records=tuple(records), summary=summary)
+diff --color -ruN a/packages/evalproviders/src/tracer_evalproviders/dryrun.py b/packages/evalproviders/src/tracer_evalproviders/dryrun.py
+--- a/packages/evalproviders/src/tracer_evalproviders/dryrun.py	1970-01-01 05:30:00
++++ b/packages/evalproviders/src/tracer_evalproviders/dryrun.py	2026-10-25 05:32:12
+@@ -0,0 +1,116 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The pre-send plan of ``tracer score --dry-run`` (ADR 0024 rule 16): reads no key, opens no
++connection, sends nothing."""
++
++from __future__ import annotations
++
++from dataclasses import dataclass
++from datetime import datetime
++from decimal import Decimal
++
++from tracer_evalcore.audio.chunker import ChunkPlan
++from tracer_evalschema import SCHEMA_VERSION
++from tracer_evalschema.ids import RunId, UsageRecordId
++from tracer_evalschema.pricing import PricingCatalog
++from tracer_evalschema.usage import UsageRecord
++
++from tracer_evalproviders.cost import compute_stt_cost
++from tracer_evalproviders.sarvam.mapping import usage_audio_seconds
++
++__all__ = ["DryRunCost", "DryRunPlan", "build_dry_run_plan"]
++
++
++@dataclass(frozen=True)
++class DryRunCost:
++    status: str  # "estimated" | "not_available"
++    amount: str | None
++    na_reason: str | None
++
++
++@dataclass(frozen=True)
++class DryRunPlan:
++    chunks: int
++    calls: int
++    total_frames: int
++    sample_rate_hz: int
++    audio_seconds: Decimal
++    audio_seconds_rounding: str
++    max_chunk_ms: int
++    search_ms: int
++    cost: DryRunCost | None
++
++    def render(self) -> str:
++        seconds = format(self.audio_seconds, "f")
++        if "." in seconds:
++            seconds = seconds.rstrip("0").rstrip(".")
++        suffix = "" if self.audio_seconds_rounding == "exact" else " (rounded half-even to 18 digits)"
++        if self.cost is None:
++            cost = "cost: not available (no USD price supplied)"
++        elif self.cost.status == "estimated":
++            cost = f"cost: {self.cost.amount} USD (computed from the supplied USD price)"
++        else:
++            cost = f"cost: not available ({self.cost.na_reason})"
++        return "\n".join(
++            [
++                f"chunks: {self.chunks}",
++                f"audio seconds: {seconds}{suffix}",
++                f"calls: {self.calls}",
++                cost,
++            ]
++        )
++
++
++def build_dry_run_plan(
++    plan: ChunkPlan,
++    *,
++    model: str,
++    catalog: PricingCatalog | None = None,
++    priced_at: datetime | None = None,
++) -> DryRunPlan:
++    text, rounding = usage_audio_seconds(plan.total_frames, plan.sample_rate_hz)
++    cost: DryRunCost | None = None
++    if catalog is not None:
++        usages = [
++            UsageRecord.model_validate(
++                {
++                    "id": UsageRecordId.new(),
++                    "schema_version": SCHEMA_VERSION,
++                    "created_at": priced_at or catalog.created_at,
++                    "run_id": RunId.new(),
++                    "domain": "evaluation",
++                    "stage": "stt",
++                    "provider": "sarvam",
++                    "model": model,
++                    "quantities": [
++                        {
++                            "unit": "audio_input_seconds",
++                            "count": usage_audio_seconds(c.frames, c.sample_rate_hz)[0],
++                        },
++                        {"unit": "requests", "count": 1},
++                    ],
++                    "source": "measured",
++                }
++            )
++            for c in plan.chunks
++        ]
++        result = compute_stt_cost(
++            usages, catalog=catalog, created_at=catalog.created_at, run_started_at=priced_at
++        )
++        total = result.summary.total
++        if result.summary.completeness == "complete" and total is not None:
++            cost = DryRunCost("estimated", total.amount, None)
++        else:
++            reasons = [r.na_reason for r in result.records if r.na_reason is not None]
++            cost = DryRunCost("not_available", None, reasons[0] if reasons else "no_usage")
++    return DryRunPlan(
++        chunks=len(plan.chunks),
++        calls=len(plan.chunks),
++        total_frames=plan.total_frames,
++        sample_rate_hz=plan.sample_rate_hz,
++        audio_seconds=Decimal(text),
++        audio_seconds_rounding=rounding,
++        max_chunk_ms=plan.max_chunk_ms,
++        search_ms=plan.search_ms,
++        cost=cost,
++    )
+diff --color -ruN a/packages/evalproviders/src/tracer_evalproviders/sarvam/__init__.py b/packages/evalproviders/src/tracer_evalproviders/sarvam/__init__.py
+--- a/packages/evalproviders/src/tracer_evalproviders/sarvam/__init__.py	1970-01-01 05:30:00
++++ b/packages/evalproviders/src/tracer_evalproviders/sarvam/__init__.py	2026-10-25 05:30:25
+@@ -0,0 +1,5 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The Sarvam speech-to-text adapter (REST)."""
++
++from __future__ import annotations
+diff --color -ruN a/packages/evalproviders/src/tracer_evalproviders/sarvam/client.py b/packages/evalproviders/src/tracer_evalproviders/sarvam/client.py
+--- a/packages/evalproviders/src/tracer_evalproviders/sarvam/client.py	1970-01-01 05:30:00
++++ b/packages/evalproviders/src/tracer_evalproviders/sarvam/client.py	2026-10-25 05:37:13
+@@ -0,0 +1,317 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The Sarvam HTTP client (ADR 0024 rules 2, 3, 5, 8, 9, 10): one chunk per request, fixed
++endpoint, bounded deterministic retries, a response cap and a typed error for every failure."""
++
++from __future__ import annotations
++
++import json
++import re
++import time
++from collections.abc import Callable
++from datetime import UTC, datetime
++from email.utils import parsedate_to_datetime
++from types import TracebackType
++from typing import Final
++
++import httpx
++from tracer_evalcore.audio.chunker import Chunk
++from tracer_evalcore.stt import (
++    SttAuthError,
++    SttConfigurationError,
++    SttError,
++    SttRateLimited,
++    SttRequestRejected,
++    SttResponseInvalid,
++    SttServerError,
++    SttTransportError,
++)
++
++from tracer_evalproviders.calllog import CallLog, safe_request_id
++from tracer_evalproviders.sarvam.mapping import usage_audio_seconds
++from tracer_evalproviders.sarvam.models import (
++    DEFAULT_MODEL,
++    MAX_RESPONSE_BYTES,
++    STT_URL,
++    ChunkResponse,
++    SarvamRequest,
++    SarvamResponseShapeError,
++    parse_response,
++)
++from tracer_evalproviders.secrets import ApiKey
++
++__all__ = [
++    "BACKOFF_SECONDS",
++    "CONNECT_TIMEOUT_SECONDS",
++    "MAX_ATTEMPTS",
++    "POOL_TIMEOUT_SECONDS",
++    "READ_TIMEOUT_SECONDS",
++    "RETRY_AFTER_MAX_SECONDS",
++    "WRITE_TIMEOUT_SECONDS",
++    "SarvamClient",
++]
++
++MAX_ATTEMPTS: Final = 4
++BACKOFF_SECONDS: Final = (1.0, 2.0, 4.0)
++RETRY_AFTER_MAX_SECONDS: Final = 30
++CONNECT_TIMEOUT_SECONDS: Final = 10.0
++POOL_TIMEOUT_SECONDS: Final = 10.0
++READ_TIMEOUT_SECONDS: Final = 60.0
++WRITE_TIMEOUT_SECONDS: Final = 60.0
++_MODEL = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$")
++_CODE = re.compile(r"^[a-z][a-z0-9_]{0,63}$")
++_DIGITS = re.compile(r"^[0-9]+$", re.ASCII)
++_KINDS: Final = (
++    (httpx.ConnectTimeout, "connect_timeout"),
++    (httpx.ReadTimeout, "read_timeout"),
++    (httpx.WriteTimeout, "write_timeout"),
++    (httpx.PoolTimeout, "pool_timeout"),
++    (httpx.ConnectError, "connect_error"),
++    (httpx.ReadError, "read_error"),
++    (httpx.WriteError, "write_error"),
++)
++
++
++def _transport_kind(error: httpx.RequestError) -> str:
++    for cls, key in _KINDS:
++        if isinstance(error, cls):
++            return key
++    return "transport_error"
++
++
++def _http_date(value: str | None) -> datetime | None:
++    if not value:
++        return None
++    try:
++        parsed = parsedate_to_datetime(value)
++    except (TypeError, ValueError, IndexError):
++        return None
++    return parsed.astimezone(UTC) if parsed.tzinfo is not None else None
++
++
++def _retry_after(headers: httpx.Headers) -> int | None:
++    """The delay in whole seconds the server asks for, or ``None`` (absent or unparseable)."""
++    value = headers.get("retry-after")
++    if value is None:
++        return None
++    text = value.strip()
++    if _DIGITS.fullmatch(text):
++        return int(text)
++    moment = _http_date(text)
++    sent = _http_date(headers.get("date"))
++    if moment is None or sent is None:
++        return None
++    return max(0, int((moment - sent).total_seconds()))
++
++
++def _error_facts(headers: httpx.Headers, body: bytes | None) -> tuple[str, str | None]:
++    code = "unrecognised"
++    request_id = None
++    if body is not None:
++        try:
++            document = json.loads(body)
++        except (ValueError, RecursionError):
++            document = None
++        error = document.get("error") if isinstance(document, dict) else None
++        if isinstance(error, dict):
++            raw_code = error.get("code")
++            if isinstance(raw_code, str) and _CODE.fullmatch(raw_code):
++                code = raw_code
++            request_id = safe_request_id(error.get("request_id"))
++    if request_id is None:
++        request_id = safe_request_id(headers.get("x-request-id"))
++    return code, request_id
++
++
++class _Attempt:
++    def __init__(self) -> None:
++        self.status: int | None = None
++        self.headers = httpx.Headers()
++        self.body: bytes | None = None
++        self.oversize = False
++        self.kind: str | None = None
++        self.undecodable = False
++
++
++class SarvamClient:
++    def __init__(
++        self,
++        api_key: ApiKey,
++        *,
++        call_log: CallLog,
++        model: str = DEFAULT_MODEL,
++        transport: httpx.BaseTransport | None = None,
++        sleep: Callable[[float], None] = time.sleep,
++        monotonic: Callable[[], float] = time.monotonic,
++    ) -> None:
++        if not isinstance(api_key, ApiKey):
++            raise TypeError("api_key must be an ApiKey")
++        if not isinstance(model, str) or not _MODEL.fullmatch(model):
++            raise SttConfigurationError(reason="model_invalid")
++        self._key = api_key
++        self._model = model
++        self._log = call_log
++        self._sleep = sleep
++        self._monotonic = monotonic
++        self._http = httpx.Client(
++            transport=transport,
++            follow_redirects=False,
++            timeout=httpx.Timeout(
++                connect=CONNECT_TIMEOUT_SECONDS,
++                read=READ_TIMEOUT_SECONDS,
++                write=WRITE_TIMEOUT_SECONDS,
++                pool=POOL_TIMEOUT_SECONDS,
++            ),
++        )
++
++    @property
++    def model(self) -> str:
++        return self._model
++
++    def close(self) -> None:
++        self._http.close()
++
++    def __enter__(self) -> SarvamClient:
++        return self
++
++    def __exit__(
++        self,
++        exc_type: type[BaseException] | None,
++        exc: BaseException | None,
++        tb: TracebackType | None,
++    ) -> None:
++        self.close()
++
++    def _once(self, chunk: Chunk, attempt: int, seconds: str) -> _Attempt:
++        fields = SarvamRequest(self._model).text_fields("mr")
++        request = self._http.build_request(
++            "POST",
++            STT_URL,
++            headers={"api-subscription-key": self._key.reveal()},
++            data=fields,
++            files={"file": (f"chunk-{chunk.index}.wav", chunk.wav, "audio/wav")},
++        )
++        sent = len(request.read())
++        self._log.before(
++            chunk_index=chunk.index, attempt=attempt, bytes_sent=sent, audio_seconds=seconds
++        )
++        result = _Attempt()
++        started = self._monotonic()
++        try:
++            response = self._http.send(request, stream=True)
++            try:
++                result.status = response.status_code
++                result.headers = response.headers
++                buffer = bytearray()
++                for piece in response.iter_bytes():
++                    buffer += piece
++                    if len(buffer) > MAX_RESPONSE_BYTES:
++                        result.oversize = True
++                        break
++                result.body = None if result.oversize else bytes(buffer)
++            finally:
++                response.close()
++        except httpx.DecodingError:
++            result.undecodable = True
++        except httpx.RequestError as error:
++            result.kind = _transport_kind(error)
++        finished = self._monotonic()
++        code, request_id = (
++            _error_facts(result.headers, result.body) if result.status is not None else ("", None)
++        )
++        if result.status == 200 and result.body is not None and not result.oversize:
++            try:
++                request_id = safe_request_id(json.loads(result.body).get("request_id"))
++            except (ValueError, AttributeError, RecursionError):
++                request_id = safe_request_id(result.headers.get("x-request-id"))
++        self._log.after(
++            chunk_index=chunk.index,
++            attempt=attempt,
++            bytes_sent=sent,
++            audio_seconds=seconds,
++            status=result.status,
++            error_kind=result.kind,
++            elapsed_ms=int((finished - started) * 1000),
++            request_id=request_id,
++        )
++        return result
++
++    def send_chunk(self, chunk: Chunk) -> ChunkResponse:
++        failure = self._send(chunk)
++        if isinstance(failure, SttError):
++            raise failure
++        return failure
++
++    def _send(self, chunk: Chunk) -> ChunkResponse | SttError:
++        seconds, _ = usage_audio_seconds(chunk.frames, chunk.sample_rate_hz)
++        error: SttError | None = None
++        for attempt in range(1, MAX_ATTEMPTS + 1):
++            result = self._once(chunk, attempt, seconds)
++            outcome = self._classify(chunk, attempt, result)
++            if isinstance(outcome, ChunkResponse):
++                return outcome
++            retry, error = outcome
++            if not retry or attempt == MAX_ATTEMPTS:
++                return error
++            wait = BACKOFF_SECONDS[attempt - 1]
++            if result.status in (429, 503):
++                asked = _retry_after(result.headers)
++                if asked is not None:
++                    if asked > RETRY_AFTER_MAX_SECONDS:
++                        return SttRateLimited(
++                            chunk_index=chunk.index,
++                            status=result.status,
++                            code=error.code,
++                            request_id=error.request_id,
++                            attempts=attempt,
++                            reason="retry_after_above_bound",
++                        )
++                    wait = max(wait, float(asked))
++            self._sleep(wait)
++        raise AssertionError("unreachable")  # pragma: no cover
++
++    def _classify(
++        self, chunk: Chunk, attempt: int, result: _Attempt
++    ) -> ChunkResponse | tuple[bool, SttError]:
++        facts = {"chunk_index": chunk.index, "attempts": attempt}
++        if result.kind is not None:
++            return True, SttTransportError(kind=result.kind, **facts)
++        if result.undecodable:
++            return False, SttResponseInvalid(reason="body_undecodable", **facts)
++        status = result.status
++        assert status is not None
++        if status == 200:
++            return self._success(chunk, attempt, result)
++        if status < 200 or status >= 300 and status < 400 or 200 < status < 300:
++            return False, SttResponseInvalid(status=status, reason="unexpected_status", **facts)
++        code, request_id = _error_facts(result.headers, result.body)
++        facts_http = {"status": status, "code": code, "request_id": request_id, **facts}
++        if status in (401, 403) or code == "invalid_api_key_error":
++            return False, SttAuthError(**facts_http)
++        if status == 429:
++            return True, SttRateLimited(**facts_http)
++        if status >= 500:
++            return True, SttServerError(**facts_http)
++        return False, SttRequestRejected(**facts_http)
++
++    def _success(
++        self, chunk: Chunk, attempt: int, result: _Attempt
++    ) -> ChunkResponse | tuple[bool, SttError]:
++        facts = {"chunk_index": chunk.index, "attempts": attempt, "status": 200}
++        media = result.headers.get("content-type", "").split(";")[0].strip().lower()
++        if media != "application/json":
++            return False, SttResponseInvalid(reason="content_type", **facts)
++        if result.oversize or result.body is None:
++            return False, SttResponseInvalid(reason="body_too_large", **facts)
++        try:
++            parsed = parse_response(result.body)
++        except SarvamResponseShapeError as shape:
++            reason = shape.reason
++        else:
++            return ChunkResponse(
++                chunk_index=chunk.index,
++                response=parsed,
++                responded_at=_http_date(result.headers.get("date")),
++                attempts=attempt,
++            )
++        return False, SttResponseInvalid(reason=reason, **facts)
+diff --color -ruN a/packages/evalproviders/src/tracer_evalproviders/sarvam/engine.py b/packages/evalproviders/src/tracer_evalproviders/sarvam/engine.py
+--- a/packages/evalproviders/src/tracer_evalproviders/sarvam/engine.py	1970-01-01 05:30:00
++++ b/packages/evalproviders/src/tracer_evalproviders/sarvam/engine.py	2026-10-25 05:31:59
+@@ -0,0 +1,70 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The Sarvam engine: the SttEngine of tracer-evalcore over the client (ADR 0024 rules 1, 6, 11)."""
++
++from __future__ import annotations
++
++import os
++import time
++from collections.abc import Callable, Mapping
++from datetime import UTC, datetime
++
++import httpx
++from tracer_evalcore.audio.chunker import ChunkPlan
++from tracer_evalcore.stt import SttContext, SttError, SttOutcome
++
++from tracer_evalproviders.calllog import CallLog
++from tracer_evalproviders.sarvam.client import SarvamClient
++from tracer_evalproviders.sarvam.mapping import map_responses, map_usage_records
++from tracer_evalproviders.sarvam.models import DEFAULT_MODEL, ChunkResponse, language_code_for
++from tracer_evalproviders.secrets import load_api_key
++
++__all__ = ["SarvamStt", "create_sarvam_stt"]
++
++
++class SarvamStt:
++    provider = "sarvam"
++
++    def __init__(self, client: SarvamClient) -> None:
++        self._client = client
++
++    @property
++    def model(self) -> str:
++        return self._client.model
++
++    def transcribe(self, plan: ChunkPlan, context: SttContext) -> SttOutcome:
++        language_code_for(context.configured_language)  # refused before any request
++        done: list[ChunkResponse] = []
++        for chunk in plan.chunks:
++            try:
++                done.append(self._client.send_chunk(chunk))
++            except SttError as failure:
++                usage = map_usage_records(plan, done, model=self.model, context=context)
++                return SttOutcome(
++                    transcript=None, turns=(), usage=usage, warnings=(), failure=failure
++                )
++        return map_responses(plan, done, model=self.model, context=context)
++
++
++def _now() -> datetime:
++    return datetime.now(UTC)
++
++
++def create_sarvam_stt(
++    *,
++    out_dir: str | os.PathLike[str],
++    model: str = DEFAULT_MODEL,
++    environ: Mapping[str, str] | None = None,
++    env_file: str | os.PathLike[str] | None = None,
++    transport: httpx.BaseTransport | None = None,
++    sleep: Callable[[float], None] = time.sleep,
++    monotonic: Callable[[], float] = time.monotonic,
++    clock: Callable[[], datetime] = _now,
++) -> SarvamStt:
++    """The key first (a missing key stops here, before any file or request), then the call log."""
++    key = load_api_key(environ=environ, env_file=env_file)
++    log = CallLog.open(out_dir, clock=clock)
++    client = SarvamClient(
++        key, call_log=log, model=model, transport=transport, sleep=sleep, monotonic=monotonic
++    )
++    return SarvamStt(client)
+diff --color -ruN a/packages/evalproviders/src/tracer_evalproviders/sarvam/mapping.py b/packages/evalproviders/src/tracer_evalproviders/sarvam/mapping.py
+--- a/packages/evalproviders/src/tracer_evalproviders/sarvam/mapping.py	1970-01-01 05:30:00
++++ b/packages/evalproviders/src/tracer_evalproviders/sarvam/mapping.py	2026-10-25 05:31:03
+@@ -0,0 +1,225 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Sarvam responses to Transcript, Turn, Segment and UsageRecord (ADR 0024 rules 12 and 13)."""
++
++from __future__ import annotations
++
++import math
++from collections.abc import Sequence
++from decimal import Decimal
++from fractions import Fraction
++from typing import Any, Final
++
++from tracer_evalcore.audio.chunker import ChunkPlan
++from tracer_evalcore.stt import SttContext, SttOutcome
++from tracer_evalschema import SCHEMA_VERSION
++from tracer_evalschema.events import IngestWarning
++from tracer_evalschema.ids import TranscriptId, TurnId, UsageRecordId
++from tracer_evalschema.language import normalize_language_label
++from tracer_evalschema.primitives import canonical_decimal_text
++from tracer_evalschema.transcript import Transcript, Turn
++from tracer_evalschema.usage import UsageRecord
++
++from tracer_evalproviders.sarvam.models import ChunkResponse
++
++__all__ = [
++    "MODEL_BASIS",
++    "ROUNDING_KEY",
++    "map_responses",
++    "map_usage_records",
++    "usage_audio_seconds",
++]
++
++PROVIDER: Final = "sarvam"
++MODEL_BASIS: Final = "requested_not_echoed"
++ROUNDING_KEY: Final = "tracer.audio_seconds_rounding"
++_SCALE: Final = 10**18
++
++
++def usage_audio_seconds(frames: int, rate: int) -> tuple[str, str]:
++    """``(canonical decimal text, "exact" | "half_even_18")`` of ``frames / rate`` seconds."""
++    exact = Fraction(frames, rate)
++    scaled = round(exact * _SCALE)  # Fraction.__round__ rounds half to even
++    text = canonical_decimal_text(Decimal(scaled).scaleb(-18))
++    return text, ("exact" if Fraction(scaled, _SCALE) == exact else "half_even_18")
++
++
++def _is_empty(text: str) -> bool:
++    return text.strip() == ""
++
++
++def _ordered(plan: ChunkPlan, responses: Sequence[ChunkResponse]) -> list[ChunkResponse]:
++    by_index: dict[int, ChunkResponse] = {}
++    for item in responses:
++        if item.chunk_index in by_index or not 0 <= item.chunk_index < len(plan.chunks):
++            raise ValueError("a response names a chunk twice or a chunk the plan does not have")
++        by_index[item.chunk_index] = item
++    return [by_index[i] for i in sorted(by_index)]
++
++
++def map_usage_records(
++    plan: ChunkPlan, responses: Sequence[ChunkResponse], *, model: str, context: SttContext
++) -> tuple[UsageRecord, ...]:
++    out = []
++    for item in _ordered(plan, responses):
++        chunk = plan.chunks[item.chunk_index]
++        seconds, rounding = usage_audio_seconds(chunk.frames, chunk.sample_rate_hz)
++        document: dict[str, Any] = {
++            "id": UsageRecordId.new(),
++            "schema_version": SCHEMA_VERSION,
++            "created_at": context.created_at,
++            "metadata": {
++                ROUNDING_KEY: rounding,
++                "tracer.model_basis": MODEL_BASIS,
++                "tracer.chunk_index": item.chunk_index,
++            },
++            "run_id": context.run_id,
++            "domain": "evaluation",
++            "stage": "stt",
++            "provider": PROVIDER,
++            "model": model,
++            "provider_call_ref": {
++                "system": PROVIDER,
++                "kind": "request_id",
++                "value": item.response.request_id,
++            },
++            "quantities": [
++                {"unit": "audio_input_seconds", "count": seconds},
++                {"unit": "requests", "count": 1},
++            ],
++            "source": "measured",
++            "raw": None,
++        }
++        if item.responded_at is not None:
++            document["occurred_at"] = item.responded_at
++        out.append(UsageRecord.model_validate(document))
++    return tuple(out)
++
++
++def _floor_ms(chunk_start: int, rate: int, seconds: Decimal) -> int:
++    return math.floor((Fraction(chunk_start, rate) + Fraction(seconds)) * 1000)
++
++
++def map_responses(
++    plan: ChunkPlan, responses: Sequence[ChunkResponse], *, model: str, context: SttContext
++) -> SttOutcome:
++    ordered = _ordered(plan, responses)
++    if [item.chunk_index for item in ordered] != list(range(len(plan.chunks))):
++        raise ValueError("a transcript needs one response for every chunk of the plan")
++    transcript_id = TranscriptId.new()
++    turns: list[Turn] = []
++    warnings: list[IngestWarning] = []
++    empty: list[int] = []
++    tags: list[str | None] = []
++    raws: list[str | None] = []
++    any_offsets = False
++    for item in ordered:
++        chunk = plan.chunks[item.chunk_index]
++        response = item.response
++        if _is_empty(response.transcript):
++            empty.append(item.chunk_index)
++            continue
++        label = response.language_code
++        tag: str | None = None
++        if label is not None:
++            trimmed = label.strip()
++            tag, notes = normalize_language_label(trimmed)
++            code = notes[0].code if notes else ("language_label_normalized" if trimmed != label else None)
++            if code is not None:
++                warnings.append(
++                    IngestWarning(
++                        code=code,
++                        path=f"/chunks/{item.chunk_index}/language_code",
++                        raw=label,
++                        message="the provider label was read as a language tag"
++                        if code == "language_label_normalized"
++                        else "the provider label is not a language tag; it is kept as received",
++                    )
++                )
++        tags.append(tag)
++        raws.append(label)
++        segments: list[dict[str, Any]] = []
++        outside = False
++        if response.phrases:
++            duration = Fraction(chunk.frames, chunk.sample_rate_hz)
++            outside = any(Fraction(p.end_seconds) > duration for p in response.phrases)
++            if outside:
++                warnings.append(
++                    IngestWarning(
++                        code="phrase_time_outside_chunk",
++                        path=f"/chunks/{item.chunk_index}/timestamps",
++                        message="a phrase ends after its chunk; no segment is made for the chunk",
++                    )
++                )
++            else:
++                for phrase in response.phrases:
++                    segments.append(
++                        {
++                            "granularity": "phrase",
++                            "text": phrase.text,
++                            "start_ms": _floor_ms(chunk.start_frame, chunk.sample_rate_hz, phrase.start_seconds),
++                            "end_ms": _floor_ms(chunk.start_frame, chunk.sample_rate_hz, phrase.end_seconds),
++                        }
++                    )
++        metadata: dict[str, Any] = {"tracer.chunk_index": item.chunk_index}
++        if response.language_probability is not None:
++            metadata["tracer.language_probability"] = canonical_decimal_text(
++                response.language_probability
++            )
++        turn: dict[str, Any] = {
++            "id": TurnId.new(),
++            "schema_version": SCHEMA_VERSION,
++            "created_at": context.created_at,
++            "metadata": metadata,
++            "transcript_id": transcript_id,
++            "seq": len(turns),
++            "role": "unknown",
++            "source": "our_stt",
++            "text": response.transcript,
++            "timing_source": "none",
++        }
++        if label is not None:
++            turn["language_raw"] = label
++            if tag is not None:
++                turn["language"] = tag
++        if segments:
++            any_offsets = True
++            turn["segments"] = segments
++            turn["timing_source"] = "audio_alignment"
++            turn["start_ms"] = min(s["start_ms"] for s in segments)
++            turn["end_ms"] = max(s["end_ms"] for s in segments)
++        turns.append(Turn.model_validate(turn))
++    detected: str | None = None
++    detected_raw: str | None = None
++    if tags and None not in tags and len(set(tags)) == 1:
++        detected = tags[0]
++        if len(set(raws)) == 1:
++            detected_raw = raws[0]
++    head: dict[str, Any] = {
++        "id": transcript_id,
++        "schema_version": SCHEMA_VERSION,
++        "created_at": context.created_at,
++        "metadata": {
++            "tracer.chunk_plan": plan.as_metadata(),
++            "tracer.empty_chunks": {"count": len(empty), "indexes": empty},
++            "tracer.model_basis": MODEL_BASIS,
++        },
++        "source": "our_stt",
++        "provider": PROVIDER,
++        "model": model,
++        "privacy": context.privacy,
++    }
++    if detected is not None:
++        head["detected_language"] = detected
++        if detected_raw is not None:
++            head["detected_language_raw"] = detected_raw
++    if any_offsets:
++        head["timeline_origin"] = {"kind": "artifact", "ref": context.audio_artifact_id}
++    transcript = Transcript.model_validate(head)
++    return SttOutcome(
++        transcript=transcript,
++        turns=tuple(turns),
++        usage=map_usage_records(plan, ordered, model=model, context=context),
++        warnings=tuple(warnings),
++        failure=None,
++    )
+diff --color -ruN a/packages/evalproviders/src/tracer_evalproviders/sarvam/models.py b/packages/evalproviders/src/tracer_evalproviders/sarvam/models.py
+--- a/packages/evalproviders/src/tracer_evalproviders/sarvam/models.py	1970-01-01 05:30:00
++++ b/packages/evalproviders/src/tracer_evalproviders/sarvam/models.py	2026-10-25 05:35:07
+@@ -0,0 +1,170 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Sarvam request and response models (ADR 0024 rules 3, 6 and 8)."""
++
++from __future__ import annotations
++
++import json
++import math
++from dataclasses import dataclass, field
++from datetime import datetime
++from decimal import Decimal, InvalidOperation
++from typing import Any, Final
++
++from tracer_evalcore.stt import SttLanguageNotSupportedError
++from tracer_evalschema.loader import loads_strict
++
++__all__ = [
++    "API_BASE_URL",
++    "DEFAULT_MODEL",
++    "FORM_FIELD_NAMES",
++    "MAX_RESPONSE_BYTES",
++    "STT_PATH",
++    "STT_URL",
++    "ChunkResponse",
++    "SarvamPhrase",
++    "SarvamRequest",
++    "SarvamResponseShapeError",
++    "SarvamSttResponse",
++    "language_code_for",
++    "parse_response",
++]
++
++API_BASE_URL: Final = "https://api.sarvam.ai"
++STT_PATH: Final = "/speech-to-text"
++STT_URL: Final = API_BASE_URL + STT_PATH
++DEFAULT_MODEL: Final = "saaras:v4"
++FORM_FIELD_NAMES: Final = ("file", "language_code", "model", "with_timestamps")
++MAX_RESPONSE_BYTES: Final = 1_048_576
++_UNKNOWN: Final = "unknown"
++
++
++def language_code_for(configured: str) -> str:
++    """The ``language_code`` form value for a configured language: ``mr`` is sent as
++    ``unknown`` so that the engine observes the language; every other value is refused."""
++    if configured != "mr":
++        raise SttLanguageNotSupportedError(reason="language_not_supported")
++    return _UNKNOWN
++
++
++@dataclass(frozen=True)
++class SarvamRequest:
++    model: str
++
++    def text_fields(self, configured_language: str) -> dict[str, str]:
++        return {
++            "language_code": language_code_for(configured_language),
++            "model": self.model,
++            "with_timestamps": "true",
++        }
++
++
++class SarvamResponseShapeError(ValueError):
++    def __init__(self, reason: str) -> None:
++        self.reason = reason
++        super().__init__(reason)
++
++
++@dataclass(frozen=True)
++class SarvamPhrase:
++    text: str = field(repr=False)
++    start_seconds: Decimal
++    end_seconds: Decimal
++
++
++@dataclass(frozen=True)
++class SarvamSttResponse:
++    request_id: str
++    transcript: str = field(repr=False)
++    language_code: str | None
++    language_probability: Decimal | None
++    phrases: tuple[SarvamPhrase, ...] | None
++
++
++@dataclass(frozen=True)
++class ChunkResponse:
++    chunk_index: int
++    response: SarvamSttResponse
++    responded_at: datetime | None
++    attempts: int
++
++
++def _number(value: Any, reason: str) -> Decimal:
++    if isinstance(value, bool) or not isinstance(value, Decimal):
++        raise SarvamResponseShapeError(reason)
++    if not value.is_finite():
++        raise SarvamResponseShapeError(reason)
++    return value
++
++
++def _decimal_loads(body: bytes) -> Any:
++    # numbers are read from their JSON text as Decimal, never through a float
++    text = body.decode("utf-8")
++    loads_strict(text)  # strict I-JSON checks: duplicates, NaN, depth
++    document = json.loads(text, parse_float=Decimal, parse_int=Decimal, parse_constant=_no_constant)
++    if _has_lone_surrogate(document):
++        raise ValueError("lone surrogate")
++    return document
++
++
++def _has_lone_surrogate(value: Any) -> bool:
++    if isinstance(value, str):
++        return any(0xD800 <= ord(c) <= 0xDFFF for c in value)
++    if isinstance(value, dict):
++        return any(_has_lone_surrogate(k) or _has_lone_surrogate(v) for k, v in value.items())
++    if isinstance(value, list):
++        return any(_has_lone_surrogate(v) for v in value)
++    return False
++
++
++def _no_constant(name: str) -> Any:
++    raise ValueError(name)
++
++
++def parse_response(body: bytes) -> SarvamSttResponse:
++    try:
++        document = _decimal_loads(body)
++    except Exception:  # noqa: BLE001 - every parser failure is one typed refusal
++        raise SarvamResponseShapeError("not_json") from None
++    if not isinstance(document, dict):
++        raise SarvamResponseShapeError("not_object")
++    request_id = document.get("request_id")
++    if not isinstance(request_id, str):
++        raise SarvamResponseShapeError("request_id_invalid")
++    transcript = document.get("transcript")
++    if not isinstance(transcript, str):
++        raise SarvamResponseShapeError("transcript_invalid")
++    language = document.get("language_code")
++    if language is not None and not isinstance(language, str):
++        raise SarvamResponseShapeError("language_code_invalid")
++    probability: Decimal | None = None
++    if "language_probability" in document:
++        probability = _number(document["language_probability"], "language_probability_invalid")
++        if not Decimal(0) <= probability <= Decimal(1):
++            raise SarvamResponseShapeError("language_probability_invalid")
++    phrases: tuple[SarvamPhrase, ...] | None = None
++    if "timestamps" in document:
++        phrases = _phrases(document["timestamps"])
++    return SarvamSttResponse(request_id, transcript, language, probability, phrases)
++
++
++def _phrases(stamps: Any) -> tuple[SarvamPhrase, ...]:
++    if not isinstance(stamps, dict):
++        raise SarvamResponseShapeError("timestamps_invalid")
++    words = stamps.get("words")
++    starts = stamps.get("start_time_seconds")
++    ends = stamps.get("end_time_seconds")
++    if not (isinstance(words, list) and isinstance(starts, list) and isinstance(ends, list)):
++        raise SarvamResponseShapeError("timestamps_invalid")
++    if not len(words) == len(starts) == len(ends):
++        raise SarvamResponseShapeError("timestamps_invalid")
++    out = []
++    for word, start, end in zip(words, starts, ends, strict=True):
++        if not isinstance(word, str):
++            raise SarvamResponseShapeError("timestamps_invalid")
++        begin = _number(start, "timestamps_invalid")
++        finish = _number(end, "timestamps_invalid")
++        if begin < 0 or finish < 0 or begin > finish or math.isnan(float(begin)):
++            raise SarvamResponseShapeError("timestamps_invalid")
++        out.append(SarvamPhrase(word, begin, finish))
++    return tuple(out)
+diff --color -ruN a/packages/evalproviders/src/tracer_evalproviders/secrets.py b/packages/evalproviders/src/tracer_evalproviders/secrets.py
+--- a/packages/evalproviders/src/tracer_evalproviders/secrets.py	1970-01-01 05:30:00
++++ b/packages/evalproviders/src/tracer_evalproviders/secrets.py	2026-10-25 05:39:18
+@@ -0,0 +1,114 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The API key at run time (ADR 0024 rules 4 and 5): a redacting wrapper and the loader."""
++
++from __future__ import annotations
++
++import os
++import re
++from collections.abc import Mapping
++from pathlib import Path
++from typing import Any, NoReturn
++
++from tracer_evalcore.stt import SttKeyMissingError
++from tracer_evalschema.provider import ProviderConfigRef
++
++__all__ = ["CONFIG_REF", "ENV_VAR_NAME", "PLACEHOLDER", "ApiKey", "load_api_key", "provider_config_ref"]
++
++ENV_VAR_NAME = "SARVAM_API_KEY"
++CONFIG_REF = "env:SARVAM_API_KEY"
++PLACEHOLDER = "<redacted api key>"
++_LINE = re.compile(rb"^[ \t]*(?:export[ \t]+)?SARVAM_API_KEY[ \t]*=(.*)$")
++
++
++class ApiKey:
++    """A key that cannot be printed, formatted, pickled or copied by accident."""
++
++    __slots__ = ("_value",)
++
++    def __init__(self, value: str) -> None:
++        if not isinstance(value, str) or value.strip() == "":
++            raise SttKeyMissingError(reason="key_missing")
++        if any(ord(c) < 0x21 or ord(c) > 0x7E for c in value):
++            raise SttKeyMissingError(reason="key_invalid")
++        object.__setattr__(self, "_value", value)
++
++    def reveal(self) -> str:
++        return self._value  # type: ignore[no-any-return]
++
++    def __setattr__(self, name: str, value: Any) -> None:
++        raise AttributeError("an ApiKey is immutable")
++
++    def __str__(self) -> str:
++        return PLACEHOLDER
++
++    def __repr__(self) -> str:
++        return f"ApiKey({PLACEHOLDER})"
++
++    def __format__(self, spec: str) -> str:
++        return PLACEHOLDER
++
++    def __reduce__(self) -> NoReturn:
++        raise TypeError("an ApiKey cannot be pickled or copied")
++
++    def __eq__(self, other: object) -> bool:
++        return self is other
++
++    def __hash__(self) -> int:
++        return id(self)
++
++
++def _clean(raw: str | None) -> str | None:
++    if raw is None:
++        return None
++    value = raw.strip(" \t\r\n")
++    if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
++        value = value[1:-1]
++    return value or None
++
++
++def _from_file(path: str | os.PathLike[str]) -> str | None:
++    data: bytes | None
++    try:
++        data = Path(path).read_bytes()
++    except OSError:
++        data = None
++    if data is None:  # raised outside the handler: the OSError is not kept as a context
++        raise SttKeyMissingError(reason="env_file_unreadable")
++    found: bytes | None = None
++    for line in data.splitlines():
++        match = _LINE.match(line)
++        if match:
++            found = match.group(1)
++    if found is None:
++        return None
++    try:
++        return found.decode("utf-8")
++    except UnicodeDecodeError:
++        pass
++    raise SttKeyMissingError(reason="key_invalid")
++
++
++def load_api_key(
++    *,
++    environ: Mapping[str, str] | None = None,
++    env_file: str | os.PathLike[str] | None = None,
++) -> ApiKey:
++    """The key from ``SARVAM_API_KEY``: from ``env_file`` when one is named (the environment is
++    then not consulted), else from ``environ`` (default ``os.environ``). Nothing else is read,
++    exported or quoted."""
++    if env_file is not None:
++        raw = _from_file(env_file)
++    else:
++        raw = (os.environ if environ is None else environ).get(ENV_VAR_NAME)
++    value = _clean(raw)
++    if value is None:
++        raise SttKeyMissingError(reason="key_missing")
++    return ApiKey(value)
++
++
++def provider_config_ref(model: str) -> ProviderConfigRef:
++    """What the Project records: the name of the key, never its value, never the env-file path."""
++    return ProviderConfigRef.model_validate(
++        {"provider": "sarvam", "model": model, "config_ref": CONFIG_REF}
++    )

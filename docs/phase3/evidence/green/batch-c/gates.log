@@ -1,0 +1,59 @@
+$ uv lock --check
+Resolved 63 packages in 2ms
+exit=0
+$ uv run --locked ruff check
+All checks passed!
+exit=0
+$ uv run --locked ruff format --check
+unformatted: File would be reformatted
+   --> docs/phase3/api-surface-batch-b.md:87:20
+    |
+86  | @dataclass(frozen=True)
+    - class SarvamPhrase:   text: str (repr=False); start_seconds: Decimal; end_seconds: Decimal
+87  + class SarvamPhrase:
+88  +     text: str(repr=False)
+89  +     start_seconds: Decimal
+90  +     end_seconds: Decimal
+91  +
+92  +
+93  | @dataclass(frozen=True)
+    - class SarvamSttResponse:   # exactly these fields, in this order; unknown members are dropped
+    -     request_id: str; transcript: str (repr=False); language_code: str | None
+    -     language_probability: Decimal | None; phrases: tuple[SarvamPhrase, ...] | None   # None = no timestamps
+94  + class SarvamSttResponse:  # exactly these fields, in this order; unknown members are dropped
+95  +     request_id: str
+96  +     transcript: str(repr=False)
+97  +     language_code: str | None
+98  +     language_probability: Decimal | None
+99  +     phrases: tuple[SarvamPhrase, ...] | None  # None = no timestamps
+100 +
+101 +
+102 | @dataclass(frozen=True)
+    - class ChunkResponse:   chunk_index: int; response: SarvamSttResponse; responded_at: datetime | None; attempts: int
+103 + class ChunkResponse:
+104 +     chunk_index: int
+105 +     response: SarvamSttResponse
+106 +     responded_at: datetime | None
+107 +     attempts: int
+108 | ```
+    |
+
+1 file would be reformatted, 392 files already formatted
+exit=1
+$ uv run --locked mypy
+Success: no issues found in 264 source files
+exit=0
+$ uv run --locked python scripts/check_headers.py
+exit=0
+$ uv run --locked python scripts/guard_private_fixtures.py
+exit=0
+$ uv run --locked python -m tracer_evalschema.schema_export --check
+exit=0
+$ uv run --locked python scripts/generate_field_docs.py --check
+exit=0
+$ uv run --locked --all-groups python scripts/check_licenses.py
+62 ok, 0 failed
+exit=0
+$ uv run --locked ruff format --check packages/evalcore   (the repository-wide check above fails only on the untracked batch B doc docs/phase3/api-surface-batch-b.md, not touched here)
+28 files already formatted
+exit=0

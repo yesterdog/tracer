@@ -1,0 +1,35 @@
+# Why the 451 staged tests fail on the tree without the batch B code (Python 3.13, --tb=line), grouped by the first line of the failure.
+# The failures are the absence of tracer_evalcore.stt and of tracer_evalproviders.{secrets,calllog,cost,dryrun,sarvam.*}, and of the source files that three tests read: nothing else.
+
+ 202  ModuleNotFoundError: No module named 'tracer_evalproviders.calllog'
+ 161  ModuleNotFoundError: No module named 'tracer_evalproviders.sarvam'
+  35  ModuleNotFoundError: No module named 'tracer_evalproviders.cost'
+  28  ModuleNotFoundError: No module named 'tracer_evalcore.stt'
+  18  ModuleNotFoundError: No module named 'tracer_evalproviders.secrets'
+   3  ModuleNotFoundError: No module named 'tracer_evalproviders.dryrun'
+          test_sarvam_calllog::test_dry_run_prints_the_rounded_total_when_the_quotient_does_not_end
+          test_sarvam_calllog::test_dry_run_of_no_audio_prints_zero
+          test_sarvam_calllog::test_dry_run_cost_comes_only_from_a_user_supplied_usd_price
+   2  FileNotFoundError: [Errno 2] No such file or directory: '<path>'
+          test_sarvam_calllog::test_call_log_module_imports_only_the_standard_library
+          test_sarvam_calllog::test_dry_run_module_reads_no_key_and_opens_no_connection
+   1  AssertionError: Traceback (most recent call last):
+          test_sarvam_calllog::test_dry_run_leaves_the_module_graph_free_of_the_network_stack
+   1  AssertionError: []
+          test_socket_guard::test_unit_tests_open_no_socket_source_has_one_client_with_an_injected_transport
+ 451  total failed
+
+# The 13 tests that pass on this tree by nature (guards; their teeth are the mutants in mutants.txt):
+  test_evalproviders_adr0024::test_adr0024_rules_are_tested
+  test_evalproviders_adr0024::test_adr0024_cites_only_names_that_follow_the_test_naming_rule
+  test_evalproviders_adr0024::test_every_test_named_by_the_scope_rows_of_batch_b_exists[P3-06]
+  test_evalproviders_adr0024::test_every_test_named_by_the_scope_rows_of_batch_b_exists[P3-07]
+  test_evalproviders_adr0024::test_every_test_named_by_the_scope_rows_of_batch_b_exists[P3-08]
+  test_evalproviders_adr0024::test_every_test_named_by_the_scope_rows_of_batch_b_exists[P3-09]
+  test_evalproviders_adr0024::test_every_test_named_by_the_scope_rows_of_batch_b_exists[P3-10]
+  test_evalproviders_adr0024::test_every_test_named_by_the_scope_rows_of_batch_b_exists[P3-11]
+  test_evalproviders_adr0024::test_the_scope_rows_of_batch_b_name_the_expected_counts
+  test_evalproviders_scaffold::test_evalproviders_runtime_imports_whitelist
+  test_sarvam_client::test_sarvam_base_url_not_overridable_source_reads_no_environment_for_it
+  test_socket_guard::test_unit_tests_open_no_socket
+  test_socket_guard::test_unit_tests_open_no_socket_tests_build_no_client_without_a_transport
