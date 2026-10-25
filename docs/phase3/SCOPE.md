@@ -165,6 +165,79 @@ reproduced exactly.
   - **Known test limits** (BACKLOG): the SIGALRM-guarded chunker tests run on POSIX only (BL-195);
     the httpx lower-bound leg tests the same version as the lock until a release other than 0.28.1
     exists (BL-196); the sparse-file test needs a file system with sparse files (BL-197).
+- **D9. Batch B and C contract decisions (lead, 2026-10-25; decision log "PHASE 3 BATCH B (qa
+  a91cde1ecf4ca241e) DELIVERED", "PHASE 3 BATCH C (qa afa8...) DELIVERED" and "PHASE 3 BATCH C
+  IMPLEMENTED"; contracts `docs/phase3/api-surface-batch-b.md` and `docs/phase3/api-surface-batch-c.md`).**
+  Auto-approved; the contracts hold the exact names and signatures.
+  - **Batch C caps (measured on one machine, Python 3.14).** `ALIGN_MAX_TOKENS` is 10,000 tokens per
+    side (a byte table of about 100 MB, about 8 s), checked before any allocation, with
+    `AlignmentTooLargeError`; changing it changes the scorer version. The Levenshtein distance of
+    the confidence is exact, computed with the Myers/Hyyro bit-parallel method on Python integers,
+    and capped at `LEVENSHTEIN_MAX_CHARS` = 200,000 code points per side with
+    `LevenshteinTooLargeError` (sizes only). Batch D maps both errors to scorer `error` codes
+    (P3-19). Recorded in `packages/evalcore/CHANGELOG.md`; tuning after the first real run is
+    BL-199; the Myers method made a banded variant unnecessary (BL-198).
+  - **Batch C readings.** The alignment cost pair, the backtrace preference, exact integer MER, the
+    insertion anchoring and the confidence formula are as in ADR 0023 rules 6 to 10. An STT
+    Segment maps to tokens only if the token keys of the Segments equal the turn's token keys
+    exactly, else the audio range is absent (a requirement on the batch B mapper);
+    `near_chunk_boundary` is false for a deletion gap at the head or tail of the STT text; two
+    empty sides are `UndefinedMerError`, one empty side gives 1.0, and the scorer's `no_tokens`
+    fires first; a threshold with more than 18 fractional digits is a `ThresholdError`; the flags
+    schema is `tracer_evalcore.flags.FLAGS_JSON_SCHEMA`; the normaliser id is a required argument
+    everywhere. ADR 0025's code point cell `cat:Nd outside U+0966-U+096F` (R14) is a documented
+    extension of the table format; the rule-change digest pins the table rows, so any row edit,
+    editorial or not, is a logged re-pin or a new id; the behaviour digest uses only Unicode blocks
+    that are stable across Python 3.11 to 3.14, and a 3.15 difference is a signal to investigate,
+    not a reason to widen the corpus (BL-211).
+  - **Batch B readings (ADR 0024).** The engine boundary and the error taxonomy are in
+    `tracer_evalcore.stt`, and the engine returns records, not raw responses. Errors carry facts
+    only and are raised with no cause and no context (finding F-B2: `raise ... from None` inside an
+    `except` block still sets `__context__`, so the error is raised outside the handler). With
+    `--env-file` the file is the only key source, and two definitions of the key in one file are
+    refused. An absent `language_code` is null; a null `language_probability` is invalid. A 429 or
+    503 with `Retry-After` above 30 s is `SttRateLimited`. The first chunk that fails, of any class,
+    ends the run. A phrase past the end of its chunk drops all Segments of that chunk, with one
+    warning per chunk; `timeline_origin` is set iff a Segment exists (F-B4); a Turn's start and end
+    are its smallest Segment start and largest Segment end; `detected_language_raw` is set only when
+    every raw label is identical. An oversize error body is classified by its status, with code
+    `unrecognised`. The user price file is `{published_at, entries}`, sealed by Tracer, every entry
+    `user_supplied`; `priced_at` is a parameter (without it the cost is `ambiguous_price`, never the
+    local clock); a user catalog must also price `requests`, else every chunk is `unit_unpriced`
+    (F-B6; CLI help and the dry run say so, BL-210). The call log is `sarvam_call_log.jsonl` with
+    ten members per line; the dry run prints a pinned four-line plan; the clocks of sleep, timing
+    and the call log are injected.
+  - **Test name added:** `test_key_never_in_store_and_report_outputs`, in P3-21 (the store
+    channel) and P3-23 (the report channel), for the key canary channels batch B cannot reach.
+  - **Known limits (BACKLOG):** phrase-time rounding warnings to count in the first real send
+    (F-B5, BL-206); TLS verification pinned only by reading the source (BL-207); real Sarvam
+    behaviour not testable offline (BL-208); the call-log mode test is POSIX only (BL-209).
+- **D10. Owner gates P3-29 answered (owner, 2026-10-25; decision log "OWNER ANSWERS to the Phase 3
+  gate questions (P3-29)" and "OWNER ANSWER (item 2, Sarvam clause 17.5 training use)").** Asked one
+  at a time in chat, before any real send (no real Sarvam request has been made):
+  - **(1) `flag_min_confidence` = 0.5**, pre-registered on 2026-10-25 before any real result existed
+    (BL-170, BL-172). It is a run parameter of the bindings, never a code default.
+  - **(2) Review budget:** not set by the owner. The lead's decision (auto-approved, the owner may
+    override; reconciled 2026-10-25, ADR 0023 rule 17 as amended in ADR index revision 41): the
+    budget is a rubric file field with no code default; a run is still refused when the rubric file
+    lacks it or lacks a required item with a pass rule. The project's own base-case rubric file,
+    shipped as a clearly labelled example and fixture, sets `max` = 1.0 as an explicit placeholder
+    meaning "no limit; the rule cannot fail"; the value decides only that rule's pass or fail,
+    never which spans are flagged. The CLI and the report print "review budget: 1.0 (no limit)" and
+    never present that rule's outcome as a judgement of the agent; the owner may set a real number
+    at any time by editing the rubric file (BL-214). Tracer never supplies a value itself.
+  - **(3) Terms 10.5(a):** owner-accepted risk. The owner's reading, "we are not testing an AI
+    system, we are taking its transcript and running an eval", is recorded as the owner's reading,
+    not as written permission from Sarvam and not as a legal opinion; the legal-review reminder
+    stays (BL-188).
+  - **(4) Terms 17.5 (training use):** allowed for the two Marathi test clips; the owner opts out
+    later, before any non-test audio is sent; how is unverified, and an opt-out does not recall
+    audio already sent (clauses 15.2 and 8.2) (BL-189, BL-212).
+  - **(5) Callers' consent:** `consent=obtained`, recorded as an owner statement of 2026-10-25
+    (source: owner instruction), not an inference (BL-213).
+  - **USD price:** none supplied, so cost stays `not_available`; the INR price is never converted.
+  - The first real send (P3-30) still waits for the adapter to pass its offline tests and for the
+    security audit P3-28.
 
 ---
 
@@ -412,16 +485,16 @@ No cut list (owner rule): if a task slips, the date moves.
 | ID | Owner | Task | Acceptance | Tests (red first) | h |
 |---|---|---|---|---|---|
 | P3-18 | SA+dev | Three shipped definition templates, kind deterministic, `languages=["mr"]`, `script_sensitive=false`, `requires=["transcript","agent_transcript"]`, per-conversation, **no pass rule**: `stt_export_agreement_mer` (numeric/ratio), `stt_export_flag_count` (numeric/count), `stt_export_flagged_token_share` (numeric/ratio). Parameters `flag_min_confidence` (number) and `normaliser` (string), neither with a default. Scorer registry (BL-144) with `implementation_ref` `builtin:...`; version = distribution version. The rubric file builds owner definition versions; the owner's review budget is `range{max}` on the share. | | `test_shipped_definitions_have_no_pass_rule`, `test_agreement_unit_is_ratio_never_wer_or_cer`, `test_definitions_requires_transcript_and_agent_transcript`, `test_unknown_scorer_refuses_before_run`, `test_rubric_file_without_required_pass_rule_refused`, `test_missing_binding_param_refuses_before_any_send`, `test_metrics_evaluate_agent_outputs_only` (closes BL-145, renamed) | 6 |
-| P3-19 | dev | Result mapping. Scored results carry ScorerInfo, `transcript_ids=[export, stt]`, `language_source=declared` with `declared_language_transcript_ids`, and evidence refs (distinct flagged export turns by seq, plus artifact ms ranges). `metadata["tracer.flags"]` follows `tracer.flags/1` (only ints, decimal strings, machine keys) and holds H/S/D/I, normaliser id, signal, provider and model, threshold and per-flag records. Zero export tokens gives `error` with code `no_tokens`. | | `test_results_pass_check_result_against_definition`, `test_flags_metadata_validates_against_tracer_flags_1`, `test_flags_metadata_has_no_text_and_no_metadata_flags`, `test_evidence_refs_resolve_in_bundle`, `test_transcript_ids_required_with_two_transcripts`, `test_language_source_declared_from_export`, `test_empty_export_is_error_no_tokens_not_zero`, `test_empty_stt_is_error_no_tokens_not_zero` (added 2026-10-25, Decisions D7) | 6 |
+| P3-19 | dev | Result mapping. Scored results carry ScorerInfo, `transcript_ids=[export, stt]`, `language_source=declared` with `declared_language_transcript_ids`, and evidence refs (distinct flagged export turns by seq, plus artifact ms ranges). `metadata["tracer.flags"]` follows `tracer.flags/1` (only ints, decimal strings, machine keys) and holds H/S/D/I, normaliser id, signal, provider and model, threshold and per-flag records. Zero export tokens gives `error` with code `no_tokens`. The scorer also maps `AlignmentTooLargeError` and `LevenshteinTooLargeError` of `tracer-evalcore` to `error` results with their own codes (ADR 0023 rule 15; Decisions D9), never a score and never a crash of the run. | | `test_results_pass_check_result_against_definition`, `test_flags_metadata_validates_against_tracer_flags_1`, `test_flags_metadata_has_no_text_and_no_metadata_flags`, `test_evidence_refs_resolve_in_bundle`, `test_transcript_ids_required_with_two_transcripts`, `test_language_source_declared_from_export`, `test_empty_export_is_error_no_tokens_not_zero`, `test_empty_stt_is_error_no_tokens_not_zero` (added 2026-10-25, Decisions D7) | 6 |
 | P3-20 | dev | Pipeline (evalcore): read, STT through the Protocol, normalise, align, flag, build the RunBundle (Run `recorded`, `caller_origin` explicit, `observed_tier` T0, `available_inputs` exact, `started_at` absent), then `check_run_bundle` | | `test_pipeline_bundle_passes_check_run_bundle`, `test_pipeline_observed_tier_is_t0`, `test_pipeline_started_at_absent_never_ingest_time`, `test_pipeline_is_deterministic_given_same_stt`, `test_stt_failure_is_missing_input_with_warning_and_nonzero_exit` | 7 |
-| P3-21 | dev | Store via evaldb (project, definitions, snapshot, run bundle) in `--out`; reload equal; SQLite file 0600 | | `test_run_round_trips_through_store_byte_identical`, `test_store_file_is_0600`, `test_pipeline_bundle_stores_on_both_backends` (`[postgres]` marker) | 4 |
+| P3-21 | dev | Store via evaldb (project, definitions, snapshot, run bundle) in `--out`; reload equal; SQLite file 0600 | | `test_run_round_trips_through_store_byte_identical`, `test_store_file_is_0600`, `test_pipeline_bundle_stores_on_both_backends` (`[postgres]` marker), `test_key_never_in_store_and_report_outputs` (store channel; added 2026-10-25, Decisions D9) | 4 |
 
 ### A.5 CLI and report (batch E). Milestone M1: runnable by hand offline after P3-22 with `--stt fake:<dir>`.
 
 | ID | Owner | Task | Acceptance | Tests (red first) | h |
 |---|---|---|---|---|---|
 | P3-22 | dev | `tracer score <audio> --transcript <file> --rubric <file> --declared-language mr --caller-origin human\|simulated --consent obtained\|not_obtained\|unknown --retention ... --out <dir> [--stt sarvam\|fake:<dir>] [--dry-run] [--embed-audio]`. Every privacy and language input is required, with no defaults. Prints MER (with counts), flag count, token share with numerator/denominator, usage, cost or `not_available`. Exit codes documented. | | `test_cli_requires_every_privacy_and_language_input`, `test_cli_prints_counts_with_denominators`, `test_cli_output_never_claims_accuracy` (deny-list: accuracy, WER, CER, error rate, correct, recall, precision), `test_cli_fake_stt_runs_offline`, `test_cli_exit_codes`, `test_cli_has_no_export_command` (BL-140 stays open) | 7 |
-| P3-23 | dev | Single HTML report. CSP `default-src 'none'`. Inline style. One inline seek script pinned by its sha256 in the CSP (Q12). Audio by relative `src` (URL-encoded) by default; `--embed-audio` opt-in with a warning. Every text through `display_safe()` then `html.escape(quote=True)`, applied per segment around the highlights. Shows the declared language (BL-147), scorer/provider/model, normaliser id, threshold, a histogram of flag confidences, counts, and a cost/usage table. No absolute paths. | | `test_report_has_no_external_requests` (src, href, `url()`, `@import`, `//`), `test_report_csp_present_and_script_hash_matches`, `test_report_escapes_html_and_script_in_transcript`, `test_report_shows_bidi_controls_as_markers`, `test_report_highlights_exact_flag_spans`, `test_report_relative_audio_by_default_embed_opt_in`, `test_report_never_claims_accuracy`, `test_report_shows_language_declared_by_user`, `test_report_has_no_absolute_paths` | 8 |
+| P3-23 | dev | Single HTML report. CSP `default-src 'none'`. Inline style. One inline seek script pinned by its sha256 in the CSP (Q12). Audio by relative `src` (URL-encoded) by default; `--embed-audio` opt-in with a warning. Every text through `display_safe()` then `html.escape(quote=True)`, applied per segment around the highlights. Shows the declared language (BL-147), scorer/provider/model, normaliser id, threshold, a histogram of flag confidences, counts, and a cost/usage table. No absolute paths. | | `test_report_has_no_external_requests` (src, href, `url()`, `@import`, `//`), `test_report_csp_present_and_script_hash_matches`, `test_report_escapes_html_and_script_in_transcript`, `test_report_shows_bidi_controls_as_markers`, `test_report_highlights_exact_flag_spans`, `test_report_relative_audio_by_default_embed_opt_in`, `test_report_never_claims_accuracy`, `test_report_shows_language_declared_by_user`, `test_report_has_no_absolute_paths`, `test_key_never_in_store_and_report_outputs` (report channel; added 2026-10-25, Decisions D9) | 8 |
 | P3-24 | qa | Adversarial report and input suite: malicious export lines, a Sarvam body with markup and bidi, a huge line, a NUL character, lone surrogates | | `test_adversarial_inputs_never_break_report_or_store` | 4 |
 
 ### A.6 End to end, real sends, audit, docs, gate (batch F)
@@ -433,7 +506,7 @@ No cut list (owner rule): if a task slips, the date moves.
 | P3-27 | qa | T-DEG matrix (identical record kinds and schema, `not_applicable` never failure) and the no-network guard (conftest patches `socket.connect` for every package) | | `test_tdeg_audio_and_export_scored`, `test_tdeg_no_audio_missing_input_transcript`, `test_tdeg_no_export_missing_input_agent_transcript`, `test_tdeg_export_without_declaration_language_not_observed`, `test_tdeg_non_mr_chunk_is_not_scored` (renamed 2026-10-25 from the earlier name, Decisions D7), `test_tdeg_export_without_agent_turn_missing_input_agent_transcript` (added 2026-10-25, Decisions D7), `test_tdeg_schema_identical_across_cases`, `test_unit_tests_open_no_socket` | 4 |
 | P3-28 | SL | Security audit `docs/security/P3-28-audit.md` (keys, logs, call log, store, report, privacy markers, out-dir placement, guard, ToS F9). Must pass before P3-30. | | `test_p3_audit_items_cite_tests` | 8 |
 | P3-34 | dev+SL | Extend `scripts/guard_private_fixtures.py` and `.gitignore`: refuse staged report HTML (embedded marker), store files and call logs | | `test_guard_rejects_staged_report_store_and_call_log` | 3 |
-| P3-29 | lead | **Owner questions**, one at a time in chat: (1) `flag_min_confidence` value and (2) review budget, pre-registered before any real result is seen; (3) ToS 10.5(a): written Sarvam permission, or explicit risk acceptance; (4) Sarvam 17.5 training opt-out status; (5) consent status to record for the callers | Answers in the decision log. | none | 1 |
+| P3-29 | lead | **Owner questions (answered 2026-10-25, Decisions D10)**, one at a time in chat: (1) `flag_min_confidence` value and (2) review budget, pre-registered before any real result is seen; (3) ToS 10.5(a): written Sarvam permission, or explicit risk acceptance; (4) Sarvam 17.5 training opt-out status; (5) consent status to record for the callers | Answers in the decision log. | none | 1 |
 | P3-30 | lead (owner-gated) | First real send (R1). Order: dry-run; one chunk (checks that 24 kHz is accepted and that `unknown` detects mr); then both clips. Log before and after; record counts only (chunks, detections per tag, usage, status) in the decision log. Never text. | Closes BL-168. | none (evidence `docs/phase3/evidence/real/` counts only) | 3 |
 | P3-31 | lead+qa | Noise-floor measurement, owner-gated: R2 repeats R1 (STT run-to-run stability); R3 shifts the chunking by half a window (boundary sensitivity); offline ablation of the normaliser on vs off from stored data. Report the Jaccard of flagged token sets and the counts. | | `test_measurement_report_has_counts_and_denominators` | 4 |
 | P3-32 | SA+dev | Docs: `docs/concepts/recorded-scoring.md`; README quick start runnable on the synthetic pair (`python -I`); three CHANGELOGs; licence and NOTICE | | `test_readme_quick_start_runs_offline`, `test_concept_page_states_no_accuracy_claim` | 6 |
