@@ -80,7 +80,7 @@ Tracer reports how far two transcripts agree; it does not measure accuracy, and 
 - Number words against digits are not folded: a number spoken as a word in one text and written in digits in the other gets a high confidence and can be flagged (BL-192).
 - The confidence is relative to the length of the span, so one differing letter in a two-letter word reaches the threshold of 0.5 (1 of 2) and is flagged, while the same difference in a three-letter word (1 of 3) is not (BL-243).
 - A split word, one that the other text cuts in two with a single space (as a chunk boundary can do), has a distance of 1 over the word length plus one, so it stays below the threshold of 0.5 and is not flagged (BL-244).
-- The noise floor of the speech-to-text side (how much a repeat run or a shifted chunking changes the flags) is unmeasured until P3-31, whose report will go under `docs/phase3/measurements/`.
+- The noise floor of the speech-to-text side (how much a repeat run or a shifted chunking changes the flags) was measured once on two clips, with counts only, in `docs/phase3/measurements/2026-10-26-noise-floor.md`; two clips are a demonstration, not a validation (BL-170).
 - No native review of the Marathi normaliser rules, of the synthetic pair or of any result has happened (BL-169, BL-225).
 - The two texts share no time base, so the comparison is over the whole call, not turn by turn (BL-167).
 - The aligner accepts at most 10,000 tokens per side; with `--stt sarvam` a longer export is refused before the send, and memory and time at the caps are unmeasured (BL-230).

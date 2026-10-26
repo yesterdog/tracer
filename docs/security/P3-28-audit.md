@@ -58,7 +58,7 @@ Stated plainly, so that nobody reads the verdict as covering them:
 
 - pip-audit results: not run by the audit; read the hosted CI run.
 - gitleaks: not run locally.
-- Real Sarvam behaviour: acceptance of 24 kHz audio, the billing of retries and failed attempts, response compression in practice. Only a real send shows them (P3-30).
+- Real Sarvam behaviour: the billing of retries and failed attempts, response compression in practice. Only a real send shows them (P3-30). Verified afterwards by the real sends of P3-30 and P3-31 (2026-10-26, BL-236): 24 kHz mono 16-bit audio is accepted, chunks of up to 25 s and of up to 20 s are accepted, and replies with several phrases map without ingest warnings; no retry happened in the eight runs, so the billing of a retry stays unverified.
 - The report's CSP and `'self'` under `file://` in real browsers (also BL-224).
 - Windows (modes, `O_NOFOLLOW`, FIFOs are POSIX only).
 - The owner's proxy and CA environment.
@@ -86,7 +86,7 @@ Run book additions of the re-audit, now in ADR 0024: do not press Ctrl-C during 
 ### Not verified by the re-audit
 
 - pip-audit and the hosted CI run (no network for the auditor; the lead reads CI).
-- Real Sarvam behaviour: acceptance of 24 kHz audio, the billing of retries, whether a chunk whose reply is refused as invalid is billed (it makes no usage record), response compression in practice.
+- Real Sarvam behaviour: the billing of retries, whether a chunk whose reply is refused as invalid is billed (it makes no usage record), response compression in practice. The acceptance of 24 kHz audio was verified afterwards by the real sends of P3-30 and P3-31 (2026-10-26, BL-236).
 - The memory a huge `--max-chunk-ms` or `--search-ms` plan needs before the ceiling is checked (local only, BL-249).
 - A zero-length WAV over the Sarvam engine (BL-248).
 - A speech-to-text side above 10,000 tokens after the send (BL-250).
