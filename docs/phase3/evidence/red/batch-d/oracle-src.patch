@@ -1,0 +1,1421 @@
+diff --git a/docs/examples/rubric-mr.example.json b/docs/examples/rubric-mr.example.json
+new file mode 100644
+index 0000000..87399fe
+--- /dev/null
++++ b/docs/examples/rubric-mr.example.json
+@@ -0,0 +1,10 @@
++{
++  "format": "tracer.rubric/1",
++  "note": "PLACEHOLDER review budget: max 1.0 means no limit, so the rule cannot fail. The owner has not set a budget; replace it before relying on it.",
++  "parameters": {"flag_min_confidence": 0.5, "normaliser": "mr-Deva/1"},
++  "items": [
++    {"metric": "stt_export_flagged_token_share", "required": true, "pass_rule": {"kind": "range", "max": 1.0, "inclusive": true}},
++    {"metric": "stt_export_agreement_mer", "required": false},
++    {"metric": "stt_export_flag_count", "required": false}
++  ]
++}
+diff --git a/packages/cli/src/tracer_cli/store.py b/packages/cli/src/tracer_cli/store.py
+new file mode 100644
+index 0000000..7488b72
+--- /dev/null
++++ b/packages/cli/src/tracer_cli/store.py
+@@ -0,0 +1,51 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The store of a scored run: a SQLite file in the output directory, through tracer-evaldb."""
++
++from __future__ import annotations
++
++import os
++from dataclasses import dataclass
++from pathlib import Path
++from typing import Any
++
++import tracer_evaldb
++from tracer_evalschema.agent import AgentTarget
++from tracer_evalschema.bundle import RunBundle
++from tracer_evalschema.ids import RunBundleId
++from tracer_evalschema.project import Project
++
++__all__ = ["STORE_FILE_NAME", "StoredRun", "load_run", "open_sqlite_store", "store_run"]
++
++STORE_FILE_NAME = "tracer.sqlite"
++
++
++@dataclass(frozen=True)
++class StoredRun:
++    bundle_id: RunBundleId
++    created: bool
++    inserted: dict[str, int]
++
++
++def open_sqlite_store(out_dir: str | os.PathLike[str]) -> Any:
++    directory = Path(out_dir)
++    directory.mkdir(parents=True, exist_ok=True)
++    path = (directory / STORE_FILE_NAME).resolve()
++    engine = tracer_evaldb.create_store_engine(f"sqlite:///{path}")
++    tracer_evaldb.migrate.upgrade(engine)
++    tracer_evaldb.open_store(engine)
++    return engine
++
++
++def store_run(engine: Any, *, project: Project, agent_target: AgentTarget, bundle: RunBundle) -> StoredRun:
++    tracer_evaldb.store_project(engine, project)
++    tracer_evaldb.store_definition(engine, agent_target)
++    tracer_evaldb.store_snapshot(engine, bundle.snapshot)
++    result = tracer_evaldb.store_run_bundle(engine, bundle)
++    return StoredRun(bundle.id, result.created, dict(result.inserted))
++
++
++def load_run(engine: Any, bundle_id: RunBundleId) -> RunBundle:
++    loaded = tracer_evaldb.load_run_bundle(engine, bundle_id)
++    assert loaded.bundle is not None  # noqa: S101
++    return loaded.bundle
+diff --git a/packages/evalcore/src/tracer_evalcore/definitions.py b/packages/evalcore/src/tracer_evalcore/definitions.py
+new file mode 100644
+index 0000000..2ffb65d
+--- /dev/null
++++ b/packages/evalcore/src/tracer_evalcore/definitions.py
+@@ -0,0 +1,359 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Metric definition templates, the recorded-run configuration and its binding parameters."""
++
++from __future__ import annotations
++
++from collections.abc import Mapping, Sequence
++from dataclasses import dataclass
++from datetime import datetime
++from decimal import Decimal
++from typing import Any
++
++from tracer_evalschema import SCHEMA_VERSION
++from tracer_evalschema.agent import AgentTarget
++from tracer_evalschema.digest import compute_digest
++from tracer_evalschema.evaluator import MAX_DURATION_MS, Evaluator, evaluator_digest_domain
++from tracer_evalschema.ids import (
++    AgentTargetId,
++    ConfigSnapshotId,
++    EvaluatorId,
++    MetricBindingId,
++    MetricDefinitionId,
++    PersonaId,
++    ProjectId,
++    RubricId,
++    TypedId,
++)
++from tracer_evalschema.metrics import MetricBinding, MetricDefinition
++from tracer_evalschema.persona import Persona
++from tracer_evalschema.primitives import canonical_decimal_text
++from tracer_evalschema.project import Project
++from tracer_evalschema.provider import ProviderConfigRef
++from tracer_evalschema.rubric import Rubric
++from tracer_evalschema.snapshot import ConfigSnapshot, compute_snapshot_digest
++
++from tracer_evalcore.errors import InputRefusedError
++from tracer_evalcore.flags import ThresholdError, parse_threshold
++from tracer_evalcore.normalise import SUPPORTED_NORMALISERS
++from tracer_evalcore.registry import (
++    COUNT_KEY,
++    DEFAULT_REGISTRY,
++    MER_KEY,
++    SHARE_KEY,
++    SHIPPED_KEYS,
++    ScorerRegistry,
++    check_runnable,
++    implementation_ref,
++)
++from tracer_evalcore.rubricfile import RubricFileError, RubricSpec
++
++__all__ = [
++    "BindingParameterError",
++    "COUNT_KEY",
++    "EVALUATOR_NAME",
++    "MER_KEY",
++    "PARAMETER_NAMES",
++    "PLACEHOLDER_KEY",
++    "RECORDED_ENDPOINT_URL",
++    "SHARE_KEY",
++    "SHIPPED_KEYS",
++    "RecordedConfiguration",
++    "ScoringParameters",
++    "build_configuration",
++    "check_binding_parameters",
++    "parameters_of",
++    "recorded_agent_target",
++    "recorded_project",
++    "shipped_definition",
++    "shipped_definitions",
++]
++
++PARAMETER_NAMES = ("flag_min_confidence", "normaliser")
++PLACEHOLDER_KEY = "recorded_call_no_outcome_check"
++EVALUATOR_NAME = "recorded-call agreement scoring"
++RECORDED_ENDPOINT_URL = "wss://recorded-call.invalid/"
++_UNITS = {MER_KEY: "ratio", COUNT_KEY: "count", SHARE_KEY: "ratio"}
++_SECOND = ("transcript", "agent_transcript")
++
++
++class BindingParameterError(InputRefusedError):
++    """A binding parameter is missing, invalid, unequal across bindings or names no normaliser."""
++
++    def __init__(self, code: str, key: str | None = None, parameter: str | None = None) -> None:
++        self.code = code
++        self.key = key
++        self.parameter = parameter
++        super().__init__(f"{code}: {key} {parameter}")
++
++
++@dataclass(frozen=True)
++class ScoringParameters:
++    flag_min_confidence: Decimal
++    normaliser: str
++
++
++def _doc_base(entity_id: TypedId, created_at: datetime, *, version: int | None) -> dict[str, Any]:
++    doc: dict[str, Any] = {
++        "id": str(entity_id),
++        "schema_version": SCHEMA_VERSION,
++        "created_at": _instant(created_at),
++        "metadata": {},
++        "metadata_flags": [],
++    }
++    if version is not None:
++        doc["version"] = version
++    return doc
++
++
++def _instant(moment: datetime) -> str:
++    return moment.strftime("%Y-%m-%dT%H:%M:%S.%f") + "Z"
++
++
++def _seal(cls: Any, doc: dict[str, Any]) -> Any:
++    subject = evaluator_digest_domain(doc) if cls is Evaluator else doc
++    digest = compute_digest(subject).model_dump(mode="json", exclude_none=True)
++    return cls.model_validate({**doc, "content_digest": digest})
++
++
++def _ref(record: Any) -> dict[str, Any]:
++    return {
++        "id": str(record.id),
++        "version": record.version,
++        "content_digest": record.content_digest.model_dump(mode="json", exclude_none=True),
++    }
++
++
++def _definition_doc(key: str, created_at: datetime, pass_rule: Mapping[str, Any] | None) -> dict[str, Any]:
++    doc = _doc_base(MetricDefinitionId.new(), created_at, version=1)
++    doc.update(
++        {
++            "key": key,
++            "kind": "deterministic",
++            "value_type": "numeric",
++            "unit": _UNITS[key],
++            "requires": list(_SECOND),
++            "languages": ["mr"],
++            "script_sensitive": False,
++            "aggregation": {"kind": "per_conversation"},
++            "pass_rule": None if pass_rule is None else dict(pass_rule),
++            "parameters": [
++                {"name": "flag_min_confidence", "value_type": "number"},
++                {"name": "normaliser", "value_type": "string"},
++            ],
++            "implementation_ref": implementation_ref(key),
++        }
++    )
++    return doc
++
++
++def shipped_definition(key: str, *, created_at: datetime) -> MetricDefinition:
++    if key not in SHIPPED_KEYS:
++        raise ValueError("not a shipped metric key")
++    built: MetricDefinition = _seal(MetricDefinition, _definition_doc(key, created_at, None))
++    return built
++
++
++def shipped_definitions(*, created_at: datetime) -> tuple[MetricDefinition, ...]:
++    return tuple(shipped_definition(key, created_at=created_at) for key in SHIPPED_KEYS)
++
++
++# ---------------------------------------------------------------------------- parameters
++
++
++def _threshold(value: object, key: str) -> Decimal:
++    if type(value) not in (int, float):
++        raise BindingParameterError("binding_param_invalid", key, "flag_min_confidence")
++    try:
++        return parse_threshold(value)  # type: ignore[arg-type]
++    except (ThresholdError, ValueError, TypeError):
++        raise BindingParameterError("binding_param_invalid", key, "flag_min_confidence") from None
++
++
++def check_binding_parameters(params_by_key: Mapping[str, Mapping[str, Any]]) -> ScoringParameters:
++    found: list[ScoringParameters] = []
++    for key in SHIPPED_KEYS:
++        params = params_by_key.get(key)
++        if params is None:
++            raise BindingParameterError("binding_param_missing", key, None)
++        for name in PARAMETER_NAMES:
++            if params.get(name) is None:
++                raise BindingParameterError("binding_param_missing", key, name)
++        threshold = _threshold(params["flag_min_confidence"], key)
++        normaliser = params["normaliser"]
++        if not isinstance(normaliser, str):
++            raise BindingParameterError("binding_param_invalid", key, "normaliser")
++        if normaliser not in SUPPORTED_NORMALISERS:
++            raise BindingParameterError("normaliser_unknown", key, "normaliser")
++        found.append(ScoringParameters(threshold, normaliser))
++    if any(item != found[0] for item in found[1:]):
++        raise BindingParameterError("binding_param_unequal")
++    return found[0]
++
++
++# ------------------------------------------------------------------------ configuration
++
++
++@dataclass(frozen=True)
++class RecordedConfiguration:
++    snapshot: ConfigSnapshot
++
++    def definition(self, key: str) -> MetricDefinition:
++        for definition in self.snapshot.metric_definitions:
++            if definition.key == key:
++                return definition
++        raise KeyError(key)
++
++    def binding(self, key: str) -> MetricBinding:
++        definition = self.definition(key)
++        for binding in self.snapshot.metric_bindings:
++            if binding.metric.id == definition.id:
++                return binding
++        raise KeyError(key)
++
++
++def parameters_of(snapshot: ConfigSnapshot) -> ScoringParameters:
++    configuration = RecordedConfiguration(snapshot)
++    params: dict[str, Mapping[str, Any]] = {}
++    for key in SHIPPED_KEYS:
++        try:
++            params[key] = configuration.binding(key).params
++        except KeyError:
++            continue
++    return check_binding_parameters(params)
++
++
++def _placeholder_doc(created_at: datetime) -> dict[str, Any]:
++    doc = _doc_base(MetricDefinitionId.new(), created_at, version=1)
++    doc.update(
++        {
++            "key": PLACEHOLDER_KEY,
++            "kind": "llm_judge",
++            "value_type": "boolean",
++            "requires": ["transcript"],
++            "languages": "language_independent",
++            "script_sensitive": False,
++            "aggregation": {"kind": "per_conversation"},
++            "pass_rule": {"kind": "equals_true"},
++            "parameters": [],
++            "prompt_template": (
++                "Placeholder required by schema 0.0.1. No judge is run for a recorded call and "
++                "no outcome is evaluated: {{expected_outcome}}"
++            ),
++            "prompt_variables": ["expected_outcome"],
++            "judge_model_ref": {"provider": "none", "model": "not_run"},
++        }
++    )
++    return doc
++
++
++def build_configuration(
++    spec: RubricSpec,
++    *,
++    configured_language: str,
++    created_at: datetime,
++    registry: ScorerRegistry = DEFAULT_REGISTRY,
++) -> RecordedConfiguration:
++    if not any(
++        i.metric == SHARE_KEY and i.required and i.pass_rule is not None for i in spec.items
++    ):
++        raise RubricFileError("rubric_budget_missing")
++    params = {"flag_min_confidence": spec.flag_min_confidence, "normaliser": spec.normaliser}
++    check_binding_parameters(dict.fromkeys(SHIPPED_KEYS, params))
++    rules = {item.metric: item.pass_rule for item in spec.items}
++    definitions: list[MetricDefinition] = []
++    for key in SHIPPED_KEYS:
++        rule = rules.get(key)
++        pass_rule = None if rule is None else rule.model_dump(mode="json", exclude_none=True)
++        definitions.append(_seal(MetricDefinition, _definition_doc(key, created_at, pass_rule)))
++    placeholder: MetricDefinition = _seal(MetricDefinition, _placeholder_doc(created_at))
++    definitions.append(placeholder)
++    check_runnable(definitions, registry)
++    persona = _seal(
++        Persona,
++        {**_doc_base(PersonaId.new(), created_at, version=1), "language": configured_language},
++    )
++    evaluator_id = EvaluatorId.new()
++    bindings: list[MetricBinding] = []
++    for definition in definitions:
++        doc = _doc_base(MetricBindingId.new(), created_at, version=1)
++        doc.update(
++            {
++                "evaluator_id": str(evaluator_id),
++                "metric": _ref(definition),
++                "params": dict(params) if definition.key in SHIPPED_KEYS else {},
++                "enabled": True,
++            }
++        )
++        bindings.append(_seal(MetricBinding, doc))
++    evaluator_doc = _doc_base(evaluator_id, created_at, version=1)
++    evaluator_doc.update(
++        {
++            "name": EVALUATOR_NAME,
++            "language": configured_language,
++            "instructions": (
++                "This run scores a recorded call. No call was simulated. The agreement between "
++                "the agent's own transcript export and our speech-to-text transcript of the "
++                "recording is measured, and the export spans that disagree are flagged for a "
++                "person to read."
++            ),
++            "expected_outcome": "No outcome is evaluated in this run; the recording is scored only.",
++            "persona": _ref(persona),
++            "metric_bindings": [_ref(b) for b in bindings],
++            "scripted_turns": [],
++            "expected_tool_calls": [],
++            "max_duration_ms": MAX_DURATION_MS,
++        }
++    )
++    evaluator: Evaluator = _seal(Evaluator, evaluator_doc)
++    by_definition = {b.metric.id: b for b in bindings}
++    placeholder_binding = by_definition[placeholder.id]
++    items = [{"binding": _ref(placeholder_binding), "required": True}]
++    for item in spec.items:
++        definition = next(d for d in definitions if d.key == item.metric)
++        items.append({"binding": _ref(by_definition[definition.id]), "required": item.required})
++    rubric: Rubric = _seal(
++        Rubric, {**_doc_base(RubricId.new(), created_at, version=1), "items": items}
++    )
++    snapshot_doc = _doc_base(ConfigSnapshotId.new(), created_at, version=None)
++    snapshot_doc.update(
++        {
++            "evaluator": evaluator.model_dump(mode="json", by_alias=True),
++            "persona": persona.model_dump(mode="json", by_alias=True),
++            "metric_definitions": [d.model_dump(mode="json", by_alias=True) for d in definitions],
++            "metric_bindings": [b.model_dump(mode="json", by_alias=True) for b in bindings],
++            "rubric": rubric.model_dump(mode="json", by_alias=True),
++        }
++    )
++    digest = compute_snapshot_digest(snapshot_doc).model_dump(mode="json", exclude_none=True)
++    return RecordedConfiguration(ConfigSnapshot.model_validate({**snapshot_doc, "content_digest": digest}))
++
++
++def recorded_project(
++    *, name: str, created_at: datetime, provider_configs: Sequence[ProviderConfigRef] = ()
++) -> Project:
++    return Project(
++        id=ProjectId.new(),
++        schema_version=SCHEMA_VERSION,
++        created_at=created_at,
++        name=name,
++        provider_configs=list(provider_configs),
++    )
++
++
++def recorded_agent_target(*, name: str, created_at: datetime) -> AgentTarget:
++    doc = _doc_base(AgentTargetId.new(), created_at, version=1)
++    doc.update(
++        {
++            "name": name,
++            "endpoint": {"transport": "ws", "url": RECORDED_ENDPOINT_URL},
++            "languages": [],
++            "declared_capabilities": [],
++            "declared_stack": [],
++        }
++    )
++    built: AgentTarget = _seal(AgentTarget, doc)
++    return built
++
++
++_ = canonical_decimal_text
+diff --git a/packages/evalcore/src/tracer_evalcore/flagsdoc.py b/packages/evalcore/src/tracer_evalcore/flagsdoc.py
+new file mode 100644
+index 0000000..674ed7f
+--- /dev/null
++++ b/packages/evalcore/src/tracer_evalcore/flagsdoc.py
+@@ -0,0 +1,254 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The ``tracer.flags/1`` document: built from the pieces of a scoring pass and validated."""
++
++from __future__ import annotations
++
++import re
++from collections.abc import Mapping, Sequence
++from decimal import Decimal
++from fractions import Fraction
++from typing import Any
++
++from tracer_evalcore.align import Alignment
++from tracer_evalcore.errors import InputRefusedError
++from tracer_evalcore.flags import FLAGS_FORMAT, SIGNAL_NAME, SpanFlag, format_threshold
++from tracer_evalcore.tokens import TokenSequence
++
++__all__ = ["FLAGS_METADATA_KEY", "FlagsDocumentError", "build_flags_document", "validate_flags_document"]
++
++FLAGS_METADATA_KEY = "tracer.flags"
++_MAX = 9007199254740991
++_NORMALISER = re.compile(r"^[a-z]{2,3}-[A-Z][a-z]{3}/[1-9][0-9]{0,8}$")
++_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,63}$")
++_THRESHOLD = re.compile(r"^(?:0|1|0\.[0-9]{0,17}[1-9])$")
++_CONFIDENCE = re.compile(r"^(?:0|1|0\.[0-9]{0,3}[1-9])$")
++_TOP = {"format", "signal", "normaliser", "stt", "flag_min_confidence", "alignment", "tokens", "spans"}
++_SPAN = {
++    "turn_seq", "start", "end", "export_tokens", "stt_token_start", "stt_token_end",
++    "substitutions", "deletions", "insertions", "edit_distance", "key_length", "confidence",
++    "flagged", "near_chunk_boundary",
++}  # fmt: skip
++
++
++class FlagsDocumentError(InputRefusedError):
++    def __init__(self, code: str) -> None:
++        self.code = code
++        super().__init__(code)
++
++
++def build_flags_document(
++    *,
++    normaliser: str,
++    provider: str,
++    model: str,
++    threshold: Decimal,
++    alignment: Alignment,
++    export: TokenSequence,
++    stt: TokenSequence,
++    flags: Sequence[SpanFlag],
++) -> dict[str, Any]:
++    spans: list[dict[str, Any]] = []
++    for flag in flags:
++        span = flag.span
++        record: dict[str, Any] = {
++            "turn_seq": span.turn_seq,
++            "start": span.start,
++            "end": span.end,
++            "export_tokens": span.export_tokens,
++            "stt_token_start": span.stt_token_start,
++            "stt_token_end": span.stt_token_end,
++            "substitutions": span.substitutions,
++            "deletions": span.deletions,
++            "insertions": span.insertions,
++            "edit_distance": flag.edit_distance,
++            "key_length": flag.key_length,
++            "confidence": flag.confidence,
++            "flagged": flag.flagged,
++            "near_chunk_boundary": flag.near_chunk_boundary,
++        }
++        if span.audio_start_ms is not None and span.audio_end_ms is not None:
++            record["audio_start_ms"] = span.audio_start_ms
++            record["audio_end_ms"] = span.audio_end_ms
++        spans.append(record)
++    return {
++        "format": FLAGS_FORMAT,
++        "signal": SIGNAL_NAME,
++        "normaliser": normaliser,
++        "stt": {"provider": provider, "model": model, "model_source": "requested"},
++        "flag_min_confidence": format_threshold(threshold),
++        "alignment": {
++            "unit": "word",
++            "hits": alignment.hits,
++            "substitutions": alignment.substitutions,
++            "deletions": alignment.deletions,
++            "insertions": alignment.insertions,
++        },
++        "tokens": {
++            "export": len(export.tokens),
++            "stt": len(stt.tokens),
++            "flagged_export": sum(f.span.export_tokens for f in flags if f.flagged),
++        },
++        "spans": spans,
++    }
++
++
++def _int(value: object, low: int = 0) -> bool:
++    return type(value) is int and low <= value <= _MAX
++
++
++def _fail(code: str) -> FlagsDocumentError:
++    return FlagsDocumentError(code)
++
++
++def _structure(doc: Mapping[str, Any]) -> None:
++    if not isinstance(doc, Mapping):
++        raise TypeError("a flags document is a mapping")
++    if set(doc) != _TOP:
++        raise _fail("flags_shape")
++    if doc["format"] != FLAGS_FORMAT or doc["signal"] != SIGNAL_NAME:
++        raise _fail("flags_shape")
++    if not isinstance(doc["normaliser"], str) or _NORMALISER.fullmatch(doc["normaliser"]) is None:
++        raise _fail("flags_shape")
++    stt = doc["stt"]
++    if (
++        not isinstance(stt, Mapping)
++        or set(stt) != {"provider", "model", "model_source"}
++        or stt["model_source"] != "requested"
++        or not all(isinstance(stt[k], str) and _NAME.fullmatch(stt[k]) for k in ("provider", "model"))
++    ):
++        raise _fail("flags_shape")
++    threshold = doc["flag_min_confidence"]
++    if not isinstance(threshold, str) or _THRESHOLD.fullmatch(threshold) is None:
++        raise _fail("flags_shape")
++    alignment = doc["alignment"]
++    keys = {"unit", "hits", "substitutions", "deletions", "insertions"}
++    if (
++        not isinstance(alignment, Mapping)
++        or set(alignment) != keys
++        or alignment["unit"] != "word"
++        or not all(_int(alignment[k]) for k in keys - {"unit"})
++    ):
++        raise _fail("flags_shape")
++    tokens = doc["tokens"]
++    if (
++        not isinstance(tokens, Mapping)
++        or set(tokens) != {"export", "stt", "flagged_export"}
++        or not _int(tokens["export"], 1)
++        or not _int(tokens["stt"], 1)
++        or not _int(tokens["flagged_export"])
++    ):
++        raise _fail("flags_shape")
++    spans = doc["spans"]
++    if not isinstance(spans, list):
++        raise _fail("flags_shape")
++    for span in spans:
++        if not isinstance(span, Mapping):
++            raise _fail("flags_shape")
++        keys = set(span)
++        if not (_SPAN <= keys <= _SPAN | {"audio_start_ms", "audio_end_ms"}):
++            raise _fail("flags_shape")
++        if ("audio_start_ms" in keys) != ("audio_end_ms" in keys):
++            raise _fail("flags_shape")
++        ints = (_SPAN - {"confidence", "flagged", "near_chunk_boundary", "edit_distance", "key_length"}) | (
++            keys & {"audio_start_ms", "audio_end_ms"}
++        )
++        if not all(_int(span[k]) for k in ints):
++            raise _fail("flags_shape")
++        if not _int(span["edit_distance"], 1) or not _int(span["key_length"], 1):
++            raise _fail("flags_shape")
++        if not isinstance(span["confidence"], str) or _CONFIDENCE.fullmatch(span["confidence"]) is None:
++            raise _fail("flags_shape")
++        if type(span["flagged"]) is not bool or type(span["near_chunk_boundary"]) is not bool:
++            raise _fail("flags_shape")
++
++
++def _display(edit_distance: int, key_length: int) -> str:
++    fraction = Fraction(edit_distance, key_length)
++    scaled = fraction * 10000
++    quotient, remainder = divmod(scaled.numerator, scaled.denominator)
++    if remainder * 2 > scaled.denominator or (
++        remainder * 2 == scaled.denominator and quotient % 2 == 1
++    ):
++        quotient += 1
++    text = format(Decimal(quotient).scaleb(-4), "f")
++    if "." in text:
++        text = text.rstrip("0").rstrip(".")
++    return text
++
++
++def validate_flags_document(
++    document: Mapping[str, Any],
++    *,
++    normaliser: str,
++    threshold: Decimal,
++    model: str,
++    export: TokenSequence | None = None,
++) -> None:
++    _structure(document)
++    if document["normaliser"] != normaliser or document["flag_min_confidence"] != format_threshold(
++        threshold
++    ):
++        raise _fail("flags_binding_mismatch")
++    if document["stt"]["model"] != model:
++        raise _fail("flags_binding_mismatch")
++    alignment, tokens, spans = document["alignment"], document["tokens"], document["spans"]
++    hits, subs, dels, ins = (alignment[k] for k in ("hits", "substitutions", "deletions", "insertions"))
++    if hits + subs + dels != tokens["export"] or hits + subs + ins != tokens["stt"]:
++        raise _fail("flags_counts")
++    totals = [0, 0, 0]
++    flagged_tokens = 0
++    previous: tuple[int, int, int, int] | None = None
++    last_end: dict[int, int] = {}
++    stt_cursor = 0
++    for span in spans:
++        s, d, i = span["substitutions"], span["deletions"], span["insertions"]
++        totals[0] += s
++        totals[1] += d
++        totals[2] += i
++        if span["start"] > span["end"] or span["export_tokens"] != s + d:
++            raise _fail("flags_span")
++        if (span["start"] == span["end"]) != (span["export_tokens"] == 0):
++            raise _fail("flags_span")
++        if span["stt_token_end"] - span["stt_token_start"] != s + i:
++            raise _fail("flags_span")
++        if span["edit_distance"] > span["key_length"]:
++            raise _fail("flags_span")
++        if span["confidence"] != _display(span["edit_distance"], span["key_length"]):
++            raise _fail("flags_span")
++        exact = span["edit_distance"] >= threshold * span["key_length"]
++        if span["flagged"] is not exact:
++            raise _fail("flags_span")
++        if "audio_start_ms" in span and span["audio_start_ms"] > span["audio_end_ms"]:
++            raise _fail("flags_span")
++        key = (span["turn_seq"], span["start"], span["end"], span["stt_token_start"])
++        if previous is not None and key < previous:
++            raise _fail("flags_order")
++        previous = key
++        if span["start"] != span["end"]:
++            if span["start"] < last_end.get(span["turn_seq"], 0):
++                raise _fail("flags_order")
++            last_end[span["turn_seq"]] = span["end"]
++        if span["stt_token_start"] < stt_cursor or span["stt_token_end"] > tokens["stt"]:
++            raise _fail("flags_order")
++        stt_cursor = span["stt_token_end"]
++        if span["flagged"]:
++            flagged_tokens += span["export_tokens"]
++    if totals != [subs, dels, ins]:
++        raise _fail("flags_counts")
++    if tokens["flagged_export"] != flagged_tokens:
++        raise _fail("flags_counts")
++    if export is not None:
++        by_seq = {turn.seq: turn for turn in export.turns}
++        for span in spans:
++            turn = by_seq.get(span["turn_seq"])
++            if turn is None or span["end"] > len(turn.text):
++                raise _fail("flags_export_mismatch")
++            edges = {(t.start, t.end) for t in export.tokens if t.turn_seq == span["turn_seq"]}
++            starts = {a for a, _ in edges}
++            ends = {b for _, b in edges}
++            if span["start"] == span["end"]:
++                if span["start"] not in ends | starts:
++                    raise _fail("flags_export_mismatch")
++            elif span["start"] not in starts or span["end"] not in ends:
++                raise _fail("flags_export_mismatch")
+diff --git a/packages/evalcore/src/tracer_evalcore/pipeline.py b/packages/evalcore/src/tracer_evalcore/pipeline.py
+new file mode 100644
+index 0000000..a9cc77e
+--- /dev/null
++++ b/packages/evalcore/src/tracer_evalcore/pipeline.py
+@@ -0,0 +1,210 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The pipeline of a recorded call: read, transcribe, normalise, align, flag, build the bundle."""
++
++from __future__ import annotations
++
++from collections.abc import Callable, Sequence
++from dataclasses import dataclass
++from datetime import datetime
++from typing import Final
++
++from tracer_evalschema import SCHEMA_VERSION
++from tracer_evalschema.agent import AgentTarget, AgentTargetRef
++from tracer_evalschema.bundle import RunBundle, check_run_bundle
++from tracer_evalschema.cost import CostRecord, CostSummary
++from tracer_evalschema.events import IngestWarning
++from tracer_evalschema.ids import RunBundleId, RunId
++from tracer_evalschema.pricing import PricingCatalog
++from tracer_evalschema.privacy import ConsentRecord, PrivacyMarker, RetentionPolicy
++from tracer_evalschema.project import Project
++from tracer_evalschema.run import Run
++from tracer_evalschema.transcript import LanguageDeclaration
++from tracer_evalschema.usage import UsageRecord
++
++from tracer_evalcore.audio.chunker import DEFAULT_MAX_CHUNK_MS, DEFAULT_SEARCH_MS, chunk_wav
++from tracer_evalcore.definitions import RecordedConfiguration, parameters_of
++from tracer_evalcore.importers.voicera import read_voicera_export
++from tracer_evalcore.importers.wav import WavAudio
++from tracer_evalcore.registry import DEFAULT_REGISTRY, ScorerRegistry, check_runnable
++from tracer_evalcore.scoring import score_results
++from tracer_evalcore.stt import SttContext, SttEngine, SttError
++
++__all__ = [
++    "EXIT_NOT_SCORED",
++    "EXIT_SCORED",
++    "EXIT_STT_FAILED",
++    "CostBuilder",
++    "CostParts",
++    "PipelineResult",
++    "score_recorded_call",
++]
++
++EXIT_SCORED: Final = 0
++EXIT_NOT_SCORED: Final = 2
++EXIT_STT_FAILED: Final = 3
++
++
++@dataclass(frozen=True)
++class CostParts:
++    catalogs: tuple[PricingCatalog, ...]
++    records: tuple[CostRecord, ...]
++    summaries: tuple[CostSummary, ...]
++
++
++CostBuilder = Callable[[Sequence[UsageRecord]], CostParts]
++
++
++@dataclass(frozen=True)
++class PipelineResult:
++    bundle: RunBundle
++    outcome: str
++    stt_failure: SttError | None
++
++    @property
++    def exit_code(self) -> int:
++        if self.outcome == "scored":
++            return EXIT_SCORED
++        return EXIT_STT_FAILED if self.outcome == "stt_failed" else EXIT_NOT_SCORED
++
++
++def score_recorded_call(
++    *,
++    audio: WavAudio | None,
++    export_text: str | None,
++    engine: SttEngine | None,
++    configuration: RecordedConfiguration,
++    project: Project,
++    agent_target: AgentTarget,
++    configured_language: str,
++    export_declared_language: str | None,
++    caller_origin: str,
++    consent: ConsentRecord,
++    retention: RetentionPolicy,
++    created_at: datetime,
++    registry: ScorerRegistry = DEFAULT_REGISTRY,
++    max_chunk_ms: int = DEFAULT_MAX_CHUNK_MS,
++    search_ms: int = DEFAULT_SEARCH_MS,
++    accept_provider_downmix: bool = False,
++    accept_export_warnings: bool = False,
++    cost_builder: CostBuilder | None = None,
++) -> PipelineResult:
++    if caller_origin not in ("human", "simulated"):
++        raise ValueError("caller_origin is human or simulated")
++    snapshot = configuration.snapshot
++    if configured_language != snapshot.evaluator.language:
++        raise ValueError("configured_language is not the language the configuration was built for")
++    if audio is not None and engine is None:
++        raise ValueError("an engine is required when there is audio")
++    parameters_of(snapshot)
++    check_runnable(snapshot.metric_definitions, registry)
++
++    privacy = PrivacyMarker(human_subject=True, consent=consent, retention=retention)
++    export = None
++    if export_text is not None:
++        declaration = (
++            None
++            if export_declared_language is None
++            else LanguageDeclaration(
++                language=export_declared_language, source="user_declared", declared_at=created_at
++            )
++        )
++        export = read_voicera_export(
++            export_text,
++            created_at=created_at,
++            privacy=privacy,
++            declared_language=declaration,
++            accept_warnings=accept_export_warnings,
++        )
++    plan = None
++    if audio is not None:
++        plan = chunk_wav(
++            audio,
++            max_chunk_ms=max_chunk_ms,
++            search_ms=search_ms,
++            accept_provider_downmix=accept_provider_downmix,
++        )
++
++    run_id = RunId.new()
++    warnings: list[IngestWarning] = list(export.warnings) if export is not None else []
++    stt_transcript = None
++    stt_turns: tuple = ()
++    usage: tuple[UsageRecord, ...] = ()
++    failure: SttError | None = None
++    if audio is not None and plan is not None and engine is not None:
++        context = SttContext(
++            run_id=run_id,
++            audio_artifact_id=audio.artifact.id,
++            created_at=created_at,
++            privacy=privacy,
++            configured_language=configured_language,
++        )
++        outcome = engine.transcribe(plan, context)
++        usage = outcome.usage
++        if outcome.failure is not None:
++            failure = outcome.failure
++            warnings.append(
++                IngestWarning(code="stt_failed", path="/stt", message=str(outcome.failure) or "stt failed")
++            )
++        else:
++            stt_transcript, stt_turns = outcome.transcript, outcome.turns
++            warnings.extend(outcome.warnings)
++    export_transcript = export.transcript if export is not None else None
++    export_turns = export.turns if export is not None else ()
++    available = []
++    if audio is not None:
++        available.append("audio")
++    if stt_transcript is not None:
++        available.append("transcript")
++    if any(t.role == "agent" for t in export_turns):
++        available.append("agent_transcript")
++    run = Run(
++        id=run_id,
++        schema_version=SCHEMA_VERSION,
++        created_at=created_at,
++        project_id=project.id,
++        agent_target=AgentTargetRef(
++            id=agent_target.id, version=agent_target.version, content_digest=agent_target.content_digest
++        ),
++        config_snapshot_id=snapshot.id,
++        mode="recorded",
++        caller_origin=caller_origin,
++        available_inputs=available,
++        observed_tier="T0",
++        ingest_warnings=warnings,
++    )
++    results = score_results(
++        configuration=configuration,
++        run=run,
++        export=export_transcript,
++        export_turns=export_turns,
++        stt=stt_transcript,
++        stt_turns=stt_turns,
++        audio_artifact_id=audio.artifact.id if audio is not None else None,
++        created_at=created_at,
++        registry=registry,
++    )
++    parts = cost_builder(usage) if cost_builder is not None and audio is not None else None
++    bundle = RunBundle(
++        id=RunBundleId.new(),
++        schema_version=SCHEMA_VERSION,
++        created_at=created_at,
++        run=run,
++        snapshot=snapshot,
++        artifacts=[audio.artifact] if audio is not None else [],
++        transcripts=[t for t in (export_transcript, stt_transcript) if t is not None],
++        turns=[*export_turns, *stt_turns],
++        results=list(results),
++        usage_records=list(usage),
++        pricing_catalogs=list(parts.catalogs) if parts else [],
++        cost_records=list(parts.records) if parts else [],
++        cost_summaries=list(parts.summaries) if parts else [],
++    )
++    check_run_bundle(bundle)
++    if failure is not None:
++        label = "stt_failed"
++    elif all(r.status == "scored" for r in results):
++        label = "scored"
++    else:
++        label = "not_scored"
++    return PipelineResult(bundle=bundle, outcome=label, stt_failure=failure)
+diff --git a/packages/evalcore/src/tracer_evalcore/registry.py b/packages/evalcore/src/tracer_evalcore/registry.py
+new file mode 100644
+index 0000000..2f26bd1
+--- /dev/null
++++ b/packages/evalcore/src/tracer_evalcore/registry.py
+@@ -0,0 +1,88 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The scorer registry (BL-144): which ``implementation_ref`` this package can run."""
++
++from __future__ import annotations
++
++from collections.abc import Iterable, Sequence
++from dataclasses import dataclass
++
++from tracer_evalschema.metrics import MetricDefinition
++from tracer_evalschema.results import ScorerInfo
++
++import tracer_evalcore
++from tracer_evalcore.errors import InputRefusedError
++
++__all__ = [
++    "COUNT_KEY",
++    "DEFAULT_REGISTRY",
++    "MER_KEY",
++    "SHARE_KEY",
++    "SHIPPED_KEYS",
++    "ScorerEntry",
++    "ScorerRegistry",
++    "UnknownScorerError",
++    "check_runnable",
++    "implementation_ref",
++    "scorer_info",
++]
++
++MER_KEY = "stt_export_agreement_mer"
++COUNT_KEY = "stt_export_flag_count"
++SHARE_KEY = "stt_export_flagged_token_share"
++SHIPPED_KEYS = (MER_KEY, COUNT_KEY, SHARE_KEY)
++
++
++def implementation_ref(key: str) -> str:
++    return f"builtin:{key}"
++
++
++class UnknownScorerError(InputRefusedError):
++    """A definition names a scorer that is not in the registry."""
++
++    code = "unknown_scorer"
++
++
++@dataclass(frozen=True)
++class ScorerEntry:
++    key: str
++    implementation_ref: str
++    version: str
++
++
++class ScorerRegistry:
++    def __init__(self, entries: Iterable[ScorerEntry]) -> None:
++        self._entries = {entry.implementation_ref: entry for entry in entries}
++
++    def get(self, ref: str) -> ScorerEntry:
++        entry = self._entries.get(ref)
++        if entry is None:
++            raise UnknownScorerError("no scorer is registered for an implementation_ref")
++        return entry
++
++    def __contains__(self, ref: object) -> bool:
++        return ref in self._entries
++
++    def refs(self) -> tuple[str, ...]:
++        return tuple(self._entries)
++
++
++DEFAULT_REGISTRY = ScorerRegistry(
++    ScorerEntry(key, implementation_ref(key), tracer_evalcore.__version__) for key in SHIPPED_KEYS
++)
++
++
++def scorer_info(entry: ScorerEntry) -> ScorerInfo:
++    return ScorerInfo(implementation_ref=entry.implementation_ref, version=entry.version)
++
++
++def check_runnable(
++    definitions: Sequence[MetricDefinition], registry: ScorerRegistry = DEFAULT_REGISTRY
++) -> None:
++    """Raise ``UnknownScorerError`` unless every non-judge definition has a registered scorer."""
++    for definition in definitions:
++        if definition.kind == "llm_judge":
++            continue
++        ref = definition.implementation_ref
++        if ref is None or ref not in registry:
++            raise UnknownScorerError("a definition names a scorer that is not registered")
+diff --git a/packages/evalcore/src/tracer_evalcore/rubricfile.py b/packages/evalcore/src/tracer_evalcore/rubricfile.py
+new file mode 100644
+index 0000000..5277d7c
+--- /dev/null
++++ b/packages/evalcore/src/tracer_evalcore/rubricfile.py
+@@ -0,0 +1,121 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The rubric file ``tracer.rubric/1``: the owner's parameters and review budget."""
++
++from __future__ import annotations
++
++import math
++from collections.abc import Mapping
++from dataclasses import dataclass
++from typing import Any
++
++from tracer_evalschema.loader import loads_strict
++from tracer_evalschema.metrics import RangeRule
++
++from tracer_evalcore.errors import InputRefusedError
++from tracer_evalcore.flags import ThresholdError, parse_threshold
++from tracer_evalcore.normalise import SUPPORTED_NORMALISERS
++from tracer_evalcore.registry import SHARE_KEY, SHIPPED_KEYS
++
++__all__ = ["RUBRIC_FORMAT", "RubricFileError", "RubricItemSpec", "RubricSpec", "parse_rubric_file"]
++
++RUBRIC_FORMAT = "tracer.rubric/1"
++
++
++class RubricFileError(InputRefusedError):
++    def __init__(self, code: str) -> None:
++        self.code = code
++        super().__init__(code)
++
++
++@dataclass(frozen=True)
++class RubricItemSpec:
++    metric: str
++    required: bool
++    pass_rule: RangeRule | None
++
++
++@dataclass(frozen=True)
++class RubricSpec:
++    flag_min_confidence: int | float
++    normaliser: str
++    items: tuple[RubricItemSpec, ...]
++
++
++def _is_number(value: object) -> bool:
++    return type(value) in (int, float)
++
++
++def parse_rubric_file(text: str) -> RubricSpec:
++    if not isinstance(text, str):
++        raise TypeError("the rubric file is decoded text")
++    try:
++        doc = loads_strict(text)
++    except Exception:
++        raise RubricFileError("rubric_not_json") from None
++    if not isinstance(doc, Mapping):
++        raise RubricFileError("rubric_shape")
++    if set(doc) - {"note"} != {"format", "parameters", "items"}:
++        raise RubricFileError("rubric_shape")
++    if "note" in doc and not isinstance(doc["note"], str):
++        raise RubricFileError("rubric_shape")
++    if doc["format"] != RUBRIC_FORMAT:
++        raise RubricFileError("rubric_format_unsupported")
++    parameters, raw_items = doc["parameters"], doc["items"]
++    if (
++        not isinstance(parameters, Mapping)
++        or set(parameters) != {"flag_min_confidence", "normaliser"}
++        or not isinstance(raw_items, list)
++    ):
++        raise RubricFileError("rubric_shape")
++    threshold, normaliser = parameters["flag_min_confidence"], parameters["normaliser"]
++    if not _is_number(threshold) or not isinstance(normaliser, str):
++        raise RubricFileError("rubric_shape")
++    try:
++        parse_threshold(threshold)
++    except (ThresholdError, ValueError):
++        raise RubricFileError("rubric_parameter_invalid") from None
++    if math.isnan(float(threshold)):  # pragma: no cover
++        raise RubricFileError("rubric_parameter_invalid")
++    if normaliser not in SUPPORTED_NORMALISERS:
++        raise RubricFileError("rubric_parameter_invalid")
++    items: list[RubricItemSpec] = []
++    seen: set[str] = set()
++    shapes: list[tuple[str, Any, Any]] = []
++    for raw in raw_items:
++        if not isinstance(raw, Mapping):
++            raise RubricFileError("rubric_shape")
++        members = set(raw)
++        if members not in ({"metric", "required"}, {"metric", "required", "pass_rule"}):
++            raise RubricFileError("rubric_shape")
++        metric, required = raw["metric"], raw["required"]
++        if not isinstance(metric, str) or type(required) is not bool:
++            raise RubricFileError("rubric_shape")
++        shapes.append((metric, required, raw.get("pass_rule", None)))
++        if "pass_rule" in raw and metric != SHARE_KEY:
++            raise RubricFileError("rubric_shape")
++    for metric, _required, _rule in shapes:
++        if metric not in SHIPPED_KEYS:
++            raise RubricFileError("rubric_metric_unknown")
++    for metric, _required, _rule in shapes:
++        if metric in seen:
++            raise RubricFileError("rubric_metric_repeated")
++        seen.add(metric)
++    for metric, required, rule_doc in shapes:
++        rule: RangeRule | None = None
++        if metric == SHARE_KEY and rule_doc is not None:
++            if not isinstance(rule_doc, Mapping) or set(rule_doc) != {"kind", "max", "inclusive"}:
++                raise RubricFileError("rubric_pass_rule_invalid")
++            try:
++                rule = RangeRule.model_validate(dict(rule_doc))
++            except ValueError:
++                raise RubricFileError("rubric_pass_rule_invalid") from None
++            if rule.max is None or not 0 <= rule.max <= 1:
++                raise RubricFileError("rubric_pass_rule_invalid")
++        items.append(RubricItemSpec(metric, required, rule))
++    for item in items:
++        if item.required and item.pass_rule is None:
++            raise RubricFileError("rubric_required_without_pass_rule")
++    if not any(i.metric == SHARE_KEY and i.required and i.pass_rule is not None for i in items):
++        raise RubricFileError("rubric_budget_missing")
++    return RubricSpec(threshold, normaliser, tuple(items))
+diff --git a/packages/evalcore/src/tracer_evalcore/scoring.py b/packages/evalcore/src/tracer_evalcore/scoring.py
+new file mode 100644
+index 0000000..90ccfdc
+--- /dev/null
++++ b/packages/evalcore/src/tracer_evalcore/scoring.py
+@@ -0,0 +1,280 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Result mapping: the three MetricResult records of a recorded call (ADR 0023 rules 11 to 15)."""
++
++from __future__ import annotations
++
++from collections.abc import Sequence
++from dataclasses import dataclass
++from datetime import datetime
++from typing import Any
++
++from tracer_evalschema import SCHEMA_VERSION
++from tracer_evalschema.artifact import Artifact  # noqa: F401
++from tracer_evalschema.base import compute_metadata_flags
++from tracer_evalschema.events import EvidenceRef
++from tracer_evalschema.ids import ArtifactId, MetricResultId
++from tracer_evalschema.language import primary_language
++from tracer_evalschema.metrics import MetricDefinition, MetricDefinitionRef, rule_passes
++from tracer_evalschema.results import MetricResult, ResultError, applicability
++from tracer_evalschema.run import Run
++from tracer_evalschema.transcript import Transcript, Turn
++
++from tracer_evalcore.align import AlignmentTooLargeError, align
++from tracer_evalcore.definitions import (
++    RecordedConfiguration,
++    ScoringParameters,
++    parameters_of,
++)
++from tracer_evalcore.flags import (
++    STT_DISAGREEMENT,
++    LevenshteinTooLargeError,
++    SpanFlag,
++    flag_spans,
++)
++from tracer_evalcore.flagsdoc import (
++    FLAGS_METADATA_KEY,
++    FlagsDocumentError,
++    build_flags_document,
++    validate_flags_document,
++)
++from tracer_evalcore.registry import (
++    COUNT_KEY,
++    DEFAULT_REGISTRY,
++    MER_KEY,
++    SHARE_KEY,
++    SHIPPED_KEYS,
++    ScorerRegistry,
++    scorer_info,
++)
++from tracer_evalcore.spans import extract_spans
++from tracer_evalcore.tokens import TextTurn, TimedSegment, TokenSequence, tokenise_turns
++
++__all__ = ["score_results"]
++
++
++@dataclass(frozen=True)
++class _Computed:
++    values: dict[str, Any]
++    evidence: list[EvidenceRef]
++    document: dict[str, Any]
++
++
++@dataclass(frozen=True)
++class _Failed:
++    code: str
++    message: str
++
++
++def _text_turns(turns: Sequence[Turn], *, segments: bool) -> list[TextTurn]:
++    ordered = sorted(turns, key=lambda t: t.seq)
++    result = []
++    for turn in ordered:
++        parts = ()
++        if segments and turn.segments:
++            parts = tuple(TimedSegment(s.text, s.start_ms, s.end_ms) for s in turn.segments)
++        result.append(TextTurn(turn.seq, turn.text, parts))
++    return result
++
++
++def _language_gate(
++    stt_turns: Sequence[Turn], definition: MetricDefinition
++) -> _Failed | None:
++    if not stt_turns:
++        return None
++    covered = {primary_language(tag) for tag in definition.languages}
++    untagged = sum(1 for t in stt_turns if t.language is None or t.language.lower() == "und")
++    if untagged:
++        return _Failed(
++            "stt_language_not_observed",
++            f"{untagged} of {len(stt_turns)} stt turns carry no observed language",
++        )
++    other = sum(1 for t in stt_turns if primary_language(t.language or "") not in covered)
++    if other:
++        return _Failed(
++            "stt_unsupported_language",
++            f"{other} of {len(stt_turns)} stt turns carry a language other than the covered one",
++        )
++    return None
++
++
++def _compute(
++    *,
++    parameters: ScoringParameters,
++    export: Transcript,
++    export_turns: Sequence[Turn],
++    stt: Transcript,
++    stt_turns: Sequence[Turn],
++    audio_artifact_id: ArtifactId | None,
++    definition: MetricDefinition,
++    share_definition: MetricDefinition,
++) -> _Computed | _Failed:
++    gate = _language_gate(stt_turns, definition)
++    if gate is not None:
++        return gate
++    export_seq = tokenise_turns(_text_turns(export_turns, segments=False), parameters.normaliser)
++    if not export_seq.tokens:
++        return _Failed("no_tokens", "the export has no token")
++    stt_seq = tokenise_turns(_text_turns(stt_turns, segments=True), parameters.normaliser)
++    if not stt_seq.tokens:
++        return _Failed("no_tokens", "the stt transcript has no token")
++    try:
++        alignment = align(export_seq, stt_seq)
++        spans = extract_spans(alignment, export_seq, stt_seq)
++        flags = flag_spans(
++            spans,
++            export_seq,
++            stt_seq,
++            signal=STT_DISAGREEMENT,
++            flag_min_confidence=parameters.flag_min_confidence,
++        )
++    except AlignmentTooLargeError as exc:
++        return _Failed("alignment_too_large", str(exc))
++    except LevenshteinTooLargeError as exc:
++        return _Failed("levenshtein_too_large", str(exc))
++    if stt.provider is None or stt.model is None:
++        return _Failed("stt_provenance_missing", "the stt transcript names no provider or model")
++    document = build_flags_document(
++        normaliser=parameters.normaliser,
++        provider=stt.provider,
++        model=stt.model,
++        threshold=parameters.flag_min_confidence,
++        alignment=alignment,
++        export=export_seq,
++        stt=stt_seq,
++        flags=flags,
++    )
++    try:
++        validate_flags_document(
++            document,
++            normaliser=parameters.normaliser,
++            threshold=parameters.flag_min_confidence,
++            model=stt.model,
++            export=export_seq,
++        )
++    except FlagsDocumentError as exc:
++        return _Failed("flags_document_refused", f"the flags document was refused: {exc.code}")
++    if compute_metadata_flags({FLAGS_METADATA_KEY: document}):
++        return _Failed(
++            "flags_document_refused", "the flags document was refused: flags_metadata_flagged"
++        )
++    flagged = [f for f in flags if f.flagged]
++    values = {
++        MER_KEY: alignment.mer,
++        COUNT_KEY: len(flagged),
++        SHARE_KEY: sum(f.span.export_tokens for f in flagged) / len(export_seq.tokens),
++    }
++    return _Computed(values, _evidence(flagged, export_turns, audio_artifact_id), document)
++
++
++def _evidence(
++    flagged: Sequence[SpanFlag], export_turns: Sequence[Turn], audio_artifact_id: ArtifactId | None
++) -> list[EvidenceRef]:
++    by_seq = {t.seq: t for t in export_turns}
++    refs: list[EvidenceRef] = []
++    for seq in sorted({f.span.turn_seq for f in flagged}):
++        refs.append(EvidenceRef(kind="turn", ref_id=by_seq[seq].id))
++    seen: set[tuple[int, int]] = set()
++    if audio_artifact_id is not None:
++        for flag in flagged:
++            start, end = flag.span.audio_start_ms, flag.span.audio_end_ms
++            if start is None or end is None or (start, end) in seen:
++                continue
++            seen.add((start, end))
++            refs.append(
++                EvidenceRef(kind="artifact_range", ref_id=audio_artifact_id, start_ms=start, end_ms=end)
++            )
++    return refs
++
++
++def score_results(
++    *,
++    configuration: RecordedConfiguration,
++    run: Run,
++    export: Transcript | None,
++    export_turns: Sequence[Turn],
++    stt: Transcript | None,
++    stt_turns: Sequence[Turn],
++    audio_artifact_id: ArtifactId | None,
++    created_at: datetime,
++    registry: ScorerRegistry = DEFAULT_REGISTRY,
++) -> tuple[MetricResult, ...]:
++    parameters = parameters_of(configuration.snapshot)
++    held = [t for t in (export, stt) if t is not None]
++    transcript_ids = [t.id for t in held] or None
++    agent_turns = [t for t in export_turns if t.role == "agent"] if export is not None else []
++    agent_turns += [t for t in stt_turns if t.role == "agent"] if stt is not None else []
++    definitions = {key: configuration.definition(key) for key in SHIPPED_KEYS}
++    answer = applicability(definitions[MER_KEY], run, turns=agent_turns, transcripts=held)
++    computed: _Computed | _Failed | None = None
++    if answer.na_reason is None:
++        assert export is not None and stt is not None  # noqa: S101
++        computed = _compute(
++            parameters=parameters,
++            export=export,
++            export_turns=export_turns,
++            stt=stt,
++            stt_turns=stt_turns,
++            audio_artifact_id=audio_artifact_id,
++            definition=definitions[MER_KEY],
++            share_definition=definitions[SHARE_KEY],
++        )
++    results: list[MetricResult] = []
++    for key in SHIPPED_KEYS:
++        definition = definitions[key]
++        fields: dict[str, Any] = {
++            "id": MetricResultId.new(),
++            "schema_version": SCHEMA_VERSION,
++            "created_at": created_at,
++            "metric": MetricDefinitionRef(
++                id=definition.id, version=definition.version, content_digest=definition.content_digest
++            ),
++            "transcript_ids": transcript_ids,
++            "value": None,
++        }
++        if answer.na_reason is not None:
++            results.append(
++                MetricResult(
++                    **fields,
++                    status="not_applicable",
++                    na_reason=answer.na_reason,
++                    missing_kinds=list(answer.missing_kinds),
++                    language_source=answer.language_source,
++                    declared_language_transcript_ids=list(answer.declared_language_transcript_ids),
++                )
++            )
++            continue
++        info = scorer_info(registry.get(definition.implementation_ref or ""))
++        provenance = {
++            "language_source": answer.language_source,
++            "declared_language_transcript_ids": list(answer.declared_language_transcript_ids),
++            "scorer": info,
++        }
++        if isinstance(computed, _Failed):
++            results.append(
++                MetricResult(
++                    **fields,
++                    status="error",
++                    error=ResultError(code=computed.code, message=computed.message),
++                    **provenance,
++                )
++            )
++            continue
++        assert computed is not None  # noqa: S101
++        value = computed.values[key]
++        passed = None if definition.pass_rule is None else rule_passes(definition.pass_rule, value)
++        fields["value"] = value
++        results.append(
++            MetricResult(
++                **fields,
++                status="scored",
++                passed=passed,
++                evidence_refs=list(computed.evidence),
++                metadata={FLAGS_METADATA_KEY: computed.document},
++                **provenance,
++            )
++        )
++    return tuple(results)
++
++
++_ = TokenSequence

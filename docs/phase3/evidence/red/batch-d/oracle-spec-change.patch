@@ -1,0 +1,59 @@
+diff --git a/packages/evalcore/tests/test_adr0023_recorded_scoring.py b/packages/evalcore/tests/test_adr0023_recorded_scoring.py
+index 566ab64..2fee7d9 100644
+--- a/packages/evalcore/tests/test_adr0023_recorded_scoring.py
++++ b/packages/evalcore/tests/test_adr0023_recorded_scoring.py
+@@ -34,33 +34,14 @@ PACKAGES = ROOT / "packages"
+ # task of batch B, D, E or F. Remove a name here in the commit that adds its test.
+ PENDING: frozenset[str] = frozenset(
+     {
+-        "test_agreement_unit_is_ratio_never_wer_or_cer",
+         "test_cli_output_never_claims_accuracy",
+         "test_cli_prints_counts_with_denominators",
+         "test_cli_requires_every_privacy_and_language_input",
+         "test_concept_page_states_no_accuracy_claim",
+-        "test_definitions_requires_transcript_and_agent_transcript",
+         "test_e2e_synthetic_mr_exact_outputs",
+-        "test_empty_export_is_error_no_tokens_not_zero",
+-        "test_empty_stt_is_error_no_tokens_not_zero",
+-        "test_evidence_refs_resolve_in_bundle",
+-        "test_flags_metadata_has_no_text_and_no_metadata_flags",
+-        "test_flags_metadata_validates_against_tracer_flags_1",
+-        "test_language_source_declared_from_export",
+         "test_measurement_report_has_counts_and_denominators",
+-        "test_metrics_evaluate_agent_outputs_only",
+-        "test_missing_binding_param_refuses_before_any_send",
+-        "test_pipeline_bundle_passes_check_run_bundle",
+-        "test_pipeline_is_deterministic_given_same_stt",
+-        "test_pipeline_observed_tier_is_t0",
+-        "test_pipeline_started_at_absent_never_ingest_time",
+         "test_report_never_claims_accuracy",
+         "test_report_shows_language_declared_by_user",
+-        "test_results_pass_check_result_against_definition",
+-        "test_rubric_file_without_required_pass_rule_refused",
+-        "test_run_round_trips_through_store_byte_identical",
+-        "test_shipped_definitions_have_no_pass_rule",
+-        "test_stt_failure_is_missing_input_with_warning_and_nonzero_exit",
+         "test_tdeg_audio_and_export_scored",
+         "test_tdeg_export_without_agent_turn_missing_input_agent_transcript",
+         "test_tdeg_export_without_declaration_language_not_observed",
+@@ -68,8 +49,6 @@ PENDING: frozenset[str] = frozenset(
+         "test_tdeg_no_export_missing_input_agent_transcript",
+         "test_tdeg_non_mr_chunk_is_not_scored",
+         "test_tdeg_schema_identical_across_cases",
+-        "test_transcript_ids_required_with_two_transcripts",
+-        "test_unknown_scorer_refuses_before_run",
+     }
+ )
+ 
+diff --git a/packages/evalproviders/tests/test_evalproviders_adr0024.py b/packages/evalproviders/tests/test_evalproviders_adr0024.py
+index 1dfec17..e933ede 100644
+--- a/packages/evalproviders/tests/test_evalproviders_adr0024.py
++++ b/packages/evalproviders/tests/test_evalproviders_adr0024.py
+@@ -31,7 +31,6 @@ SCOPE = ROOT / "docs" / "phase3" / "SCOPE.md"
+ #   test_guard_rejects_staged_report_store_and_call_log              P3-34 (batch F)
+ PENDING: frozenset[str] = frozenset(
+     {
+-        "test_stt_failure_is_missing_input_with_warning_and_nonzero_exit",
+         "test_cli_fake_stt_runs_offline",
+         "test_guard_rejects_staged_report_store_and_call_log",
+     }
