@@ -569,6 +569,7 @@ def test_phase3_scaffold_files_and_repo_config() -> None:
         "packages/evalcore/tests",
         "packages/evalproviders/tests",
         "packages/cli/tests",
+        "packages/evalsim/tests",  # Phase 4 spec change (P4-01): one more test directory
     ]
     assert "-m 'not private_fixtures and not local_only and not postgres'" in ini["addopts"]
     lock = _lock_packages()

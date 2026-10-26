@@ -66,6 +66,7 @@ jobs:
       - run: uv build --package tracer-evalcore --out-dir dist
       - run: uv build --package tracer-evalproviders --out-dir dist
       - run: uv build --package tracer-cli --out-dir dist
+      - run: uv build --package tracer-evalsim --out-dir dist
       - run: uv run --locked --all-groups python scripts/check_licenses.py --wheel dist --artifacts-only
 
   test:
@@ -270,7 +271,27 @@ jobs:
           version: ${{ env.UV_VERSION }}
           python-version: "3.11"
       - run: uv lock --resolution lowest-direct
-      - run: uv run --locked --resolution lowest-direct --all-groups pytest packages/evalcore/tests packages/evalproviders/tests packages/cli/tests --deselect packages/evalcore/tests/test_phase3_licenses.py --deselect packages/evalcore/tests/test_phase3_scaffold.py::test_phase3_locked_closures_are_the_reviewed_ones
+      - run: uv run --locked --resolution lowest-direct --all-groups pytest packages/evalcore/tests packages/evalproviders/tests packages/cli/tests --deselect packages/evalcore/tests/test_phase3_licenses.py --deselect packages/evalcore/tests/test_phase4_licenses.py --deselect packages/evalcore/tests/test_phase3_scaffold.py::test_phase3_locked_closures_are_the_reviewed_ones
+
+  # Every direct dependency of tracer-evalsim at the lower bound of its range: websockets>=15.0,<18
+  # and, through the dev group, aiortc>=1.15.0,<2 (the optional extra). Unlike httpx, the lowest
+  # websockets (15.0) is not the newest one, so this leg tests something the others do not. The lock
+  # of this throwaway checkout is re-resolved first; every uv call stays --locked. Deselected: the
+  # test that compares the closure with the committed uv.lock, which cannot hold after the
+  # deliberate downgrade (it runs in every other leg).
+  test-oldest-phase4-deps:
+    name: test (lowest-direct phase 4 deps, py3.11)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+        with:
+          version: ${{ env.UV_VERSION }}
+          python-version: "3.11"
+      - run: uv lock --resolution lowest-direct
+      - run: uv run --locked --resolution lowest-direct --all-groups pytest packages/evalsim/tests --deselect packages/evalsim/tests/test_evalsim_scaffold.py::test_phase4_locked_closures_are_the_reviewed_ones
 
   secrets:
     name: secret scan (gitleaks)

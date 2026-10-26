@@ -1,0 +1,332 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.12.14, pytest-9.1.1, pluggy-1.7.0
+rootdir: <mirror>
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, anyio-4.15.1, platformdirs-4.13.5
+collected 137 items
+
+packages/evalcore/tests/test_sim_engine_boundary.py FFFFFF               [  4%]
+packages/evalcore/tests/test_phase4_scaffold.py FFF..                    [  8%]
+packages/evalcore/tests/test_phase4_licenses.py FFFF                     [ 10%]
+packages/evalcore/tests/test_phase4_ci.py FF.........................    [ 30%]
+packages/evalcore/tests/test_phase3_scaffold.py ..........F.....         [ 42%]
+packages/evalsim/tests/test_evalsim_scaffold.py FFFFFFF                  [ 47%]
+packages/cli/tests/test_cli_simulate_help.py F                           [ 48%]
+packages/cli/tests/test_cli_score.py .................F................. [ 73%]
+...............................                                          [ 96%]
+packages/evaldb/tests/test_evaldb_ci.py ...F.                            [100%]
+
+=================================== FAILURES ===================================
+____________ test_tts_llm_errors_hold_facts_only_and_no_chain[tts] _____________
+packages/evalcore/tests/test_sim_engine_boundary.py:140: in test_tts_llm_errors_hold_facts_only_and_no_chain
+    m = mod(module)
+        ^^^^^^^^^^^
+packages/evalcore/tests/test_sim_engine_boundary.py:85: in mod
+    return importlib.import_module(f"tracer_evalcore.{name}")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1324: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.tts'
+____________ test_tts_llm_errors_hold_facts_only_and_no_chain[llm] _____________
+packages/evalcore/tests/test_sim_engine_boundary.py:140: in test_tts_llm_errors_hold_facts_only_and_no_chain
+    m = mod(module)
+        ^^^^^^^^^^^
+packages/evalcore/tests/test_sim_engine_boundary.py:85: in mod
+    return importlib.import_module(f"tracer_evalcore.{name}")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1324: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.llm'
+________________ test_engines_stream_usage_before_next_request _________________
+packages/evalcore/tests/test_sim_engine_boundary.py:320: in test_engines_stream_usage_before_next_request
+    m = mod(name)
+        ^^^^^^^^^
+packages/evalcore/tests/test_sim_engine_boundary.py:85: in mod
+    return importlib.import_module(f"tracer_evalcore.{name}")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1324: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.tts'
+_______________ test_brain_protocol_accepts_scripted_llm_replay ________________
+packages/evalcore/tests/test_sim_engine_boundary.py:485: in test_brain_protocol_accepts_scripted_llm_replay
+    brain = mod("brain")
+            ^^^^^^^^^^^^
+packages/evalcore/tests/test_sim_engine_boundary.py:85: in mod
+    return importlib.import_module(f"tracer_evalcore.{name}")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1324: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.brain'
+__________ test_tts_llm_request_records_have_no_defaults_and_validate __________
+packages/evalcore/tests/test_sim_engine_boundary.py:563: in test_tts_llm_request_records_have_no_defaults_and_validate
+    tts = mod("tts")
+          ^^^^^^^^^^
+packages/evalcore/tests/test_sim_engine_boundary.py:85: in mod
+    return importlib.import_module(f"tracer_evalcore.{name}")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1324: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.tts'
+________________ test_sim_constants_are_the_ones_the_adrs_state ________________
+packages/evalcore/tests/test_sim_engine_boundary.py:688: in test_sim_constants_are_the_ones_the_adrs_state
+    types = mod("simtypes")
+            ^^^^^^^^^^^^^^^
+packages/evalcore/tests/test_sim_engine_boundary.py:85: in mod
+    return importlib.import_module(f"tracer_evalcore.{name}")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1324: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.simtypes'
+___________________ test_evalcore_imports_no_asyncio_network ___________________
+packages/evalcore/tests/test_phase4_scaffold.py:233: in test_evalcore_imports_no_asyncio_network
+    assert not missing, f"the pure core lacks {missing}"
+E   AssertionError: the pure core lacks ['simtypes.py', 'tts.py', 'llm.py', 'brain.py']
+E   assert not ['simtypes.py', 'tts.py', 'llm.py', 'brain.py']
+_______________ test_evalschema_unchanged_since_phase4_baseline ________________
+packages/evalcore/tests/test_phase4_scaffold.py:288: in test_evalschema_unchanged_since_phase4_baseline
+    recorded = json.loads(BASELINE.read_text(encoding="utf-8"))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:1013: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '<mirror>/docs/phase4/evidence/evalschema-baseline.json'
+___________ test_samplebot_not_a_workspace_member_and_not_in_uv_lock ___________
+packages/evalcore/tests/test_phase4_scaffold.py:346: in test_samplebot_not_a_workspace_member_and_not_in_uv_lock
+    data = _toml(SAMPLEBOT / "pyproject.toml")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalcore/tests/test_phase4_scaffold.py:183: in _toml
+    return tomllib.loads(path.read_text(encoding="utf-8"))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:1013: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '<mirror>/tools/samplebot/pyproject.toml'
+__________________ test_license_policy_lists_phase4_closures ___________________
+packages/evalcore/tests/test_phase4_licenses.py:157: in test_license_policy_lists_phase4_closures
+    block = runtime["evalsim"]
+            ^^^^^^^^^^^^^^^^^^
+E   KeyError: 'evalsim'
+________________ test_samplebot_closure_reviewed_and_tool_only _________________
+packages/evalcore/tests/test_phase4_licenses.py:267: in test_samplebot_closure_reviewed_and_tool_only
+    tool = policy["tools"]["samplebot"]
+           ^^^^^^^^^^^^^^^
+E   KeyError: 'tools'
+_______________ test_check_licenses_covers_evalsim_and_its_extra _______________
+packages/evalcore/tests/test_phase4_licenses.py:350: in test_check_licenses_covers_evalsim_and_its_extra
+    tampered("closure = [", 'closure = [\n    "zzz-not-in-the-lock",', "\n[runtime.evalsim]\n"),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalcore/tests/test_phase4_licenses.py:336: in tampered
+    start = text.index(after)
+            ^^^^^^^^^^^^^^^^^
+E   ValueError: substring not found
+__________ test_evalsim_lock_entry_declares_its_extra[tracer-evalsim] __________
+packages/evalcore/tests/test_phase4_licenses.py:405: in test_evalsim_lock_entry_declares_its_extra
+    entry = _lock()[name]
+            ^^^^^^^^^^^^^
+E   KeyError: 'tracer-evalsim'
+__________________ test_ci_phase4_wheel_is_built_and_checked ___________________
+packages/evalcore/tests/test_phase4_ci.py:137: in test_ci_phase4_wheel_is_built_and_checked
+    assert all(i >= 0 for i in builds), builds
+E   AssertionError: [92, 144, 192, 242, 297, -1]
+E   assert False
+E    +  where False = all(<generator object test_ci_phase4_wheel_is_built_and_checked.<locals>.<genexpr> at 0x10860d630>)
+__________________ test_ci_lower_bound_leg_for_phase4_ranges ___________________
+packages/evalcore/tests/test_phase4_ci.py:152: in test_ci_lower_bound_leg_for_phase4_ranges
+    assert phase4_ci_problems(workflow) == []
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalcore/tests/test_phase4_ci.py:79: in phase4_ci_problems
+    job = _job(workflow, JOB)
+          ^^^^^^^^^^^^^^^^^^^
+packages/evalcore/tests/test_phase4_ci.py:62: in _job
+    assert name in jobs, f"job {name!r} is missing from ci.yml (jobs: {sorted(jobs)})"
+E   AssertionError: job 'test-oldest-phase4-deps' is missing from ci.yml (jobs: ['audit', 'guard', 'licenses', 'lint', 'secrets', 'test', 'test-oldest-deps', 'test-oldest-evaldb-deps', 'test-oldest-phase3-deps', 'test-postgres', 'test-postgres-py315', 'test-py315'])
+E   assert 'test-oldest-phase4-deps' in {'guard': {'name': 'private fixture guard', 'runs-on': 'ubuntu-latest', 'steps': [{'uses': 'actions/checkout@3d3c42e5a....python-version }}'}}, {'run': 'uv sync --locked --all-groups'}, {'run': 'uv run --locked --all-groups pytest'}]}, ...}
+__________________ test_phase3_scaffold_files_and_repo_config __________________
+packages/evalcore/tests/test_phase3_scaffold.py:566: in test_phase3_scaffold_files_and_repo_config
+    assert ini["testpaths"] == [
+E   AssertionError: assert ['packages/ev...es/cli/tests'] == ['packages/ev...valsim/tests']
+E     
+E     Right contains one more item: 'packages/evalsim/tests'
+E     Use -v to get more diff
+____________________ test_evalsim_runtime_imports_whitelist ____________________
+packages/evalsim/tests/test_evalsim_scaffold.py:261: in test_evalsim_runtime_imports_whitelist
+    assert files, f"{SRC} holds no module (the package is not scaffolded)"
+E   AssertionError: <mirror>/packages/evalsim/src/tracer_evalsim holds no module (the package is not scaffolded)
+E   assert []
+___________________ test_phase4_requires_dist_bounded_ranges ___________________
+packages/evalsim/tests/test_evalsim_scaffold.py:301: in test_phase4_requires_dist_bounded_ranges
+    project = _toml(EVALSIM / "pyproject.toml")["project"]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalsim/tests/test_evalsim_scaffold.py:168: in _toml
+    return tomllib.loads(path.read_text(encoding="utf-8"))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:1013: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '<mirror>/packages/evalsim/pyproject.toml'
+_____________________ test_evalsim_wheel_contains_no_tests _____________________
+packages/evalsim/tests/test_evalsim_scaffold.py:355: in test_evalsim_wheel_contains_no_tests
+    with zipfile.ZipFile(_build_wheel(tmp_path)) as zf:
+                         ^^^^^^^^^^^^^^^^^^^^^^
+packages/evalsim/tests/test_evalsim_scaffold.py:245: in _build_wheel
+    subprocess.run(  # noqa: S603
+~/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/subprocess.py:571: in run
+    raise CalledProcessError(retcode, process.args,
+E   subprocess.CalledProcessError: Command '['<scratch>/qa-batch-0b-red-env312/bin/python', '-m', 'hatchling', 'build', '-t', 'wheel', '-d', '<tmp>/pytest-of-<user>/pytest-7160/test_evalsim_wheel_contains_no0']' returned non-zero exit status 1.
+__________________ test_phase4_scaffold_files_and_repo_config __________________
+packages/evalsim/tests/test_evalsim_scaffold.py:396: in test_phase4_scaffold_files_and_repo_config
+    assert (EVALSIM / name).is_file(), name
+E   AssertionError: LICENSE
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = (PosixPath('<mirror>/packages/evalsim') / 'LICENSE').is_file
+______________ test_phase4_locked_closures_are_the_reviewed_ones _______________
+packages/evalsim/tests/test_evalsim_scaffold.py:471: in test_phase4_locked_closures_are_the_reviewed_ones
+    base = reach(())
+           ^^^^^^^^^
+packages/evalsim/tests/test_evalsim_scaffold.py:462: in reach
+    package = lock[name]
+              ^^^^^^^^^^
+E   KeyError: 'tracer-evalsim'
+______________ test_phase4_dev_environment_has_the_extra[aiortc] _______________
+~/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/metadata/__init__.py:397: in from_name
+    return next(cls.discover(name=name))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   StopIteration
+
+During handling of the above exception, another exception occurred:
+packages/evalsim/tests/test_evalsim_scaffold.py:494: in test_phase4_dev_environment_has_the_extra
+    assert md.version(module)
+           ^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/metadata/__init__.py:889: in version
+    return distribution(distribution_name).version
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/metadata/__init__.py:862: in distribution
+    return Distribution.from_name(distribution_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/metadata/__init__.py:399: in from_name
+    raise PackageNotFoundError(name)
+E   importlib.metadata.PackageNotFoundError: No package metadata was found for aiortc
+____________ test_phase4_dev_environment_has_the_extra[websockets] _____________
+~/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/metadata/__init__.py:397: in from_name
+    return next(cls.discover(name=name))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   StopIteration
+
+During handling of the above exception, another exception occurred:
+packages/evalsim/tests/test_evalsim_scaffold.py:494: in test_phase4_dev_environment_has_the_extra
+    assert md.version(module)
+           ^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/metadata/__init__.py:889: in version
+    return distribution(distribution_name).version
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/metadata/__init__.py:862: in distribution
+    return Distribution.from_name(distribution_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/importlib/metadata/__init__.py:399: in from_name
+    raise PackageNotFoundError(name)
+E   importlib.metadata.PackageNotFoundError: No package metadata was found for websockets
+________________________ test_tracer_simulate_help_runs ________________________
+packages/cli/tests/test_cli_simulate_help.py:51: in test_tracer_simulate_help_runs
+    assert done.returncode == 0, done.stdout + done.stderr
+E   AssertionError: usage: tracer [-h] {score} ...
+E     tracer: error: argument command: invalid choice: 'simulate' (choose from score)
+E     
+E   assert 64 == 0
+E    +  where 64 = CompletedProcess(args=['<scratch> tracer [-h] {score} ...\ntracer: error: argument command: invalid choice: 'simulate' (choose from score)\n").returncode
+________________________ test_cli_has_no_export_command ________________________
+packages/cli/tests/test_cli_score.py:452: in test_cli_has_no_export_command
+    assert set(action.choices) == {"score", "simulate"}  # Phase 4 spec change (P4-01)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: assert {'score'} == {'score', 'simulate'}
+E     
+E     Extra items in the right set:
+E     'simulate'
+E     Use -v to get more diff
+___________________ test_ci_sqlite_runs_on_every_python_leg ____________________
+packages/evaldb/tests/test_evaldb_ci.py:230: in test_ci_sqlite_runs_on_every_python_leg
+    assert ini["testpaths"] == [  # Phase 3 spec change (P3-01): three more test directories
+E   AssertionError: assert ['packages/ev...es/cli/tests'] == ['packages/ev...valsim/tests']
+E     
+E     Right contains one more item: 'packages/evalsim/tests'
+E     Use -v to get more diff
+=========================== short test summary info ============================
+FAILED packages/evalcore/tests/test_sim_engine_boundary.py::test_tts_llm_errors_hold_facts_only_and_no_chain[tts]
+FAILED packages/evalcore/tests/test_sim_engine_boundary.py::test_tts_llm_errors_hold_facts_only_and_no_chain[llm]
+FAILED packages/evalcore/tests/test_sim_engine_boundary.py::test_engines_stream_usage_before_next_request
+FAILED packages/evalcore/tests/test_sim_engine_boundary.py::test_brain_protocol_accepts_scripted_llm_replay
+FAILED packages/evalcore/tests/test_sim_engine_boundary.py::test_tts_llm_request_records_have_no_defaults_and_validate
+FAILED packages/evalcore/tests/test_sim_engine_boundary.py::test_sim_constants_are_the_ones_the_adrs_state
+FAILED packages/evalcore/tests/test_phase4_scaffold.py::test_evalcore_imports_no_asyncio_network
+FAILED packages/evalcore/tests/test_phase4_scaffold.py::test_evalschema_unchanged_since_phase4_baseline
+FAILED packages/evalcore/tests/test_phase4_scaffold.py::test_samplebot_not_a_workspace_member_and_not_in_uv_lock
+FAILED packages/evalcore/tests/test_phase4_licenses.py::test_license_policy_lists_phase4_closures
+FAILED packages/evalcore/tests/test_phase4_licenses.py::test_samplebot_closure_reviewed_and_tool_only
+FAILED packages/evalcore/tests/test_phase4_licenses.py::test_check_licenses_covers_evalsim_and_its_extra
+FAILED packages/evalcore/tests/test_phase4_licenses.py::test_evalsim_lock_entry_declares_its_extra[tracer-evalsim]
+FAILED packages/evalcore/tests/test_phase4_ci.py::test_ci_phase4_wheel_is_built_and_checked
+FAILED packages/evalcore/tests/test_phase4_ci.py::test_ci_lower_bound_leg_for_phase4_ranges
+FAILED packages/evalcore/tests/test_phase3_scaffold.py::test_phase3_scaffold_files_and_repo_config
+FAILED packages/evalsim/tests/test_evalsim_scaffold.py::test_evalsim_runtime_imports_whitelist
+FAILED packages/evalsim/tests/test_evalsim_scaffold.py::test_phase4_requires_dist_bounded_ranges
+FAILED packages/evalsim/tests/test_evalsim_scaffold.py::test_evalsim_wheel_contains_no_tests
+FAILED packages/evalsim/tests/test_evalsim_scaffold.py::test_phase4_scaffold_files_and_repo_config
+FAILED packages/evalsim/tests/test_evalsim_scaffold.py::test_phase4_locked_closures_are_the_reviewed_ones
+FAILED packages/evalsim/tests/test_evalsim_scaffold.py::test_phase4_dev_environment_has_the_extra[aiortc]
+FAILED packages/evalsim/tests/test_evalsim_scaffold.py::test_phase4_dev_environment_has_the_extra[websockets]
+FAILED packages/cli/tests/test_cli_simulate_help.py::test_tracer_simulate_help_runs
+FAILED packages/cli/tests/test_cli_score.py::test_cli_has_no_export_command
+FAILED packages/evaldb/tests/test_evaldb_ci.py::test_ci_sqlite_runs_on_every_python_leg
+======================= 26 failed, 111 passed in 13.30s ========================
+exit=1

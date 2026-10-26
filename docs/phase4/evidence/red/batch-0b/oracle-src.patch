@@ -1,0 +1,1381 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 6815882..5538556 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -66,6 +66,7 @@ jobs:
+       - run: uv build --package tracer-evalcore --out-dir dist
+       - run: uv build --package tracer-evalproviders --out-dir dist
+       - run: uv build --package tracer-cli --out-dir dist
++      - run: uv build --package tracer-evalsim --out-dir dist
+       - run: uv run --locked --all-groups python scripts/check_licenses.py --wheel dist --artifacts-only
+ 
+   test:
+@@ -270,7 +271,27 @@ jobs:
+           version: ${{ env.UV_VERSION }}
+           python-version: "3.11"
+       - run: uv lock --resolution lowest-direct
+-      - run: uv run --locked --resolution lowest-direct --all-groups pytest packages/evalcore/tests packages/evalproviders/tests packages/cli/tests --deselect packages/evalcore/tests/test_phase3_licenses.py --deselect packages/evalcore/tests/test_phase3_scaffold.py::test_phase3_locked_closures_are_the_reviewed_ones
++      - run: uv run --locked --resolution lowest-direct --all-groups pytest packages/evalcore/tests packages/evalproviders/tests packages/cli/tests --deselect packages/evalcore/tests/test_phase3_licenses.py --deselect packages/evalcore/tests/test_phase4_licenses.py --deselect packages/evalcore/tests/test_phase3_scaffold.py::test_phase3_locked_closures_are_the_reviewed_ones
++
++  # Every direct dependency of tracer-evalsim at the lower bound of its range: websockets>=15.0,<18
++  # and, through the dev group, aiortc>=1.15.0,<2 (the optional extra). Unlike httpx, the lowest
++  # websockets (15.0) is not the newest one, so this leg tests something the others do not. The lock
++  # of this throwaway checkout is re-resolved first; every uv call stays --locked. Deselected: the
++  # test that compares the closure with the committed uv.lock, which cannot hold after the
++  # deliberate downgrade (it runs in every other leg).
++  test-oldest-phase4-deps:
++    name: test (lowest-direct phase 4 deps, py3.11)
++    runs-on: ubuntu-latest
++    steps:
++      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
++        with:
++          persist-credentials: false
++      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
++        with:
++          version: ${{ env.UV_VERSION }}
++          python-version: "3.11"
++      - run: uv lock --resolution lowest-direct
++      - run: uv run --locked --resolution lowest-direct --all-groups pytest packages/evalsim/tests --deselect packages/evalsim/tests/test_evalsim_scaffold.py::test_phase4_locked_closures_are_the_reviewed_ones
+ 
+   secrets:
+     name: secret scan (gitleaks)
+diff --git a/docs/phase4/evidence/evalschema-baseline.json b/docs/phase4/evidence/evalschema-baseline.json
+new file mode 100644
+index 0000000..cacd2ec
+--- /dev/null
++++ b/docs/phase4/evidence/evalschema-baseline.json
+@@ -0,0 +1,6 @@
++{
++  "commit": "a1f01617116cb44f749f4e642d4fcb5f165f8e4a",
++  "pyproject_sha256": "1a918eef9fd6647f160722f68241783afddbe09a73f7cbc43621f7bc5920a52e",
++  "schema_lock_sha256": "ee5b2ac39ecca544f89f0757760620a52cfe4fd38913f64b4297523ccab66b73",
++  "source_tree_sha256": "59d5b637afb46ce43e7e8ee5423fdbb757039da32695d2a1ce46a2441c5f1906"
++}
+diff --git a/docs/security/license-policy.toml b/docs/security/license-policy.toml
+index d678c36..4bd5f0c 100644
+--- a/docs/security/license-policy.toml
++++ b/docs/security/license-policy.toml
+@@ -130,6 +130,48 @@ requires_dist = [
+     "tracer-evaldb==0.0.1",
+ ]
+ 
++[runtime.evalsim]
++# Runtime closure of tracer-evalsim (docs/security/P4-02-licenses.md). Workspace members excluded.
++# websockets (BSD-3-Clause) on top of the evalschema closure; protobuf dropped 2026-10-27 (E-b: the
++# protobuf dialect is hand-written, ADR 0026 rule 3). The [webrtc] extra is
++# listed in [runtime.evalsim.extras_webrtc]. Any change must be a conscious edit.
++closure = [
++    "annotated-types",
++    "pydantic",
++    "pydantic-core",
++    "rfc8785",
++    "typing-extensions",
++    "typing-inspection",
++    "websockets",
++]
++# Bounds fixed by P4-01 (lower bound tested on the lowest-direct leg, D3). Reviewed at websockets
++# 17.3 and aiortc 1.15.0; the licence of the lowest versions is re-read when a bound is raised.
++requires_dist = [
++    "tracer-evalschema==0.0.1",
++    "tracer-evalcore==0.0.1",
++    "websockets>=15.0,<18",
++    "aiortc>=1.15.0,<2; extra == 'webrtc'",
++]
++
++[runtime.evalsim.extras_webrtc]
++# Packages added by the [webrtc] extra beyond [runtime.evalsim]. typing-extensions is already in the
++# base closure. pyee has two locked versions (13.0.1 below Python 3.12, 16.0.0 from 3.12). av
++# bundles an FFmpeg stack with GPL and LGPL parts: see [[bundled_notices]] and the review, section 4.
++closure = [
++    "aioice",
++    "aiortc",
++    "av",
++    "cffi",
++    "cryptography",
++    "dnspython",
++    "google-crc32c",
++    "ifaddr",
++    "pycparser",
++    "pyee",
++    "pylibsrtp",
++    "pyopenssl",
++]
++
+ # ---------------------------------------------------------------------------------------------
+ # Rejected: packages considered and refused. Recorded so that nobody adds them without a decision.
+ # ---------------------------------------------------------------------------------------------
+@@ -154,6 +196,11 @@ name = "requests"
+ spdx = "Apache-2.0"
+ reason = "Not a licence rejection: a second HTTP stack beside the decided httpx that adds charset_normalizer and urllib3. See docs/security/P3-02-licenses.md."
+ 
++[[rejected]]
++name = "pipecat-ai"
++spdx = "BSD-2-Clause"
++reason = "Not a rejection of its own licence. As a runtime dependency its core closure pulls num2words (LGPL), soxr 1.0.0 (LGPL-2.1-or-later), soundfile wheels that bundle libsndfile (LGPL-2.1), numba, onnxruntime and weekly releases; it would break test_no_lgpl_or_gpl_in_lock and the frozen closures, and its sarvam extra pins sarvamai==0.1.28 (rejected). Pipecat lives only in tools/samplebot with its own lock, pinned exactly (1.14.0), never in a tracer wheel and never in uv.lock. See docs/security/P4-02-licenses.md."
++
+ # ---------------------------------------------------------------------------------------------
+ # Exceptions: copyleft licenses allowed by name, version and dependency group.
+ # ---------------------------------------------------------------------------------------------
+@@ -276,3 +323,46 @@ scope = "runtime"
+ license_file = "licenses/LICENSE"
+ license_file_sha256 = "ba00f51a0d92823b5a1cde27d8b5b9d2321e67ed8da9bc163eff96d5e17e577e"
+ reason = "License field is 'Dual License' (non-SPDX); LICENSE holds an Apache-2.0 notice for post-2017 code and the BSD-3-Clause text for all code. Transitive of pg8000 (extra [postgres])."
++
++[[overrides]]
++name = "pyopenssl"
++version = "26.4.0"
++spdx = "Apache-2.0"
++scope = "runtime"
++license_file = "licenses/LICENSE"
++license_file_sha256 = "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
++reason = "License field is the free text 'Apache License, Version 2.0' with only the Apache Software License classifier; LICENSE is the Apache-2.0 text (same bytes as google-crc32c). Optional extra [webrtc]."
++
++# Documentary tables: recorded for review, not read by scripts/check_licenses.py.
++
++[[bundled_notices]]
++name = "av"
++version = "17.1.0"
++declared = "BSD-3-Clause"
++scope = "optional extra [webrtc], user-installed from PyPI, never vendored"
++bundled = "FFmpeg 8.x libraries (version3) with libx264 and libx265 (GPL-2.0 upstream; pyav-ffmpeg patch moves them out of FFmpeg's GPL list), libmp3lame, gnutls, nettle, gmp, unistring (LGPL upstream), opencore-amr, opus, vpx, webp, dav1d, SVT-AV1"
++evidence = "pyav-ffmpeg tag 8.1.1-2 patches/ffmpeg.patch and scripts/build-ffmpeg.py; configuration string in libavcodec; no licence texts in the wheel"
++status = "named exception for the optional extra [webrtc] (lead decision 2026-10-27 under the owner rule 'do not dwell on copyleft', owner question O6); conditions in docs/security/P4-02-licenses.md section 7"
++recheck = "any av bump, any aiortc bound change on av, new pyav-ffmpeg tag, wheel gaining licence texts"
++
++[[bundled_notices]]
++name = "pylibsrtp"
++version = "1.0.0"
++declared = "BSD-3-Clause"
++scope = "optional extra [webrtc]"
++bundled = "libsrtp2 and OpenSSL 3.5.4 statically linked (strings read); no notice file in the wheel"
++status = "permissive upstream; no exception"
++recheck = "pylibsrtp bump"
++
++[tools.samplebot]
++# Tool-only closure (tools/samplebot, own lock, never in a tracer wheel or uv.lock).
++pin = "pipecat-ai==1.14.0"
++reviewed = "2026-10-27"
++copyleft_tool_only = [
++    "num2words 0.5.14 (LGPL, COPYING LGPL-2.1)",
++    "soxr 1.0.0 (LGPL-2.1-or-later, bundles libsoxr)",
++    "soundfile 0.13.1 (metadata BSD-3-Clause; wheels bundle libsndfile, COPYING LGPL-2.1)",
++    "opencv-python-headless 4.14.0.94 (extra webrtc; bundles FFmpeg, LGPL-2.1 notice)",
++    "certifi 2026.10.23 (MPL-2.0, extras)",
++]
++not_fully_reviewed = ["onnxruntime 1.31.1 ThirdPartyNotices", "numba 0.68.0 LICENSES.third-party", "silero_vad.onnx and smart-turn model licences"]
+diff --git a/packages/cli/src/tracer_cli/cli.py b/packages/cli/src/tracer_cli/cli.py
+index 18177a0..e81dd30 100644
+--- a/packages/cli/src/tracer_cli/cli.py
++++ b/packages/cli/src/tracer_cli/cli.py
+@@ -404,6 +404,16 @@ def build_parser(
+         action="store_true",
+         help="continue past export warnings that drop a line",
+     )
++    commands.add_parser(
++        "simulate",
++        help="place one simulated call to an agent (scaffold: options arrive with P4-23)",
++        description=(
++            "Place one simulated call from a synthetic caller to an agent under test, record "
++            "both sides and score the recording. The options are added with the pipeline."
++        ),
++        allow_abbrev=False,
++        streams=streams,
++    )
+     return parser
+ 
+ 
+diff --git a/packages/evalcore/src/tracer_evalcore/_engine_errors.py b/packages/evalcore/src/tracer_evalcore/_engine_errors.py
+new file mode 100644
+index 0000000..d309580
+--- /dev/null
++++ b/packages/evalcore/src/tracer_evalcore/_engine_errors.py
+@@ -0,0 +1,83 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Facts-only error base of the TTS and LLM engine boundaries (ADR 0026 rule 4).
++
++An error holds machine facts, never a provider message, a body, a header, a key or text: every
++fact is validated against a fixed shape, and a value that does not fit is refused without being
++quoted.
++"""
++
++from __future__ import annotations
++
++import re
++from typing import Any, Final
++
++from tracer_evalcore.errors import EvalcoreError
++
++__all__ = ["FactError"]
++
++_CODE: Final = re.compile(r"[a-z][a-z0-9_]{0,63}")
++_REQUEST_ID: Final = re.compile(r"[A-Za-z0-9_.:-]{1,128}")
++
++
++def _is_int(value: object) -> bool:
++    return type(value) is int
++
++
++class FactError(EvalcoreError):
++    """Base of the engine errors; the facts are keyword-only attributes."""
++
++    def __init__(
++        self,
++        *,
++        index: int | None = None,
++        status: int | None = None,
++        kind: str | None = None,
++        code: str | None = None,
++        request_id: str | None = None,
++        attempts: int | None = None,
++        reason: str | None = None,
++    ) -> None:
++        if index is not None and not (_is_int(index) and index >= 0):
++            raise ValueError("index: not a non-negative integer")
++        if status is not None and not (_is_int(status) and 100 <= status <= 599):
++            raise ValueError("status: not an HTTP status")
++        if attempts is not None and not (_is_int(attempts) and attempts >= 1):
++            raise ValueError("attempts: not a positive integer")
++        for name, value in (("kind", kind), ("code", code), ("reason", reason)):
++            if value is not None and not (type(value) is str and _CODE.fullmatch(value)):
++                raise ValueError(f"{name}: not a short machine code")
++        if request_id is not None and not (
++            type(request_id) is str and _REQUEST_ID.fullmatch(request_id)
++        ):
++            raise ValueError("request_id: not a request identifier")
++        self.index = index
++        self.status = status
++        self.kind = kind
++        self.code = code
++        self.request_id = request_id
++        self.attempts = attempts
++        self.reason = reason
++        parts: list[str] = []
++        if index is not None:
++            parts.append(f"request {index}")
++        if status is not None:
++            parts.append(f"HTTP {status}")
++        if kind is not None:
++            parts.append(f"transport {kind}")
++        if code is not None:
++            parts.append(f"code {code}")
++        if reason is not None:
++            parts.append(f"reason {reason}")
++        if request_id is not None:
++            parts.append(f"request id {request_id}")
++        if attempts is not None:
++            parts.append(f"{attempts} attempt(s)")
++        super().__init__(f"{type(self).__name__}: " + ", ".join(parts) if parts else "")
++
++    def __reduce__(self) -> tuple[Any, ...]:
++        return (_rebuild, (type(self), dict(self.__dict__)))
++
++
++def _rebuild(cls: type[FactError], facts: dict[str, Any]) -> FactError:
++    return cls(**facts)
+diff --git a/packages/evalcore/src/tracer_evalcore/brain.py b/packages/evalcore/src/tracer_evalcore/brain.py
+new file mode 100644
+index 0000000..430f505
+--- /dev/null
++++ b/packages/evalcore/src/tracer_evalcore/brain.py
+@@ -0,0 +1,69 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The caller brain boundary (ADR 0026 rule 4, ADR 0028 rule 1): scripted, LLM or replay."""
++
++from __future__ import annotations
++
++from dataclasses import dataclass
++from typing import Final, Protocol, runtime_checkable
++
++from tracer_evalcore.simtypes import CALLER_MODES, MAX_LINE_CHARS
++
++__all__ = [
++    "BRAIN_END_REASONS",
++    "BrainDecision",
++    "CallerBrain",
++    "require_caller_brain",
++]
++
++BRAIN_END_REASONS: Final = (
++    "script_complete",
++    "caller_end_call",
++    "max_turns",
++    "brain_invalid_output",
++    "spend_cap",
++)
++
++
++@dataclass(frozen=True)
++class BrainDecision:
++    """The next caller line, or the end of the call with one of the brain's end reasons."""
++
++    line: str | None
++    end_reason: str | None
++    invalid_outputs: int
++    regenerations: int
++
++    def __post_init__(self) -> None:
++        if (self.line is None) == (self.end_reason is None):
++            raise ValueError("a decision holds a line or an end reason, exactly one")
++        if self.line is not None and (
++            type(self.line) is not str or not 1 <= len(self.line) <= MAX_LINE_CHARS
++        ):
++            raise ValueError("line: empty or longer than the limit")
++        if self.end_reason is not None and self.end_reason not in BRAIN_END_REASONS:
++            raise ValueError("end_reason: not one of the brain's")
++        for name, value in (("invalid_outputs", self.invalid_outputs),
++                            ("regenerations", self.regenerations)):  # fmt: skip
++            if type(value) is not int or value < 0:
++                raise ValueError(f"{name}: not a non-negative integer")
++        if self.regenerations > self.invalid_outputs:
++            raise ValueError("regenerations: more than invalid outputs")
++
++
++@runtime_checkable
++class CallerBrain(Protocol):
++    """What decides the next caller line; ``mode`` is one of ``CALLER_MODES``."""
++
++    mode: str
++
++    def next_line(self, turn_index: int, agent_text: str | None) -> BrainDecision: ...
++
++
++def require_caller_brain(candidate: object) -> CallerBrain:
++    """Return the candidate when it is a brain of a known mode, else refuse it."""
++    if not isinstance(candidate, CallerBrain):
++        raise TypeError("not a caller brain")
++    if candidate.mode not in CALLER_MODES:
++        raise ValueError("mode: not one of the caller modes")
++    return candidate
+diff --git a/packages/evalcore/src/tracer_evalcore/llm.py b/packages/evalcore/src/tracer_evalcore/llm.py
+new file mode 100644
+index 0000000..24a8213
+--- /dev/null
++++ b/packages/evalcore/src/tracer_evalcore/llm.py
+@@ -0,0 +1,188 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The language-model engine boundary (ADR 0026 rule 4, ADR 0024 amendment A3, ADR 0028).
++
++The shape of the speech-to-text boundary. A request is fully explicit: a model, ``max_tokens``,
++a seed (or ``None``) and a reasoning effort (or ``None``) have no default.
++"""
++
++from __future__ import annotations
++
++import re
++from dataclasses import dataclass
++from datetime import datetime
++from typing import Final, Protocol, runtime_checkable
++
++from tracer_evalcore._engine_errors import FactError
++from tracer_evalcore.stt import UsageSink
++from tracer_evalschema.ids import RunId
++from tracer_evalschema.usage import UsageRecord
++
++__all__ = [
++    "LLM_ROLES",
++    "LlmAuthError",
++    "LlmCapReachedError",
++    "LlmConfigurationError",
++    "LlmContext",
++    "LlmEngine",
++    "LlmError",
++    "LlmKeyMissingError",
++    "LlmMessage",
++    "LlmOutcome",
++    "LlmRateLimited",
++    "LlmRequest",
++    "LlmRequestRejected",
++    "LlmResponseInvalid",
++    "LlmServerError",
++    "LlmTransportError",
++    "UsageSink",
++    "UsageStreamingLlmEngine",
++    "complete_once",
++]
++
++LLM_ROLES: Final = ("system", "user", "assistant")
++_NAME: Final = re.compile(r"[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,63}")
++_EFFORT: Final = re.compile(r"[a-z][a-z0-9_]{0,31}")
++_MAX_SAFE: Final = 2**53 - 1
++
++
++class LlmError(FactError):
++    """Base of every language-model failure."""
++
++
++class LlmAuthError(LlmError):
++    """HTTP 401 or 403, or the provider's invalid-key code. Never retried."""
++
++
++class LlmRequestRejected(LlmError):
++    """Any other 4xx except 429. Never retried."""
++
++
++class LlmRateLimited(LlmError):
++    """429 after the last attempt."""
++
++
++class LlmServerError(LlmError):
++    """5xx after the last attempt."""
++
++
++class LlmTransportError(LlmError):
++    """A connect, read or write error or a timeout after the last attempt."""
++
++
++class LlmResponseInvalid(LlmError):
++    """A response that is not the documented success shape. Never retried."""
++
++
++class LlmCapReachedError(LlmError):
++    """The request would cross a spend cap; it was not sent."""
++
++
++class LlmConfigurationError(LlmError, ValueError):
++    """The run is configured so that no request may be sent."""
++
++
++class LlmKeyMissingError(LlmConfigurationError):
++    """The API key is missing, empty or unusable."""
++
++
++@dataclass(frozen=True)
++class LlmMessage:
++    role: str
++    content: str
++
++    def __post_init__(self) -> None:
++        if self.role not in LLM_ROLES:
++            raise ValueError("role: not an accepted value")
++        if type(self.content) is not str or not self.content:
++            raise ValueError("content: empty")
++
++
++@dataclass(frozen=True)
++class LlmRequest:
++    """One request; no field has a default (ADR 0026 rule 12, ADR 0028 rule 5)."""
++
++    index: int
++    messages: tuple[LlmMessage, ...]
++    model: str
++    max_tokens: int
++    seed: int | None
++    reasoning_effort: str | None
++
++    def __post_init__(self) -> None:
++        if type(self.index) is not int or self.index < 0:
++            raise ValueError("index: not a non-negative integer")
++        if type(self.messages) is not tuple or not self.messages:
++            raise ValueError("messages: not a non-empty tuple")
++        if not all(isinstance(m, LlmMessage) for m in self.messages):
++            raise TypeError("messages: not LlmMessage records")
++        if type(self.model) is not str or not _NAME.fullmatch(self.model):
++            raise ValueError("model: not an accepted value")
++        if type(self.max_tokens) is not int or not 1 <= self.max_tokens <= _MAX_SAFE:
++            raise ValueError("max_tokens: outside 1 to 2**53 - 1")
++        if self.seed is not None and (
++            type(self.seed) is not int or not 0 <= self.seed <= _MAX_SAFE
++        ):
++            raise ValueError("seed: not a non-negative integer or None")
++        if self.reasoning_effort is not None and (
++            type(self.reasoning_effort) is not str or not _EFFORT.fullmatch(self.reasoning_effort)
++        ):
++            raise ValueError("reasoning_effort: not an accepted value or None")
++
++
++@dataclass(frozen=True)
++class LlmContext:
++    run_id: RunId
++    created_at: datetime
++
++
++@dataclass(frozen=True)
++class LlmOutcome:
++    """A reply text or a failure, never both; ``usage`` holds one record per answered request."""
++
++    text: str | None
++    usage: tuple[UsageRecord, ...]
++    failure: LlmError | None
++
++    def __post_init__(self) -> None:
++        if (self.text is None) == (self.failure is None):
++            raise ValueError("an outcome holds a text or a failure, exactly one")
++        for record in self.usage:
++            if not isinstance(record, UsageRecord):
++                raise TypeError("usage: not a UsageRecord")
++            if record.stage != "sim_caller_llm" or record.domain != "evaluation":
++                raise ValueError("usage: not a sim_caller_llm record of the evaluation domain")
++
++
++@runtime_checkable
++class LlmEngine(Protocol):
++    """One request in, a typed outcome out."""
++
++    def complete(self, request: LlmRequest, context: LlmContext) -> LlmOutcome: ...
++
++
++@runtime_checkable
++class UsageStreamingLlmEngine(Protocol):
++    """An engine that hands out the usage of each answered request before it returns."""
++
++    streams_usage: bool
++
++    def complete(
++        self, request: LlmRequest, context: LlmContext, *, on_usage: UsageSink | None = None
++    ) -> LlmOutcome: ...
++
++
++def complete_once(
++    engine: LlmEngine | UsageStreamingLlmEngine,
++    request: LlmRequest,
++    context: LlmContext,
++    *,
++    on_usage: UsageSink,
++) -> LlmOutcome:
++    """Send one request; its usage reaches ``on_usage`` before this function returns."""
++    if isinstance(engine, UsageStreamingLlmEngine) and engine.streams_usage is True:
++        return engine.complete(request, context, on_usage=on_usage)
++    outcome = engine.complete(request, context)
++    for record in outcome.usage:
++        on_usage(record)
++    return outcome
+diff --git a/packages/evalcore/src/tracer_evalcore/simtypes.py b/packages/evalcore/src/tracer_evalcore/simtypes.py
+new file mode 100644
+index 0000000..20cf631
+--- /dev/null
++++ b/packages/evalcore/src/tracer_evalcore/simtypes.py
+@@ -0,0 +1,52 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Names shared by the simulated caller (ADR 0026 rules 5 and 9, ADR 0027, ADR 0028 rule 7).
++
++Closed lists only: the wire dialects, the call states, the end reasons, the caller modes, the
++caps and the end sentinel. Pure data; no behaviour.
++"""
++
++from __future__ import annotations
++
++from typing import Final
++
++__all__ = [
++    "CALLER_MODES",
++    "CALL_STATES",
++    "CAP_NAMES",
++    "DIALECTS",
++    "END_REASONS",
++    "END_SENTINEL",
++    "FRAME_MS",
++    "MAX_LINE_CHARS",
++]
++
++DIALECTS: Final = ("pipecat-protobuf/1", "twilio-media-stream/1", "smallwebrtc/1")
++CALL_STATES: Final = (
++    "preflight",
++    "connecting",
++    "connected",
++    "caller_speaking",
++    "awaiting_agent",
++    "agent_speaking",
++    "ending",
++    "ended",
++)
++END_REASONS: Final = (
++    "script_complete",
++    "caller_end_call",
++    "agent_hangup",
++    "max_duration",
++    "max_turns",
++    "max_silence",
++    "kill_switch",
++    "setup_failed",
++    "transport_error",
++    "brain_invalid_output",
++    "spend_cap",
++)
++CALLER_MODES: Final = ("scripted", "llm", "replay")
++CAP_NAMES: Final = ("call_seconds", "tts_chars", "llm_tokens", "stt_seconds")
++END_SENTINEL: Final = "END_CALL"
++FRAME_MS: Final = 20
++MAX_LINE_CHARS: Final = 2500
+diff --git a/packages/evalcore/src/tracer_evalcore/tts.py b/packages/evalcore/src/tracer_evalcore/tts.py
+new file mode 100644
+index 0000000..d005521
+--- /dev/null
++++ b/packages/evalcore/src/tracer_evalcore/tts.py
+@@ -0,0 +1,217 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The text-to-speech engine boundary (ADR 0026 rule 4, ADR 0024 amendments A1 and A2).
++
++The shape of the speech-to-text boundary: a protocol, typed request and outcome records and a
++provider-neutral error taxonomy. The core imports no network package.
++"""
++
++from __future__ import annotations
++
++import re
++from collections.abc import Sequence
++from dataclasses import dataclass
++from datetime import datetime
++from typing import Final, Protocol, runtime_checkable
++
++from tracer_evalcore._engine_errors import FactError
++from tracer_evalcore.stt import UsageSink
++from tracer_evalschema.ids import RunId
++from tracer_evalschema.usage import UsageRecord
++
++__all__ = [
++    "TTS_CODECS",
++    "TtsAuthError",
++    "TtsCapReachedError",
++    "TtsConfigurationError",
++    "TtsContext",
++    "TtsEngine",
++    "TtsError",
++    "TtsKeyMissingError",
++    "TtsLanguageNotSupportedError",
++    "TtsOutcome",
++    "TtsRateLimited",
++    "TtsRequest",
++    "TtsRequestRejected",
++    "TtsResponseInvalid",
++    "TtsServerError",
++    "TtsTextTooLongError",
++    "TtsTransportError",
++    "TtsVoice",
++    "UsageSink",
++    "UsageStreamingTtsEngine",
++    "synthesise_all",
++]
++
++TTS_CODECS: Final = ("linear16", "mulaw")
++_NAME: Final = re.compile(r"[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,63}")
++_LANGUAGE: Final = re.compile(r"[a-z]{2,3}-[A-Z]{2}")
++_PACE: Final = re.compile(r"(?:0|[1-9][0-9]{0,2})(?:\.[0-9]{0,5}[1-9])?")
++
++
++class TtsError(FactError):
++    """Base of every text-to-speech failure."""
++
++
++class TtsAuthError(TtsError):
++    """HTTP 401 or 403, or the provider's invalid-key code. Never retried."""
++
++
++class TtsRequestRejected(TtsError):
++    """Any other 4xx except 429. Never retried."""
++
++
++class TtsRateLimited(TtsError):
++    """429 after the last attempt."""
++
++
++class TtsServerError(TtsError):
++    """5xx after the last attempt."""
++
++
++class TtsTransportError(TtsError):
++    """A connect, read or write error or a timeout after the last attempt."""
++
++
++class TtsResponseInvalid(TtsError):
++    """A response that is not the documented success shape. Never retried."""
++
++
++class TtsCapReachedError(TtsError):
++    """The request would cross a spend cap; it was not sent."""
++
++
++class TtsConfigurationError(TtsError, ValueError):
++    """The run is configured so that no request may be sent."""
++
++
++class TtsKeyMissingError(TtsConfigurationError):
++    """The API key is missing, empty or unusable."""
++
++
++class TtsLanguageNotSupportedError(TtsConfigurationError):
++    """The voice's language is not one the engine supports."""
++
++
++class TtsTextTooLongError(TtsConfigurationError):
++    """The text is longer than the engine accepts; it was not sent."""
++
++
++def _check(pattern: re.Pattern[str], name: str, value: object) -> None:
++    if type(value) is not str or not pattern.fullmatch(value):
++        raise ValueError(f"{name}: not an accepted value")
++
++
++@dataclass(frozen=True)
++class TtsVoice:
++    """The voice of a call, exactly as the sim profile states it (ADR 0027 rule 13)."""
++
++    provider: str
++    model: str
++    speaker: str
++    language_code: str
++    pace: str
++
++    def __post_init__(self) -> None:
++        _check(_NAME, "provider", self.provider)
++        _check(_NAME, "model", self.model)
++        _check(_NAME, "speaker", self.speaker)
++        _check(_LANGUAGE, "language_code", self.language_code)
++        _check(_PACE, "pace", self.pace)
++
++
++@dataclass(frozen=True)
++class TtsRequest:
++    """One line to synthesise; ``index`` is its position among the lines of the call."""
++
++    index: int
++    text: str
++    voice: TtsVoice
++    sample_rate_hz: int
++    codec: str
++
++    def __post_init__(self) -> None:
++        if type(self.index) is not int or self.index < 0:
++            raise ValueError("index: not a non-negative integer")
++        if type(self.text) is not str or not self.text:
++            raise ValueError("text: empty")
++        if not isinstance(self.voice, TtsVoice):
++            raise TypeError("voice: not a TtsVoice")
++        if type(self.sample_rate_hz) is not int or not 8000 <= self.sample_rate_hz <= 48000:
++            raise ValueError("sample_rate_hz: outside 8000 to 48000")
++        if self.codec not in TTS_CODECS:
++            raise ValueError("codec: not an accepted value")
++
++
++@dataclass(frozen=True)
++class TtsContext:
++    """What an engine needs besides the request; the engine reads no clock for ``created_at``."""
++
++    run_id: RunId
++    created_at: datetime
++
++
++@dataclass(frozen=True)
++class TtsOutcome:
++    """Audio or a failure, never both; ``usage`` holds one record per answered request."""
++
++    audio: bytes | None
++    usage: tuple[UsageRecord, ...]
++    failure: TtsError | None
++
++    def __post_init__(self) -> None:
++        if (self.audio is None) == (self.failure is None):
++            raise ValueError("an outcome holds audio or a failure, exactly one")
++        if self.audio is not None and (type(self.audio) is not bytes or not self.audio):
++            raise ValueError("audio: not non-empty bytes")
++        for record in self.usage:
++            if not isinstance(record, UsageRecord):
++                raise TypeError("usage: not a UsageRecord")
++            if record.stage != "sim_caller_tts" or record.domain != "evaluation":
++                raise ValueError("usage: not a sim_caller_tts record of the evaluation domain")
++
++
++@runtime_checkable
++class TtsEngine(Protocol):
++    """One request in, a typed outcome out."""
++
++    def synthesise(self, request: TtsRequest, context: TtsContext) -> TtsOutcome: ...
++
++
++@runtime_checkable
++class UsageStreamingTtsEngine(Protocol):
++    """An engine that hands out the usage of each answered request before it returns."""
++
++    streams_usage: bool
++
++    def synthesise(
++        self, request: TtsRequest, context: TtsContext, *, on_usage: UsageSink | None = None
++    ) -> TtsOutcome: ...
++
++
++def synthesise_all(
++    engine: TtsEngine | UsageStreamingTtsEngine,
++    requests: Sequence[TtsRequest],
++    context: TtsContext,
++    *,
++    on_usage: UsageSink,
++) -> tuple[TtsOutcome, ...]:
++    """Synthesise the requests in order; the usage of request k reaches ``on_usage`` first.
++
++    The next request is not built before the usage of the previous one was handed out (the R1
++    lesson, ADR 0024 rule 16 (d)). The run stops after the first failed outcome; that outcome is
++    the last one returned.
++    """
++    streaming = isinstance(engine, UsageStreamingTtsEngine) and engine.streams_usage is True
++    outcomes: list[TtsOutcome] = []
++    for request in requests:
++        if streaming:
++            outcome = engine.synthesise(request, context, on_usage=on_usage)  # type: ignore[call-arg]
++        else:
++            outcome = engine.synthesise(request, context)
++            for record in outcome.usage:
++                on_usage(record)
++        outcomes.append(outcome)
++        if outcome.failure is not None:
++            break
++    return tuple(outcomes)
+diff --git a/packages/evalsim/LICENSE b/packages/evalsim/LICENSE
+new file mode 100644
+index 0000000..d645695
+--- /dev/null
++++ b/packages/evalsim/LICENSE
+@@ -0,0 +1,202 @@
++
++                                 Apache License
++                           Version 2.0, January 2004
++                        http://www.apache.org/licenses/
++
++   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
++
++   1. Definitions.
++
++      "License" shall mean the terms and conditions for use, reproduction,
++      and distribution as defined by Sections 1 through 9 of this document.
++
++      "Licensor" shall mean the copyright owner or entity authorized by
++      the copyright owner that is granting the License.
++
++      "Legal Entity" shall mean the union of the acting entity and all
++      other entities that control, are controlled by, or are under common
++      control with that entity. For the purposes of this definition,
++      "control" means (i) the power, direct or indirect, to cause the
++      direction or management of such entity, whether by contract or
++      otherwise, or (ii) ownership of fifty percent (50%) or more of the
++      outstanding shares, or (iii) beneficial ownership of such entity.
++
++      "You" (or "Your") shall mean an individual or Legal Entity
++      exercising permissions granted by this License.
++
++      "Source" form shall mean the preferred form for making modifications,
++      including but not limited to software source code, documentation
++      source, and configuration files.
++
++      "Object" form shall mean any form resulting from mechanical
++      transformation or translation of a Source form, including but
++      not limited to compiled object code, generated documentation,
++      and conversions to other media types.
++
++      "Work" shall mean the work of authorship, whether in Source or
++      Object form, made available under the License, as indicated by a
++      copyright notice that is included in or attached to the work
++      (an example is provided in the Appendix below).
++
++      "Derivative Works" shall mean any work, whether in Source or Object
++      form, that is based on (or derived from) the Work and for which the
++      editorial revisions, annotations, elaborations, or other modifications
++      represent, as a whole, an original work of authorship. For the purposes
++      of this License, Derivative Works shall not include works that remain
++      separable from, or merely link (or bind by name) to the interfaces of,
++      the Work and Derivative Works thereof.
++
++      "Contribution" shall mean any work of authorship, including
++      the original version of the Work and any modifications or additions
++      to that Work or Derivative Works thereof, that is intentionally
++      submitted to Licensor for inclusion in the Work by the copyright owner
++      or by an individual or Legal Entity authorized to submit on behalf of
++      the copyright owner. For the purposes of this definition, "submitted"
++      means any form of electronic, verbal, or written communication sent
++      to the Licensor or its representatives, including but not limited to
++      communication on electronic mailing lists, source code control systems,
++      and issue tracking systems that are managed by, or on behalf of, the
++      Licensor for the purpose of discussing and improving the Work, but
++      excluding communication that is conspicuously marked or otherwise
++      designated in writing by the copyright owner as "Not a Contribution."
++
++      "Contributor" shall mean Licensor and any individual or Legal Entity
++      on behalf of whom a Contribution has been received by Licensor and
++      subsequently incorporated within the Work.
++
++   2. Grant of Copyright License. Subject to the terms and conditions of
++      this License, each Contributor hereby grants to You a perpetual,
++      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
++      copyright license to reproduce, prepare Derivative Works of,
++      publicly display, publicly perform, sublicense, and distribute the
++      Work and such Derivative Works in Source or Object form.
++
++   3. Grant of Patent License. Subject to the terms and conditions of
++      this License, each Contributor hereby grants to You a perpetual,
++      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
++      (except as stated in this section) patent license to make, have made,
++      use, offer to sell, sell, import, and otherwise transfer the Work,
++      where such license applies only to those patent claims licensable
++      by such Contributor that are necessarily infringed by their
++      Contribution(s) alone or by combination of their Contribution(s)
++      with the Work to which such Contribution(s) was submitted. If You
++      institute patent litigation against any entity (including a
++      cross-claim or counterclaim in a lawsuit) alleging that the Work
++      or a Contribution incorporated within the Work constitutes direct
++      or contributory patent infringement, then any patent licenses
++      granted to You under this License for that Work shall terminate
++      as of the date such litigation is filed.
++
++   4. Redistribution. You may reproduce and distribute copies of the
++      Work or Derivative Works thereof in any medium, with or without
++      modifications, and in Source or Object form, provided that You
++      meet the following conditions:
++
++      (a) You must give any other recipients of the Work or
++          Derivative Works a copy of this License; and
++
++      (b) You must cause any modified files to carry prominent notices
++          stating that You changed the files; and
++
++      (c) You must retain, in the Source form of any Derivative Works
++          that You distribute, all copyright, patent, trademark, and
++          attribution notices from the Source form of the Work,
++          excluding those notices that do not pertain to any part of
++          the Derivative Works; and
++
++      (d) If the Work includes a "NOTICE" text file as part of its
++          distribution, then any Derivative Works that You distribute must
++          include a readable copy of the attribution notices contained
++          within such NOTICE file, excluding those notices that do not
++          pertain to any part of the Derivative Works, in at least one
++          of the following places: within a NOTICE text file distributed
++          as part of the Derivative Works; within the Source form or
++          documentation, if provided along with the Derivative Works; or,
++          within a display generated by the Derivative Works, if and
++          wherever such third-party notices normally appear. The contents
++          of the NOTICE file are for informational purposes only and
++          do not modify the License. You may add Your own attribution
++          notices within Derivative Works that You distribute, alongside
++          or as an addendum to the NOTICE text from the Work, provided
++          that such additional attribution notices cannot be construed
++          as modifying the License.
++
++      You may add Your own copyright statement to Your modifications and
++      may provide additional or different license terms and conditions
++      for use, reproduction, or distribution of Your modifications, or
++      for any such Derivative Works as a whole, provided Your use,
++      reproduction, and distribution of the Work otherwise complies with
++      the conditions stated in this License.
++
++   5. Submission of Contributions. Unless You explicitly state otherwise,
++      any Contribution intentionally submitted for inclusion in the Work
++      by You to the Licensor shall be under the terms and conditions of
++      this License, without any additional terms or conditions.
++      Notwithstanding the above, nothing herein shall supersede or modify
++      the terms of any separate license agreement you may have executed
++      with Licensor regarding such Contributions.
++
++   6. Trademarks. This License does not grant permission to use the trade
++      names, trademarks, service marks, or product names of the Licensor,
++      except as required for reasonable and customary use in describing the
++      origin of the Work and reproducing the content of the NOTICE file.
++
++   7. Disclaimer of Warranty. Unless required by applicable law or
++      agreed to in writing, Licensor provides the Work (and each
++      Contributor provides its Contributions) on an "AS IS" BASIS,
++      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
++      implied, including, without limitation, any warranties or conditions
++      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
++      PARTICULAR PURPOSE. You are solely responsible for determining the
++      appropriateness of using or redistributing the Work and assume any
++      risks associated with Your exercise of permissions under this License.
++
++   8. Limitation of Liability. In no event and under no legal theory,
++      whether in tort (including negligence), contract, or otherwise,
++      unless required by applicable law (such as deliberate and grossly
++      negligent acts) or agreed to in writing, shall any Contributor be
++      liable to You for damages, including any direct, indirect, special,
++      incidental, or consequential damages of any character arising as a
++      result of this License or out of the use or inability to use the
++      Work (including but not limited to damages for loss of goodwill,
++      work stoppage, computer failure or malfunction, or any and all
++      other commercial damages or losses), even if such Contributor
++      has been advised of the possibility of such damages.
++
++   9. Accepting Warranty or Additional Liability. While redistributing
++      the Work or Derivative Works thereof, You may choose to offer,
++      and charge a fee for, acceptance of support, warranty, indemnity,
++      or other liability obligations and/or rights consistent with this
++      License. However, in accepting such obligations, You may act only
++      on Your own behalf and on Your sole responsibility, not on behalf
++      of any other Contributor, and only if You agree to indemnify,
++      defend, and hold each Contributor harmless for any liability
++      incurred by, or claims asserted against, such Contributor by reason
++      of your accepting any such warranty or additional liability.
++
++   END OF TERMS AND CONDITIONS
++
++   APPENDIX: How to apply the Apache License to your work.
++
++      To apply the Apache License to your work, attach the following
++      boilerplate notice, with the fields enclosed by brackets "[]"
++      replaced with your own identifying information. (Don't include
++      the brackets!)  The text should be enclosed in the appropriate
++      comment syntax for the file format. We also recommend that a
++      file or class name and description of purpose be included on the
++      same "printed page" as the copyright notice for easier
++      identification within third-party archives.
++
++   Copyright [yyyy] [name of copyright owner]
++
++   Licensed under the Apache License, Version 2.0 (the "License");
++   you may not use this file except in compliance with the License.
++   You may obtain a copy of the License at
++
++       http://www.apache.org/licenses/LICENSE-2.0
++
++   Unless required by applicable law or agreed to in writing, software
++   distributed under the License is distributed on an "AS IS" BASIS,
++   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++   See the License for the specific language governing permissions and
++   limitations under the License.
+diff --git a/packages/evalsim/NOTICE b/packages/evalsim/NOTICE
+new file mode 100644
+index 0000000..7ca992e
+--- /dev/null
++++ b/packages/evalsim/NOTICE
+@@ -0,0 +1,24 @@
++Tracer
++Copyright 2026 The Tracer contributors
++
++This product is licensed under the Apache License, Version 2.0.
++See the LICENSE file for the full text.
++
++Third-party data
++----------------
++This repository contains or derives data from the sources below. Terms were checked on
++2026-10-24; details and open items are in docs/security/P1-02-licenses.md.
++
++- IANA Language Subtag Registry (https://www.iana.org/assignments/language-subtag-registry).
++  IANA and the IETF Trust dedicate their rights in the protocol registries to the public domain
++  (CC0 1.0). A subset is shipped as tracer_evalschema/data/iana_subtag_registry_subset.json.
++- ISO 4217 List One, maintained by SIX Group as the ISO 4217 maintenance agency
++  (https://www.six-group.com). Data derived from it is shipped as
++  tracer_evalschema/data/iso4217_active.json. SIX publishes the list free of charge but states
++  no reuse licence we could find; this item is open on the release checklist.
++- Unicode conformance files (BidiTest.txt, BidiCharacterTest.txt) are used in tests under the
++  Unicode License v3 (text in packages/evalschema/tests/fixtures/unicode/UNICODE-LICENSE-V3.txt).
++  Copyright Unicode, Inc.
++- Test fixtures: output from the Sarvam AI speech APIs (Sarvam AI terms of service, version 2.0)
++  and short quotes from the Langfuse documentation (MIT) and Pipecat documentation (BSD-2-Clause,
++  copyright Daily). The Sarvam audio redistribution terms are open on the release checklist.
+diff --git a/packages/evalsim/README.md b/packages/evalsim/README.md
+new file mode 100644
+index 0000000..95aab7c
+--- /dev/null
++++ b/packages/evalsim/README.md
+@@ -0,0 +1,6 @@
++# tracer-evalsim
++
++Simulated caller for Tracer: wire dialects and the asyncio call runner (Phase 4). Status: 0.0.1,
++scaffold only. Dependencies: `websockets>=15.0,<18`; the optional extra `webrtc` adds
++`aiortc>=1.15.0,<2`, which installs a third-party wheel (`av`) that bundles FFmpeg with GPL and
++LGPL parts: see `docs/security/P4-02-licenses.md`.
+diff --git a/packages/evalsim/pyproject.toml b/packages/evalsim/pyproject.toml
+new file mode 100644
+index 0000000..bea1de7
+--- /dev/null
++++ b/packages/evalsim/pyproject.toml
+@@ -0,0 +1,35 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++[build-system]
++requires = ["hatchling==1.32.4"]
++build-backend = "hatchling.build"
++
++[project]
++name = "tracer-evalsim"
++version = "0.0.1"
++description = "Simulated caller for Tracer: wire dialects and the asyncio call runner."
++readme = "README.md"
++requires-python = ">=3.11"
++license = "Apache-2.0"
++license-files = ["LICENSE", "NOTICE"]
++dependencies = [
++    "tracer-evalschema==0.0.1",
++    "tracer-evalcore==0.0.1",
++    "websockets>=15.0,<18",
++]
++classifiers = [
++    "Development Status :: 2 - Pre-Alpha",
++    "License :: OSI Approved :: Apache Software License",
++    "Programming Language :: Python :: 3",
++    "Programming Language :: Python :: 3.11",
++    "Programming Language :: Python :: 3.12",
++    "Programming Language :: Python :: 3.13",
++    "Programming Language :: Python :: 3.14",
++    "Typing :: Typed",
++]
++
++[project.optional-dependencies]
++webrtc = ["aiortc>=1.15.0,<2"]
++
++[tool.hatch.build.targets.wheel]
++packages = ["src/tracer_evalsim"]
+diff --git a/packages/evalsim/src/tracer_evalsim/__init__.py b/packages/evalsim/src/tracer_evalsim/__init__.py
+new file mode 100644
+index 0000000..b66d9e0
+--- /dev/null
++++ b/packages/evalsim/src/tracer_evalsim/__init__.py
+@@ -0,0 +1,8 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Simulated caller: wire dialects and the asyncio call runner."""
++
++from __future__ import annotations
++
++__version__ = "0.0.1"
++__all__ = ["__version__"]
+diff --git a/packages/evalsim/src/tracer_evalsim/errors.py b/packages/evalsim/src/tracer_evalsim/errors.py
+new file mode 100644
+index 0000000..aa19c25
+--- /dev/null
++++ b/packages/evalsim/src/tracer_evalsim/errors.py
+@@ -0,0 +1,13 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Error base of the simulator package."""
++
++from __future__ import annotations
++
++from tracer_evalcore.errors import EvalcoreError
++
++__all__ = ["EvalsimError"]
++
++
++class EvalsimError(EvalcoreError):
++    """Base of every error raised by tracer-evalsim."""
+diff --git a/packages/evalsim/src/tracer_evalsim/py.typed b/packages/evalsim/src/tracer_evalsim/py.typed
+new file mode 100644
+index 0000000..e69de29
+diff --git a/pyproject.toml b/pyproject.toml
+index a85b266..c89a89a 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -23,6 +23,7 @@ dev = [
+     "tracer-evalcore",
+     "tracer-evalproviders",
+     "tracer-cli",
++    "tracer-evalsim[webrtc]",  # the optional extra is installed so that its closure is scanned and tested
+     { include-group = "test" },
+     "pytest==9.1.1",
+     "ruff==0.17.1",
+@@ -38,10 +39,13 @@ default-groups = ["dev"]
+ # Fail instead of compiling C/Rust extensions on a clean machine. PyYAML is left out on purpose:
+ # it has no CPython 3.15 wheel yet, and the 3.15 leg is non-blocking.
+ no-build-package = [
++    "av",
+     "cffi",
+     "cryptography",
++    "google-crc32c",
+     "librt",
+     "pydantic-core",
++    "pylibsrtp",
+     "rpds-py",
+ ]
+ 
+@@ -54,6 +58,7 @@ tracer-evaldb = { workspace = true }
+ tracer-evalcore = { workspace = true }
+ tracer-evalproviders = { workspace = true }
+ tracer-cli = { workspace = true }
++tracer-evalsim = { workspace = true }
+ 
+ [tool.ruff]
+ line-length = 100
+@@ -69,6 +74,8 @@ src = [
+     "packages/evalproviders/tests",
+     "packages/cli/src",
+     "packages/cli/tests",
++    "packages/evalsim/src",
++    "packages/evalsim/tests",
+     "scripts",
+ ]
+ # Evidence scripts under docs/phase1/evidence are records of one-off runs, not maintained code.
+@@ -95,10 +102,12 @@ files = [
+     "packages/evalproviders/tests",
+     "packages/cli/src",
+     "packages/cli/tests",
++    "packages/evalsim/src",
++    "packages/evalsim/tests",
+     "scripts",
+ ]
+ exclude = ["packages/evalschema/tests/fixtures/"]
+-mypy_path = "packages/evalschema/src:packages/evaldb/src:packages/evalcore/src:packages/evalproviders/src:packages/cli/src"
++mypy_path = "packages/evalschema/src:packages/evaldb/src:packages/evalcore/src:packages/evalproviders/src:packages/cli/src:packages/evalsim/src"
+ explicit_package_bases = true
+ namespace_packages = true
+ 
+@@ -109,6 +118,7 @@ testpaths = [
+     "packages/evalcore/tests",
+     "packages/evalproviders/tests",
+     "packages/cli/tests",
++    "packages/evalsim/tests",
+ ]
+ addopts = "-ra --strict-markers --strict-config -m 'not private_fixtures and not local_only and not postgres'"
+ markers = [
+diff --git a/scripts/check_licenses.py b/scripts/check_licenses.py
+index 7589d75..04b029d 100644
+--- a/scripts/check_licenses.py
++++ b/scripts/check_licenses.py
+@@ -40,7 +40,11 @@ PHASE3_PROJECTS = {
+     "tracer-evalcore": "evalcore",
+     "tracer-evalproviders": "evalproviders",
+     "tracer-cli": "cli",
++    "tracer-evalsim": "evalsim",
+ }
++# Phase 4: project -> its one optional extra. The extra's added packages are frozen in the policy
++# table [runtime.<key>.extras_<extra>] (key "closure"), like the [postgres] extra of tracer-evaldb.
++PHASE4_EXTRAS = {"tracer-evalsim": "webrtc"}
+ MAX_LICENSE_FILE_BYTES = 1_000_000
+ MAX_ARTIFACT_METADATA_BYTES = 10_000_000
+ _REQ_NAME_RE = re.compile(r"^\s*([A-Za-z0-9][A-Za-z0-9._-]*)")
+@@ -86,6 +90,7 @@ class Policy:
+     evaldb_requires_dist: frozenset[str]
+     phase3_closure: dict[str, frozenset[str]]
+     phase3_requires_dist: dict[str, frozenset[str]]
++    phase4_extras_closure: dict[str, frozenset[str]]
+     overrides: list[dict[str, Any]]
+     exceptions: list[dict[str, Any]]
+ 
+@@ -109,6 +114,15 @@ class Policy:
+                 project: frozenset(runtime.get(key, {}).get("requires_dist", []))
+                 for project, key in PHASE3_PROJECTS.items()
+             },
++            phase4_extras_closure={
++                project: frozenset(
++                    norm_name(n)
++                    for n in runtime.get(PHASE3_PROJECTS[project], {})
++                    .get(f"extras_{extra}", {})
++                    .get("closure", [])
++                )
++                for project, extra in PHASE4_EXTRAS.items()
++            },
+             overrides=list(data.get("overrides", [])),
+             exceptions=list(data.get("exceptions", [])),
+         )
+@@ -277,11 +291,15 @@ class LockPackage:
+ class Lock:
+     packages: dict[str, LockPackage]
+     groups: dict[str, list[str]]  # root dev-dependency group -> direct package names
++    # every locked entry of a name: one name can be locked at two versions that are chosen by a
++    # Python marker (pyee 13 below Python 3.12, pyee 16 from 3.12); ``packages`` holds the last
++    versions: dict[str, list[LockPackage]] = field(default_factory=dict)
+ 
+     @classmethod
+     def load(cls, path: Path) -> Lock:
+         data = tomllib.loads(path.read_text(encoding="utf-8"))
+         pkgs: dict[str, LockPackage] = {}
++        versions: dict[str, list[LockPackage]] = {}
+         groups: dict[str, list[str]] = {}
+         for p in data["package"]:
+             key = norm_name(p["name"])
+@@ -297,10 +315,16 @@ class Lock:
+                 },
+                 requires_dist=p.get("metadata", {}).get("requires-dist", []),
+             )
++            versions.setdefault(key, []).append(pkgs[key])
+             if key == norm_name(ROOT_PROJECT):
+                 for g, items in p.get("dev-dependencies", {}).items():
+                     groups[g] = [norm_name(i["name"]) for i in items]
+-        return cls(packages=pkgs, groups=groups)
++        for entries in versions.values():
++            if len(entries) > 1:  # the closure follows every version of the name
++                union = sorted({d for e in entries for d in e.deps})
++                for e in entries:
++                    e.deps = union
++        return cls(packages=pkgs, groups=groups, versions=versions)
+ 
+     def closure(self, roots: Iterable[str], extras: Iterable[str] = ()) -> set[str]:
+         """Packages reachable from the roots; ``extras`` are those of the roots only."""
+@@ -394,8 +418,9 @@ def evaluate_dists(
+                 )
+             )
+             continue
+-        if d.version != lp.version:
+-            fail(d, "?", f"installed version differs from lock ({lp.version})")
++        locked_versions = [e.version for e in lock.versions.get(key, [lp])]
++        if d.version not in locked_versions:
++            fail(d, "?", f"installed version differs from lock ({', '.join(locked_versions)})")
+             continue
+         override = find_entry(policy.overrides, d)
+         if override is not None:
+@@ -482,8 +507,8 @@ def policy_findings(lock: Lock, policy: Policy, workspace: set[str]) -> list[Fin
+     out: list[Finding] = []
+     for kind, entries in (("override", policy.overrides), ("exception", policy.exceptions)):
+         for e in entries:
+-            lp = lock.packages.get(norm_name(e["name"]))
+-            if lp is None or lp.version != e.get("version"):
++            locked = lock.versions.get(norm_name(e["name"]), [])
++            if not any(entry.version == e.get("version") for entry in locked):
+                 out.append(
+                     Finding(
+                         e["name"],
+@@ -596,10 +621,19 @@ def phase3_findings(lock: Lock, policy: Policy) -> list[Finding]:
+                 f"runtime closure changed: extra {sorted(got - wanted)}, "
+                 f"missing {sorted(wanted - got)}"
+             )
++        extra = PHASE4_EXTRAS.get(project)
++        if extra is not None:
++            extra_only = lock.closure([project], [extra]) - workspace - got
++            extra_wanted = policy.phase4_extras_closure.get(project, frozenset())
++            if extra_only != extra_wanted:
++                fail(
++                    f"{extra} extra closure changed: extra {sorted(extra_only - extra_wanted)}, "
++                    f"missing {sorted(extra_wanted - extra_only)}"
++                )
+         for r in lp.requires_dist:
+             if norm_name(r["name"]) in workspace:
+                 continue  # pinned exactly in pyproject (the schema version of the data)
+-            if r.get("extra"):
++            if r.get("extra") and r["extra"] != extra:
+                 fail(f"extra dependency {r['name']}")
+             elif not re.fullmatch(r">=\d+(\.\d+)*,<\d+(\.\d+)*", str(r.get("specifier", ""))):
+                 fail(f"runtime dependency {r['name']} not declared as a bounded range (>=X,<Y)")
+@@ -657,7 +691,11 @@ def check_artifact(path: Path, policy: Policy) -> list[Finding]:
+     wanted = {_normal_requirement(r) for r in wanted_dist}
+     if wanted_dist and requires != wanted:
+         fail(f"Requires-Dist {sorted(requires)} != policy {sorted(wanted)}")
+-    if (meta.get_all("Provides-Extra") or []) != ([EVALDB_EXTRA] if is_evaldb else []):
++    expected_extras = [EVALDB_EXTRA] if is_evaldb else []
++    for project, project_extra in PHASE4_EXTRAS.items():
++        if wheel_name == norm_name(project):
++            expected_extras = [project_extra]
++    if (meta.get_all("Provides-Extra") or []) != expected_extras:
+         fail("artifact declares unexpected extras")
+     for e in policy.exceptions:
+         pkg = norm_name(e["name"])
+diff --git a/tools/samplebot/README.md b/tools/samplebot/README.md
+new file mode 100644
+index 0000000..d7eda5e
+--- /dev/null
++++ b/tools/samplebot/README.md
+@@ -0,0 +1,6 @@
++# tools/samplebot
++
++Pipecat 1.14.0 sample agents for the loopback interop tests (P4-26, P4-27). Its own uv project:
++not a member of the root workspace, not in the root `uv.lock`, not in any tracer wheel, never
++imported by a tracer package. Its closure holds LGPL items (tool-only): see
++`docs/security/P4-02-licenses.md`. The lock arrives with the bots (P4-26).
+diff --git a/tools/samplebot/pyproject.toml b/tools/samplebot/pyproject.toml
+new file mode 100644
+index 0000000..7b350a3
+--- /dev/null
++++ b/tools/samplebot/pyproject.toml
+@@ -0,0 +1,15 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++[project]
++name = "tracer-samplebot"
++version = "0.0.0"
++description = "Pipecat sample agents for the loopback interop tests (not published, never imported by a tracer package)."
++readme = "README.md"
++requires-python = ">=3.11"
++license = "Apache-2.0"
++dependencies = [
++    "pipecat-ai[websocket,runner,webrtc]==1.14.0",
++]
++
++[tool.uv]
++package = false

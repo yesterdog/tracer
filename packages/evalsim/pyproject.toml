@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 The Tracer contributors
+[build-system]
+requires = ["hatchling==1.32.4"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tracer-evalsim"
+version = "0.0.1"
+description = "Simulated caller for Tracer: wire dialects and the asyncio call runner."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+dependencies = [
+    "tracer-evalschema==0.0.1",
+    "tracer-evalcore==0.0.1",
+    "websockets>=15.0,<18",
+]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
+]
+
+[project.optional-dependencies]
+webrtc = ["aiortc>=1.15.0,<2"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/tracer_evalsim"]

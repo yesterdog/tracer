@@ -1,0 +1,11 @@
+$ (scratch copy, python 3.12) uv sync --locked --all-groups; uv run --locked --all-groups --with pydantic==2.11.0 pytest --deselect ...test_runtime_deps_license_allowlist
+ + tracer-evalsim==0.0.1 (from file://SCRATCH/old/packages/evalsim)
+ + websockets==17.3
+
+
+
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [1] packages/evalcore/tests/test_phase4_adr_index_and_gate.py:105: opt-in gate check (TRACER_PHASE4_GATE=1); pending sets shrink as Phase 4 lands
+12959 passed, 1 skipped, 1289 deselected, 32 warnings in 384.38s (0:06:24)

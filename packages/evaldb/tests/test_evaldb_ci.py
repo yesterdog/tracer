@@ -233,6 +233,7 @@ def test_ci_sqlite_runs_on_every_python_leg() -> None:
         "packages/evalcore/tests",
         "packages/evalproviders/tests",
         "packages/cli/tests",
+        "packages/evalsim/tests",  # Phase 4 spec change (P4-01): one more test directory
     ]
     marker_match = re.search(r"-m\s+'([^']*)'", ini["addopts"])
     assert marker_match, ini["addopts"]

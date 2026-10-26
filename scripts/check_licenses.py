@@ -40,7 +40,11 @@ PHASE3_PROJECTS = {
     "tracer-evalcore": "evalcore",
     "tracer-evalproviders": "evalproviders",
     "tracer-cli": "cli",
+    "tracer-evalsim": "evalsim",
 }
+# Phase 4: project -> its one optional extra. The extra's added packages are frozen in the policy
+# table [runtime.<key>.extras_<extra>] (key "closure"), like the [postgres] extra of tracer-evaldb.
+PHASE4_EXTRAS = {"tracer-evalsim": "webrtc"}
 MAX_LICENSE_FILE_BYTES = 1_000_000
 MAX_ARTIFACT_METADATA_BYTES = 10_000_000
 _REQ_NAME_RE = re.compile(r"^\s*([A-Za-z0-9][A-Za-z0-9._-]*)")
@@ -86,6 +90,7 @@ class Policy:
     evaldb_requires_dist: frozenset[str]
     phase3_closure: dict[str, frozenset[str]]
     phase3_requires_dist: dict[str, frozenset[str]]
+    phase4_extras_closure: dict[str, frozenset[str]]
     overrides: list[dict[str, Any]]
     exceptions: list[dict[str, Any]]
 
@@ -108,6 +113,15 @@ class Policy:
             phase3_requires_dist={
                 project: frozenset(runtime.get(key, {}).get("requires_dist", []))
                 for project, key in PHASE3_PROJECTS.items()
+            },
+            phase4_extras_closure={
+                project: frozenset(
+                    norm_name(n)
+                    for n in runtime.get(PHASE3_PROJECTS[project], {})
+                    .get(f"extras_{extra}", {})
+                    .get("closure", [])
+                )
+                for project, extra in PHASE4_EXTRAS.items()
             },
             overrides=list(data.get("overrides", [])),
             exceptions=list(data.get("exceptions", [])),
@@ -277,11 +291,15 @@ class LockPackage:
 class Lock:
     packages: dict[str, LockPackage]
     groups: dict[str, list[str]]  # root dev-dependency group -> direct package names
+    # every locked entry of a name: one name can be locked at two versions that are chosen by a
+    # Python marker (pyee 13 below Python 3.12, pyee 16 from 3.12); ``packages`` holds the last
+    versions: dict[str, list[LockPackage]] = field(default_factory=dict)
 
     @classmethod
     def load(cls, path: Path) -> Lock:
         data = tomllib.loads(path.read_text(encoding="utf-8"))
         pkgs: dict[str, LockPackage] = {}
+        versions: dict[str, list[LockPackage]] = {}
         groups: dict[str, list[str]] = {}
         for p in data["package"]:
             key = norm_name(p["name"])
@@ -297,10 +315,16 @@ class Lock:
                 },
                 requires_dist=p.get("metadata", {}).get("requires-dist", []),
             )
+            versions.setdefault(key, []).append(pkgs[key])
             if key == norm_name(ROOT_PROJECT):
                 for g, items in p.get("dev-dependencies", {}).items():
                     groups[g] = [norm_name(i["name"]) for i in items]
-        return cls(packages=pkgs, groups=groups)
+        for entries in versions.values():
+            if len(entries) > 1:  # the closure follows every version of the name
+                union = sorted({d for e in entries for d in e.deps})
+                for e in entries:
+                    e.deps = union
+        return cls(packages=pkgs, groups=groups, versions=versions)
 
     def closure(self, roots: Iterable[str], extras: Iterable[str] = ()) -> set[str]:
         """Packages reachable from the roots; ``extras`` are those of the roots only."""
@@ -394,8 +418,9 @@ def evaluate_dists(
                 )
             )
             continue
-        if d.version != lp.version:
-            fail(d, "?", f"installed version differs from lock ({lp.version})")
+        locked_versions = [e.version for e in lock.versions.get(key, [lp])]
+        if d.version not in locked_versions:
+            fail(d, "?", f"installed version differs from lock ({', '.join(locked_versions)})")
             continue
         override = find_entry(policy.overrides, d)
         if override is not None:
@@ -482,8 +507,8 @@ def policy_findings(lock: Lock, policy: Policy, workspace: set[str]) -> list[Fin
     out: list[Finding] = []
     for kind, entries in (("override", policy.overrides), ("exception", policy.exceptions)):
         for e in entries:
-            lp = lock.packages.get(norm_name(e["name"]))
-            if lp is None or lp.version != e.get("version"):
+            locked = lock.versions.get(norm_name(e["name"]), [])
+            if not any(entry.version == e.get("version") for entry in locked):
                 out.append(
                     Finding(
                         e["name"],
@@ -596,10 +621,19 @@ def phase3_findings(lock: Lock, policy: Policy) -> list[Finding]:
                 f"runtime closure changed: extra {sorted(got - wanted)}, "
                 f"missing {sorted(wanted - got)}"
             )
+        extra = PHASE4_EXTRAS.get(project)
+        if extra is not None:
+            extra_only = lock.closure([project], [extra]) - workspace - got
+            extra_wanted = policy.phase4_extras_closure.get(project, frozenset())
+            if extra_only != extra_wanted:
+                fail(
+                    f"{extra} extra closure changed: extra {sorted(extra_only - extra_wanted)}, "
+                    f"missing {sorted(extra_wanted - extra_only)}"
+                )
         for r in lp.requires_dist:
             if norm_name(r["name"]) in workspace:
                 continue  # pinned exactly in pyproject (the schema version of the data)
-            if r.get("extra"):
+            if r.get("extra") and r["extra"] != extra:
                 fail(f"extra dependency {r['name']}")
             elif not re.fullmatch(r">=\d+(\.\d+)*,<\d+(\.\d+)*", str(r.get("specifier", ""))):
                 fail(f"runtime dependency {r['name']} not declared as a bounded range (>=X,<Y)")
@@ -657,7 +691,11 @@ def check_artifact(path: Path, policy: Policy) -> list[Finding]:
     wanted = {_normal_requirement(r) for r in wanted_dist}
     if wanted_dist and requires != wanted:
         fail(f"Requires-Dist {sorted(requires)} != policy {sorted(wanted)}")
-    if (meta.get_all("Provides-Extra") or []) != ([EVALDB_EXTRA] if is_evaldb else []):
+    expected_extras = [EVALDB_EXTRA] if is_evaldb else []
+    for project, project_extra in PHASE4_EXTRAS.items():
+        if wheel_name == norm_name(project):
+            expected_extras = [project_extra]
+    if (meta.get_all("Provides-Extra") or []) != expected_extras:
         fail("artifact declares unexpected extras")
     for e in policy.exceptions:
         pkg = norm_name(e["name"])

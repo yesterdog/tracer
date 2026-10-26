@@ -404,6 +404,16 @@ def build_parser(
         action="store_true",
         help="continue past export warnings that drop a line",
     )
+    commands.add_parser(
+        "simulate",
+        help="place one simulated call to an agent (scaffold: options arrive with P4-23)",
+        description=(
+            "Place one simulated call from a synthetic caller to an agent under test, record "
+            "both sides and score the recording. The options are added with the pipeline."
+        ),
+        allow_abbrev=False,
+        streams=streams,
+    )
     return parser
 
 

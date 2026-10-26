@@ -1,0 +1,217 @@
+# Mutants of the oracle (scratch tree: tracer_evalcore engine modules, tracer_evalsim, pyproject files, policy, checker, workflow, cli, baseline, samplebot, Phase 4 pending sets), Phase 4 batch 0b.
+# Each entry: one change to the oracle, then 21 test paths run on Python 3.13 with -x (the 6 new test files of this batch, the spec-changed files, and the Phase 3 and ADR files that read the same
+# repository files). CAUGHT = at least one test fails; the first failing test is named. 105 mutants, 105 caught, 0 survived.
+# History: a first run left 3 survivors. C05 (a stale override judged on the last locked version only) and C07 (the closure ignores the dependencies of the first of two locked versions)
+# led to a synthetic two-version lock in test_check_licenses_accepts_one_name_locked_at_two_versions; C06 (an extra requirement of evalsim failing again) was a dead branch under the lock
+# format of uv 0.12 (the extra is only in `marker`), so test_check_licenses_allows_only_the_declared_extra_of_evalsim feeds the checker a lock with an `extra` key. All three are now caught.
+# Not mutated (not reachable offline): the lowest-direct leg itself, the hosted CI jobs, uv.lock content, the Postgres legs, Python 3.15.
+E01 [CAUGHT] FactError accepts a positional argument (no keyword-only marker)
+    caught by: test_tts_llm_errors_hold_facts_only_and_no_chain[tts]
+E02 [CAUGHT] kind not validated
+    caught by: test_tts_llm_errors_hold_facts_only_and_no_chain[tts]
+E03 [CAUGHT] refusal quotes the value
+    caught by: test_tts_llm_errors_hold_facts_only_and_no_chain[tts]
+E04 [CAUGHT] status range widened
+    caught by: test_tts_llm_errors_hold_facts_only_and_no_chain[tts]
+E05 [CAUGHT] bool accepted as index
+    caught by: test_tts_llm_errors_hold_facts_only_and_no_chain[tts]
+E06 [CAUGHT] no __reduce__ (copy and pickle break)
+    caught by: test_tts_llm_errors_hold_facts_only_and_no_chain[tts]
+E07 [CAUGHT] an extra attribute is kept
+    caught by: test_tts_llm_errors_hold_facts_only_and_no_chain[tts]
+E08 [CAUGHT] request_id pattern loosened
+    caught by: test_tts_llm_errors_hold_facts_only_and_no_chain[tts]
+E09 [CAUGHT] TtsError is a ValueError
+    caught by: test_tts_llm_errors_hold_facts_only_and_no_chain[tts]
+E10 [CAUGHT] TtsConfigurationError is not a ValueError
+    caught by: test_tts_llm_errors_hold_facts_only_and_no_chain[tts]
+E11 [CAUGHT] TtsKeyMissingError outside the configuration errors
+    caught by: test_tts_llm_errors_hold_facts_only_and_no_chain[tts]
+E12 [CAUGHT] LlmError is an SttError
+    caught by: test_tts_llm_errors_hold_facts_only_and_no_chain[llm]
+E13 [CAUGHT] tts __all__ unsorted
+    caught by: test_tts_llm_errors_hold_facts_only_and_no_chain[tts]
+E14 [CAUGHT] synthesise_all delivers usage after the loop
+    caught by: test_engines_stream_usage_before_next_request
+E15 [CAUGHT] synthesise_all does not stop at a failure
+    caught by: test_engines_stream_usage_before_next_request
+E16 [CAUGHT] streaming usage delivered twice
+    caught by: test_engines_stream_usage_before_next_request
+E17 [CAUGHT] flag-off engine still gets the sink
+    caught by: test_engines_stream_usage_before_next_request
+E18 [CAUGHT] complete_once never delivers usage of a plain engine
+    caught by: test_engines_stream_usage_before_next_request
+E19 [CAUGHT] TtsOutcome allows audio and failure
+    caught by: test_engines_stream_usage_before_next_request
+E20 [CAUGHT] TtsOutcome accepts another stage
+    caught by: test_engines_stream_usage_before_next_request
+E21 [CAUGHT] LlmRequest seed has a default
+    caught by: test_tts_llm_request_records_have_no_defaults_and_validate
+E22 [CAUGHT] LlmRequest accepts max_tokens 0
+    caught by: test_tts_llm_request_records_have_no_defaults_and_validate
+E23 [CAUGHT] TtsVoice pace accepts a float
+    caught by: test_tts_llm_request_records_have_no_defaults_and_validate
+E24 [CAUGHT] TtsRequest accepts another codec
+    caught by: test_tts_llm_request_records_have_no_defaults_and_validate
+E25 [CAUGHT] BrainDecision allows both a line and an end reason
+    caught by: test_brain_protocol_accepts_scripted_llm_replay
+E26 [CAUGHT] BrainDecision allows a line over the limit
+    caught by: test_brain_protocol_accepts_scripted_llm_replay
+E27 [CAUGHT] require_caller_brain ignores the mode
+    caught by: test_brain_protocol_accepts_scripted_llm_replay
+E28 [CAUGHT] BRAIN_END_REASONS gains agent_hangup
+    caught by: test_brain_protocol_accepts_scripted_llm_replay
+E29 [CAUGHT] END_REASONS order changed
+    caught by: test_sim_constants_are_the_ones_the_adrs_state
+E30 [CAUGHT] CALL_STATES loses a state
+    caught by: test_sim_constants_are_the_ones_the_adrs_state
+E31 [CAUGHT] a dialect renamed
+    caught by: test_sim_constants_are_the_ones_the_adrs_state
+E32 [CAUGHT] BrainDecision regenerations unchecked
+    caught by: test_brain_protocol_accepts_scripted_llm_replay
+S01 [CAUGHT] evalsim websockets range without an upper bound
+    caught by: test_check_licenses_covers_evalsim_and_its_extra
+S02 [CAUGHT] evalsim gains httpx
+    caught by: test_check_licenses_covers_evalsim_and_its_extra
+S03 [CAUGHT] evalsim extra renamed
+    caught by: test_check_licenses_covers_evalsim_and_its_extra
+S04 [CAUGHT] evalsim declares a console script
+    caught by: test_evalsim_wheel_contains_no_tests
+S05 [CAUGHT] evalsim imports httpx
+    caught by: test_evalsim_runtime_imports_whitelist
+S06 [CAUGHT] evalsim imports aiortc at module level
+    caught by: test_evalsim_runtime_imports_whitelist
+S07 [CAUGHT] cli imports websockets
+    caught by: test_evalsim_runtime_imports_whitelist
+S08 [CAUGHT] evalcore uses asyncio.open_connection
+    caught by: test_evalcore_imports_no_asyncio_network
+S09 [CAUGHT] evalcore imports selectors
+    caught by: test_evalcore_imports_no_asyncio_network
+S10 [CAUGHT] baseline hash changed
+    caught by: test_evalschema_unchanged_since_phase4_baseline
+S11 [CAUGHT] baseline commit changed
+    caught by: test_evalschema_unchanged_since_phase4_baseline
+S12 [CAUGHT] evalschema source touched
+    caught by: test_evalschema_unchanged_since_phase4_baseline
+S13 [CAUGHT] samplebot pin is a range
+    caught by: test_samplebot_not_a_workspace_member_and_not_in_uv_lock
+S14 [CAUGHT] samplebot becomes a workspace member
+    caught by: test_samplebot_not_a_workspace_member_and_not_in_uv_lock
+S15 [CAUGHT] samplebot is built as a package
+    caught by: test_samplebot_not_a_workspace_member_and_not_in_uv_lock
+S16 [CAUGHT] samplebot depends on a tracer package
+    caught by: test_samplebot_not_a_workspace_member_and_not_in_uv_lock
+S17 [CAUGHT] evalsim wheel gains a test module
+    caught by: test_evalsim_wheel_contains_no_tests
+S18 [CAUGHT] evalsim module without the SPDX header
+    caught by: test_evalsim_wheel_contains_no_tests
+S19 [CAUGHT] evalsim README drops the FFmpeg caveat
+    caught by: test_phase4_scaffold_files_and_repo_config
+S20 [CAUGHT] evalsim LICENSE differs
+    caught by: test_phase4_scaffold_files_and_repo_config
+P01 [CAUGHT] policy: websockets missing from the evalsim closure
+    caught by: test_license_policy_lists_phase4_closures
+P02 [CAUGHT] policy: av missing from the extra closure
+    caught by: test_license_policy_lists_phase4_closures
+P03 [CAUGHT] policy: protobuf in the closure
+    caught by: test_license_policy_lists_phase4_closures
+P04 [CAUGHT] policy: pipecat-ai no longer rejected
+    caught by: test_license_policy_lists_phase4_closures
+P05 [CAUGHT] policy: pyopenssl override hash wrong
+    caught by: test_license_policy_lists_phase4_closures
+P06 [CAUGHT] policy: av status says proposed
+    caught by: test_license_policy_lists_phase4_closures
+P07 [CAUGHT] policy: samplebot pin changed
+    caught by: test_samplebot_not_a_workspace_member_and_not_in_uv_lock
+P08 [CAUGHT] policy: soxr version changed
+    caught by: test_samplebot_closure_reviewed_and_tool_only
+P09 [CAUGHT] policy: av version wrong
+    caught by: test_license_policy_lists_phase4_closures
+P10 [CAUGHT] policy: aiortc requirement without marker
+    caught by: test_license_policy_lists_phase4_closures
+P11 [CAUGHT] policy: certifi exception dropped from the tool-only list
+    caught by: test_samplebot_closure_reviewed_and_tool_only
+P12 [CAUGHT] policy: websockets given an override
+    caught by: test_license_policy_lists_phase4_closures
+C01 [CAUGHT] checker: tracer-evalsim not a Phase 3 project
+    caught by: test_check_licenses_covers_evalsim_and_its_extra
+C02 [CAUGHT] checker: extra closure not compared
+    caught by: test_check_licenses_covers_evalsim_and_its_extra
+C03 [CAUGHT] checker: Provides-Extra not allowed for evalsim
+    caught by: test_check_licenses_covers_evalsim_and_its_extra
+C04 [CAUGHT] checker: only the last locked version of a name counts
+    caught by: test_check_licenses_accepts_one_name_locked_at_two_versions
+C05 [CAUGHT] checker: stale override judged on the last version only
+    caught by: test_check_licenses_accepts_one_name_locked_at_two_versions
+C06 [CAUGHT] checker: an extra dependency of evalsim fails again
+    caught by: test_check_licenses_allows_only_the_declared_extra_of_evalsim
+C07 [CAUGHT] checker: closure ignores the second version
+    caught by: test_check_licenses_accepts_one_name_locked_at_two_versions
+I01 [CAUGHT] ci: evalsim wheel not built
+    caught by: test_ci_phase4_wheel_is_built_and_checked
+I02 [CAUGHT] ci: phase 4 leg continues on error
+    caught by: test_ci_lower_bound_leg_for_phase4_ranges
+I03 [CAUGHT] ci: phase 4 leg tests another directory
+    caught by: test_ci_lower_bound_leg_for_phase4_ranges
+I04 [CAUGHT] ci: phase 3 leg loses the new deselect
+    caught by: test_ci_lower_bound_leg_for_phase4_ranges
+I05 [CAUGHT] ci: phase 4 leg uses full lowest resolution
+    caught by: test_ci_lower_bound_leg_for_phase4_ranges
+I06 [CAUGHT] ci: phase 4 leg on python 3.12
+    caught by: test_ci_lower_bound_leg_for_phase4_ranges
+I07 [CAUGHT] ci: a job mentions samplebot
+    caught by: test_ci_phase4_wheel_is_built_and_checked
+R01 [CAUGHT] root: dev group without the extra
+    caught by: test_phase4_scaffold_files_and_repo_config
+R02 [CAUGHT] root: testpaths without evalsim
+    caught by: test_phase4_scaffold_files_and_repo_config
+R03 [CAUGHT] root: av may be built from source
+    caught by: test_phase4_scaffold_files_and_repo_config
+R04 [CAUGHT] root: mypy path without evalsim
+    caught by: test_phase4_scaffold_files_and_repo_config
+R05 [CAUGHT] root: no workspace source for evalsim
+    caught by: test_phase4_scaffold_files_and_repo_config
+L01 [CAUGHT] cli: simulate subcommand removed
+    caught by: test_tracer_simulate_help_runs
+L02 [CAUGHT] cli: simulate help claims accuracy
+    caught by: test_tracer_simulate_help_runs
+L03 [CAUGHT] cli: simulate help prints to stderr?
+    caught by: test_cli_has_no_export_command
+A01 [CAUGHT] support: a landed name back in the pending set
+    caught by: test_adr0028_rules_are_tested
+S21 [CAUGHT] evalsim version drifts
+    caught by: test_phase4_scaffold_files_and_repo_config
+S22 [CAUGHT] EvalsimError leaves the evalcore error family
+    caught by: test_phase4_scaffold_files_and_repo_config
+S23 [CAUGHT] evalsim requires python 3.12
+    caught by: test_phase4_requires_dist_bounded_ranges
+S24 [CAUGHT] aiortc upper bound is two majors
+    caught by: test_check_licenses_covers_evalsim_and_its_extra
+S25 [CAUGHT] websockets lower bound lowered
+    caught by: test_check_licenses_covers_evalsim_and_its_extra
+S26 [CAUGHT] evalsim README drops the review path
+    caught by: test_phase4_scaffold_files_and_repo_config
+S27 [CAUGHT] policy header regrows PROPOSED wording
+    caught by: test_license_policy_lists_phase4_closures
+S28 [CAUGHT] samplebot README drops the LGPL statement
+    caught by: test_samplebot_closure_reviewed_and_tool_only
+S29 [CAUGHT] baseline gains a key
+    caught by: test_evalschema_unchanged_since_phase4_baseline
+S30 [CAUGHT] evalsim package gains a sdist-only tests dir in the wheel config
+    caught by: test_evalsim_wheel_contains_no_tests
+E33 [CAUGHT] TtsContext created_at gets a default
+    caught by: test_tts_llm_request_records_have_no_defaults_and_validate
+E34 [CAUGHT] UsageStreamingTtsEngine loses its flag
+    caught by: test_engines_stream_usage_before_next_request
+E35 [CAUGHT] LlmOutcome accepts both text and failure
+    caught by: test_engines_stream_usage_before_next_request
+E36 [CAUGHT] LlmMessage accepts any role
+    caught by: test_tts_llm_request_records_have_no_defaults_and_validate
+E37 [CAUGHT] LLM_ROLES gains tool
+    caught by: test_tts_llm_request_records_have_no_defaults_and_validate
+E38 [CAUGHT] MAX_LINE_CHARS changed
+    caught by: test_brain_protocol_accepts_scripted_llm_replay
+E39 [CAUGHT] CAP_NAMES renamed
+    caught by: test_sim_constants_are_the_ones_the_adrs_state
+E40 [CAUGHT] synthesise_all passes sink twice for plain engines
+    caught by: test_engines_stream_usage_before_next_request

@@ -50,21 +50,6 @@ DIALECT_HEADING = "## Dialect specifications"
 # ADR 0026 rules and invariants
 _P0026: frozenset[str] = frozenset(
     {
-        # P4-01
-        "test_evalcore_imports_no_asyncio_network",
-        "test_evalschema_unchanged_since_phase4_baseline",
-        "test_evalsim_runtime_imports_whitelist",
-        "test_evalsim_wheel_contains_no_tests",
-        "test_phase4_requires_dist_bounded_ranges",
-        "test_samplebot_not_a_workspace_member_and_not_in_uv_lock",
-        "test_tracer_simulate_help_runs",
-        # P4-02
-        "test_license_policy_lists_phase4_closures",
-        "test_samplebot_closure_reviewed_and_tool_only",
-        # P4-03
-        "test_brain_protocol_accepts_scripted_llm_replay",
-        "test_engines_stream_usage_before_next_request",
-        "test_tts_llm_errors_hold_facts_only_and_no_chain",
         # P4-04
         "test_kill_switch_reaches_ended_from_every_state",
         "test_max_duration_is_min_of_evaluator_and_cap",
@@ -152,8 +137,6 @@ _P0026: frozenset[str] = frozenset(
 # ADR 0027 rules and invariants
 _P0027: frozenset[str] = frozenset(
     {
-        # P4-01
-        "test_evalschema_unchanged_since_phase4_baseline",
         # P4-05
         "test_wait_for_silence_parameter_has_no_default",
         # P4-06
@@ -215,8 +198,6 @@ _P0027: frozenset[str] = frozenset(
 # ADR 0028 rules and invariants
 _P0028: frozenset[str] = frozenset(
     {
-        # P4-03
-        "test_brain_protocol_accepts_scripted_llm_replay",
         # P4-05
         "test_simulator_never_speaks_while_brain_pending",
         # P4-07
@@ -280,9 +261,6 @@ _P0029: frozenset[str] = frozenset(
 # ADR 0024 Phase 4 amendment (A1-A9, IA1-IA4)
 _P0024A: frozenset[str] = frozenset(
     {
-        # P4-03
-        "test_engines_stream_usage_before_next_request",
-        "test_tts_llm_errors_hold_facts_only_and_no_chain",
         # P4-06
         "test_g711_mulaw_alaw_decode_matches_itu_table",
         "test_recorder_refuses_rate_mismatch_never_resamples",
