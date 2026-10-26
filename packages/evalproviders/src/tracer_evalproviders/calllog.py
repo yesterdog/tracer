@@ -116,9 +116,16 @@ class CallLog:
         elapsed_ms: int | None,
         request_id: str | None,
     ) -> None:
-        numbers = (chunk_index, attempt, bytes_sent, status, elapsed_ms)
-        if not all(n is None or _is_int(n) for n in numbers):
+        required = (chunk_index, attempt, bytes_sent)
+        optional = (status, elapsed_ms) if phase == "before" else (status,)
+        if not all(_is_int(n) for n in required):
             raise TypeError("a call log line holds integers only")
+        if not all(n is None or _is_int(n) for n in optional):
+            raise TypeError("a call log line holds integers only")
+        if phase == "after" and not _is_int(elapsed_ms):
+            raise TypeError("a call log line holds integers only")
+        if not isinstance(audio_seconds, str):
+            raise TypeError("audio_seconds must be a decimal string")
         if not _SAFE_SECONDS.fullmatch(audio_seconds):
             raise ValueError("audio_seconds must be a decimal string")
         moment = self._clock().astimezone(UTC)

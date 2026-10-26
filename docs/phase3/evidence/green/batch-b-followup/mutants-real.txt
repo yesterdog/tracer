@@ -1,0 +1,520 @@
+# Batch B mutants run on the REAL adapter (scratch copy of commit ef957b4 + test_sarvam_followup.py). 231 retargeted + 27 new (N01-N27).
+# Command per mutant: pytest packages/evalproviders/tests -x (Python 3.14, shared env, PYTHONPATH to the scratch copy). A timeout counts as caught (none occurred).
+# TOTAL 258 CAUGHT 252 EQUIVALENT 6 SURVIVED 0 ERROR 0
+# 231 old: 225 caught, 6 equivalent (M14 C49 C62 L14 G04 G06; the same six as the oracle run). 27 new: 27 caught.
+M01 [CAUGHT] forced mr-IN is sent
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_models.py::test_sarvam_request_sends_unknown_language_and_explicit_model[None]
+M02 [CAUGHT] hi accepted as configured language
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_followup.py::test_sarvam_stt_context_manager_closes_once_when_transcribe_is_refused
+M03 [CAUGHT] mr-IN accepted as configured language
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_models.py::test_sarvam_configured_language_other_than_mr_refused[mr-IN]
+M04 [CAUGHT] model not sent
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_engine.py::test_sarvam_the_model_as_requested_is_what_is_sent_and_recorded
+M05 [CAUGHT] timestamps off
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_models.py::test_sarvam_request_sends_unknown_language_and_explicit_model[None]
+M06 [CAUGHT] a fifth form field
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_models.py::test_sarvam_request_sends_unknown_language_and_explicit_model[None]
+M07 [CAUGHT] default model changed
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_engine.py::test_sarvam_engine_is_an_stt_engine
+M08 [CAUGHT] cap doubled
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_response_body_cap_is_exactly_one_mebibyte
+M09 [CAUGHT] floats instead of decimals
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_has_no_text_no_key
+M10 [CAUGHT] lone surrogate accepted
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_models.py::test_sarvam_response_rejects_wrong_types_and_oversize_body[lone surrogate in the transcript]
+M11 [CAUGHT] duplicate keys accepted
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_models.py::test_sarvam_response_rejects_wrong_types_and_oversize_body[duplicate member]
+M12 [CAUGHT] probability up to 2
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_models.py::test_sarvam_response_rejects_wrong_types_and_oversize_body[probability above 1]
+M13 [CAUGHT] probability unchecked
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_models.py::test_sarvam_response_rejects_wrong_types_and_oversize_body[probability above 1]
+M14 [EQUIVALENT] bool is a number
+    reason: a JSON true is a Python bool and never a Decimal, so the isinstance(Decimal) test already refuses it
+M15 [CAUGHT] unequal arrays accepted
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_models.py::test_sarvam_response_rejects_wrong_types_and_oversize_body[unequal lengths]
+M16 [CAUGHT] end before start accepted
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_models.py::test_sarvam_response_rejects_wrong_types_and_oversize_body[end before start]
+M17 [CAUGHT] negative times accepted
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_models.py::test_sarvam_response_rejects_wrong_types_and_oversize_body[start is negative]
+M18 [CAUGHT] null request_id accepted
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_invalid_body_is_response_invalid_and_not_retried[request id missing-{"transcript":"x","language_code":null}-request_id_invalid]
+M19 [CAUGHT] language_code number accepted
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_models.py::test_sarvam_response_rejects_wrong_types_and_oversize_body[language_code number]
+M20 [CAUGHT] null transcript accepted
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_models.py::test_sarvam_response_rejects_wrong_types_and_oversize_body[transcript missing]
+M21 [CAUGHT] NaN accepted (constant hook and strict pre-check removed)
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_models.py::test_sarvam_response_rejects_wrong_types_and_oversize_body[NaN]
+M22 [CAUGHT] transcript shown in repr
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_models.py::test_sarvam_response_models_parse_all_captures
+M23 [CAUGHT] null timestamps accepted
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_models.py::test_sarvam_response_rejects_wrong_types_and_oversize_body[timestamps null]
+M24 [CAUGHT] non-text words accepted
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_models.py::test_sarvam_response_rejects_wrong_types_and_oversize_body[word is a number]
+M25 [CAUGHT] path changed
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_base_url_not_overridable
+M26 [CAUGHT] plain http
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_base_url_not_overridable
+M27 [CAUGHT] arrays accepted
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_invalid_body_is_response_invalid_and_not_retried[an array-[]-not_object]
+M28 [CAUGHT] only ValueError caught by the parser guard
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_models.py::test_sarvam_response_rejects_wrong_types_and_oversize_body[duplicate member]
+C01 [CAUGHT] five attempts
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_retry_policy_constants_are_the_adr_values
+C02 [CAUGHT] three attempts
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_retries_429_and_503_then_succeeds[500 502 504--]
+C03 [CAUGHT] backoff 1 2 3
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_retries_429_and_503_then_succeeds[500 502 504--]
+C04 [CAUGHT] backoff halved
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_retries_429_and_503_then_succeeds[429--]
+C05 [CAUGHT] bound 31
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_retry_policy_constants_are_the_adr_values
+C06 [CAUGHT] bound 29
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_retry_policy_constants_are_the_adr_values
+C07 [CAUGHT] bound exclusive
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_honours_bounded_retry_after[steps2-waits2]
+C08 [CAUGHT] retry-after: min not max
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_honours_bounded_retry_after[steps0-waits0]
+C09 [CAUGHT] retry-after replaces backoff
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_honours_bounded_retry_after[steps3-waits3]
+C10 [CAUGHT] retry-after on 429 only
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_honours_bounded_retry_after[steps5-waits5]
+C11 [CAUGHT] retry-after on every error
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_has_no_text_no_key
+C12 [CAUGHT] no stop at the last attempt
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_gives_up_after_bounded_retries[429]
+C13 [CAUGHT] 429 not retried
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_has_no_text_no_key
+C14 [CAUGHT] 5xx not retried
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_written_before_and_after_each_send
+C15 [CAUGHT] transport errors not retried
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_has_no_text_no_key
+C16 [CAUGHT] 400 retried
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_has_no_text_no_key
+C17 [CAUGHT] 403 retried
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_does_not_retry_400_403[401]
+C18 [CAUGHT] redirects followed
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_unexpected_status_is_response_invalid_and_never_followed[301-]
+C19 [CAUGHT] read timeout 30
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_retry_policy_constants_are_the_adr_values
+C20 [CAUGHT] connect timeout 5
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_retry_policy_constants_are_the_adr_values
+C21 [CAUGHT] pool timeout 60
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_retry_policy_constants_are_the_adr_values
+C22 [CAUGHT] write timeout 10
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_retry_policy_constants_are_the_adr_values
+C23 [CAUGHT] cap off by one
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_response_body_cap_is_exactly_one_mebibyte
+C24 [CAUGHT] reading continues past the cap
+    caught by: ..................................
+C25 [CAUGHT] content type unchecked
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_200_with_a_wrong_content_type_is_response_invalid
+C26 [CAUGHT] any error code kept
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_error_code_is_kept_only_as_a_short_machine_key[xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-unrecognised]
+C27 [CAUGHT] longer error codes
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_error_code_is_kept_only_as_a_short_machine_key[xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-unrecognised]
+C28 [CAUGHT] unsafe request id kept
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_error_request_id_is_kept_only_when_it_is_a_plain_identifier[{"error": {"message": "bad", "code": "invalid_request_error", "request_id": "bad id with 
+C29 [CAUGHT] header request id ignored
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_error_request_id_is_kept_only_when_it_is_a_plain_identifier[<html>-headers1-header-id-2]
+C30 [CAUGHT] key in the cause
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_the_error_is_raised_with_no_cause_and_no_context
+C31 [CAUGHT] decoding error escapes
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_a_corrupt_compressed_body_is_response_invalid
+C32 [CAUGHT] only transport errors caught
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_any_other_http_client_error_is_a_typed_transport_error
+C33 [CAUGHT] wrong kind for read timeout
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_has_no_text_no_key
+C34 [CAUGHT] 3xx treated as an error response
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_unexpected_status_is_response_invalid_and_never_followed[301-]
+C35 [CAUGHT] 2xx other than 200 accepted as error
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_unexpected_status_is_response_invalid_and_never_followed[204-]
+C36 [CAUGHT] wrong auth header
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_retries_429_and_503_then_succeeds[429--]
+C37 [CAUGHT] key in the URL
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_base_url_not_overridable
+C38 [CAUGHT] attempt numbers from 0
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_has_no_text_no_key
+C39 [CAUGHT] elapsed in seconds
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_elapsed_milliseconds_and_timestamps_come_from_the_injected_clocks
+C40 [CAUGHT] third clock read
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_elapsed_milliseconds_and_timestamps_come_from_the_injected_clocks
+C41 [CAUGHT] retry-after above the bound is a server error
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_honours_bounded_retry_after_above_the_bound_ends_the_attempts[429-31-Fri, 23 Oct 2026 13:08:26 GMT]
+C42 [CAUGHT] 400 is an auth error
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_does_not_retry_400_403[400]
+C43 [CAUGHT] chunk index always 0
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_has_no_text_no_key
+C44 [CAUGHT] attempts off by one
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_gives_up_after_bounded_retries[429]
+C45 [CAUGHT] responded_at from the local clock
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_responded_at_is_the_http_date_header_or_nothing[Fri, 23 Oct 2026 13:08:26 GMT-expected0]
+C46 [CAUGHT] naive Date assumed UTC
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_responded_at_is_the_http_date_header_or_nothing[Fri, 23 Oct 2026 13:08:26 -0000-None]
+C47 [CAUGHT] non-ASCII digits accepted
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_honours_bounded_retry_after_ignores_an_unparseable_value[\u0663]
+C48 [CAUGHT] retry-after date against the local clock
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_honours_bounded_retry_after_http_date[Fri, 23 Oct 2026 13:08:36 GMT-Fri, 23 Oct 2026 13:08:26 GMT-10]
+C49 [EQUIVALENT] negative retry-after not floored
+    reason: the wait is max(backoff, header), so a negative header value can never win
+C50 [CAUGHT] past retry-after date taken as future
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_honours_bounded_retry_after_http_date[Fri, 23 Oct 2026 13:08:20 GMT-Fri, 23 Oct 2026 13:08:26 GMT-1]
+C51 [CAUGHT] extra sleep
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_retries_429_and_503_then_succeeds[429--]
+C52 [CAUGHT] bytes sent is the file only
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_bytes_audio_seconds_and_chunk_match_the_request
+C53 [CAUGHT] after line written before the send
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_has_no_text_no_key
+C54 [CAUGHT] no before line
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_has_no_text_no_key
+C55 [CAUGHT] no after line
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_has_no_text_no_key
+C56 [CAUGHT] key logged at debug
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_secrets.py::test_key_never_in_logs_at_debug
+C57 [CAUGHT] headers logged at debug
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_secrets.py::test_key_never_in_logs_at_debug
+C58 [CAUGHT] model name unchecked
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_models.py::test_sarvam_model_must_be_a_usable_name
+C59 [CAUGHT] file name without .wav
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_models.py::test_sarvam_request_sends_unknown_language_and_explicit_model[None]
+C60 [CAUGHT] file content type guessed
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_models.py::test_sarvam_request_sends_unknown_language_and_explicit_model[None]
+C61 [CAUGHT] file name from the chunk repr
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_models.py::test_sarvam_request_sends_unknown_language_and_explicit_model[None]
+C62 [EQUIVALENT] oversize flag ignored
+    reason: an oversize read leaves body None, so the second test of the same condition already catches it
+C63 [CAUGHT] attempts of the success always 1
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_retries_429_and_503_then_succeeds[429--]
+E01 [CAUGHT] failed chunk skipped
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_has_no_text_no_key
+E02 [CAUGHT] usage of successful chunks dropped
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_engine.py::test_sarvam_partial_chunk_failure_yields_no_transcript[auth 403-1]
+E03 [CAUGHT] language never checked
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_followup.py::test_sarvam_stt_context_manager_closes_once_when_transcribe_is_refused
+E04 [CAUGHT] chunks sent in reverse
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_has_no_text_no_key
+E05 [CAUGHT] call log opened before the key is read
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_followup.py::test_env_file_two_definitions_refused_before_the_out_dir_exists
+E06 [CAUGHT] default model recorded instead of the requested one
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_engine.py::test_sarvam_the_model_as_requested_is_what_is_sent_and_recorded
+E07 [CAUGHT] wrong provider name
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_engine.py::test_sarvam_engine_is_an_stt_engine
+S01 [CAUGHT] str shows the key
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_secrets.py::test_key_wrapper_prints_a_fixed_placeholder_everywhere
+S02 [CAUGHT] repr shows the key
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_secrets.py::test_key_wrapper_prints_a_fixed_placeholder_everywhere
+S03 [CAUGHT] format shows the key
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_secrets.py::test_key_wrapper_prints_a_fixed_placeholder_everywhere
+S04 [CAUGHT] pickling allowed
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_secrets.py::test_key_wrapper_prints_a_fixed_placeholder_everywhere
+S05 [CAUGHT] control characters accepted in a key
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_secrets.py::test_key_wrapper_refuses_an_unusable_value_without_quoting_it[a b]
+S06 [CAUGHT] spaces and non-ASCII accepted in a key
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_secrets.py::test_key_wrapper_refuses_an_unusable_value_without_quoting_it[a b]
+S07 [CAUGHT] fallback to the environment
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_secrets.py::test_env_file_wins_over_the_environment_and_does_not_fall_back
+S08 [CAUGHT] environment wins over the file
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_secrets.py::test_env_file_wins_over_the_environment_and_does_not_fall_back
+S09 [CAUGHT] export prefix unsupported
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_followup.py::test_env_file_two_definitions_refused[export-and-plain]
+S10 [CAUGHT] any line that ends in the variable matches
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_followup.py::test_env_file_one_definition_among_decoys_is_still_read
+S11 [CAUGHT] key exported into the environment
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_engine.py::test_create_sarvam_stt_builds_an_engine_that_uses_the_injected_pieces
+S12 [CAUGHT] path in the message
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_secrets.py::test_env_file_errors_quote_no_line_and_no_path
+S13 [CAUGHT] OSError kept as context
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_secrets.py::test_env_file_errors_quote_no_line_and_no_path
+S14 [CAUGHT] quotes kept
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_secrets.py::test_env_file_reads_only_named_variable[double quotes]
+S15 [CAUGHT] white space kept
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_secrets.py::test_env_file_reads_only_named_variable[trailing blanks]
+S16 [CAUGHT] inline comments cut
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_secrets.py::test_env_file_value_is_kept_whole
+S18 [CAUGHT] config ref scheme
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_secrets.py::test_key_is_recorded_as_a_name_never_a_value
+S20 [CAUGHT] blank key accepted
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_secrets.py::test_key_wrapper_refuses_an_unusable_value_without_quoting_it[]
+S21 [CAUGHT] reveal truncated
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_engine.py::test_create_sarvam_stt_builds_an_engine_that_uses_the_injected_pieces
+P01 [CAUGHT] empty chunk makes a turn
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_empty_chunk_makes_no_turn_and_is_counted[]
+P02 [CAUGHT] white space chunk makes a turn
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_empty_chunk_makes_no_turn_and_is_counted[ ]
+P03 [CAUGHT] text stripped
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_stt_transcript_text_is_kept_verbatim[  leading and trailing  ]
+P04 [CAUGHT] seq is the chunk index
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_empty_chunk_makes_no_turn_and_is_counted[]
+P05 [CAUGHT] role caller
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_stt_transcript_maps_one_turn_per_nonempty_chunk
+P06 [CAUGHT] turn source agent_stt
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_stt_transcript_maps_one_turn_per_nonempty_chunk
+P07 [CAUGHT] language assumed from the configuration
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_stt_turn_language_is_observed_from_unknown_request[mr-IN-mr-IN-mr-IN-None]
+P08 [CAUGHT] raw label dropped
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_has_no_text_no_key
+P09 [CAUGHT] detected when any chunk has a tag
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_detected_language_set_only_when_all_chunks_agree[one differs]
+P10 [CAUGHT] null labels ignored in agreement
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_detected_language_set_only_when_all_chunks_agree[a null label]
+P11 [CAUGHT] empty chunk labels count as detection
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_detected_language_ignores_empty_chunks
+P12 [CAUGHT] probability as a float
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_stt_turn_language_probability_is_a_canonical_decimal_string[1.0-1]
+P13 [CAUGHT] probability not canonical
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_stt_turn_language_probability_is_a_canonical_decimal_string[1.0-1]
+P14 [CAUGHT] segments not offset by the chunk start
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_stt_segments_offset_by_chunk_start
+P15 [CAUGHT] ms rounded not floored
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_stt_segments_use_the_floor_rule_of_the_f3_mapper
+P16 [CAUGHT] start and offset floored separately
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_stt_segments_offset_is_exact_for_a_chunk_start_that_has_no_decimal_expansion
+P17 [CAUGHT] float arithmetic
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_stt_segments_use_the_floor_rule_of_the_f3_mapper
+P18 [CAUGHT] granularity word
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_followup.py::test_mapping_emits_one_segment_per_phrase
+P19 [CAUGHT] timeline origin without offsets
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_engine.py::test_sarvam_all_chunks_succeed_one_request_each_in_order
+P20 [CAUGHT] no timeline origin
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_stt_segments_offset_by_chunk_start
+P21 [CAUGHT] phrase ending at the chunk end dropped
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_stt_segments_a_phrase_that_ends_exactly_at_the_chunk_end_is_kept
+P22 [CAUGHT] float comparison
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_stt_phrase_time_outside_chunk_gives_no_segment_and_a_warning
+P23 [CAUGHT] tolerance of 10 ms
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_stt_phrase_time_outside_chunk_gives_no_segment_and_a_warning
+P24 [CAUGHT] no warning for a phrase outside the chunk
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_stt_phrase_time_outside_chunk_gives_no_segment_and_a_warning
+P25 [CAUGHT] segments made even when outside
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_stt_phrase_time_outside_chunk_gives_no_segment_and_a_warning
+P26 [CAUGHT] seconds truncated
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_dry_run_prints_the_rounded_total_when_the_quotient_does_not_end
+P27 [CAUGHT] seconds rounded half up
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_usage_audio_seconds_rounded_half_even_18_digits_and_stated[1-524288-0.000001907348632812-half_even_18]
+P28 [CAUGHT] rounding always stated as rounded
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_dry_run_sends_nothing_and_prints_plan
+P29 [CAUGHT] rounding always stated as exact
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_dry_run_prints_the_rounded_total_when_the_quotient_does_not_end
+P30 [CAUGHT] rounding not stated
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_usage_record_per_chunk_measured_seconds_exact[600000-25]
+P31 [CAUGHT] occurred_at from the context clock
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_cost.py::test_cost_without_a_price_date_is_ambiguous_not_guessed
+P32 [CAUGHT] usage raw holds the transcript
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_usage_record_per_chunk_measured_seconds_exact[600000-25]
+P33 [CAUGHT] two requests
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_usage_record_per_chunk_measured_seconds_exact[600000-25]
+P34 [CAUGHT] stage other
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_usage_record_per_chunk_measured_seconds_exact[600000-25]
+P35 [CAUGHT] source provider_reported
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_usage_record_per_chunk_measured_seconds_exact[600000-25]
+P36 [CAUGHT] usage without model
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_cost.py::test_cost_computed_with_user_usd_catalog
+P37 [CAUGHT] wrong ref kind
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_usage_record_per_chunk_measured_seconds_exact[600000-25]
+P38 [CAUGHT] transcript call ref set
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_stt_transcript_maps_one_turn_per_nonempty_chunk
+P39 [CAUGHT] empty chunks not counted
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_stt_transcript_maps_one_turn_per_nonempty_chunk
+P40 [CAUGHT] chunk plan not recorded
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_stt_transcript_maps_one_turn_per_nonempty_chunk
+P41 [CAUGHT] model basis not stated on the transcript
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_stt_transcript_maps_one_turn_per_nonempty_chunk
+P42 [CAUGHT] model basis not stated on usage
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_usage_record_per_chunk_measured_seconds_exact[600000-25]
+P43 [CAUGHT] label warnings dropped
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_stt_turn_language_is_observed_from_unknown_request[hi_IN-hi-IN-hi_IN-language_label_normalized]
+P44 [CAUGHT] raw label chosen when raws differ
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_detected_language_set_only_when_all_chunks_agree[same tag, raw labels differ]
+P45 [CAUGHT] label not trimmed
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_stt_turn_language_is_observed_from_unknown_request[ mr-IN -mr-IN- mr-IN -language_label_normalized]
+P46 [CAUGHT] no usage for empty chunks
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_empty_chunk_makes_no_turn_and_is_counted[]
+P47 [CAUGHT] usage in reverse order
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_cost.py::test_cost_computed_with_user_usd_catalog
+P48 [CAUGHT] turn start from the first segment plus one
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_followup.py::test_mapping_emits_one_segment_per_phrase
+P49 [CAUGHT] transcript source agent_export
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_stt_transcript_maps_one_turn_per_nonempty_chunk
+P50 [CAUGHT] provider name changed
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_cost.py::test_cost_computed_with_user_usd_catalog
+P51 [CAUGHT] segment text stripped
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_followup.py::test_mapping_segment_text_is_verbatim_for_every_phrase
+P53 [CAUGHT] incomplete response set accepted
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_mapping_refuses_a_response_set_that_does_not_fit_the_plan
+P54 [CAUGHT] duplicate response accepted
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_mapping_refuses_a_response_set_that_does_not_fit_the_plan
+K01 [CAUGHT] wrong reason without a catalog
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_cost.py::test_cost_not_available_without_usd_catalog
+K03 [CAUGHT] shipped price source accepted
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_cost.py::test_user_catalog_file_is_refused_with_a_short_code[shipped price source]
+K04 [CAUGHT] low precision
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_dry_run_cost_comes_only_from_a_user_supplied_usd_price
+K05 [CAUGHT] run_started_at ignored
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_dry_run_cost_comes_only_from_a_user_supplied_usd_price
+K06 [CAUGHT] wrong reason for a bad entry
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_cost.py::test_inr_price_never_converted
+K07 [CAUGHT] empty entries accepted
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_cost.py::test_user_catalog_file_is_refused_with_a_short_code[empty entries]
+K08 [CAUGHT] catalog version 2
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_cost.py::test_user_catalog_file_is_sealed_into_a_valid_catalog
+K09 [CAUGHT] wrong reason for bad JSON
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_cost.py::test_user_catalog_file_is_refused_with_a_short_code[not json]
+K10 [CAUGHT] context kept on refusal
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_cost.py::test_inr_price_never_converted
+K11 [CAUGHT] message is more than the code
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_cost.py::test_user_catalog_file_is_refused_with_a_short_code[not json]
+K12 [CAUGHT] one cost record for all usage
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_dry_run_cost_comes_only_from_a_user_supplied_usd_price
+K14 [CAUGHT] published_at replaced
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_cost.py::test_user_catalog_file_reads_published_at_as_the_schema_reads_an_instant[2026-10-01T00:00:00.000000Z-instant0]
+L01 [CAUGHT] mode 0644
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_is_private_and_append_only
+L02 [CAUGHT] log truncated at open
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_is_private_and_append_only
+L03 [CAUGHT] mode left to the umask
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_an_existing_file_with_a_looser_mode_is_tightened
+L04 [CAUGHT] unsafe request id logged
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_only_ever_names_a_safe_request_id
+L05 [CAUGHT] error kind unchecked
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_only_ever_names_a_short_machine_key_as_the_error_kind
+L06 [CAUGHT] audio seconds as a float
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_has_no_text_no_key
+L07 [CAUGHT] attempt missing
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_has_no_text_no_key
+L08 [CAUGHT] bytes as text
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_has_no_text_no_key
+L09 [CAUGHT] timestamp without microseconds or zone
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_has_no_text_no_key
+L10 [CAUGHT] file path logged
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_has_no_text_no_key
+L11 [CAUGHT] extra text member
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_has_no_text_no_key
+L12 [CAUGHT] lines buffered, not flushed
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_has_no_text_no_key
+L13 [CAUGHT] log file renamed
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_is_private_and_append_only
+L14 [EQUIVALENT] non-ASCII allowed
+    reason: every value of a log line is ASCII by construction (safe id, machine key, digits), and the writer encodes ASCII
+D01 [CAUGHT] calls counted as attempts
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_dry_run_sends_nothing_and_prints_plan
+D04 [CAUGHT] dry run imports os
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_dry_run_module_reads_no_key_and_opens_no_connection
+D05 [CAUGHT] dry run imports httpx
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_dry_run_module_reads_no_key_and_opens_no_connection
+D06 [CAUGHT] dry run writes a file
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_dry_run_sends_nothing_and_prints_plan
+D07 [CAUGHT] chunks off by one
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_dry_run_sends_nothing_and_prints_plan
+D08 [CAUGHT] zero cost when no price
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_dry_run_sends_nothing_and_prints_plan
+D09 [CAUGHT] price date guessed
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_dry_run_cost_comes_only_from_a_user_supplied_usd_price
+D10 [CAUGHT] audio seconds as a float
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_dry_run_prints_the_rounded_total_when_the_quotient_does_not_end
+T01 [CAUGHT] outcome invariant dropped
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_engine.py::test_stt_outcome_holds_a_transcript_or_a_failure_exactly_one
+T02 [CAUGHT] auth error is a ValueError
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_error_taxonomy_classes_and_bases
+T04 [CAUGHT] key missing is not a configuration error
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_error_taxonomy_classes_and_bases
+T05 [CAUGHT] errors not picklable
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_engine.py::test_stt_error_facts_are_keyword_only_and_survive_pickling
+T06 [CAUGHT] status not in the message
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_error_taxonomy_matches_captures
+T07 [CAUGHT] configuration error is not a ValueError
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_error_taxonomy_classes_and_bases
+G01 [CAUGHT] network guard off
+    caught by: FAILED packages/evalproviders/tests/test_socket_guard.py::test_unit_tests_open_no_socket
+G02 [CAUGHT] guard raises OSError (an adapter could swallow it)
+    caught by: FAILED packages/evalproviders/tests/test_socket_guard.py::test_unit_tests_open_no_socket
+G03 [CAUGHT] DNS not guarded
+    caught by: FAILED packages/evalproviders/tests/test_socket_guard.py::test_unit_tests_open_no_socket
+G04 [EQUIVALENT] asyncio connections not guarded
+    reason: asyncio resolves and connects through socket.getaddrinfo and socket.connect, both guarded; the asyncio patches are defence in depth
+G05 [CAUGHT] socket.connect not guarded
+    caught by: FAILED packages/evalproviders/tests/test_socket_guard.py::test_unit_tests_open_no_socket
+G06 [EQUIVALENT] create_connection not guarded
+    reason: create_connection resolves through getaddrinfo and connects through socket.connect, both guarded; the patch is defence in depth
+A01 [CAUGHT] rule 3 cites a misspelt test
+    caught by: FAILED packages/evalproviders/tests/test_evalproviders_adr0024.py::test_adr0024_rules_are_tested
+A02 [CAUGHT] rule 4 cites no test
+    caught by: FAILED packages/evalproviders/tests/test_evalproviders_adr0024.py::test_adr0024_rules_are_tested
+A03 [CAUGHT] invariant I9 cites no test
+    caught by: FAILED packages/evalproviders/tests/test_evalproviders_adr0024.py::test_adr0024_rules_are_tested
+A04 [CAUGHT] a pending name that is not on PENDING
+    caught by: FAILED packages/evalproviders/tests/test_evalproviders_adr0024.py::test_adr0024_rules_are_tested
+A05 [CAUGHT] rule numbering broken
+    caught by: FAILED packages/evalproviders/tests/test_evalproviders_adr0024.py::test_adr0024_rules_are_tested
+A06 [CAUGHT] PENDING holds a name that SCOPE section A does not name
+    caught by: FAILED packages/evalproviders/tests/test_evalproviders_adr0024.py::test_adr0024_rules_are_tested
+A07 [CAUGHT] PENDING holds a landed test (stale)
+    caught by: FAILED packages/evalproviders/tests/test_evalproviders_adr0024.py::test_adr0024_rules_are_tested
+P55 [CAUGHT] chunk plan key renamed
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_stt_transcript_maps_one_turn_per_nonempty_chunk
+P56 [CAUGHT] usage created_at from the clock
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_engine.py::test_sarvam_engine_outcome_records_are_complete_when_nothing_fails
+P57 [CAUGHT] turn created_at from the clock
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_mapping.py::test_stt_transcript_maps_one_turn_per_nonempty_chunk
+S24 [CAUGHT] key exported into the environment (second spelling)
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_engine.py::test_create_sarvam_stt_builds_an_engine_that_uses_the_injected_pieces
+C65 [CAUGHT] close does not close the http client
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_engine.py::test_sarvam_client_is_a_context_manager_that_closes_its_http_client
+C66 [CAUGHT] the URL read from the environment
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_base_url_not_overridable
+C67 [CAUGHT] a second URL literal in the client
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_unexpected_status_is_response_invalid_and_never_followed[100-]
+C68 [CAUGHT] the URL read from the environment (from os import)
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_base_url_not_overridable
+N01 [CAUGHT] fraction bound 101
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_followup.py::test_response_probability_beyond_the_size_bounds_is_language_probability_invalid[101-digits]
+N02 [CAUGHT] fraction bound 99
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_followup.py::test_response_probability_with_100_fractional_digits_is_accepted
+N03 [CAUGHT] time bound 1e11
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_followup.py::test_response_time_beyond_the_size_bounds_is_refused_fast[1E10-end]
+N04 [CAUGHT] time bound 1e9
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_followup.py::test_response_time_just_below_ten_billion_seconds_is_accepted
+N05 [CAUGHT] fraction bound removed
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_followup.py::test_response_probability_beyond_the_size_bounds_is_language_probability_invalid[101-digits]
+N06 [CAUGHT] magnitude bound removed
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_followup.py::test_response_probability_beyond_the_size_bounds_is_language_probability_invalid[0E999999999]
+N07 [CAUGHT] call log accepts bool counts
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_followup.py::test_call_log_a_count_that_is_not_an_int_is_a_type_error_and_writes_nothing[boolTrue-chunk]
+N08 [CAUGHT] call log count check removed
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_followup.py::test_call_log_a_count_that_is_not_an_int_is_a_type_error_and_writes_nothing[str1-chunk]
+N09 [CAUGHT] audio_seconds check removed
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_has_no_text_no_key
+N10 [CAUGHT] audio_seconds integer part 30 digits
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_followup.py::test_call_log_audio_seconds_that_is_not_a_decimal_string_is_a_value_error['111111111111111111111']
+N11 [CAUGHT] retry-after int() on huge strings
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_followup.py::test_retry_after_digit_string_longer_than_nine_digits_is_above_the_bound[4300-429]
+N12 [CAUGHT] long retry-after counts as zero
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_honours_bounded_retry_after_above_the_bound_ends_the_attempts[429-99999999999999999999999-Fri, 23 Oct 2026 13:08:26 GMT]
+N13 [CAUGHT] leading zeros counted as significant
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_followup.py::test_retry_after_leading_zeros_do_not_count_as_significant_digits[5000-zeros-then-7]
+N14 [CAUGHT] above-bound sentinel equals the bound
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_honours_bounded_retry_after_above_the_bound_ends_the_attempts[429-99999999999999999999999-Fri, 23 Oct 2026 13:08:26 GMT]
+N15 [CAUGHT] status 600..699 are errors
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_followup.py::test_status_600_and_above_is_unexpected_status_not_a_server_error[600]
+N16 [CAUGHT] 500 is a rejection
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_client.py::test_sarvam_retries_429_and_503_then_succeeds[500 502 504--]
+N17 [CAUGHT] 600 is an error
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_followup.py::test_status_600_and_above_is_unexpected_status_not_a_server_error[600]
+N18 [CAUGHT] engine does not close its log
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_followup.py::test_sarvam_stt_context_manager_closes_the_log_and_the_client_once
+N19 [CAUGHT] context manager exit does not close
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_followup.py::test_sarvam_stt_context_manager_closes_the_log_and_the_client_once
+N20 [CAUGHT] engine close leaves the client open
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_followup.py::test_sarvam_stt_context_manager_closes_the_log_and_the_client_once
+N21 [CAUGHT] create_sarvam_stt does not hand over the log
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_followup.py::test_create_sarvam_stt_closes_the_log_it_opened
+N22 [CAUGHT] close is not idempotent
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_calllog.py::test_call_log_is_private_and_append_only
+N23 [CAUGHT] three definitions needed for ambiguity
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_followup.py::test_env_file_two_definitions_refused[two-keys]
+N24 [CAUGHT] ambiguous reported as missing
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_followup.py::test_env_file_two_definitions_refused[two-keys]
+N25 [CAUGHT] call_log not keyword-only
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_followup.py::test_sarvam_stt_call_log_is_keyword_only
+N26 [CAUGHT] only the first phrase becomes a segment
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_followup.py::test_mapping_emits_one_segment_per_phrase
+N27 [CAUGHT] segments reversed
+    caught by: FAILED packages/evalproviders/tests/test_sarvam_followup.py::test_mapping_emits_one_segment_per_phrase

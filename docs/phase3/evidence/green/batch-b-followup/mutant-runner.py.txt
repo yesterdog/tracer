@@ -1,0 +1,54 @@
+import importlib.util, shutil, subprocess, sys, os, time, json
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+S = Path(__file__).parent.resolve()
+spec = importlib.util.spec_from_file_location("mutants", S / "mutants.py")
+mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+MUT = mod.M
+PY = "<repo>/.venv/bin/python"
+W = int(sys.argv[1]); ONLY = set(sys.argv[2].split(",")) if len(sys.argv) > 2 and sys.argv[2] else None
+OUT = sys.argv[3] if len(sys.argv) > 3 else "results.json"
+def target(c, f):
+    if f.startswith("core:"): return c/"packages/evalcore/src/tracer_evalcore"/f[5:]
+    if f.startswith("test:"): return c/"packages/evalproviders/tests"/f[5:]
+    if f.startswith("adr:"): return c/"docs/adr/0024-provider-adapters-byok-sarvam-rest.md"
+    return c/"packages/evalproviders/src/tracer_evalproviders"/f
+def one(i, m, c):
+    mid, f, old, new, desc = m
+    p = target(c, f); orig = p.read_text("utf-8")
+    olds = old if isinstance(old, tuple) else (old,); news = new if isinstance(new, tuple) else (new,)
+    t = orig
+    for o, n in zip(olds, news):
+        if o not in t: return (mid, desc, "ERROR", "old text not found")
+        t = t.replace(o, n, 1)
+    p.write_text(t, "utf-8")
+    env = dict(os.environ); env.pop("VIRTUAL_ENV", None); env["PYTHONDONTWRITEBYTECODE"] = "1"
+    env["PYTHONPATH"] = ":".join(str(c/"packages"/k/"src") for k in ("evalschema","evalcore","evalproviders"))
+    for cache in (c/"packages").rglob("__pycache__"): shutil.rmtree(cache, ignore_errors=True)
+    try:
+        pr = subprocess.run([PY,"-m","pytest","packages/evalproviders/tests","-x","-q","-p","no:cacheprovider","--tb=no","-o","addopts=","-m","not private_fixtures and not local_only and not postgres","--deselect","packages/evalproviders/tests/test_evalproviders_scaffold.py"],cwd=c,env=env,capture_output=True,text=True,timeout=300)
+        out = pr.stdout + pr.stderr
+        if pr.returncode == 0:
+            res = ("EQUIVALENT", mod.EQUIVALENT[mid]) if mid in mod.EQUIVALENT else ("SURVIVED", "")
+        else:
+            fl = [l for l in out.splitlines() if l.startswith("FAILED") or l.startswith("ERROR")]
+            res = ("CAUGHT", fl[0][:220] if fl else out.strip().splitlines()[-1][:220])
+    except subprocess.TimeoutExpired:
+        res = ("CAUGHT", "<timeout/hang>")
+    finally:
+        p.write_text(orig, "utf-8")
+    return (mid, desc) + res
+items = [(i, m) for i, m in enumerate(MUT) if ONLY is None or m[0] in ONLY]
+for w in range(W):
+    d = S / f"mc{w}"
+    if not d.exists(): shutil.copytree(S/"base", d)
+groups = {w: [x for k, x in enumerate(items) if k % W == w] for w in range(W)}
+results = {}
+def work(w):
+    for i, m in groups[w]:
+        r = one(i, m, S/f"mc{w}"); results[m[0]] = r; print(*r[:3], "|", r[3], flush=True)
+with ThreadPoolExecutor(W) as ex: list(ex.map(work, range(W)))
+order = [m[0] for _, m in items]
+json.dump([results[k] for k in order], open(S/OUT, "w"), indent=1)
+c = lambda s: sum(1 for k in order if results[k][2] == s)
+print("TOTAL", len(order), "CAUGHT", c("CAUGHT"), "EQUIVALENT", c("EQUIVALENT"), "SURVIVED", c("SURVIVED"), "ERROR", c("ERROR"))
