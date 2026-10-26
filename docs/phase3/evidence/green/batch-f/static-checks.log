@@ -1,0 +1,31 @@
+$ uv run --locked ruff check
+All checks passed!
+exit 0
+$ uv run --locked ruff format --check
+453 files already formatted
+exit 0
+$ uv run --locked mypy
+Success: no issues found in 317 source files
+exit 0
+$ uv run --locked mypy --strict docs/examples/synthetic-mr/make_wav.py
+Success: no issues found in 1 source file
+exit 0
+$ uv run --locked python scripts/check_headers.py
+exit 0
+$ uv run --locked python scripts/guard_private_fixtures.py
+exit 0
+$ uv run --locked python -m tracer_evalschema.schema_export --check
+exit 0
+$ uv run --locked python scripts/generate_field_docs.py --check
+exit 0
+$ uv lock --check
+Resolved 63 packages in 2ms
+exit 0
+$ uv run --locked --all-groups python scripts/check_licenses.py
+62 ok, 0 failed
+exit 0
+$ uv run --locked --all-groups python scripts/check_licenses.py --wheel <scratch>/dist --artifacts-only
+10 ok, 0 failed
+exit 0
+$ git ls-files -ci --exclude-standard (tracked files that are now ignored)
+(end: empty above means none)

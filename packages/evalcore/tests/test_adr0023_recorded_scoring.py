@@ -35,15 +35,7 @@ PACKAGES = ROOT / "packages"
 PENDING: frozenset[str] = frozenset(
     {
         "test_concept_page_states_no_accuracy_claim",
-        "test_e2e_synthetic_mr_exact_outputs",
         "test_measurement_report_has_counts_and_denominators",
-        "test_tdeg_audio_and_export_scored",
-        "test_tdeg_export_without_agent_turn_missing_input_agent_transcript",
-        "test_tdeg_export_without_declaration_language_not_observed",
-        "test_tdeg_no_audio_missing_input_transcript",
-        "test_tdeg_no_export_missing_input_agent_transcript",
-        "test_tdeg_non_mr_chunk_is_not_scored",
-        "test_tdeg_schema_identical_across_cases",
     }
 )
 

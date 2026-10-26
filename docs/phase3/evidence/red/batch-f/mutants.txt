@@ -1,0 +1,103 @@
+Batch F mutants (2026-10-26). One change at a time to the oracle tree (scripts/guard_private_fixtures.py, .gitignore, the evalcore, evalproviders and cli sources, the synthetic data, the two conftest guards), the batch F test files run with -x, the file restored. Python 3.13, a fresh PYTHONPYCACHEPREFIX per mutant (a first run reused stale bytecode after same-size edits; its results were discarded).
+
+format: id name | killed or SURVIVED | first failing test (file::test[param])
+
+Mutants S05 to S07 (aligner tie-break, the indel cost, the first-token chunk-edge rule) are not reachable by the data of this batch alone and are killed by the batch C tests (test_alignment.py, test_flags.py), which the run included.
+
+G01 report name rule off | killed | test_guard_report_store_call_log.py::test_guard_rejects_staged_report_store_and_call_log
+G02 report marker rule off | killed | test_guard_report_store_call_log.py::test_guard_refuses_a_report_by_the_marker_of_its_head[notes/share-me.html]
+G03 marker needs html suffix only | killed | test_guard_report_store_call_log.py::test_guard_refuses_a_report_by_the_marker_of_its_head[notes/renamed.txt]
+G04 marker alone is enough | killed | test_guard_report_store_call_log.py::test_guard_does_not_refuse_what_is_not_a_report[src/report.py]
+G05 marker case sensitive | killed | test_guard_report_store_call_log.py::test_guard_refuses_a_report_by_the_marker_of_its_head[notes/spacing.html]
+G06 head of 64 bytes | killed | test_guard_report_store_call_log.py::test_guard_refuses_a_report_by_the_marker_of_its_head[notes/share-me.html]
+G07 no .sqlite3 | killed | test_guard_report_store_call_log.py::test_guard_refuses_a_store_file_by_its_name_whatever_it_holds[elsewhere/run1.sqlite3]
+G08 no -journal sidecar | killed | test_guard_report_store_call_log.py::test_guard_refuses_a_store_file_by_its_name_whatever_it_holds[out/tracer.sqlite-journal]
+G09 sqlite magic off | killed | test_guard_report_store_call_log.py::test_guard_refuses_a_renamed_store_by_the_sqlite_header[data/blob.bin]
+G10 sqlite magic anywhere | killed | test_guard_report_store_call_log.py::test_guard_does_not_refuse_what_is_not_a_store[docs/almost.bin]
+G11 call log name off | killed | test_guard_report_store_call_log.py::test_guard_rejects_staged_report_store_and_call_log
+G12 no allow-list | killed | test_guard_report_store_call_log.py::test_guard_keeps_the_capture_tools_own_call_log_that_is_tracked_since_phase_1
+G13 allow-list is a directory | killed | test_guard_report_store_call_log.py::test_guard_refuses_a_call_log_by_its_name[tools/capture/sub/sarvam_call_log.jsonl]
+G14 call log content rule off | killed | test_guard_report_store_call_log.py::test_guard_refuses_a_renamed_call_log_by_the_shape_of_its_first_line
+G15 call log one key enough | killed | test_guard_report_store_call_log.py::test_guard_does_not_refuse_what_is_not_a_call_log[tests/fixtures/f7_turn_events.jsonl]
+G16 report message | killed | test_guard_report_store_call_log.py::test_guard_rejects_staged_report_store_and_call_log
+G17 store message | killed | test_guard_report_store_call_log.py::test_guard_rejects_staged_report_store_and_call_log
+G18 call log message | killed | test_guard_report_store_call_log.py::test_guard_rejects_staged_report_store_and_call_log
+G19 findings reversed | killed | test_guard_report_store_call_log.py::test_guard_output_names_each_path_once_in_sorted_order
+G20 content only for staged | killed | test_guard_report_store_call_log.py::test_guard_refuses_a_report_by_the_marker_of_its_head[notes/share-me.html]
+G21 history not read | killed | test_guard_report_store_call_log.py::test_guard_rejects_staged_report_store_and_call_log
+G22 private rule off | killed | test_guard_report_store_call_log.py::test_guard_still_refuses_private_fixtures_and_env_files
+G23 env example flagged | killed | test_guard_report_store_call_log.py::test_guard_still_refuses_private_fixtures_and_env_files
+G24 exit 0 | killed | test_guard_report_store_call_log.py::test_guard_rejects_staged_report_store_and_call_log
+G25 name rule case sensitive | killed | test_guard_report_store_call_log.py::test_guard_refuses_a_store_file_by_its_name_whatever_it_holds[elsewhere/Run1.SQLITE]
+G26 report name any report-*.html | killed | test_guard_report_store_call_log.py::test_guard_does_not_refuse_what_is_not_a_report[docs/report-notes.html]
+G27 store suffix anywhere | killed | test_guard_report_store_call_log.py::test_guard_does_not_refuse_what_is_not_a_store[docs/store-notes.sqlite.md]
+G28 no private fixtures from index | killed | test_guard_report_store_call_log.py::test_guard_refuses_a_report_by_the_marker_of_its_head[notes/share-me.html]
+G29 HEAD tree not read | SURVIVED (equivalent: HEAD paths are in the index or in a staged deletion) | 69 passed in 5.33s
+G30 report needs doctype html only | killed | test_guard_report_store_call_log.py::test_guard_refuses_a_report_by_the_marker_of_its_head[notes/renamed.txt]
+I01 no report rule | killed | test_guard_report_store_call_log.py::test_gitignore_lists_the_outputs_of_tracer_score[out/report-20261026T090000Z.html]
+I02 report rule too broad | killed | test_guard_report_store_call_log.py::test_gitignore_does_not_hide_ordinary_files[docs/report-notes.html]
+I03 no -wal | killed | test_guard_report_store_call_log.py::test_gitignore_lists_the_outputs_of_tracer_score[out/tracer.sqlite-wal]
+I04 no -shm | killed | test_guard_report_store_call_log.py::test_gitignore_lists_the_outputs_of_tracer_score[out/tracer.sqlite-shm]
+I05 no -journal | killed | test_guard_report_store_call_log.py::test_gitignore_lists_the_outputs_of_tracer_score[out/tracer.sqlite-journal]
+I06 no *.sqlite | killed | test_guard_report_store_call_log.py::test_gitignore_lists_the_outputs_of_tracer_score[elsewhere/run1.sqlite]
+I07 no *.sqlite3 | killed | test_guard_report_store_call_log.py::test_gitignore_lists_the_outputs_of_tracer_score[elsewhere/run1.sqlite3]
+I08 no call log rule | killed | test_guard_report_store_call_log.py::test_gitignore_lists_the_outputs_of_tracer_score[out/sarvam_call_log.jsonl]
+I09 no negation | killed | test_guard_report_store_call_log.py::test_gitignore_does_not_hide_ordinary_files[tools/capture/sarvam_call_log.jsonl]
+I10 all jsonl ignored | killed | test_guard_report_store_call_log.py::test_gitignore_does_not_hide_ordinary_files[packages/evalschema/tests/fixtures/real/pipecat-1.13.0/en/f7_turn_eve
+I11 no tracer.sqlite line | SURVIVED (equivalent: covered by *.sqlite) | 69 passed in 6.41s
+S01 no digit fold | killed | test_synthetic_pair.py::test_synthetic_expectations_match_an_independent_alignment[base]
+S02 joiners kept | killed | test_synthetic_pair.py::test_synthetic_expectations_match_an_independent_alignment[base]
+S03 threshold strict | killed | test_e2e_synthetic_mr.py::test_e2e_synthetic_mr_exact_outputs
+S04 deletion wins ties | killed | test_e2e_synthetic_mr.py::test_e2e_empty_chunk_makes_no_turn_is_counted_and_is_scored
+S05 insertion wins ties | killed | test_alignment.py::test_alignment_tie_break_is_deterministic
+S06 indel as cheap as substitution | killed | test_alignment.py::test_alignment_tie_break_is_deterministic
+S07 chunk edge never near | killed | test_flags.py::test_near_chunk_boundary_marked
+S08 language gate off | killed | test_tdeg_matrix.py::test_tdeg_non_mr_chunk_is_not_scored
+S09 tier T1 | killed | test_tdeg_matrix.py::test_tdeg_audio_and_export_scored
+S10 transcript never available | killed | test_tdeg_matrix.py::test_tdeg_audio_and_export_scored
+S11 chunk cut earliest tie | killed | test_synthetic_pair.py::test_synthetic_chunk_plan_matches_the_real_chunker_on_the_generated_wav
+S12 search region 4 s | killed | test_synthetic_pair.py::test_synthetic_chunk_plan_matches_the_real_chunker_on_the_generated_wav
+S13 empty chunk makes a turn | killed | test_e2e_synthetic_mr.py::test_e2e_empty_chunk_makes_no_turn_is_counted_and_is_scored
+S14 segments ignore chunk start | killed | test_e2e_synthetic_mr.py::test_e2e_synthetic_mr_exact_outputs
+S15 agree label | killed | test_e2e_synthetic_mr.py::test_e2e_synthetic_mr_exact_outputs
+S16 report mode 0644 | killed | test_e2e_synthetic_mr.py::test_e2e_synthetic_mr_exact_outputs
+S17 heard text shifted | killed | test_e2e_synthetic_mr.py::test_e2e_synthetic_mr_report_shows_the_exact_flags
+S18 histogram cap 8 | killed | test_e2e_synthetic_mr.py::test_e2e_synthetic_mr_report_shows_the_exact_flags
+S19 report has no marker | killed | test_e2e_synthetic_mr.py::test_e2e_synthetic_mr_report_shows_the_exact_flags
+D01 empty span end | killed | test_synthetic_pair.py::test_synthetic_expectations_match_an_independent_alignment[empty_chunk]
+D02 base MER fraction | killed | test_synthetic_pair.py::test_synthetic_expected_results_are_self_consistent[base]
+D03 planted check flipped | killed | test_synthetic_pair.py::test_synthetic_planted_differences_hold_in_the_expected_base_spans
+D04 chunk plan cut | killed | test_synthetic_pair.py::test_synthetic_chunk_plan_matches_the_real_chunker_on_the_generated_wav
+D05 recipe silence moved | killed | test_synthetic_pair.py::test_synthetic_wav_recipe_segments_tile_the_recording
+D06 hidden char in export | killed | test_synthetic_pair.py::test_synthetic_export_is_a_voicera_export_of_22_alternating_turns
+D07 duplicate request id | killed | test_synthetic_pair.py::test_synthetic_bodies_are_sarvam_shaped_with_unique_request_ids
+D08 README loses its heading | killed | test_synthetic_pair.py::test_synthetic_readme_documents_the_empty_chunk_tie_break_and_its_independent_check
+D09 nonmr message | killed | test_synthetic_pair.py::test_synthetic_nonmr_expectation_is_three_errors_and_exit_2
+D10 nonmr tag back to mr | killed | test_synthetic_pair.py::test_synthetic_variants_differ_from_the_base_only_where_the_readme_says
+D11 empty body gets a transcript | killed | test_synthetic_pair.py::test_synthetic_variants_differ_from_the_base_only_where_the_readme_says
+D12 base stt token count | killed | test_synthetic_pair.py::test_synthetic_expected_results_are_self_consistent[base]
+D13 flagged tokens | killed | test_synthetic_pair.py::test_synthetic_expected_results_are_self_consistent[base]
+D14 wav tone amplitude | killed | test_synthetic_pair.py::test_synthetic_wav_recipe_segments_tile_the_recording
+N-evalcore-01 connect not patched | killed | test_evalcore_no_socket.py::test_unit_tests_open_no_socket
+N-evalcore-02 getaddrinfo not patched | killed | test_evalcore_no_socket.py::test_unit_tests_open_no_socket
+N-evalcore-03 not autouse | killed | test_evalcore_no_socket.py::test_unit_tests_open_no_socket
+N-evalcore-04 raises OSError | killed | test_evalcore_no_socket.py::test_unit_tests_open_no_socket
+N-evalcore-05 loop not patched | killed | test_evalcore_no_socket.py::test_unit_tests_open_no_socket_each_phase3_package_has_the_guard[evalcore]
+N-cli-01 connect not patched | killed | test_evalcore_no_socket.py::test_unit_tests_open_no_socket_each_phase3_package_has_the_guard[cli]
+N-cli-02 getaddrinfo not patched | killed | test_evalcore_no_socket.py::test_unit_tests_open_no_socket_each_phase3_package_has_the_guard[cli]
+N-cli-03 not autouse | killed | test_evalcore_no_socket.py::test_unit_tests_open_no_socket_each_phase3_package_has_the_guard[cli]
+N-cli-04 raises OSError | killed | test_evalcore_no_socket.py::test_unit_tests_open_no_socket_each_phase3_package_has_the_guard[cli]
+N-cli-05 loop not patched | killed | test_evalcore_no_socket.py::test_unit_tests_open_no_socket_each_phase3_package_has_the_guard[cli]
+N-evalproviders-01 getaddrinfo not patched | killed | test_evalcore_no_socket.py::test_unit_tests_open_no_socket_each_phase3_package_has_the_guard[evalproviders]
+T01 caller-only export counts as agent transcript | killed | test_tdeg_matrix.py::test_tdeg_export_without_agent_turn_missing_input_agent_transcript
+T02 not_applicable result holds a zero | killed | test_tdeg_matrix.py::test_tdeg_no_audio_missing_input_transcript
+T03 language assumed when undeclared | killed | test_tdeg_matrix.py::test_tdeg_export_without_declaration_language_not_observed
+T04 audio never listed as available | killed | test_tdeg_matrix.py::test_tdeg_audio_and_export_scored
+T05 missing kinds dropped | killed | test_tdeg_matrix.py::test_tdeg_no_audio_missing_input_transcript
+E01 replay claims usage | killed | test_e2e_synthetic_mr.py::test_e2e_synthetic_mr_exact_outputs
+E02 replay provider named sarvam | killed | test_e2e_synthetic_mr.py::test_e2e_synthetic_mr_exact_outputs
+E03 flags line threshold text | killed | test_e2e_synthetic_mr.py::test_e2e_synthetic_mr_exact_outputs
+E04 empty chunk not counted | killed | test_e2e_synthetic_mr.py::test_e2e_empty_chunk_makes_no_turn_is_counted_and_is_scored
+E05 audio reference is the bare file name | killed | test_e2e_synthetic_mr.py::test_e2e_report_and_store_consistent
+
+95 mutants: 93 killed, 2 survived, both equivalent: G29 (a path that is only in the HEAD tree is also in the index or in a staged deletion, which are read) and I11 (the line tracer.sqlite is redundant with *.sqlite); 0 survived unexplained.

@@ -1,0 +1,33 @@
+{
+  "format": "tracer.synthetic_chunk_plan_expectation/1",
+  "provenance": "synthetic_hand_written",
+  "needs_native_review": true,
+  "verified_by_running_code": true,
+  "derivation": "Integer arithmetic of tracer_evalcore.audio.chunker.chunk_pcm (window W = rate * max_chunk_ms // 1000, region S = rate * search_ms // 1000, frame F = rate * 20 // 1000, first = ceil((W - S) / F), last = W // F - 1, cut at the middle of the latest quietest frame) applied by hand to wav_recipe.json. Run against the real chunker on 2026-10-26: every value agrees.",
+  "sample_rate_hz": 24000,
+  "channels": 1,
+  "max_chunk_ms": 25000,
+  "search_ms": 5000,
+  "window_frames": 600000,
+  "search_region_frames": 120000,
+  "quiet_frame_frames": 480,
+  "total_frames": 1632000,
+  "chunks": [
+    {"index": 0, "start_frame": 0, "end_frame": 551760, "frames": 551760, "duration_seconds": "22.99", "start_ms": 0, "wav_bytes": 1103564},
+    {"index": 1, "start_frame": 551760, "end_frame": 1103520, "frames": 551760, "duration_seconds": "22.99", "start_ms": 22990, "wav_bytes": 1103564},
+    {"index": 2, "start_frame": 1103520, "end_frame": 1632000, "frames": 528480, "duration_seconds": "22.02", "start_ms": 45980, "wav_bytes": 1057004}
+  ],
+  "as_metadata": {
+    "format": "tracer.chunk_plan/1",
+    "max_chunk_ms": 25000,
+    "search_ms": 5000,
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "total_frames": 1632000,
+    "chunks": [
+      {"index": 0, "start_frame": 0, "end_frame": 551760},
+      {"index": 1, "start_frame": 551760, "end_frame": 1103520},
+      {"index": 2, "start_frame": 1103520, "end_frame": 1632000}
+    ]
+  }
+}

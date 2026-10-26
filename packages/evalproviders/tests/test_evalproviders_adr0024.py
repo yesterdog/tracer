@@ -28,12 +28,7 @@ SCOPE = ROOT / "docs" / "phase3" / "SCOPE.md"
 # Cited by ADR 0024, named by SCOPE section A, and written by a later batch:
 #   test_stt_failure_is_missing_input_with_warning_and_nonzero_exit  P3-20 (batch D)
 #   test_cli_fake_stt_runs_offline                                   P3-22 (batch E)
-#   test_guard_rejects_staged_report_store_and_call_log              P3-34 (batch F)
-PENDING: frozenset[str] = frozenset(
-    {
-        "test_guard_rejects_staged_report_store_and_call_log",
-    }
-)
+PENDING: frozenset[str] = frozenset()
 
 BATCH_B_TASKS = ("P3-06", "P3-07", "P3-08", "P3-09", "P3-10", "P3-11")
 # Names the batch B contract adds to the SCOPE rows (api-surface-batch-b.md section 12).

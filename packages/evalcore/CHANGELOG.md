@@ -56,7 +56,8 @@ First version. Everything below is new.
 - Word alignment with the cost pair (edits, deletions plus insertions), so the H, S, D and I counts
   are unique and MER is symmetric; the backtrace prefers match, substitution, deletion, insertion.
   `ALIGN_MAX_TOKENS` is 10,000 tokens per side (a byte table of about 100 MB and about 8 s on
-  Python 3.14, measured), checked before any allocation; above it `AlignmentTooLargeError`.
+  Python 3.14 measured on one machine; the P3-28 audit extrapolates about 17 s for the worst case,
+  so 8 s is not an upper bound, BL-199), checked before any allocation; above it `AlignmentTooLargeError`.
   Changing the cap changes the scorer version. Two empty sides are `UndefinedMerError`, never 0 or 1.
 - Disagreement spans on the export only, never across a turn boundary; insertions are zero-width
   at their gap.

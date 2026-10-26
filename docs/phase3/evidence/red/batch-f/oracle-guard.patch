@@ -1,0 +1,171 @@
+--- a/.gitignore
++++ b/.gitignore
+@@ -29,3 +29,15 @@
+ docs/phase1/evidence/red/batch7-followups/full-suite-*.log
+ docs/phase1/evidence/red/batch8-bundle/red-batch7-files.*.log
+ .claude/scheduled_tasks.lock
++
++# Output of `tracer score` (report, store, call log): personal data. Never commit (P3-34).
++report-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]T[0-9][0-9][0-9][0-9][0-9][0-9]Z.html
++tracer.sqlite
++tracer.sqlite-wal
++tracer.sqlite-shm
++tracer.sqlite-journal
++*.sqlite
++*.sqlite3
++sarvam_call_log.jsonl
++# the capture tool's own older log, tracked since Phase 1
++!/tools/capture/sarvam_call_log.jsonl
+--- a/scripts/guard_private_fixtures.py
++++ b/scripts/guard_private_fixtures.py
+@@ -1,16 +1,38 @@
+ # SPDX-License-Identifier: Apache-2.0
+ # Copyright 2026 The Tracer contributors
+-"""Fail if a private fixture or a local env file is tracked, staged or in history."""
++"""Fail if a private fixture, a local env file or an output of `tracer score` is tracked, staged or
++in history.
+ 
++The outputs of the command (the HTML report, the SQLite store and the call log) hold personal data
++(P3-34). Names are judged for every path of the index, of HEAD and of history; content is judged
++for the paths of the index (staged and tracked) only: the first 64 KiB of the blob.
++"""
++
+ from __future__ import annotations
+ 
++import re
+ import subprocess
+ import sys
+ from pathlib import Path
+ 
+ PRIVATE_PREFIX = "packages/evalschema/tests/fixtures/private/"
+ 
++HEAD_BYTES = 65_536
++REPORT_NAME = re.compile(r"report-[0-9]{8}T[0-9]{6}Z\.html")
++REPORT_MARKER = re.compile(rb"<meta\s+name\s*=\s*[\"']tracer-report[\"']", re.IGNORECASE)
++DOCUMENT_START = re.compile(rb"\A(?:\xef\xbb\xbf)?\s*<(?:!doctype\s+html|html)\b", re.IGNORECASE)
++STORE_SUFFIXES = (".sqlite", ".sqlite3")
++STORE_SIDECARS = ("-wal", "-shm", "-journal")
++SQLITE_MAGIC = b"SQLite format 3\x00"
++CALL_LOG_NAME = "sarvam_call_log.jsonl"
++#: The capture tool's own log, tracked since Phase 1 (older line shape, no text).
++CALL_LOG_ALLOWED = frozenset({"tools/capture/sarvam_call_log.jsonl"})
+ 
++REPORT = "tracer report file"
++STORE = "tracer store file"
++CALL_LOG = "tracer call log"
++
++
+ def _is_env_file(path: str) -> bool:
+     name = path.rsplit("/", 1)[-1]
+     return (name == ".env" or name.startswith(".env.")) and name != ".env.example"
+@@ -23,21 +45,101 @@
+     return [n for n in proc.stdout.decode("utf-8").split("\0") if n]
+ 
+ 
+-def offending_paths(root: Path) -> list[str]:
+-    found: set[str] = set()
+-    # The index holds both tracked and staged paths.
+-    found.update(_git(root, "ls-files", "-z", "--cached"))
+-    found.update(_git(root, "diff", "-z", "--cached", "--name-only"))
++def _kind_by_name(path: str) -> str | None:
++    name = path.rsplit("/", 1)[-1]
++    lower = name.lower()
++    if REPORT_NAME.fullmatch(name):
++        return REPORT
++    stem = lower
++    for sidecar in STORE_SIDECARS:
++        if stem.endswith(sidecar):
++            stem = stem[: -len(sidecar)]
++    if stem.endswith(STORE_SUFFIXES):
++        return STORE
++    if name == CALL_LOG_NAME and path not in CALL_LOG_ALLOWED:
++        return CALL_LOG
++    return None
++
++
++def _kind_by_content(path: str, head: bytes) -> str | None:
++    if head.startswith(SQLITE_MAGIC):
++        return STORE
++    if REPORT_MARKER.search(head):
++        suffix = path.rsplit("/", 1)[-1].lower().rpartition(".")[2]
++        if suffix in {"html", "htm"} or DOCUMENT_START.match(head):
++            return REPORT
++    if path.lower().endswith(".jsonl"):
++        first = head.split(b"\n", 1)[0]
++        if b'"bytes_sent"' in first and b'"audio_seconds"' in first:
++            return CALL_LOG
++    return None
++
++
++def _index_heads(root: Path, paths: list[str]) -> dict[str, bytes]:
++    """The first HEAD_BYTES of the staged blob of every path (one `git cat-file --batch`)."""
++    if not paths:
++        return {}
++    proc = subprocess.Popen(
++        ["git", "cat-file", "--batch"], cwd=root, stdin=subprocess.PIPE, stdout=subprocess.PIPE
++    )
++    assert proc.stdin is not None and proc.stdout is not None
++    heads: dict[str, bytes] = {}
++    import threading
++
++    def feed() -> None:
++        assert proc.stdin is not None
++        for path in paths:
++            proc.stdin.write(f":{path}\n".encode())
++        proc.stdin.close()
++
++    thread = threading.Thread(target=feed)
++    thread.start()
++    for path in paths:
++        header = proc.stdout.readline().split()
++        if len(header) != 3 or header[1] != b"blob":
++            continue
++        size = int(header[2])
++        data = proc.stdout.read(min(size, HEAD_BYTES))
++        remaining = size - len(data)
++        while remaining > 0:
++            chunk = proc.stdout.read(min(remaining, 1 << 20))
++            if not chunk:
++                break
++            remaining -= len(chunk)
++        proc.stdout.read(1)
++        heads[path] = data
++    thread.join()
++    proc.wait()
++    return heads
++
++
++def findings(root: Path) -> list[tuple[str, str]]:
++    """``(path, kind)`` pairs, sorted by path then kind, each once."""
++    indexed = set(_git(root, "ls-files", "-z", "--cached"))
++    staged = set(_git(root, "diff", "-z", "--cached", "--name-only"))
++    found: set[str] = indexed | staged
+     found.update(_git(root, "ls-tree", "-r", "-z", "--name-only", "HEAD"))
+     found.update(_git(root, "log", "--all", "-z", "--format=", "--name-only"))
+-    return sorted(n for n in found if n.startswith(PRIVATE_PREFIX) or _is_env_file(n))
++    result: set[tuple[str, str]] = set()
++    for path in found:
++        if path.startswith(PRIVATE_PREFIX) or _is_env_file(path):
++            result.add((path, "private fixture or env file"))
++        kind = _kind_by_name(path)
++        if kind is not None:
++            result.add((path, kind))
++    heads = _index_heads(root, sorted(indexed))
++    for path, head in heads.items():
++        kind = _kind_by_content(path, head)
++        if kind is not None:
++            result.add((path, kind))
++    return sorted(result)
+ 
+ 
+ def main() -> int:
+     root = Path(__file__).resolve().parent.parent
+-    bad = offending_paths(root)
+-    for n in bad:
+-        print(f"private fixture or env file tracked, staged or in history: {n}", file=sys.stderr)
++    bad = findings(root)
++    for path, kind in bad:
++        print(f"{kind} tracked, staged or in history: {path}", file=sys.stderr)
+     return 1 if bad else 0
+ 
+ 

@@ -1,0 +1,29 @@
+{
+  "format": "tracer.synthetic_wav_recipe/1",
+  "provenance": "synthetic_hand_written",
+  "needs_native_review": true,
+  "note": "The test generates the WAV from this recipe. No binary WAV is committed. Tones are sine waves, silences are exact zero samples. Only the silences decide where the chunker cuts; the tone values are not part of any expected result.",
+  "sample_rate_hz": 24000,
+  "channels": 1,
+  "sample_width_bytes": 2,
+  "total_frames": 1632000,
+  "sample_formula": "tone: int(round(amplitude * math.sin(2 * math.pi * frequency_hz * n / sample_rate_hz))) with n the global sample index of the file (not the index inside the segment); silence: 0",
+  "segments": [
+    {"kind": "tone", "start_frame": 0, "end_frame": 235200, "frequency_hz": 440, "amplitude": 8000},
+    {"kind": "silence", "start_frame": 235200, "end_frame": 244800},
+    {"kind": "tone", "start_frame": 244800, "end_frame": 528000, "frequency_hz": 523, "amplitude": 8000},
+    {"kind": "silence", "start_frame": 528000, "end_frame": 552000},
+    {"kind": "tone", "start_frame": 552000, "end_frame": 859200, "frequency_hz": 440, "amplitude": 8000},
+    {"kind": "silence", "start_frame": 859200, "end_frame": 868800},
+    {"kind": "tone", "start_frame": 868800, "end_frame": 1080000, "frequency_hz": 523, "amplitude": 8000},
+    {"kind": "silence", "start_frame": 1080000, "end_frame": 1104000},
+    {"kind": "tone", "start_frame": 1104000, "end_frame": 1387200, "frequency_hz": 440, "amplitude": 8000},
+    {"kind": "silence", "start_frame": 1387200, "end_frame": 1396800},
+    {"kind": "tone", "start_frame": 1396800, "end_frame": 1632000, "frequency_hz": 523, "amplitude": 8000}
+  ],
+  "cut_design": [
+    {"cut": 1, "search_region_frames": [480000, 600000], "cut_silence_frames": [528000, 552000], "expected_cut_frame": 551760, "reason": "the only all-zero 20 ms frames in the region are the 50 frames inside the silence; a tie goes to the latest, which is window-relative frame 1149; cut = 1149 * 480 + 240"},
+    {"cut": 2, "search_region_frames": [1031760, 1151760], "cut_silence_frames": [1080000, 1104000], "expected_cut_frame": 1103520, "reason": "chunk 2 starts at 551760, so its 20 ms frames are aligned to 551760 + 480 * k; the last frame wholly inside the silence is k = 1149; cut = 551760 + 1149 * 480 + 240"}
+  ],
+  "unrelated_silences": "9.80 s to 10.20 s, 35.80 s to 36.20 s and 57.80 s to 58.20 s lie outside both search regions on purpose, so that they cannot change a cut"
+}

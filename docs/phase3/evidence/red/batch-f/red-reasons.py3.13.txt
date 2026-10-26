@@ -1,0 +1,17 @@
+Red run, Python 3.13: the batch F test files moved into packages/*/tests, the tree as it stands (batch B to D implemented; batch E and the guard/.gitignore change not present), staging data left in place
+
+result line: 46 failed, 71 passed in 5.78s
+
+failure reasons (count):
+    8  test_e2e_synthetic_mr.py (through cli_batchf_support.py): module tracer_cli.cli has no attribute Environment (batch E not implemented)
+    1  test_guard_report_store_call_log.py: the guard exits 0 where it must exit 1 (test_guard_rejects_staged_report_store_and_call_log, first output staged)
+   10  test_guard_report_store_call_log.py: the guard exits 0 where it must exit 1 (renamed output, content rule)
+   16  test_guard_report_store_call_log.py: the guard exits 0 where it must exit 1 (the report, store or call log is not refused)
+   10  test_guard_report_store_call_log.py: the path is not git-ignored
+    1  test_synthetic_pair.py: the staging data is not at docs/examples/synthetic-mr
+
+passing in the red tree, and why (71):
+  14  test_tdeg_matrix.py: they pin behaviour batch D already implements (pipeline and scoring); they go red only through the PENDING guards (red-pending-guards.py3.13.log)
+   9  no-network guard tests (the two conftest.py files are part of the moved files)
+  16  test_synthetic_pair.py: the data are given; they pin them, the chunker and an independent alignment
+  32  the negatives of test_guard_report_store_call_log.py (what must NOT be refused) and the unchanged private/env rules
