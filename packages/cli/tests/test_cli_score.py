@@ -128,7 +128,9 @@ def test_cli_requires_every_privacy_and_language_input(tmp_path: Path) -> None:
         assert action.default is None, flag
     usage = score.format_usage()
     for flag in HEAD_OPTIONS:
-        assert f"[{flag}" not in usage, f"{flag} is shown as optional"
+        assert re.search(rf"\[{re.escape(flag)}(?![-\w])", usage) is None, (
+            f"{flag} is shown as optional"
+        )
     assert "[--dry-run]" in usage
     # omitting any one of them is a usage error; nothing runs and nothing is created
     for index, flag in enumerate((*HEAD_OPTIONS, "--out", "--rubric", "--transcript")):
@@ -632,8 +634,15 @@ def test_cli_records_the_privacy_and_language_inputs_as_given(tmp_path: Path) ->
     ):
         folder = tmp_path / f"r{index}"
         folder.mkdir()
+        replay = write_replay(folder / "replay", base_bodies())
         got_inputs, got = _score(
-            folder, options={"--retention": value, "--consent": "not_obtained"}
+            folder,
+            options={
+                "--retention": value,
+                "--consent": "not_obtained",
+                "--stt": f"fake:{replay}",
+            },
+            production=True,
         )
         assert got.code == 0, got.err
         again = load_stored_run(got_inputs.out, got.value("bundle"))
@@ -835,12 +844,13 @@ def test_cli_dry_run_sends_nothing_and_prints_the_plan(tmp_path: Path) -> None:
         "calls: 2",
         "cost: not available (no USD price supplied)",
         "max attempts per chunk: 4",
+        "max chunks: 50 (the plan has 2: within the cap)",
         "dry run: nothing was sent",
     ]
     assert result.factory_calls == 0
     assert not inputs.out.exists()
     assert support.KEY_CANARY not in result.out
-    # the same lines come from the batch B plan object: the command adds only the last two
+    # the same lines come from the batch B plan object: the command adds only the last three
     from tracer_evalcore.audio.chunker import chunk_wav
     from tracer_evalcore.importers.wav import read_wav
     from tracer_evalproviders.dryrun import build_dry_run_plan

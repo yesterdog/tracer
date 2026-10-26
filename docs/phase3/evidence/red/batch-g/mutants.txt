@@ -1,0 +1,138 @@
+# batch G mutants of the oracle (one change each, fresh PYTHONPYCACHEPREFIX per mutant, stage 1: the batch G test files that cover the mutated file)
+# 132 mutants: 131 killed, 1 equivalent, 0 survived unexplained
+# columns: id and name | status | the first failing test (or the last pytest line for a survivor)
+# R16: the only normaliser a Phase 3 snapshot names is mr-Deva/1, so a fixed id changes nothing (equivalent)
+# O10 is not equivalent: opening the store before the factory leaves a directory after a missing key; stage 1 stops at the first failing test (the store-file test), and the batch G missing-key test kills it on its own (checked separately)
+
+S01 cap 1 MiB | killed | evalproviders/tests/test_sarvam_hardening.py::test_audit_f9_the_cap_is_64_kib
+S02 cap refuses the exact size | killed | evalproviders/tests/test_sarvam_hardening.py::test_audit_f9_a_file_of_exactly_the_cap_is_read
+S03 reads exactly the cap | killed | evalproviders/tests/test_sarvam_hardening.py::test_audit_f9_a_file_one_byte_over_the_cap_is_refused_even_if_the_key_comes_first
+S04 no regular file check | killed | evalproviders/tests/test_sarvam_hardening.py::test_audit_f9_a_directory_is_refused
+S05 only others are warned | killed | evalproviders/tests/test_sarvam_hardening.py::test_audit_f9_a_file_other_users_can_read_earns_a_warning_that_holds_no_secret[416]
+S06 only group is warned | killed | evalproviders/tests/test_sarvam_hardening.py::test_audit_f9_a_file_other_users_can_read_earns_a_warning_that_holds_no_secret[388]
+S07 always warns | killed | evalproviders/tests/test_sarvam_hardening.py::test_audit_f9_an_owner_only_file_earns_no_warning[384]
+S08 never warns | killed | evalproviders/tests/test_sarvam_hardening.py::test_audit_f9_a_file_other_users_can_read_earns_a_warning_that_holds_no_secret[420]
+S09 blocking open | killed | evalproviders/tests/test_sarvam_hardening.py::test_audit_f9_a_fifo_is_refused_at_once_and_never_blocks
+S10 warning is not a UserWarning | killed | evalproviders/tests/test_sarvam_hardening.py::test_audit_f9_a_file_other_users_can_read_earns_a_warning_that_holds_no_secret[420]
+S11 message names the path | killed | evalproviders/tests/test_sarvam_hardening.py::test_audit_f9_a_file_other_users_can_read_earns_a_warning_that_holds_no_secret[420]
+S12 message without the mode | killed | evalproviders/tests/test_sarvam_hardening.py::test_audit_f9_a_file_other_users_can_read_earns_a_warning_that_holds_no_secret[420]
+S13 not-regular reason is unreadable | killed | evalproviders/tests/test_sarvam_hardening.py::test_audit_f9_a_directory_is_refused
+S14 too-large reason is unreadable | killed | evalproviders/tests/test_sarvam_hardening.py::test_audit_f9_a_file_one_byte_over_the_cap_is_refused_even_if_the_key_comes_first
+S15 mode oct of the whole mode | killed | evalproviders/tests/test_sarvam_hardening.py::test_audit_f9_a_file_other_users_can_read_earns_a_warning_that_holds_no_secret[420]
+S16 warns for a file that is not regular too late | killed | evalproviders/tests/test_sarvam_hardening.py::test_audit_f9_a_file_other_users_can_read_earns_a_warning_that_holds_no_secret[420]
+C01 no O_NOFOLLOW | killed | evalproviders/tests/test_sarvam_hardening.py::test_audit_f7_a_symbolic_link_in_place_of_the_log_is_refused
+C02 directory 0o755 | killed | evalproviders/tests/test_sarvam_hardening.py::test_audit_f7_call_log_directory_is_private_whatever_the_umask
+C03 directory mode argument dropped | killed | evalproviders/tests/test_sarvam_hardening.py::test_audit_f7_call_log_directory_is_private_whatever_the_umask
+C04 existing directory is chmodded | killed | evalproviders/tests/test_sarvam_hardening.py::test_audit_f7_an_existing_directory_keeps_its_mode
+C05 file mode 0o644 | killed | evalproviders/tests/test_sarvam_hardening.py::test_audit_f7_call_log_directory_is_private_whatever_the_umask
+T01 trust_env true | killed | evalproviders/tests/test_sarvam_hardening.py::test_audit_f3_client_never_reads_the_proxy_or_certificate_environment
+T02 trust_env default | killed | evalproviders/tests/test_sarvam_hardening.py::test_audit_f3_client_never_reads_the_proxy_or_certificate_environment
+T03 accept-encoding gzip | killed | evalproviders/tests/test_sarvam_hardening.py::test_audit_f10_every_attempt_asks_for_an_uncompressed_reply
+T04 no accept-encoding | killed | evalproviders/tests/test_sarvam_hardening.py::test_audit_f10_every_attempt_asks_for_an_uncompressed_reply
+T05 accept-encoding identity, gzip | killed | evalproviders/tests/test_sarvam_hardening.py::test_audit_f10_every_attempt_asks_for_an_uncompressed_reply
+E01 agent turns only | killed | evalcore/tests/test_scoring_export_token_count.py::test_export_token_count_equals_the_token_count_the_aligner_sees
+E02 off by one | killed | evalcore/tests/test_scoring_export_token_count.py::test_export_token_count_equals_the_token_count_the_aligner_sees
+E03 whitespace words | killed | evalcore/tests/test_scoring_export_token_count.py::test_export_token_count_by_hand[lines2-3]
+E04 unsorted turns | killed | evalcore/tests/test_scoring_export_token_count.py::test_export_token_count_is_independent_of_the_order_the_turns_are_given
+E05 normaliser ignored | killed | evalcore/tests/test_scoring_export_token_count.py::test_export_token_count_refuses_an_unknown_normaliser_and_has_no_default
+E06 not public | killed | evalcore/tests/test_scoring_export_token_count.py::test_export_token_count_is_public_with_the_documented_signature
+L01 ceiling 201 | killed | cli/tests/test_cli_batch_g.py::test_audit_f4_the_constants_and_the_new_options_are_pinned
+L02 ceiling 199 | killed | cli/tests/test_cli_batch_g.py::test_audit_f4_the_constants_and_the_new_options_are_pinned
+L03 window 30001 | killed | cli/tests/test_cli_batch_g.py::test_audit_f4_the_constants_and_the_new_options_are_pinned
+L04 window 29999 | killed | cli/tests/test_cli_batch_g.py::test_audit_f4_the_constants_and_the_new_options_are_pinned
+L05 reference 201 | killed | cli/tests/test_cli_batch_g.py::test_audit_f4_the_constants_and_the_new_options_are_pinned
+L06 reference 199 | killed | cli/tests/test_cli_batch_g.py::test_audit_f4_the_constants_and_the_new_options_are_pinned
+L07 zero is a positive int | killed | cli/tests/test_cli_batch_g.py::test_audit_f4_the_ceiling_is_a_positive_whole_number[0]
+L08 ceiling digits limited | killed | cli/tests/test_cli_batch_g.py::test_audit_f4_a_replay_does_not_need_a_ceiling_and_obeys_one_if_given
+L09 empty reference | killed | cli/tests/test_cli_batch_g.py::test_audit_f5_the_reference_is_bounded_and_display_safe[]
+L10 reference upper bound open | killed | cli/tests/test_cli_batch_g.py::test_audit_f5_the_reference_is_bounded_and_display_safe[rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
+L11 reference strict upper bound | killed | cli/tests/test_cli_batch_g.py::test_audit_f5_the_reference_is_kept_verbatim_with_spaces_and_non_ascii
+L12 reference blanks allowed | killed | cli/tests/test_cli_batch_g.py::test_audit_f5_the_reference_is_bounded_and_display_safe[ leading]
+L13 no Cc | killed | cli/tests/test_cli_batch_g.py::test_audit_f5_the_reference_is_bounded_and_display_safe[a\x00b]
+L14 no Cf | killed | cli/tests/test_cli_batch_g.py::test_audit_f5_the_reference_is_bounded_and_display_safe[a\u202eb]
+L15 no Zl | killed | cli/tests/test_cli_batch_g.py::test_audit_f5_the_reference_is_bounded_and_display_safe[a\u2028b]
+L16 no Zp | killed | cli/tests/test_cli_batch_g.py::test_audit_f5_the_reference_is_bounded_and_display_safe[a\u2029b]
+L17 ascii only | killed | cli/tests/test_cli_batch_g.py::test_audit_f5_the_reference_is_kept_verbatim_with_spaces_and_non_ascii
+L18 reference value echoed | killed | cli/tests/test_cli_batch_g.py::test_audit_f5_the_reference_is_bounded_and_display_safe[rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
+U01 obtained needs only the reference | killed | cli/tests/test_cli_batch_g.py::test_audit_f5_obtained_consent_needs_a_reference_and_an_instant
+U02 obtained needs only the instant | killed | cli/tests/test_cli_batch_g.py::test_audit_f5_obtained_consent_needs_a_reference_and_an_instant
+U03 obtained needs neither | killed | cli/tests/test_cli_batch_g.py::test_audit_f5_obtained_consent_needs_a_reference_and_an_instant
+U04 every status needs them | killed | cli/tests/test_cli_batch_g.py::test_audit_f4_a_replay_does_not_need_a_ceiling_and_obeys_one_if_given
+U05 window limit off | killed | cli/tests/test_cli_batch_g.py::test_audit_f4_a_chunk_window_above_30000_ms_is_refused_for_sarvam_only
+U06 window limit at the value | killed | cli/tests/test_cli_batch_g.py::test_audit_f4_a_chunk_window_above_30000_ms_is_refused_for_sarvam_only
+U07 limits for every engine | killed | cli/tests/test_cli_batch_g.py::test_audit_f4_the_constants_and_the_new_options_are_pinned
+U08 ceiling required in the dry run | killed | cli/tests/test_cli_batch_g.py::test_audit_f4_the_dry_run_without_a_ceiling_says_so_and_still_works
+U09 ceiling never required | killed | cli/tests/test_cli_batch_g.py::test_audit_f4_sarvam_needs_an_explicit_ceiling
+U10 sarvam ceiling limit off | killed | cli/tests/test_cli_batch_g.py::test_audit_f4_a_sarvam_ceiling_above_200_is_refused
+U11 sarvam ceiling at the value | killed | cli/tests/test_cli_batch_g.py::test_audit_f4_a_sarvam_ceiling_above_200_is_refused
+U12 usage checks not run | killed | cli/tests/test_cli_batch_g.py::test_audit_f4_sarvam_needs_an_explicit_ceiling
+R01 future consent allowed | killed | cli/tests/test_cli_batch_g.py::test_audit_f5_a_consent_cannot_be_recorded_after_the_run
+R02 consent at the run instant refused | killed | cli/tests/test_cli_batch_g.py::test_audit_f5_a_consent_cannot_be_recorded_after_the_run
+R03 consent record without reference | killed | cli/tests/test_cli_batch_g.py::test_audit_f5_the_reference_and_the_instant_are_stored_on_every_privacy_marker
+R04 consent record without instant | killed | cli/tests/test_cli_batch_g.py::test_audit_f5_the_reference_and_the_instant_are_stored_on_every_privacy_marker
+R05 gate off | killed | cli/tests/test_cli_batch_g.py::test_audit_f5_sarvam_is_refused_unless_consent_is_obtained[unknown]
+R06 gate only for unknown | killed | cli/tests/test_cli_batch_g.py::test_audit_f5_sarvam_is_refused_unless_consent_is_obtained[not_obtained]
+R07 gate for the replay too | killed | cli/tests/test_cli_batch_g.py::test_audit_f4_a_replay_does_not_need_a_ceiling_and_obeys_one_if_given
+R08 question mark allowed | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_a_question_mark_in_the_output_path_is_refused_before_anything[False]
+R09 chunk ceiling off | killed | cli/tests/test_cli_batch_g.py::test_audit_f4_a_replay_does_not_need_a_ceiling_and_obeys_one_if_given
+R10 chunk ceiling at the value | killed | cli/tests/test_cli_batch_g.py::test_audit_f4_a_replay_does_not_need_a_ceiling_and_obeys_one_if_given
+R11 chunk ceiling only for sarvam | killed | cli/tests/test_cli_batch_g.py::test_audit_f4_a_replay_does_not_need_a_ceiling_and_obeys_one_if_given
+R12 token check off | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_the_export_is_checked_against_the_alignment_cap_before_the_send[10001-True]
+R13 token check at the value | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_the_export_is_checked_against_the_alignment_cap_before_the_send[10000-False]
+R14 token check for every engine | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_a_replay_is_not_refused_for_the_size_of_the_export
+R15 token check off by one | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_the_export_is_checked_against_the_alignment_cap_before_the_send[10001-True]
+R16 tokens counted with a fixed normaliser id | SURVIVED (equivalent: the only normaliser a Phase 3 snapshot names is mr-Deva/1) | 94 passed in 7.68s
+R17 token message without the count | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_the_export_is_checked_against_the_alignment_cap_before_the_send[10001-True]
+R18 chunk message without the numbers | killed | cli/tests/test_cli_batch_g.py::test_audit_f4_a_plan_over_the_ceiling_is_refused_before_any_engine_or_request
+D01 dry run without the cap line | killed | cli/tests/test_cli_batch_g.py::test_audit_f4_the_dry_run_prints_the_cap_check
+D02 dry run cap text | killed | cli/tests/test_cli_batch_g.py::test_audit_f4_the_dry_run_prints_the_cap_check
+D03 dry run unset text | killed | cli/tests/test_cli_batch_g.py::test_audit_f4_the_dry_run_without_a_ceiling_says_so_and_still_works
+D04 dry run cap line first | killed | cli/tests/test_cli_batch_g.py::test_audit_f4_the_dry_run_prints_the_cap_check
+O01 location check off | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_an_output_directory_that_cannot_be_written_is_refused_before_the_engine
+O02 store file check off | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_a_store_file_that_cannot_be_opened_is_refused_before_the_engine
+O03 parent check off | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_an_output_directory_that_cannot_be_written_is_refused_before_the_engine
+O04 preflight not called | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_the_store_is_open_and_the_directory_exists_before_the_engine_is_called
+O05 store failure is unexpected | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_a_store_file_that_cannot_be_opened_is_refused_before_the_engine
+O06 factory OSError not mapped | killed | cli/tests/test_cli_batch_g.py::test_audit_f7_a_linked_call_log_is_refused_by_the_command_before_any_request
+O07 engine not closed | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_the_store_is_open_and_the_directory_exists_before_the_engine_is_called
+O08 store disposed never | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_the_store_connection_is_released_once_whatever_happens
+O09 store opened after the send | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_a_store_file_that_cannot_be_opened_is_refused_before_the_engine
+O11 preflight after the store is opened | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_the_store_is_open_and_the_directory_exists_before_the_engine_is_called
+O10 store opened before the engine is built | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_a_store_file_that_cannot_be_opened_is_refused_before_the_engine
+A01 capture not used | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_a_failure_inside_the_pipeline_after_the_send_keeps_the_usage
+A02 pipeline failure writes no recovery | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_a_failure_inside_the_pipeline_after_the_send_keeps_the_usage
+A03 store failure writes no recovery | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_a_store_failure_after_the_send_keeps_the_usage_and_writes_the_report
+A04 recovery always written | killed | cli/tests/test_cli_batch_g.py::test_audit_f4_a_replay_does_not_need_a_ceiling_and_obeys_one_if_given
+A05 report skipped after a store failure | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_a_store_failure_after_the_send_keeps_the_usage_and_writes_the_report
+A06 report failure not tolerated | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_a_report_failure_after_the_send_keeps_the_store
+A07 store failure not tolerated | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_a_store_failure_after_the_send_keeps_the_usage_and_writes_the_report
+A08 failure exit code is the pipeline's | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_a_store_failure_after_the_send_keeps_the_usage_and_writes_the_report
+A09 recovery format | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_a_store_failure_after_the_send_keeps_the_usage_and_writes_the_report
+A10 recovery step name | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_a_store_failure_after_the_send_keeps_the_usage_and_writes_the_report
+A11 pipeline step name | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_a_failure_inside_the_pipeline_after_the_send_keeps_the_usage
+A12 recovery without usage guard | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_nothing_paid_means_no_recovery_file
+A13 recovery name | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_a_store_failure_after_the_send_keeps_the_usage_and_writes_the_report
+A14 recovery mode 0o644 | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_a_store_failure_after_the_send_keeps_the_usage_and_writes_the_report
+A15 recovery overwrites | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_a_report_failure_after_the_send_keeps_the_store
+A16 recovery without cost | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_the_recovery_file_is_what_a_clean_run_stores
+A17 recovery without summaries | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_the_recovery_file_is_what_a_clean_run_stores
+A18 recovery without catalogs | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_the_recovery_file_is_what_a_clean_run_stores
+A19 recovery created_at format | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_a_store_failure_after_the_send_keeps_the_usage_and_writes_the_report
+A20 recovery error class dropped | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_a_store_failure_after_the_send_keeps_the_usage_and_writes_the_report
+A21 store line when not written | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_a_store_failure_after_the_send_keeps_the_usage_and_writes_the_report
+A22 report line when not written | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_a_report_failure_after_the_send_keeps_the_store
+A23 recovery line label | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_a_store_failure_after_the_send_keeps_the_usage_and_writes_the_report
+A24 recovery line only when written | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_a_recovery_file_is_never_overwritten
+A25 recovery line for the pipeline | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_a_failure_inside_the_pipeline_after_the_send_keeps_the_usage
+A26 error line names the message | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_a_store_failure_after_the_send_keeps_the_usage_and_writes_the_report
+A28 report written first mode | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_a_store_failure_after_the_send_keeps_the_usage_and_writes_the_report
+A29 recovery keeps error text | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_a_store_failure_after_the_send_keeps_the_usage_and_writes_the_report
+H01 Environment repr | killed | cli/tests/test_cli_batch_g.py::test_audit_f8_environ_is_not_in_the_repr_of_the_environment_or_the_request
+H02 EngineRequest repr | killed | cli/tests/test_cli_batch_g.py::test_audit_f8_environ_is_not_in_the_repr_of_the_environment_or_the_request
+H03 warning not forwarded | killed | cli/tests/test_cli_batch_g.py::test_audit_f9_a_readable_env_file_earns_exactly_one_non_secret_warning_on_stderr
+H04 warning prefix | killed | cli/tests/test_cli_batch_g.py::test_audit_f9_a_readable_env_file_earns_exactly_one_non_secret_warning_on_stderr
+H05 every warning forwarded | killed | cli/tests/test_cli_batch_g.py::test_audit_f9_only_the_env_file_warning_is_forwarded_to_stderr
+H06 warning printed twice | killed | cli/tests/test_cli_batch_g.py::test_audit_f9_a_readable_env_file_earns_exactly_one_non_secret_warning_on_stderr
+P01 replay preflight does nothing | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_the_replay_engine_checks_its_directory_against_the_plan_in_preflight
+I01 no recovery rule | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_gitignore_lists_the_recovery_file[out/usage-recovery-20261025T090000Z.json-True]
+I02 recovery rule too broad | killed | cli/tests/test_cli_batch_g.py::test_audit_f2_gitignore_lists_the_recovery_file[usage-recovery.json-False]

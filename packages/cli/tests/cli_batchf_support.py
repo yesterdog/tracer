@@ -111,8 +111,20 @@ def score_argv(
         "mr",
         "--caller-origin",
         "human",
-        "--consent",
-        "unknown",
+        *(
+            [
+                "--consent",
+                "obtained",
+                "--consent-reference",
+                "owner statement 2026-10-25",
+                "--consent-recorded-at",
+                "2026-10-01T00:00:00Z",
+                "--max-chunks",
+                "3",
+            ]
+            if stt == "sarvam"
+            else ["--consent", "unknown"]
+        ),
         "--retention",
         "keep",
         "--stt",

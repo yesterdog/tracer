@@ -60,7 +60,7 @@ from tracer_evalschema.results import (
 from tracer_evalschema.run import Run
 from tracer_evalschema.transcript import Transcript, Turn
 
-__all__ = ["score_results"]
+__all__ = ["export_token_count", "score_results"]
 
 
 @dataclass(frozen=True)
@@ -84,6 +84,11 @@ def _text_turns(turns: Sequence[Turn], *, timed: bool) -> list[TextTurn]:
             segments = tuple(TimedSegment(s.text, s.start_ms, s.end_ms) for s in turn.segments)
         result.append(TextTurn(turn.seq, turn.text, segments))
     return result
+
+
+def export_token_count(export_turns: Sequence[Turn], normaliser: str) -> int:
+    """The number of tokens the aligner will see for the export turns (``seq`` order)."""
+    return len(tokenise_turns(_text_turns(export_turns, timed=False), normaliser).tokens)
 
 
 def _language_gate(stt_turns: Sequence[Turn], definition: MetricDefinition) -> _Failure | None:

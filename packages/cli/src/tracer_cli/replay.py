@@ -42,7 +42,8 @@ class ReplayStt:
         if not self._directory.is_dir():
             raise SttConfigurationError(reason="replay_directory_unreadable")
 
-    def transcribe(self, plan: ChunkPlan, context: SttContext) -> SttOutcome:
+    def preflight(self, plan: ChunkPlan) -> None:
+        """Refuse a stale directory; the command calls this before it writes anything."""
         try:
             names = [p.name for p in self._directory.iterdir()]
         except OSError:
@@ -50,6 +51,9 @@ class ReplayStt:
         found = {int(m.group(1)) for n in names if (m := _NAME.fullmatch(n))}
         if any(index >= len(plan.chunks) for index in found):
             raise SttConfigurationError(reason="replay_extra_file")
+
+    def transcribe(self, plan: ChunkPlan, context: SttContext) -> SttOutcome:
+        self.preflight(plan)
         answered: list[ChunkResponse] = []
         for chunk in plan.chunks:
             path = self._directory / REPLAY_FILE_FORMAT.format(index=chunk.index)

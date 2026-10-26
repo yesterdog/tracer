@@ -189,6 +189,7 @@ class SarvamClient:
         self._http = httpx.Client(
             transport=transport,
             follow_redirects=False,
+            trust_env=False,
             timeout=httpx.Timeout(
                 connect=CONNECT_TIMEOUT_SECONDS,
                 read=READ_TIMEOUT_SECONDS,
@@ -253,7 +254,7 @@ class SarvamClient:
         request = self._http.build_request(
             "POST",
             STT_URL,
-            headers={_KEY_HEADER: self._key.reveal()},
+            headers={_KEY_HEADER: self._key.reveal(), "accept-encoding": "identity"},
             data=SarvamRequest(self._model).text_fields(_CONFIGURED_LANGUAGE),
             files={"file": (f"chunk-{chunk.index}.wav", chunk.wav, "audio/wav")},
         )

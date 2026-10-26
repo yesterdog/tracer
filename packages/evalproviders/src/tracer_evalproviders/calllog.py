@@ -22,6 +22,7 @@ _SAFE_ID: Final = re.compile(r"[A-Za-z0-9_.:-]{1,128}")
 _SAFE_KIND: Final = re.compile(r"[a-z0-9_]{1,64}")
 _SAFE_SECONDS: Final = re.compile(r"[0-9]{1,20}(?:\.[0-9]{1,18})?")
 _FILE_MODE: Final = 0o600
+_DIR_MODE: Final = 0o700
 
 
 def safe_request_id(value: object) -> str | None:
@@ -43,7 +44,9 @@ class CallLog:
     def __init__(self, path: Path, *, clock: Callable[[], datetime] = _utc_now) -> None:
         self._path = path
         self._clock = clock
-        descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_APPEND, _FILE_MODE)
+        descriptor = os.open(
+            path, os.O_WRONLY | os.O_CREAT | os.O_APPEND | os.O_NOFOLLOW, _FILE_MODE
+        )
         os.fchmod(descriptor, _FILE_MODE)
         self._descriptor = descriptor
 
@@ -52,7 +55,7 @@ class CallLog:
         cls, out_dir: str | os.PathLike[str], *, clock: Callable[[], datetime] = _utc_now
     ) -> CallLog:
         directory = Path(out_dir)
-        directory.mkdir(parents=True, exist_ok=True)
+        directory.mkdir(mode=_DIR_MODE, parents=True, exist_ok=True)
         return cls(directory / CALL_LOG_NAME, clock=clock)
 
     @property

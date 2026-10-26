@@ -16,12 +16,15 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import os
 import re
 import sys
 import time
+import unicodedata
+import warnings
 from collections.abc import Callable, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Final, TextIO
@@ -29,6 +32,7 @@ from typing import Any, Final, TextIO
 from tracer_cli import report, store, summary
 from tracer_cli.replay import ReplayStt
 from tracer_evalcore import definitions, pipeline
+from tracer_evalcore.align import ALIGN_MAX_TOKENS
 from tracer_evalcore.audio.chunker import (
     DEFAULT_MAX_CHUNK_MS,
     DEFAULT_SEARCH_MS,
@@ -39,13 +43,15 @@ from tracer_evalcore.errors import InputRefusedError
 from tracer_evalcore.importers.voicera import read_voicera_export
 from tracer_evalcore.importers.wav import WavAudio, read_wav
 from tracer_evalcore.rubricfile import parse_rubric_file
-from tracer_evalcore.stt import SttConfigurationError, SttEngine
+from tracer_evalcore.scoring import export_token_count
+from tracer_evalcore.stt import SttConfigurationError, SttContext, SttEngine, SttOutcome
 from tracer_evalproviders.cost import CatalogRefusedError, compute_stt_cost, load_user_catalog
 from tracer_evalproviders.dryrun import build_dry_run_plan
 from tracer_evalproviders.sarvam.client import MAX_ATTEMPTS
 from tracer_evalproviders.sarvam.engine import create_sarvam_stt
 from tracer_evalproviders.sarvam.models import DEFAULT_MODEL
-from tracer_evalproviders.secrets import provider_config_ref
+from tracer_evalproviders.secrets import EnvFileModeWarning, provider_config_ref
+from tracer_evalschema.bundle import RunBundle
 from tracer_evalschema.pricing import PricingCatalog
 from tracer_evalschema.privacy import ConsentRecord, PrivacyMarker, RetentionPolicy
 from tracer_evalschema.transcript import LanguageDeclaration
@@ -60,7 +66,11 @@ __all__ = [
     "EXIT_UNEXPECTED",
     "EXIT_USAGE",
     "MAX_CONFIG_FILE_BYTES",
+    "MAX_CONSENT_REFERENCE_CHARS",
+    "MAX_SARVAM_CHUNKS",
+    "MAX_SARVAM_CHUNK_MS",
     "MAX_TRANSCRIPT_FILE_BYTES",
+    "RECOVERY_FORMAT",
     "EngineRequest",
     "Environment",
     "build_parser",
@@ -85,6 +95,10 @@ EXIT_CODES: Final = {
 }
 MAX_CONFIG_FILE_BYTES: int = 1_048_576
 MAX_TRANSCRIPT_FILE_BYTES: int = 67_108_864
+MAX_SARVAM_CHUNKS: Final = 200
+MAX_SARVAM_CHUNK_MS: Final = 30_000
+MAX_CONSENT_REFERENCE_CHARS: Final = 200
+RECOVERY_FORMAT: Final = "tracer.usage_recovery/1"
 
 _SUPPORTED_LANGUAGE: Final = "mr"
 _REPLAY_PREFIX: Final = "fake:"
@@ -96,6 +110,8 @@ _INSTANT: Final = re.compile(
     r"(?:Z|[+-][0-9]{2}:[0-9]{2})"
 )
 _LANGUAGE: Final = re.compile(r"[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*")
+_POSITIVE_INTEGER: Final = re.compile(r"[1-9][0-9]{0,8}")
+_REFERENCE_REFUSED_CATEGORIES: Final = frozenset({"Cc", "Cf", "Cs", "Co", "Cn", "Zl", "Zp"})
 _EMBED_WARNING: Final = (
     "warning: --embed-audio puts the call audio into the report file; do not share the file\n"
 )
@@ -118,7 +134,7 @@ class EngineRequest:
     stt: str
     out_dir: Path
     model: str
-    environ: Mapping[str, str]
+    environ: Mapping[str, str] = field(repr=False)
     env_file: Path | None
     clock: Callable[[], datetime]
     sleep: Callable[[float], None]
@@ -134,7 +150,7 @@ class Environment:
 
     stdout: TextIO
     stderr: TextIO
-    environ: Mapping[str, str]
+    environ: Mapping[str, str] = field(repr=False)
     clock: Callable[[], datetime]
     sleep: Callable[[float], None]
     transport: Any = None
@@ -212,6 +228,22 @@ def _instant(value: str) -> datetime:
         raise argparse.ArgumentTypeError("not an RFC 3339 instant") from None
 
 
+def _consent_reference(value: str) -> str:
+    if not 1 <= len(value) <= MAX_CONSENT_REFERENCE_CHARS:
+        raise argparse.ArgumentTypeError(f"use 1 to {MAX_CONSENT_REFERENCE_CHARS} characters")
+    if value != value.strip():
+        raise argparse.ArgumentTypeError("no leading or trailing white space")
+    if any(unicodedata.category(char) in _REFERENCE_REFUSED_CATEGORIES for char in value):
+        raise argparse.ArgumentTypeError("no control, format, separator or unassigned character")
+    return value
+
+
+def _positive_integer(value: str) -> int:
+    if _POSITIVE_INTEGER.fullmatch(value) is None:
+        raise argparse.ArgumentTypeError("use a positive whole number")
+    return int(value)
+
+
 def _retention(value: str) -> tuple[bool, datetime | None]:
     if value == "keep":
         return False, None
@@ -283,6 +315,18 @@ def build_parser(
         help="consent of the people recorded (required)",
     )
     score.add_argument(
+        "--consent-reference",
+        type=_consent_reference,
+        metavar="TEXT",
+        help="where the consent is recorded (required with --consent obtained)",
+    )
+    score.add_argument(
+        "--consent-recorded-at",
+        type=_instant,
+        metavar="INSTANT",
+        help="when the consent was recorded (required with --consent obtained)",
+    )
+    score.add_argument(
         "--retention",
         required=True,
         type=_retention,
@@ -325,6 +369,15 @@ def build_parser(
         type=_instant,
         metavar="INSTANT",
         help="the instant the price applies to (with --price-file)",
+    )
+    score.add_argument(
+        "--max-chunks",
+        type=_positive_integer,
+        metavar="N",
+        help=(
+            "refuse a plan with more chunks than N; required with --stt sarvam, "
+            f"which accepts at most {MAX_SARVAM_CHUNKS}"
+        ),
     )
     score.add_argument(
         "--max-chunk-ms",
@@ -392,12 +445,25 @@ class _Prepared:
 
 
 def _prepare(args: argparse.Namespace, created_at: datetime) -> _Prepared:
-    consent = ConsentRecord(status=args.consent)
+    consent = ConsentRecord(
+        status=args.consent,
+        reference=args.consent_reference,
+        recorded_at=args.consent_recorded_at,
+    )
+    if args.consent_recorded_at is not None and args.consent_recorded_at > created_at:
+        raise Refusal("consent_recorded_at_after_run: the consent cannot be recorded in the future")
     delete_on_expiry, retain_until = args.retention
     retention = RetentionPolicy(delete_on_expiry=delete_on_expiry, retain_until=retain_until)
     if args.declared_language != _SUPPORTED_LANGUAGE:
         raise Refusal("language_not_supported")
+    if args.stt == "sarvam" and args.consent != "obtained":
+        raise Refusal(
+            "consent_not_obtained: --stt sarvam sends the audio to the provider "
+            "and needs --consent obtained"
+        )
     out_dir = Path(args.out)
+    if "?" in str(out_dir.resolve()):
+        raise Refusal("output_path_invalid: the output path must not contain a question mark")
     if os.path.lexists(out_dir) and not out_dir.is_dir():
         raise Refusal("the output path exists and is not a directory")
 
@@ -416,7 +482,7 @@ def _prepare(args: argparse.Namespace, created_at: datetime) -> _Prepared:
     )
 
     # The refusals of the reader and the chunker happen here, before any engine exists.
-    read_voicera_export(
+    export = read_voicera_export(
         export_text,
         created_at=created_at,
         privacy=PrivacyMarker(human_subject=True, consent=consent, retention=retention),
@@ -431,6 +497,20 @@ def _prepare(args: argparse.Namespace, created_at: datetime) -> _Prepared:
         search_ms=args.search_ms,
         accept_provider_downmix=args.accept_provider_downmix,
     )
+    if args.max_chunks is not None and len(plan.chunks) > args.max_chunks:
+        raise Refusal(
+            f"max_chunks_exceeded: the plan has {len(plan.chunks)} chunks "
+            f"and --max-chunks is {args.max_chunks}"
+        )
+    if args.stt == "sarvam":
+        tokens = export_token_count(
+            export.turns, definitions.parameters_of(configuration.snapshot).normaliser
+        )
+        if tokens > ALIGN_MAX_TOKENS:
+            raise Refusal(
+                f"export_tokens_above_alignment_cap: the export has {tokens} tokens "
+                f"and the alignment cap is {ALIGN_MAX_TOKENS}"
+            )
 
     report_path = out_dir / f"report-{created_at:%Y%m%dT%H%M%SZ}.html"
     if os.path.lexists(report_path):
@@ -465,21 +545,108 @@ def _dry_run(args: argparse.Namespace, prepared: _Prepared, environment: Environ
         prepared.plan, model=DEFAULT_MODEL, catalog=prepared.catalog, priced_at=args.priced_at
     ).render()
     lines = [*plan_text.splitlines(), f"max attempts per chunk: {MAX_ATTEMPTS}"]
+    if args.max_chunks is None:
+        lines.append("max chunks: not set")
+    else:
+        count = len(prepared.plan.chunks)
+        lines.append(f"max chunks: {args.max_chunks} (the plan has {count}: within the cap)")
     lines.append("dry run: nothing was sent")
     environment.stdout.write("".join(f"{line}\n" for line in lines))
     return EXIT_OK
 
 
-def _write_report(path: Path, text: str) -> None:
+def _write_new_file(path: Path, text: str) -> None:
+    """Create ``path`` exclusively with mode 0600; an existing file or link is never opened."""
     descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     with os.fdopen(descriptor, "wb") as handle:
         handle.write(text.encode("utf-8"))
 
 
+class _Recorder:
+    """Passes ``transcribe`` through and keeps its outcome, so paid usage outlives a failure."""
+
+    def __init__(self, engine: SttEngine) -> None:
+        self._engine = engine
+        self.outcome: SttOutcome | None = None
+
+    def transcribe(self, plan: ChunkPlan, context: SttContext) -> SttOutcome:
+        self.outcome = self._engine.transcribe(plan, context)
+        return self.outcome
+
+
+def _check_output_location(out_dir: Path) -> None:
+    """Refuse an output location that cannot be written, without creating anything."""
+    nearest = out_dir
+    while not os.path.lexists(nearest):
+        nearest = nearest.parent
+    if not nearest.is_dir() or not os.access(nearest, os.W_OK | os.X_OK):
+        raise Refusal("output_unavailable (directory_not_writable)")
+    store_file = out_dir / store.STORE_FILE_NAME
+    if os.path.lexists(store_file) and (
+        not store_file.is_file() or not os.access(store_file, os.W_OK)
+    ):
+        raise Refusal("output_unavailable (store_file_not_writable)")
+
+
+def _build_engine(
+    factory: EngineFactory, request: EngineRequest, environment: Environment
+) -> SttEngine:
+    """Call the factory; an env file that others can read becomes one warning line on stderr."""
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        try:
+            return factory(request)
+        except OSError as error:
+            raise Refusal(f"output_unavailable ({type(error).__name__})") from None
+        finally:
+            for item in caught:
+                if issubclass(item.category, EnvFileModeWarning):
+                    environment.stderr.write(f"warning: {_printable(str(item.message))}\n")
+
+
+def _write_recovery(
+    out_dir: Path,
+    created_at: datetime,
+    *,
+    failed_step: str,
+    error: BaseException,
+    usage: Sequence[UsageRecord],
+    bundle: RunBundle | None,
+) -> Path | None:
+    """Keep the usage of a paid send; ``None`` when there is none or the file cannot be created.
+
+    Only the class name of the error is written: a message could hold a key or call text.
+    """
+    if not usage:
+        return None
+    document = {
+        "format": RECOVERY_FORMAT,
+        "created_at": created_at.strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+        "failed_step": failed_step,
+        "error_class": type(error).__name__,
+        "usage_records": [record.model_dump(mode="json") for record in usage],
+        "cost_records": [] if bundle is None else _dump(bundle.cost_records),
+        "cost_summaries": [] if bundle is None else _dump(bundle.cost_summaries),
+        "pricing_catalogs": [] if bundle is None else _dump(bundle.pricing_catalogs),
+    }
+    path = out_dir / f"usage-recovery-{created_at:%Y%m%dT%H%M%SZ}.json"
+    try:
+        _write_new_file(path, json.dumps(document, ensure_ascii=True, indent=1) + "\n")
+    except OSError:
+        return None
+    return path
+
+
+def _dump(records: Sequence[Any]) -> list[Any]:
+    return [record.model_dump(mode="json") for record in records]
+
+
 def _execute(args: argparse.Namespace, prepared: _Prepared, environment: Environment) -> int:
     out_dir = Path(args.out)
+    _check_output_location(out_dir)
     factory = environment.engine_factory or default_engine_factory
-    engine = factory(
+    engine = _build_engine(
+        factory,
         EngineRequest(
             stt=args.stt,
             out_dir=out_dir,
@@ -489,8 +656,37 @@ def _execute(args: argparse.Namespace, prepared: _Prepared, environment: Environ
             clock=environment.clock,
             sleep=environment.sleep,
             transport=environment.transport,
-        )
+        ),
+        environment,
     )
+    try:
+        preflight = getattr(engine, "preflight", None)
+        if callable(preflight):
+            preflight(prepared.plan)
+        # The store is open before the first request: a store that cannot be written is found
+        # while nothing has been sent.
+        try:
+            database = store.open_sqlite_store(out_dir)
+        except Exception as error:
+            raise Refusal(f"output_unavailable ({type(error).__name__})") from None
+        try:
+            return _send_and_save(args, prepared, environment, engine, database)
+        finally:
+            database.dispose()
+    finally:
+        close = getattr(engine, "close", None)
+        if callable(close):
+            close()
+
+
+def _send_and_save(
+    args: argparse.Namespace,
+    prepared: _Prepared,
+    environment: Environment,
+    engine: SttEngine,
+    database: Any,
+) -> int:
+    out_dir = Path(args.out)
     if args.embed_audio:
         environment.stderr.write(_EMBED_WARNING)
 
@@ -512,11 +708,12 @@ def _execute(args: argparse.Namespace, prepared: _Prepared, environment: Environ
         name=_PROJECT_NAME, created_at=created_at, provider_configs=configs
     )
     target = definitions.recorded_agent_target(name=_TARGET_NAME, created_at=created_at)
+    recorder = _Recorder(engine)
     try:
         result = pipeline.score_recorded_call(
             audio=prepared.audio,
             export_text=prepared.export_text,
-            engine=engine,
+            engine=recorder,
             configuration=prepared.configuration,
             project=project,
             agent_target=target,
@@ -532,36 +729,71 @@ def _execute(args: argparse.Namespace, prepared: _Prepared, environment: Environ
             accept_export_warnings=args.accept_export_warnings,
             cost_builder=cost_builder,
         )
-    finally:
-        close = getattr(engine, "close", None)
-        if callable(close):
-            close()
+    except Exception as error:
+        # No run exists, but a chunk may have been paid: keep its usage.
+        if recorder.outcome is not None:
+            saved = _write_recovery(
+                out_dir,
+                created_at,
+                failed_step="pipeline",
+                error=error,
+                usage=recorder.outcome.usage,
+                bundle=None,
+            )
+            if saved is not None:
+                environment.stdout.write(f"usage recovery: {saved}\n")
+        raise
 
-    database = store.open_sqlite_store(out_dir)
+    # From here the answer is in memory and paid for: each output is tried on its own.
+    failures: list[Exception] = []
+    stored = None
     try:
         stored = store.store_run(
             database, project=project, agent_target=target, bundle=result.bundle
         )
-    finally:
-        database.dispose()
-
-    source: report.RelativeAudio | report.EmbeddedAudio
-    if prepared.audio_bytes is not None:
-        source = report.EmbeddedAudio(prepared.audio_bytes)
-    else:
-        source = report.RelativeAudio(
-            report.relative_audio_src(Path(args.audio).resolve(), out_dir.resolve())
+    except Exception as error:
+        failures.append(error)
+    recovery: Path | None = None
+    if stored is None:
+        recovery = _write_recovery(
+            out_dir,
+            created_at,
+            failed_step="store",
+            error=failures[0],
+            usage=result.bundle.usage_records,
+            bundle=result.bundle,
         )
-    _write_report(prepared.report_path, report.render_report(result.bundle, audio=source))
+
+    wrote_report = False
+    try:
+        source: report.RelativeAudio | report.EmbeddedAudio
+        if prepared.audio_bytes is not None:
+            source = report.EmbeddedAudio(prepared.audio_bytes)
+        else:
+            source = report.RelativeAudio(
+                report.relative_audio_src(Path(args.audio).resolve(), out_dir.resolve())
+            )
+        _write_new_file(prepared.report_path, report.render_report(result.bundle, audio=source))
+        wrote_report = True
+    except Exception as error:
+        failures.append(error)
 
     environment.stdout.write(
         summary.render_summary(
             result.bundle, outcome=result.outcome, stt_failure=result.stt_failure
         )
     )
-    environment.stdout.write(f"bundle: {stored.bundle_id}\n")
-    environment.stdout.write(f"store: {out_dir / store.STORE_FILE_NAME}\n")
-    environment.stdout.write(f"report: {prepared.report_path}\n")
+    environment.stdout.write(f"bundle: {result.bundle.id}\n")
+    store_text = out_dir / store.STORE_FILE_NAME if stored is not None else "not written"
+    environment.stdout.write(f"store: {store_text}\n")
+    report_text = prepared.report_path if wrote_report else "not written"
+    environment.stdout.write(f"report: {report_text}\n")
+    if stored is None:
+        recovery_text = recovery if recovery is not None else "not written"
+        environment.stdout.write(f"usage recovery: {recovery_text}\n")
+    if failures:
+        environment.stderr.write(f"error: unexpected failure ({type(failures[0]).__name__})\n")
+        return EXIT_UNEXPECTED
     return result.exit_code
 
 
@@ -575,12 +807,36 @@ def _score(args: argparse.Namespace, environment: Environment) -> int:
     return _execute(args, prepared, environment)
 
 
+def _check_options(args: argparse.Namespace, usage: str) -> None:
+    """The usage errors that depend on more than one option."""
+    if args.consent == "obtained" and (
+        args.consent_reference is None or args.consent_recorded_at is None
+    ):
+        raise UsageError(
+            "--consent obtained needs --consent-reference and --consent-recorded-at", usage
+        )
+    if args.stt != "sarvam":
+        return
+    if args.max_chunk_ms > MAX_SARVAM_CHUNK_MS:
+        raise UsageError(
+            f"--max-chunk-ms above {MAX_SARVAM_CHUNK_MS} is refused for --stt sarvam", usage
+        )
+    if args.max_chunks is None and not args.dry_run:
+        raise UsageError("--stt sarvam needs --max-chunks", usage)
+    if args.max_chunks is not None and args.max_chunks > MAX_SARVAM_CHUNKS:
+        raise UsageError(
+            f"--max-chunks above {MAX_SARVAM_CHUNKS} is refused for --stt sarvam", usage
+        )
+
+
 def run(argv: Sequence[str], environment: Environment) -> int:
     parser = build_parser(environment.stdout, environment.stderr)
     try:
         args = parser.parse_args(list(argv))
         if args.command == "score" and args.priced_at is not None and args.price_file is None:
             raise UsageError("--priced-at needs --price-file", parser.format_usage())
+        if args.command == "score":
+            _check_options(args, parser.format_usage())
     except UsageError as error:
         environment.stderr.write(error.usage)
         environment.stderr.write(f"tracer: error: {_printable(str(error))}\n")

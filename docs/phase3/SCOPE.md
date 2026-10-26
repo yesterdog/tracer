@@ -281,7 +281,8 @@ reproduced exactly.
     persists only in the report and in the store (as the STT transcript's turns); never on stdout,
     in the call log, in logs, in `tracer.flags/1` metadata or in usage records (canary test).
   - **Exit codes:** 0 scored, 1 unexpected failure (including a store or report write failure after
-    a paid transcription, when the usage is only in the call log: BL-227), 2 not scored, 3
+    a paid transcription, when the usage is only in the call log: BL-227; superseded by D13, which
+    keeps the usage in a recovery file), 2 not scored, 3
     speech-to-text failed, 4 input refused, 64 usage error (an out-of-range instant included: BL-220).
   - **Report file naming:** `report-<UTC time of the run, %Y%m%dT%H%M%SZ>.html` inside `--out`.
   - **Replay engine:** `--stt fake:<dir>` replays files named exactly `chunk-NNNN.json` (four digits);
@@ -308,6 +309,71 @@ reproduced exactly.
   - **Other limits:** no golden report file yet, only determinism (BL-222); the report's relative
     audio and seek script need the owner's manual browser check (BL-224); the e2e tests assert the
     batch E wording, so a wording change is a change in two places (BL-226).
+- **D13. Security audit P3-28 and batch G, its fixes (lead, 2026-10-26; decision log "PHASE 3
+  SECURITY AUDIT P3-28" and "PHASE 3 BATCH G (qa a3647c2426423c933) DELIVERED"; contract
+  `docs/phase3/api-surface-batch-g.md`; ADR 0024 rules 3, 4, 5, 15, 16, the run book and Ambiguity 8,
+  ADR index revision 45).** All auto-approved on the recommended option.
+  - **Audit verdict: conditional GO** for the first real send (P3-30): no P0; one P1 (F1, the ignore
+    and guard rules for reports, stores and call logs not yet committed while the repository is
+    public: BL-235, closes with the batch F commit and `--out` outside the repository). The
+    conditions are the run book of ADR 0024 ("Run book for a real send (P3-30)"). Deferred findings
+    F6 and F11 to F16 are BL-228 to BL-234; what the audit could not verify is BL-236.
+  - **Fixed before the real send (batch G):** F2 (a failure after the paid send loses the paid
+    result), F3 (proxy and certificate environment), F4 (no spend cap), F5 (consent reference and
+    no code gate), and the cheap hardening F7 (call-log directory 0700, `O_NOFOLLOW`), F8 (`environ`
+    out of the repr of `Environment` and `EngineRequest`), F9 (`--env-file`: 64 KiB cap, regular files
+    only, read non-blocking, a warning for a group- or world-readable file) and F10
+    (`Accept-Encoding: identity`).
+  - **Order of operations (F2), with an accepted deviation.** Every refusal that depends on the
+    inputs, the plan or the output side happens before the first send: a `?` in `--out` is refused,
+    the output location is probed without creating anything, the engine factory (key, call log)
+    runs, the engine's optional `preflight(plan)` may refuse (`ReplayStt.preflight` checks a stale
+    replay directory there), and the store is opened (directory 0700, `tracer.sqlite` migrated)
+    before `transcribe`. Deviation from the literal audit text ("the store before the engine"): the
+    factory runs before the store opens, so a missing key still leaves no directory behind (three
+    existing tests); a store the probe cannot judge is found after the key was read, still before
+    any request (ADR 0024 Ambiguity 8).
+  - **Export token cap before the send.** `tracer_evalcore.scoring.export_token_count` counts the
+    tokens the aligner will see for the export; with `--stt sarvam` an export over `ALIGN_MAX_TOKENS`
+    (10,000) is refused (`export_tokens_above_alignment_cap`, exit 4). A replay is not refused (it
+    pays for nothing); the speech side is only known after the send and is stored and reported as
+    not scored (exit 2).
+  - **Recovery file.** After the send nothing re-sends audio. A failed store write or pipeline step
+    keeps the paid usage in `<out>/usage-recovery-<UTC>.json` (`tracer.usage_recovery/1`: usage, cost
+    records, summaries and catalogs; no call text, no key, no path; mode 0600, created exclusively,
+    only when a chunk was answered); the report is still written when a run exists; exit 1, with
+    `store: not written` and `usage recovery: <path>` on stdout. No seventh exit code; one narrow
+    `.gitignore` pattern, the repository guard is not extended. No command reads the file in
+    Phase 3; it is outside deletion and retention (BL-240). Closes BL-227 and supersedes the D12
+    note that the usage is then only in the call log.
+  - **Chunk ceiling (F4).** `--max-chunks N` refuses a plan of more than N chunks
+    (`max_chunks_exceeded`, exit 4); required for a real `--stt sarvam` run with no default;
+    `MAX_SARVAM_CHUNKS` = 200 (a technical bound, about 83 minutes at the 25 s window, not a measured
+    value); `--max-chunk-ms` above `MAX_SARVAM_CHUNK_MS` = 30,000 is a usage error for Sarvam. The dry
+    run does not need it and prints `max chunks: not set` (it is how a user learns the count) or the
+    cap line. The ceiling counts chunks, not requests: a chunk can take 4 attempts (BL-228, BL-239);
+    it refuses a plan, it never truncates one.
+  - **Consent (F5).** `--consent-reference TEXT` (1 to 200 characters, no edge white space, no
+    character of category Cc, Cf, Cs, Co, Cn, Zl or Zp: a ZWJ is refused, any script is allowed) and
+    `--consent-recorded-at INSTANT` (RFC 3339, stored in UTC) go on the `ConsentRecord` of the three
+    privacy markers; both are required with `--consent obtained`, stored as given with another
+    status, never printed, reported, logged or sent. A recorded-at later than the run is refused
+    (`consent_recorded_at_after_run`, exit 4). The code gate: `--stt sarvam` is refused unless
+    `--consent obtained` (`consent_not_obtained`, exit 4, also in a dry run, before any file is
+    read); a replay is never gated. No schema change (D5): the two fields already exist.
+  - **`trust_env=False` ends proxy support in Phase 3** (F3). The client reads no proxy, certificate
+    or `.netrc` setting from the environment; ADR 0024 rule 3's earlier trade-off is reversed. A
+    user behind a corporate proxy cannot make a real send until an explicit, audited setting exists
+    (BL-237). Rejected: a `--proxy` option (a host the key and the audio travel through, unaudited).
+  - **Named spec changes SC1 to SC6** (tightening only): the default test command of batch E gains
+    the consent details and `--max-chunks 50`; the batch F sarvam command gains them with
+    `--max-chunks 3`; an exact-match usage regex; the not-obtained record loop runs on a replay; the
+    dry-run expectation gains the cap line; two adversarial cases move from exit 2 to exit 4 (refused
+    before the send).
+  - **Limits recorded:** the F3 tests read two private httpx attributes, pinned at httpx 0.28.1
+    (BL-238); a stale comment above `PENDING` in the ADR 0024 test (BL-241); POSIX only (modes,
+    `O_NOFOLLOW`, FIFOs); the write-permission probe uses `os.access` (advisory; opening the store is
+    the real check).
 
 ---
 
@@ -574,7 +640,7 @@ No cut list (owner rule): if a task slips, the date moves.
 | P3-25 | IL+qa | Synthetic mr pair: invented mr text (no real call content), a VoicEra-format export with planted substitutions, deletions, insertions, Latin tokens and digit forms; a generated WAV (tones or silence); scripted fake Sarvam bodies per chunk; provenance `synthetic_hand_written` | | (fixtures) | 5 |
 | P3-26 | qa | Offline end to end through the CLI with the fake | Exact expected MER counts, flag spans, share, report bytes stable. | `test_e2e_synthetic_mr_exact_outputs`, `test_e2e_report_and_store_consistent` | 6 |
 | P3-27 | qa | T-DEG matrix (identical record kinds and schema, `not_applicable` never failure) and the no-network guard (conftest patches `socket.connect` for every package) | | `test_tdeg_audio_and_export_scored`, `test_tdeg_no_audio_missing_input_transcript`, `test_tdeg_no_export_missing_input_agent_transcript`, `test_tdeg_export_without_declaration_language_not_observed`, `test_tdeg_non_mr_chunk_is_not_scored` (renamed 2026-10-25 from the earlier name, Decisions D7), `test_tdeg_export_without_agent_turn_missing_input_agent_transcript` (added 2026-10-25, Decisions D7), `test_tdeg_schema_identical_across_cases`, `test_unit_tests_open_no_socket` | 4 |
-| P3-28 | SL | Security audit `docs/security/P3-28-audit.md` (keys, logs, call log, store, report, privacy markers, out-dir placement, guard, ToS F9). Must pass before P3-30. | | `test_p3_audit_items_cite_tests` | 8 |
+| P3-28 | SL | Security audit `docs/security/P3-28-audit.md` (keys, logs, call log, store, report, privacy markers, out-dir placement, guard, ToS F9). Must pass before P3-30. | Done 2026-10-26 (decision log "PHASE 3 SECURITY AUDIT P3-28"): verdict conditional GO for P3-30, no P0, P1 F1 only (BL-235); F2 to F5 and F7 to F10 fixed by batch G (Decisions D13); F6 and F11 to F16 deferred (BL-228 to BL-234); the conditions are the run book of ADR 0024 ("Run book for a real send (P3-30)"), followed before every real send. The written report `docs/security/P3-28-audit.md` was transcribed afterwards from the decision log (BL-242); the test `test_p3_audit_items_cite_tests` is not yet in the tree (qa stages it). | `test_p3_audit_items_cite_tests` | 8 |
 | P3-34 | dev+SL | Extend `scripts/guard_private_fixtures.py` and `.gitignore`: refuse staged report HTML (embedded marker), store files and call logs | | `test_guard_rejects_staged_report_store_and_call_log` | 3 |
 | P3-29 | lead | **Owner questions (answered 2026-10-25, Decisions D10)**, one at a time in chat: (1) `flag_min_confidence` value and (2) review budget, pre-registered before any real result is seen; (3) ToS 10.5(a): written Sarvam permission, or explicit risk acceptance; (4) Sarvam 17.5 training opt-out status; (5) consent status to record for the callers | Answers in the decision log. | none | 1 |
 | P3-30 | lead (owner-gated) | First real send (R1). Order: dry-run; one chunk (checks that 24 kHz is accepted and that `unknown` detects mr); then both clips. Log before and after; record counts only (chunks, detections per tag, usage, status) in the decision log. Never text. | Closes BL-168. | none (evidence `docs/phase3/evidence/real/` counts only) | 3 |

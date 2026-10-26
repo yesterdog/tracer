@@ -10,8 +10,9 @@ from __future__ import annotations
 
 import os
 import re
+import stat
+import warnings
 from collections.abc import Mapping
-from pathlib import Path
 from typing import Any, Final, NoReturn
 
 from tracer_evalcore.stt import SttKeyMissingError
@@ -19,9 +20,11 @@ from tracer_evalschema.provider import ProviderConfigRef
 
 __all__ = [
     "CONFIG_REF",
+    "ENV_FILE_MAX_BYTES",
     "ENV_VAR_NAME",
     "PLACEHOLDER",
     "ApiKey",
+    "EnvFileModeWarning",
     "load_api_key",
     "provider_config_ref",
 ]
@@ -29,6 +32,7 @@ __all__ = [
 ENV_VAR_NAME: Final = "SARVAM_API_KEY"
 CONFIG_REF: Final = "env:SARVAM_API_KEY"
 PLACEHOLDER: Final = "<redacted api key>"
+ENV_FILE_MAX_BYTES: Final = 65_536
 
 _LINE: Final = re.compile(rb"[ \t]*(?:export[ \t]+)?SARVAM_API_KEY[ \t]*=(.*)", re.DOTALL)
 _BLANKS: Final = " \t\r\n"
@@ -85,11 +89,40 @@ def _unquote(raw: str) -> str:
     return value
 
 
-def _read_file(path: str | os.PathLike[str]) -> bytes | None:
+class EnvFileModeWarning(UserWarning):
+    """The env file can be read by other users. The message holds the mode and nothing else."""
+
+
+def _read_file(path: str | os.PathLike[str]) -> tuple[bytes | None, str | None]:
+    """``(data, None)`` for a regular file within ``ENV_FILE_MAX_BYTES``, else ``(None, reason)``.
+
+    The file is opened non-blocking so that a FIFO cannot hold the command; ``fstat`` on the open
+    descriptor decides, so the file cannot change kind between the check and the read.
+    """
     try:
-        return Path(path).read_bytes()
+        descriptor = os.open(path, os.O_RDONLY | os.O_NONBLOCK)
     except OSError:
-        return None
+        return None, "env_file_unreadable"
+    try:
+        info = os.fstat(descriptor)
+        if not stat.S_ISREG(info.st_mode):
+            return None, "env_file_not_regular"
+        if info.st_mode & 0o077:
+            warnings.warn(
+                "the env file can be read by other users "
+                f"(mode {oct(stat.S_IMODE(info.st_mode))}); run chmod 600 on it",
+                EnvFileModeWarning,
+                stacklevel=3,
+            )
+        with os.fdopen(descriptor, "rb", closefd=False) as handle:
+            data = handle.read(ENV_FILE_MAX_BYTES + 1)
+    except OSError:
+        return None, "env_file_unreadable"
+    finally:
+        os.close(descriptor)
+    if len(data) > ENV_FILE_MAX_BYTES:
+        return None, "env_file_too_large"
+    return data, None
 
 
 def _file_value(data: bytes) -> tuple[str, bytes | None]:
@@ -120,16 +153,18 @@ def load_api_key(
 ) -> ApiKey:
     """The key from ``SARVAM_API_KEY``.
 
-    With ``env_file`` the file is the only source and the environment is not consulted. Without
+    With ``env_file`` the file is the only source and the environment is not consulted. It must
+    be a regular file of at most ``ENV_FILE_MAX_BYTES``; a mode with a group or other bit warns
+    (``EnvFileModeWarning``) and is not a refusal. Without
     it the variable is read from ``environ`` (default ``os.environ``). A file that defines the
     variable twice is refused. Nothing is exported and nothing else is read from the file.
     """
     reason: str | None = None
     raw: str | None = None
     if env_file is not None:
-        data = _read_file(env_file)
+        data, refusal = _read_file(env_file)
         if data is None:
-            reason = "env_file_unreadable"
+            reason = refusal
         else:
             state, value = _file_value(data)
             if state == "ambiguous":

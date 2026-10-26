@@ -169,9 +169,12 @@ def score_args(
         "--rubric": str(inputs.rubric),
         "--declared-language": "mr",
         "--caller-origin": "human",
-        "--consent": "unknown",
+        "--consent": "obtained",
+        "--consent-reference": "owner statement 2026-10-25",
+        "--consent-recorded-at": "2026-01-01T00:00:00Z",
         "--retention": "keep",
         "--stt": "sarvam",
+        "--max-chunks": "50",
         "--out": str(inputs.out),
     }
     if chunking:
