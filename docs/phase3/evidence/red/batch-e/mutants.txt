@@ -1,0 +1,178 @@
+Mutants of the batch E oracle (tracer_cli/cli.py, summary.py, report.py, replay.py), run against the final staged tests
+(packages/cli/tests, Python 3.13, pytest -x). One mutation at a time, restored after each run.
+171 mutants: 161 killed, 10 equivalent (reason on each line), 0 survived unexplained.
+Revision 2 (lead changes A and B): --stt required (mutants C77, C78 replace the old default mutant), STT text beside each flag
+(mutants R48 to R59, R47b). History: the first run of 147 mutants left 22 survivors; each led to a new test or a corrected mutant.
+
+id	file	result	first failing test or reason
+C01	cli.py	killed	E   AssertionError: assert 2 == 64
+C02	cli.py	killed	E   AssertionError: ('a call id with a bidi control', 5, 'error: VoicEra export refused: call_id_unsafe_characters at f8:1/call_id
+C03	cli.py	killed	E   AssertionError: assert {0: 'scored',... failed', ...} == {0: 'scored',... failed', ...}
+C04	cli.py	killed	E   AssertionError: assert {0: 'scored',... failed', ...} == {0: 'scored',... failed', ...}
+C05	cli.py	killed	E   AssertionError: assert 2097152 == 1048576
+C06	cli.py	killed	E   AssertionError: ('a huge single token', 4, 'error: the transcript file is too large (the cap is 1000000 bytes)
+C07	cli.py	killed	E   AssertionError: assert 4 == 0
+C08	cli.py	killed	E   AssertionError: assert 0 == 4
+C09	cli.py	killed	E   AssertionError: ('refused: language other than mr', '')
+C10	cli.py	killed	FAILED packages/cli/tests/test_cli_score.py::test_cli_records_the_privacy_and_language_inputs_as_given
+C11	cli.py	killed	FAILED packages/cli/tests/test_cli_score.py::test_cli_records_the_privacy_and_language_inputs_as_given
+C12	cli.py	killed	E   AssertionError: --transcript
+C13	cli.py	killed	E   AssertionError: --rubric
+C14	cli.py	killed	E   AssertionError: --declared-language
+C15	cli.py	killed	E   AssertionError: --caller-origin
+C16	cli.py	killed	E   AssertionError: --consent
+C17	cli.py	killed	E   AssertionError: --retention
+C18	cli.py	killed	E   AssertionError: --out
+C20	cli.py	killed	FAILED packages/cli/tests/test_cli_score.py::test_cli_program_options_are_not_abbreviated_either
+C21	cli.py	killed	E   AssertionError: assert 1 == 4
+C22	cli.py	killed	E   AssertionError: assert 420 == 384
+C23	cli.py	killed	E   AssertionError: assert ['result: sco...1, I 1)', ...] == ['chunks: 2',...ing was sent']
+C24	cli.py	killed	E   AssertionError: assert ['chunks: 2',...ing was sent'] == ['chunks: 2',...ing was sent']
+C25	cli.py	killed	E   AssertionError: assert 'warning: --e...eep it safe\n' == 'warning: --e...re the file\n'
+C26	cli.py	killed	FAILED packages/cli/tests/test_cli_score.py::test_cli_closes_the_engine_once_whatever_happens
+C27	cli.py	killed	E   AssertionError: ('bundle', ['result: scored', 'language declared by user: mr', 'stt provider: fake', 'stt model: fake-model-1 (as requested)', 'no
+C28	cli.py	killed	E   AssertionError: assert 'not availabl...ce_for_model)' == '0.0003 USD (...ed USD price)'
+C29	cli.py	killed	E   AssertionError: no date, priced-at
+C30	cli.py	killed	E   AssertionError: assert [ProviderConf...VAM_API_KEY')] == []
+C31	cli.py	killed	E   AssertionError: assert [] == [('sarvam', '...VAM_API_KEY')]
+C32	cli.py	killed	E   AssertionError: assert 1 == 0
+C33	cli.py	killed	E   AssertionError: assert 1 == 0
+C34	cli.py	killed	E   AssertionError: assert 'human' == 'simulated'
+C35	cli.py	killed	E   AssertionError: assert 'personal dat...01T10:30:00Z.' == 'personal dat...01T10:30:00Z.'
+C36	cli.py	killed	E   AssertionError: ('a byte order mark and carriage returns', 1, 'error: unexpected failure (AttributeError)
+C37	cli.py	killed	E   AssertionError: assert 'report-20261025T143000Z.html' == 'report-20261025T090000Z.html'
+C38	cli.py	killed	E   AssertionError: assert 0 == 1
+C39	cli.py	killed	E   IndexError: list index out of range
+C40	cli.py	killed	E   AssertionError: assert 1 == 4
+C41	cli.py	killed	E   AssertionError: ('refused: no key', 'error: unexpected failure (SttKeyMissingError)
+C42	cli.py	killed	E   AssertionError: assert 'CANARYKEY-zq7fc3d1-9ae2b8' not in 'error: unex...TCANARYx9)\n'
+C43	cli.py	killed	E   AssertionError: assert 'UTF-8' in 'error: VoicEra export refused: unparsed_line at f8:3\n'
+C44	cli.py	killed	E   AssertionError: assert 'usage: trace...ge and exit\n' == ''
+C45	cli.py	killed	E   AssertionError: assert 'usage: trace...{score} ...\n' == ''
+C46	cli.py	killed	E   AssertionError: assert 0 == 64
+C47	cli.py	killed	E   AssertionError: assert 0 == 4
+C48	cli.py	killed	E   AssertionError: assert 'not availabl...ce_for_model)' == '0.0003 USD (...ed USD price)'
+C49	cli.py	killed	E   AssertionError: error: unexpected failure (AssertionError)
+C50	cli.py	killed	FAILED packages/cli/tests/test_cli_score.py::test_cli_retries_wait_with_the_injected_sleep
+C51	cli.py	killed	E   AssertionError: ('a huge line with a hostile tail', 0, '')
+C52	cli.py	killed	E   AssertionError: assert '<tmp>/...out' == '<tmp>/...T090000Z.html'
+C53	cli.py	killed	FAILED packages/cli/tests/test_cli_score.py::test_cli_the_report_reference_follows_the_files_where_they_really_are
+C55	cli.py	killed	E   AssertionError: assert 4 == 0
+C56	cli.py	killed	E   AssertionError: assert 0 == 4
+C57	cli.py	killed	E   AssertionError: assert 1 == 4
+C58	cli.py	killed	E   AssertionError: error: SttKeyMissingError: reason key_missing
+C59	cli.py	killed	E   FileNotFoundError: [Errno 2] No such file or directory: '<tmp>/pytest-of-user/pytest-564
+C60	cli.py	killed	E   AssertionError: error: SttKeyMissingError: reason key_missing
+C61	cli.py	killed	E   AssertionError: ('a huge line with a hostile tail', 4, 'error: SttKeyMissingError: reason key_missing
+C62	cli.py	killed	E   AssertionError: error: SttKeyMissingError: reason key_missing
+C63	cli.py	killed	E   AssertionError: error: SttKeyMissingError: reason key_missing
+C64	cli.py	killed	E   AssertionError: error: SttConfigurationError: reason replay_directory_unreadable
+C65	cli.py	killed	E   AssertionError: ('--retention', 'delete-after:', '')
+C66	cli.py	killed	E   AssertionError: ('2026-10-25', '')
+C67	cli.py	killed	E   AssertionError: ('--declared-language', '', 'error: language_not_supported
+C68	cli.py	killed	E   AssertionError: ('--stt', 'fake:', '')
+S01	summary.py	killed	E   AssertionError: assert '1.0 (no limit)' == '1.0 (flagged...is within it)'
+S02	summary.py	killed	E   AssertionError: assert '1.0 (no limit)' == '1.0 (flagged...is within it)'
+S03	summary.py	killed	E   AssertionError: assert 'review budge...e is over it)' == 'review budge...is within it)'
+S04	summary.py	killed	E   AssertionError: assert '1.01' == '3'
+S05	summary.py	killed	E   AssertionError: assert '1' == '2'
+S06	summary.py	killed	E   AssertionError: assert '0 requests, 0 audio seconds' == 'none'
+S07	summary.py	killed	E   AssertionError: assert '2 of 3' == '1 of 3'
+S08	summary.py	killed	E   AssertionError: assert '0.25 (1 of 1... 1, D 1, I 1)' == '0.25 (3 of 1... 1, D 1, I 1)'
+S09	summary.py	killed	E   AssertionError: assert '0.25 (3 of 9... 1, D 1, I 1)' == '0.25 (3 of 1... 1, D 1, I 1)'
+S10	summary.py	killed	E   AssertionError: assert '0.0003 USD (computed)' == '0.0003 USD (...ed USD price)'
+S11	summary.py	killed	E   AssertionError: language
+S12	summary.py	killed	E   AssertionError: assert 'unsupported ...uage detected' == 'language not...tt transcript'
+S13	summary.py	killed	E   AssertionError: assert 'alignment_too_large' == 'input too large to compare'
+S14	summary.py	killed	E   AssertionError: assert 'levenshtein_too_large' == 'input too large to compare'
+S15	summary.py	killed	E   AssertionError: assert 'no tokens in...tt transcript' == 'no tokens in the export'
+S16	summary.py	killed	E   AssertionError: assert 'stt_provenance_missing' == 'speech-to-te...nance missing'
+S17	summary.py	killed	E   AssertionError: assert 'refused' == 'flags document refused'
+S18	summary.py	killed	E   AssertionError: assert 'missing input' == 'missing inpu...nt_transcript'
+S19	summary.py	killed	E   AssertionError: assert 'missing input transcript' == 'speech-to-text failed'
+S21	summary.py	killed	E   AssertionError: assert '0' == '1'
+S22	summary.py	EQUIVALENT	equivalent: when a scored document exists every result is scored, so outcome == scored adds nothing
+S23	summary.py	killed	E   AssertionError: assert '2 (confidence above 0.3)' == '2 (confidenc...or above 0.3)'
+S24	summary.py	killed	E   AssertionError: assert '1 of 11' == '1 of 11 (0.0...909090909091)'
+S25	summary.py	killed	E   AssertionError: assert 'not available' == 'not availabl...ce_for_model)'
+S26	summary.py	killed	E   AssertionError: 0.000101 USD (computed from the supplied USD price)
+S27	summary.py	EQUIVALENT	equivalent in this release: the declared language is mr (the language gate)
+R01	report.py	killed	FAILED packages/cli/tests/test_cli_report.py::test_report_csp_present_and_script_hash_matches
+R02	report.py	killed	FAILED packages/cli/tests/test_cli_adversarial.py::test_adversarial_inputs_never_break_report_or_store[a byte order mark and carriage returns]
+R03	report.py	killed	FAILED packages/cli/tests/test_cli_adversarial.py::test_adversarial_inputs_never_break_report_or_store[a byte order mark and carriage returns]
+R04	report.py	killed	FAILED packages/cli/tests/test_cli_report.py::test_report_csp_present_and_script_hash_matches
+R05	report.py	killed	FAILED packages/cli/tests/test_cli_report.py::test_report_escapes_html_and_script_in_transcript
+R06	report.py	killed	E   AssertionError: assert False
+R07	report.py	killed	E   AssertionError: assert not ['\x01', '\x02', '\x03', '\x04', '\x05', '\x06', ...]
+R08	report.py	killed	E   AssertionError: assert 'a\u2028b\u2029cd[U+0085]ef' == 'a[U+2028]b[U...]cd[U+0085]ef'
+R09	report.py	killed	E   AssertionError: insertion at the head
+R10	report.py	killed	E   AssertionError: assert '+' == '[+]'
+R11	report.py	killed	E   AssertionError: assert ['0', '1', '2'] == ['1', '2']
+R12	report.py	killed	FAILED packages/cli/tests/test_cli_report.py::test_report_histogram_bins_use_integer_arithmetic_on_varied_confidences
+R13	report.py	killed	E   AssertionError: assert 2 == 0
+R14	report.py	killed	E   AssertionError: call.wav
+R15	report.py	killed	E   Failed: DID NOT RAISE ValueError
+R16	report.py	killed	E   Failed: DID NOT RAISE ValueError
+R17	report.py	killed	E   Failed: DID NOT RAISE ValueError
+R18	report.py	killed	E   AssertionError: ('embed-warning', 0)
+R19	report.py	killed	FAILED packages/cli/tests/test_cli_report.py::test_report_csp_present_and_script_hash_matches
+R20	report.py	killed	E   KeyError: 'lang'
+R21	report.py	killed	E   AssertionError: assert 'never run' in 'The stored configuration of this run holds a check named recorded_call_no_outcome_check. It is run and prod
+R22	report.py	killed	E   AssertionError: ('usage-note', 0)
+R23	report.py	killed	FAILED packages/cli/tests/test_cli_report.py::test_report_and_command_make_a_hostile_failure_text_safe
+R24	report.py	EQUIVALENT	equivalent: RelativeAudio only holds [A-Za-z0-9._~%/-] and base64 holds no HTML special character
+R25	report.py	killed	E   AssertionError: assert ['<style> tex...n the markup'] == []
+R26	report.py	killed	E   AssertionError: eval
+R27	report.py	killed	FAILED packages/cli/tests/test_cli_adversarial.py::test_adversarial_sarvam_body_with_markup_bidi_and_controls
+R28	report.py	killed	E   AssertionError: stt failed
+R29	report.py	killed	E   AssertionError: assert '2000' == '0'
+R30	report.py	killed	E   AssertionError: assert 'no' == 'yes'
+R31	report.py	killed	E   AssertionError: assert 'agent' == 'caller'
+R32	report.py	killed	E   AssertionError: assert 'personal dat...01T10:30:00Z.' == 'personal dat...01T10:30:00Z.'
+R33	report.py	killed	E   AssertionError: assert 'personal dat...til: not set.' == 'personal dat...01T10:30:00Z.'
+R34	report.py	killed	E   AssertionError: assert 'reported' == 'requested'
+R35	report.py	killed	E   AssertionError: assert 'language detected: mr' == 'language dec...d by user: mr'
+R36	report.py	killed	E   AssertionError: assert '\u0926\u094b\u0928 \u0924\u0940\u0928 \u091c\u0947\u0935\u0928 \u0935\u0947\u0933' == '\u0928\u092e\u0938\u094d\u0915\u093e\u0930 \u092e\u0932\u093e ... \u0924\u0940\u0928 \u091c\u0947\u0935\u0928 \u0935\u0947\u0933'
+R37	report.py	killed	E   AssertionError: assert '0' == '2'
+R38	report.py	killed	E   AssertionError: assert '2' == '1'
+R39	report.py	killed	E   AssertionError: assert 'latin-1' == 'utf-8'
+R40	report.py	killed	FAILED packages/cli/tests/test_cli_report.py::test_report_csp_present_and_script_hash_matches
+R41	report.py	EQUIVALENT	equivalent: attribute values written through _e hold no double quote; the text path (safe_html) is killed by R05
+R42	report.py	EQUIVALENT	equivalent: by precedence the mutant still evaluates to the distribution version (a bad mutant)
+R44	report.py	killed	E   AssertionError: assert '\u0928\u092e\u0938\u094d\u0915\u093e\u0930 \u092e\u0932\u093e ...\u0933\u0924\u0940\u0928 \u091c\u0947\u0935\u0928 \u0935\u0947\u0933' == '\u0928\u092e\u0938\u094d\u0915\u093e\u0930 \u092e\u0932\u093e ... \u0924\u0940\u0928 \u091c\u0947\u0935\u0928 \u0935\u0947\u0933'
+R45	report.py	killed	E   AssertionError: ('privacy', 0)
+P01	replay.py	killed	E   AssertionError: 
+P02	replay.py	killed	E   AssertionError: assert 0 == 4
+P03	replay.py	killed	E   AssertionError: assert 'sarvam' == 'replay'
+P04	replay.py	killed	E   AssertionError: assert 'sarvam' == 'replay'
+P05	replay.py	killed	E   AssertionError: assert 'replay_file_missing' in 'SttResponseInvalid: chunk 1, reason missing'
+P06	replay.py	EQUIVALENT	equivalent: the later iterdir() failure raises the same SttConfigurationError reason
+P07	replay.py	killed	E   AssertionError: ('not_json', 'SttResponseInvalid: chunk 1, reason invalid')
+P08	replay.py	killed	E   AssertionError: assert 'saaras:v4 (as requested)' == 'recorded-res...as requested)'
+P09	replay.py	killed	E   AssertionError: error: SttConfigurationError: reason replay_extra_file
+P10	replay.py	EQUIVALENT	equivalent: ChunkResponse.attempts is read by no mapping function
+S28	summary.py	killed	E   AssertionError: assert False
+R46	report.py	killed	E   AssertionError: assert ['<style> tex...n the markup'] == []
+C69	cli.py	killed	FAILED packages/cli/tests/test_cli_score.py::test_cli_unreadable_inputs_name_the_role_and_the_exception_class_only
+C70	cli.py	EQUIVALENT	equivalent: a no-op mutant (kind == 'x' or ...)
+C71	cli.py	killed	E   AssertionError: ['cli.py:8: import of httpx']
+C72	summary.py	killed	E   AssertionError: ('summary.py', 9, [])
+C73	report.py	killed	E   AssertionError: ('report.py', 9, [])
+C74	cli.py	EQUIVALENT	equivalent by construction: every refusal text is a code, a size, a pointer or a class name (ASCII)
+C75	summary.py	killed	E   AssertionError: ('summary.py', 8, [])
+C76	replay.py	killed	E   AssertionError: ('replay.py', 9, [])
+C77	cli.py	killed	E   AssertionError: --stt
+C78	cli.py	killed	E   AssertionError: --stt
+R48	report.py	killed	E   AssertionError: assert [] == ['nothing heard']
+R49	report.py	killed	E   AssertionError: assert [] == ['nothing heard']
+R50	report.py	killed	FAILED packages/cli/tests/test_cli_adversarial.py::test_adversarial_sarvam_body_with_markup_bidi_and_controls
+R51	report.py	killed	FAILED packages/cli/tests/test_cli_adversarial.py::test_adversarial_sarvam_body_with_markup_bidi_and_controls
+R52	report.py	killed	E   AssertionError: assert [' \u0915\u093e'] == ['\u0905\u092d\u0940']
+R53	report.py	killed	FAILED packages/cli/tests/test_cli_report.py::test_report_highlights_exact_flag_spans
+R54	report.py	killed	E   AssertionError: assert (7 + 1) == 6
+R55	report.py	killed	E   AssertionError: assert ('3', '3') == ('2', '3')
+R56	report.py	killed	E   AssertionError: assert ['\u092a\u0923\u0940 \u0917\u093e\u0935'] == ['\u092a\u0923\u0940']
+R57	report.py	killed	E   AssertionError: assert not ['\x01', '\x02', '\x03', '\x04', '\x05', '\x06', ...]
+R58	report.py	killed	FAILED packages/cli/tests/test_cli_adversarial.py::test_adversarial_sarvam_body_with_markup_bidi_and_controls
+R59	report.py	EQUIVALENT	equivalent: an extra cell before the audio cell; the contract allows extra cells and the audio cell stays last
+R47b	report.py	killed	data-span index shifted

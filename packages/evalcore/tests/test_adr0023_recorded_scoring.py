@@ -34,14 +34,9 @@ PACKAGES = ROOT / "packages"
 # task of batch B, D, E or F. Remove a name here in the commit that adds its test.
 PENDING: frozenset[str] = frozenset(
     {
-        "test_cli_output_never_claims_accuracy",
-        "test_cli_prints_counts_with_denominators",
-        "test_cli_requires_every_privacy_and_language_input",
         "test_concept_page_states_no_accuracy_claim",
         "test_e2e_synthetic_mr_exact_outputs",
         "test_measurement_report_has_counts_and_denominators",
-        "test_report_never_claims_accuracy",
-        "test_report_shows_language_declared_by_user",
         "test_tdeg_audio_and_export_scored",
         "test_tdeg_export_without_agent_turn_missing_input_agent_transcript",
         "test_tdeg_export_without_declaration_language_not_observed",

@@ -31,7 +31,6 @@ SCOPE = ROOT / "docs" / "phase3" / "SCOPE.md"
 #   test_guard_rejects_staged_report_store_and_call_log              P3-34 (batch F)
 PENDING: frozenset[str] = frozenset(
     {
-        "test_cli_fake_stt_runs_offline",
         "test_guard_rejects_staged_report_store_and_call_log",
     }
 )

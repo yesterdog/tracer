@@ -1,0 +1,1229 @@
+diff -ruN a/packages/cli/src/tracer_cli/cli.py b/packages/cli/src/tracer_cli/cli.py
+--- a/packages/cli/src/tracer_cli/cli.py
++++ b/packages/cli/src/tracer_cli/cli.py
+@@ -1,25 +1,440 @@
+ # SPDX-License-Identifier: Apache-2.0
+ # Copyright 2026 The Tracer contributors
+-"""Entry point of the ``tracer`` console script (scaffold: help only)."""
++"""The ``tracer`` command line: ``tracer score``."""
+ 
+ from __future__ import annotations
+ 
+ import argparse
++import os
++import re
+ import sys
+-from collections.abc import Sequence
++import time
++from collections.abc import Callable, Mapping, Sequence
++from dataclasses import dataclass
++from datetime import UTC, datetime
++from pathlib import Path
++from typing import Any, Final, TextIO
+ 
+-__all__ = ["build_parser", "main"]
++from tracer_cli import report, store, summary
++from tracer_cli.replay import ReplayStt
++from tracer_evalcore import definitions, pipeline
++from tracer_evalcore.audio.chunker import DEFAULT_MAX_CHUNK_MS, DEFAULT_SEARCH_MS, chunk_wav
++from tracer_evalcore.errors import InputRefusedError
++from tracer_evalcore.importers.voicera import read_voicera_export
++from tracer_evalcore.importers.wav import read_wav
++from tracer_evalcore.rubricfile import parse_rubric_file
++from tracer_evalcore.stt import SttConfigurationError, SttEngine
++from tracer_evalproviders.cost import CatalogRefusedError, compute_stt_cost, load_user_catalog
++from tracer_evalproviders.dryrun import build_dry_run_plan
++from tracer_evalproviders.sarvam.client import MAX_ATTEMPTS
++from tracer_evalproviders.sarvam.engine import create_sarvam_stt
++from tracer_evalproviders.sarvam.models import DEFAULT_MODEL
++from tracer_evalproviders.secrets import provider_config_ref
++from tracer_evalschema.privacy import ConsentRecord, PrivacyMarker, RetentionPolicy
++from tracer_evalschema.transcript import LanguageDeclaration
+ 
++__all__ = [
++    "EXIT_CODES",
++    "EXIT_NOT_SCORED",
++    "EXIT_OK",
++    "EXIT_REFUSED",
++    "EXIT_STT_FAILED",
++    "EXIT_UNEXPECTED",
++    "EXIT_USAGE",
++    "MAX_CONFIG_FILE_BYTES",
++    "MAX_TRANSCRIPT_FILE_BYTES",
++    "EngineRequest",
++    "Environment",
++    "build_parser",
++    "default_engine_factory",
++    "main",
++    "run",
++]
+ 
+-def build_parser() -> argparse.ArgumentParser:
+-    return argparse.ArgumentParser(
++EXIT_OK: Final = pipeline.EXIT_SCORED
++EXIT_UNEXPECTED: Final = 1
++EXIT_NOT_SCORED: Final = pipeline.EXIT_NOT_SCORED
++EXIT_STT_FAILED: Final = pipeline.EXIT_STT_FAILED
++EXIT_REFUSED: Final = 4
++EXIT_USAGE: Final = 64
++EXIT_CODES: Final = {
++    EXIT_OK: "scored",
++    EXIT_UNEXPECTED: "unexpected failure",
++    EXIT_NOT_SCORED: "not scored",
++    EXIT_STT_FAILED: "speech-to-text failed",
++    EXIT_REFUSED: "input refused",
++    EXIT_USAGE: "usage",
++}
++MAX_CONFIG_FILE_BYTES: int = 1_048_576
++MAX_TRANSCRIPT_FILE_BYTES: int = 67_108_864
++
++_INSTANT = re.compile(
++    r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]{1,6})?(?:Z|[+-][0-9]{2}:[0-9]{2})"
++)
++_LANGUAGE = re.compile(r"[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*")
++
++
++class UsageError(Exception):
++    pass
++
++
++class Refusal(Exception):
++    def __init__(self, message: str) -> None:
++        super().__init__(message)
++        self.message = message
++
++
++@dataclass(frozen=True, kw_only=True)
++class EngineRequest:
++    stt: str
++    out_dir: Path
++    model: str
++    environ: Mapping[str, str]
++    env_file: Path | None
++    clock: Callable[[], datetime]
++    sleep: Callable[[float], None]
++    transport: Any
++
++
++EngineFactory = Callable[[EngineRequest], SttEngine]
++
++
++@dataclass(frozen=True, kw_only=True)
++class Environment:
++    stdout: TextIO
++    stderr: TextIO
++    environ: Mapping[str, str]
++    clock: Callable[[], datetime]
++    sleep: Callable[[float], None]
++    transport: Any = None
++    engine_factory: EngineFactory | None = None
++
++    @classmethod
++    def system(cls) -> Environment:
++        return cls(
++            stdout=sys.stdout,
++            stderr=sys.stderr,
++            environ=os.environ,
++            clock=lambda: datetime.now(UTC),
++            sleep=time.sleep,
++            transport=None,
++            engine_factory=None,
++        )
++
++
++def default_engine_factory(request: EngineRequest) -> SttEngine:
++    if request.stt == "sarvam":
++        return create_sarvam_stt(
++            out_dir=request.out_dir,
++            model=request.model,
++            environ=request.environ,
++            env_file=request.env_file,
++            transport=request.transport,
++            sleep=request.sleep,
++            clock=request.clock,
++        )
++    return ReplayStt(Path(request.stt[len("fake:") :]))
++
++
++# ------------------------------------------------------------------ the parser
++
++
++class _Parser(argparse.ArgumentParser):
++    def __init__(self, *args: Any, streams: tuple[TextIO | None, TextIO | None] = (None, None), **kw: Any):
++        super().__init__(*args, **kw)
++        self._streams = streams
++
++    def error(self, message: str) -> Any:
++        raise UsageError(message)
++
++    def _print_message(self, message: str, file: Any = None) -> None:
++        if message:
++            target = file if file is not None else (self._streams[0] or sys.stdout)
++            target.write(message)
++
++    def print_help(self, file: Any = None) -> None:
++        self._print_message(self.format_help(), file)
++
++    def exit(self, status: int = 0, message: str | None = None) -> Any:
++        if message:
++            self._print_message(message, self._streams[1] or sys.stderr)
++        raise SystemExit(status)
++
++
++def _language(value: str) -> str:
++    if _LANGUAGE.fullmatch(value) is None:
++        raise argparse.ArgumentTypeError("not a language tag")
++    return value
++
++
++def _instant(value: str) -> datetime:
++    if _INSTANT.fullmatch(value) is None:
++        raise argparse.ArgumentTypeError("not an RFC 3339 instant")
++    return datetime.fromisoformat(value).astimezone(UTC)
++
++
++def _retention(value: str) -> tuple[bool, datetime | None]:
++    if value == "keep":
++        return False, None
++    kind, _, rest = value.partition(":")
++    if kind in ("keep-until", "delete-after") and rest:
++        return kind == "delete-after", _instant(rest)
++    raise argparse.ArgumentTypeError("use keep, keep-until:INSTANT or delete-after:INSTANT")
++
++
++def _stt(value: str) -> str:
++    if value == "sarvam" or (value.startswith("fake:") and len(value) > 5):
++        return value
++    raise argparse.ArgumentTypeError("use sarvam or fake:DIRECTORY")
++
++
++_EPILOG = """\
++exit codes:
++  0  scored
++  1  unexpected failure
++  2  not scored
++  3  speech-to-text failed
++  4  input refused
++  64  usage
++"""
++
++
++def build_parser(stdout: TextIO | None = None, stderr: TextIO | None = None) -> argparse.ArgumentParser:
++    streams = (stdout, stderr)
++    parser = _Parser(
+         prog="tracer",
+         description="Tracer: score a recorded call by the agreement of two transcripts.",
++        allow_abbrev=False,
++        streams=streams,
+     )
++    commands = parser.add_subparsers(dest="command", parser_class=_Parser)
++    score = commands.add_parser(
++        "score",
++        help="score one recorded call",
++        description=(
++            "Compare the agent's transcript export of a recorded call with a speech-to-text "
++            "transcript of its audio, and point at the spans where the two disagree. Every "
++            "privacy and language input is required: none has a default."
++        ),
++        epilog=_EPILOG,
++        formatter_class=argparse.RawDescriptionHelpFormatter,
++        allow_abbrev=False,
++        streams=streams,
++    )
++    score.add_argument("audio", metavar="AUDIO", help="the recording: a 16-bit PCM WAV file")
++    score.add_argument("--transcript", required=True, metavar="FILE", help="the agent's export of the call")
++    score.add_argument("--rubric", required=True, metavar="FILE", help="the rubric file (tracer.rubric/1)")
++    score.add_argument("--declared-language", required=True, type=_language, metavar="CODE", help="the language you declare for the call (required; only mr in this release)")
++    score.add_argument("--caller-origin", required=True, choices=("human", "simulated"), help="who called (required)")
++    score.add_argument("--consent", required=True, choices=("obtained", "not_obtained", "unknown"), help="consent of the people recorded (required)")
++    score.add_argument("--retention", required=True, type=_retention, metavar="POLICY", help="keep, keep-until:INSTANT or delete-after:INSTANT (required)")
++    score.add_argument("--out", required=True, metavar="DIR", help="the output directory (required)")
++    score.add_argument("--stt", required=True, type=_stt, metavar="ENGINE", help="sarvam, which sends the audio to the provider, or fake:DIR, which replays recorded responses and sends nothing (required)")
++    score.add_argument("--dry-run", action="store_true", help="print the plan and send nothing")
++    score.add_argument("--embed-audio", action="store_true", help="put the call audio into the report file (it then holds personal data)")
++    score.add_argument("--env-file", metavar="FILE", help="read the key SARVAM_API_KEY from this file only; no other line is read")
++    score.add_argument("--price-file", metavar="FILE", help="a USD price file you wrote; it must also price requests as well as audio_input_seconds")
++    score.add_argument("--priced-at", type=_instant, metavar="INSTANT", help="the instant the price applies to (with --price-file)")
++    score.add_argument("--max-chunk-ms", type=int, default=DEFAULT_MAX_CHUNK_MS, metavar="MS", help=f"technical default {DEFAULT_MAX_CHUNK_MS}")
++    score.add_argument("--search-ms", type=int, default=DEFAULT_SEARCH_MS, metavar="MS", help=f"technical default {DEFAULT_SEARCH_MS}")
++    score.add_argument("--accept-provider-downmix", action="store_true", help="send stereo chunks unchanged; the provider merges the channels")
++    score.add_argument("--accept-export-warnings", action="store_true", help="continue past export warnings that drop a line")
++    return parser
+ 
+ 
++# ------------------------------------------------------------------ the command
++
++
++def _read_text(path: str, cap: int, role: str) -> str:
++    try:
++        with open(path, "rb") as handle:  # noqa: PTH123
++            data = handle.read(cap + 1)
++    except OSError as error:
++        raise Refusal(f"cannot read the {role} file ({type(error).__name__})") from None
++    if len(data) > cap:
++        raise Refusal(f"the {role} file is too large (the cap is {cap} bytes)")
++    try:
++        return data.decode("utf-8")
++    except UnicodeDecodeError:
++        raise Refusal(f"the {role} file is not valid UTF-8") from None
++
++
++def _clean(message: str) -> str:
++    cleaned = "".join(c if 32 <= ord(c) < 127 else "?" for c in message)
++    return cleaned[:500]
++
++
++def run(argv: Sequence[str], environment: Environment) -> int:
++    parser = build_parser(environment.stdout, environment.stderr)
++    try:
++        args = parser.parse_args(list(argv))
++        if args.command == "score" and args.priced_at is not None and args.price_file is None:
++            raise UsageError("--priced-at needs --price-file")
++    except UsageError as error:
++        environment.stderr.write(parser.format_usage())
++        environment.stderr.write(f"tracer: error: {_clean(str(error))}\n")
++        return EXIT_USAGE
++    if args.command is None:
++        parser.print_help(environment.stderr)
++        return EXIT_USAGE
++    try:
++        return _score(args, environment)
++    except Refusal as refusal:
++        environment.stderr.write(f"error: {_clean(refusal.message)}\n")
++        return EXIT_REFUSED
++    except (InputRefusedError, SttConfigurationError, CatalogRefusedError) as error:
++        environment.stderr.write(f"error: {_clean(str(error))}\n")
++        return EXIT_REFUSED
++    except Exception as error:
++        environment.stderr.write(f"error: unexpected failure ({type(error).__name__})\n")
++        return EXIT_UNEXPECTED
++
++
++def _score(args: argparse.Namespace, environment: Environment) -> int:
++    moment = environment.clock()
++    if moment.tzinfo is None or moment.utcoffset() is None:
++        raise ValueError("the clock must return an aware datetime")
++    created_at = moment.astimezone(UTC)
++    consent = ConsentRecord(status=args.consent)
++    delete_on_expiry, retain_until = args.retention
++    retention = RetentionPolicy(delete_on_expiry=delete_on_expiry, retain_until=retain_until)
++    if args.declared_language != "mr":
++        raise Refusal("language_not_supported")
++    out_dir = Path(args.out)
++    if os.path.lexists(out_dir) and not out_dir.is_dir():
++        raise Refusal("the output path exists and is not a directory")
++    rubric = parse_rubric_file(_read_text(args.rubric, MAX_CONFIG_FILE_BYTES, "rubric"))
++    catalog = None
++    if args.price_file is not None:
++        text = _read_text(args.price_file, MAX_CONFIG_FILE_BYTES, "price")
++        catalog = load_user_catalog(text, created_at=created_at)
++    export_text = _read_text(args.transcript, MAX_TRANSCRIPT_FILE_BYTES, "transcript")
++    try:
++        audio = read_wav(args.audio, created_at=created_at, consent=consent, retention=retention)
++    except OSError as error:
++        raise Refusal(f"cannot read the audio file ({type(error).__name__})") from None
++    configuration = definitions.build_configuration(
++        rubric, configured_language="mr", created_at=created_at
++    )
++    privacy = PrivacyMarker(human_subject=True, consent=consent, retention=retention)
++    declaration = LanguageDeclaration(
++        language="mr", source="user_declared", declared_at=created_at
++    )
++    read_voicera_export(
++        export_text,
++        created_at=created_at,
++        privacy=privacy,
++        declared_language=declaration,
++        accept_warnings=args.accept_export_warnings,
++    )
++    plan = chunk_wav(
++        audio,
++        max_chunk_ms=args.max_chunk_ms,
++        search_ms=args.search_ms,
++        accept_provider_downmix=args.accept_provider_downmix,
++    )
++    name = f"report-{created_at:%Y%m%dT%H%M%SZ}.html"
++    report_path = out_dir / name
++    if os.path.lexists(report_path):
++        raise Refusal("report_exists: a report with this name is already in the output directory")
++    embedded: bytes | None = None
++    if args.embed_audio:
++        embedded = Path(args.audio).read_bytes()
++        import hashlib
++
++        if hashlib.sha256(embedded).hexdigest() != audio.artifact.sha256:
++            raise Refusal("the audio file changed while it was read")
++    if args.dry_run:
++        text = build_dry_run_plan(
++            plan, model=DEFAULT_MODEL, catalog=catalog, priced_at=args.priced_at
++        ).render()
++        environment.stdout.write(
++            text + f"\nmax attempts per chunk: {MAX_ATTEMPTS}\ndry run: nothing was sent\n"
++        )
++        return EXIT_OK
++    factory = environment.engine_factory or default_engine_factory
++    engine = factory(
++        EngineRequest(
++            stt=args.stt,
++            out_dir=out_dir,
++            model=DEFAULT_MODEL,
++            environ=environment.environ,
++            env_file=None if args.env_file is None else Path(args.env_file),
++            clock=environment.clock,
++            sleep=environment.sleep,
++            transport=environment.transport,
++        )
++    )
++    if args.embed_audio:
++        environment.stderr.write(
++            "warning: --embed-audio puts the call audio into the report file; do not share the file\n"
++        )
++
++    def cost_builder(usages: Sequence[Any]) -> pipeline.CostParts:
++        cost = compute_stt_cost(
++            usages, catalog=catalog, created_at=created_at, run_started_at=args.priced_at
++        )
++        return pipeline.CostParts(
++            catalogs=() if catalog is None else (catalog,),
++            records=cost.records,
++            summaries=(cost.summary,),
++        )
++
++    configs = (provider_config_ref(DEFAULT_MODEL),) if args.stt == "sarvam" else ()
++    project = definitions.recorded_project(
++        name="recorded-call scoring", created_at=created_at, provider_configs=configs
++    )
++    target = definitions.recorded_agent_target(name="recorded call agent", created_at=created_at)
++    try:
++        result = pipeline.score_recorded_call(
++            audio=audio,
++            export_text=export_text,
++            engine=engine,
++            configuration=configuration,
++            project=project,
++            agent_target=target,
++            configured_language="mr",
++            export_declared_language="mr",
++            caller_origin=args.caller_origin,
++            consent=consent,
++            retention=retention,
++            created_at=created_at,
++            max_chunk_ms=args.max_chunk_ms,
++            search_ms=args.search_ms,
++            accept_provider_downmix=args.accept_provider_downmix,
++            accept_export_warnings=args.accept_export_warnings,
++            cost_builder=cost_builder,
++        )
++    finally:
++        close = getattr(engine, "close", None)
++        if callable(close):
++            close()
++    database = store.open_sqlite_store(out_dir)
++    try:
++        stored = store.store_run(
++            database, project=project, agent_target=target, bundle=result.bundle
++        )
++    finally:
++        database.dispose()
++    source: report.RelativeAudio | report.EmbeddedAudio
++    if embedded is not None:
++        source = report.EmbeddedAudio(embedded)
++    else:
++        source = report.RelativeAudio(report.relative_audio_src(Path(args.audio).resolve(), out_dir.resolve()))
++    html_text = report.render_report(result.bundle, audio=source)
++    descriptor = os.open(report_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
++    with os.fdopen(descriptor, "wb") as handle:
++        handle.write(html_text.encode("utf-8"))
++    environment.stdout.write(
++        summary.render_summary(
++            result.bundle, outcome=result.outcome, stt_failure=result.stt_failure
++        )
++    )
++    environment.stdout.write(f"bundle: {stored.bundle_id}\n")
++    environment.stdout.write(f"store: {out_dir / store.STORE_FILE_NAME}\n")
++    environment.stdout.write(f"report: {report_path}\n")
++    return result.exit_code
++
++
+ def main(argv: Sequence[str] | None = None) -> int:
+-    parser = build_parser()
+-    parser.parse_args(argv)
+-    parser.print_help(sys.stderr)
+-    return 2
++    return run(sys.argv[1:] if argv is None else list(argv), Environment.system())
+diff -ruN a/packages/cli/src/tracer_cli/replay.py b/packages/cli/src/tracer_cli/replay.py
+--- a/packages/cli/src/tracer_cli/replay.py
++++ b/packages/cli/src/tracer_cli/replay.py
+@@ -0,0 +1,78 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The replay engine of ``--stt fake:<dir>``: recorded Sarvam bodies, no request, no usage."""
++
++from __future__ import annotations
++
++import re
++from pathlib import Path
++from typing import Final
++
++from tracer_evalcore.audio.chunker import ChunkPlan
++from tracer_evalcore.stt import (
++    SttConfigurationError,
++    SttContext,
++    SttOutcome,
++    SttResponseInvalid,
++)
++from tracer_evalproviders.sarvam.mapping import map_responses
++from tracer_evalproviders.sarvam.models import (
++    MAX_RESPONSE_BYTES,
++    ChunkResponse,
++    SarvamResponseShapeError,
++    parse_response,
++)
++
++__all__ = ["REPLAY_FILE_FORMAT", "REPLAY_MODEL", "REPLAY_PROVIDER", "ReplayStt"]
++
++REPLAY_FILE_FORMAT: Final = "chunk-{index:04d}.json"
++REPLAY_PROVIDER: Final = "replay"
++REPLAY_MODEL: Final = "recorded-responses"
++_NAME: Final = re.compile(r"chunk-([0-9]{4})\.json")
++
++
++class ReplayStt:
++    """Answers each chunk from ``chunk-NNNN.json`` in a directory."""
++
++    provider = REPLAY_PROVIDER
++    model = REPLAY_MODEL
++
++    def __init__(self, directory: Path) -> None:
++        self._directory = Path(directory)
++        if not self._directory.is_dir():
++            raise SttConfigurationError(reason="replay_directory_unreadable")
++
++    def transcribe(self, plan: ChunkPlan, context: SttContext) -> SttOutcome:
++        try:
++            names = [p.name for p in self._directory.iterdir()]
++        except OSError:
++            raise SttConfigurationError(reason="replay_directory_unreadable") from None
++        found = {int(m.group(1)) for n in names if (m := _NAME.fullmatch(n))}
++        if any(index >= len(plan.chunks) for index in found):
++            raise SttConfigurationError(reason="replay_extra_file")
++        answered: list[ChunkResponse] = []
++        for chunk in plan.chunks:
++            path = self._directory / REPLAY_FILE_FORMAT.format(index=chunk.index)
++            failure: SttResponseInvalid | None = None
++            body = b""
++            try:
++                size = path.stat().st_size
++                if size > MAX_RESPONSE_BYTES:
++                    failure = SttResponseInvalid(chunk_index=chunk.index, reason="body_too_large")
++                else:
++                    body = path.read_bytes()
++            except OSError:
++                failure = SttResponseInvalid(chunk_index=chunk.index, reason="replay_file_missing")
++            if failure is None:
++                try:
++                    response = parse_response(body)
++                except SarvamResponseShapeError as error:
++                    failure = SttResponseInvalid(chunk_index=chunk.index, reason=error.reason)
++            if failure is not None:
++                return SttOutcome(None, (), (), (), failure)
++            answered.append(ChunkResponse(chunk.index, response, None, 1))
++        outcome = map_responses(plan, answered, model=REPLAY_MODEL, context=context)
++        if outcome.transcript is None:
++            return outcome
++        transcript = outcome.transcript.model_copy(update={"provider": REPLAY_PROVIDER})
++        return SttOutcome(transcript, outcome.turns, (), outcome.warnings, None)
+diff -ruN a/packages/cli/src/tracer_cli/report.py b/packages/cli/src/tracer_cli/report.py
+--- a/packages/cli/src/tracer_cli/report.py
++++ b/packages/cli/src/tracer_cli/report.py
+@@ -0,0 +1,482 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The single self-contained HTML report of a scored (or not scored) recorded call."""
++
++from __future__ import annotations
++
++import base64
++import hashlib
++import html
++import os
++import re
++import unicodedata
++import urllib.parse
++from dataclasses import dataclass
++from typing import Any
++
++import tracer_evalcore
++from tracer_cli.summary import (
++    budget_facts,
++    cost_text,
++    facts_of,
++    not_scored_reasons,
++    stt_failure_detail,
++    summary_lines,
++    usage_text,
++)
++from tracer_evalcore.registry import COUNT_KEY, MER_KEY, SHARE_KEY
++from tracer_evalcore.tokens import TextTurn, tokenise_turns
++from tracer_evalschema.bundle import RunBundle
++from tracer_evalschema.text import display_safe
++
++__all__ = [
++    "SEEK_SCRIPT",
++    "STYLE",
++    "EmbeddedAudio",
++    "RelativeAudio",
++    "content_security_policy",
++    "csp_hash_source",
++    "outcome_of",
++    "relative_audio_src",
++    "render_report",
++    "safe_html",
++]
++
++SEEK_SCRIPT = (
++    "(function () {\n"
++    '  var player = document.getElementById("player");\n'
++    "  if (!player) { return; }\n"
++    '  document.addEventListener("click", function (event) {\n'
++    "    var node = event.target;\n"
++    "    while (node && node.nodeType === 1) {\n"
++    '      if (node.hasAttribute("data-seek-start-ms")) {\n'
++    '        var start = Number(node.getAttribute("data-seek-start-ms"));\n'
++    "        if (isFinite(start)) { player.currentTime = start / 1000; player.play(); }\n"
++    "        return;\n"
++    "      }\n"
++    "      node = node.parentNode;\n"
++    "    }\n"
++    "  });\n"
++    "})();\n"
++)
++
++STYLE = (
++    "body { font-family: sans-serif; margin: 1.5rem; max-width: 60rem; }\n"
++    "table { border-collapse: collapse; }\n"
++    "td, th { border: 1px solid #888; padding: 0.2rem 0.5rem; text-align: left; }\n"
++    "mark.flag { background: #ffe066; }\n"
++    "mark.gap { background: #ffb3b3; }\n"
++    ".role { font-weight: bold; margin-right: 0.5rem; }\n"
++    ".warning { border: 2px solid #b00; padding: 0.5rem; }\n"
++    "svg rect { fill: #446; }\n"
++)
++
++_URL_CHARS = re.compile(r"[A-Za-z0-9._~%/-]+")
++
++
++def _is_mapping_free(value: object) -> bool:
++    return isinstance(value, str)
++
++
++@dataclass(frozen=True)
++class RelativeAudio:
++    """A relative, URL-encoded reference to the audio file."""
++
++    src: str
++
++    def __post_init__(self) -> None:
++        value = self.src
++        if (
++            not isinstance(value, str)
++            or _URL_CHARS.fullmatch(value) is None
++            or value.startswith("/")
++            or "//" in value
++        ):
++            raise ValueError("the audio reference must be a relative, URL-encoded path")
++
++
++@dataclass(frozen=True)
++class EmbeddedAudio:
++    """The bytes of the WAV file, to be embedded as a data URI (opt-in)."""
++
++    data: bytes
++
++    def __post_init__(self) -> None:
++        if not isinstance(self.data, bytes):
++            raise TypeError("the audio data must be bytes")
++        if not self.data:
++            raise ValueError("the audio data is empty")
++
++
++def relative_audio_src(audio_path: Any, report_dir: Any) -> str:
++    relative = os.path.relpath(os.fspath(audio_path), os.fspath(report_dir))
++    return urllib.parse.quote(relative.replace(os.sep, "/"), safe="/")
++
++
++def csp_hash_source(text: str) -> str:
++    digest = hashlib.sha256(text.encode("utf-8")).digest()
++    return "'sha256-" + base64.b64encode(digest).decode("ascii") + "'"
++
++
++def content_security_policy(style_text: str, script_text: str, *, embedded: bool) -> str:
++    media = "data:" if embedded else "'self'"
++    return (
++        f"default-src 'none'; style-src {csp_hash_source(style_text)}; "
++        f"script-src {csp_hash_source(script_text)}; media-src {media}; "
++        "base-uri 'none'; form-action 'none'"
++    )
++
++
++def safe_html(text: str) -> str:
++    """display_safe, then a visible marker for every other control character, then escaping."""
++    if not isinstance(text, str):
++        raise TypeError("safe_html takes text")
++    shown = display_safe(text)
++    marked = "".join(
++        f"[U+{ord(c):04X}]" if unicodedata.category(c) == "Cc" or c in "\u2028\u2029" else c
++        for c in shown
++    )
++    return html.escape(marked, quote=True)
++
++
++def outcome_of(bundle: RunBundle) -> str:
++    if stt_failure_detail(bundle) is not None:
++        return "stt_failed"
++    if bundle.results and all(r.status == "scored" for r in bundle.results):
++        return "scored"
++    return "not_scored"
++
++
++def _e(text: str) -> str:
++    return html.escape(text, quote=True)
++
++
++def _ut(tag: str, classes: str, text: str, attrs: str = "") -> str:
++    return f'<{tag} class="{classes} ut"{attrs}>{safe_html(text)}</{tag}>'
++
++
++def _segments(turn: Any, spans: list[tuple[int, dict[str, Any]]]) -> str:
++    text = turn.text
++    parts: list[str] = []
++    position = 0
++    for index, span in spans:
++        start, end = span["start"], span["end"]
++        if start > position:
++            parts.append(_ut("span", "seg", text[position:start]))
++        data = (
++            f' data-span="{index}" data-turn="{turn.seq}" data-start="{start}" data-end="{end}"'
++            f' data-confidence="{_e(span["confidence"])}"'
++        )
++        if start == end:
++            parts.append(f'<mark class="flag gap"{data}>[+]</mark>')
++        else:
++            parts.append(_ut("mark", "flag", text[start:end], data))
++        position = end
++    if position < len(text):
++        parts.append(_ut("span", "seg", text[position:]))
++    return "".join(parts)
++
++
++def _stt_pieces(bundle: Any, document: dict[str, Any]) -> tuple[Any, Any]:
++    stt = next((t for t in bundle.transcripts if t.source == "our_stt"), None)
++    if stt is None:
++        return [], ()
++    turns = sorted((t for t in bundle.turns if t.transcript_id == stt.id), key=lambda t: t.seq)
++    sequence = tokenise_turns([TextTurn(t.seq, t.text) for t in turns], document["normaliser"])
++    return turns, sequence.tokens
++
++
++def _heard(span: dict[str, Any], turns: Any, tokens: Any) -> str:
++    first, last = span["stt_token_start"], span["stt_token_end"]
++    if first == last:
++        return '<span class="none">nothing heard</span>'
++    pieces: dict[int, list[int]] = {}
++    for token in tokens[first:last]:
++        box = pieces.setdefault(token.turn_index, [token.start, token.end])
++        box[0], box[1] = min(box[0], token.start), max(box[1], token.end)
++    parts = []
++    for turn_index, (start, end) in pieces.items():
++        turn = turns[turn_index]
++        attrs = f' data-stt-turn="{turn.seq}" data-stt-start="{start}" data-stt-end="{end}"'
++        parts.append(_ut("span", "heard-piece", turn.text[start:end], attrs))
++    return "".join(parts)
++
++
++def _exported(span: dict[str, Any], export_texts: dict[int, str]) -> str:
++    if span["start"] == span["end"]:
++        return '<span class="none">not in export</span>'
++    text = export_texts[span["turn_seq"]][span["start"] : span["end"]]
++    return _ut("span", "export-piece", text)
++
++
++def _span_rows(
++    document: dict[str, Any], roles: dict[int, str], export_texts: dict[int, str], stt: Any
++) -> str:
++    rows = []
++    for index, span in enumerate(document["spans"]):
++        if not span["flagged"]:
++            continue
++        if "audio_start_ms" in span:
++            audio = (
++                f'<button type="button" class="seek" data-seek-start-ms="{span["audio_start_ms"]}"'
++                f' data-seek-end-ms="{span["audio_end_ms"]}">play {span["audio_start_ms"]} to '
++                f'{span["audio_end_ms"]} ms</button>'
++            )
++        else:
++            audio = "no audio range"
++        rows.append(
++            f'<tr class="flag-row" data-span="{index}" data-turn-seq="{span["turn_seq"]}" '
++            f'data-stt-token-start="{span["stt_token_start"]}" data-stt-token-end="{span["stt_token_end"]}">'
++            f'<td class="turn">turn {span["turn_seq"]}</td>'
++            f'<td class="role">{_e(roles.get(span["turn_seq"], "unknown"))}</td>'
++            f'<td class="offsets">{span["start"]}-{span["end"]}</td>'
++            f'<td class="confidence">{_e(span["confidence"])}</td>'
++            f'<td class="edit">edit distance {span["edit_distance"]} of {span["key_length"]}</td>'
++            f'<td class="boundary">{"yes" if span["near_chunk_boundary"] else "no"}</td>'
++            f'<td class="exportside">{_exported(span, export_texts)}</td>'
++            f'<td class="heard">{_heard(span, *stt)}</td>'
++            f'<td class="audio">{audio}</td></tr>'
++        )
++    return "".join(rows)
++
++
++def _histogram(document: dict[str, Any]) -> str:
++    spans_in = [0] * 10
++    flagged_in = [0] * 10
++    for span in document["spans"]:
++        index = min(9, span["edit_distance"] * 10 // span["key_length"])
++        spans_in[index] += 1
++        flagged_in[index] += 1 if span["flagged"] else 0
++    biggest = max(spans_in) or 1
++    rows = []
++    for index in range(10):
++        high = f"0.{index + 1}" if index < 9 else "1.0"
++        width = max(1, spans_in[index] * 100 // biggest)
++        bar = (
++            f'<svg width="{width}" height="10" role="img" aria-label="{spans_in[index]} spans">'
++            f'<rect x="0" y="0" width="{width}" height="10"></rect></svg>'
++            if spans_in[index]
++            else ""
++        )
++        rows.append(
++            f'<tr class="bin" data-bin="{index}" data-low="0.{index}" data-high="{high}" '
++            f'data-spans="{spans_in[index]}" data-flagged="{flagged_in[index]}">'
++            f"<td>0.{index} to {high}</td><td>{spans_in[index]} spans</td>"
++            f"<td>{flagged_in[index]} flagged</td><td>{bar}</td></tr>"
++        )
++    return (
++        '<table id="histogram"><thead><tr><th>confidence</th><th>spans</th><th>flagged</th>'
++        "<th></th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
++        f'<p id="histogram-total">spans: {len(document["spans"])}</p>'
++    )
++
++
++def _instant(value: Any) -> str:
++    from datetime import UTC
++
++    return value.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
++
++
++def render_report(bundle: RunBundle, *, audio: RelativeAudio | EmbeddedAudio) -> str:
++    if not isinstance(bundle, RunBundle):
++        raise TypeError("render_report takes a RunBundle")
++    if not isinstance(audio, RelativeAudio | EmbeddedAudio):
++        raise TypeError("audio must be a RelativeAudio or an EmbeddedAudio")
++    embedded = isinstance(audio, EmbeddedAudio)
++    outcome = outcome_of(bundle)
++    facts = facts_of(bundle)
++    document = facts.document if outcome == "scored" else None
++    export = next(t for t in bundle.transcripts if t.source == "agent_export")
++    export_turns = sorted(
++        (t for t in bundle.turns if t.transcript_id == export.id), key=lambda t: t.seq
++    )
++    roles = {t.seq: t.role for t in export_turns}
++    lines = dict(summary_lines(bundle, outcome))
++    scorer = facts.results[MER_KEY].scorer.version if MER_KEY in facts.results and facts.results[
++        MER_KEY
++    ].scorer else tracer_evalcore.__version__
++    body: list[str] = []
++    body.append(
++        '<main id="report"><header><h1>Tracer: agreement between two transcripts of one '
++        "recorded call</h1>"
++        f'<p id="status" data-outcome="{outcome}">result: '
++        f'{"scored" if outcome == "scored" else "not scored"}</p></header>'
++    )
++    body.append(
++        '<section id="what-this-is"><p>This page compares the transcript export of an agent for '
++        "one recorded call with a speech-to-text transcript of the same audio. Neither text is "
++        "treated as the reference, and nothing here says which one is right. No call was "
++        "simulated: this is a recorded call. The page points at the spans of the export where "
++        "the two disagree, so that a person reads less.</p></section>"
++    )
++    declared = export.declared_language.language if export.declared_language else None
++    if declared is not None:
++        body.append(
++            f'<p id="declared-language" data-language="{_e(declared)}">'
++            f"language declared by user: {_e(declared)}</p>"
++        )
++    artifact = bundle.artifacts[0] if bundle.artifacts else None
++    body.append('<section id="audio">')
++    if artifact is not None:
++        fmt = artifact.audio_format
++        body.append(
++            f'<p id="audio-facts" data-sha256="{artifact.sha256}" data-bytes="{artifact.size}">'
++            f"audio: {fmt.container if fmt else 'unknown'}, "
++            f'{fmt.sample_rate_hz if fmt else 0} Hz, {fmt.channels if fmt else 0} channel(s), '
++            f"{artifact.size} bytes, sha256 {artifact.sha256}</p>"
++        )
++        if embedded:
++            body.append(
++                '<p id="embed-warning" class="warning">This file contains the call audio and '
++                "personal data. Treat it like the recording: do not share it.</p>"
++            )
++            source = "data:audio/wav;base64," + base64.b64encode(audio.data).decode("ascii")
++        else:
++            source = audio.src
++        body.append(f'<audio id="player" controls preload="none" src="{_e(source)}"></audio>')
++    body.append("</section>")
++    privacy = export.privacy
++    if privacy is not None and privacy.human_subject:
++        retention = privacy.retention
++        until = _instant(retention.retain_until) if retention.retain_until else "not set"
++        body.append(
++            f'<p id="privacy">personal data: yes. consent: {_e(privacy.consent.status)}. '
++            f'delete on expiry: {"yes" if retention.delete_on_expiry else "no"}. '
++            f"retain until: {until}.</p>"
++        )
++    # provenance
++    prov: list[str] = [f'<dt>scorer version</dt><dd id="scorer-version">{_e(scorer)}</dd>']
++    if document is not None:
++        stt = document["stt"]
++        prov += [
++            f'<dt>signal</dt><dd id="signal">{_e(document["signal"])}</dd>',
++            f'<dt>stt provider</dt>{_ut("dd", "", stt["provider"], " id=" + chr(34) + "stt-provider" + chr(34))}',
++            f'<dt>stt model</dt>{_ut("dd", "", stt["model"], " id=" + chr(34) + "stt-model" + chr(34))}',
++            f'<dt>model source</dt><dd id="stt-model-source">{_e(stt["model_source"])}</dd>',
++            f'<dt>normaliser</dt><dd id="normaliser">{_e(document["normaliser"])}</dd>',
++            f'<dt>threshold</dt><dd id="threshold">{_e(document["flag_min_confidence"])}</dd>',
++        ]
++    body.append('<section><h2>How this was computed</h2><dl id="provenance">' + "".join(prov) + "</dl></section>")
++    if document is not None:
++        alignment = document["alignment"]
++        mer = facts.results[MER_KEY].value
++        share = facts.results[SHARE_KEY]
++        tokens = document["tokens"]
++        body.append('<section id="summary"><h2>Numbers</h2>')
++        body.append(
++            f'<p id="agreement" data-value="{mer!r}" data-hits="{alignment["hits"]}" '
++            f'data-substitutions="{alignment["substitutions"]}" data-deletions="{alignment["deletions"]}" '
++            f'data-insertions="{alignment["insertions"]}">'
++            f'agreement distance (MER): {_e(lines["agreement distance (MER)"])}</p>'
++        )
++        body.append(f'<p id="tokens">tokens: {_e(lines["tokens"])}</p>')
++        body.append(
++            f'<p id="flag-count" data-value="{facts.results[COUNT_KEY].value}">'
++            f'flags: {_e(lines["flags"])}</p>'
++        )
++        body.append(
++            f'<p id="flagged-share" data-numerator="{tokens["flagged_export"]}" '
++            f'data-denominator="{tokens["export"]}">flagged share of export tokens: '
++            f'{_e(lines["flagged share of export tokens"])}</p>'
++        )
++        body.append(f'<p id="flag-turns">export turns with a flag: {_e(lines["export turns with a flag"])}</p>')
++        budget = budget_facts(bundle, facts)
++        if budget is not None:
++            text, no_limit, met = budget
++            met_attr = "" if met is None else f' data-met="{"true" if met else "false"}"'
++            body.append(
++                f'<p id="review-budget" data-max="{_e(text)}" data-no-limit="'
++                f'{"true" if no_limit else "false"}"{met_attr}>review budget: '
++                f'{_e(lines["review budget"])}</p>'
++            )
++        del share
++        body.append("</section>")
++    else:
++        items = [f"<li>not scored: {_e(r)}</li>" for r in not_scored_reasons(bundle)]
++        detail = stt_failure_detail(bundle)
++        if detail is not None:
++            items.append(f'<li>detail: {_ut("span", "", detail)}</li>')
++        body.append('<section id="not-scored"><ul>' + "".join(items) + "</ul></section>")
++    # histogram and flags
++    if document is not None:
++        body.append(
++            '<section><h2>Confidence of the spans</h2><p>Histogram of the confidence of every '
++            "span found, flagged or not. The confidence is an uncalibrated disagreement strength "
++            "and not a probability.</p>" + _histogram(document) + "</section>"
++        )
++        rows = _span_rows(
++            document, roles, {t.seq: t.text for t in export_turns}, _stt_pieces(bundle, document)
++        )
++        if rows:
++            flags = (
++                '<table id="flags-table"><thead><tr><th>turn</th><th>role</th><th>offsets</th>'
++                "<th>confidence</th><th>edit</th><th>chunk edge</th><th>agent export</th><th>STT heard</th><th>audio</th></tr></thead>"
++                f"<tbody>{rows}</tbody></table>"
++            )
++        else:
++            flags = "<p>no span reached the threshold</p>"
++        body.append(f'<section id="flags"><h2>Flagged spans</h2>{flags}</section>')
++    # transcript
++    spans_by_turn: dict[int, list[tuple[int, dict[str, Any]]]] = {}
++    if document is not None:
++        for index, span in enumerate(document["spans"]):
++            if span["flagged"]:
++                spans_by_turn.setdefault(span["turn_seq"], []).append((index, span))
++    items = []
++    for turn in export_turns:
++        spans = sorted(spans_by_turn.get(turn.seq, []), key=lambda p: (p[1]["start"], p[1]["end"]))
++        items.append(
++            f'<li class="turn" id="turn-{turn.seq}" data-seq="{turn.seq}" data-role="{_e(turn.role)}" '
++            f'data-flags="{len(spans)}"><span class="role">{_e(turn.role)}</span>'
++            f'<div class="text">{_segments(turn, spans)}</div></li>'
++        )
++    body.append(f'<section><h2>Export</h2><ol id="transcript">{"".join(items)}</ol></section>')
++    # usage
++    note = ""
++    cost = cost_text(bundle)
++    if cost.startswith("not available"):
++        note = (
++            '<p id="usage-note">A user price file must also price requests as well as '
++            "audio_input_seconds, or no cost can be computed.</p>"
++        )
++    usage = usage_text(bundle)
++    requests = usage.split(" requests")[0] if usage != "none" else "none"
++    seconds = usage.split(", ")[1].split(" audio")[0] if usage != "none" else "none"
++    body.append(
++        '<section id="usage"><h2>Usage and cost</h2><table><tbody>'
++        f'<tr id="usage-row-requests"><th>requests</th><td id="usage-requests">{requests}</td></tr>'
++        f'<tr><th>audio seconds</th><td id="usage-audio-seconds">{seconds}</td></tr>'
++        f'<tr><th>cost</th><td id="usage-cost">{_e(cost)}</td></tr></tbody></table>{note}</section>'
++    )
++    # warnings
++    warnings = bundle.run.ingest_warnings
++    witems = "".join(
++        f'<li><code>{_e(w.code)}</code> {_ut("span", "", str(w.path or "") + " " + str(w.message or ""))}</li>'
++        for w in warnings
++    )
++    body.append(
++        f'<section id="warnings" data-count="{len(warnings)}"><p id="warning-count">ingest warnings: '
++        f"{len(warnings)}</p><ul>{witems}</ul></section>"
++    )
++    body.append(
++        '<section id="snapshot-note"><p>The stored configuration of this run holds a check named '
++        "recorded_call_no_outcome_check. It is never run and produces no result. It exists only "
++        "because schema 0.0.1 requires such a check, and it is not a judgement of the agent.</p>"
++        "</section>"
++    )
++    body.append(
++        f'<footer><p>run created {_instant(bundle.run.created_at)}</p></footer></main>'
++    )
++    csp = content_security_policy(STYLE, SEEK_SCRIPT, embedded=embedded)
++    head = (
++        '<meta charset="utf-8">'
++        f'<meta http-equiv="Content-Security-Policy" content="{_e(csp)}">'
++        '<meta name="tracer-report" content="1">'
++        "<title>Tracer report</title>"
++        f"<style>{STYLE}</style>"
++    )
++    return (
++        '<!DOCTYPE html>\n<html lang="en"><head>' + head + "</head><body>"
++        + "".join(body)
++        + f"<script>{SEEK_SCRIPT}</script></body></html>\n"
++    )
+diff -ruN a/packages/cli/src/tracer_cli/summary.py b/packages/cli/src/tracer_cli/summary.py
+--- a/packages/cli/src/tracer_cli/summary.py
++++ b/packages/cli/src/tracer_cli/summary.py
+@@ -0,0 +1,204 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The facts of a run that the command prints and the report shows, from the bundle alone."""
++
++from __future__ import annotations
++
++from dataclasses import dataclass
++from decimal import Decimal
++from typing import Any
++
++from tracer_evalcore.registry import COUNT_KEY, MER_KEY, SHARE_KEY
++from tracer_evalschema.primitives import canonical_decimal_text
++
++__all__ = [
++    "Facts",
++    "budget_facts",
++    "cost_text",
++    "facts_of",
++    "not_scored_reasons",
++    "render_summary",
++    "stt_failure_detail",
++    "usage_text",
++]
++
++_ERROR_REASONS = {
++    "stt_unsupported_language": "unsupported language detected",
++    "stt_language_not_observed": "language not observed in the stt transcript",
++    "alignment_too_large": "input too large to compare",
++    "levenshtein_too_large": "input too large to compare",
++    "stt_provenance_missing": "speech-to-text provenance missing",
++    "flags_document_refused": "flags document refused",
++}
++_NA_REASONS = {
++    "unsupported_language": "unsupported language detected",
++    "language_not_observed": "language not observed",
++}
++
++
++@dataclass(frozen=True)
++class Facts:
++    keys: dict[str, Any]
++    results: dict[str, Any]
++    document: dict[str, Any] | None
++
++
++def facts_of(bundle: Any) -> Facts:
++    keys = {d.id: d.key for d in bundle.snapshot.metric_definitions}
++    results = {keys[r.metric.id]: r for r in bundle.results if r.metric.id in keys}
++    document = None
++    for result in bundle.results:
++        if result.status == "scored":
++            document = result.metadata["tracer.flags"]
++            break
++    return Facts(keys, results, document)
++
++
++def stt_failure_detail(bundle: Any) -> str | None:
++    for warning in bundle.run.ingest_warnings:
++        if warning.code == "stt_failed":
++            return str(warning.message)
++    return None
++
++
++def not_scored_reasons(bundle: Any) -> tuple[str, ...]:
++    if stt_failure_detail(bundle) is not None:
++        return ("speech-to-text failed",)
++    reasons: list[str] = []
++    for result in bundle.results:
++        if result.status == "scored":
++            continue
++        if result.status == "not_applicable":
++            if result.na_reason == "missing_input":
++                reason = "missing input " + ", ".join(result.missing_kinds or [])
++            else:
++                reason = _NA_REASONS.get(result.na_reason, str(result.na_reason).replace("_", " "))
++        else:
++            code = result.error.code
++            if code == "no_tokens":
++                side = "export" if result.error.message.startswith("the export") else (
++                    "stt transcript"
++                )
++                reason = f"no tokens in the {side}"
++            else:
++                reason = _ERROR_REASONS.get(code, code)
++        if reason not in reasons:
++            reasons.append(reason)
++    return tuple(reasons)
++
++
++def usage_text(bundle: Any) -> str:
++    if not bundle.usage_records:
++        return "none"
++    requests = 0
++    seconds = Decimal(0)
++    for record in bundle.usage_records:
++        for quantity in record.quantities:
++            if quantity.unit == "requests":
++                requests += int(quantity.count)
++            elif quantity.unit == "audio_input_seconds":
++                seconds += Decimal(str(quantity.count))
++    return f"{requests} requests, {canonical_decimal_text(seconds)} audio seconds"
++
++
++def cost_text(bundle: Any) -> str:
++    summaries = [s for s in bundle.cost_summaries if s.domain == "evaluation"]
++    if not summaries:
++        return "not available (no cost record)"
++    summary = summaries[0]
++    records = [r for r in bundle.cost_records if r.domain == "evaluation"]
++    if summary.completeness == "complete" and summary.total is not None:
++        return f"{summary.total.amount} {summary.total.currency} (computed from the supplied USD price)"
++    if summary.completeness == "partial" and summary.total is not None:
++        return (
++            f"partial: {summary.total.amount} {summary.total.currency} "
++            f"({len(summary.included)} of {len(records)} usage records priced)"
++        )
++    reasons = sorted({r.na_reason for r in records if r.na_reason})
++    return f"not available ({', '.join(reasons) if reasons else 'no cost record'})"
++
++
++def _number(value: Any) -> str:
++    return repr(value) if isinstance(value, float) else str(value)
++
++
++def budget_facts(bundle: Any, facts: Facts) -> tuple[str, bool, bool | None] | None:
++    """``(max text, no limit, met)`` of the review budget rule, or None when there is none."""
++    for definition in bundle.snapshot.metric_definitions:
++        if definition.key == SHARE_KEY and definition.pass_rule is not None:
++            rule = definition.pass_rule
++            no_limit = Decimal(str(rule.max)) == 1 and rule.inclusive is True
++            result = facts.results.get(SHARE_KEY)
++            met = None if no_limit or result is None else result.passed
++            return _number(rule.max), no_limit, met
++    return None
++
++
++def _flag_lines(bundle: Any, facts: Facts) -> list[tuple[str, str]]:
++    assert facts.document is not None
++    document = facts.document
++    alignment = document["alignment"]
++    hits, subs = alignment["hits"], alignment["substitutions"]
++    dels, ins = alignment["deletions"], alignment["insertions"]
++    edits = subs + dels + ins
++    mer = facts.results[MER_KEY].value
++    flags = facts.results[COUNT_KEY].value
++    share = facts.results[SHARE_KEY].value
++    tokens = document["tokens"]
++    export = next(t for t in bundle.transcripts if t.source == "agent_export")
++    turns = [t for t in bundle.turns if t.transcript_id == export.id]
++    flagged_turns = len({s["turn_seq"] for s in document["spans"] if s["flagged"]})
++    lines = [
++        (
++            "agreement distance (MER)",
++            f"{_number(mer)} ({edits} of {hits + edits}; H {hits}, S {subs}, D {dels}, I {ins})",
++        ),
++        ("tokens", f"{tokens['export']} in the export, {tokens['stt']} in the stt transcript"),
++        ("flags", f"{flags} (confidence at or above {document['flag_min_confidence']})"),
++        (
++            "flagged share of export tokens",
++            f"{tokens['flagged_export']} of {tokens['export']} ({_number(share)})",
++        ),
++        ("export turns with a flag", f"{flagged_turns} of {len(turns)}"),
++    ]
++    budget = budget_facts(bundle, facts)
++    if budget is not None:
++        text, no_limit, met = budget
++        if no_limit:
++            lines.append(("review budget", f"{text} (no limit)"))
++        else:
++            lines.append(
++                ("review budget", f"{text} (flagged share is {'within' if met else 'over'} it)")
++            )
++    return lines
++
++
++def summary_lines(bundle: Any, outcome: str) -> list[tuple[str, str]]:
++    facts = facts_of(bundle)
++    export = next(t for t in bundle.transcripts if t.source == "agent_export")
++    lines: list[tuple[str, str]] = []
++    scored = outcome == "scored" and facts.document is not None
++    lines.append(("result", "scored" if scored else "not scored"))
++    lines.append(("language declared by user", export.declared_language.language))
++    if scored:
++        assert facts.document is not None
++        stt = facts.document["stt"]
++        lines.append(("stt provider", stt["provider"]))
++        lines.append(("stt model", f"{stt['model']} (as requested)"))
++        lines.append(("normaliser", facts.document["normaliser"]))
++        lines.extend(_flag_lines(bundle, facts))
++    else:
++        for reason in not_scored_reasons(bundle):
++            lines.append(("not scored", reason))
++        detail = stt_failure_detail(bundle)
++        if detail is not None:
++            lines.append(("detail", "".join(c if 32 <= ord(c) < 127 else "?" for c in detail)))
++    lines.append(("stt usage", usage_text(bundle)))
++    lines.append(("cost", cost_text(bundle)))
++    lines.append(("ingest warnings", str(len(bundle.run.ingest_warnings))))
++    return lines
++
++
++def render_summary(bundle: Any, *, outcome: str, stt_failure: Any = None) -> str:
++    """The lines the command prints for a run, before its bundle, store and report lines."""
++    return "".join(f"{label}: {value}\n" for label, value in summary_lines(bundle, outcome))
