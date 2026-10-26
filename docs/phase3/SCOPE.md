@@ -238,6 +238,37 @@ reproduced exactly.
   - **USD price:** none supplied, so cost stays `not_available`; the INR price is never converted.
   - The first real send (P3-30) still waits for the adapter to pass its offline tests and for the
     security audit P3-28.
+- **D11. Batch D findings and contract decisions (lead, 2026-10-26; decision log "PHASE 3 BATCH D
+  (qa ae3069f5003fa6413) DELIVERED"; contract `docs/phase3/api-surface-batch-d.md`).** All
+  auto-approved; ADR 0023 rules 16 to 18 amended (ADR index revision 42).
+  - **F13 (ADR 0023 rule 17).** `ConfigSnapshot` requires an enabled `llm_judge` boolean check that
+    uses `{{expected_outcome}}` as a required rubric item, so a recorded run's rubric has two required
+    items: first the inert `recorded_call_no_outcome_check` (judge model none, `not_run`; never run, no
+    result, no verdict; a schema workaround, not a judgement), second the flagged-token-share item
+    with the review budget (a rubric file field, no code default; the example file's `max` 1.0 is a
+    labelled placeholder printed as "review budget: 1.0 (no limit)"). 0.0.2 row BL-215.
+  - **F14 (rule 16).** The Run holds no external references; the VoicEra call id stays on the export
+    transcript. A call id on the Run would make a second run of the same call a `ReimportConflict`
+    (ADR 0022 Decision 11) and break the repeat and shifted-chunk runs of P3-31 in one store.
+  - **F15 (rule 16).** `AgentTarget` needs an endpoint: `wss://recorded-call.invalid/` (RFC 6761
+    reserved, never resolves), nothing else declared. 0.0.2 row BL-216.
+  - **F16 (rule 18).** Fresh UUIDv7 ids per record and a new snapshot digest per run: byte identity
+    holds for the stored round trip, a rerun is identical modulo ids, and runs are compared by the
+    `tracer.flags/1` parameters and the scorer version, never by snapshot digests (BL-217).
+  - **Ambiguities accepted:** (1) the review budget and `flag_min_confidence` are fields of the rubric
+    file with no default (`rubric_budget_missing`), an optional top-level `note` is never stored, and
+    the test-only values 0.3 and 0.25 live in the test support files only, marked as test values;
+    (2) "owner definition versions" are fresh version-1 definitions built from the templates and the
+    rubric file; (3) only an unknown `implementation_ref` refuses a run, since a definition has no
+    scorer-version field; (4) the ids rule of F16; (5) Persona has no text field, so the Evaluator text
+    says no simulated caller exists (BL-182 extended); (6) cost is an injected `CostBuilder`, composed
+    by the CLI, because the core cannot import `tracer-evalproviders`; (7) a non-mr or untagged chunk
+    gives `error` `stt_unsupported_language` or `stt_language_not_observed` with pinned message formats;
+    (8) `FakeEngine` is the one place to adapt if the batch B boundary names change; (9) the test move
+    order is evalcore first, because the cli tests load the evalcore batch D support file by path.
+    `PipelineResult.outcome` is `scored`, `not_scored` or `stt_failed`, with exit codes 0, 2 and 3;
+    the store is `tracer_cli.store`, the only importer of `tracer-evaldb`.
+  - **Gap:** the call log's `after` line with `elapsed_ms=None` has no test (BL-218).
 
 ---
 
