@@ -167,7 +167,7 @@ jobs:
             -c "ALTER DATABASE tracer_test SET timezone TO 'Asia/Kolkata'"
           echo "TRACER_TEST_POSTGRES_URL=postgresql+pg8000://postgres:${PG_PASSWORD}@127.0.0.1:5432/tracer_test" >> "$GITHUB_ENV"
           echo "TRACER_TEST_POSTGRES_SQL_ASCII_URL=postgresql+pg8000://postgres:${PG_PASSWORD}@127.0.0.1:5432/tracer_ascii" >> "$GITHUB_ENV"
-      - run: uv run --locked --all-groups pytest -m postgres packages/evaldb/tests
+      - run: uv run --locked --all-groups pytest -m postgres packages/evaldb/tests packages/cli/tests
 
   test-postgres-py315:
     name: test-postgres (py3.15, pg18, non-blocking)
@@ -207,7 +207,7 @@ jobs:
             -c "ALTER DATABASE tracer_test SET timezone TO 'Asia/Kolkata'"
           echo "TRACER_TEST_POSTGRES_URL=postgresql+pg8000://postgres:${PG_PASSWORD}@127.0.0.1:5432/tracer_test" >> "$GITHUB_ENV"
           echo "TRACER_TEST_POSTGRES_SQL_ASCII_URL=postgresql+pg8000://postgres:${PG_PASSWORD}@127.0.0.1:5432/tracer_ascii" >> "$GITHUB_ENV"
-      - run: uv run --locked --all-groups pytest -m postgres packages/evaldb/tests
+      - run: uv run --locked --all-groups pytest -m postgres packages/evaldb/tests packages/cli/tests
 
   # Every evaldb runtime dependency at the lower bound of its range. uv --resolution lowest-direct
   # lowers the direct dependencies only: full "lowest" fails on an old transitive dependency

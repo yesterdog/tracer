@@ -633,7 +633,7 @@ MUTANTS: dict[str, tuple[Mutation, str]] = {
         "fenced block outside",
     ),
     "file stem": (
-        lambda t: t.replace("| clip-A | 22 |", "| clip-A (1dd261a8) | 22 |"),
+        lambda t: t.replace("| clip-A | 22 |", "| clip-A (a1b2c3d4) | 22 |"),
         "eight hex digits",
     ),
     "stem after underscore": (

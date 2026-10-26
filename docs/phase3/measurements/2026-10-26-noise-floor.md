@@ -8,11 +8,13 @@ Status: final
 Date: 2026-10-26
 Task: P3-31
 
-The runs: R1 is the first real run of each clip; R2 repeats R1 with the same inputs; R3 uses a different cut grid, max_chunk_ms 20000 instead of 25000, with search_ms unchanged, because the CLI has no option to shift the chunk boundaries by half a window. R3 is therefore a named deviation from the wording of the scope (SCOPE P3-31, BL-253): it shows how much the flags move when the cuts fall elsewhere, not the effect of an exact half-window shift. The normaliser comparison scores the stored data of R1 again, offline, with the normaliser on and off; the off side is an offline recomputation with a measurement-only identity key registered inside the measurement process, not a product normaliser and not in the product registry (ADR 0025). Two checks were made on it: the recomputation with the normaliser on gives the stored counts again, and a probe with a degenerate key showed that the key is used.
+The runs: R1 is the first real run of each clip; R2 repeats R1 with the same inputs; R3 uses a different cut grid, max_chunk_ms 20000 instead of 25000, with search_ms unchanged, because the CLI has no option to shift the chunk boundaries by half a window. R3 is therefore a named deviation from the wording of the scope (SCOPE P3-31, BL-253). The normaliser comparison scores the stored data of R1 again, offline, with the normaliser on and off; the off side is an offline recomputation with a measurement-only identity key registered inside the measurement process, not a product normaliser and not in the product registry (ADR 0025).
 
-clip-A was additionally run twice more with the same inputs as R1. All four clip-A runs with the same inputs (R1, R2 and the two extra runs) gave identical summaries and byte-identical tracer.flags/1 documents. The extra runs have no rows below.
+R3 changes two things at once. Its windows are 20 s long instead of 25 s, so the speech-to-text side hears a different amount of context in each chunk, and its cuts fall in other places. The cuts moved almost everywhere: on clip-A, 0 of the 10 cuts of R1 coincide with one of the 14 cuts of R3; on clip-B, 2 of the 19 cuts of R1 coincide with one of the 24 cuts of R3. R3 is therefore a perturbation of the whole chunking, not an isolated shift of the boundaries, and its row cannot separate the effect of the cut positions from the effect of the window length.
 
-Every value is copied from the decision log entries the lead recorded from the stored runs and their call logs (2026-10-26, P3-30 FIRST REAL SEND DONE, P3-30/P3-31 RESULTS and P3-31 MEASUREMENTS COMPLETE), never from a recollection. The decision log does not record some cells directly; they are named under Counts per run and Usage and cost and are to be checked against the stores (BL-252). All eight runs ended with exit 0 and an empty stderr, with zero ingest warnings, and every request was answered on its first attempt (no retry).
+clip-A was additionally run twice more with the same inputs as R1. All four clip-A runs with the same inputs (R1, R2 and the two extra runs) gave identical summaries and byte-identical tracer.flags/1 documents. The extra runs have no rows below. The two extra runs of clip-A and R2 of clip-B reused the chunk plan of R1 without a dry run of their own; the R3 runs had their own dry runs (BL-261).
+
+Provenance: every cell of this report was printed either by the runs themselves (the command summaries and the call-log summaries printed at run time) or by the measurement script `scripts/measurements/noise_floor.py` (sha256 d0be451eaa8e2976a669a9da880e446a7601d42e0dd76838ef2dd626643422b1, committed in the same change as this report), which opens each store read-only, prints counts only and stops when its recomputation with the normaliser on differs from the stored flags document or when its chunk-edge mark differs from the stored one. The lead re-ran the script on the stores, its output matched the first output, and every cell was checked against those outputs. All eight runs ended with exit 0 and an empty stderr, with zero ingest warnings, and every request was answered on its first attempt (no retry).
 
 ## Clips
 
@@ -40,8 +42,6 @@ The settings are those of R1; a run that used another value says so in its own r
 
 In a cell of the form N of D, N is the numerator and D the denominator, and the decimal in brackets is N divided by D. The agreement distance (MER) is S + D + I of H + S + D + I; the flagged export tokens are counted over the export tokens of the clip, and the export turns with a flag over the export turns of the clip. Chunks answered counts the chunks that got a successful response (an empty transcript included), over the chunks of the plan; attempts counts every request the call log records, retries included.
 
-Cells checked against the run-time outputs: the chunks answered and the attempts of R3 of both clips and of R2 of clip-B are the chunk count of the run, each confirmed by that run's call log (every request answered on its first attempt); R2 of clip-B repeats the R1 values and was recorded as identical to R1; H, S, D and I of R3 of clip-A were printed by the run itself (H 193, S 19, D 1, I 41). BL-252 asks for the scripts that recompute them from the stores.
-
 | Run | Clip | Chunks answered (n of d) | Attempts | Export tokens | STT tokens | H | S | D | I | Agreement distance (MER) (n of d) | Flags | Flagged export tokens (n of d) | Export turns with a flag (n of d) |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | R1 | clip-A | 11 of 11 | 11 | 213 | 253 | 193 | 19 | 1 | 41 | 61 of 254 (0.24015748031496062) | 10 | 9 of 213 (0.04225352112676056) | 9 of 18 (0.5) |
@@ -53,7 +53,7 @@ Cells checked against the run-time outputs: the chunks answered and the attempts
 
 ## Usage and cost
 
-The usage comes from the usage records of each run and is reconciled with its call log: R1 of clip-A logged 22 lines (11 before and 11 after the requests) and R1 of clip-B 40 lines (20 before and 20 after), all answered on the first attempt. For R3 of both clips and R2 of clip-B the requests and audio seconds are those printed by the run and match its call log: 15 requests and 254.560166666666666667 audio seconds for R3 of clip-A, 20 requests and 437.2025 audio seconds for R2 of clip-B, 25 requests and 437.2025 audio seconds for R3 of clip-B. The cost is not_available (no_price_for_model) for every run, because no USD price was given, and it is never written as 0. A cell is either not_available with its reason in brackets or a positive amount followed by USD.
+The usage comes from the usage records of each run and is reconciled with its call log: every call log holds one line before and one line after each request (for example 15 and 15 for R3 of clip-A, 25 and 25 for R3 of clip-B), and every request was answered on its first attempt. The cost is not_available (no_price_for_model) for every run, because no USD price was given, and it is never written as 0. A cell is either not_available with its reason in brackets or a positive amount followed by USD.
 
 | Run | Clip | Requests | Audio seconds | Cost |
 |---|---|---|---|---|
@@ -77,12 +77,15 @@ The span ids are the ids the report gives the flags (E and two or more digits), 
 | R2 | clip-B | 23 | E00, E02, E03, E04, E06, E07, E08, E09, E10, E13, E14, E16, E18, E19, E20, E21, E22, E24, E25, E26, E31, E34, E35 |
 | R3 | clip-B | 24 | E00, E02, E03, E04, E05, E06, E07, E09, E10, E11, E12, E16, E18, E19, E20, E21, E22, E24, E25, E26, E27, E31, E34, E35 |
 
+Some flags are zero-width: they mark speech-to-text tokens with no export token opposite them (insertions), so they hold no export token. Zero-width flags: clip-A 3 of 10 in R1 and R2, 3 of 9 in R3; clip-B 11 of 23 in R1 and R2, 10 of 24 in R3.
+
 ## Run-to-run difference
 
 The Jaccard index is the number of export tokens flagged in both runs over the number flagged in either run, written as both of either.
-R2 repeats R1 with the same inputs, so its row shows how stable the speech-to-text side is from one run to the next; R3 does not shift the chunk boundaries by half a window as the scope planned but cuts the same audio on another grid (max_chunk_ms 20000), so its row shows how much moving the cuts moves the flags.
+R2 repeats R1 with the same inputs, so its row shows how stable the speech-to-text side is from one run to the next; R3 does not shift the chunk boundaries by half a window as the scope planned but cuts the same audio on another grid with shorter windows (max_chunk_ms 20000), so its row shows how much that change of the whole chunking moves the flags.
 The normaliser row compares the stored data of R1 scored with the normaliser on and off, offline, with nothing sent.
 When both runs flag no token, either is 0 and the Jaccard cell is 0 of 0 with no decimal.
+The Jaccard index counts export tokens only, so it cannot see the zero-width (insertion) flags listed under Flags per run.
 
 | Comparison | Clip | Flagged tokens in both | Flagged tokens in either | Jaccard (n of d) |
 |---|---|---|---|---|
@@ -93,23 +96,29 @@ When both runs flag no token, either is 0 and the Jaccard cell is 0 of 0 with no
 | R1 vs R3 | clip-B | 15 | 29 | 15 of 29 (0.5172) |
 | R1 normaliser on vs off | clip-B | 18 | 18 | 18 of 18 (1.0) |
 
-Reading of the numbers (counts and plain statements only). The speech-to-text side repeated exactly at fixed inputs on these two clips: R2 matches R1 on both clips, and on clip-A four runs with the same inputs gave the same flags document. Moving the cuts changed the flagged set little on clip-A (8 of the 9 tokens flagged in either run are flagged in both) and a lot on clip-B (15 of 29). About half of the flags sit next to a chunk cut: in R1, clip-A has 5 of 17 spans next to a cut, all 5 flagged (5 of the 10 flags), and clip-B has 11 of 36 spans next to a cut, all 11 flagged (11 of the 23 flags); a flag next to a cut is read with the audio (BL-255). The normaliser switch changed nothing on these two clips: the MER counts and the flags are the same with it on and off. The two clips hold no digits, no letter case and no joiners for the normaliser to fold, so this says nothing about the normaliser in general (BL-254).
+Reading of the numbers (counts and plain statements only):
+
+- Repeats. The speech-to-text side repeated exactly at fixed inputs on these two clips: R2 matches R1 on both clips, and on clip-A four runs with the same inputs gave the same flags document. All repeats ran on one day, and identical repeats cannot tell deterministic decoding from caching on the provider's side (BL-260).
+- Another cut grid. On clip-A, R1 and R3 share 8 of the 9 flagged export tokens: one token is flagged in R1 only, and none in R3 only. On clip-B they share 15 of 29: 14 tokens are flagged in only one of the two runs, 3 in R1 only (18 minus 15) and 11 in R3 only (26 minus 15).
+- Flags next to a cut. A recording edge (the first or the last token of the whole recording) is not a cut, so this report counts a span as next to a cut only when it holds the first or the last token of a speech-to-text turn and that token is not a recording edge. On that definition, in R1 3 of the 10 flags of clip-A and 9 of the 23 flags of clip-B sit next to a cut (R3: 3 of 9 and 10 of 24). Every run has 2 recording-edge spans, both flagged. In R1, the spans next to a cut are flagged in 3 of 3 cases on clip-A and 9 of 9 on clip-B (12 of 12 together), against 7 of 14 and 14 of 27 among all other spans of the run (21 of 41 together); in R3, 3 of 6 and 10 of 11 against 6 of 11 and 14 of 25. The near_chunk_boundary mark stored with each span also counts the recording edges (ADR 0023 rule 10, BL-256); with it, R1 gives 5 of 5 against 5 of 12 on clip-A and 11 of 11 against 12 of 25 on clip-B. A stricter per-token variant of the definition differs in one cell only: clip-A R3 has 4 flags next to a cut instead of 3. A flag next to a cut is read with the audio (BL-255).
+- Insertions. 3 of the 10 flags of clip-A and 11 of the 23 flags of clip-B in R1 are zero-width insertion flags, which the token Jaccard above does not count.
+- The normaliser. Switching it off changed nothing on these two clips: the MER counts and the flags are the same with it on and off. The two clips hold no digits, no letter case and no joiners for the normaliser to fold, so this does not show that the normaliser has no effect; it says nothing about the normaliser in general (BL-254).
 
 ## What was NOT measured
 
 - No native speaker has reviewed any flag, any speech-to-text output or the normaliser rules (BL-169).
 - Two clips are a demonstration, not a validation: no number here supports a general claim, and no threshold was tuned on them (BL-170).
 - No other speech-to-text engine, model or language was run, and the flag threshold was not varied: one model only, saaras:v4 as requested.
-- No run on other days or at other times, so a change of the service over time is not measured.
-- An exact half-window shift of the chunk boundaries: R3 used a different cut grid (BL-253).
+- No run on other days or at other times, so a change of the service over time is not measured, and deterministic decoding is not told apart from caching on the provider's side (BL-260).
+- An exact half-window shift of the chunk boundaries, or a change of the cut positions with the window length held fixed: R3 changed both, on one alternative grid per clip (BL-253).
 - The normaliser on content it would change: the two clips hold no digits, case or joiners (BL-254).
 - The cost in USD: no price was given, so the cost is not_available.
 - The billing of a retry: no retry happened in any of the eight runs.
-- Whether a flag points at a real difference in what was said: that needs a person who listens to the recording. The real report of each run was not checked against the recording by a person.
+- Whether a flag points at a real difference in what was said: that needs a person who listens to the recording. The real report of each run was not checked against the recording by a person. The report's audio playback and click-to-seek were checked by the owner in Chrome and Edge only, which says nothing about any flag (BL-224, closed).
 
 ## Not claimed
 
-A flag is not a claim that the export holds an error, and an unflagged span is not shown to be right.
+A flag is not a claim that the export holds an error, and an unflagged span is not shown to be right. The flag confidence is not calibrated. The repeats do not show that the speech-to-text side is deterministic in general. The chunking result covers one alternative grid per clip and no more. The normaliser was not shown to have no effect, only to change nothing on these two clips. A count summed over the two clips is a count, not a statement about calls in general, and nothing here says anything about Marathi speech-to-text quality.
 
 ```text
 Tracer reports how far two transcripts agree; it does not measure accuracy, and none of its numbers is a WER, a CER, an error rate, a recall or a precision.

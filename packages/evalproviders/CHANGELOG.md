@@ -9,8 +9,9 @@ and the error taxonomy live in `tracer-evalcore` (`tracer_evalcore.stt`).
 
 Status: not released. No version tag exists and nothing is published to PyPI. The Sarvam adapter
 is implemented (Phase 3 batch B) and hardened after the security audit P3-28 (batch G); it is
-used by `tracer score --stt sarvam`. Nothing here has made a real request yet: the first real
-send (P3-30) is owner-gated and follows the run book of ADR 0024.
+used by `tracer score --stt sarvam`. It made its first real requests on 2026-10-26 under the run
+book of ADR 0024: 124 requests in eight runs of two recordings, every one answered on its first
+attempt, so no retry happened and retry billing is unverified (BL-228).
 
 First version. Everything below is new.
 

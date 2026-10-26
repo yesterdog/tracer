@@ -80,12 +80,13 @@ Tracer reports how far two transcripts agree; it does not measure accuracy, and 
 - Number words against digits are not folded: a number spoken as a word in one text and written in digits in the other gets a high confidence and can be flagged (BL-192).
 - The confidence is relative to the length of the span, so one differing letter in a two-letter word reaches the threshold of 0.5 (1 of 2) and is flagged, while the same difference in a three-letter word (1 of 3) is not (BL-243).
 - A split word, one that the other text cuts in two with a single space (as a chunk boundary can do), has a distance of 1 over the word length plus one, so it stays below the threshold of 0.5 and is not flagged (BL-244).
-- The noise floor of the speech-to-text side (how much a repeat run or a shifted chunking changes the flags) was measured once on two clips, with counts only, in `docs/phase3/measurements/2026-10-26-noise-floor.md`; two clips are a demonstration, not a validation (BL-170).
+- The noise floor of the speech-to-text side (how much a repeat run, or a run with a different cut grid of 20-second instead of 25-second chunks, changes the flags; the chunks were not shifted by half a window, since the CLI has no such option, BL-253) was measured once on two clips, with counts only, in `docs/phase3/measurements/2026-10-26-noise-floor.md`; two clips are a demonstration, not a validation (BL-170).
+- A flag on a span marked near a chunk boundary may come from the cut rather than from the export, so it is read with the audio; the mark also covers the first and the last token of the recording (ADR 0023 rule 10), and the counts of the first real runs, and how much a different cut grid changed the flagged set, are in the measurement report (BL-255).
 - No native review of the Marathi normaliser rules, of the synthetic pair or of any result has happened (BL-169, BL-225).
 - The two texts share no time base, so the comparison is over the whole call, not turn by turn (BL-167).
 - The aligner accepts at most 10,000 tokens per side; with `--stt sarvam` a longer export is refused before the send, and memory and time at the caps are unmeasured (BL-230).
 - The speech-to-text side can only be counted after the send: above 10,000 tokens it gives the `error` result `alignment_too_large`, and the run is stored and reported as not scored (exit 2); no command-level test drives this case yet (BL-250).
-- The report's audio playback and click-to-seek under `file://` have no automated check; the owner checks them by hand in a browser (BL-224).
+- The report's audio playback and click-to-seek under `file://`: checked by the owner in Chrome and Edge on 2026-10-26 on the real report of the first real send; supported browsers: Chrome and Edge only; other browsers are out of scope for now; the embedded-audio mode and browser versions are not tested, and no automated (headless) browser test exists; the player starts a few seconds before the flagged spot because it jumps to the start of the matching speech-to-text phrase (BL-224, closed).
 
 ## Related
 

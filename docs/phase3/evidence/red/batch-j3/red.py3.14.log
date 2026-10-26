@@ -1,0 +1,1420 @@
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF..                                     [100%]
+=================================== FAILURES ===================================
+___ test_loopback_guard_lets_the_four_socket_paths_reach_a_loopback_listener ___
+
+    def test_loopback_guard_lets_the_four_socket_paths_reach_a_loopback_listener() -> None:
+>       with loopback_only(), listener() as server:
+             ^^^^^^^^^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:79: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:59: in loopback_only
+    guard().install_loopback_only(mp)
+    ^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_ test_loopback_guard_refuses_every_other_address_before_any_lookup[192.0.2.1-9] _
+
+host = '192.0.2.1', port = 9
+
+    @pytest.mark.parametrize(("host", "port"), NOT_LOOPBACK)
+    def test_loopback_guard_refuses_every_other_address_before_any_lookup(host: str, port: int) -> None:
+>       with loopback_only():
+             ^^^^^^^^^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:59: in loopback_only
+    guard().install_loopback_only(mp)
+    ^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_ test_loopback_guard_refuses_every_other_address_before_any_lookup[203.0.113.5-80] _
+
+host = '203.0.113.5', port = 80
+
+    @pytest.mark.parametrize(("host", "port"), NOT_LOOPBACK)
+    def test_loopback_guard_refuses_every_other_address_before_any_lookup(host: str, port: int) -> None:
+>       with loopback_only():
+             ^^^^^^^^^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:59: in loopback_only
+    guard().install_loopback_only(mp)
+    ^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_ test_loopback_guard_refuses_every_other_address_before_any_lookup[10.0.0.1-5432] _
+
+host = '10.0.0.1', port = 5432
+
+    @pytest.mark.parametrize(("host", "port"), NOT_LOOPBACK)
+    def test_loopback_guard_refuses_every_other_address_before_any_lookup(host: str, port: int) -> None:
+>       with loopback_only():
+             ^^^^^^^^^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:59: in loopback_only
+    guard().install_loopback_only(mp)
+    ^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_ test_loopback_guard_refuses_every_other_address_before_any_lookup[8.8.8.8-53] _
+
+host = '8.8.8.8', port = 53
+
+    @pytest.mark.parametrize(("host", "port"), NOT_LOOPBACK)
+    def test_loopback_guard_refuses_every_other_address_before_any_lookup(host: str, port: int) -> None:
+>       with loopback_only():
+             ^^^^^^^^^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:59: in loopback_only
+    guard().install_loopback_only(mp)
+    ^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_ test_loopback_guard_refuses_every_other_address_before_any_lookup[0.0.0.0-9] _
+
+host = '0.0.0.0', port = 9
+
+    @pytest.mark.parametrize(("host", "port"), NOT_LOOPBACK)
+    def test_loopback_guard_refuses_every_other_address_before_any_lookup(host: str, port: int) -> None:
+>       with loopback_only():
+             ^^^^^^^^^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:59: in loopback_only
+    guard().install_loopback_only(mp)
+    ^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+____ test_loopback_guard_refuses_every_other_address_before_any_lookup[-9] _____
+
+host = '', port = 9
+
+    @pytest.mark.parametrize(("host", "port"), NOT_LOOPBACK)
+    def test_loopback_guard_refuses_every_other_address_before_any_lookup(host: str, port: int) -> None:
+>       with loopback_only():
+             ^^^^^^^^^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:59: in loopback_only
+    guard().install_loopback_only(mp)
+    ^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_ test_loopback_guard_refuses_every_other_address_before_any_lookup[example.invalid-9] _
+
+host = 'example.invalid', port = 9
+
+    @pytest.mark.parametrize(("host", "port"), NOT_LOOPBACK)
+    def test_loopback_guard_refuses_every_other_address_before_any_lookup(host: str, port: int) -> None:
+>       with loopback_only():
+             ^^^^^^^^^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:59: in loopback_only
+    guard().install_loopback_only(mp)
+    ^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_ test_loopback_guard_refuses_every_other_address_before_any_lookup[api.sarvam.ai-443] _
+
+host = 'api.sarvam.ai', port = 443
+
+    @pytest.mark.parametrize(("host", "port"), NOT_LOOPBACK)
+    def test_loopback_guard_refuses_every_other_address_before_any_lookup(host: str, port: int) -> None:
+>       with loopback_only():
+             ^^^^^^^^^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:59: in loopback_only
+    guard().install_loopback_only(mp)
+    ^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_ test_loopback_guard_refuses_every_other_address_before_any_lookup[localhost.example.com-9] _
+
+host = 'localhost.example.com', port = 9
+
+    @pytest.mark.parametrize(("host", "port"), NOT_LOOPBACK)
+    def test_loopback_guard_refuses_every_other_address_before_any_lookup(host: str, port: int) -> None:
+>       with loopback_only():
+             ^^^^^^^^^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:59: in loopback_only
+    guard().install_loopback_only(mp)
+    ^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_ test_loopback_guard_refuses_every_other_address_before_any_lookup[evil-localhost-9] _
+
+host = 'evil-localhost', port = 9
+
+    @pytest.mark.parametrize(("host", "port"), NOT_LOOPBACK)
+    def test_loopback_guard_refuses_every_other_address_before_any_lookup(host: str, port: int) -> None:
+>       with loopback_only():
+             ^^^^^^^^^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:59: in loopback_only
+    guard().install_loopback_only(mp)
+    ^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_ test_loopback_guard_refuses_every_other_address_before_any_lookup[notlocalhost-9] _
+
+host = 'notlocalhost', port = 9
+
+    @pytest.mark.parametrize(("host", "port"), NOT_LOOPBACK)
+    def test_loopback_guard_refuses_every_other_address_before_any_lookup(host: str, port: int) -> None:
+>       with loopback_only():
+             ^^^^^^^^^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:59: in loopback_only
+    guard().install_loopback_only(mp)
+    ^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_ test_loopback_guard_refuses_every_other_address_before_any_lookup[127.0.0.1.example.com-9] _
+
+host = '127.0.0.1.example.com', port = 9
+
+    @pytest.mark.parametrize(("host", "port"), NOT_LOOPBACK)
+    def test_loopback_guard_refuses_every_other_address_before_any_lookup(host: str, port: int) -> None:
+>       with loopback_only():
+             ^^^^^^^^^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:59: in loopback_only
+    guard().install_loopback_only(mp)
+    ^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_ test_loopback_guard_refuses_every_other_address_before_any_lookup[2001:db8::1-9] _
+
+host = '2001:db8::1', port = 9
+
+    @pytest.mark.parametrize(("host", "port"), NOT_LOOPBACK)
+    def test_loopback_guard_refuses_every_other_address_before_any_lookup(host: str, port: int) -> None:
+>       with loopback_only():
+             ^^^^^^^^^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:59: in loopback_only
+    guard().install_loopback_only(mp)
+    ^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+___ test_loopback_guard_refuses_every_other_address_before_any_lookup[::-9] ____
+
+host = '::', port = 9
+
+    @pytest.mark.parametrize(("host", "port"), NOT_LOOPBACK)
+    def test_loopback_guard_refuses_every_other_address_before_any_lookup(host: str, port: int) -> None:
+>       with loopback_only():
+             ^^^^^^^^^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:59: in loopback_only
+    guard().install_loopback_only(mp)
+    ^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+__________________ test_loopback_guard_refuses_non_tcp_shapes __________________
+
+tmp_path = PosixPath('<tmp>')
+
+    def test_loopback_guard_refuses_non_tcp_shapes(tmp_path: Path) -> None:
+>       with loopback_only():
+             ^^^^^^^^^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:112: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:59: in loopback_only
+    guard().install_loopback_only(mp)
+    ^^^^^^^
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_________ test_loopback_guard_refuses_localhost_when_it_resolves_away __________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10be56040>
+
+    def test_loopback_guard_refuses_localhost_when_it_resolves_away(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+>       module = guard()
+                 ^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:127: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+___________ test_is_loopback_ip_reads_literals_only[127.0.0.1-True] ____________
+
+text = '127.0.0.1', expected = True
+
+    @pytest.mark.parametrize(
+        ("text", "expected"),
+        [
+            ("127.0.0.1", True),
+            ("127.5.5.5", True),
+            ("::1", True),
+            ("::ffff:127.0.0.1", True),
+            ("127.0.0.1%lo0", True),
+            ("0.0.0.0", False),  # noqa: S104
+            ("::", False),
+            ("10.0.0.1", False),
+            ("192.168.1.1", False),
+            ("8.8.8.8", False),
+            ("::ffff:8.8.8.8", False),
+            ("localhost", False),
+            ("127.0.0.1.example.com", False),
+            ("", False),
+            ("1270.0.1", False),
+        ],
+    )
+    def test_is_loopback_ip_reads_literals_only(text: str, expected: bool) -> None:
+>       assert guard().is_loopback_ip(text) is expected
+               ^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:166: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+___________ test_is_loopback_ip_reads_literals_only[127.5.5.5-True] ____________
+
+text = '127.5.5.5', expected = True
+
+    @pytest.mark.parametrize(
+        ("text", "expected"),
+        [
+            ("127.0.0.1", True),
+            ("127.5.5.5", True),
+            ("::1", True),
+            ("::ffff:127.0.0.1", True),
+            ("127.0.0.1%lo0", True),
+            ("0.0.0.0", False),  # noqa: S104
+            ("::", False),
+            ("10.0.0.1", False),
+            ("192.168.1.1", False),
+            ("8.8.8.8", False),
+            ("::ffff:8.8.8.8", False),
+            ("localhost", False),
+            ("127.0.0.1.example.com", False),
+            ("", False),
+            ("1270.0.1", False),
+        ],
+    )
+    def test_is_loopback_ip_reads_literals_only(text: str, expected: bool) -> None:
+>       assert guard().is_loopback_ip(text) is expected
+               ^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:166: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+______________ test_is_loopback_ip_reads_literals_only[::1-True] _______________
+
+text = '::1', expected = True
+
+    @pytest.mark.parametrize(
+        ("text", "expected"),
+        [
+            ("127.0.0.1", True),
+            ("127.5.5.5", True),
+            ("::1", True),
+            ("::ffff:127.0.0.1", True),
+            ("127.0.0.1%lo0", True),
+            ("0.0.0.0", False),  # noqa: S104
+            ("::", False),
+            ("10.0.0.1", False),
+            ("192.168.1.1", False),
+            ("8.8.8.8", False),
+            ("::ffff:8.8.8.8", False),
+            ("localhost", False),
+            ("127.0.0.1.example.com", False),
+            ("", False),
+            ("1270.0.1", False),
+        ],
+    )
+    def test_is_loopback_ip_reads_literals_only(text: str, expected: bool) -> None:
+>       assert guard().is_loopback_ip(text) is expected
+               ^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:166: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+________ test_is_loopback_ip_reads_literals_only[::ffff:127.0.0.1-True] ________
+
+text = '::ffff:127.0.0.1', expected = True
+
+    @pytest.mark.parametrize(
+        ("text", "expected"),
+        [
+            ("127.0.0.1", True),
+            ("127.5.5.5", True),
+            ("::1", True),
+            ("::ffff:127.0.0.1", True),
+            ("127.0.0.1%lo0", True),
+            ("0.0.0.0", False),  # noqa: S104
+            ("::", False),
+            ("10.0.0.1", False),
+            ("192.168.1.1", False),
+            ("8.8.8.8", False),
+            ("::ffff:8.8.8.8", False),
+            ("localhost", False),
+            ("127.0.0.1.example.com", False),
+            ("", False),
+            ("1270.0.1", False),
+        ],
+    )
+    def test_is_loopback_ip_reads_literals_only(text: str, expected: bool) -> None:
+>       assert guard().is_loopback_ip(text) is expected
+               ^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:166: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_________ test_is_loopback_ip_reads_literals_only[127.0.0.1%lo0-True] __________
+
+text = '127.0.0.1%lo0', expected = True
+
+    @pytest.mark.parametrize(
+        ("text", "expected"),
+        [
+            ("127.0.0.1", True),
+            ("127.5.5.5", True),
+            ("::1", True),
+            ("::ffff:127.0.0.1", True),
+            ("127.0.0.1%lo0", True),
+            ("0.0.0.0", False),  # noqa: S104
+            ("::", False),
+            ("10.0.0.1", False),
+            ("192.168.1.1", False),
+            ("8.8.8.8", False),
+            ("::ffff:8.8.8.8", False),
+            ("localhost", False),
+            ("127.0.0.1.example.com", False),
+            ("", False),
+            ("1270.0.1", False),
+        ],
+    )
+    def test_is_loopback_ip_reads_literals_only(text: str, expected: bool) -> None:
+>       assert guard().is_loopback_ip(text) is expected
+               ^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:166: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+____________ test_is_loopback_ip_reads_literals_only[0.0.0.0-False] ____________
+
+text = '0.0.0.0', expected = False
+
+    @pytest.mark.parametrize(
+        ("text", "expected"),
+        [
+            ("127.0.0.1", True),
+            ("127.5.5.5", True),
+            ("::1", True),
+            ("::ffff:127.0.0.1", True),
+            ("127.0.0.1%lo0", True),
+            ("0.0.0.0", False),  # noqa: S104
+            ("::", False),
+            ("10.0.0.1", False),
+            ("192.168.1.1", False),
+            ("8.8.8.8", False),
+            ("::ffff:8.8.8.8", False),
+            ("localhost", False),
+            ("127.0.0.1.example.com", False),
+            ("", False),
+            ("1270.0.1", False),
+        ],
+    )
+    def test_is_loopback_ip_reads_literals_only(text: str, expected: bool) -> None:
+>       assert guard().is_loopback_ip(text) is expected
+               ^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:166: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+______________ test_is_loopback_ip_reads_literals_only[::-False] _______________
+
+text = '::', expected = False
+
+    @pytest.mark.parametrize(
+        ("text", "expected"),
+        [
+            ("127.0.0.1", True),
+            ("127.5.5.5", True),
+            ("::1", True),
+            ("::ffff:127.0.0.1", True),
+            ("127.0.0.1%lo0", True),
+            ("0.0.0.0", False),  # noqa: S104
+            ("::", False),
+            ("10.0.0.1", False),
+            ("192.168.1.1", False),
+            ("8.8.8.8", False),
+            ("::ffff:8.8.8.8", False),
+            ("localhost", False),
+            ("127.0.0.1.example.com", False),
+            ("", False),
+            ("1270.0.1", False),
+        ],
+    )
+    def test_is_loopback_ip_reads_literals_only(text: str, expected: bool) -> None:
+>       assert guard().is_loopback_ip(text) is expected
+               ^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:166: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+___________ test_is_loopback_ip_reads_literals_only[10.0.0.1-False] ____________
+
+text = '10.0.0.1', expected = False
+
+    @pytest.mark.parametrize(
+        ("text", "expected"),
+        [
+            ("127.0.0.1", True),
+            ("127.5.5.5", True),
+            ("::1", True),
+            ("::ffff:127.0.0.1", True),
+            ("127.0.0.1%lo0", True),
+            ("0.0.0.0", False),  # noqa: S104
+            ("::", False),
+            ("10.0.0.1", False),
+            ("192.168.1.1", False),
+            ("8.8.8.8", False),
+            ("::ffff:8.8.8.8", False),
+            ("localhost", False),
+            ("127.0.0.1.example.com", False),
+            ("", False),
+            ("1270.0.1", False),
+        ],
+    )
+    def test_is_loopback_ip_reads_literals_only(text: str, expected: bool) -> None:
+>       assert guard().is_loopback_ip(text) is expected
+               ^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:166: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+__________ test_is_loopback_ip_reads_literals_only[192.168.1.1-False] __________
+
+text = '192.168.1.1', expected = False
+
+    @pytest.mark.parametrize(
+        ("text", "expected"),
+        [
+            ("127.0.0.1", True),
+            ("127.5.5.5", True),
+            ("::1", True),
+            ("::ffff:127.0.0.1", True),
+            ("127.0.0.1%lo0", True),
+            ("0.0.0.0", False),  # noqa: S104
+            ("::", False),
+            ("10.0.0.1", False),
+            ("192.168.1.1", False),
+            ("8.8.8.8", False),
+            ("::ffff:8.8.8.8", False),
+            ("localhost", False),
+            ("127.0.0.1.example.com", False),
+            ("", False),
+            ("1270.0.1", False),
+        ],
+    )
+    def test_is_loopback_ip_reads_literals_only(text: str, expected: bool) -> None:
+>       assert guard().is_loopback_ip(text) is expected
+               ^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:166: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+____________ test_is_loopback_ip_reads_literals_only[8.8.8.8-False] ____________
+
+text = '8.8.8.8', expected = False
+
+    @pytest.mark.parametrize(
+        ("text", "expected"),
+        [
+            ("127.0.0.1", True),
+            ("127.5.5.5", True),
+            ("::1", True),
+            ("::ffff:127.0.0.1", True),
+            ("127.0.0.1%lo0", True),
+            ("0.0.0.0", False),  # noqa: S104
+            ("::", False),
+            ("10.0.0.1", False),
+            ("192.168.1.1", False),
+            ("8.8.8.8", False),
+            ("::ffff:8.8.8.8", False),
+            ("localhost", False),
+            ("127.0.0.1.example.com", False),
+            ("", False),
+            ("1270.0.1", False),
+        ],
+    )
+    def test_is_loopback_ip_reads_literals_only(text: str, expected: bool) -> None:
+>       assert guard().is_loopback_ip(text) is expected
+               ^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:166: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+________ test_is_loopback_ip_reads_literals_only[::ffff:8.8.8.8-False] _________
+
+text = '::ffff:8.8.8.8', expected = False
+
+    @pytest.mark.parametrize(
+        ("text", "expected"),
+        [
+            ("127.0.0.1", True),
+            ("127.5.5.5", True),
+            ("::1", True),
+            ("::ffff:127.0.0.1", True),
+            ("127.0.0.1%lo0", True),
+            ("0.0.0.0", False),  # noqa: S104
+            ("::", False),
+            ("10.0.0.1", False),
+            ("192.168.1.1", False),
+            ("8.8.8.8", False),
+            ("::ffff:8.8.8.8", False),
+            ("localhost", False),
+            ("127.0.0.1.example.com", False),
+            ("", False),
+            ("1270.0.1", False),
+        ],
+    )
+    def test_is_loopback_ip_reads_literals_only(text: str, expected: bool) -> None:
+>       assert guard().is_loopback_ip(text) is expected
+               ^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:166: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+___________ test_is_loopback_ip_reads_literals_only[localhost-False] ___________
+
+text = 'localhost', expected = False
+
+    @pytest.mark.parametrize(
+        ("text", "expected"),
+        [
+            ("127.0.0.1", True),
+            ("127.5.5.5", True),
+            ("::1", True),
+            ("::ffff:127.0.0.1", True),
+            ("127.0.0.1%lo0", True),
+            ("0.0.0.0", False),  # noqa: S104
+            ("::", False),
+            ("10.0.0.1", False),
+            ("192.168.1.1", False),
+            ("8.8.8.8", False),
+            ("::ffff:8.8.8.8", False),
+            ("localhost", False),
+            ("127.0.0.1.example.com", False),
+            ("", False),
+            ("1270.0.1", False),
+        ],
+    )
+    def test_is_loopback_ip_reads_literals_only(text: str, expected: bool) -> None:
+>       assert guard().is_loopback_ip(text) is expected
+               ^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:166: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_____ test_is_loopback_ip_reads_literals_only[127.0.0.1.example.com-False] _____
+
+text = '127.0.0.1.example.com', expected = False
+
+    @pytest.mark.parametrize(
+        ("text", "expected"),
+        [
+            ("127.0.0.1", True),
+            ("127.5.5.5", True),
+            ("::1", True),
+            ("::ffff:127.0.0.1", True),
+            ("127.0.0.1%lo0", True),
+            ("0.0.0.0", False),  # noqa: S104
+            ("::", False),
+            ("10.0.0.1", False),
+            ("192.168.1.1", False),
+            ("8.8.8.8", False),
+            ("::ffff:8.8.8.8", False),
+            ("localhost", False),
+            ("127.0.0.1.example.com", False),
+            ("", False),
+            ("1270.0.1", False),
+        ],
+    )
+    def test_is_loopback_ip_reads_literals_only(text: str, expected: bool) -> None:
+>       assert guard().is_loopback_ip(text) is expected
+               ^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:166: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_______________ test_is_loopback_ip_reads_literals_only[-False] ________________
+
+text = '', expected = False
+
+    @pytest.mark.parametrize(
+        ("text", "expected"),
+        [
+            ("127.0.0.1", True),
+            ("127.5.5.5", True),
+            ("::1", True),
+            ("::ffff:127.0.0.1", True),
+            ("127.0.0.1%lo0", True),
+            ("0.0.0.0", False),  # noqa: S104
+            ("::", False),
+            ("10.0.0.1", False),
+            ("192.168.1.1", False),
+            ("8.8.8.8", False),
+            ("::ffff:8.8.8.8", False),
+            ("localhost", False),
+            ("127.0.0.1.example.com", False),
+            ("", False),
+            ("1270.0.1", False),
+        ],
+    )
+    def test_is_loopback_ip_reads_literals_only(text: str, expected: bool) -> None:
+>       assert guard().is_loopback_ip(text) is expected
+               ^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:166: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+___________ test_is_loopback_ip_reads_literals_only[1270.0.1-False] ____________
+
+text = '1270.0.1', expected = False
+
+    @pytest.mark.parametrize(
+        ("text", "expected"),
+        [
+            ("127.0.0.1", True),
+            ("127.5.5.5", True),
+            ("::1", True),
+            ("::ffff:127.0.0.1", True),
+            ("127.0.0.1%lo0", True),
+            ("0.0.0.0", False),  # noqa: S104
+            ("::", False),
+            ("10.0.0.1", False),
+            ("192.168.1.1", False),
+            ("8.8.8.8", False),
+            ("::ffff:8.8.8.8", False),
+            ("localhost", False),
+            ("127.0.0.1.example.com", False),
+            ("", False),
+            ("1270.0.1", False),
+        ],
+    )
+    def test_is_loopback_ip_reads_literals_only(text: str, expected: bool) -> None:
+>       assert guard().is_loopback_ip(text) is expected
+               ^^^^^^^
+
+packages/cli/tests/test_cli_network_guard_postgres.py:166: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_network_guard_postgres.py:53: in guard
+    return importlib.import_module("cli_network_guard")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cli_network_guard', import_ = <function _gcd_import at 0x105f7fe20>
+
+>   ???
+E   ModuleNotFoundError: No module named 'cli_network_guard'
+
+<frozen importlib._bootstrap>:1335: ModuleNotFoundError
+_ test_the_real_conftest_exempts_only_postgres_marked_tests_and_only_loopback __
+
+tmp_path = PosixPath('<tmp>')
+
+    def test_the_real_conftest_exempts_only_postgres_marked_tests_and_only_loopback(
+        tmp_path: Path,
+    ) -> None:
+        code, output = run_inline(tmp_path, HERE / "conftest.py", HERE / "cli_network_guard.py")
+>       assert code == 0, output[-3000:]
+E       AssertionError: F.F....                                                                  [100%]
+E         =================================== FAILURES ===================================
+E         _________________________ test_marked_reaches_loopback _________________________
+E         
+E             @pytest.mark.postgres
+E             def test_marked_reaches_loopback():
+E                 server = _listener()
+E                 port = server.getsockname()[1]
+E         >       client = socket.create_connection(("127.0.0.1", port), timeout=5)
+E                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E         
+E         test_inline.py:20: 
+E         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+E         
+E         args = (('127.0.0.1', 55358),), kwargs = {'timeout': 5}
+E         
+E             def _refuse(*args: Any, **kwargs: Any) -> Any:
+E         >       raise AssertionError("a unit test tried to use the network (ADR 0024 rule 17)")
+E         E       AssertionError: a unit test tried to use the network (ADR 0024 rule 17)
+E         
+E         conftest.py:21: AssertionError
+E         _______________ test_param_mark_selects_the_exemption[postgres] ________________
+E         
+E         case = 'postgres'
+E         
+E             @pytest.mark.parametrize(
+E                 "case",
+E                 ["sqlite", pytest.param("postgres", marks=pytest.mark.postgres)],
+E             )
+E             def test_param_mark_selects_the_exemption(case):
+E                 server = _listener()
+E                 port = server.getsockname()[1]
+E                 try:
+E                     if case == "postgres":
+E         >               socket.create_connection(("127.0.0.1", port), timeout=5).close()
+E                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E         
+E         test_inline.py:38: 
+E         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+E         
+E         args = (('127.0.0.1', 55360),), kwargs = {'timeout': 5}
+E         
+E             def _refuse(*args: Any, **kwargs: Any) -> Any:
+E         >       raise AssertionError("a unit test tried to use the network (ADR 0024 rule 17)")
+E         E       AssertionError: a unit test tried to use the network (ADR 0024 rule 17)
+E         
+E         conftest.py:21: AssertionError
+E         =========================== short test summary info ============================
+E         FAILED test_inline.py::test_marked_reaches_loopback - AssertionError: a unit ...
+E         FAILED test_inline.py::test_param_mark_selects_the_exemption[postgres] - Asse...
+E         2 failed, 5 passed in 0.75s
+E         
+E       assert 1 == 0
+
+packages/cli/tests/test_cli_network_guard_postgres.py:300: AssertionError
+_ test_the_inline_run_has_teeth_it_fails_under_a_conftest_that_exempts_everything _
+
+tmp_path = PosixPath('<tmp>')
+
+    def test_the_inline_run_has_teeth_it_fails_under_a_conftest_that_exempts_everything(
+        tmp_path: Path,
+    ) -> None:
+        real = (HERE / "conftest.py").read_text("utf-8")
+>       assert "get_closest_marker" in real
+E       assert 'get_closest_marker' in '# SPDX-License-Identifier: Apache-2.0\n# Copyright 2026 The Tracer contributors\n"""The no-network guard of these tes...ak a key to the next, and none reads a key from the machine\n    monkeypatch.delenv("SARVAM_API_KEY", raising=False)\n'
+
+packages/cli/tests/test_cli_network_guard_postgres.py:308: AssertionError
+=========================== short test summary info ============================
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_loopback_guard_lets_the_four_socket_paths_reach_a_loopback_listener
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_loopback_guard_refuses_every_other_address_before_any_lookup[192.0.2.1-9]
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_loopback_guard_refuses_every_other_address_before_any_lookup[203.0.113.5-80]
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_loopback_guard_refuses_every_other_address_before_any_lookup[10.0.0.1-5432]
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_loopback_guard_refuses_every_other_address_before_any_lookup[8.8.8.8-53]
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_loopback_guard_refuses_every_other_address_before_any_lookup[0.0.0.0-9]
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_loopback_guard_refuses_every_other_address_before_any_lookup[-9]
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_loopback_guard_refuses_every_other_address_before_any_lookup[example.invalid-9]
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_loopback_guard_refuses_every_other_address_before_any_lookup[api.sarvam.ai-443]
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_loopback_guard_refuses_every_other_address_before_any_lookup[localhost.example.com-9]
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_loopback_guard_refuses_every_other_address_before_any_lookup[evil-localhost-9]
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_loopback_guard_refuses_every_other_address_before_any_lookup[notlocalhost-9]
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_loopback_guard_refuses_every_other_address_before_any_lookup[127.0.0.1.example.com-9]
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_loopback_guard_refuses_every_other_address_before_any_lookup[2001:db8::1-9]
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_loopback_guard_refuses_every_other_address_before_any_lookup[::-9]
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_loopback_guard_refuses_non_tcp_shapes
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_loopback_guard_refuses_localhost_when_it_resolves_away
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_is_loopback_ip_reads_literals_only[127.0.0.1-True]
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_is_loopback_ip_reads_literals_only[127.5.5.5-True]
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_is_loopback_ip_reads_literals_only[::1-True]
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_is_loopback_ip_reads_literals_only[::ffff:127.0.0.1-True]
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_is_loopback_ip_reads_literals_only[127.0.0.1%lo0-True]
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_is_loopback_ip_reads_literals_only[0.0.0.0-False]
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_is_loopback_ip_reads_literals_only[::-False]
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_is_loopback_ip_reads_literals_only[10.0.0.1-False]
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_is_loopback_ip_reads_literals_only[192.168.1.1-False]
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_is_loopback_ip_reads_literals_only[8.8.8.8-False]
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_is_loopback_ip_reads_literals_only[::ffff:8.8.8.8-False]
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_is_loopback_ip_reads_literals_only[localhost-False]
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_is_loopback_ip_reads_literals_only[127.0.0.1.example.com-False]
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_is_loopback_ip_reads_literals_only[-False]
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_is_loopback_ip_reads_literals_only[1270.0.1-False]
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_the_real_conftest_exempts_only_postgres_marked_tests_and_only_loopback
+FAILED packages/cli/tests/test_cli_network_guard_postgres.py::test_the_inline_run_has_teeth_it_fails_under_a_conftest_that_exempts_everything
+34 failed, 2 passed in 1.19s

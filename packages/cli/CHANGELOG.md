@@ -12,9 +12,10 @@ a change in three places: the README quick start, the end-to-end tests and the r
 
 ## 0.0.1 (unreleased)
 
-Status: not released. No version tag exists and nothing is published to PyPI. No real request has
-been sent through the command yet: the first real send (P3-30) is owner-gated and follows the run
-book of ADR 0024.
+Status: not released. No version tag exists and nothing is published to PyPI. The first real
+sends through the command happened on 2026-10-26 under the owner's key, following the run book of
+ADR 0024 (P3-30 and P3-31; counts only, in the measurement report
+`docs/phase3/measurements/2026-10-26-noise-floor.md`).
 
 First version. Everything below is new.
 
@@ -79,9 +80,13 @@ First version. Everything below is new.
 
 ### Findings
 
-- No test plays the report's audio or runs its seek script: the relative audio reference under
-  `file://` and click-to-seek need the owner's manual browser check (BL-224); there is no golden
-  report file yet, only determinism (BL-222).
+- No test plays the report's audio or runs its seek script. The relative audio reference under
+  `file://` and click-to-seek were checked by the owner in Chrome and Edge on 2026-10-26 on the
+  real report of the first real send; supported browsers: Chrome and Edge only; other browsers are
+  out of scope for now; the embedded-audio mode and browser versions are not tested; the player
+  starts a few seconds before the flagged spot because it jumps to the start of the matching
+  speech-to-text phrase (BL-224, closed). There is no golden report file yet, only determinism
+  (BL-222).
 - Retention is recorded, not enforced: no command deletes `--out` (BL-234, BL-240).
 - A link at `--out` itself and links at SQLite's side files are not checked (BL-246); the dry run
   does not require `--max-chunks` (BL-247).

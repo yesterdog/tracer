@@ -1,0 +1,25 @@
+# synthetic base case: tracer score --stt fake:<dir> (offline), then the script
+measure                                                                     | synth             
+------------------------------------------------------------------------------------------------
+export tokens                                                               | 120               
+STT tokens                                                                  | 120               
+MER (S+D+I) of (H+S+D+I)                                                    | 13 of 122 (0.1066)
+spans                                                                       | 10                
+flagged spans                                                               | 8                 
+flagged export tokens                                                       | 9                 
+export turns with a flag                                                    | 7 of 22           
+flagged zero-width (insertion) spans                                        | 1                 
+spans near_chunk_boundary (stored)                                          | 2                 
+flagged spans near_chunk_boundary                                           | 1                 
+recording-edge spans (doc definition)                                       | 0                 
+flagged near cut excl. recording edges (doc)                                | 1                 
+flagged near cut excl. recording edges (strict)                             | 1                 
+base rate: flagged among near_chunk_boundary spans (stored, edges included) | 1 of 2            
+base rate: flagged among all other spans (stored)                           | 7 of 8            
+base rate: flagged among near-cut spans (doc)                               | 1 of 2            
+base rate: flagged among other spans (doc)                                  | 7 of 8            
+base rate: flagged among near-cut spans (strict)                            | 1 of 2            
+base rate: flagged among other spans (strict)                               | 7 of 8            
+jaccard synth vs synth: 9 of 9; flagged tokens synth 9 synth 9; flagged zero-width spans synth 1 synth 1
+coincident cuts synth vs synth: 0 of 2 cuts of synth (cuts of synth: 3)
+synth: ON tokens 120/120 MER 13 of 122 flags 8 flagged tokens 9 | OFF tokens 120/122 MER 21 of 124 flags 11 flagged tokens 12 | both 9 of either 12 | self-check ON = stored: ok

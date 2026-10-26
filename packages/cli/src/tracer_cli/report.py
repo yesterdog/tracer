@@ -60,6 +60,12 @@ __all__ = [
     "safe_html",
 ]
 
+CHUNK_EDGE_NOTE: Final = (
+    "A flag marked yes under chunk edge may come from where the audio was cut for transcription "
+    "and not from the two texts. The first and last tokens of the whole recording also count as "
+    "chunk edges."
+)
+
 SEEK_SCRIPT: Final = (
     "(function () {\n"
     '  var player = document.getElementById("player");\n'
@@ -525,7 +531,9 @@ def _flags_section(bundle: RunBundle, document: dict[str, Any], turns: Sequence[
             "agent export", "STT heard", "audio",
         )  # fmt: skip
         head = _el("thead", _el("tr", "".join(_el("th", label) for label in labels)))
-        content = _el("table", head + _el("tbody", "".join(rows)), id="flags-table")
+        content = _el("table", head + _el("tbody", "".join(rows)), id="flags-table") + _el(
+            "p", _e(CHUNK_EDGE_NOTE), id="chunk-edge-note", **{"class": "chunk-edge-note"}
+        )
     else:
         content = _el("p", "no span reached the threshold")
     return _el("section", _el("h2", "Flagged spans") + content, id="flags")

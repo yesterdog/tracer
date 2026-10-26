@@ -1,0 +1,45 @@
+--- a/packages/cli/tests/conftest.py
++++ b/packages/cli/tests/conftest.py
+@@ -6,6 +6,12 @@
+ ``AssertionError`` (not an ``OSError``: code that retries or translates transport errors must not
+ swallow it). A test that reaches the network therefore fails. The same guard is in
+ ``packages/evalproviders/tests/conftest.py``. No test reads a key from the machine's environment.
++
++One exception (batch J3, gate condition C3): a test that carries the ``postgres`` marker talks to
++the CI database on the loopback interface, so for such a test the four socket paths are replaced by
++the loopback-only versions of ``cli_network_guard`` (a host that is not ``localhost`` or a literal
++loopback address is still refused, and so are the asyncio paths). Unmarked tests keep the full
++guard, loopback included.
+ """
+ 
+ from __future__ import annotations
+@@ -16,7 +22,9 @@
+ 
+ import pytest
+ 
++from cli_network_guard import install_loopback_only  # type: ignore[import-not-found,unused-ignore]
+ 
++
+ def _refuse(*args: Any, **kwargs: Any) -> Any:
+     raise AssertionError("a unit test tried to use the network (ADR 0024 rule 17)")
+ 
+@@ -26,11 +34,14 @@
+ 
+ 
+ @pytest.fixture(autouse=True)
+-def _no_network(monkeypatch: pytest.MonkeyPatch) -> None:
+-    monkeypatch.setattr(socket.socket, "connect", _refuse)
+-    monkeypatch.setattr(socket.socket, "connect_ex", _refuse)
+-    monkeypatch.setattr(socket, "create_connection", _refuse)
+-    monkeypatch.setattr(socket, "getaddrinfo", _refuse)
++def _no_network(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch) -> None:
++    if request.node.get_closest_marker("postgres") is not None:
++        install_loopback_only(monkeypatch)
++    else:
++        monkeypatch.setattr(socket.socket, "connect", _refuse)
++        monkeypatch.setattr(socket.socket, "connect_ex", _refuse)
++        monkeypatch.setattr(socket, "create_connection", _refuse)
++        monkeypatch.setattr(socket, "getaddrinfo", _refuse)
+     monkeypatch.setattr(asyncio.BaseEventLoop, "create_connection", _refuse_async)
+     monkeypatch.setattr(asyncio.BaseEventLoop, "sock_connect", _refuse_async)
+     # one test cannot leak a key to the next, and none reads a key from the machine

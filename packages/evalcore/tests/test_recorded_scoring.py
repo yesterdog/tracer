@@ -14,6 +14,7 @@ import json
 import re
 from typing import Any
 
+import jsonschema  # type: ignore[import-untyped,unused-ignore]
 import pytest
 from hypothesis import HealthCheck, Phase, given, settings
 from hypothesis import strategies as st
@@ -111,7 +112,6 @@ def test_share_passed_follows_the_owners_budget(
 
 
 def test_flags_metadata_validates_against_tracer_flags_1(tmp_path: Any) -> None:
-    jsonschema = pytest.importorskip("jsonschema")
     flags = mod("flags")
     flagsdoc = mod("flagsdoc")
     run = run_pipeline(tmp_path)

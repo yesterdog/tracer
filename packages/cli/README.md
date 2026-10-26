@@ -48,7 +48,7 @@ store: <out>/tracer.sqlite
 report: <out>/report-<utc_time>.html
 ```
 
-`--out` then holds `tracer.sqlite` (the store) and one `report-<UTC>.html`. Open the report in a browser to see each flag beside the speech-to-text text; the report refers to the recording by a relative path, so keep both where they are. The review budget 1.0 is a labelled placeholder of the example rubric file (no limit), not a recommendation, and `flag_min_confidence` 0.5 is the value the owner pre-registered; neither has a default in code. The cost reads "not available" because a replay makes no usage record; it is never 0.
+`--out` then holds `tracer.sqlite` (the store) and one `report-<UTC>.html`. Open the report in Chrome or Edge to see each flag beside the speech-to-text text; the report refers to the recording by a relative path, so keep both where they are. Audio playback and click-to-seek were checked by the owner in Chrome and Edge on 2026-10-26 on the real report of the first real send; supported browsers: Chrome and Edge only; other browsers are out of scope for now; the embedded-audio mode and browser versions are not tested, and no automated (headless) browser test exists; the player starts a few seconds before the flagged spot because it jumps to the start of the matching speech-to-text phrase (BL-224, closed). The review budget 1.0 is a labelled placeholder of the example rubric file (no limit), not a recommendation, and `flag_min_confidence` 0.5 is the value the owner pre-registered; neither has a default in code. The cost reads "not available" because a replay makes no usage record; it is never 0.
 
 ## Exit codes
 

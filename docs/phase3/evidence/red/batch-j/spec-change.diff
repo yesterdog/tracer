@@ -1,0 +1,44 @@
+--- a/packages/evalcore/tests/test_flags_document.py
++++ b/packages/evalcore/tests/test_flags_document.py
+@@ -15,6 +15,7 @@
+ from decimal import Decimal
+ from typing import Any
+ 
++import jsonschema  # type: ignore[import-untyped,unused-ignore]
+ import pytest
+ 
+ from evalcore_batchd_support import (  # type: ignore[import-not-found,unused-ignore]
+@@ -168,7 +169,6 @@
+ def test_flags_document_structural_faults_are_refused_by_schema_and_validator(
+     path: tuple[Any, ...], value: Any
+ ) -> None:
+-    jsonschema = pytest.importorskip("jsonschema")
+     flagsdoc, flags = mod("flagsdoc"), mod("flags")
+     document = _set(base_document(), path, value)
+     assert list(jsonschema.Draft202012Validator(flags.FLAGS_JSON_SCHEMA).iter_errors(document))
+@@ -210,7 +210,6 @@
+ def test_flags_document_cross_field_faults_are_refused_by_the_validator_only(
+     path: tuple[Any, ...], value: Any, code: str
+ ) -> None:
+-    jsonschema = pytest.importorskip("jsonschema")
+     flagsdoc, flags = mod("flagsdoc"), mod("flags")
+     document = _set(base_document(), path, value)
+     schema_errors = list(
+--- a/packages/evalcore/tests/test_recorded_scoring.py
++++ b/packages/evalcore/tests/test_recorded_scoring.py
+@@ -14,6 +14,7 @@
+ import re
+ from typing import Any
+ 
++import jsonschema  # type: ignore[import-untyped,unused-ignore]
+ import pytest
+ from hypothesis import HealthCheck, Phase, given, settings
+ from hypothesis import strategies as st
+@@ -111,7 +112,6 @@
+ 
+ 
+ def test_flags_metadata_validates_against_tracer_flags_1(tmp_path: Any) -> None:
+-    jsonschema = pytest.importorskip("jsonschema")
+     flags = mod("flags")
+     flagsdoc = mod("flagsdoc")
+     run = run_pipeline(tmp_path)

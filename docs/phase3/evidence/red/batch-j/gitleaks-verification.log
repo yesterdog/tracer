@@ -1,0 +1,13 @@
+gitleaks 8.30.1 (pinned binary); counts only, no match text is printed
+# 1. gitleaks dir: rsync copy of git ls-files plus docs/phase3/evidence (batch J evidence included), CORRECTED config
+11:50PM INF scanned ~120274806 bytes (120.27 MB) in 6.88s
+11:50PM INF no leaks found
+# 2. gitleaks git: real history, CORRECTED config
+11:50PM INF 74 commits scanned.
+11:50PM INF scanned ~114761132 bytes (114.76 MB) in 9.91s
+11:50PM INF no leaks found
+# 3. same tree, CORRECTED config minus the canary allowlist (what the allowlist is for)
+4 findings; rules: ['generic-api-key'] ; files: ['docs/phase3/evidence/red']
+# 4. scratch evidence log with 3 lines: x-prefixed canary, canary with a long tail, valid canary
+OLD config: findings = 0 ; lines reported = []
+NEW config: findings = 1 ; lines reported = [1]

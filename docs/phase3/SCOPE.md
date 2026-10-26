@@ -1,6 +1,6 @@
 # Phase 3 scope: recorded-audio scoring, mr base case
 
-Status: Scoped 2026-10-25. Batch 0 in progress: ADRs P3-00a to P3-00d written (ADR index revision 40, Decisions D6); P3-01 and P3-02 open.
+Status: Scoped 2026-10-25. As of 2026-10-26: batches 0 and A to I are committed (the last code commit is `b03a848`); the first real send P3-30 and the noise-floor measurements P3-31 are done, their report committed at `7b929ed` (`docs/phase3/measurements/2026-10-26-noise-floor.md`); the gate P3-G (staff-reviewer, at `7b929ed`) is PASS WITH CONDITIONS, recorded as passed only when its conditions C1 to C4 close with commit ids (conditions C1 to C12 in `docs/HANDOFF.md` section 4 and the decision log 2026-10-26 "PHASE 3 GATE"); Decisions D1 to D15; ADR index revision 48. The status of 2026-10-25, kept for history: Batch 0 in progress: ADRs P3-00a to P3-00d written (ADR index revision 40, Decisions D6); P3-01 and P3-02 open.
 
 Source: the Phase 3 scoping report of the staff-reviewer (2026-10-25), reproduced faithfully
 below. The only edits are the ones listed under Decisions (D1 to D5), third-person wording in the
@@ -30,7 +30,8 @@ reproduced exactly.
   - Q11 the normaliser drops ZWJ/ZWNJ in the comparison key only (display kept);
   - Q12 report audio by relative reference by default, embedding opt-in (`--embed-audio`, with a
     warning), one hashed inline seek script under a strict CSP (`default-src 'none'`); relative
-    audio playback under `file://` is unverified (manual check in P3-23);
+    audio playback under `file://` was unverified at scoping (manual check in P3-23); update
+    2026-10-26: checked by the owner in Chrome and Edge on 2026-10-26 on the real report of the first real send; supported browsers: Chrome and Edge only; other browsers are out of scope for now; the embedded-audio mode and browser versions are not tested, and no automated (headless) browser test exists; the player starts a few seconds before the flagged spot because it jumps to the start of the matching speech-to-text phrase (BL-224, closed);
   - Q13 an honest evaluator text, a Persona holding only the declared language, and
     `max_duration_ms` = 14,400,000 (the schema maximum, stated as such);
   - Q14 STT failure is all-or-nothing: `not_applicable` `missing_input[transcript]`, a Run
@@ -238,6 +239,17 @@ reproduced exactly.
   - **USD price:** none supplied, so cost stays `not_available`; the INR price is never converted.
   - The first real send (P3-30) still waits for the adapter to pass its offline tests and for the
     security audit P3-28.
+  - **Update 2026-10-27 (owner; decision log "OWNER ANSWERS TO THE 8 ITEMISED QUESTIONS").** (2) The review budget stays the labelled
+    placeholder 1.0 until the flags are understood (BL-214). (4) Training use: no opt-out for the two
+    test clips ("This is test data, it is okay to send to sarvam."); test data only, decided again
+    before any real-caller data (BL-212, BL-266). (5) The consent recorded-at instant
+    2026-10-25T00:00:00+05:30 is accepted by the owner as a date-only value; the reference stays
+    "owner statement 2026-10-25" (BL-213, BL-259). Retention: the owner's intent is
+    `delete-after:<date>` with the date after the native review; no date given, so the stored runs
+    stay `keep` (lead default) until the date is given (BL-234, BL-259). The native review is
+    owner-driven, no date; no quality claim until it is reported (BL-169, BL-225). PyPI publishing
+    is on hold (BL-130); the GitHub purge ticket is prepared for the owner to file (BL-131); the two
+    private file stems are scrubbed from the tracked files, not from earlier commits (BL-233).
 - **D11. Batch D findings and contract decisions (lead, 2026-10-26; decision log "PHASE 3 BATCH D
   (qa ae3069f5003fa6413) DELIVERED"; contract `docs/phase3/api-surface-batch-d.md`).** All
   auto-approved; ADR 0023 rules 16 to 18 amended (ADR index revision 42).
@@ -307,7 +319,8 @@ reproduced exactly.
     are not guarded (evaldb's Postgres tests need sockets), ADR 0024 rule 17 reworded (ADR index
     revision 43; BL-221). The guard test lives in `packages/cli/tests`.
   - **Other limits:** no golden report file yet, only determinism (BL-222); the report's relative
-    audio and seek script need the owner's manual browser check (BL-224); the e2e tests assert the
+    audio and seek script needed the owner's manual browser check (BL-224; update 2026-10-26:
+    checked by the owner in Chrome and Edge on 2026-10-26 on the real report of the first real send; supported browsers: Chrome and Edge only; other browsers are out of scope for now; the embedded-audio mode and browser versions are not tested, and no automated (headless) browser test exists; the player starts a few seconds before the flagged spot because it jumps to the start of the matching speech-to-text phrase; BL-224 closed); the e2e tests assert the
     batch E wording, so a wording change is a change in two places (BL-226).
 - **D13. Security audit P3-28 and batch G, its fixes (lead, 2026-10-26; decision log "PHASE 3
   SECURITY AUDIT P3-28" and "PHASE 3 BATCH G (qa a3647c2426423c933) DELIVERED"; contract
@@ -435,6 +448,12 @@ reproduced exactly.
   - **Limits recorded:** BL-246 to BL-251 (links at `--out` and the side files, the dry run without
     `--max-chunks`, a zero-length WAV over Sarvam, huge plans before the ceiling, an over-cap
     speech-to-text side, the other-language claim, which an existing test pins).
+- **Update 2026-10-27 (gate condition C3; decision log 2026-10-27 "PHASE 3 BATCH J IMPLEMENTED (dev a964742d65da009a6)", lead decision).** The hosted Postgres legs run
+  `pytest -m postgres packages/evaldb/tests packages/cli/tests`, so the CLI store parity test
+  `test_pipeline_bundle_stores_on_both_backends` runs there. The no-network guard of the Phase 3
+  packages exempts `postgres`-marked tests for loopback connections only (127.0.0.1, ::1,
+  localhost); unmarked tests keep the full guard. ADR 0024 rule 17 and I8 reworded (ADR index
+  revision 49); the guard change is a named spec change with qa tests red first; BL-267, BL-268.
 
 ---
 
@@ -798,7 +817,8 @@ are owner decisions (Decisions D2).
   - Script: recommend one hashed inline seek script under a strict CSP. Rejected: no JavaScript
     (no seeking to a flag).
   - Whether a relative `<audio src>` plays under `file://` in Chrome, Firefox and Safari is
-    **unverified**; P3-23 adds a manual check.
+    **unverified**; P3-23 adds a manual check. Update 2026-10-26 (decision log "OWNER BROWSER
+    CHECK" and "OWNER BROWSER SCOPE"): checked by the owner in Chrome and Edge on 2026-10-26 on the real report of the first real send; supported browsers: Chrome and Edge only; other browsers are out of scope for now; the embedded-audio mode and browser versions are not tested, and no automated (headless) browser test exists; the player starts a few seconds before the flagged spot because it jumps to the start of the matching speech-to-text phrase (BL-224, closed).
 - **Q13 Evaluator and Persona for recorded runs.** Recommend an honest task text, a Persona
   holding only the declared call language, and `max_duration_ms` = 14,400,000 (the schema
   maximum, stated as such). 0.0.2 backlog row.
@@ -919,7 +939,8 @@ D = 23 h, E = 19 h, F = 48 h. **About 204 h.** The critical path alone is about 
 - HANDOFF lines 123 to 265.
 - `git status`, `gh run list` and the current test counts at the Phase 3 baseline commit.
 - Whether `anyio` at the locked version still needs `sniffio` (SL reads this in P3-02).
-- Browser behaviour of a relative `<audio src>` under `file://` (manual check in P3-23).
+- Browser behaviour of a relative `<audio src>` under `file://` (manual check in P3-23; update
+  2026-10-26: checked by the owner in Chrome and Edge on 2026-10-26 on the real report of the first real send; supported browsers: Chrome and Edge only; other browsers are out of scope for now; the embedded-audio mode and browser versions are not tested, and no automated (headless) browser test exists; the player starts a few seconds before the flagged spot because it jumps to the start of the matching speech-to-text phrase, BL-224 closed).
 - Sarvam's real behaviour on chunks over 30 s and at 24 kHz, and its billing rounding (all
   unverified; only R1 or Sarvam support can answer).
 - The owner's answers in P3-29.

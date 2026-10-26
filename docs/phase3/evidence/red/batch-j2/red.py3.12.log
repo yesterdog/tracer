@@ -1,0 +1,28 @@
+FF.                                                                      [100%]
+=================================== FAILURES ===================================
+____ test_adr0016_p47_cites_the_tests_that_bind_it_and_only_existing_names _____
+
+    def test_adr0016_p47_cites_the_tests_that_bind_it_and_only_existing_names() -> None:
+        line = _item(ADR16.read_text("utf-8"), "- **P-47. ")
+>       assert decided_item_problems(line, P47_NAMES, _defined_tests()) == []
+E       AssertionError: assert ['cites test_...test defines'] == []
+E         
+E         Left contains one more item: 'cites test_human_subject_marker_contradiction_rejected, which no test defines'
+E         Use -v to get more diff
+
+packages/evalschema/tests/test_adr_decided_items_cite_tests.py:66: AssertionError
+____ test_adr0004_p08_cites_the_test_that_binds_it_and_only_existing_names _____
+
+    def test_adr0004_p08_cites_the_test_that_binds_it_and_only_existing_names() -> None:
+        line = _item(ADR04.read_text("utf-8"), "- **P-08. ")
+>       assert decided_item_problems(line, P08_NAMES, _defined_tests()) == []
+E       AssertionError: assert ['cites test_...test defines'] == []
+E         
+E         Left contains one more item: 'cites test_every_metric_has_pass_rule, which no test defines'
+E         Use -v to get more diff
+
+packages/evalschema/tests/test_adr_decided_items_cite_tests.py:71: AssertionError
+=========================== short test summary info ============================
+FAILED packages/evalschema/tests/test_adr_decided_items_cite_tests.py::test_adr0016_p47_cites_the_tests_that_bind_it_and_only_existing_names
+FAILED packages/evalschema/tests/test_adr_decided_items_cite_tests.py::test_adr0004_p08_cites_the_test_that_binds_it_and_only_existing_names
+2 failed, 1 passed in 1.55s

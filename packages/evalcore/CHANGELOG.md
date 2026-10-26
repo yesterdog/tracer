@@ -12,8 +12,9 @@ version, and a normaliser change also needs a new normaliser id.
 
 Status: not released. No version tag exists and nothing is published to PyPI. Phase 3 batches A
 to G are in: the readers, the chunker, the scoring core, the shipped metric definitions, the
-rubric file, the result mapping and the pipeline. No real recording has been scored yet (the first
-real send, P3-30, is owner-gated).
+rubric file, the result mapping and the pipeline. The two base-case recordings were first scored
+on 2026-10-26 (P3-30 and P3-31; counts only, in
+`docs/phase3/measurements/2026-10-26-noise-floor.md`).
 
 First version. Everything below is new.
 
@@ -116,6 +117,8 @@ First version. Everything below is new.
 
 - The concept page `docs/concepts/recorded-call-scoring.md` lists the known limits of the scoring:
   number words against digits (BL-192), the two-letter-word threshold behaviour (BL-243), the split
-  word (BL-244), the unmeasured noise floor (P3-31) and the missing native review (BL-169).
+  word (BL-244), the noise floor (measured once on two clips, counts only, in
+  `docs/phase3/measurements/2026-10-26-noise-floor.md`: a demonstration, not a validation,
+  BL-170), flags next to a chunk cut (BL-255) and the missing native review (BL-169).
 - The alignment cap was chosen from a measurement on one machine; it is revisited after the first
   real run (`docs/BACKLOG.md`).

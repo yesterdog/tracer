@@ -245,7 +245,7 @@ def test_the_checker_accepts_a_good_synthetic_audit() -> None:
             lambda t: t.replace("## Not verified by this audit (BL-236)", "## Other"),
             "section is missing",
         ),
-        ("a file stem", lambda t: t + "\n- the stem 1dd261a8 of a file", "hex token"),
+        ("a file stem", lambda t: t + "\n- the stem a1b2c3d4 of a file", "hex token"),
     ],
 )
 def test_the_checker_catches(label: str, edit: object, expect: str) -> None:

@@ -59,7 +59,7 @@ Stated plainly, so that nobody reads the verdict as covering them:
 - pip-audit results: not run by the audit; read the hosted CI run.
 - gitleaks: not run locally.
 - Real Sarvam behaviour: the billing of retries and failed attempts, response compression in practice. Only a real send shows them (P3-30). Verified afterwards by the real sends of P3-30 and P3-31 (2026-10-26, BL-236): 24 kHz mono 16-bit audio is accepted, chunks of up to 25 s and of up to 20 s are accepted, and replies with several phrases map without ingest warnings; no retry happened in the eight runs, so the billing of a retry stays unverified.
-- The report's CSP and `'self'` under `file://` in real browsers (also BL-224).
+- The report's CSP and `'self'` under `file://` in browsers other than Chrome and Edge, and in browser versions other than the owner's (not stated). Checked afterwards by the owner in Chrome and Edge on 2026-10-26 on the real report: the audio plays and click-to-seek works under the report's CSP; supported browsers: Chrome and Edge only, other browsers out of scope for now; the embedded-audio mode is not tested (BL-224, closed).
 - Windows (modes, `O_NOFOLLOW`, FIFOs are POSIX only).
 - The owner's proxy and CA environment.
 - Whether any committed string equals the owner's real key: the audit did not search for the key value; the owner can run `git log -S` with the key locally, and the lead key-scans the tree before every commit.
@@ -91,4 +91,4 @@ Run book additions of the re-audit, now in ADR 0024: do not press Ctrl-C during 
 - A zero-length WAV over the Sarvam engine (BL-248).
 - A speech-to-text side above 10,000 tokens after the send (BL-250).
 - The concept page's claim that another language gives exit 2 (pinned afterwards by an existing test, BL-251).
-- The report's CSP under `file://` in browsers (BL-224); Windows.
+- The report's CSP under `file://` in browsers other than Chrome and Edge (out of scope for now) and the embedded-audio mode; Chrome and Edge were checked by the owner on 2026-10-26 (BL-224, closed). Windows.

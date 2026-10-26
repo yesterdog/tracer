@@ -15,6 +15,7 @@ import copy
 from decimal import Decimal
 from typing import Any
 
+import jsonschema  # type: ignore[import-untyped,unused-ignore]
 import pytest
 
 from evalcore_batchd_support import (  # type: ignore[import-not-found,unused-ignore]
@@ -168,7 +169,6 @@ STRUCTURE = [
 def test_flags_document_structural_faults_are_refused_by_schema_and_validator(
     path: tuple[Any, ...], value: Any
 ) -> None:
-    jsonschema = pytest.importorskip("jsonschema")
     flagsdoc, flags = mod("flagsdoc"), mod("flags")
     document = _set(base_document(), path, value)
     assert list(jsonschema.Draft202012Validator(flags.FLAGS_JSON_SCHEMA).iter_errors(document))
@@ -210,7 +210,6 @@ CROSS = [
 def test_flags_document_cross_field_faults_are_refused_by_the_validator_only(
     path: tuple[Any, ...], value: Any, code: str
 ) -> None:
-    jsonschema = pytest.importorskip("jsonschema")
     flagsdoc, flags = mod("flagsdoc"), mod("flags")
     document = _set(base_document(), path, value)
     schema_errors = list(

@@ -1,0 +1,52 @@
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -167,7 +167,7 @@
+             -c "ALTER DATABASE tracer_test SET timezone TO 'Asia/Kolkata'"
+           echo "TRACER_TEST_POSTGRES_URL=postgresql+pg8000://postgres:${PG_PASSWORD}@127.0.0.1:5432/tracer_test" >> "$GITHUB_ENV"
+           echo "TRACER_TEST_POSTGRES_SQL_ASCII_URL=postgresql+pg8000://postgres:${PG_PASSWORD}@127.0.0.1:5432/tracer_ascii" >> "$GITHUB_ENV"
+-      - run: uv run --locked --all-groups pytest -m postgres packages/evaldb/tests
++      - run: uv run --locked --all-groups pytest -m postgres packages/evaldb/tests packages/cli/tests
+ 
+   test-postgres-py315:
+     name: test-postgres (py3.15, pg18, non-blocking)
+@@ -207,7 +207,7 @@
+             -c "ALTER DATABASE tracer_test SET timezone TO 'Asia/Kolkata'"
+           echo "TRACER_TEST_POSTGRES_URL=postgresql+pg8000://postgres:${PG_PASSWORD}@127.0.0.1:5432/tracer_test" >> "$GITHUB_ENV"
+           echo "TRACER_TEST_POSTGRES_SQL_ASCII_URL=postgresql+pg8000://postgres:${PG_PASSWORD}@127.0.0.1:5432/tracer_ascii" >> "$GITHUB_ENV"
+-      - run: uv run --locked --all-groups pytest -m postgres packages/evaldb/tests
++      - run: uv run --locked --all-groups pytest -m postgres packages/evaldb/tests packages/cli/tests
+ 
+   # Every evaldb runtime dependency at the lower bound of its range. uv --resolution lowest-direct
+   # lowers the direct dependencies only: full "lowest" fails on an old transitive dependency
+--- a/.gitleaks.toml
++++ b/.gitleaks.toml
+@@ -52,4 +52,4 @@
+ targetRules = ["generic-api-key"]
+ regexTarget = "match"
+ paths = ['''^docs/phase3/evidence/(green|red)/[^/]+/[^/]+\.(log|txt)$''']
+-regexes = ['''CANARYKEY-[a-z0-9-]+''']
++regexes = ['''['"]CANARYKEY-[a-z0-9]{6,8}-[a-z0-9]{6}['"]\z''']
+--- a/docs/adr/0016-roles-caller-origin-privacy.md
++++ b/docs/adr/0016-roles-caller-origin-privacy.md
+@@ -93,7 +93,7 @@
+ - I14. Benchmark consent: `not_obtained` is rejected even when sealed or redacted; `unknown` is rejected; a shared export with `not_obtained` consent is accepted when sealed or redacted. Tests: `test_benchmark_rejects_not_obtained_consent`, `test_benchmark_rejects_unknown_consent`, `test_shared_export_allows_not_obtained_consent_when_sealed_or_redacted`.
+ - I15. Precautionary markers at export time (P-57): a `marked_before_role_evidence` marker on a simulated run whose bundle shows only caller and agent roles is treated as non-human (no seal, redaction or consent needed, even with stored consent `unknown`); `manual` and `real_person_likeness` markers are always honoured; without role evidence in the bundle, or on a human-caller run, the payload stays human-subject; export validation never changes the stored record. Tests: `test_precautionary_marker_uses_derivation_at_export`, `test_manual_marker_always_honoured_at_export[manual,real_person_likeness]`, `test_simulated_precautionary_payload_with_unknown_consent_enters_benchmark`, `test_precautionary_marker_human_when_bundle_lacks_role_evidence`, `test_precautionary_marker_on_human_caller_run_stays_human`, `test_export_rederivation_leaves_stored_marker_unchanged`.
+ - I16. (revision 32, N19) `declared_by` is rejected in shared and benchmark exports (`[declared_by]`, naming the run bundle, the transcript and `transcripts[<j>]`, never the value) and kept in internal exports, run bundles and transcripts. Tests: `test_export_declared_by.py` (`test_a_shared_or_benchmark_export_rejects_declared_by`, `test_an_internal_export_keeps_declared_by`, `test_the_message_names_the_position_and_the_ids_and_not_the_value`, `test_the_first_transcript_is_found_and_the_first_offender_is_named`, `test_a_later_run_bundle_is_checked_too`).
+-- I17. (revision 40, Decision 1) Metrics evaluate only the agent's outputs: the agent's turns and audio and every turn of an agent-produced record whatever its role; the caller is never evaluated, and turns of records the agent did not produce are context or comparison inputs. Tests: `test_metrics_evaluate_agent_outputs_only` (Phase 3, P3-18; pending until it lands), `test_adr0016_amendment_cites_test` (P3-00d).
++- I17. (revision 40, Decision 1) Metrics evaluate only the agent's outputs: the agent's turns and audio and every turn of an agent-produced record whatever its role; the caller is never evaluated, and turns of records the agent did not produce are context or comparison inputs. Tests: `test_metrics_evaluate_agent_outputs_only` (Phase 3, P3-18), `test_adr0016_amendment_cites_test` (P3-00d).
+ 
+ ## Decided items (formerly [Proposed]; decided by the user in revision 5)
+ - **P-43. Where `caller_external_id` lives. Decided by the user (revision 5): accepted as recommended.** On Run, typed `CallerExternalId{value: VerbatimText, privacy: PrivacyMarker}` (Decision 6).
+--- a/docs/adr/0004-requires-and-not-applicable.md
++++ b/docs/adr/0004-requires-and-not-applicable.md
+@@ -178,8 +178,8 @@
+ - I38. (revision 32, T-B13) A scored result of a metric that reads transcripts has read a turn (an agent turn for `agent_transcript`), else `[applicability]` at `status`; not-applicable and error results are not judged; a withheld transcript or turn switches the rule off. Tests: `test_bundle_applicability_counts.py` (`test_b13_*`).
+ - I39. (revision 32, T-B16) A per-turn summary's `total_turns` and `counts.not_applicable` equal the turns read and those of them not applicable on their own, after the five compared fields, `total_turns` first; `passed`, `failed`, `undetermined` are not compared. Tests: `test_bundle_applicability_counts.py` (`test_b16_*`).
+ - I40. (revision 32, A-C6) A `not_applicable` result with a run-level reason (`missing_input`, `agent_channel_unknown`) has no `per_turn` summary, in the model and in the JSON Schema. Test: `test_run_level_not_applicable_result_has_no_per_turn_summary` (`test_result_run_level_per_turn.py`).
+-- I41. (revision 40, Decision 10a) An STT failure on any chunk leaves no `our_stt` transcript, makes every metric that requires `transcript` `not_applicable` `missing_input`, records a Run `IngestWarning` and exits non-zero. Tests: `test_stt_failure_is_missing_input_with_warning_and_nonzero_exit`, `test_sarvam_partial_chunk_failure_yields_no_transcript` (Phase 3, pending until P3-07 and P3-20 land).
+-- I42. (revision 40, Decision 10b) An empty chunk makes no Turn and is counted in the transcript metadata; its returned tag is not an observation. Tests: `test_empty_chunk_makes_no_turn_and_is_counted`, `test_detected_language_set_only_when_all_chunks_agree` (Phase 3, pending until P3-09 lands).
++- I41. (revision 40, Decision 10a) An STT failure on any chunk leaves no `our_stt` transcript, makes every metric that requires `transcript` `not_applicable` `missing_input`, records a Run `IngestWarning` and exits non-zero. Tests: `test_stt_failure_is_missing_input_with_warning_and_nonzero_exit`, `test_sarvam_partial_chunk_failure_yields_no_transcript` (Phase 3, P3-07 and P3-20).
++- I42. (revision 40, Decision 10b) An empty chunk makes no Turn and is counted in the transcript metadata; its returned tag is not an observation. Tests: `test_empty_chunk_makes_no_turn_and_is_counted`, `test_detected_language_set_only_when_all_chunks_agree` (Phase 3, P3-09).
+ - I21. `per_turn_share` metrics follow ADR 0010 Decision 3 (not_applicable and, since revision 6 (P-56), undetermined turns excluded from the denominator; not_applicable when every turn is not_applicable; `error`/`judge_undetermined` when no turn is counted and at least one is undetermined). Tests: `test_per_turn_share_excludes_na_turns_from_denominator`, `test_per_turn_share_not_applicable_when_no_turn_applies`, `test_per_turn_share_excludes_undetermined_turns_and_counts_them`, `test_per_turn_share_all_undetermined_is_judge_undetermined_error`.
+ 
+ ## Decided items (formerly [Proposed]; all decided by the user in revision 5)

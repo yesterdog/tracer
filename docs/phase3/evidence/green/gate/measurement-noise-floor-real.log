@@ -1,0 +1,32 @@
+# real stores (clip-A = A-*, clip-B = B-*); counts only. Command: noise_floor.py report <LABEL=store dir>... --pair ... --cuts A-R1,A-R3,<clip-A wav>,25000,5000,20000,5000 --cuts B-R1,B-R3,<clip-B wav>,25000,5000,20000,5000
+measure                                                                     | A-R1               | A-R2               | A-rep3             | A-rep4             | A-R3               | B-R1                | B-R2                | B-R3               
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+export tokens                                                               | 213                | 213                | 213                | 213                | 213                | 378                 | 378                 | 378                
+STT tokens                                                                  | 253                | 253                | 253                | 253                | 253                | 452                 | 452                 | 446                
+MER (S+D+I) of (H+S+D+I)                                                    | 61 of 254 (0.2402) | 61 of 254 (0.2402) | 61 of 254 (0.2402) | 61 of 254 (0.2402) | 61 of 254 (0.2402) | 119 of 459 (0.2593) | 119 of 459 (0.2593) | 123 of 457 (0.2691)
+spans                                                                       | 17                 | 17                 | 17                 | 17                 | 17                 | 36                  | 36                  | 36                 
+flagged spans                                                               | 10                 | 10                 | 10                 | 10                 | 9                  | 23                  | 23                  | 24                 
+flagged export tokens                                                       | 9                  | 9                  | 9                  | 9                  | 8                  | 18                  | 18                  | 26                 
+export turns with a flag                                                    | 9 of 18            | 9 of 18            | 9 of 18            | 9 of 18            | 8 of 18            | 13 of 18            | 13 of 18            | 13 of 18           
+flagged zero-width (insertion) spans                                        | 3                  | 3                  | 3                  | 3                  | 3                  | 11                  | 11                  | 10                 
+spans near_chunk_boundary (stored)                                          | 5                  | 5                  | 5                  | 5                  | 8                  | 11                  | 11                  | 13                 
+flagged spans near_chunk_boundary                                           | 5                  | 5                  | 5                  | 5                  | 5                  | 11                  | 11                  | 12                 
+recording-edge spans (doc definition)                                       | 2                  | 2                  | 2                  | 2                  | 2                  | 2                   | 2                   | 2                  
+flagged near cut excl. recording edges (doc)                                | 3                  | 3                  | 3                  | 3                  | 3                  | 9                   | 9                   | 10                 
+flagged near cut excl. recording edges (strict)                             | 3                  | 3                  | 3                  | 3                  | 4                  | 9                   | 9                   | 10                 
+base rate: flagged among near_chunk_boundary spans (stored, edges included) | 5 of 5             | 5 of 5             | 5 of 5             | 5 of 5             | 5 of 8             | 11 of 11            | 11 of 11            | 12 of 13           
+base rate: flagged among all other spans (stored)                           | 5 of 12            | 5 of 12            | 5 of 12            | 5 of 12            | 4 of 9             | 12 of 25            | 12 of 25            | 12 of 23           
+base rate: flagged among near-cut spans (doc)                               | 3 of 3             | 3 of 3             | 3 of 3             | 3 of 3             | 3 of 6             | 9 of 9              | 9 of 9              | 10 of 11           
+base rate: flagged among other spans (doc)                                  | 7 of 14            | 7 of 14            | 7 of 14            | 7 of 14            | 6 of 11            | 14 of 27            | 14 of 27            | 14 of 25           
+base rate: flagged among near-cut spans (strict)                            | 3 of 3             | 3 of 3             | 3 of 3             | 3 of 3             | 4 of 7             | 9 of 9              | 9 of 9              | 10 of 11           
+base rate: flagged among other spans (strict)                               | 7 of 14            | 7 of 14            | 7 of 14            | 7 of 14            | 5 of 10            | 14 of 27            | 14 of 27            | 14 of 25           
+jaccard A-R1 vs A-R2: 9 of 9; flagged tokens A-R1 9 A-R2 9; flagged zero-width spans A-R1 3 A-R2 3
+jaccard A-R1 vs A-R3: 8 of 9; flagged tokens A-R1 9 A-R3 8; flagged zero-width spans A-R1 3 A-R3 3
+jaccard B-R1 vs B-R2: 18 of 18; flagged tokens B-R1 18 B-R2 18; flagged zero-width spans B-R1 11 B-R2 11
+jaccard B-R1 vs B-R3: 15 of 29; flagged tokens B-R1 18 B-R3 26; flagged zero-width spans B-R1 11 B-R3 10
+coincident cuts A-R1 vs A-R3: 0 of 10 cuts of A-R1 (cuts of A-R3: 14)
+coincident cuts B-R1 vs B-R3: 2 of 19 cuts of B-R1 (cuts of B-R3: 24)
+
+# ablate A-R1=<real-1> B-R1=<real-2>
+A-R1: ON tokens 213/253 MER 61 of 254 flags 10 flagged tokens 9 | OFF tokens 213/253 MER 61 of 254 flags 10 flagged tokens 9 | both 9 of either 9 | self-check ON = stored: ok
+B-R1: ON tokens 378/452 MER 119 of 459 flags 23 flagged tokens 18 | OFF tokens 378/452 MER 119 of 459 flags 23 flagged tokens 18 | both 18 of either 18 | self-check ON = stored: ok

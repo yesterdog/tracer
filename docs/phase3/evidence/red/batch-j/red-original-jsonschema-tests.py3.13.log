@@ -1,0 +1,23 @@
+.FF.                                                                     [100%]
+=================================== FAILURES ===================================
+_____________ test_no_test_skips_or_guards_on_a_missing_jsonschema _____________
+packages/evalcore/tests/test_jsonschema_hard_import.py:106: in test_no_test_skips_or_guards_on_a_missing_jsonschema
+    assert offenders == {}, offenders
+E   AssertionError: {'packages/evalcore/tests/test_flags_document.py': ['line 171: importorskip', 'line 213: importorskip'], 'packages/evalcore/tests/test_recorded_scoring.py': ['line 114: importorskip']}
+E   assert {'packages/ev...mportorskip']} == {}
+E     
+E     Left contains 2 more items:
+E     {'packages/evalcore/tests/test_flags_document.py': ['line 171: importorskip',
+E                                                         'line 213: importorskip'],
+E      'packages/evalcore/tests/test_recorded_scoring.py': ['line 114: importorskip']}
+E     Use -v to get more diff
+_____ test_the_modules_that_validate_with_jsonschema_import_it_at_the_top ______
+packages/evalcore/tests/test_jsonschema_hard_import.py:113: in test_the_modules_that_validate_with_jsonschema_import_it_at_the_top
+    assert top_level_imports_jsonschema(source), name
+E   AssertionError: test_flags_document.py
+E   assert False
+E    +  where False = top_level_imports_jsonschema('# SPDX-License-Identifier: Apache-2.0\n# Copyright 2026 The Tracer contributors\n"""P3-19: the ``tracer.flags/1`` doc...    for not_a_mapping in not_mappings:\n        with pytest.raises(TypeError):\n            _validate(not_a_mapping)\n')
+=========================== short test summary info ============================
+FAILED packages/evalcore/tests/test_jsonschema_hard_import.py::test_no_test_skips_or_guards_on_a_missing_jsonschema
+FAILED packages/evalcore/tests/test_jsonschema_hard_import.py::test_the_modules_that_validate_with_jsonschema_import_it_at_the_top
+2 failed, 2 passed in 0.92s

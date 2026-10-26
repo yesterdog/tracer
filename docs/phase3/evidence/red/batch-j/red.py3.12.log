@@ -1,0 +1,297 @@
+Uninstalled 5 packages in 3ms
+Installed 5 packages in 2ms
+F.FFFFFFFF....................FF......FF................................ [ 40%]
+........................................................................ [ 80%]
+..................................                                       [100%]
+=================================== FAILURES ===================================
+__________ test_report_flags_table_is_followed_by_the_chunk_edge_note __________
+
+world = World(root=PosixPath('<tmp>'), sleeps=[])})
+
+    def test_report_flags_table_is_followed_by_the_chunk_edge_note(world: World) -> None:
+        run, raw = world.report()
+        doc = parse(raw)
+        section = doc.by_id("flags")
+        table = doc.by_id("flags-table")
+        assert "chunk edge" in [th.text() for th in table.all("th")], "the column keeps its label"
+        # the table and the sentence are the children of the section, in this order
+>       assert [(c.tag, c.attrs.get("id", "")) for c in section.elements()] == [
+            ("h2", ""),
+            ("table", "flags-table"),
+            ("p", NOTE_ID),
+        ]
+E       AssertionError: assert [('h2', ''), ...flags-table')] == [('h2', ''), ...k-edge-note')]
+E         
+E         Right contains one more item: ('p', 'chunk-edge-note')
+E         Use -v to get more diff
+
+packages/cli/tests/test_cli_report_chunk_edge_note.py:139: AssertionError
+_____ test_report_chunk_edge_note_follows_the_table_in_every_scored_report _____
+
+tmp_path = PosixPath('<tmp>')
+
+    def test_report_chunk_edge_note_follows_the_table_in_every_scored_report(tmp_path: Path) -> None:
+        seen = 0
+        for name, options in (
+            ("scored", {}),
+            ("more flags", {"threshold": 0.2}),
+            ("over budget", {"budget": 0.05}),
+        ):
+            folder = tmp_path / name.replace(" ", "-")
+            folder.mkdir()
+            run = _fake_run(folder, **options)
+            for embedded in (False, True):
+                doc = parse(_fake_report(run, embedded=embedded))
+                assert doc.with_class("flag-row", "tr"), name
+                section = doc.by_id("flags")
+>               assert [c.tag for c in section.elements()] == ["h2", "table", "p"], name
+E               AssertionError: scored
+E               assert ['h2', 'table'] == ['h2', 'table', 'p']
+E                 
+E                 Right contains one more item: 'p'
+E                 Use -v to get more diff
+
+packages/cli/tests/test_cli_report_chunk_edge_note.py:188: AssertionError
+_________ test_report_chunk_edge_note_holds_no_call_text_and_no_number _________
+
+tmp_path = PosixPath('<tmp>')
+
+    def test_report_chunk_edge_note_holds_no_call_text_and_no_number(tmp_path: Path) -> None:
+        support = es()
+        texts: set[str] = set()
+        for name in ("a", "b"):
+            folder = tmp_path / name
+            folder.mkdir()
+            run = _fake_run(
+                folder, threshold=0.2 if name == "b" else support.TEST_ONLY_FLAG_MIN_CONFIDENCE
+            )
+            doc = parse(_fake_report(run))
+>           note = _note(doc)
+                   ^^^^^^^^^^
+
+packages/cli/tests/test_cli_report_chunk_edge_note.py:204: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_report_chunk_edge_note.py:56: in _note
+    return doc.by_id(NOTE_ID)
+           ^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <cli_batche_support.Doc object at 0x10ddf28a0>
+element_id = 'chunk-edge-note'
+
+    def by_id(self, element_id: str) -> Node:
+        found = [n for n in self.all() if n.attrs.get("id") == element_id]
+>       assert len(found) == 1, (element_id, len(found))
+               ^^^^^^^^^^^^^^^
+E       AssertionError: ('chunk-edge-note', 0)
+
+packages/cli/tests/cli_batche_support.py:499: AssertionError
+____ test_report_chunk_edge_note_of_a_replay_run_is_the_same_fixed_sentence ____
+
+world = World(root=PosixPath('<tmp>'), sleeps=[])})
+
+    def test_report_chunk_edge_note_of_a_replay_run_is_the_same_fixed_sentence(world: World) -> None:
+        run, raw = world.report()
+>       texts = _note(parse(raw)).text()
+                ^^^^^^^^^^^^^^^^^
+
+packages/cli/tests/test_cli_report_chunk_edge_note.py:219: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_report_chunk_edge_note.py:56: in _note
+    return doc.by_id(NOTE_ID)
+           ^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <cli_batche_support.Doc object at 0x10df5fa10>
+element_id = 'chunk-edge-note'
+
+    def by_id(self, element_id: str) -> Node:
+        found = [n for n in self.all() if n.attrs.get("id") == element_id]
+>       assert len(found) == 1, (element_id, len(found))
+               ^^^^^^^^^^^^^^^
+E       AssertionError: ('chunk-edge-note', 0)
+
+packages/cli/tests/cli_batche_support.py:499: AssertionError
+_____ test_report_chunk_edge_note_is_escaped_text_and_passes_the_deny_list _____
+
+tmp_path = PosixPath('<tmp>')
+
+    def test_report_chunk_edge_note_is_escaped_text_and_passes_the_deny_list(tmp_path: Path) -> None:
+        run = _fake_run(tmp_path)
+        raw = _fake_report(run)
+        doc = parse(raw)
+        note_markup = re.search(rf'<p[^>]*id="{NOTE_ID}"[^>]*>(.*?)</p>', raw, flags=re.DOTALL)
+>       assert note_markup is not None
+E       assert None is not None
+
+packages/cli/tests/test_cli_report_chunk_edge_note.py:235: AssertionError
+______ test_report_chunk_edge_note_adds_no_script_style_or_policy_change _______
+
+tmp_path = PosixPath('<tmp>')
+
+    def test_report_chunk_edge_note_adds_no_script_style_or_policy_change(tmp_path: Path) -> None:
+        report = report_mod()
+        run = _fake_run(tmp_path)
+        for embedded in (False, True):
+            raw = _fake_report(run, embedded=embedded)
+            doc = parse(raw)
+>           assert NOTE_TEXT in doc.raw
+E           assert 'A flag marked yes under chunk edge may come from where the audio was cut for transcription and not from the two texts. The first and last tokens of the whole recording also count as chunk edges.' in '<!DOCTYPE html>\n<html lang="en"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="defa...yer.play(); }\n        return;\n      }\n      node = node.parentNode;\n    }\n  });\n})();\n</script></body></html>\n'
+E            +  where '<!DOCTYPE html>\n<html lang="en"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="defa...yer.play(); }\n        return;\n      }\n      node = node.parentNode;\n    }\n  });\n})();\n</script></body></html>\n' = <cli_batche_support.Doc object at 0x10df308f0>.raw
+
+packages/cli/tests/test_cli_report_chunk_edge_note.py:259: AssertionError
+________ test_report_chunk_edge_note_names_the_recording_edge_semantics ________
+
+tmp_path = PosixPath('<tmp>')
+world = World(root=PosixPath('<tmp>'), sleeps=[])})
+
+    def test_report_chunk_edge_note_names_the_recording_edge_semantics(
+        tmp_path: Path, world: World
+    ) -> None:
+        """C7b. The scorer keeps ``near_chunk_boundary`` true for a span that holds the first or the
+        last token of the recording (pinned by ``test_near_chunk_boundary_marked``, unchanged); the
+        sentence says so, and a real report row shows the case."""
+        run = _fake_run(tmp_path)
+        document = flags_document(run.bundle)
+        doc = parse(_fake_report(run))
+>       sentence = _one_line(_note(doc).text())
+                             ^^^^^^^^^^
+
+packages/cli/tests/test_cli_report_chunk_edge_note.py:298: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_report_chunk_edge_note.py:56: in _note
+    return doc.by_id(NOTE_ID)
+           ^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <cli_batche_support.Doc object at 0x10d9705f0>
+element_id = 'chunk-edge-note'
+
+    def by_id(self, element_id: str) -> Node:
+        found = [n for n in self.all() if n.attrs.get("id") == element_id]
+>       assert len(found) == 1, (element_id, len(found))
+               ^^^^^^^^^^^^^^^
+E       AssertionError: ('chunk-edge-note', 0)
+
+packages/cli/tests/cli_batche_support.py:499: AssertionError
+_____________ test_ci_postgres_legs_run_the_cli_store_parity_test ______________
+
+    def test_ci_postgres_legs_run_the_cli_store_parity_test() -> None:
+        workflow = _workflow()
+>       assert ci_problems(workflow) == []
+E       AssertionError: assert ['test-postgr... -m postgres'] == []
+E         
+E         Left contains 2 more items, first extra item: 'test-postgres: neither packages/cli/tests nor packages/cli/tests/test_recorded_store.py is a path of -m postgres'
+E         Use -v to get more diff
+
+packages/evalcore/tests/test_phase3_ci_postgres_cli.py:137: AssertionError
+_____________ test_ci_postgres_command_lines_are_the_reviewed_ones _____________
+
+    def test_ci_postgres_command_lines_are_the_reviewed_ones() -> None:
+        """The text (contract section 2.1): the evaldb path stays first, as the evaldb tests
+        ``test_ci_postgres_job_matrix_and_pinned_image`` (a regex and a count) require, and the cli
+        tests follow as the directory or as the one explicit file."""
+        text = WORKFLOW.read_text(encoding="utf-8")
+        prefix = "- run: uv run --locked --all-groups pytest -m postgres packages/evaldb/tests"
+        lines = [ln.strip() for ln in text.splitlines() if "pytest -m postgres" in ln]
+        assert len(lines) == 2, lines
+        for line in lines:
+>           assert line in (f"{prefix} {CLI_DIR}", f"{prefix} {CLI_FILE}"), line
+E           AssertionError: - run: uv run --locked --all-groups pytest -m postgres packages/evaldb/tests
+E           assert '- run: uv run --locked --all-groups pytest -m postgres packages/evaldb/tests' in ('- run: uv run --locked --all-groups pytest -m postgres packages/evaldb/tests packages/cli/tests', '- run: uv run --locked --all-groups pytest -m postgres packages/evaldb/tests packages/cli/tests/test_recorded_store.py')
+
+packages/evalcore/tests/test_phase3_ci_postgres_cli.py:162: AssertionError
+________ test_gitleaks_canary_allowlist_is_anchored_to_the_canary_shape ________
+
+    def test_gitleaks_canary_allowlist_is_anchored_to_the_canary_shape() -> None:
+        canaries = _canaries()
+        assert len(canaries) >= 3, canaries  # batch D, F and the providers support module
+        for canary in canaries:
+            assert CANARY_SHAPE.fullmatch(canary), "the shape this test pins is the canary's shape"
+        (regex,) = _regexes()
+>       assert regex_problems(regex, canaries) == []
+E       assert ['accepts "PI...0b93d4"', ...] == []
+E         
+E         Left contains 13 more items, first extra item: 'accepts "PI_KEY\': \'xCANARYKEY-f17ce2-0b93d4\'"'
+E         Use -v to get more diff
+
+packages/evalcore/tests/test_gitleaks_canary_allowlist.py:147: AssertionError
+__________ test_gitleaks_canary_allowlist_regex_is_the_reviewed_line ___________
+
+    def test_gitleaks_canary_allowlist_regex_is_the_reviewed_line() -> None:
+        (regex,) = _regexes()
+>       assert regex == REVIEWED_REGEX
+E       assert 'CANARYKEY-[a-z0-9-]+' == '[\'"]CANARYK...9]{6}[\'"]\\z'
+E         
+E         - ['"]CANARYKEY-[a-z0-9]{6,8}-[a-z0-9]{6}['"]\z
+E         + CANARYKEY-[a-z0-9-]+
+
+packages/evalcore/tests/test_gitleaks_canary_allowlist.py:152: AssertionError
+______________________ test_adr0016_amendment_cites_test _______________________
+
+    def test_adr0016_amendment_cites_test() -> None:
+        text = ADR16.read_text("utf-8")
+        defined = _defined_tests()
+        amendment = _amendment(text)
+        i17 = _invariant(text, "I17")
+        # the amendment lives in Decision 1: before Decision 2 and inside "## Decision"
+        decision = text.index("\n## Decision")
+        assert decision < text.index(AMENDMENT_MARKER) < text.index("\n2. **`Run.caller_origin")
+        assert i17.startswith("- I17. "), i17[:20]
+        assert {BINDING, SELF} <= defined, "the two tests the ADR names are defined"
+        for body in (amendment, i17):
+            assert _cited(body) >= {BINDING, SELF}, "both tests are cited"
+            assert not (_cited(body) - defined), sorted(_cited(body) - defined)
+>           assert not STALE.findall(body), STALE.findall(body)
+E           AssertionError: ['(Phase 3, P3-18; pending', 'until it lands']
+E           assert not ['(Phase 3, P3-18; pending', 'until it lands']
+E            +  where ['(Phase 3, P3-18; pending', 'until it lands'] = <built-in method findall of re.Pattern object at 0x82819f210>("- I17. (revision 40, Decision 1) Metrics evaluate only the agent's outputs: the agent's turns and audio and every tur...s_evaluate_agent_outputs_only` (Phase 3, P3-18; pending until it lands), `test_adr0016_amendment_cites_test` (P3-00d).")
+E            +    where <built-in method findall of re.Pattern object at 0x82819f210> = re.compile('pending\\s+until|until\\s+[^.;)\\n]*\\blands?\\b|\\(Phase\\s+\\d+,\\s*P3-\\d+[^)]*;\\s*pending\\b|\\bnot\\s+(?:yet\\s+)?(?:written|defined|implemented)\\b|\\bnot\\s+written\\s+yet\\b|\\byet\\s+to\\s+, re.IGNORECASE).findall
+
+packages/evalschema/tests/test_adr0016_amendment_cites_test.py:149: AssertionError
+_ test_adr0004_invariants_i41_i42_cite_only_existing_tests_and_say_nothing_is_pending _
+
+    def test_adr0004_invariants_i41_i42_cite_only_existing_tests_and_say_nothing_is_pending() -> None:
+        text = ADR04.read_text("utf-8")
+        defined = _defined_tests()
+        for label, required in (
+            (
+                "I41",
+                {
+                    "test_stt_failure_is_missing_input_with_warning_and_nonzero_exit",
+                    "test_sarvam_partial_chunk_failure_yields_no_transcript",
+                },
+            ),
+            (
+                "I42",
+                {
+                    "test_empty_chunk_makes_no_turn_and_is_counted",
+                    "test_detected_language_set_only_when_all_chunks_agree",
+                },
+            ),
+        ):
+            body = _invariant(text, label)
+            assert _cited(body) == required, (label, sorted(_cited(body)))
+            assert required <= defined, (label, sorted(required - defined))
+>           assert not STALE.findall(body), (label, STALE.findall(body))
+E           AssertionError: ('I41', ['pending until'])
+E           assert not ['pending until']
+E            +  where ['pending until'] = <built-in method findall of re.Pattern object at 0x82819f210>('- I41. (revision 40, Decision 10a) An STT failure on any chunk leaves no `our_stt` transcript, makes every metric tha...nonzero_exit`, `test_sarvam_partial_chunk_failure_yields_no_transcript` (Phase 3, pending until P3-07 and P3-20 land).')
+E            +    where <built-in method findall of re.Pattern object at 0x82819f210> = re.compile('pending\\s+until|until\\s+[^.;)\\n]*\\blands?\\b|\\(Phase\\s+\\d+,\\s*P3-\\d+[^)]*;\\s*pending\\b|\\bnot\\s+(?:yet\\s+)?(?:written|defined|implemented)\\b|\\bnot\\s+written\\s+yet\\b|\\byet\\s+to\\s+, re.IGNORECASE).findall
+
+packages/evalschema/tests/test_adr0016_amendment_cites_test.py:184: AssertionError
+=========================== short test summary info ============================
+FAILED packages/cli/tests/test_cli_report_chunk_edge_note.py::test_report_flags_table_is_followed_by_the_chunk_edge_note
+FAILED packages/cli/tests/test_cli_report_chunk_edge_note.py::test_report_chunk_edge_note_follows_the_table_in_every_scored_report
+FAILED packages/cli/tests/test_cli_report_chunk_edge_note.py::test_report_chunk_edge_note_holds_no_call_text_and_no_number
+FAILED packages/cli/tests/test_cli_report_chunk_edge_note.py::test_report_chunk_edge_note_of_a_replay_run_is_the_same_fixed_sentence
+FAILED packages/cli/tests/test_cli_report_chunk_edge_note.py::test_report_chunk_edge_note_is_escaped_text_and_passes_the_deny_list
+FAILED packages/cli/tests/test_cli_report_chunk_edge_note.py::test_report_chunk_edge_note_adds_no_script_style_or_policy_change
+FAILED packages/cli/tests/test_cli_report_chunk_edge_note.py::test_report_chunk_edge_note_names_the_recording_edge_semantics
+FAILED packages/evalcore/tests/test_phase3_ci_postgres_cli.py::test_ci_postgres_legs_run_the_cli_store_parity_test
+FAILED packages/evalcore/tests/test_phase3_ci_postgres_cli.py::test_ci_postgres_command_lines_are_the_reviewed_ones
+FAILED packages/evalcore/tests/test_gitleaks_canary_allowlist.py::test_gitleaks_canary_allowlist_is_anchored_to_the_canary_shape
+FAILED packages/evalcore/tests/test_gitleaks_canary_allowlist.py::test_gitleaks_canary_allowlist_regex_is_the_reviewed_line
+FAILED packages/evalschema/tests/test_adr0016_amendment_cites_test.py::test_adr0016_amendment_cites_test
+FAILED packages/evalschema/tests/test_adr0016_amendment_cites_test.py::test_adr0004_invariants_i41_i42_cite_only_existing_tests_and_say_nothing_is_pending
+13 failed, 165 passed in 6.38s
