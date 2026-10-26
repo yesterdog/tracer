@@ -17,6 +17,7 @@ field-level details are in the generated [field reference](../schema/README.md).
 | [versioning.md](versioning.md) | schema version, compatibility, versioned entities |
 | [mappings-and-gaps.md](mappings-and-gaps.md) | source mappings, no fabrication, the gap register |
 | [storage.md](storage.md) | the relational store (`tracer-evaldb`): documents and projections, two backends, what the database does not do, deletion, migrations |
+| [recorded-call-scoring.md](recorded-call-scoring.md) | `tracer score` on a recorded call: agreement of the agent's export with a speech-to-text transcript, what is not claimed, roles and tier, cost, privacy and consent, the run book, known limits |
 
 Scope, in one paragraph: only the AI agent is evaluated. The caller is a human (recordings of
 real calls) or a simulator (test calls). Speaker roles are `caller`, `agent` and `unknown`;

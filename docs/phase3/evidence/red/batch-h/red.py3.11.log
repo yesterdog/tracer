@@ -1,0 +1,224 @@
+Uninstalled 5 packages in 3ms
+Installed 5 packages in 3ms
+FFF......................................FFFF........................... [ 39%]
+......................................FFF.F............................. [ 79%]
+............................F........                                    [100%]
+=================================== FAILURES ===================================
+_________ test_readme_quick_start_is_parseable_and_matches_the_parser __________
+
+    def test_readme_quick_start_is_parseable_and_matches_the_parser() -> None:
+        text = README.read_text("utf-8")
+>       assert readme_problems(text) == []
+E       assert ["still says ...r (found [])'] == []
+E         
+E         Left contains 2 more items, first extra item: "still says 'scaffold only'"
+E         Use -v to get more diff
+
+packages/cli/tests/test_cli_readme_quick_start.py:323: AssertionError
+_______________ test_readme_names_every_exit_code_of_the_command _______________
+
+    def test_readme_names_every_exit_code_of_the_command() -> None:
+        body = sections(README.read_text("utf-8")).get("Exit codes", "")
+>       assert exit_code_problems(body, cli_module().EXIT_CODES) == []
+E       assert ['the exit co...e table', ...] == []
+E         
+E         Left contains 7 more items, first extra item: "the exit code table has no '| Code | Meaning |' header and separator line"
+E         Use -v to get more diff
+
+packages/cli/tests/test_cli_readme_quick_start.py:328: AssertionError
+_____________________ test_readme_quick_start_runs_offline _____________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10b221210>
+capsys = <_pytest.capture.CaptureFixture object at 0x10b39fa50>
+
+    def test_readme_quick_start_runs_offline(
+        monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        text = README.read_text("utf-8")
+>       assert sections(text).get(QUICK_START), f"packages/cli/README.md has no section {QUICK_START!r}"
+E       AssertionError: packages/cli/README.md has no section 'Quick start (offline, no key, no network)'
+E       assert None
+E        +  where None = <built-in method get of dict object at 0x10b3a2bc0>('Quick start (offline, no key, no network)')
+E        +    where <built-in method get of dict object at 0x10b3a2bc0> = {}.get
+E        +      where {} = sections('# tracer-cli\n\nThe `tracer` command line. Status: 0.0.1, scaffold only (`tracer --help`).\n')
+
+packages/cli/tests/test_cli_readme_quick_start.py:380: AssertionError
+__________________ test_concept_page_states_no_accuracy_claim __________________
+
+    def test_concept_page_states_no_accuracy_claim() -> None:
+        """ADR 0023 rule 1 and I1: the deny-listed words only in the one verbatim sentence, inside
+        the one fenced block of 'Not claimed'; the value is labelled 'agreement distance (MER)'."""
+>       text = _real()
+               ^^^^^^^
+
+packages/evalcore/tests/test_concept_page_recorded_scoring.py:246: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _real() -> str:
+>       assert PAGE.is_file(), f"{PAGE.relative_to(ROOT)} does not exist"
+E       AssertionError: docs/concepts/recorded-call-scoring.md does not exist
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('<scratch>).is_file
+
+packages/evalcore/tests/test_concept_page_recorded_scoring.py:238: AssertionError
+_________ test_concept_page_has_fixed_headings_and_required_statements _________
+
+    def test_concept_page_has_fixed_headings_and_required_statements() -> None:
+>       text = _real()
+               ^^^^^^^
+
+packages/evalcore/tests/test_concept_page_recorded_scoring.py:253: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _real() -> str:
+>       assert PAGE.is_file(), f"{PAGE.relative_to(ROOT)} does not exist"
+E       AssertionError: docs/concepts/recorded-call-scoring.md does not exist
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('<scratch>).is_file
+
+packages/evalcore/tests/test_concept_page_recorded_scoring.py:238: AssertionError
+__________ test_concept_page_cites_only_existing_rows_tests_and_links __________
+
+    def test_concept_page_cites_only_existing_rows_tests_and_links() -> None:
+>       problems = page_problems(_real(), backlog_ids(), defined_tests(), CONCEPTS)
+                                 ^^^^^^^
+
+packages/evalcore/tests/test_concept_page_recorded_scoring.py:261: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _real() -> str:
+>       assert PAGE.is_file(), f"{PAGE.relative_to(ROOT)} does not exist"
+E       AssertionError: docs/concepts/recorded-call-scoring.md does not exist
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('<scratch>).is_file
+
+packages/evalcore/tests/test_concept_page_recorded_scoring.py:238: AssertionError
+_____________ test_concept_page_is_linked_from_the_concepts_index ______________
+
+    def test_concept_page_is_linked_from_the_concepts_index() -> None:
+        index = INDEX.read_text("utf-8")
+>       assert re.search(
+            r"^\| \[recorded-call-scoring\.md\]\(recorded-call-scoring\.md\) \| \S", index, re.M
+        )
+E       assert None
+E        +  where None = <function search at 0x108012840>('^\\| \\[recorded-call-scoring\\.md\\]\\(recorded-call-scoring\\.md\\) \\| \\S', "# Concepts\n\nShort explanations of the ideas behind `tracer-evalschema` 0.0.1 (unreleased). Each page links\nto the ...no IVR and no hand-off to a human agent. All provider calls use the user's own keys,\nwhich the schema never stores.\n", re.MULTILINE)
+E        +    where <function search at 0x108012840> = re.search
+E        +    and   re.MULTILINE = re.M
+
+packages/evalcore/tests/test_concept_page_recorded_scoring.py:267: AssertionError
+___________________________ test_the_template_exists ___________________________
+
+    def test_the_template_exists() -> None:
+>       assert TEMPLATE in _files(), f"docs/phase3/measurements/{TEMPLATE} does not exist"
+E       AssertionError: docs/phase3/measurements/TEMPLATE.md does not exist
+E       assert 'TEMPLATE.md' in []
+E        +  where [] = _files()
+
+packages/evalcore/tests/test_measurement_reports.py:475: AssertionError
+_______ test_measurement_report_has_counts_and_denominators[TEMPLATE.md] _______
+
+name = 'TEMPLATE.md'
+
+    @pytest.mark.parametrize("name", _files() or [TEMPLATE])
+    def test_measurement_report_has_counts_and_denominators(name: str) -> None:
+        path = MEASUREMENTS / name
+>       assert path.is_file(), f"docs/phase3/measurements/{name} does not exist"
+E       AssertionError: docs/phase3/measurements/TEMPLATE.md does not exist
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('<scratch>).is_file
+
+packages/evalcore/tests/test_measurement_reports.py:481: AssertionError
+____________ test_the_template_tells_the_author_where_a_report_goes ____________
+
+    def test_the_template_tells_the_author_where_a_report_goes() -> None:
+>       text = _template()
+               ^^^^^^^^^^^
+
+packages/evalcore/tests/test_measurement_reports.py:487: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _template() -> str:
+        path = MEASUREMENTS / TEMPLATE
+>       assert path.is_file(), f"docs/phase3/measurements/{TEMPLATE} does not exist"
+E       AssertionError: docs/phase3/measurements/TEMPLATE.md does not exist
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('<scratch>).is_file
+
+packages/evalcore/tests/test_measurement_reports.py:469: AssertionError
+___________________ test_the_template_is_not_a_filled_report ___________________
+
+    def test_the_template_is_not_a_filled_report() -> None:
+>       text = _template()
+               ^^^^^^^^^^^
+
+packages/evalcore/tests/test_measurement_reports.py:614: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _template() -> str:
+        path = MEASUREMENTS / TEMPLATE
+>       assert path.is_file(), f"docs/phase3/measurements/{TEMPLATE} does not exist"
+E       AssertionError: docs/phase3/measurements/TEMPLATE.md does not exist
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('<scratch>).is_file
+
+packages/evalcore/tests/test_measurement_reports.py:469: AssertionError
+________________________ test_adr0023_rules_are_tested _________________________
+
+    def test_adr0023_rules_are_tested() -> None:
+        text = ADR23.read_text("utf-8")
+        defined = _defined_tests()
+        rows = _scope_rows()
+        named_by_scope = set().union(*(_cited(row) for row in rows.values()))
+        rules = _numbered(_section(text, "## Decision"), r"(\d+)\. \*\*")
+        assert [int(label) for label, _ in rules] == list(range(1, 20)), "ADR 0023 has 19 rules"
+        for label, body in rules:
+            cited = _cited(body)
+            assert cited, f"rule {label} of ADR 0023 cites no test"
+            unknown = cited - defined - PENDING
+            assert not unknown, f"rule {label} cites tests that do not exist: {sorted(unknown)}"
+        invariants = _numbered(_section(text, "## Invariants (testable)"), r"- (I\d+)\. ")
+        assert [label for label, _ in invariants] == [f"I{i}" for i in range(1, 11)]
+        for label, body in invariants:
+            cited = _cited(body)
+            assert cited, f"invariant {label} of ADR 0023 cites no test"
+            unknown = cited - defined - PENDING
+            assert not unknown, f"invariant {label} cites tests that do not exist: {sorted(unknown)}"
+        # the pending set is exactly SCOPE section A names: never a misspelt or invented name
+        assert named_by_scope >= PENDING, sorted(PENDING - named_by_scope)
+        # ... and never a name of a test that must already exist (batch A or C, or the ADR checks)
+        for task, row in rows.items():
+            number = re.match(r"P3-(\d+)", task)
+            early = task in BATCH_C_TASKS or (
+                number is not None and int(number.group(1)) in range(1, 6)
+            )
+            if early:
+                assert not (_cited(row) & PENDING), f"{task} names tests that exist, not pending"
+        assert not set(BATCH_C_ADR_TESTS) & PENDING
+        # the check checks itself
+        assert "test_adr0023_rules_are_tested" in defined
+        # exactly: a name whose test exists is removed from PENDING in the commit that adds the test
+>       assert not PENDING & defined, f"remove from PENDING: {sorted(PENDING & defined)}"
+E       AssertionError: remove from PENDING: ['test_concept_page_states_no_accuracy_claim', 'test_measurement_report_has_counts_and_denominators']
+E       assert not (frozenset({'test_concept_page_states_no_accuracy_claim', 'test_measurement_report_has_counts_and_denominators'}) & {'test_a20_human_subject_payload_unsealed_and_unredacted', 'test_a26_a_plain_digest_of_a_low_entropy_profile_can_be_re...ith_an_unknown_role', 'test_a_control_character_always_separates', 'test_a_declaration_without_declared_by_loads', ...})
+
+packages/evalcore/tests/test_adr0023_recorded_scoring.py:126: AssertionError
+=========================== short test summary info ============================
+FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_names_every_exit_code_of_the_command
+FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_runs_offline
+FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_states_no_accuracy_claim
+FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_cites_only_existing_rows_tests_and_links
+FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_is_linked_from_the_concepts_index
+FAILED packages/evalcore/tests/test_measurement_reports.py::test_the_template_exists
+FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+FAILED packages/evalcore/tests/test_measurement_reports.py::test_the_template_tells_the_author_where_a_report_goes
+FAILED packages/evalcore/tests/test_measurement_reports.py::test_the_template_is_not_a_filled_report
+FAILED packages/evalcore/tests/test_adr0023_recorded_scoring.py::test_adr0023_rules_are_tested
+12 failed, 169 passed in 7.66s

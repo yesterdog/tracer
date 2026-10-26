@@ -10,8 +10,10 @@ version, and a normaliser change also needs a new normaliser id.
 
 ## 0.0.1 (unreleased)
 
-Status: not released. No version tag exists and nothing is published to PyPI. Work in progress
-(Phase 3): the result mapping, the pipeline and the shipped metric definitions are not written yet.
+Status: not released. No version tag exists and nothing is published to PyPI. Phase 3 batches A
+to G are in: the readers, the chunker, the scoring core, the shipped metric definitions, the
+rubric file, the result mapping and the pipeline. No real recording has been scored yet (the first
+real send, P3-30, is owner-gated).
 
 First version. Everything below is new.
 
@@ -68,9 +70,49 @@ First version. Everything below is new.
   `LEVENSHTEIN_MAX_CHARS` is 200,000 code points per side, above which `LevenshteinTooLargeError`
   carries the sizes only. The `tracer.flags/1` JSON Schema is `tracer_evalcore.flags.FLAGS_JSON_SCHEMA`.
 
+### Speech-to-text boundary
+
+- `tracer_evalcore.stt`: the `SttEngine` protocol, the typed result of one transcription and the
+  provider-neutral error taxonomy (`SttError` and its subclasses). Errors hold machine facts only:
+  never a provider message, a body, a header, a key or audio. The pipeline types the engine through
+  this module, so the core never imports a network package.
+
+### Definitions, rubric file and results (batch D)
+
+- Three shipped definition templates, `stt_export_agreement_mer` (unit `ratio`),
+  `stt_export_flag_count` (unit `count`) and `stt_export_flagged_token_share` (unit `ratio`), with
+  `requires=["transcript", "agent_transcript"]`, `languages=["mr"]` and no pass rule; each takes
+  the parameters `flag_min_confidence` and `normaliser`, neither with a default. The units `wer` and
+  `cer` are never used.
+- The rubric file `tracer.rubric/1` (`tracer_evalcore.rubricfile`): the one place where the
+  threshold, the normaliser and the review budget are written; a file that lacks one is refused
+  with a stable code (`rubric_budget_missing` and others) before anything is sent. The optional
+  `note` is never stored.
+- The configuration of a recorded run (`build_configuration`): fresh version-1 definitions from the
+  templates and the rubric file, the inert required judge check that schema 0.0.1 demands (never
+  run, never shown as a check of the agent), and the reserved agent endpoint
+  `wss://recorded-call.invalid/` (ADR 0023 rules 16 and 17).
+- The scorer registry (`tracer_evalcore.registry`): an unknown `implementation_ref` stops the run
+  before any send; the scorer version is the distribution version of this package.
+- The `tracer.flags/1` document (`tracer_evalcore.flagsdoc`): built and validated, every cross-field
+  rule a refusal with one stable code; it holds no text and no identifier.
+- The result mapping (`tracer_evalcore.scoring`): the three results of a recorded call share one
+  alignment; a failure is an `error` result whose message holds counts and sizes only, with the
+  codes `no_tokens` (either side), `alignment_too_large`, `levenshtein_too_large`,
+  `stt_language_not_observed`, `stt_unsupported_language` and `stt_provenance_missing`, never a
+  value of 0 or 1.
+  `export_token_count` (batch G) counts the export tokens the aligner will see, so the command can
+  refuse an export over `ALIGN_MAX_TOKENS` before a paid send.
+- The pipeline (`tracer_evalcore.pipeline.score_recorded_call`): reads, transcribes through the
+  injected engine, scores and builds a run bundle at tier T0 with no start time and no verdict that
+  passes `check_run_bundle`. It reads no clock, environment or file and logs nothing; ids are fresh
+  UUIDv7 values per call, so two runs of one call agree only after their ids are masked. A failed
+  transcription is recorded as `missing_input` with a Run warning.
+
 ### Findings
 
-- The results do not yet map `AlignmentTooLargeError` and `LevenshteinTooLargeError` to scorer
-  `error` codes; the result mapping (Phase 3 batch D) does.
+- The concept page `docs/concepts/recorded-call-scoring.md` lists the known limits of the scoring:
+  number words against digits (BL-192), the two-letter-word threshold behaviour (BL-243), the split
+  word (BL-244), the unmeasured noise floor (P3-31) and the missing native review (BL-169).
 - The alignment cap was chosen from a measurement on one machine; it is revisited after the first
   real run (`docs/BACKLOG.md`).

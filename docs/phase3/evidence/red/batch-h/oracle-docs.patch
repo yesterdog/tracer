@@ -1,0 +1,232 @@
+--- a/docs/concepts/README.md
++++ b/docs/concepts/README.md
+@@ -17,6 +17,7 @@
+ | [versioning.md](versioning.md) | schema version, compatibility, versioned entities |
+ | [mappings-and-gaps.md](mappings-and-gaps.md) | source mappings, no fabrication, the gap register |
+ | [storage.md](storage.md) | the relational store (`tracer-evaldb`): documents and projections, two backends, what the database does not do, deletion, migrations |
++| [recorded-call-scoring.md](recorded-call-scoring.md) | scoring a recorded call: agreement of the agent export with a speech-to-text transcript, what is not claimed, privacy |
+ 
+ Scope, in one paragraph: only the AI agent is evaluated. The caller is a human (recordings of
+ real calls) or a simulator (test calls). Speaker roles are `caller`, `agent` and `unknown`;
+--- a/docs/concepts/recorded-call-scoring.md
++++ b/docs/concepts/recorded-call-scoring.md
+@@ -0,0 +1,74 @@
++# Recorded-call scoring
++
++How `tracer score` compares the transcript export of a recorded call with a speech-to-text transcript of its audio, and what that comparison does and does not say. Decisions: [ADR 0023](../adr/0023-recorded-call-agreement-scoring.md), [ADR 0024](../adr/0024-provider-adapters-byok-sarvam-rest.md), [ADR 0025](../adr/0025-marathi-comparison-normaliser.md).
++
++## What is measured
++
++- Tracer measures the agreement between the agent's transcript export of a call and an independent speech-to-text transcript of the same audio.
++- The value is labelled agreement distance (MER): the measure of Morris, Maier and Green (2004), computed over word counts H, S, D and I (hits, substitutions, deletions, insertions). It is 0 when the two texts agree word for word and never above 1.
++- Every number is printed with its counts and its denominator, for example "9 of 120 export tokens are flagged".
++- The report points at spans where the two texts disagree. A span is flagged when its confidence reaches the parameter flag_min_confidence of the rubric file, which has no default.
++- The confidence of a flag is the character edit distance of the two span keys over the longer key, and it is uncalibrated.
++- The confidence is not a probability.
++
++## Not claimed
++
++- A flag is not a claim that the export holds an error, and a flag may be where the speech-to-text engine is wrong.
++- An unflagged span is not shown to be right: it only means the two texts agree there.
++- The export is not a reference or ground truth, and neither is the speech-to-text transcript.
++- Two clips are a demonstration, not a validation (BL-170); no number computed from them supports a general claim.
++
++```text
++Tracer reports how far two transcripts agree; it does not measure accuracy, and none of its numbers is a WER, a CER, an error rate, a recall or a precision.
++```
++
++## Scope, roles and tier
++
++- Only Marathi (language code mr, in Devanagari) is in scope in this release.
++- The language is declared by you with --declared-language; Tracer does not infer it from the export.
++- The caller is never evaluated. What is judged is the agent's text.
++- The caller lines of the export are the agent's own recognition of the caller, so they are agent output.
++- The speech-to-text turns have role unknown, because Tracer does no speaker separation.
++- The report labels each flag with the role of its export turn.
++- A recorded run is at tier T0: the export and the audio are the only evidence.
++
++## Cost
++
++- Without a USD price the cost is not_available, with its reason.
++- A missing cost is never 0.
++
++## Privacy and consent
++
++- The audio leaves your machine only with --stt sarvam, and only to Sarvam.
++- With --stt fake:DIR the replay sends nothing and needs no key.
++- The report and the store hold call text, so they must stay out of git.
++- The call log holds no text: it holds counts, ids and timings.
++- Put --out outside the repository.
++- A consent record is given with --consent, --consent-reference and --consent-recorded-at.
++- Retention is recorded and not enforced: nothing deletes the files after the retention date (BL-234).
++- Embedding the audio in the report with --embed-audio is opt-in, and the file then holds personal data.
++
++## Run book
++
++- Before a real send follow the Run book for a real send in ADR 0024.
++- Do a dry run first, with the arguments of the real send.
++- The --max-chunks ceiling refuses a plan with more chunks than you allowed.
++- For the offline quick start on the synthetic pair see packages/cli/README.md.
++
++## Known limits
++
++- Number words against digits are not folded, so a number spoken as a word and written in digits can be flagged (BL-192).
++- A two-letter word flags exactly at the threshold when one letter differs, a three-letter word does not.
++- A split word, one space inserted into a word, stays below the threshold and is not flagged.
++- The noise floor of the speech-to-text run is unmeasured until P3-31.
++- No native review of the Marathi results has happened (BL-169), and the agreement scale is the owner's principle (BL-165).
++
++## Related
++
++- [Offline quick start and exit codes](../../packages/cli/README.md)
++- [The synthetic pair](../examples/synthetic-mr/README.md)
++- [ADR 0023](../adr/0023-recorded-call-agreement-scoring.md)
++- [ADR 0024](../adr/0024-provider-adapters-byok-sarvam-rest.md)
++- [ADR 0025](../adr/0025-marathi-comparison-normaliser.md)
++
++The page is checked by `test_concept_page_states_no_accuracy_claim`.
+--- a/docs/phase3/measurements/TEMPLATE.md
++++ b/docs/phase3/measurements/TEMPLATE.md
+@@ -0,0 +1,78 @@
++# Measurement report: <title>
++
++Copy this file to `docs/phase3/measurements/<name>.md`, fill every placeholder, and change the status. A report names clips by id only (clip-A, clip-B) and holds counts, never text.
++
++## Scope and status
++
++Status: template
++Date: <date>
++Task: P3-31
++
++## Clips
++
++Clips are named by id only: clip-A and clip-B.
++
++| Clip | Export turns | Export tokens | Audio seconds |
++|---|---|---|---|
++| clip-A | <n> | <n> | <seconds> |
++| clip-B | <n> | <n> | <seconds> |
++
++## Configuration
++
++| Setting | Value |
++|---|---|
++| flag_min_confidence | <value> |
++| normaliser | <value> |
++| max_chunk_ms | <value> |
++| search_ms | <value> |
++| stt_model_as_requested | <value> |
++| r3_shift_ms | <value> |
++
++## Counts per run
++
++In a cell 'N of D', N is the numerator and D the denominator; the decimal in brackets is N divided by D.
++
++| Run | Clip | Chunks answered (n of d) | Attempts | Export tokens | STT tokens | H | S | D | I | Agreement distance (MER) (n of d) | Flags | Flagged export tokens (n of d) | Export turns with a flag (n of d) |
++|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
++| R1 | clip-A | <n> of <d> | <n> | <n> | <n> | <n> | <n> | <n> | <n> | <n> of <d> (<ratio>) | <n> | <n> of <d> (<ratio>) | <n> of <d> (<ratio>) |
++
++## Usage and cost
++
++Cost is not_available when no USD price is given, and it is never written as 0.
++
++| Run | Clip | Requests | Audio seconds | Cost |
++|---|---|---|---|---|
++| R1 | clip-A | <n> | <seconds> | not_available (<reason>) |
++
++## Flags per run
++
++| Run | Clip | Flags | Flag span ids |
++|---|---|---|---|
++| R1 | clip-A | <n> | <ids> |
++
++## Run-to-run difference
++
++Jaccard is the flagged tokens in both runs over the flagged tokens in either run.
++R2 repeats R1 with the same inputs and R3 shifts the chunk boundaries by half a window.
++The normaliser row compares the stored data scored with the normaliser on and off, offline.
++
++| Comparison | Clip | Flagged tokens in both | Flagged tokens in either | Jaccard (n of d) |
++|---|---|---|---|---|
++| R1 vs R2 | clip-A | <n> | <n> | <n> of <d> (<ratio>) |
++| R1 vs R3 | clip-A | <n> | <n> | <n> of <d> (<ratio>) |
++| R1 normaliser on vs off | clip-A | <n> | <n> | <n> of <d> (<ratio>) |
++| R1 vs R2 | clip-B | <n> | <n> | <n> of <d> (<ratio>) |
++| R1 vs R3 | clip-B | <n> | <n> | <n> of <d> (<ratio>) |
++| R1 normaliser on vs off | clip-B | <n> | <n> | <n> of <d> (<ratio>) |
++
++## What was NOT measured
++
++- Native-speaker review of any flag or of the normaliser (BL-169).
++- Anything beyond two clips: this is a demonstration (BL-170).
++- Any other speech-to-text engine, model or language.
++
++## Not claimed
++
++```text
++Tracer reports how far two transcripts agree; it does not measure accuracy, and none of its numbers is a WER, a CER, an error rate, a recall or a precision.
++```
+--- a/packages/cli/README.md
++++ b/packages/cli/README.md
+@@ -1,3 +1,60 @@
+ # tracer-cli
+ 
+-The `tracer` command line. Status: 0.0.1, scaffold only (`tracer --help`).
++The `tracer` command line, version 0.0.1: `tracer score` compares the agent's transcript export of a recorded call with a speech-to-text transcript of its audio and points at the spans where the two disagree. Concepts and limits: [recorded-call scoring](../../docs/concepts/recorded-call-scoring.md).
++
++## Quick start (offline, no key, no network)
++
++Run these commands from the repository root, with the workspace installed (`uv sync --locked --all-groups`). They score the invented Marathi pair of `docs/examples/synthetic-mr` against scripted speech-to-text replies. The work directory is created outside the repository, because the output holds call text.
++
++```sh
++WORK="$(mktemp -d)"
++python -I docs/examples/synthetic-mr/make_wav.py "$WORK/synthetic_mr.wav"
++mkdir -p "$WORK/replay"
++cp docs/examples/synthetic-mr/stt_chunk_00.json "$WORK/replay/chunk-0000.json"
++cp docs/examples/synthetic-mr/stt_chunk_01.json "$WORK/replay/chunk-0001.json"
++cp docs/examples/synthetic-mr/stt_chunk_02.json "$WORK/replay/chunk-0002.json"
++uv run --locked tracer score "$WORK/synthetic_mr.wav" \
++  --transcript docs/examples/synthetic-mr/export_synthetic_mr.txt \
++  --rubric docs/examples/rubric-mr.example.json \
++  --declared-language mr \
++  --caller-origin simulated \
++  --consent unknown \
++  --retention keep \
++  --out "$WORK/out" \
++  --stt "fake:$WORK/replay"
++```
++
++The replay folder holds one file per chunk named `chunk-NNNN.json` (four digits). Expected output (lines with a name in angle brackets differ from run to run; the exit code is 0):
++
++```text
++result: scored
++language declared by user: mr
++agreement distance (MER): 0.10655737704918032 (13 of 122; H 109, S 9, D 2, I 2)
++tokens: 120 in the export, 120 in the stt transcript
++flags: 8 (confidence at or above 0.5)
++flagged share of export tokens: 9 of 120 (0.075)
++export turns with a flag: 7 of 22
++cost: not available (no_usage)
++store: <out>/tracer.sqlite
++```
++
++## Exit codes
++
++| Code | Meaning |
++|---|---|
++| 0 | scored |
++| 1 | unexpected failure |
++| 2 | not scored |
++| 3 | speech-to-text failed |
++| 4 | input refused |
++| 64 | usage |
++
++## Privacy and a real send
++
++- The audio leaves your machine only with --stt sarvam, to Sarvam.
++- The key SARVAM_API_KEY is read from the environment or from --env-file and is never on the command line.
++- With fake: a replay sends nothing.
++- The report and the store hold call text and must stay out of git; put --out outside the repository.
++- Every privacy and language option is required and none has a default.
++- Before a real send follow the Run book for a real send of ADR 0024: [run book](../../docs/adr/0024-provider-adapters-byok-sarvam-rest.md).
++- What the numbers mean and do not mean: [concept page](../../docs/concepts/recorded-call-scoring.md).

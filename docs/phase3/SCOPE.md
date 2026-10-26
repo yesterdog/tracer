@@ -374,6 +374,32 @@ reproduced exactly.
     (BL-238); a stale comment above `PENDING` in the ADR 0024 test (BL-241); POSIX only (modes,
     `O_NOFOLLOW`, FIFOs); the write-permission probe uses `os.access` (advisory; opening the store is
     the real check).
+- **D14. Batch H, the documents of P3-31 and P3-32 (lead, 2026-10-26; decision log "PHASE 3 BATCH H
+  (qa aacea597e20bd5e33) DELIVERED"; contract `docs/phase3/api-surface-batch-h.md`; ADR index
+  revision 46).** All auto-approved on the recommended option.
+  - **Page name:** the concept page is `docs/concepts/recorded-call-scoring.md` (row P3-32 and ADR 0023
+    rule 1 said `recorded-scoring.md`; both changed, rule numbering unchanged).
+  - **Wording the tests enforce:** the deny-list words of ADR 0023 rule 1 appear only in the one
+    verbatim sentence, which is the whole fenced block of the page's section "Not claimed"; the
+    other points of that section (a flag is not an error, an unflagged span is not shown right, the
+    export is not a reference, two clips are a demonstration) are prose outside the fence. The page
+    says that the report and the store hold call text and that the call log holds none (counts, ids
+    and timings only, ADR 0024 rule 15), and that the noise floor is unmeasured until P3-31.
+  - **README quick start:** `packages/cli/README.md` holds one shell block (a work directory from
+    `mktemp -d` outside the repository, `make_wav.py`, the three replay copies named
+    `chunk-NNNN.json`, `tracer score` with `--stt fake:`) and the expected output, which
+    `test_readme_quick_start_runs_offline` runs in-process and offline and compares line by line;
+    a wording change of the CLI summary now moves three places (BL-226).
+  - **Measurement report format (P3-31):** every file under `docs/phase3/measurements/` has nine
+    fixed sections and six fixed tables, ratios as `N of D (x)`, clips named `clip-A` and `clip-B`
+    only, no text excerpt, no file name, no non-ASCII character; `TEMPLATE.md` is the empty template.
+    The checker lives in the test module (BL-245).
+  - **Spec change (tightening):** `PENDING` of `test_adr0023_recorded_scoring.py` is empty.
+  - **Limits recorded:** the two-letter-word threshold behaviour (BL-243) and the split word
+    (BL-244) get BACKLOG rows; BL-224, BL-225 and BL-226 re-checked; BL-242 closed.
+  - **Bookkeeping (P3-33):** `packages/cli/CHANGELOG.md` added; the `tracer-evalcore` and
+    `tracer-evalproviders` CHANGELOGs brought up to date with batches D to G; licence and NOTICE
+    unchanged (the scaffold test pins them equal in every package).
 
 ---
 
@@ -645,7 +671,7 @@ No cut list (owner rule): if a task slips, the date moves.
 | P3-29 | lead | **Owner questions (answered 2026-10-25, Decisions D10)**, one at a time in chat: (1) `flag_min_confidence` value and (2) review budget, pre-registered before any real result is seen; (3) ToS 10.5(a): written Sarvam permission, or explicit risk acceptance; (4) Sarvam 17.5 training opt-out status; (5) consent status to record for the callers | Answers in the decision log. | none | 1 |
 | P3-30 | lead (owner-gated) | First real send (R1). Order: dry-run; one chunk (checks that 24 kHz is accepted and that `unknown` detects mr); then both clips. Log before and after; record counts only (chunks, detections per tag, usage, status) in the decision log. Never text. | Closes BL-168. | none (evidence `docs/phase3/evidence/real/` counts only) | 3 |
 | P3-31 | lead+qa | Noise-floor measurement, owner-gated: R2 repeats R1 (STT run-to-run stability); R3 shifts the chunking by half a window (boundary sensitivity); offline ablation of the normaliser on vs off from stored data. Report the Jaccard of flagged token sets and the counts. | | `test_measurement_report_has_counts_and_denominators` | 4 |
-| P3-32 | SA+dev | Docs: `docs/concepts/recorded-scoring.md`; README quick start runnable on the synthetic pair (`python -I`); three CHANGELOGs; licence and NOTICE | | `test_readme_quick_start_runs_offline`, `test_concept_page_states_no_accuracy_claim` | 6 |
+| P3-32 | SA+dev | Docs: `docs/concepts/recorded-call-scoring.md` (named `recorded-scoring.md` before batch H, Decisions D14); README quick start runnable on the synthetic pair (`python -I`); three CHANGELOGs; licence and NOTICE | | `test_readme_quick_start_runs_offline`, `test_concept_page_states_no_accuracy_claim` | 6 |
 | P3-33 | lead | BACKLOG rows at each deferral and closures; HANDOFF refresh | | none | 2 |
 | P3-G | reviewer | Gate | | none | 6 |
 

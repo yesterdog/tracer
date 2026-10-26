@@ -1,0 +1,237 @@
+# batch H mutants (one change each, fresh PYTHONPYCACHEPREFIX per mutant, Python 3.13, only the test file(s) that read the mutated file, pytest -x)
+# part 1: 166 mutants of the oracle documents (every non-blank line deleted once, plus replacements); 159 killed, 7 survived, all equivalent:
+#   page line 3 and README line 3 are the one-line introductions (no required statement; every link of the intro is also in 'Related');
+#   README lines 31, 33, 36, 37, 38 are optional lines of the expected-output block: the test checks that each listed line is in the real output and that four named lines are listed, not that all are
+# part 2: 61 mutants of the test code (the checkers): 61 killed, 0 survived
+# columns: label | status | first failing test or last pytest line
+
+## part 1: documents
+page delete line 1 | killed | # Recorded-call scoring | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 3 | SURVIVED | How `tracer score` compares the transcript export of a recorded call w | 69 passed in 1.15s
+page delete line 5 | killed | ## What is measured | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 7 | killed | - Tracer measures the agreement between the agent's transcript export  | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 8 | killed | - The value is labelled agreement distance (MER): the measure of Morri | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_states_no_accuracy_claim
+page delete line 9 | killed | - Every number is printed with its counts and its denominator, for exa | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 10 | killed | - The report points at spans where the two texts disagree. A span is f | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 11 | killed | - The confidence of a flag is the character edit distance of the two s | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 12 | killed | - The confidence is not a probability. | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 14 | killed | ## Not claimed | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_states_no_accuracy_claim
+page delete line 16 | killed | - A flag is not a claim that the export holds an error, and a flag may | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 17 | killed | - An unflagged span is not shown to be right: it only means the two te | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 18 | killed | - The export is not a reference or ground truth, and neither is the sp | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 19 | killed | - Two clips are a demonstration, not a validation (BL-170); no number  | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 21 | killed | ```text | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_states_no_accuracy_claim
+page delete line 22 | killed | Tracer reports how far two transcripts agree; it does not measure accu | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_states_no_accuracy_claim
+page delete line 23 | killed | ``` | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_states_no_accuracy_claim
+page delete line 25 | killed | ## Scope, roles and tier | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 27 | killed | - Only Marathi (language code mr, in Devanagari) is in scope in this r | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 28 | killed | - The language is declared by you with --declared-language; Tracer doe | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 29 | killed | - The caller is never evaluated. What is judged is the agent's text. | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 30 | killed | - The caller lines of the export are the agent's own recognition of th | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 31 | killed | - The speech-to-text turns have role unknown, because Tracer does no s | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 32 | killed | - The report labels each flag with the role of its export turn. | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 33 | killed | - A recorded run is at tier T0: the export and the audio are the only  | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 35 | killed | ## Cost | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 37 | killed | - Without a USD price the cost is not_available, with its reason. | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 38 | killed | - A missing cost is never 0. | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 40 | killed | ## Privacy and consent | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 42 | killed | - The audio leaves your machine only with --stt sarvam, and only to Sa | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 43 | killed | - With --stt fake:DIR the replay sends nothing and needs no key. | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 44 | killed | - The report and the store hold call text, so they must stay out of gi | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 45 | killed | - The call log holds no text: it holds counts, ids and timings. | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 46 | killed | - Put --out outside the repository. | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 47 | killed | - A consent record is given with --consent, --consent-reference and -- | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 48 | killed | - Retention is recorded and not enforced: nothing deletes the files af | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 49 | killed | - Embedding the audio in the report with --embed-audio is opt-in, and  | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 51 | killed | ## Run book | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 53 | killed | - Before a real send follow the Run book for a real send in ADR 0024. | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 54 | killed | - Do a dry run first, with the arguments of the real send. | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 55 | killed | - The --max-chunks ceiling refuses a plan with more chunks than you al | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 56 | killed | - For the offline quick start on the synthetic pair see packages/cli/R | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 58 | killed | ## Known limits | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 60 | killed | - Number words against digits are not folded, so a number spoken as a  | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 61 | killed | - A two-letter word flags exactly at the threshold when one letter dif | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 62 | killed | - A split word, one space inserted into a word, stays below the thresh | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 63 | killed | - The noise floor of the speech-to-text run is unmeasured until P3-31. | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 64 | killed | - No native review of the Marathi results has happened (BL-169), and t | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 66 | killed | ## Related | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page delete line 68 | killed | - [Offline quick start and exit codes](../../packages/cli/README.md) | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_cites_only_existing_rows_tests_and_links
+page delete line 69 | killed | - [The synthetic pair](../examples/synthetic-mr/README.md) | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_cites_only_existing_rows_tests_and_links
+page delete line 70 | killed | - [ADR 0023](../adr/0023-recorded-call-agreement-scoring.md) | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_cites_only_existing_rows_tests_and_links
+page delete line 71 | killed | - [ADR 0024](../adr/0024-provider-adapters-byok-sarvam-rest.md) | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_cites_only_existing_rows_tests_and_links
+page delete line 72 | killed | - [ADR 0025](../adr/0025-marathi-comparison-normaliser.md) | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_cites_only_existing_rows_tests_and_links
+page delete line 74 | killed | The page is checked by `test_concept_page_states_no_accuracy_claim`. | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_cites_only_existing_rows_tests_and_links
+page replace 'accuracy' by 'an accuracy figure' | killed |  | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_states_no_accuracy_claim
+page replace 'Marathi' by 'Hindi' | killed |  | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page replace 'T0' by 'T1' | killed |  | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page replace 'BL-192' by 'BL-999' | killed |  | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+page replace 'BL-234' by 'BL-999' | killed |  | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+readme delete line 1 | killed | # tracer-cli | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 3 | SURVIVED | The `tracer` command line, version 0.0.1: `tracer score` compares the  | 41 passed in 2.88s
+readme delete line 5 | killed | ## Quick start (offline, no key, no network) | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 7 | killed | Run these commands from the repository root, with the workspace instal | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 9 | killed | ```sh | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 10 | killed | WORK="$(mktemp -d)" | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 11 | killed | python -I docs/examples/synthetic-mr/make_wav.py "$WORK/synthetic_mr.w | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 12 | killed | mkdir -p "$WORK/replay" | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 13 | killed | cp docs/examples/synthetic-mr/stt_chunk_00.json "$WORK/replay/chunk-00 | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 14 | killed | cp docs/examples/synthetic-mr/stt_chunk_01.json "$WORK/replay/chunk-00 | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 15 | killed | cp docs/examples/synthetic-mr/stt_chunk_02.json "$WORK/replay/chunk-00 | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 16 | killed | uv run --locked tracer score "$WORK/synthetic_mr.wav" \ | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 17 | killed | --transcript docs/examples/synthetic-mr/export_synthetic_mr.txt \ | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 18 | killed | --rubric docs/examples/rubric-mr.example.json \ | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 19 | killed | --declared-language mr \ | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 20 | killed | --caller-origin simulated \ | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 21 | killed | --consent unknown \ | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 22 | killed | --retention keep \ | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 23 | killed | --out "$WORK/out" \ | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 24 | killed | --stt "fake:$WORK/replay" | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 25 | killed | ``` | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 27 | killed | The replay folder holds one file per chunk named `chunk-NNNN.json` (fo | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 29 | killed | ```text | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 30 | killed | result: scored | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_runs_offline
+readme delete line 31 | SURVIVED | language declared by user: mr | 41 passed in 2.73s
+readme delete line 32 | killed | agreement distance (MER): 0.10655737704918032 (13 of 122; H 109, S 9,  | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_runs_offline
+readme delete line 33 | SURVIVED | tokens: 120 in the export, 120 in the stt transcript | 41 passed in 2.75s
+readme delete line 34 | killed | flags: 8 (confidence at or above 0.5) | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_runs_offline
+readme delete line 35 | killed | flagged share of export tokens: 9 of 120 (0.075) | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_runs_offline
+readme delete line 36 | SURVIVED | export turns with a flag: 7 of 22 | 41 passed in 2.75s
+readme delete line 37 | SURVIVED | cost: not available (no_usage) | 41 passed in 2.71s
+readme delete line 38 | SURVIVED | store: <out>/tracer.sqlite | 41 passed in 2.73s
+readme delete line 39 | killed | ``` | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 41 | killed | ## Exit codes | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 43 | killed | | Code | Meaning | | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 44 | killed | |---|---| | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 45 | killed | | 0 | scored | | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 46 | killed | | 1 | unexpected failure | | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 47 | killed | | 2 | not scored | | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 48 | killed | | 3 | speech-to-text failed | | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 49 | killed | | 4 | input refused | | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 50 | killed | | 64 | usage | | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 52 | killed | ## Privacy and a real send | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 54 | killed | - The audio leaves your machine only with --stt sarvam, to Sarvam. | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 55 | killed | - The key SARVAM_API_KEY is read from the environment or from --env-fi | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 56 | killed | - With fake: a replay sends nothing. | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 57 | killed | - The report and the store hold call text and must stay out of git; pu | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 58 | killed | - Every privacy and language option is required and none has a default | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 59 | killed | - Before a real send follow the Run book for a real send of ADR 0024:  | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+readme delete line 60 | killed | - What the numbers mean and do not mean: [concept page](../../docs/con | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+template delete line 1 | killed | # Measurement report: <title> | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 3 | killed | Copy this file to `docs/phase3/measurements/<name>.md`, fill every pla | FAILED packages/evalcore/tests/test_measurement_reports.py::test_the_template_tells_the_author_where_a_report_goes
+template delete line 5 | killed | ## Scope and status | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 7 | killed | Status: template | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 8 | killed | Date: <date> | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 9 | killed | Task: P3-31 | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 11 | killed | ## Clips | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 13 | killed | Clips are named by id only: clip-A and clip-B. | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 15 | killed | | Clip | Export turns | Export tokens | Audio seconds | | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 16 | killed | |---|---|---|---| | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 17 | killed | | clip-A | <n> | <n> | <seconds> | | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 18 | killed | | clip-B | <n> | <n> | <seconds> | | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 20 | killed | ## Configuration | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 22 | killed | | Setting | Value | | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 23 | killed | |---|---| | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 24 | killed | | flag_min_confidence | <value> | | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 25 | killed | | normaliser | <value> | | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 26 | killed | | max_chunk_ms | <value> | | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 27 | killed | | search_ms | <value> | | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 28 | killed | | stt_model_as_requested | <value> | | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 29 | killed | | r3_shift_ms | <value> | | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 31 | killed | ## Counts per run | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 33 | killed | In a cell 'N of D', N is the numerator and D the denominator; the deci | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 35 | killed | | Run | Clip | Chunks answered (n of d) | Attempts | Export tokens | S | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 36 | killed | |---|---|---|---|---|---|---|---|---|---|---|---|---|---| | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 37 | killed | | R1 | clip-A | <n> of <d> | <n> | <n> | <n> | <n> | <n> | <n> | <n> | | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 39 | killed | ## Usage and cost | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 41 | killed | Cost is not_available when no USD price is given, and it is never writ | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 43 | killed | | Run | Clip | Requests | Audio seconds | Cost | | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 44 | killed | |---|---|---|---|---| | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 45 | killed | | R1 | clip-A | <n> | <seconds> | not_available (<reason>) | | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 47 | killed | ## Flags per run | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 49 | killed | | Run | Clip | Flags | Flag span ids | | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 50 | killed | |---|---|---|---| | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 51 | killed | | R1 | clip-A | <n> | <ids> | | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 53 | killed | ## Run-to-run difference | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 55 | killed | Jaccard is the flagged tokens in both runs over the flagged tokens in  | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 56 | killed | R2 repeats R1 with the same inputs and R3 shifts the chunk boundaries  | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 57 | killed | The normaliser row compares the stored data scored with the normaliser | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 59 | killed | | Comparison | Clip | Flagged tokens in both | Flagged tokens in eithe | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 60 | killed | |---|---|---|---|---| | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 61 | killed | | R1 vs R2 | clip-A | <n> | <n> | <n> of <d> (<ratio>) | | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 62 | killed | | R1 vs R3 | clip-A | <n> | <n> | <n> of <d> (<ratio>) | | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 63 | killed | | R1 normaliser on vs off | clip-A | <n> | <n> | <n> of <d> (<ratio>)  | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 64 | killed | | R1 vs R2 | clip-B | <n> | <n> | <n> of <d> (<ratio>) | | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 65 | killed | | R1 vs R3 | clip-B | <n> | <n> | <n> of <d> (<ratio>) | | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 66 | killed | | R1 normaliser on vs off | clip-B | <n> | <n> | <n> of <d> (<ratio>)  | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 68 | killed | ## What was NOT measured | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 70 | killed | - Native-speaker review of any flag or of the normaliser (BL-169). | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 71 | killed | - Anything beyond two clips: this is a demonstration (BL-170). | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 72 | killed | - Any other speech-to-text engine, model or language. | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 74 | killed | ## Not claimed | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 76 | killed | ```text | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 77 | killed | Tracer reports how far two transcripts agree; it does not measure accu | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+template delete line 78 | killed | ``` | FAILED packages/evalcore/tests/test_measurement_reports.py::test_measurement_report_has_counts_and_denominators[TEMPLATE.md]
+index delete line 20 | killed | | [recorded-call-scoring.md](recorded-call-scoring.md) | scoring a rec | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_is_linked_from_the_concepts_index
+
+## part 2: checkers
+S01 deny-list without recall | killed | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_the_checker_refuses_a_deny_listed_word_outside_the_sentence[Recall]
+S02 deny-list without cer | killed | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_the_checker_refuses_a_deny_listed_word_outside_the_sentence[CER]
+S03 error rate only with a space | killed | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_the_checker_refuses_a_deny_listed_word_outside_the_sentence[error-rate]
+S04 no NFKC | killed | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_the_checker_refuses_a_deny_listed_word_outside_the_sentence[\uff41ccuracy]
+S05 format characters kept | killed | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_the_checker_refuses_a_deny_listed_word_outside_the_sentence[acc\u200buracy]
+S06 white space not collapsed | killed | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_a_wrapped_verbatim_sentence_is_still_the_sentence
+S07 sentence count fixed | killed | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_the_checker_refuses_a_missing_or_repeated_or_misplaced_sentence
+S08 statement needs any pattern | killed | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_the_checker_reports_each_missing_statement[agreement_definition]
+S09 fences not skipped in statements | killed | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_a_statement_inside_a_fence_does_not_count
+S10 sentences not split | killed | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_a_statement_must_fit_one_sentence
+S11 bullets not separate units | killed | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_a_statement_must_fit_one_bullet
+S12 BL ids ignored | killed | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_cites_only_existing_rows_tests_and_links
+S13 headings include fenced lines | killed | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_a_heading_inside_a_fence_is_not_a_heading
+P01 any title | killed | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_the_checker_refuses_wrong_headings_and_title
+P02 headings unchecked | killed | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_the_checker_refuses_wrong_headings_and_title
+P03 unknown BL rows allowed | killed | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_the_checker_refuses_unknown_backlog_rows_tests_and_links
+P04 required BL not required | killed | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_the_checker_refuses_unknown_backlog_rows_tests_and_links
+P05 unknown test names allowed | killed | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_the_checker_refuses_unknown_backlog_rows_tests_and_links
+P06 links not resolved | killed | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_the_checker_refuses_unknown_backlog_rows_tests_and_links
+P07 required links not required | killed | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_the_checker_refuses_unknown_backlog_rows_tests_and_links
+P08 hidden characters allowed | killed | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_the_checker_refuses_invisible_characters
+P09 fence count not checked | killed | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_the_checker_refuses_a_missing_or_repeated_or_misplaced_sentence
+P10 fence may hold more | killed | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_the_checker_refuses_a_deny_listed_word_in_the_fence_beside_the_sentence
+P11 outside fences allowed | killed | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_the_checker_refuses_a_fence_outside_not_claimed
+P12 section of a requirement ignored | killed | FAILED packages/evalcore/tests/test_concept_page_recorded_scoring.py::test_concept_page_has_fixed_headings_and_required_statements
+N01 stem after underscore allowed | killed | FAILED packages/evalcore/tests/test_measurement_reports.py::test_the_checker_refuses_each_mutated_report[stem after underscore]
+N02 percent allowed | killed | FAILED packages/evalcore/tests/test_measurement_reports.py::test_the_checker_refuses_each_mutated_report[percent]
+N03 tilde path allowed | killed | FAILED packages/evalcore/tests/test_measurement_reports.py::test_the_checker_refuses_each_mutated_report[tilde path]
+N04 wide decimal tolerance | killed | FAILED packages/evalcore/tests/test_measurement_reports.py::test_the_checker_refuses_each_mutated_report[wrong decimal]
+N05 numerator above denominator allowed | killed | FAILED packages/evalcore/tests/test_measurement_reports.py::test_the_checker_refuses_each_mutated_report[numerator above denominator]
+N06 wav allowed | killed | FAILED packages/evalcore/tests/test_measurement_reports.py::test_the_checker_refuses_each_mutated_report[file name]
+N07 long quotes allowed | killed | FAILED packages/evalcore/tests/test_measurement_reports.py::test_the_checker_refuses_each_mutated_report[latin transliteration in quotes]
+N08 jaccard cell unchecked | killed | FAILED packages/evalcore/tests/test_measurement_reports.py::test_the_checker_refuses_each_mutated_report[jaccard counts differ from the row]
+N09 template status unchecked | killed | FAILED packages/evalcore/tests/test_measurement_reports.py::test_the_template_is_not_a_filled_report
+N10 mer denominator wrong | killed | FAILED packages/evalcore/tests/test_measurement_reports.py::test_the_checker_accepts_a_filled_report
+N11 fence outside not claimed allowed | killed | FAILED packages/evalcore/tests/test_measurement_reports.py::test_the_checker_refuses_each_mutated_report[fenced excerpt]
+N12 clip names unchecked | killed | FAILED packages/evalcore/tests/test_measurement_reports.py::test_the_checker_refuses_each_mutated_report[clip named by number]
+N13 non-ASCII allowed | killed | FAILED packages/evalcore/tests/test_measurement_reports.py::test_the_checker_refuses_each_mutated_report[devanagari]
+N14 placeholders allowed in reports | killed | FAILED packages/evalcore/tests/test_measurement_reports.py::test_the_template_is_not_a_filled_report
+N15 flag ids unchecked | killed | FAILED packages/evalcore/tests/test_measurement_reports.py::test_the_checker_refuses_each_mutated_report[flag ids disagree with the count]
+N16 cost zero allowed | killed | FAILED packages/evalcore/tests/test_measurement_reports.py::test_the_checker_refuses_each_mutated_report[cost zero]
+N17 headings unchecked | killed | FAILED packages/evalcore/tests/test_measurement_reports.py::test_the_checker_refuses_each_mutated_report[heading added]
+N18 backlog unchecked | killed | FAILED packages/evalcore/tests/test_measurement_reports.py::test_the_checker_refuses_each_mutated_report[unknown backlog row]
+N19 bare decimal allowed | killed | FAILED packages/evalcore/tests/test_measurement_reports.py::test_the_checker_refuses_each_mutated_report[bare decimal]
+N20 not-measured bullets unchecked | killed | FAILED packages/evalcore/tests/test_measurement_reports.py::test_the_checker_refuses_each_mutated_report[not measured: two bullets]
+R01 embed-audio allowed | killed | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_the_checker_refuses_each_mutated_shell_block[embed audio]
+R02 required options unchecked | killed | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_the_checker_refuses_each_mutated_shell_block[required option missing]
+R03 parser not consulted | killed | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_readme_quick_start_is_parseable_and_matches_the_parser
+R04 unknown options allowed | killed | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_the_checker_refuses_each_mutated_shell_block[unknown option]
+R05 replay copies unchecked | killed | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_the_checker_refuses_each_mutated_shell_block[replay file misnamed]
+R06 exit meaning unchecked | killed | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_the_checker_refuses_each_mutated_readme[exit code described otherwise]
+R07 extra exit code allowed | killed | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_the_checker_refuses_each_mutated_readme[extra exit code]
+R08 out anywhere | killed | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_the_checker_refuses_each_mutated_shell_block[out inside the repository]
+R09 expected output unchecked | killed | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_the_run_check_accepts_the_good_readme_and_refuses_a_wrong_one
+R10 exit code ignored | killed | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_the_run_check_accepts_the_good_readme_and_refuses_a_wrong_one
+R11 scaffold text allowed | killed | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_the_checker_refuses_each_mutated_readme[scaffold only]
+R12 repository root unchecked | killed | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_the_checker_refuses_each_mutated_readme[no repository root]
+R13 link check off | killed | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_the_checker_refuses_each_mutated_readme[dead extra link]
+R14 dry run allowed | killed | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_the_checker_refuses_each_mutated_shell_block[dry run]
+R15 fake dir not created | killed | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_the_checker_refuses_each_mutated_shell_block[replay directory not created]
+R16 first command unchecked | killed | FAILED packages/cli/tests/test_cli_readme_quick_start.py::test_the_checker_refuses_each_mutated_shell_block[first command is not the work directory]
