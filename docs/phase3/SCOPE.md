@@ -1,6 +1,6 @@
 # Phase 3 scope: recorded-audio scoring, mr base case
 
-Status: Scoped 2026-10-25. As of 2026-10-26: batches 0 and A to I are committed (the last code commit is `b03a848`); the first real send P3-30 and the noise-floor measurements P3-31 are done, their report committed at `7b929ed` (`docs/phase3/measurements/2026-10-26-noise-floor.md`); the gate P3-G (staff-reviewer, at `7b929ed`) is PASS WITH CONDITIONS, recorded as passed only when its conditions C1 to C4 close with commit ids (conditions C1 to C12 in `docs/HANDOFF.md` section 4 and the decision log 2026-10-26 "PHASE 3 GATE"); Decisions D1 to D15; ADR index revision 48. The status of 2026-10-25, kept for history: Batch 0 in progress: ADRs P3-00a to P3-00d written (ADR index revision 40, Decisions D6); P3-01 and P3-02 open.
+Status: Scoped 2026-10-25. As of 2026-10-26: batches 0 and A to I are committed (the last code commit is `b03a848`); the first real send P3-30 and the noise-floor measurements P3-31 are done, their report committed at `7b929ed` (`docs/phase3/measurements/2026-10-26-noise-floor.md`); the gate P3-G (staff-reviewer, at `7b929ed`) is PASS WITH CONDITIONS, recorded as passed only when its conditions C1 to C4 close with commit ids (conditions C1 to C12 in `docs/HANDOFF.md` section 4 and the decision log 2026-10-26 "PHASE 3 GATE"); Decisions D1 to D15; ADR index revision 49. Update 2026-10-27: the conditions C1 to C12 are closed (C1 to C8, C11 and C12 at `a1f0161`, hosted run 40393245877, 18 of 18 jobs green) and the gate P3-G was recorded as PASSED on 2026-10-27 (decision log "PHASE 3 GATE (P3-G) CLOSURE VERDICT: PASS"); Phase 3 is complete. The status of 2026-10-25, kept for history: Batch 0 in progress: ADRs P3-00a to P3-00d written (ADR index revision 40, Decisions D6); P3-01 and P3-02 open.
 
 Source: the Phase 3 scoping report of the staff-reviewer (2026-10-25), reproduced faithfully
 below. The only edits are the ones listed under Decisions (D1 to D5), third-person wording in the
@@ -454,6 +454,15 @@ reproduced exactly.
   packages exempts `postgres`-marked tests for loopback connections only (127.0.0.1, ::1,
   localhost); unmarked tests keep the full guard. ADR 0024 rule 17 and I8 reworded (ADR index
   revision 49); the guard change is a named spec change with qa tests red first; BL-267, BL-268.
+- **Update 2026-10-27 (gate conditions).** The conditions C1 to C8, C11 and C12 are closed at
+  `a1f0161` (hosted run 40393245877, 18 of 18 jobs green, the Postgres legs running the cli tests:
+  BL-268 closed); C9 was closed by the owner on 2026-10-26; C10 is owner-confirmed for the consent
+  time (date only) with the retention date open (BL-259). P3-G: awaiting the reviewer's closure
+  verdict.
+- **Update 2026-10-27 (P3-G closure).** The staff-reviewer's closure verdict is PASS (read-only, at
+  `a1f0161` plus the working tree; decision log "PHASE 3 GATE (P3-G) CLOSURE VERDICT: PASS"); the
+  gate is recorded as passed on 2026-10-27 and Phase 3 is complete. P3 follow-ups: BL-288 to
+  BL-290 and the BL-267 follow-up.
 
 ---
 
@@ -727,7 +736,7 @@ No cut list (owner rule): if a task slips, the date moves.
 | P3-31 | lead+qa | Noise-floor measurement, owner-gated: R2 repeats R1 (STT run-to-run stability); R3 shifts the chunking by half a window (boundary sensitivity); offline ablation of the normaliser on vs off from stored data. Report the Jaccard of flagged token sets and the counts. | Done 2026-10-26 (decision log "OWNER YES (explicit, second ask)" and "P3-31 MEASUREMENTS COMPLETE"): `docs/phase3/measurements/2026-10-26-noise-floor.md`, status final. Deviation: R3 used a different cut grid (`--max-chunk-ms 20000` instead of 25000, `--search-ms` 5000 unchanged) because the CLI has no half-window shift option (BL-253); the normaliser off side is an offline recomputation with a measurement-only identity key, not a product normaliser. clip-A was also run twice more with the same inputs (identical). The measurement scripts are outside the repository and some report cells are to be checked against the stores (BL-252). | `test_measurement_report_has_counts_and_denominators` | 4 |
 | P3-32 | SA+dev | Docs: `docs/concepts/recorded-call-scoring.md` (named `recorded-scoring.md` before batch H, Decisions D14); README quick start runnable on the synthetic pair (`python -I`); three CHANGELOGs; licence and NOTICE | | `test_readme_quick_start_runs_offline`, `test_concept_page_states_no_accuracy_claim` | 6 |
 | P3-33 | lead | BACKLOG rows at each deferral and closures; HANDOFF refresh | | none | 2 |
-| P3-G | reviewer | Gate | | none | 6 |
+| P3-G | reviewer | Gate | Done 2026-10-27: PASS WITH CONDITIONS at `7b929ed` (2026-10-26), conditions C1 to C12 closed (at `a1f0161`, hosted run 40393245877, 18 of 18 jobs green; C9 by the owner; C10 owner-confirmed with the retention date open), closure verdict PASS by the staff-reviewer (read-only, `a1f0161` plus the working tree; decision log 2026-10-27 "PHASE 3 GATE (P3-G) CLOSURE VERDICT: PASS"). Accepted deferrals and the P3 follow-ups BL-288 to BL-290 in `docs/HANDOFF.md` section 4. | none | 6 |
 
 **Total: about 204 h** (batch 0: 34, A: 17, B: 31, C: 32, D: 23, E: 19, F: 48).
 

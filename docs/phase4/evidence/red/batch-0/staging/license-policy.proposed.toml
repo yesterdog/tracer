@@ -1,0 +1,99 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 The Tracer contributors
+#
+# PROPOSED additions to docs/security/license-policy.toml for task P4-02. NOTHING IS APPLIED: this
+# file is a staging copy, not read by scripts/check_licenses.py. Review text:
+# docs/security/P4-02-licenses.md (lookups of 2026-10-27). The dev (P4-01) fixes the version bounds
+# and extends the checker; the lead logs the named exception for av.
+
+[runtime.evalsim]
+# Runtime closure of tracer-evalsim (docs/security/P4-02-licenses.md). Workspace members excluded.
+# websockets (BSD-3-Clause) on top of the evalschema closure; protobuf dropped 2026-10-27 (E-b: the
+# protobuf dialect is hand-written, ADR 0026 rule 3). The [webrtc] extra is
+# listed in [runtime.evalsim.extras_webrtc]. Any change must be a conscious edit.
+closure = [
+    "annotated-types",
+    "pydantic",
+    "pydantic-core",
+    "rfc8785",
+    "typing-extensions",
+    "typing-inspection",
+    "websockets",
+]
+# PROPOSED bounds; P4-01 fixes them (lower bound tested, D3) and re-reads the licence at the lowest
+# version. Reviewed at websockets 17.3, aiortc 1.15.0 only (protobuf 7.36.2 was reviewed, then dropped).
+requires_dist = [
+    "tracer-evalschema==0.0.1",
+    "tracer-evalcore==0.0.1",
+    "websockets>=15.0,<18",
+    "aiortc>=1.15.0,<2; extra == 'webrtc'",
+]
+
+[runtime.evalsim.extras_webrtc]
+# Packages added by the [webrtc] extra beyond [runtime.evalsim]. typing-extensions is already in the
+# base closure. pyee has two locked versions (13.0.1 below Python 3.12, 16.0.0 from 3.12). av
+# bundles an FFmpeg stack with GPL and LGPL parts: see [[bundled_notices]] and the review, section 4.
+closure = [
+    "aioice",
+    "aiortc",
+    "av",
+    "cffi",
+    "cryptography",
+    "dnspython",
+    "google-crc32c",
+    "ifaddr",
+    "pycparser",
+    "pyee",
+    "pylibsrtp",
+    "pyopenssl",
+]
+
+[[rejected]]
+name = "pipecat-ai"
+spdx = "BSD-2-Clause"
+reason = "Not a rejection of its own licence. As a runtime dependency its core closure pulls num2words (LGPL), soxr 1.0.0 (LGPL-2.1-or-later), soundfile wheels that bundle libsndfile (LGPL-2.1), numba, onnxruntime and weekly releases; it would break test_no_lgpl_or_gpl_in_lock and the frozen closures, and its sarvam extra pins sarvamai==0.1.28 (rejected). Pipecat lives only in tools/samplebot with its own lock, pinned exactly (1.14.0), never in a tracer wheel and never in uv.lock. See docs/security/P4-02-licenses.md."
+
+# Needed when these packages enter uv.lock (their metadata is free text, classified UNCLEAR):
+
+[[overrides]]
+name = "pyopenssl"
+version = "26.4.0"
+spdx = "Apache-2.0"
+scope = "runtime"
+license_file = "licenses/LICENSE"
+license_file_sha256 = "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+reason = "License field is the free text 'Apache License, Version 2.0' with only the Apache Software License classifier; LICENSE is the Apache-2.0 text (same bytes as google-crc32c). Optional extra [webrtc]."
+
+# Documentary tables (ignored by the current loader; a dev decision whether to read them).
+
+[[bundled_notices]]
+name = "av"
+version = "17.1.0"
+declared = "BSD-3-Clause"
+scope = "optional extra [webrtc], user-installed from PyPI, never vendored"
+bundled = "FFmpeg 8.x libraries (version3) with libx264 and libx265 (GPL-2.0 upstream; pyav-ffmpeg patch moves them out of FFmpeg's GPL list), libmp3lame, gnutls, nettle, gmp, unistring (LGPL upstream), opencore-amr, opus, vpx, webp, dav1d, SVT-AV1"
+evidence = "pyav-ffmpeg tag 8.1.1-2 patches/ffmpeg.patch and scripts/build-ffmpeg.py; configuration string in libavcodec; no licence texts in the wheel"
+status = "named exception proposed under the owner's rule 'do not dwell on copyleft' (2026-10-23); lead to log"
+recheck = "any av bump, any aiortc bound change on av, new pyav-ffmpeg tag, wheel gaining licence texts"
+
+[[bundled_notices]]
+name = "pylibsrtp"
+version = "1.0.0"
+declared = "BSD-3-Clause"
+scope = "optional extra [webrtc]"
+bundled = "libsrtp2 and OpenSSL 3.5.4 statically linked (strings read); no notice file in the wheel"
+status = "permissive upstream; no exception"
+recheck = "pylibsrtp bump"
+
+[tools.samplebot]
+# Tool-only closure (tools/samplebot, own lock, never in a tracer wheel or uv.lock).
+pin = "pipecat-ai==1.14.0"
+reviewed = "2026-10-27"
+copyleft_tool_only = [
+    "num2words 0.5.14 (LGPL, COPYING LGPL-2.1)",
+    "soxr 1.0.0 (LGPL-2.1-or-later, bundles libsoxr)",
+    "soundfile 0.13.1 (metadata BSD-3-Clause; wheels bundle libsndfile, COPYING LGPL-2.1)",
+    "opencv-python-headless 4.14.0.94 (extra webrtc; bundles FFmpeg, LGPL-2.1 notice)",
+    "certifi 2026.10.23 (MPL-2.0, extras)",
+]
+not_fully_reviewed = ["onnxruntime 1.31.1 ThirdPartyNotices", "numba 0.68.0 LICENSES.third-party", "silero_vad.onnx and smart-turn model licences"]
