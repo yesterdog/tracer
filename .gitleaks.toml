@@ -42,3 +42,14 @@ regexes = [
 description = "synthetic key=value samples in the key-reference test support module"
 targetRules = ["generic-api-key"]
 paths = ['''^packages/evalschema/tests/_support_b16\.py$''']
+
+# The batch G evidence logs echo pytest failure reprs of the test environment, which holds the
+# fixed canary key of the key-handling tests (a made-up string with this prefix, not a
+# credential). Scoped to the evidence logs, to generic-api-key and to the canary shape.
+[[allowlists]]
+description = "canary key echoed in phase 3 evidence logs"
+condition = "AND"
+targetRules = ["generic-api-key"]
+regexTarget = "match"
+paths = ['''^docs/phase3/evidence/(green|red)/[^/]+/[^/]+\.(log|txt)$''']
+regexes = ['''CANARYKEY-[a-z0-9-]+''']
