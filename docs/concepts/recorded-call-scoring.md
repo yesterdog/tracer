@@ -34,7 +34,7 @@ Tracer reports how far two transcripts agree; it does not measure accuracy, and 
 
 - Only Marathi (language code mr, Devanagari script) is in scope in this release; any other `--declared-language` is refused before any request (`language_not_supported`, exit 4).
 - The language of the export is declared by you with `--declared-language`, because the export carries no language label; Tracer never infers it.
-- The speech-to-text request asks the engine to observe the language of each chunk; a chunk observed as another language, or with no observed language, makes the three results `error` and the run is not scored (exit 2), with no value shown.
+- The speech-to-text request asks the engine to observe the language of each chunk; a chunk observed as another language, or with no observed language, makes the three results `error` and the run is not scored (exit 2), with no value shown (pinned by `test_e2e_nonmr_chunk_is_not_scored_exit_2_with_three_errors`).
 - The caller is never evaluated: what is judged is the agent's text.
 - The caller lines of the export are the agent's own recognition of the caller's speech, so they are agent output and are compared like the agent's lines.
 - The speech-to-text turns have role unknown, because the recording is mono and Tracer does no speaker separation (BL-166).
@@ -58,10 +58,11 @@ Tracer reports how far two transcripts agree; it does not measure accuracy, and 
 - The report and the store hold call text (both transcripts), so they must stay out of git.
 - The call log holds no text: it holds counts, ids and timings only (chunk index, attempt, bytes sent, audio seconds, status, elapsed time and request id).
 - Put `--out` outside the repository; the repository's ignore rules and its guard are a second line of defence, not the first.
-- A directory the command creates is readable by you only (mode 0700), and the store and the call log are created with mode 0600.
+- When the command creates `--out`, the leaf directory is 0700 and any parent directories it creates follow the umask; an existing `--out` that group or other users can reach earns one warning on stderr (its mode only), and the run goes on without changing the mode. The store and the call log are created with mode 0600.
 - The consent record is given with `--consent`, `--consent-reference` and `--consent-recorded-at`, and Tracer stores the statement as given on the privacy marker of the audio and of both transcripts, and never prints, reports, logs or sends the reference.
 - Tracer checks that a consent statement was given, not that it is true; for the base case the statement is the owner's, recorded on 2026-10-25 (BL-213).
 - `--stt sarvam` is refused unless `--consent obtained`; a replay is never gated.
+- A link in place of `tracer.sqlite` in `--out` is refused before any request (`store_file_is_a_link`, exit 4).
 - Retention is recorded and not enforced: the `--retention` value is stored on the records, but nothing deletes the store, the report or the call log when the date passes, so you delete `--out` by hand (BL-234).
 - Embedding the audio in the report with `--embed-audio` is opt-in: without it the report refers to the recording by a relative path, and with it the report file itself holds the call audio and must not be shared.
 - A machine that needs an HTTP proxy or extra CA certificates cannot make a real send in this release, because the client reads no proxy or certificate setting from the environment (BL-237).
@@ -83,6 +84,7 @@ Tracer reports how far two transcripts agree; it does not measure accuracy, and 
 - No native review of the Marathi normaliser rules, of the synthetic pair or of any result has happened (BL-169, BL-225).
 - The two texts share no time base, so the comparison is over the whole call, not turn by turn (BL-167).
 - The aligner accepts at most 10,000 tokens per side; with `--stt sarvam` a longer export is refused before the send, and memory and time at the caps are unmeasured (BL-230).
+- The speech-to-text side can only be counted after the send: above 10,000 tokens it gives the `error` result `alignment_too_large`, and the run is stored and reported as not scored (exit 2); no command-level test drives this case yet (BL-250).
 - The report's audio playback and click-to-seek under `file://` have no automated check; the owner checks them by hand in a browser (BL-224).
 
 ## Related

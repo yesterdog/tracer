@@ -56,7 +56,13 @@ First version. Everything below is new.
 - Call-log hardening (batch G, audit F7): `CallLog.open` creates a missing output directory with
   mode 0700 whatever the umask, and the log is opened with `O_NOFOLLOW`, so a symbolic link in its
   place (also a dangling one) is refused before anything is written; an existing log with a looser
-  mode is tightened to 0600. POSIX only.
+  mode is tightened to 0600. POSIX only. Only the leaf directory is forced to 0700; parents it
+  creates follow the umask.
+- Usage streaming (batch I, re-audit R1): `SarvamStt.streams_usage` is true and `transcribe` takes
+  a keyword-only `on_usage`; the usage record of each answered chunk is handed to it before the
+  next request is built, once per chunk (a retried chunk once), and the outcome carries the same
+  records with the same ids. An exception that is not an `SttError` (or a `KeyboardInterrupt`)
+  leaves `transcribe` unwrapped, and an exception of `on_usage` stops the send.
 - The dry-run plan (`tracer_evalproviders.dryrun`) reads no key, opens no log and no connection and
   writes no file; it prints a cost only when the user supplied a USD price.
 

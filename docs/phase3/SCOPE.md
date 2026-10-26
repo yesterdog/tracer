@@ -400,6 +400,41 @@ reproduced exactly.
   - **Bookkeeping (P3-33):** `packages/cli/CHANGELOG.md` added; the `tracer-evalcore` and
     `tracer-evalproviders` CHANGELOGs brought up to date with batches D to G; licence and NOTICE
     unchanged (the scaffold test pins them equal in every package).
+- **D15. Re-audit of batch G and batch I, its fixes (lead, 2026-10-26; decision log "PHASE 3 RE-AUDIT
+  OF BATCH G" and "PHASE 3 BATCH I (qa a23dc062fbffbcffa) DELIVERED"; contract
+  `docs/phase3/api-surface-batch-i.md`; ADR 0024 rule 16 and the run book, ADR index revision 47;
+  `docs/security/P3-28-audit.md` section "Re-audit of batch G").** All auto-approved on the
+  recommended option.
+  - **Re-audit verdict: GO** for the first real send (P3-30), conditional on the run book; no P0, no
+    P1. Findings R1 (P2) and R2 to R6 (P3), all fixed before the send in batch I.
+  - **R1, the usage survives any end of the send:** `tracer_evalcore.stt` gains `UsageSink` and the
+    runtime protocol `UsageStreamingSttEngine` (`streams_usage` and `transcribe(plan, context, *,
+    on_usage=None)`); `SttEngine` is unchanged. The Sarvam engine streams each answered chunk's usage
+    record before the next request, and its outcome carries the same records. The command passes
+    `on_usage` only when `streams_usage is True`, catches `BaseException` around the pipeline and the
+    store write, writes the recovery file when it holds usage, prints `usage recovery: <path>` or
+    `usage recovery: not written`, and raises the same exception again.
+  - **Decisions A1 to A15 of the contract:** A1 a reply whose `after` call-log line failed is not
+    counted; A2 the cost lists of a `pipeline` recovery file are empty; A3 a Ctrl-C during the store
+    write keeps the usage (`failed_step` `store`), with no report; A4 an exception of `on_usage`
+    stops the send; A5 `streams_usage` read with `is True`; A6 the replay engine does not stream; A7
+    the mode warning comes after the store is open, so the single-line exit-4 refusals of batch G
+    stay single; A8 a `KeyboardInterrupt` leaves `run` and `main` uncaught (no exit 130); A9 a link at
+    `--out` itself and at the SQLite side files is not covered (BL-246); A10 an offset minute of 60
+    is refused (finding R5b); A11 `_INSTANT` and `_instant` pinned by their private names; A12 a
+    leap second stays refused; A13 the mode is read once, at the first send; A14 the pipeline path
+    prints `usage recovery: not written` only when there is usage, the store path as before; A15 the
+    re-audit findings are a separate R table in the audit file, so `test_p3_audit_items_cite_tests`
+    (F1 to F16) is unchanged.
+  - **R2** the recovery writer fails quietly into a stdout line, never over the original error;
+    **R3** one stderr warning for an existing `--out` with group or other bits, and the documents say
+    the leaf directory is 0700 and the parents follow the umask; **R4** the README exit-1 row is true
+    once R1 and R2 are fixed; **R5** one strict instant pattern on every Python version; **R6** a link
+    in place of `tracer.sqlite` is refused (`store_file_is_a_link`, exit 4), also at the store open.
+  - **No spec change** to an existing test; no schema change; no new exit code.
+  - **Limits recorded:** BL-246 to BL-251 (links at `--out` and the side files, the dry run without
+    `--max-chunks`, a zero-length WAV over Sarvam, huge plans before the ceiling, an over-cap
+    speech-to-text side, the other-language claim, which an existing test pins).
 
 ---
 

@@ -10,6 +10,7 @@ its owner only (evaldb) and a new output directory is private too.
 
 from __future__ import annotations
 
+import errno
 import os
 from dataclasses import dataclass
 from pathlib import Path
@@ -39,6 +40,8 @@ def open_sqlite_store(out_dir: str | os.PathLike[str]) -> Any:
     """Create ``out_dir`` if needed, open its SQLite store and migrate it to the current head."""
     directory = Path(out_dir)
     directory.mkdir(mode=0o700, parents=True, exist_ok=True)
+    if os.path.islink(directory / STORE_FILE_NAME):
+        raise OSError(errno.ELOOP, "the store file is a link")
     path = (directory / STORE_FILE_NAME).resolve()
     if "?" in str(path):
         raise ValueError("the output directory path must not contain a question mark")

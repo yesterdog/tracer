@@ -19,6 +19,7 @@ import hashlib
 import json
 import os
 import re
+import stat
 import sys
 import time
 import unicodedata
@@ -106,8 +107,8 @@ _PROJECT_NAME: Final = "recorded-call scoring"
 _TARGET_NAME: Final = "recorded call agent"
 _MAX_MESSAGE_CHARS: Final = 500
 _INSTANT: Final = re.compile(
-    r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]{1,6})?"
-    r"(?:Z|[+-][0-9]{2}:[0-9]{2})"
+    r"[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]"
+    r"(?:\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])"
 )
 _LANGUAGE: Final = re.compile(r"[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*")
 _POSITIVE_INTEGER: Final = re.compile(r"[1-9][0-9]{0,8}")
@@ -563,14 +564,29 @@ def _write_new_file(path: Path, text: str) -> None:
 
 
 class _Recorder:
-    """Passes ``transcribe`` through and keeps its outcome, so paid usage outlives a failure."""
+    """Passes ``transcribe`` through and keeps what was paid, so usage outlives any end of the send.
+
+    It keeps the outcome and, for an engine that streams usage, the records handed out as each
+    chunk was answered. ``usage`` is the outcome's once ``transcribe`` returned, otherwise the
+    handed-out records: the two are never added.
+    """
 
     def __init__(self, engine: SttEngine) -> None:
         self._engine = engine
         self.outcome: SttOutcome | None = None
+        self.streamed: list[UsageRecord] = []
+
+    @property
+    def usage(self) -> tuple[UsageRecord, ...]:
+        return self.outcome.usage if self.outcome is not None else tuple(self.streamed)
 
     def transcribe(self, plan: ChunkPlan, context: SttContext) -> SttOutcome:
-        self.outcome = self._engine.transcribe(plan, context)
+        if getattr(self._engine, "streams_usage", False) is True:
+            self.outcome = self._engine.transcribe(  # type: ignore[call-arg]
+                plan, context, on_usage=self.streamed.append
+            )
+        else:
+            self.outcome = self._engine.transcribe(plan, context)
         return self.outcome
 
 
@@ -582,6 +598,8 @@ def _check_output_location(out_dir: Path) -> None:
     if not nearest.is_dir() or not os.access(nearest, os.W_OK | os.X_OK):
         raise Refusal("output_unavailable (directory_not_writable)")
     store_file = out_dir / store.STORE_FILE_NAME
+    if os.path.islink(store_file):
+        raise Refusal("output_unavailable (store_file_is_a_link)")
     if os.path.lexists(store_file) and (
         not store_file.is_file() or not os.access(store_file, os.W_OK)
     ):
@@ -613,12 +631,28 @@ def _write_recovery(
     usage: Sequence[UsageRecord],
     bundle: RunBundle | None,
 ) -> Path | None:
-    """Keep the usage of a paid send; ``None`` when there is none or the file cannot be created.
+    """Keep the usage of a paid send; ``None`` when there is none or the file cannot be written.
 
+    Any ``Exception`` of its own becomes ``None``, so the failure being reported is never replaced.
+    The document is built and serialised before the file is created: no half-written file.
     Only the class name of the error is written: a message could hold a key or call text.
     """
     if not usage:
         return None
+    try:
+        return _write_recovery_file(out_dir, created_at, failed_step, error, usage, bundle)
+    except Exception:
+        return None
+
+
+def _write_recovery_file(
+    out_dir: Path,
+    created_at: datetime,
+    failed_step: str,
+    error: BaseException,
+    usage: Sequence[UsageRecord],
+    bundle: RunBundle | None,
+) -> Path:
     document = {
         "format": RECOVERY_FORMAT,
         "created_at": created_at.strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
@@ -630,10 +664,7 @@ def _write_recovery(
         "pricing_catalogs": [] if bundle is None else _dump(bundle.pricing_catalogs),
     }
     path = out_dir / f"usage-recovery-{created_at:%Y%m%dT%H%M%SZ}.json"
-    try:
-        _write_new_file(path, json.dumps(document, ensure_ascii=True, indent=1) + "\n")
-    except OSError:
-        return None
+    _write_new_file(path, json.dumps(document, ensure_ascii=True, indent=1) + "\n")
     return path
 
 
@@ -687,6 +718,15 @@ def _send_and_save(
     database: Any,
 ) -> int:
     out_dir = Path(args.out)
+    try:
+        leaf_mode = stat.S_IMODE(out_dir.stat().st_mode) & 0o777
+    except OSError:
+        leaf_mode = 0
+    if leaf_mode & 0o077:
+        environment.stderr.write(
+            "warning: the output directory is accessible to group or other users "
+            f"(mode {leaf_mode:04o})\n"
+        )
     if args.embed_audio:
         environment.stderr.write(_EMBED_WARNING)
 
@@ -729,19 +769,20 @@ def _send_and_save(
             accept_export_warnings=args.accept_export_warnings,
             cost_builder=cost_builder,
         )
-    except Exception as error:
-        # No run exists, but a chunk may have been paid: keep its usage.
-        if recorder.outcome is not None:
+    except BaseException as error:
+        # No run exists, but a chunk may have been paid: keep its usage, also on Ctrl-C.
+        if recorder.usage:
             saved = _write_recovery(
                 out_dir,
                 created_at,
                 failed_step="pipeline",
                 error=error,
-                usage=recorder.outcome.usage,
+                usage=recorder.usage,
                 bundle=None,
             )
-            if saved is not None:
-                environment.stdout.write(f"usage recovery: {saved}\n")
+            environment.stdout.write(
+                f"usage recovery: {saved if saved is not None else 'not written'}\n"
+            )
         raise
 
     # From here the answer is in memory and paid for: each output is tried on its own.
@@ -753,6 +794,20 @@ def _send_and_save(
         )
     except Exception as error:
         failures.append(error)
+    except BaseException as error:
+        # The user asked to stop: keep the paid usage, write no report, and stop.
+        saved = _write_recovery(
+            out_dir,
+            created_at,
+            failed_step="store",
+            error=error,
+            usage=result.bundle.usage_records,
+            bundle=result.bundle,
+        )
+        environment.stdout.write(
+            f"usage recovery: {saved if saved is not None else 'not written'}\n"
+        )
+        raise
     recovery: Path | None = None
     if stored is None:
         recovery = _write_recovery(

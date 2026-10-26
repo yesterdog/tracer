@@ -1,0 +1,82 @@
+red reasons (py3.13): the 100 failures of the 239 new tests, grouped by the first E line (the other 139 pass on the current tree: guards of behaviour that must not change, and the R5 result-level tests that only fail on Python 3.14)
+
+  21  AssertionError: the pattern still matches an instant it must refuse
+        test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python x21
+  14  AssertionError: no usage-recovery file in --out
+        test_r1_a_call_log_error_after_chunk_2_was_sent_keeps_only_the_answer_that_was_read
+        test_r1_a_call_log_error_before_chunk_2_keeps_the_usage_of_chunk_1
+        test_r1_a_ctrl_c_on_chunk_2_keeps_the_usage_of_chunk_1_and_is_raised_again
+        test_r1_a_ctrl_c_on_the_last_of_four_chunks_keeps_the_three_that_were_answered
+        test_r1_a_ctrl_c_while_the_store_is_written_keeps_the_usage_and_is_raised_again
+        test_r1_a_failure_during_the_alignment_keeps_the_usage_of_both_chunks
+        test_r1_an_exception_of_the_transport_on_chunk_2_keeps_the_usage_of_chunk_1 x5
+        test_r1_the_usage_of_every_answered_chunk_is_kept_whatever_chunk_fails x3
+  13  AssertionError: assert '' == 'warning..'
+        test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning x10
+        test_r3_the_special_bits_are_not_shown x2
+        test_r3_the_warning_is_the_same_over_the_sarvam_engine_and_a_replay
+  13  TypeError: SarvamStt.transcribe() got an unexpected keyword argument 'on_usage'
+        test_a_chunk_that_fails_with_an_stt_error_leaves_the_records_before_it
+        test_a_language_the_engine_refuses_hands_nothing_out_and_sends_nothing
+        test_a_plan_without_chunks_hands_nothing_out
+        test_a_retried_chunk_is_handed_out_once
+        test_an_exception_of_the_transport_on_chunk_2_leaves_the_record_of_chunk_1 x4
+        test_an_observer_that_raises_stops_the_send_and_is_not_hidden
+        test_an_oserror_of_the_call_log_before_chunk_2_leaves_the_record_of_chunk_1
+        test_each_record_is_handed_out_before_the_next_chunk_is_sent
+        test_the_records_are_one_per_chunk_in_chunk_order_and_are_the_outcome_records
+        test_without_on_usage_the_outcome_is_what_it_was
+   5  AttributeError: module 'tracer_evalcore.stt' has no attribute 'UsageStreamingSttEngine'
+        test_an_engine_of_the_old_protocol_is_an_stt_engine_and_not_a_streaming_one
+        test_an_engine_with_the_flag_and_the_keyword_is_a_streaming_engine
+        test_the_streaming_protocol_needs_the_flag_not_only_the_method
+        test_the_streaming_protocol_of_evalcore_accepts_the_engine
+        test_the_streaming_transcribe_takes_on_usage_by_keyword_with_a_none_default
+   4  AssertionError: assert 'error: outpu...t_writable)\n' == 'error: outpu..._is_a_link)\n'
+        test_r6_a_link_in_place_of_the_store_is_refused_before_the_engine x2
+        test_r6_the_same_over_the_real_sarvam_engine_sends_and_creates_nothing x2
+   3  Failed: DID NOT RAISE ArgumentTypeError
+        test_r5_the_converter_refuses_with_an_argument_type_error x3
+   3  AssertionError: assert 0 == 64
+        test_r5_consent_recorded_at_out_of_range_is_a_usage_error x3
+   3  AssertionError: assert '' == 'usage recove...not written\n'
+        test_r2_a_ctrl_c_is_still_raised_when_the_recovery_cannot_be_written
+        test_r2_a_recovery_file_that_cannot_be_created_is_said_in_the_pipeline_path
+        test_r2_a_writer_that_fails_with_another_error_is_said_and_hides_nothing
+   2  Failed: DID NOT RAISE OSError
+        test_r6_the_store_itself_refuses_a_link_so_a_late_planted_one_is_caught x2
+   2  AssertionError: ['tracer.sqlite']
+        test_r1_an_engine_of_the_old_protocol_that_answered_keeps_its_usage_on_a_ctrl_c
+        test_r1_an_engine_that_streams_usage_and_dies_leaves_the_records_it_handed_out
+   2  AssertionError: assert 'error: unexp...(TypeError)\n' == 'error: unexp...ntimeError)\n'
+        test_r2_a_store_path_writer_that_fails_with_another_error_still_writes_the_report x2
+   1  assert 'the leaf directory is 0700' in <document text>
+        test_r3_the_documents_say_the_leaf_directory_is_0700_and_the_parents_follow_the_umask
+   1  AssertionError: assert 'the leaf directory is 0700' in <document text>
+        test_r3_the_documents_say_the_leaf_directory_is_0700_and_the_parents_follow_the_umask
+   1  assert 'an existing `--out`' in <document text>
+        test_r3_the_concept_page_says_an_existing_out_earns_a_warning
+   1  assert 'the leaf directory is 0700' in '## Run book for a real send (P3-30) Preconditions from the security audit P3-28 (2026-10-26, decision log "PHA
+        test_r3_the_run_book_says_who_creates_the_out_directory_and_what_the_code_does
+   1  AssertionError: on_usage
+        test_r1_adr_0024_names_the_streaming_interface_and_the_ctrl_c_case
+   1  AssertionError: assert 'store_file_is_a_link' in <document text>
+        test_r6_adr_0024_names_the_refusal_of_a_linked_store
+   1  AssertionError: assert 'warning: --e...re the file\n' == 'warning..'
+        test_r3_the_warning_comes_before_the_embed_warning
+   1  AssertionError: assert 'error: unexp...ntimeError)\n' == 'warning..'
+        test_r3_the_warning_does_not_change_the_exit_code_of_a_failure_after_the_send
+   1  AssertionError: assert 0 == 4
+        test_r6_a_link_in_place_of_the_store_is_refused_before_the_engine
+   1  AssertionError: None
+        test_r6_the_same_over_the_real_sarvam_engine_sends_and_creates_nothing
+   1  tracer_evaldb.errors.StoreConnectionError: could not connect to the database
+        test_r6_the_store_itself_refuses_a_link_so_a_late_planted_one_is_caught
+   1  AssertionError: on_usage is passed by keyword
+        test_r1_the_command_hands_an_engine_that_streams_usage_a_callback
+   1  AssertionError: ('usage recovery', '')
+        test_r2_a_store_path_writer_that_fails_does_not_stop_the_report_of_an_injected_engine
+   1  AttributeError: type object 'SarvamStt' has no attribute 'streams_usage'
+        test_the_engine_declares_that_it_streams_usage_and_takes_on_usage_by_keyword
+   1  AssertionError: UsageSink
+        test_the_module_exports_the_two_new_names_and_keeps_the_old_ones

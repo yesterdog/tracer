@@ -5,21 +5,24 @@ and 11)."""
 
 from __future__ import annotations
 
+import dataclasses
 import os
 import time
 from collections.abc import Callable, Mapping
 from datetime import UTC, datetime
 from types import TracebackType
+from typing import ClassVar
 
 import httpx
 
 from tracer_evalcore.audio.chunker import ChunkPlan
-from tracer_evalcore.stt import SttContext, SttError, SttOutcome
+from tracer_evalcore.stt import SttContext, SttError, SttOutcome, UsageSink
 from tracer_evalproviders.calllog import CallLog
 from tracer_evalproviders.sarvam.client import SarvamClient
 from tracer_evalproviders.sarvam.mapping import map_responses, map_usage_records
 from tracer_evalproviders.sarvam.models import DEFAULT_MODEL, ChunkResponse, language_code_for
 from tracer_evalproviders.secrets import load_api_key
+from tracer_evalschema.usage import UsageRecord
 
 __all__ = ["SarvamStt", "create_sarvam_stt"]
 
@@ -32,6 +35,7 @@ class SarvamStt:
     """Sends the chunks of a plan one after the other; all or nothing."""
 
     provider = "sarvam"
+    streams_usage: ClassVar[bool] = True
 
     def __init__(self, client: SarvamClient, *, call_log: CallLog | None = None) -> None:
         """``call_log``, when given, belongs to the engine and is closed with it."""
@@ -42,22 +46,37 @@ class SarvamStt:
     def model(self) -> str:
         return self._client.model
 
-    def transcribe(self, plan: ChunkPlan, context: SttContext) -> SttOutcome:
+    def transcribe(
+        self, plan: ChunkPlan, context: SttContext, *, on_usage: UsageSink | None = None
+    ) -> SttOutcome:
         """The outcome of the plan; the first chunk that fails ends the run and is returned as
-        ``failure`` together with the usage of the chunks that were answered."""
+        ``failure`` together with the usage of the chunks that were answered.
+
+        ``on_usage`` is handed each answered chunk's record before the next request is built; the
+        records are the ones of the outcome, with the same ids. Any other exception, including
+        one of ``on_usage``, leaves unchanged and no further chunk is sent.
+        """
         language_code_for(context.configured_language)  # refused before any request
         answered: list[ChunkResponse] = []
+        records: list[UsageRecord] = []
         failure: SttError | None = None
         for chunk in plan.chunks:
             try:
-                answered.append(self._client.send_chunk(chunk))
+                response = self._client.send_chunk(chunk)
             except SttError as error:
                 failure = error
                 break
+            answered.append(response)
+            (record,) = map_usage_records(plan, [response], model=self.model, context=context)
+            records.append(record)
+            if on_usage is not None:
+                on_usage(record)
         if failure is not None:
-            usage = map_usage_records(plan, answered, model=self.model, context=context)
-            return SttOutcome(transcript=None, turns=(), usage=usage, warnings=(), failure=failure)
-        return map_responses(plan, answered, model=self.model, context=context)
+            return SttOutcome(
+                transcript=None, turns=(), usage=tuple(records), warnings=(), failure=failure
+            )
+        outcome = map_responses(plan, answered, model=self.model, context=context)
+        return dataclasses.replace(outcome, usage=tuple(records))
 
     def close(self) -> None:
         self._client.close()

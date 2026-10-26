@@ -10,6 +10,7 @@ key or audio.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Protocol, runtime_checkable
@@ -36,6 +37,8 @@ __all__ = [
     "SttResponseInvalid",
     "SttServerError",
     "SttTransportError",
+    "UsageSink",
+    "UsageStreamingSttEngine",
 ]
 
 
@@ -160,3 +163,20 @@ class SttEngine(Protocol):
     """Chunks in, a typed outcome out."""
 
     def transcribe(self, plan: ChunkPlan, context: SttContext) -> SttOutcome: ...
+
+
+UsageSink = Callable[[UsageRecord], None]
+
+
+@runtime_checkable
+class UsageStreamingSttEngine(Protocol):
+    """An engine that hands out the usage of each answered chunk as it arrives.
+
+    A runtime check sees the names only; the caller also reads the value of ``streams_usage``.
+    """
+
+    streams_usage: bool
+
+    def transcribe(
+        self, plan: ChunkPlan, context: SttContext, *, on_usage: UsageSink | None = None
+    ) -> SttOutcome: ...

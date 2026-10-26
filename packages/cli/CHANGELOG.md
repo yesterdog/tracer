@@ -49,6 +49,16 @@ First version. Everything below is new.
 - After the send nothing re-sends audio: a failure there is exit 1, the report is still written
   when a run exists, and the paid usage of the answered chunks is kept in
   `usage-recovery-<UTC>.json` in `--out` (mode 0600, no call text, no key, no path).
+- Batch I (the re-audit of batch G, findings R1 to R6): the usage of the chunks answered so far is
+  kept whatever ends the send, a Ctrl-C (`KeyboardInterrupt`), a transport exception or a call-log
+  `OSError` included: an engine that sets `streams_usage` gets an `on_usage` callback, and the
+  command catches `BaseException` around the pipeline and the store write, writes the recovery
+  file when it holds usage and raises the same exception again (a Ctrl-C leaves the command with
+  no exit code of its own and no report). A recovery file that cannot be created is said with
+  `usage recovery: not written`. An existing `--out` with group or other permission bits earns
+  one stderr warning with its mode. A link in place of `tracer.sqlite` is refused
+  (`output_unavailable (store_file_is_a_link)`, exit 4). Every instant option is parsed by one
+  strict pattern (no hour 24, no minute or second 60, no offset minute 60) on every Python version.
 - Exit codes 0 scored, 1 unexpected failure, 2 not scored, 3 speech-to-text failed, 4 input refused,
   64 usage; `tracer score --help` lists them.
 
@@ -58,8 +68,8 @@ First version. Everything below is new.
   and I, the flag count, the flagged share of export tokens and the export turns with a flag, each
   as a numerator and a denominator; the cost as `not available` with its reason, never 0; the
   language "declared by user".
-- The store `tracer.sqlite` in `--out` through `tracer-evaldb` (file mode 0600; a directory the
-  command creates is 0700). It holds the call text.
+- The store `tracer.sqlite` in `--out` through `tracer-evaldb` (file mode 0600; when the command
+  creates `--out`, the leaf directory is 0700 and the parents follow the umask). It holds the call text.
 - One self-contained HTML report `report-<UTC>.html` in `--out`: one hashed style and one hashed
   seek script under a Content-Security-Policy that allows nothing else, no external reference,
   every piece of untrusted text through `display_safe` and HTML escaping, each flag with the
@@ -73,5 +83,7 @@ First version. Everything below is new.
   `file://` and click-to-seek need the owner's manual browser check (BL-224); there is no golden
   report file yet, only determinism (BL-222).
 - Retention is recorded, not enforced: no command deletes `--out` (BL-234, BL-240).
+- A link at `--out` itself and links at SQLite's side files are not checked (BL-246); the dry run
+  does not require `--max-chunks` (BL-247).
 - POSIX only (file modes, `O_NOFOLLOW`); a machine that needs an HTTP proxy cannot make a real send
   (BL-237).

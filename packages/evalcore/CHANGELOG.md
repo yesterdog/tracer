@@ -76,6 +76,9 @@ First version. Everything below is new.
   provider-neutral error taxonomy (`SttError` and its subclasses). Errors hold machine facts only:
   never a provider message, a body, a header, a key or audio. The pipeline types the engine through
   this module, so the core never imports a network package.
+- Batch I (re-audit R1): `UsageSink` and the runtime protocol `UsageStreamingSttEngine`
+  (`streams_usage` and `transcribe(plan, context, *, on_usage=None)`), so an engine can hand out
+  each answered chunk's usage as the send goes on; `SttEngine` is unchanged.
 
 ### Definitions, rubric file and results (batch D)
 

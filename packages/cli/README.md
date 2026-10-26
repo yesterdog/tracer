@@ -55,7 +55,7 @@ report: <out>/report-<utc_time>.html
 | Code | Meaning |
 |---|---|
 | 0 | scored |
-| 1 | unexpected failure (also a failure after the send; when a chunk was answered, the paid usage is kept in `usage-recovery-<UTC>.json` in `--out`) |
+| 1 | unexpected failure (also a failure after the send; when a chunk was answered, the paid usage is kept in `usage-recovery-<UTC>.json` in `--out`, or stdout says `usage recovery: not written`) |
 | 2 | not scored (for example a speech-to-text chunk in another language) |
 | 3 | speech-to-text failed (no transcript: any failed chunk fails the whole transcript) |
 | 4 | input refused (before any request is sent) |
@@ -70,9 +70,10 @@ report: <out>/report-<utc_time>.html
 - With `fake:` a replay sends nothing and reads no key.
 - The report and the store hold call text and must stay out of git.
 - Put `--out` outside the repository.
+- When the command creates `--out`, the leaf directory is 0700 and the parents follow the umask; an existing `--out` that group or other users can reach earns one warning on stderr.
 - Every privacy and language option (`--declared-language`, `--caller-origin`, `--consent`, `--retention`, `--out`, `--stt`) is required and none has a default.
 - `--stt sarvam` also needs `--consent obtained` with `--consent-reference` and `--consent-recorded-at`, and a `--max-chunks` ceiling; the reference is stored as given and never printed or reported.
 - `--embed-audio` puts the call audio into the report file; it is opt-in, and the file must then not be shared.
 - Retention is recorded, not enforced: delete `--out` by hand when it ends.
-- Before a real send, follow the Run book for a real send of ADR 0024: [run book](../../docs/adr/0024-provider-adapters-byok-sarvam-rest.md), starting with a `--dry-run` that uses exactly the arguments of the send.
+- Before a real send, follow the Run book for a real send of ADR 0024: [run book](../../docs/adr/0024-provider-adapters-byok-sarvam-rest.md), starting with a `--dry-run` that uses exactly the arguments of the send. Do not press Ctrl-C during a send: since batch I it keeps the usage of the answered chunks in the recovery file, but the run then has no store row and no report.
 - What the numbers mean and do not mean, and the known limits: [concept page](../../docs/concepts/recorded-call-scoring.md).

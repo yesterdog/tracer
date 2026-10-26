@@ -1,0 +1,2146 @@
+# batch I red run, python 3.13.15, tracer_cli from: <scratch>/qa-batch-i/redtree/packages/cli/src
+FFFFFF.FFFFFFFFFFFFFFFFFFFFF...........................FFF.............. [ 30%]
+...................FFF............................................FFFFFF [ 60%]
+FFFFF..FF..........FF.FFFFFF...FFF.FFFFFFFF.F.FF..FFFF...F.FFFFFFF.F.FFF [ 90%]
+FFFFFFFFFFFF.FFFF......                                                  [100%]
+=================================== FAILURES ===================================
+_ test_r3_the_documents_say_the_leaf_directory_is_0700_and_the_parents_follow_the_umask[concept page] _
+
+path = PosixPath('<scratch>)
+
+    @pytest.mark.parametrize("path", [CONCEPT, ADR], ids=["concept page", "ADR 0024"])
+    def test_r3_the_documents_say_the_leaf_directory_is_0700_and_the_parents_follow_the_umask(
+        path: Path,
+    ) -> None:
+        text = _text(path)
+>       assert "the leaf directory is 0700" in text
+E       assert 'the leaf directory is 0700' in "# Recorded-call scoring `tracer score` compares the agent's transcript export of a recorded call with a speech-to-tex...ept_page_recorded_scoring.py`; the tests check that the page says them, and the review gate checks that they are true."
+
+packages/cli/tests/test_cli_batch_i_docs.py:51: AssertionError
+_ test_r3_the_documents_say_the_leaf_directory_is_0700_and_the_parents_follow_the_umask[ADR 0024] _
+
+path = PosixPath('<scratch>)
+
+    @pytest.mark.parametrize("path", [CONCEPT, ADR], ids=["concept page", "ADR 0024"])
+    def test_r3_the_documents_say_the_leaf_directory_is_0700_and_the_parents_follow_the_umask(
+        path: Path,
+    ) -> None:
+        text = _text(path)
+>       assert "the leaf directory is 0700" in text
+E       AssertionError: assert 'the leaf directory is 0700' in '# ADR 0024: Provider adapters, BYOK at run time, Sarvam REST - Status: Accepted (Phase 3 batch 0, task P3-00b). Recor...ts_open_no_socket`. - I9. Every numbered rule and every invariant cites a test. Test: `test_adr0024_rules_are_tested`.'
+
+packages/cli/tests/test_cli_batch_i_docs.py:51: AssertionError
+________ test_r3_the_concept_page_says_an_existing_out_earns_a_warning _________
+
+    def test_r3_the_concept_page_says_an_existing_out_earns_a_warning() -> None:
+        text = _text(CONCEPT)
+>       assert "an existing `--out`" in text
+E       assert 'an existing `--out`' in "# Recorded-call scoring `tracer score` compares the agent's transcript export of a recorded call with a speech-to-tex...ept_page_recorded_scoring.py`; the tests check that the page says them, and the review gate checks that they are true."
+
+packages/cli/tests/test_cli_batch_i_docs.py:59: AssertionError
+_ test_r3_the_run_book_says_who_creates_the_out_directory_and_what_the_code_does _
+
+    def test_r3_the_run_book_says_who_creates_the_out_directory_and_what_the_code_does() -> None:
+        book = _run_book(_text(ADR))
+>       assert "the leaf directory is 0700" in book
+E       assert 'the leaf directory is 0700' in '## Run book for a real send (P3-30) Preconditions from the security audit P3-28 (2026-10-26, decision log "PHASE 3 SE...ll, and never re-run the send to recover the result; delete it by hand with `--out` when the retention ends (BL-240). '
+
+packages/cli/tests/test_cli_batch_i_docs.py:66: AssertionError
+______ test_r1_adr_0024_names_the_streaming_interface_and_the_ctrl_c_case ______
+
+    def test_r1_adr_0024_names_the_streaming_interface_and_the_ctrl_c_case() -> None:
+        text = _text(ADR)
+        for needle in ("on_usage", "streams_usage", "KeyboardInterrupt"):
+>           assert needle in text, needle
+E           AssertionError: on_usage
+E           assert 'on_usage' in '# ADR 0024: Provider adapters, BYOK at run time, Sarvam REST - Status: Accepted (Phase 3 batch 0, task P3-00b). Recor...ts_open_no_socket`. - I9. Every numbered rule and every invariant cites a test. Test: `test_adr0024_rules_are_tested`.'
+
+packages/cli/tests/test_cli_batch_i_docs.py:77: AssertionError
+_____________ test_r6_adr_0024_names_the_refusal_of_a_linked_store _____________
+
+    def test_r6_adr_0024_names_the_refusal_of_a_linked_store() -> None:
+        text = _text(ADR)
+>       assert "store_file_is_a_link" in text
+E       AssertionError: assert 'store_file_is_a_link' in '# ADR 0024: Provider adapters, BYOK at run time, Sarvam REST - Status: Accepted (Phase 3 batch 0, task P3-00b). Recor...ts_open_no_socket`. - I9. Every numbered rule and every invariant cites a test. Test: `test_adr0024_rules_are_tested`.'
+
+packages/cli/tests/test_cli_batch_i_docs.py:86: AssertionError
+_ test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T24:00:00Z] _
+
+value = '2026-10-20T24:00:00Z'
+
+    @pytest.mark.parametrize("value", HOUR_24 + TIME_OUT_OF_RANGE)
+    def test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python(
+        value: str,
+    ) -> None:
+        pattern = cli_mod()._INSTANT
+        assert isinstance(pattern, re.Pattern)
+>       assert pattern.fullmatch(value) is None
+E       AssertionError: assert <re.Match object; span=(0, 20), match='2026-10-20T24:00:00Z'> is None
+E        +  where <re.Match object; span=(0, 20), match='2026-10-20T24:00:00Z'> = <built-in method fullmatch of re.Pattern object at 0x9679a5b10>('2026-10-20T24:00:00Z')
+E        +    where <built-in method fullmatch of re.Pattern object at 0x9679a5b10> = re.compile('[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,6})?(?:Z|[+-][0-9]{2}:[0-9]{2})').fullmatch
+
+packages/cli/tests/test_cli_batch_i_instant.py:96: AssertionError
+_ test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T24:00:00+05:30] _
+
+value = '2026-10-20T24:00:00+05:30'
+
+    @pytest.mark.parametrize("value", HOUR_24 + TIME_OUT_OF_RANGE)
+    def test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python(
+        value: str,
+    ) -> None:
+        pattern = cli_mod()._INSTANT
+        assert isinstance(pattern, re.Pattern)
+>       assert pattern.fullmatch(value) is None
+E       AssertionError: assert <re.Match object; span=(0, 25), match='2026-10-20T24:00:00+05:30'> is None
+E        +  where <re.Match object; span=(0, 25), match='2026-10-20T24:00:00+05:30'> = <built-in method fullmatch of re.Pattern object at 0x9679a5b10>('2026-10-20T24:00:00+05:30')
+E        +    where <built-in method fullmatch of re.Pattern object at 0x9679a5b10> = re.compile('[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,6})?(?:Z|[+-][0-9]{2}:[0-9]{2})').fullmatch
+
+packages/cli/tests/test_cli_batch_i_instant.py:96: AssertionError
+_ test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T24:00:00-08:00] _
+
+value = '2026-10-20T24:00:00-08:00'
+
+    @pytest.mark.parametrize("value", HOUR_24 + TIME_OUT_OF_RANGE)
+    def test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python(
+        value: str,
+    ) -> None:
+        pattern = cli_mod()._INSTANT
+        assert isinstance(pattern, re.Pattern)
+>       assert pattern.fullmatch(value) is None
+E       AssertionError: assert <re.Match object; span=(0, 25), match='2026-10-20T24:00:00-08:00'> is None
+E        +  where <re.Match object; span=(0, 25), match='2026-10-20T24:00:00-08:00'> = <built-in method fullmatch of re.Pattern object at 0x9679a5b10>('2026-10-20T24:00:00-08:00')
+E        +    where <built-in method fullmatch of re.Pattern object at 0x9679a5b10> = re.compile('[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,6})?(?:Z|[+-][0-9]{2}:[0-9]{2})').fullmatch
+
+packages/cli/tests/test_cli_batch_i_instant.py:96: AssertionError
+_ test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T24:00:00.000000Z] _
+
+value = '2026-10-20T24:00:00.000000Z'
+
+    @pytest.mark.parametrize("value", HOUR_24 + TIME_OUT_OF_RANGE)
+    def test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python(
+        value: str,
+    ) -> None:
+        pattern = cli_mod()._INSTANT
+        assert isinstance(pattern, re.Pattern)
+>       assert pattern.fullmatch(value) is None
+E       AssertionError: assert <re.Match object; span=(0, 27), match='2026-10-20T24:00:00.000000Z'> is None
+E        +  where <re.Match object; span=(0, 27), match='2026-10-20T24:00:00.000000Z'> = <built-in method fullmatch of re.Pattern object at 0x9679a5b10>('2026-10-20T24:00:00.000000Z')
+E        +    where <built-in method fullmatch of re.Pattern object at 0x9679a5b10> = re.compile('[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,6})?(?:Z|[+-][0-9]{2}:[0-9]{2})').fullmatch
+
+packages/cli/tests/test_cli_batch_i_instant.py:96: AssertionError
+_ test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T24:00:00.5Z] _
+
+value = '2026-10-20T24:00:00.5Z'
+
+    @pytest.mark.parametrize("value", HOUR_24 + TIME_OUT_OF_RANGE)
+    def test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python(
+        value: str,
+    ) -> None:
+        pattern = cli_mod()._INSTANT
+        assert isinstance(pattern, re.Pattern)
+>       assert pattern.fullmatch(value) is None
+E       AssertionError: assert <re.Match object; span=(0, 22), match='2026-10-20T24:00:00.5Z'> is None
+E        +  where <re.Match object; span=(0, 22), match='2026-10-20T24:00:00.5Z'> = <built-in method fullmatch of re.Pattern object at 0x9679a5b10>('2026-10-20T24:00:00.5Z')
+E        +    where <built-in method fullmatch of re.Pattern object at 0x9679a5b10> = re.compile('[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,6})?(?:Z|[+-][0-9]{2}:[0-9]{2})').fullmatch
+
+packages/cli/tests/test_cli_batch_i_instant.py:96: AssertionError
+_ test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T24:00:01Z] _
+
+value = '2026-10-20T24:00:01Z'
+
+    @pytest.mark.parametrize("value", HOUR_24 + TIME_OUT_OF_RANGE)
+    def test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python(
+        value: str,
+    ) -> None:
+        pattern = cli_mod()._INSTANT
+        assert isinstance(pattern, re.Pattern)
+>       assert pattern.fullmatch(value) is None
+E       AssertionError: assert <re.Match object; span=(0, 20), match='2026-10-20T24:00:01Z'> is None
+E        +  where <re.Match object; span=(0, 20), match='2026-10-20T24:00:01Z'> = <built-in method fullmatch of re.Pattern object at 0x9679a5b10>('2026-10-20T24:00:01Z')
+E        +    where <built-in method fullmatch of re.Pattern object at 0x9679a5b10> = re.compile('[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,6})?(?:Z|[+-][0-9]{2}:[0-9]{2})').fullmatch
+
+packages/cli/tests/test_cli_batch_i_instant.py:96: AssertionError
+_ test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T24:30:00Z] _
+
+value = '2026-10-20T24:30:00Z'
+
+    @pytest.mark.parametrize("value", HOUR_24 + TIME_OUT_OF_RANGE)
+    def test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python(
+        value: str,
+    ) -> None:
+        pattern = cli_mod()._INSTANT
+        assert isinstance(pattern, re.Pattern)
+>       assert pattern.fullmatch(value) is None
+E       AssertionError: assert <re.Match object; span=(0, 20), match='2026-10-20T24:30:00Z'> is None
+E        +  where <re.Match object; span=(0, 20), match='2026-10-20T24:30:00Z'> = <built-in method fullmatch of re.Pattern object at 0x9679a5b10>('2026-10-20T24:30:00Z')
+E        +    where <built-in method fullmatch of re.Pattern object at 0x9679a5b10> = re.compile('[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,6})?(?:Z|[+-][0-9]{2}:[0-9]{2})').fullmatch
+
+packages/cli/tests/test_cli_batch_i_instant.py:96: AssertionError
+_ test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T24:59:59Z] _
+
+value = '2026-10-20T24:59:59Z'
+
+    @pytest.mark.parametrize("value", HOUR_24 + TIME_OUT_OF_RANGE)
+    def test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python(
+        value: str,
+    ) -> None:
+        pattern = cli_mod()._INSTANT
+        assert isinstance(pattern, re.Pattern)
+>       assert pattern.fullmatch(value) is None
+E       AssertionError: assert <re.Match object; span=(0, 20), match='2026-10-20T24:59:59Z'> is None
+E        +  where <re.Match object; span=(0, 20), match='2026-10-20T24:59:59Z'> = <built-in method fullmatch of re.Pattern object at 0x9679a5b10>('2026-10-20T24:59:59Z')
+E        +    where <built-in method fullmatch of re.Pattern object at 0x9679a5b10> = re.compile('[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,6})?(?:Z|[+-][0-9]{2}:[0-9]{2})').fullmatch
+
+packages/cli/tests/test_cli_batch_i_instant.py:96: AssertionError
+_ test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T24:00:00+00:00] _
+
+value = '2026-10-20T24:00:00+00:00'
+
+    @pytest.mark.parametrize("value", HOUR_24 + TIME_OUT_OF_RANGE)
+    def test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python(
+        value: str,
+    ) -> None:
+        pattern = cli_mod()._INSTANT
+        assert isinstance(pattern, re.Pattern)
+>       assert pattern.fullmatch(value) is None
+E       AssertionError: assert <re.Match object; span=(0, 25), match='2026-10-20T24:00:00+00:00'> is None
+E        +  where <re.Match object; span=(0, 25), match='2026-10-20T24:00:00+00:00'> = <built-in method fullmatch of re.Pattern object at 0x9679a5b10>('2026-10-20T24:00:00+00:00')
+E        +    where <built-in method fullmatch of re.Pattern object at 0x9679a5b10> = re.compile('[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,6})?(?:Z|[+-][0-9]{2}:[0-9]{2})').fullmatch
+
+packages/cli/tests/test_cli_batch_i_instant.py:96: AssertionError
+_ test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-12-31T24:00:00Z] _
+
+value = '2026-12-31T24:00:00Z'
+
+    @pytest.mark.parametrize("value", HOUR_24 + TIME_OUT_OF_RANGE)
+    def test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python(
+        value: str,
+    ) -> None:
+        pattern = cli_mod()._INSTANT
+        assert isinstance(pattern, re.Pattern)
+>       assert pattern.fullmatch(value) is None
+E       AssertionError: assert <re.Match object; span=(0, 20), match='2026-12-31T24:00:00Z'> is None
+E        +  where <re.Match object; span=(0, 20), match='2026-12-31T24:00:00Z'> = <built-in method fullmatch of re.Pattern object at 0x9679a5b10>('2026-12-31T24:00:00Z')
+E        +    where <built-in method fullmatch of re.Pattern object at 0x9679a5b10> = re.compile('[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,6})?(?:Z|[+-][0-9]{2}:[0-9]{2})').fullmatch
+
+packages/cli/tests/test_cli_batch_i_instant.py:96: AssertionError
+_ test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-02-28T24:00:00Z] _
+
+value = '2026-02-28T24:00:00Z'
+
+    @pytest.mark.parametrize("value", HOUR_24 + TIME_OUT_OF_RANGE)
+    def test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python(
+        value: str,
+    ) -> None:
+        pattern = cli_mod()._INSTANT
+        assert isinstance(pattern, re.Pattern)
+>       assert pattern.fullmatch(value) is None
+E       AssertionError: assert <re.Match object; span=(0, 20), match='2026-02-28T24:00:00Z'> is None
+E        +  where <re.Match object; span=(0, 20), match='2026-02-28T24:00:00Z'> = <built-in method fullmatch of re.Pattern object at 0x9679a5b10>('2026-02-28T24:00:00Z')
+E        +    where <built-in method fullmatch of re.Pattern object at 0x9679a5b10> = re.compile('[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,6})?(?:Z|[+-][0-9]{2}:[0-9]{2})').fullmatch
+
+packages/cli/tests/test_cli_batch_i_instant.py:96: AssertionError
+_ test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T25:00:00Z] _
+
+value = '2026-10-20T25:00:00Z'
+
+    @pytest.mark.parametrize("value", HOUR_24 + TIME_OUT_OF_RANGE)
+    def test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python(
+        value: str,
+    ) -> None:
+        pattern = cli_mod()._INSTANT
+        assert isinstance(pattern, re.Pattern)
+>       assert pattern.fullmatch(value) is None
+E       AssertionError: assert <re.Match object; span=(0, 20), match='2026-10-20T25:00:00Z'> is None
+E        +  where <re.Match object; span=(0, 20), match='2026-10-20T25:00:00Z'> = <built-in method fullmatch of re.Pattern object at 0x9679a5b10>('2026-10-20T25:00:00Z')
+E        +    where <built-in method fullmatch of re.Pattern object at 0x9679a5b10> = re.compile('[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,6})?(?:Z|[+-][0-9]{2}:[0-9]{2})').fullmatch
+
+packages/cli/tests/test_cli_batch_i_instant.py:96: AssertionError
+_ test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T99:00:00Z] _
+
+value = '2026-10-20T99:00:00Z'
+
+    @pytest.mark.parametrize("value", HOUR_24 + TIME_OUT_OF_RANGE)
+    def test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python(
+        value: str,
+    ) -> None:
+        pattern = cli_mod()._INSTANT
+        assert isinstance(pattern, re.Pattern)
+>       assert pattern.fullmatch(value) is None
+E       AssertionError: assert <re.Match object; span=(0, 20), match='2026-10-20T99:00:00Z'> is None
+E        +  where <re.Match object; span=(0, 20), match='2026-10-20T99:00:00Z'> = <built-in method fullmatch of re.Pattern object at 0x9679a5b10>('2026-10-20T99:00:00Z')
+E        +    where <built-in method fullmatch of re.Pattern object at 0x9679a5b10> = re.compile('[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,6})?(?:Z|[+-][0-9]{2}:[0-9]{2})').fullmatch
+
+packages/cli/tests/test_cli_batch_i_instant.py:96: AssertionError
+_ test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T10:60:00Z] _
+
+value = '2026-10-20T10:60:00Z'
+
+    @pytest.mark.parametrize("value", HOUR_24 + TIME_OUT_OF_RANGE)
+    def test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python(
+        value: str,
+    ) -> None:
+        pattern = cli_mod()._INSTANT
+        assert isinstance(pattern, re.Pattern)
+>       assert pattern.fullmatch(value) is None
+E       AssertionError: assert <re.Match object; span=(0, 20), match='2026-10-20T10:60:00Z'> is None
+E        +  where <re.Match object; span=(0, 20), match='2026-10-20T10:60:00Z'> = <built-in method fullmatch of re.Pattern object at 0x9679a5b10>('2026-10-20T10:60:00Z')
+E        +    where <built-in method fullmatch of re.Pattern object at 0x9679a5b10> = re.compile('[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,6})?(?:Z|[+-][0-9]{2}:[0-9]{2})').fullmatch
+
+packages/cli/tests/test_cli_batch_i_instant.py:96: AssertionError
+_ test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T10:00:60Z] _
+
+value = '2026-10-20T10:00:60Z'
+
+    @pytest.mark.parametrize("value", HOUR_24 + TIME_OUT_OF_RANGE)
+    def test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python(
+        value: str,
+    ) -> None:
+        pattern = cli_mod()._INSTANT
+        assert isinstance(pattern, re.Pattern)
+>       assert pattern.fullmatch(value) is None
+E       AssertionError: assert <re.Match object; span=(0, 20), match='2026-10-20T10:00:60Z'> is None
+E        +  where <re.Match object; span=(0, 20), match='2026-10-20T10:00:60Z'> = <built-in method fullmatch of re.Pattern object at 0x9679a5b10>('2026-10-20T10:00:60Z')
+E        +    where <built-in method fullmatch of re.Pattern object at 0x9679a5b10> = re.compile('[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,6})?(?:Z|[+-][0-9]{2}:[0-9]{2})').fullmatch
+
+packages/cli/tests/test_cli_batch_i_instant.py:96: AssertionError
+_ test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T10:00:00+24:00] _
+
+value = '2026-10-20T10:00:00+24:00'
+
+    @pytest.mark.parametrize("value", HOUR_24 + TIME_OUT_OF_RANGE)
+    def test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python(
+        value: str,
+    ) -> None:
+        pattern = cli_mod()._INSTANT
+        assert isinstance(pattern, re.Pattern)
+>       assert pattern.fullmatch(value) is None
+E       AssertionError: assert <re.Match object; span=(0, 25), match='2026-10-20T10:00:00+24:00'> is None
+E        +  where <re.Match object; span=(0, 25), match='2026-10-20T10:00:00+24:00'> = <built-in method fullmatch of re.Pattern object at 0x9679a5b10>('2026-10-20T10:00:00+24:00')
+E        +    where <built-in method fullmatch of re.Pattern object at 0x9679a5b10> = re.compile('[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,6})?(?:Z|[+-][0-9]{2}:[0-9]{2})').fullmatch
+
+packages/cli/tests/test_cli_batch_i_instant.py:96: AssertionError
+_ test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T10:00:00-24:00] _
+
+value = '2026-10-20T10:00:00-24:00'
+
+    @pytest.mark.parametrize("value", HOUR_24 + TIME_OUT_OF_RANGE)
+    def test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python(
+        value: str,
+    ) -> None:
+        pattern = cli_mod()._INSTANT
+        assert isinstance(pattern, re.Pattern)
+>       assert pattern.fullmatch(value) is None
+E       AssertionError: assert <re.Match object; span=(0, 25), match='2026-10-20T10:00:00-24:00'> is None
+E        +  where <re.Match object; span=(0, 25), match='2026-10-20T10:00:00-24:00'> = <built-in method fullmatch of re.Pattern object at 0x9679a5b10>('2026-10-20T10:00:00-24:00')
+E        +    where <built-in method fullmatch of re.Pattern object at 0x9679a5b10> = re.compile('[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,6})?(?:Z|[+-][0-9]{2}:[0-9]{2})').fullmatch
+
+packages/cli/tests/test_cli_batch_i_instant.py:96: AssertionError
+_ test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T10:00:00+05:60] _
+
+value = '2026-10-20T10:00:00+05:60'
+
+    @pytest.mark.parametrize("value", HOUR_24 + TIME_OUT_OF_RANGE)
+    def test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python(
+        value: str,
+    ) -> None:
+        pattern = cli_mod()._INSTANT
+        assert isinstance(pattern, re.Pattern)
+>       assert pattern.fullmatch(value) is None
+E       AssertionError: assert <re.Match object; span=(0, 25), match='2026-10-20T10:00:00+05:60'> is None
+E        +  where <re.Match object; span=(0, 25), match='2026-10-20T10:00:00+05:60'> = <built-in method fullmatch of re.Pattern object at 0x9679a5b10>('2026-10-20T10:00:00+05:60')
+E        +    where <built-in method fullmatch of re.Pattern object at 0x9679a5b10> = re.compile('[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,6})?(?:Z|[+-][0-9]{2}:[0-9]{2})').fullmatch
+
+packages/cli/tests/test_cli_batch_i_instant.py:96: AssertionError
+_ test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T10:00:00-05:60] _
+
+value = '2026-10-20T10:00:00-05:60'
+
+    @pytest.mark.parametrize("value", HOUR_24 + TIME_OUT_OF_RANGE)
+    def test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python(
+        value: str,
+    ) -> None:
+        pattern = cli_mod()._INSTANT
+        assert isinstance(pattern, re.Pattern)
+>       assert pattern.fullmatch(value) is None
+E       AssertionError: assert <re.Match object; span=(0, 25), match='2026-10-20T10:00:00-05:60'> is None
+E        +  where <re.Match object; span=(0, 25), match='2026-10-20T10:00:00-05:60'> = <built-in method fullmatch of re.Pattern object at 0x9679a5b10>('2026-10-20T10:00:00-05:60')
+E        +    where <built-in method fullmatch of re.Pattern object at 0x9679a5b10> = re.compile('[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,6})?(?:Z|[+-][0-9]{2}:[0-9]{2})').fullmatch
+
+packages/cli/tests/test_cli_batch_i_instant.py:96: AssertionError
+_ test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T10:00:00+05:99] _
+
+value = '2026-10-20T10:00:00+05:99'
+
+    @pytest.mark.parametrize("value", HOUR_24 + TIME_OUT_OF_RANGE)
+    def test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python(
+        value: str,
+    ) -> None:
+        pattern = cli_mod()._INSTANT
+        assert isinstance(pattern, re.Pattern)
+>       assert pattern.fullmatch(value) is None
+E       AssertionError: assert <re.Match object; span=(0, 25), match='2026-10-20T10:00:00+05:99'> is None
+E        +  where <re.Match object; span=(0, 25), match='2026-10-20T10:00:00+05:99'> = <built-in method fullmatch of re.Pattern object at 0x9679a5b10>('2026-10-20T10:00:00+05:99')
+E        +    where <built-in method fullmatch of re.Pattern object at 0x9679a5b10> = re.compile('[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,6})?(?:Z|[+-][0-9]{2}:[0-9]{2})').fullmatch
+
+packages/cli/tests/test_cli_batch_i_instant.py:96: AssertionError
+_ test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T10:00:00+99:00] _
+
+value = '2026-10-20T10:00:00+99:00'
+
+    @pytest.mark.parametrize("value", HOUR_24 + TIME_OUT_OF_RANGE)
+    def test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python(
+        value: str,
+    ) -> None:
+        pattern = cli_mod()._INSTANT
+        assert isinstance(pattern, re.Pattern)
+>       assert pattern.fullmatch(value) is None
+E       AssertionError: assert <re.Match object; span=(0, 25), match='2026-10-20T10:00:00+99:00'> is None
+E        +  where <re.Match object; span=(0, 25), match='2026-10-20T10:00:00+99:00'> = <built-in method fullmatch of re.Pattern object at 0x9679a5b10>('2026-10-20T10:00:00+99:00')
+E        +    where <built-in method fullmatch of re.Pattern object at 0x9679a5b10> = re.compile('[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,6})?(?:Z|[+-][0-9]{2}:[0-9]{2})').fullmatch
+
+packages/cli/tests/test_cli_batch_i_instant.py:96: AssertionError
+_ test_r5_the_converter_refuses_with_an_argument_type_error[2026-10-20T10:00:00+05:60] _
+
+value = '2026-10-20T10:00:00+05:60'
+
+    @pytest.mark.parametrize("value", HOUR_24 + OTHER_OUT_OF_RANGE)
+    def test_r5_the_converter_refuses_with_an_argument_type_error(value: str) -> None:
+>       with pytest.raises(argparse.ArgumentTypeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ArgumentTypeError
+
+packages/cli/tests/test_cli_batch_i_instant.py:109: Failed
+_ test_r5_the_converter_refuses_with_an_argument_type_error[2026-10-20T10:00:00-05:60] _
+
+value = '2026-10-20T10:00:00-05:60'
+
+    @pytest.mark.parametrize("value", HOUR_24 + OTHER_OUT_OF_RANGE)
+    def test_r5_the_converter_refuses_with_an_argument_type_error(value: str) -> None:
+>       with pytest.raises(argparse.ArgumentTypeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ArgumentTypeError
+
+packages/cli/tests/test_cli_batch_i_instant.py:109: Failed
+_ test_r5_the_converter_refuses_with_an_argument_type_error[2026-10-20T10:00:00+05:99] _
+
+value = '2026-10-20T10:00:00+05:99'
+
+    @pytest.mark.parametrize("value", HOUR_24 + OTHER_OUT_OF_RANGE)
+    def test_r5_the_converter_refuses_with_an_argument_type_error(value: str) -> None:
+>       with pytest.raises(argparse.ArgumentTypeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ArgumentTypeError
+
+packages/cli/tests/test_cli_batch_i_instant.py:109: Failed
+_ test_r5_consent_recorded_at_out_of_range_is_a_usage_error[2026-10-20T10:00:00+05:60] _
+
+tmp_path = PosixPath('<tmp>)
+value = '2026-10-20T10:00:00+05:60'
+
+    @pytest.mark.parametrize("value", OTHER_OUT_OF_RANGE)
+    def test_r5_consent_recorded_at_out_of_range_is_a_usage_error(tmp_path: Path, value: str) -> None:
+        inputs = new_inputs(tmp_path, "a")
+        result = run_capture(g_args(inputs, options={"--consent-recorded-at": value}))
+>       _usage_error(result, "--consent-recorded-at")
+
+packages/cli/tests/test_cli_batch_i_instant.py:144: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = Captured(code=0, error=None, out='result: scored\nlanguage declared by user: mr\nstt provider: fake\nstt model: fake-m...ne, policy_ref=None, delete_on_expiry=False)), configured_language='mr'))], warnings=()), factory_calls=1, requests=[])
+option = '--consent-recorded-at'
+
+    def _usage_error(result: Captured, option: str) -> None:
+        assert result.error is None
+>       assert result.code == 64, result.err
+E       AssertionError: 
+E       assert 0 == 64
+E        +  where 0 = Captured(code=0, error=None, out='result: scored\nlanguage declared by user: mr\nstt provider: fake\nstt model: fake-m...ne, policy_ref=None, delete_on_expiry=False)), configured_language='mr'))], warnings=()), factory_calls=1, requests=[]).code
+
+packages/cli/tests/test_cli_batch_i_instant.py:81: AssertionError
+_ test_r5_consent_recorded_at_out_of_range_is_a_usage_error[2026-10-20T10:00:00-05:60] _
+
+tmp_path = PosixPath('<tmp>)
+value = '2026-10-20T10:00:00-05:60'
+
+    @pytest.mark.parametrize("value", OTHER_OUT_OF_RANGE)
+    def test_r5_consent_recorded_at_out_of_range_is_a_usage_error(tmp_path: Path, value: str) -> None:
+        inputs = new_inputs(tmp_path, "a")
+        result = run_capture(g_args(inputs, options={"--consent-recorded-at": value}))
+>       _usage_error(result, "--consent-recorded-at")
+
+packages/cli/tests/test_cli_batch_i_instant.py:144: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = Captured(code=0, error=None, out='result: scored\nlanguage declared by user: mr\nstt provider: fake\nstt model: fake-m...ne, policy_ref=None, delete_on_expiry=False)), configured_language='mr'))], warnings=()), factory_calls=1, requests=[])
+option = '--consent-recorded-at'
+
+    def _usage_error(result: Captured, option: str) -> None:
+        assert result.error is None
+>       assert result.code == 64, result.err
+E       AssertionError: 
+E       assert 0 == 64
+E        +  where 0 = Captured(code=0, error=None, out='result: scored\nlanguage declared by user: mr\nstt provider: fake\nstt model: fake-m...ne, policy_ref=None, delete_on_expiry=False)), configured_language='mr'))], warnings=()), factory_calls=1, requests=[]).code
+
+packages/cli/tests/test_cli_batch_i_instant.py:81: AssertionError
+_ test_r5_consent_recorded_at_out_of_range_is_a_usage_error[2026-10-20T10:00:00+05:99] _
+
+tmp_path = PosixPath('<tmp>)
+value = '2026-10-20T10:00:00+05:99'
+
+    @pytest.mark.parametrize("value", OTHER_OUT_OF_RANGE)
+    def test_r5_consent_recorded_at_out_of_range_is_a_usage_error(tmp_path: Path, value: str) -> None:
+        inputs = new_inputs(tmp_path, "a")
+        result = run_capture(g_args(inputs, options={"--consent-recorded-at": value}))
+>       _usage_error(result, "--consent-recorded-at")
+
+packages/cli/tests/test_cli_batch_i_instant.py:144: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = Captured(code=0, error=None, out='result: scored\nlanguage declared by user: mr\nstt provider: fake\nstt model: fake-m...ne, policy_ref=None, delete_on_expiry=False)), configured_language='mr'))], warnings=()), factory_calls=1, requests=[])
+option = '--consent-recorded-at'
+
+    def _usage_error(result: Captured, option: str) -> None:
+        assert result.error is None
+>       assert result.code == 64, result.err
+E       AssertionError: 
+E       assert 0 == 64
+E        +  where 0 = Captured(code=0, error=None, out='result: scored\nlanguage declared by user: mr\nstt provider: fake\nstt model: fake-m...ne, policy_ref=None, delete_on_expiry=False)), configured_language='mr'))], warnings=()), factory_calls=1, requests=[]).code
+
+packages/cli/tests/test_cli_batch_i_instant.py:81: AssertionError
+_ test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning[493] _
+
+tmp_path = PosixPath('<tmp>)
+mode = 493
+
+    @needs_file_modes
+    @pytest.mark.parametrize(
+        "mode", [0o755, 0o750, 0o705, 0o770, 0o777, 0o775, 0o701, 0o710, 0o740, 0o704]
+    )
+    def test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning(
+        tmp_path: Path, mode: int
+    ) -> None:
+        inputs = _existing_out(tmp_path, "a", mode)
+        result = run_capture(g_args(inputs))
+        assert result.code == 0, result.err
+>       assert result.err == mode_warning(mode)
+E       AssertionError: assert '' == 'warning: the...(mode 0755)\n'
+E         
+E         - warning: the output directory is accessible to group or other users (mode 0755)
+
+packages/cli/tests/test_cli_batch_i_output.py:77: AssertionError
+_ test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning[488] _
+
+tmp_path = PosixPath('<tmp>)
+mode = 488
+
+    @needs_file_modes
+    @pytest.mark.parametrize(
+        "mode", [0o755, 0o750, 0o705, 0o770, 0o777, 0o775, 0o701, 0o710, 0o740, 0o704]
+    )
+    def test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning(
+        tmp_path: Path, mode: int
+    ) -> None:
+        inputs = _existing_out(tmp_path, "a", mode)
+        result = run_capture(g_args(inputs))
+        assert result.code == 0, result.err
+>       assert result.err == mode_warning(mode)
+E       AssertionError: assert '' == 'warning: the...(mode 0750)\n'
+E         
+E         - warning: the output directory is accessible to group or other users (mode 0750)
+
+packages/cli/tests/test_cli_batch_i_output.py:77: AssertionError
+_ test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning[453] _
+
+tmp_path = PosixPath('<tmp>)
+mode = 453
+
+    @needs_file_modes
+    @pytest.mark.parametrize(
+        "mode", [0o755, 0o750, 0o705, 0o770, 0o777, 0o775, 0o701, 0o710, 0o740, 0o704]
+    )
+    def test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning(
+        tmp_path: Path, mode: int
+    ) -> None:
+        inputs = _existing_out(tmp_path, "a", mode)
+        result = run_capture(g_args(inputs))
+        assert result.code == 0, result.err
+>       assert result.err == mode_warning(mode)
+E       AssertionError: assert '' == 'warning: the...(mode 0705)\n'
+E         
+E         - warning: the output directory is accessible to group or other users (mode 0705)
+
+packages/cli/tests/test_cli_batch_i_output.py:77: AssertionError
+_ test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning[504] _
+
+tmp_path = PosixPath('<tmp>)
+mode = 504
+
+    @needs_file_modes
+    @pytest.mark.parametrize(
+        "mode", [0o755, 0o750, 0o705, 0o770, 0o777, 0o775, 0o701, 0o710, 0o740, 0o704]
+    )
+    def test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning(
+        tmp_path: Path, mode: int
+    ) -> None:
+        inputs = _existing_out(tmp_path, "a", mode)
+        result = run_capture(g_args(inputs))
+        assert result.code == 0, result.err
+>       assert result.err == mode_warning(mode)
+E       AssertionError: assert '' == 'warning: the...(mode 0770)\n'
+E         
+E         - warning: the output directory is accessible to group or other users (mode 0770)
+
+packages/cli/tests/test_cli_batch_i_output.py:77: AssertionError
+_ test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning[511] _
+
+tmp_path = PosixPath('<tmp>)
+mode = 511
+
+    @needs_file_modes
+    @pytest.mark.parametrize(
+        "mode", [0o755, 0o750, 0o705, 0o770, 0o777, 0o775, 0o701, 0o710, 0o740, 0o704]
+    )
+    def test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning(
+        tmp_path: Path, mode: int
+    ) -> None:
+        inputs = _existing_out(tmp_path, "a", mode)
+        result = run_capture(g_args(inputs))
+        assert result.code == 0, result.err
+>       assert result.err == mode_warning(mode)
+E       AssertionError: assert '' == 'warning: the...(mode 0777)\n'
+E         
+E         - warning: the output directory is accessible to group or other users (mode 0777)
+
+packages/cli/tests/test_cli_batch_i_output.py:77: AssertionError
+_ test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning[509] _
+
+tmp_path = PosixPath('<tmp>)
+mode = 509
+
+    @needs_file_modes
+    @pytest.mark.parametrize(
+        "mode", [0o755, 0o750, 0o705, 0o770, 0o777, 0o775, 0o701, 0o710, 0o740, 0o704]
+    )
+    def test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning(
+        tmp_path: Path, mode: int
+    ) -> None:
+        inputs = _existing_out(tmp_path, "a", mode)
+        result = run_capture(g_args(inputs))
+        assert result.code == 0, result.err
+>       assert result.err == mode_warning(mode)
+E       AssertionError: assert '' == 'warning: the...(mode 0775)\n'
+E         
+E         - warning: the output directory is accessible to group or other users (mode 0775)
+
+packages/cli/tests/test_cli_batch_i_output.py:77: AssertionError
+_ test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning[449] _
+
+tmp_path = PosixPath('<tmp>)
+mode = 449
+
+    @needs_file_modes
+    @pytest.mark.parametrize(
+        "mode", [0o755, 0o750, 0o705, 0o770, 0o777, 0o775, 0o701, 0o710, 0o740, 0o704]
+    )
+    def test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning(
+        tmp_path: Path, mode: int
+    ) -> None:
+        inputs = _existing_out(tmp_path, "a", mode)
+        result = run_capture(g_args(inputs))
+        assert result.code == 0, result.err
+>       assert result.err == mode_warning(mode)
+E       AssertionError: assert '' == 'warning: the...(mode 0701)\n'
+E         
+E         - warning: the output directory is accessible to group or other users (mode 0701)
+
+packages/cli/tests/test_cli_batch_i_output.py:77: AssertionError
+_ test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning[456] _
+
+tmp_path = PosixPath('<tmp>)
+mode = 456
+
+    @needs_file_modes
+    @pytest.mark.parametrize(
+        "mode", [0o755, 0o750, 0o705, 0o770, 0o777, 0o775, 0o701, 0o710, 0o740, 0o704]
+    )
+    def test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning(
+        tmp_path: Path, mode: int
+    ) -> None:
+        inputs = _existing_out(tmp_path, "a", mode)
+        result = run_capture(g_args(inputs))
+        assert result.code == 0, result.err
+>       assert result.err == mode_warning(mode)
+E       AssertionError: assert '' == 'warning: the...(mode 0710)\n'
+E         
+E         - warning: the output directory is accessible to group or other users (mode 0710)
+
+packages/cli/tests/test_cli_batch_i_output.py:77: AssertionError
+_ test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning[480] _
+
+tmp_path = PosixPath('<tmp>)
+mode = 480
+
+    @needs_file_modes
+    @pytest.mark.parametrize(
+        "mode", [0o755, 0o750, 0o705, 0o770, 0o777, 0o775, 0o701, 0o710, 0o740, 0o704]
+    )
+    def test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning(
+        tmp_path: Path, mode: int
+    ) -> None:
+        inputs = _existing_out(tmp_path, "a", mode)
+        result = run_capture(g_args(inputs))
+        assert result.code == 0, result.err
+>       assert result.err == mode_warning(mode)
+E       AssertionError: assert '' == 'warning: the...(mode 0740)\n'
+E         
+E         - warning: the output directory is accessible to group or other users (mode 0740)
+
+packages/cli/tests/test_cli_batch_i_output.py:77: AssertionError
+_ test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning[452] _
+
+tmp_path = PosixPath('<tmp>)
+mode = 452
+
+    @needs_file_modes
+    @pytest.mark.parametrize(
+        "mode", [0o755, 0o750, 0o705, 0o770, 0o777, 0o775, 0o701, 0o710, 0o740, 0o704]
+    )
+    def test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning(
+        tmp_path: Path, mode: int
+    ) -> None:
+        inputs = _existing_out(tmp_path, "a", mode)
+        result = run_capture(g_args(inputs))
+        assert result.code == 0, result.err
+>       assert result.err == mode_warning(mode)
+E       AssertionError: assert '' == 'warning: the...(mode 0704)\n'
+E         
+E         - warning: the output directory is accessible to group or other users (mode 0704)
+
+packages/cli/tests/test_cli_batch_i_output.py:77: AssertionError
+_____ test_r3_the_warning_is_the_same_over_the_sarvam_engine_and_a_replay ______
+
+tmp_path = PosixPath('<tmp>)
+
+    @needs_file_modes
+    def test_r3_the_warning_is_the_same_over_the_sarvam_engine_and_a_replay(tmp_path: Path) -> None:
+        sarvam_inputs = _existing_out(tmp_path, "a", 0o755)
+        script = SarvamScript()
+        result, _ = sarvam_capture(sarvam_inputs, script=script)
+        assert result.code == 0, result.error
+>       assert result.err == mode_warning(0o755)
+E       AssertionError: assert '' == 'warning: the...(mode 0755)\n'
+E         
+E         - warning: the output directory is accessible to group or other users (mode 0755)
+
+packages/cli/tests/test_cli_batch_i_output.py:91: AssertionError
+______________ test_r3_the_warning_comes_before_the_embed_warning ______________
+
+tmp_path = PosixPath('<tmp>)
+
+    @needs_file_modes
+    def test_r3_the_warning_comes_before_the_embed_warning(tmp_path: Path) -> None:
+        inputs = _existing_out(tmp_path, "a", 0o755)
+        result = run_capture(g_args(inputs, extra=["--embed-audio"]))
+        assert result.code == 0, result.err
+>       assert result.err == mode_warning(0o755) + EMBED_WARNING
+E       AssertionError: assert 'warning: --e...re the file\n' == 'warning: the...re the file\n'
+E         
+E         - warning: the output directory is accessible to group or other users (mode 0755)
+E           warning: --embed-audio puts the call audio into the report file; do not share the file
+
+packages/cli/tests/test_cli_batch_i_output.py:131: AssertionError
+_ test_r3_the_warning_does_not_change_the_exit_code_of_a_failure_after_the_send _
+
+tmp_path = PosixPath('<tmp>)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10d82eba0>
+
+    @needs_file_modes
+    def test_r3_the_warning_does_not_change_the_exit_code_of_a_failure_after_the_send(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        def boom(*args: Any, **kwargs: Any) -> Any:
+            raise RuntimeError("STOREFAILURE")
+    
+        monkeypatch.setattr(store_mod(), "store_run", boom)
+        inputs = _existing_out(tmp_path, "a", 0o755)
+        result = run_capture(g_args(inputs))
+        assert result.code == 1
+>       assert result.err == mode_warning(0o755) + "error: unexpected failure (RuntimeError)\n"
+E       AssertionError: assert 'error: unexp...ntimeError)\n' == 'warning: the...ntimeError)\n'
+E         
+E         - warning: the output directory is accessible to group or other users (mode 0755)
+E           error: unexpected failure (RuntimeError)
+
+packages/cli/tests/test_cli_batch_i_output.py:145: AssertionError
+______________ test_r3_the_special_bits_are_not_shown[1517-0755] _______________
+
+tmp_path = PosixPath('<tmp>)
+mode = 1517, shown = '0755'
+
+    @needs_file_modes
+    @pytest.mark.parametrize(("mode", "shown"), [(0o2755, "0755"), (0o1750, "0750")])
+    def test_r3_the_special_bits_are_not_shown(tmp_path: Path, mode: int, shown: str) -> None:
+        inputs = _existing_out(tmp_path, "a", mode)
+        result = run_capture(g_args(inputs))
+        assert result.code == 0, result.err
+>       assert result.err == mode_warning(int(shown, 8))
+E       AssertionError: assert '' == 'warning: the...(mode 0755)\n'
+E         
+E         - warning: the output directory is accessible to group or other users (mode 0755)
+
+packages/cli/tests/test_cli_batch_i_output.py:203: AssertionError
+______________ test_r3_the_special_bits_are_not_shown[1000-0750] _______________
+
+tmp_path = PosixPath('<tmp>)
+mode = 1000, shown = '0750'
+
+    @needs_file_modes
+    @pytest.mark.parametrize(("mode", "shown"), [(0o2755, "0755"), (0o1750, "0750")])
+    def test_r3_the_special_bits_are_not_shown(tmp_path: Path, mode: int, shown: str) -> None:
+        inputs = _existing_out(tmp_path, "a", mode)
+        result = run_capture(g_args(inputs))
+        assert result.code == 0, result.err
+>       assert result.err == mode_warning(int(shown, 8))
+E       AssertionError: assert '' == 'warning: the...(mode 0750)\n'
+E         
+E         - warning: the output directory is accessible to group or other users (mode 0750)
+
+packages/cli/tests/test_cli_batch_i_output.py:203: AssertionError
+___ test_r6_a_link_in_place_of_the_store_is_refused_before_the_engine[file] ____
+
+tmp_path = PosixPath('<tmp>)
+kind = 'file'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_r6_a_link_in_place_of_the_store_is_refused_before_the_engine(
+        tmp_path: Path, kind: str
+    ) -> None:
+        inputs = new_inputs(tmp_path, "a")
+        _, state = _plant(tmp_path, inputs, kind)
+        before = state()
+        result = run_capture(g_args(inputs))
+>       assert result.code == 4, result.err
+E       AssertionError: 
+E       assert 0 == 4
+E        +  where 0 = Captured(code=0, error=None, out='result: scored\nlanguage declared by user: mr\nstt provider: fake\nstt model: fake-m...ne, policy_ref=None, delete_on_expiry=False)), configured_language='mr'))], warnings=()), factory_calls=1, requests=[]).code
+
+packages/cli/tests/test_cli_batch_i_output.py:256: AssertionError
+_ test_r6_a_link_in_place_of_the_store_is_refused_before_the_engine[directory] _
+
+tmp_path = PosixPath('<tmp>)
+kind = 'directory'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_r6_a_link_in_place_of_the_store_is_refused_before_the_engine(
+        tmp_path: Path, kind: str
+    ) -> None:
+        inputs = new_inputs(tmp_path, "a")
+        _, state = _plant(tmp_path, inputs, kind)
+        before = state()
+        result = run_capture(g_args(inputs))
+        assert result.code == 4, result.err
+>       assert result.err == REFUSED
+E       AssertionError: assert 'error: outpu...t_writable)\n' == 'error: outpu..._is_a_link)\n'
+E         
+E         - error: output_unavailable (store_file_is_a_link)
+E         ?                                        ^^ ^ ^^^
+E         + error: output_unavailable (store_file_not_writable)
+E         ?                                       ++++++ ^ ^ ^
+
+packages/cli/tests/test_cli_batch_i_output.py:257: AssertionError
+_ test_r6_a_link_in_place_of_the_store_is_refused_before_the_engine[dangling] __
+
+tmp_path = PosixPath('<tmp>)
+kind = 'dangling'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_r6_a_link_in_place_of_the_store_is_refused_before_the_engine(
+        tmp_path: Path, kind: str
+    ) -> None:
+        inputs = new_inputs(tmp_path, "a")
+        _, state = _plant(tmp_path, inputs, kind)
+        before = state()
+        result = run_capture(g_args(inputs))
+        assert result.code == 4, result.err
+>       assert result.err == REFUSED
+E       AssertionError: assert 'error: outpu...t_writable)\n' == 'error: outpu..._is_a_link)\n'
+E         
+E         - error: output_unavailable (store_file_is_a_link)
+E         ?                                        ^^ ^ ^^^
+E         + error: output_unavailable (store_file_not_writable)
+E         ?                                       ++++++ ^ ^ ^
+
+packages/cli/tests/test_cli_batch_i_output.py:257: AssertionError
+_ test_r6_the_same_over_the_real_sarvam_engine_sends_and_creates_nothing[file] _
+
+tmp_path = PosixPath('<tmp>)
+kind = 'file'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_r6_the_same_over_the_real_sarvam_engine_sends_and_creates_nothing(
+        tmp_path: Path, kind: str
+    ) -> None:
+        inputs = new_inputs(tmp_path, "a")
+        _, state = _plant(tmp_path, inputs, kind)
+        before = state()
+        script = SarvamScript()
+        result, _ = sarvam_capture(inputs, script=script)
+>       assert result.code == 4, result.error
+E       AssertionError: None
+E       assert 0 == 4
+E        +  where 0 = Captured(code=0, error=None, out='result: scored\nlanguage declared by user: mr\nstt provider: sarvam\nstt model: saar...', model='fake-model-1', fail_at=None, failure=None, raises=None, calls=[], warnings=()), factory_calls=0, requests=[]).code
+
+packages/cli/tests/test_cli_batch_i_output.py:275: AssertionError
+_ test_r6_the_same_over_the_real_sarvam_engine_sends_and_creates_nothing[directory] _
+
+tmp_path = PosixPath('<tmp>)
+kind = 'directory'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_r6_the_same_over_the_real_sarvam_engine_sends_and_creates_nothing(
+        tmp_path: Path, kind: str
+    ) -> None:
+        inputs = new_inputs(tmp_path, "a")
+        _, state = _plant(tmp_path, inputs, kind)
+        before = state()
+        script = SarvamScript()
+        result, _ = sarvam_capture(inputs, script=script)
+        assert result.code == 4, result.error
+>       assert result.err == REFUSED
+E       AssertionError: assert 'error: outpu...t_writable)\n' == 'error: outpu..._is_a_link)\n'
+E         
+E         - error: output_unavailable (store_file_is_a_link)
+E         ?                                        ^^ ^ ^^^
+E         + error: output_unavailable (store_file_not_writable)
+E         ?                                       ++++++ ^ ^ ^
+
+packages/cli/tests/test_cli_batch_i_output.py:276: AssertionError
+_ test_r6_the_same_over_the_real_sarvam_engine_sends_and_creates_nothing[dangling] _
+
+tmp_path = PosixPath('<tmp>)
+kind = 'dangling'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_r6_the_same_over_the_real_sarvam_engine_sends_and_creates_nothing(
+        tmp_path: Path, kind: str
+    ) -> None:
+        inputs = new_inputs(tmp_path, "a")
+        _, state = _plant(tmp_path, inputs, kind)
+        before = state()
+        script = SarvamScript()
+        result, _ = sarvam_capture(inputs, script=script)
+        assert result.code == 4, result.error
+>       assert result.err == REFUSED
+E       AssertionError: assert 'error: outpu...t_writable)\n' == 'error: outpu..._is_a_link)\n'
+E         
+E         - error: output_unavailable (store_file_is_a_link)
+E         ?                                        ^^ ^ ^^^
+E         + error: output_unavailable (store_file_not_writable)
+E         ?                                       ++++++ ^ ^ ^
+
+packages/cli/tests/test_cli_batch_i_output.py:276: AssertionError
+_ test_r6_the_store_itself_refuses_a_link_so_a_late_planted_one_is_caught[file] _
+
+tmp_path = PosixPath('<tmp>)
+kind = 'file'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_r6_the_store_itself_refuses_a_link_so_a_late_planted_one_is_caught(
+        tmp_path: Path, kind: str
+    ) -> None:
+        inputs = new_inputs(tmp_path, "a")
+        _, state = _plant(tmp_path, inputs, kind)
+        before = state()
+>       with pytest.raises(OSError, match="link"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE OSError
+
+packages/cli/tests/test_cli_batch_i_output.py:303: Failed
+_ test_r6_the_store_itself_refuses_a_link_so_a_late_planted_one_is_caught[directory] _
+
+tmp_path = PosixPath('<tmp>)
+kind = 'directory'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_r6_the_store_itself_refuses_a_link_so_a_late_planted_one_is_caught(
+        tmp_path: Path, kind: str
+    ) -> None:
+        inputs = new_inputs(tmp_path, "a")
+        _, state = _plant(tmp_path, inputs, kind)
+        before = state()
+        with pytest.raises(OSError, match="link"):
+>           store_mod().open_sqlite_store(inputs.out)
+
+packages/cli/tests/test_cli_batch_i_output.py:304: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/src/tracer_cli/store.py:45: in open_sqlite_store
+    engine = tracer_evaldb.create_store_engine(f"sqlite:///{path}")
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evaldb/src/tracer_evaldb/engine.py:68: in create_store_engine
+    return _sqlite_engine(parsed, busy_timeout_ms)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evaldb/src/tracer_evaldb/engine.py:179: in _sqlite_engine
+    _probe(engine).close()
+    ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+engine = Engine(sqlite:///<tmp>)
+
+    def _probe(engine: Engine) -> Connection:
+        try:
+            return engine.connect()
+        except Exception:
+            engine.dispose()
+>           raise StoreConnectionError("could not connect to the database") from None
+E           tracer_evaldb.errors.StoreConnectionError: could not connect to the database
+
+packages/evaldb/src/tracer_evaldb/engine.py:148: StoreConnectionError
+_ test_r6_the_store_itself_refuses_a_link_so_a_late_planted_one_is_caught[dangling] _
+
+tmp_path = PosixPath('<tmp>)
+kind = 'dangling'
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_r6_the_store_itself_refuses_a_link_so_a_late_planted_one_is_caught(
+        tmp_path: Path, kind: str
+    ) -> None:
+        inputs = new_inputs(tmp_path, "a")
+        _, state = _plant(tmp_path, inputs, kind)
+        before = state()
+>       with pytest.raises(OSError, match="link"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE OSError
+
+packages/cli/tests/test_cli_batch_i_output.py:303: Failed
+_ test_r1_an_exception_of_the_transport_on_chunk_2_keeps_the_usage_of_chunk_1[RuntimeError] _
+
+tmp_path = PosixPath('<tmp>)
+exc = RuntimeError('TRANSPORTCANARY message')
+
+    @pytest.mark.parametrize(
+        "exc",
+        [
+            RuntimeError(f"{LEAK} message"),
+            ValueError(f"{LEAK} message"),
+            OSError(errno.EIO, f"{LEAK} message"),
+            ZeroDivisionError(f"{LEAK} message"),
+            LookupError(f"{LEAK} message"),
+        ],
+        ids=lambda exc: type(exc).__name__,
+    )
+    def test_r1_an_exception_of_the_transport_on_chunk_2_keeps_the_usage_of_chunk_1(
+        tmp_path: Path, exc: Exception
+    ) -> None:
+        inputs = new_inputs(tmp_path, "a")
+        script = FailingScript(1, exc)
+        result, _ = sarvam_capture(inputs, script=script)
+        _unexpected(result, type(exc).__name__)
+>       document = _kept(result, inputs.out, chunks=[0], error_class=type(exc).__name__)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/cli/tests/test_cli_batch_i_recovery.py:153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_batch_i_recovery.py:95: in _kept
+    document: dict[str, Any] = read_recovery(out)
+                               ^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+out = PosixPath('<tmp>)
+
+    def read_recovery(out: Path) -> dict[str, Any]:
+        path = out / RECOVERY_AT
+>       assert path.is_file(), sorted(p.name for p in out.iterdir()) if out.is_dir() else out
+               ^^^^^^^^^^^^^^
+E       AssertionError: ['sarvam_call_log.jsonl', 'tracer.sqlite']
+
+packages/cli/tests/cli_batchg_support.py:135: AssertionError
+_ test_r1_an_exception_of_the_transport_on_chunk_2_keeps_the_usage_of_chunk_1[ValueError] _
+
+tmp_path = PosixPath('<tmp>)
+exc = ValueError('TRANSPORTCANARY message')
+
+    @pytest.mark.parametrize(
+        "exc",
+        [
+            RuntimeError(f"{LEAK} message"),
+            ValueError(f"{LEAK} message"),
+            OSError(errno.EIO, f"{LEAK} message"),
+            ZeroDivisionError(f"{LEAK} message"),
+            LookupError(f"{LEAK} message"),
+        ],
+        ids=lambda exc: type(exc).__name__,
+    )
+    def test_r1_an_exception_of_the_transport_on_chunk_2_keeps_the_usage_of_chunk_1(
+        tmp_path: Path, exc: Exception
+    ) -> None:
+        inputs = new_inputs(tmp_path, "a")
+        script = FailingScript(1, exc)
+        result, _ = sarvam_capture(inputs, script=script)
+        _unexpected(result, type(exc).__name__)
+>       document = _kept(result, inputs.out, chunks=[0], error_class=type(exc).__name__)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/cli/tests/test_cli_batch_i_recovery.py:153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_batch_i_recovery.py:95: in _kept
+    document: dict[str, Any] = read_recovery(out)
+                               ^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+out = PosixPath('<tmp>)
+
+    def read_recovery(out: Path) -> dict[str, Any]:
+        path = out / RECOVERY_AT
+>       assert path.is_file(), sorted(p.name for p in out.iterdir()) if out.is_dir() else out
+               ^^^^^^^^^^^^^^
+E       AssertionError: ['sarvam_call_log.jsonl', 'tracer.sqlite']
+
+packages/cli/tests/cli_batchg_support.py:135: AssertionError
+_ test_r1_an_exception_of_the_transport_on_chunk_2_keeps_the_usage_of_chunk_1[OSError] _
+
+tmp_path = PosixPath('<tmp>)
+exc = OSError(5, 'TRANSPORTCANARY message')
+
+    @pytest.mark.parametrize(
+        "exc",
+        [
+            RuntimeError(f"{LEAK} message"),
+            ValueError(f"{LEAK} message"),
+            OSError(errno.EIO, f"{LEAK} message"),
+            ZeroDivisionError(f"{LEAK} message"),
+            LookupError(f"{LEAK} message"),
+        ],
+        ids=lambda exc: type(exc).__name__,
+    )
+    def test_r1_an_exception_of_the_transport_on_chunk_2_keeps_the_usage_of_chunk_1(
+        tmp_path: Path, exc: Exception
+    ) -> None:
+        inputs = new_inputs(tmp_path, "a")
+        script = FailingScript(1, exc)
+        result, _ = sarvam_capture(inputs, script=script)
+        _unexpected(result, type(exc).__name__)
+>       document = _kept(result, inputs.out, chunks=[0], error_class=type(exc).__name__)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/cli/tests/test_cli_batch_i_recovery.py:153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_batch_i_recovery.py:95: in _kept
+    document: dict[str, Any] = read_recovery(out)
+                               ^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+out = PosixPath('<tmp>)
+
+    def read_recovery(out: Path) -> dict[str, Any]:
+        path = out / RECOVERY_AT
+>       assert path.is_file(), sorted(p.name for p in out.iterdir()) if out.is_dir() else out
+               ^^^^^^^^^^^^^^
+E       AssertionError: ['sarvam_call_log.jsonl', 'tracer.sqlite']
+
+packages/cli/tests/cli_batchg_support.py:135: AssertionError
+_ test_r1_an_exception_of_the_transport_on_chunk_2_keeps_the_usage_of_chunk_1[ZeroDivisionError] _
+
+tmp_path = PosixPath('<tmp>)
+exc = ZeroDivisionError('TRANSPORTCANARY message')
+
+    @pytest.mark.parametrize(
+        "exc",
+        [
+            RuntimeError(f"{LEAK} message"),
+            ValueError(f"{LEAK} message"),
+            OSError(errno.EIO, f"{LEAK} message"),
+            ZeroDivisionError(f"{LEAK} message"),
+            LookupError(f"{LEAK} message"),
+        ],
+        ids=lambda exc: type(exc).__name__,
+    )
+    def test_r1_an_exception_of_the_transport_on_chunk_2_keeps_the_usage_of_chunk_1(
+        tmp_path: Path, exc: Exception
+    ) -> None:
+        inputs = new_inputs(tmp_path, "a")
+        script = FailingScript(1, exc)
+        result, _ = sarvam_capture(inputs, script=script)
+        _unexpected(result, type(exc).__name__)
+>       document = _kept(result, inputs.out, chunks=[0], error_class=type(exc).__name__)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/cli/tests/test_cli_batch_i_recovery.py:153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_batch_i_recovery.py:95: in _kept
+    document: dict[str, Any] = read_recovery(out)
+                               ^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+out = PosixPath('<tmp>)
+
+    def read_recovery(out: Path) -> dict[str, Any]:
+        path = out / RECOVERY_AT
+>       assert path.is_file(), sorted(p.name for p in out.iterdir()) if out.is_dir() else out
+               ^^^^^^^^^^^^^^
+E       AssertionError: ['sarvam_call_log.jsonl', 'tracer.sqlite']
+
+packages/cli/tests/cli_batchg_support.py:135: AssertionError
+_ test_r1_an_exception_of_the_transport_on_chunk_2_keeps_the_usage_of_chunk_1[LookupError] _
+
+tmp_path = PosixPath('<tmp>)
+exc = LookupError('TRANSPORTCANARY message')
+
+    @pytest.mark.parametrize(
+        "exc",
+        [
+            RuntimeError(f"{LEAK} message"),
+            ValueError(f"{LEAK} message"),
+            OSError(errno.EIO, f"{LEAK} message"),
+            ZeroDivisionError(f"{LEAK} message"),
+            LookupError(f"{LEAK} message"),
+        ],
+        ids=lambda exc: type(exc).__name__,
+    )
+    def test_r1_an_exception_of_the_transport_on_chunk_2_keeps_the_usage_of_chunk_1(
+        tmp_path: Path, exc: Exception
+    ) -> None:
+        inputs = new_inputs(tmp_path, "a")
+        script = FailingScript(1, exc)
+        result, _ = sarvam_capture(inputs, script=script)
+        _unexpected(result, type(exc).__name__)
+>       document = _kept(result, inputs.out, chunks=[0], error_class=type(exc).__name__)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/cli/tests/test_cli_batch_i_recovery.py:153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_batch_i_recovery.py:95: in _kept
+    document: dict[str, Any] = read_recovery(out)
+                               ^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+out = PosixPath('<tmp>)
+
+    def read_recovery(out: Path) -> dict[str, Any]:
+        path = out / RECOVERY_AT
+>       assert path.is_file(), sorted(p.name for p in out.iterdir()) if out.is_dir() else out
+               ^^^^^^^^^^^^^^
+E       AssertionError: ['sarvam_call_log.jsonl', 'tracer.sqlite']
+
+packages/cli/tests/cli_batchg_support.py:135: AssertionError
+__ test_r1_the_usage_of_every_answered_chunk_is_kept_whatever_chunk_fails[1] ___
+
+tmp_path = PosixPath('<tmp>)
+fail_at = 1
+
+    @pytest.mark.parametrize("fail_at", [1, 2, 3])
+    def test_r1_the_usage_of_every_answered_chunk_is_kept_whatever_chunk_fails(
+        tmp_path: Path, fail_at: int
+    ) -> None:
+        inputs = new_inputs(tmp_path, "a")
+        script = FailingScript(fail_at, RuntimeError(LEAK), four_bodies())
+        result, _ = sarvam_capture(inputs, script=script, options=FOUR_CHUNKS)
+        _unexpected(result, "RuntimeError")
+>       document = _kept(result, inputs.out, chunks=list(range(fail_at)), error_class="RuntimeError")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/cli/tests/test_cli_batch_i_recovery.py:176: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_batch_i_recovery.py:95: in _kept
+    document: dict[str, Any] = read_recovery(out)
+                               ^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+out = PosixPath('<tmp>)
+
+    def read_recovery(out: Path) -> dict[str, Any]:
+        path = out / RECOVERY_AT
+>       assert path.is_file(), sorted(p.name for p in out.iterdir()) if out.is_dir() else out
+               ^^^^^^^^^^^^^^
+E       AssertionError: ['sarvam_call_log.jsonl', 'tracer.sqlite']
+
+packages/cli/tests/cli_batchg_support.py:135: AssertionError
+__ test_r1_the_usage_of_every_answered_chunk_is_kept_whatever_chunk_fails[2] ___
+
+tmp_path = PosixPath('<tmp>)
+fail_at = 2
+
+    @pytest.mark.parametrize("fail_at", [1, 2, 3])
+    def test_r1_the_usage_of_every_answered_chunk_is_kept_whatever_chunk_fails(
+        tmp_path: Path, fail_at: int
+    ) -> None:
+        inputs = new_inputs(tmp_path, "a")
+        script = FailingScript(fail_at, RuntimeError(LEAK), four_bodies())
+        result, _ = sarvam_capture(inputs, script=script, options=FOUR_CHUNKS)
+        _unexpected(result, "RuntimeError")
+>       document = _kept(result, inputs.out, chunks=list(range(fail_at)), error_class="RuntimeError")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/cli/tests/test_cli_batch_i_recovery.py:176: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_batch_i_recovery.py:95: in _kept
+    document: dict[str, Any] = read_recovery(out)
+                               ^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+out = PosixPath('<tmp>)
+
+    def read_recovery(out: Path) -> dict[str, Any]:
+        path = out / RECOVERY_AT
+>       assert path.is_file(), sorted(p.name for p in out.iterdir()) if out.is_dir() else out
+               ^^^^^^^^^^^^^^
+E       AssertionError: ['sarvam_call_log.jsonl', 'tracer.sqlite']
+
+packages/cli/tests/cli_batchg_support.py:135: AssertionError
+__ test_r1_the_usage_of_every_answered_chunk_is_kept_whatever_chunk_fails[3] ___
+
+tmp_path = PosixPath('<tmp>)
+fail_at = 3
+
+    @pytest.mark.parametrize("fail_at", [1, 2, 3])
+    def test_r1_the_usage_of_every_answered_chunk_is_kept_whatever_chunk_fails(
+        tmp_path: Path, fail_at: int
+    ) -> None:
+        inputs = new_inputs(tmp_path, "a")
+        script = FailingScript(fail_at, RuntimeError(LEAK), four_bodies())
+        result, _ = sarvam_capture(inputs, script=script, options=FOUR_CHUNKS)
+        _unexpected(result, "RuntimeError")
+>       document = _kept(result, inputs.out, chunks=list(range(fail_at)), error_class="RuntimeError")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/cli/tests/test_cli_batch_i_recovery.py:176: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_batch_i_recovery.py:95: in _kept
+    document: dict[str, Any] = read_recovery(out)
+                               ^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+out = PosixPath('<tmp>)
+
+    def read_recovery(out: Path) -> dict[str, Any]:
+        path = out / RECOVERY_AT
+>       assert path.is_file(), sorted(p.name for p in out.iterdir()) if out.is_dir() else out
+               ^^^^^^^^^^^^^^
+E       AssertionError: ['sarvam_call_log.jsonl', 'tracer.sqlite']
+
+packages/cli/tests/cli_batchg_support.py:135: AssertionError
+__ test_r1_a_ctrl_c_on_chunk_2_keeps_the_usage_of_chunk_1_and_is_raised_again __
+
+tmp_path = PosixPath('<tmp>)
+
+    def test_r1_a_ctrl_c_on_chunk_2_keeps_the_usage_of_chunk_1_and_is_raised_again(
+        tmp_path: Path,
+    ) -> None:
+        inputs = new_inputs(tmp_path, "a")
+        interrupt = KeyboardInterrupt()
+        script = FailingScript(1, interrupt)
+        result, _ = sarvam_capture(inputs, script=script)
+        assert result.error is interrupt, "the Ctrl-C leaves run() and is not turned into an exit code"
+        assert result.code is None
+        assert result.err == "", "no message is written for a Ctrl-C"
+>       _kept(result, inputs.out, chunks=[0], error_class="KeyboardInterrupt")
+
+packages/cli/tests/test_cli_batch_i_recovery.py:208: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_batch_i_recovery.py:95: in _kept
+    document: dict[str, Any] = read_recovery(out)
+                               ^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+out = PosixPath('<tmp>)
+
+    def read_recovery(out: Path) -> dict[str, Any]:
+        path = out / RECOVERY_AT
+>       assert path.is_file(), sorted(p.name for p in out.iterdir()) if out.is_dir() else out
+               ^^^^^^^^^^^^^^
+E       AssertionError: ['sarvam_call_log.jsonl', 'tracer.sqlite']
+
+packages/cli/tests/cli_batchg_support.py:135: AssertionError
+_ test_r1_a_ctrl_c_on_the_last_of_four_chunks_keeps_the_three_that_were_answered _
+
+tmp_path = PosixPath('<tmp>)
+
+    def test_r1_a_ctrl_c_on_the_last_of_four_chunks_keeps_the_three_that_were_answered(
+        tmp_path: Path,
+    ) -> None:
+        inputs = new_inputs(tmp_path, "a")
+        interrupt = KeyboardInterrupt()
+        script = FailingScript(3, interrupt, four_bodies())
+        result, _ = sarvam_capture(inputs, script=script, options=FOUR_CHUNKS)
+        assert result.error is interrupt
+>       _kept(result, inputs.out, chunks=[0, 1, 2], error_class="KeyboardInterrupt")
+
+packages/cli/tests/test_cli_batch_i_recovery.py:232: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_batch_i_recovery.py:95: in _kept
+    document: dict[str, Any] = read_recovery(out)
+                               ^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+out = PosixPath('<tmp>)
+
+    def read_recovery(out: Path) -> dict[str, Any]:
+        path = out / RECOVERY_AT
+>       assert path.is_file(), sorted(p.name for p in out.iterdir()) if out.is_dir() else out
+               ^^^^^^^^^^^^^^
+E       AssertionError: ['sarvam_call_log.jsonl', 'tracer.sqlite']
+
+packages/cli/tests/cli_batchg_support.py:135: AssertionError
+_ test_r1_a_failure_during_the_alignment_keeps_the_usage_of_both_chunks[KeyboardInterrupt] _
+
+tmp_path = PosixPath('<tmp>)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10da7a2e0>
+exc_type = <class 'KeyboardInterrupt'>
+
+    @pytest.mark.parametrize("exc_type", [KeyboardInterrupt, RuntimeError])
+    def test_r1_a_failure_during_the_alignment_keeps_the_usage_of_both_chunks(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch, exc_type: type[BaseException]
+    ) -> None:
+        pipeline = importlib.import_module("tracer_evalcore.pipeline")
+        raised = exc_type()
+    
+        def boom(*args: Any, **kwargs: Any) -> Any:
+            raise raised
+    
+        monkeypatch.setattr(pipeline, "score_results", boom)
+        inputs = new_inputs(tmp_path, "a")
+        script = SarvamScript()
+        result, _ = sarvam_capture(inputs, script=script)
+        if exc_type is KeyboardInterrupt:
+            assert result.error is raised
+            assert result.err == ""
+        else:
+            _unexpected(result, "RuntimeError")
+>       _kept(result, inputs.out, chunks=[0, 1], error_class=exc_type.__name__)
+
+packages/cli/tests/test_cli_batch_i_recovery.py:255: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_batch_i_recovery.py:95: in _kept
+    document: dict[str, Any] = read_recovery(out)
+                               ^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+out = PosixPath('<tmp>)
+
+    def read_recovery(out: Path) -> dict[str, Any]:
+        path = out / RECOVERY_AT
+>       assert path.is_file(), sorted(p.name for p in out.iterdir()) if out.is_dir() else out
+               ^^^^^^^^^^^^^^
+E       AssertionError: ['sarvam_call_log.jsonl', 'tracer.sqlite']
+
+packages/cli/tests/cli_batchg_support.py:135: AssertionError
+______ test_r1_a_call_log_error_before_chunk_2_keeps_the_usage_of_chunk_1 ______
+
+tmp_path = PosixPath('<tmp>)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10dbcc130>
+
+    def test_r1_a_call_log_error_before_chunk_2_keeps_the_usage_of_chunk_1(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        _fail_write(monkeypatch, 3)  # before, after of chunk 1 and then the before line of chunk 2
+        inputs = new_inputs(tmp_path, "a")
+        script = SarvamScript()
+        result, _ = sarvam_capture(inputs, script=script)
+        _unexpected(result, "OSError")
+>       _kept(result, inputs.out, chunks=[0], error_class="OSError")
+
+packages/cli/tests/test_cli_batch_i_recovery.py:294: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_batch_i_recovery.py:95: in _kept
+    document: dict[str, Any] = read_recovery(out)
+                               ^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+out = PosixPath('<tmp>)
+
+    def read_recovery(out: Path) -> dict[str, Any]:
+        path = out / RECOVERY_AT
+>       assert path.is_file(), sorted(p.name for p in out.iterdir()) if out.is_dir() else out
+               ^^^^^^^^^^^^^^
+E       AssertionError: ['sarvam_call_log.jsonl', 'tracer.sqlite']
+
+packages/cli/tests/cli_batchg_support.py:135: AssertionError
+_ test_r1_a_call_log_error_after_chunk_2_was_sent_keeps_only_the_answer_that_was_read _
+
+tmp_path = PosixPath('<tmp>)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10e0eb000>
+
+    def test_r1_a_call_log_error_after_chunk_2_was_sent_keeps_only_the_answer_that_was_read(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        # The reply of chunk 2 arrived but its 'after' line could not be written: the reply is lost
+        # before it is read, so the usage of chunk 2 is not known and is not guessed.
+        _fail_write(monkeypatch, 4)
+        inputs = new_inputs(tmp_path, "a")
+        script = SarvamScript()
+        result, _ = sarvam_capture(inputs, script=script)
+        _unexpected(result, "OSError")
+>       _kept(result, inputs.out, chunks=[0], error_class="OSError")
+
+packages/cli/tests/test_cli_batch_i_recovery.py:308: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/cli/tests/test_cli_batch_i_recovery.py:95: in _kept
+    document: dict[str, Any] = read_recovery(out)
+                               ^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+out = PosixPath('<tmp>)
+
+    def read_recovery(out: Path) -> dict[str, Any]:
+        path = out / RECOVERY_AT
+>       assert path.is_file(), sorted(p.name for p in out.iterdir()) if out.is_dir() else out
+               ^^^^^^^^^^^^^^
+E       AssertionError: ['sarvam_call_log.jsonl', 'tracer.sqlite']
+
+packages/cli/tests/cli_batchg_support.py:135: AssertionError
+______ test_r1_the_command_hands_an_engine_that_streams_usage_a_callback _______
+
+tmp_path = PosixPath('<tmp>)
+
+    def test_r1_the_command_hands_an_engine_that_streams_usage_a_callback(tmp_path: Path) -> None:
+        inputs = new_inputs(tmp_path, "a")
+        engine = StreamingFake()
+        result = run_capture(g_args(inputs), engine=engine)
+        assert result.code == 0, result.err
+        (call,) = engine.calls
+>       assert callable(call[2]), "on_usage is passed by keyword"
+E       AssertionError: on_usage is passed by keyword
+E       assert False
+E        +  where False = callable(None)
+
+packages/cli/tests/test_cli_batch_i_recovery.py:321: AssertionError
+_ test_r1_an_engine_that_streams_usage_and_dies_leaves_the_records_it_handed_out _
+
+tmp_path = PosixPath('<tmp>)
+
+    def test_r1_an_engine_that_streams_usage_and_dies_leaves_the_records_it_handed_out(
+        tmp_path: Path,
+    ) -> None:
+        inputs = new_inputs(tmp_path, "a")
+        engine = StreamingFake(die_after=1)
+        result = run_capture(g_args(inputs), engine=engine)
+        _unexpected(result, "RuntimeError")
+>       document = read_recovery(inputs.out)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/cli/tests/test_cli_batch_i_recovery.py:335: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+out = PosixPath('<tmp>)
+
+    def read_recovery(out: Path) -> dict[str, Any]:
+        path = out / RECOVERY_AT
+>       assert path.is_file(), sorted(p.name for p in out.iterdir()) if out.is_dir() else out
+               ^^^^^^^^^^^^^^
+E       AssertionError: ['tracer.sqlite']
+
+packages/cli/tests/cli_batchg_support.py:135: AssertionError
+_ test_r1_an_engine_of_the_old_protocol_that_answered_keeps_its_usage_on_a_ctrl_c _
+
+tmp_path = PosixPath('<tmp>)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10de41160>
+
+    def test_r1_an_engine_of_the_old_protocol_that_answered_keeps_its_usage_on_a_ctrl_c(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        pipeline = importlib.import_module("tracer_evalcore.pipeline")
+        interrupt = KeyboardInterrupt()
+    
+        def boom(*args: Any, **kwargs: Any) -> Any:
+            raise interrupt
+    
+        monkeypatch.setattr(pipeline, "score_results", boom)
+        inputs = new_inputs(tmp_path, "a")
+        engine = PlainEngine()
+        result = run_capture(g_args(inputs), engine=engine)
+        assert result.error is interrupt
+        assert engine.calls == 1
+        assert engine.closed == 1
+>       document = read_recovery(inputs.out)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/cli/tests/test_cli_batch_i_recovery.py:406: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+out = PosixPath('<tmp>)
+
+    def read_recovery(out: Path) -> dict[str, Any]:
+        path = out / RECOVERY_AT
+>       assert path.is_file(), sorted(p.name for p in out.iterdir()) if out.is_dir() else out
+               ^^^^^^^^^^^^^^
+E       AssertionError: ['tracer.sqlite']
+
+packages/cli/tests/cli_batchg_support.py:135: AssertionError
+_ test_r1_a_ctrl_c_while_the_store_is_written_keeps_the_usage_and_is_raised_again _
+
+tmp_path = PosixPath('<tmp>)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10e2e11d0>
+
+    def test_r1_a_ctrl_c_while_the_store_is_written_keeps_the_usage_and_is_raised_again(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        # The answer is in memory and paid for; the store was not written: the usage is kept.
+        # No report is written for a Ctrl-C (contract section 1.6).
+        interrupt = KeyboardInterrupt()
+    
+        def boom(*args: Any, **kwargs: Any) -> Any:
+            raise interrupt
+    
+        monkeypatch.setattr(store_mod(), "store_run", boom)
+        inputs = new_inputs(tmp_path, "a")
+        script = SarvamScript()
+        result, _ = sarvam_capture(inputs, script=script)
+        assert result.error is interrupt
+        assert result.err == ""
+>       document = read_recovery(inputs.out)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/cli/tests/test_cli_batch_i_recovery.py:437: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+out = PosixPath('<tmp>)
+
+    def read_recovery(out: Path) -> dict[str, Any]:
+        path = out / RECOVERY_AT
+>       assert path.is_file(), sorted(p.name for p in out.iterdir()) if out.is_dir() else out
+               ^^^^^^^^^^^^^^
+E       AssertionError: ['sarvam_call_log.jsonl', 'tracer.sqlite']
+
+packages/cli/tests/cli_batchg_support.py:135: AssertionError
+_ test_r2_a_recovery_file_that_cannot_be_created_is_said_in_the_pipeline_path __
+
+tmp_path = PosixPath('<tmp>)
+
+    def test_r2_a_recovery_file_that_cannot_be_created_is_said_in_the_pipeline_path(
+        tmp_path: Path,
+    ) -> None:
+        inputs = new_inputs(tmp_path, "a")
+        inputs.out.mkdir(mode=0o700)
+        (inputs.out / RECOVERY_AT).write_text("earlier", "ascii")
+        script = FailingScript(1, RuntimeError(LEAK))
+        result, _ = sarvam_capture(inputs, script=script)
+        _unexpected(result, "RuntimeError")
+>       assert result.out == "usage recovery: not written\n"
+E       AssertionError: assert '' == 'usage recove...not written\n'
+E         
+E         - usage recovery: not written
+
+packages/cli/tests/test_cli_batch_i_recovery.py:459: AssertionError
+___ test_r2_a_writer_that_fails_with_another_error_is_said_and_hides_nothing ___
+
+tmp_path = PosixPath('<tmp>)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10dbcc440>
+
+    def test_r2_a_writer_that_fails_with_another_error_is_said_and_hides_nothing(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        _break_writer(monkeypatch, "json")
+        inputs = new_inputs(tmp_path, "a")
+        script = FailingScript(1, RuntimeError(LEAK))
+        result, _ = sarvam_capture(inputs, script=script)
+        # the error the user sees is the one that ended the send, not the one of the writer
+        _unexpected(result, "RuntimeError")
+>       assert result.out == "usage recovery: not written\n"
+E       AssertionError: assert '' == 'usage recove...not written\n'
+E         
+E         - usage recovery: not written
+
+packages/cli/tests/test_cli_batch_i_recovery.py:473: AssertionError
+_____ test_r2_a_ctrl_c_is_still_raised_when_the_recovery_cannot_be_written _____
+
+tmp_path = PosixPath('<tmp>)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10dfd5be0>
+
+    def test_r2_a_ctrl_c_is_still_raised_when_the_recovery_cannot_be_written(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        _break_writer(monkeypatch, "json")
+        inputs = new_inputs(tmp_path, "a")
+        interrupt = KeyboardInterrupt()
+        result, _ = sarvam_capture(inputs, script=FailingScript(1, interrupt))
+        assert result.error is interrupt
+>       assert result.out == "usage recovery: not written\n"
+E       AssertionError: assert '' == 'usage recove...not written\n'
+E         
+E         - usage recovery: not written
+
+packages/cli/tests/test_cli_batch_i_recovery.py:486: AssertionError
+_ test_r2_a_store_path_writer_that_fails_with_another_error_still_writes_the_report[json] _
+
+tmp_path = PosixPath('<tmp>)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10df03230>
+patched = 'json'
+
+    @pytest.mark.parametrize("patched", ["json", "dump"])
+    def test_r2_a_store_path_writer_that_fails_with_another_error_still_writes_the_report(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch, patched: str
+    ) -> None:
+        _boom_store(monkeypatch)
+        _break_writer(monkeypatch, patched)
+        inputs = new_inputs(tmp_path, "a")
+        script = SarvamScript()
+        result, _ = sarvam_capture(inputs, script=script)
+        out = inputs.out
+        assert result.error is None, "a TypeError of the writer must not leave run()"
+        assert result.code == 1
+>       assert result.err == "error: unexpected failure (RuntimeError)\n"
+E       AssertionError: assert 'error: unexp...(TypeError)\n' == 'error: unexp...ntimeError)\n'
+E         
+E         - error: unexpected failure (RuntimeError)
+E         ?                            ^^^^^^
+E         + error: unexpected failure (TypeError)
+E         ?                            ^^^
+
+packages/cli/tests/test_cli_batch_i_recovery.py:522: AssertionError
+_ test_r2_a_store_path_writer_that_fails_with_another_error_still_writes_the_report[dump] _
+
+tmp_path = PosixPath('<tmp>)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10e01f3f0>
+patched = 'dump'
+
+    @pytest.mark.parametrize("patched", ["json", "dump"])
+    def test_r2_a_store_path_writer_that_fails_with_another_error_still_writes_the_report(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch, patched: str
+    ) -> None:
+        _boom_store(monkeypatch)
+        _break_writer(monkeypatch, patched)
+        inputs = new_inputs(tmp_path, "a")
+        script = SarvamScript()
+        result, _ = sarvam_capture(inputs, script=script)
+        out = inputs.out
+        assert result.error is None, "a TypeError of the writer must not leave run()"
+        assert result.code == 1
+>       assert result.err == "error: unexpected failure (RuntimeError)\n"
+E       AssertionError: assert 'error: unexp...(TypeError)\n' == 'error: unexp...ntimeError)\n'
+E         
+E         - error: unexpected failure (RuntimeError)
+E         ?                            ^^^^^^
+E         + error: unexpected failure (TypeError)
+E         ?                            ^^^
+
+packages/cli/tests/test_cli_batch_i_recovery.py:522: AssertionError
+_ test_r2_a_store_path_writer_that_fails_does_not_stop_the_report_of_an_injected_engine _
+
+tmp_path = PosixPath('<tmp>)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10de42cf0>
+
+    def test_r2_a_store_path_writer_that_fails_does_not_stop_the_report_of_an_injected_engine(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        _boom_store(monkeypatch)
+        _break_writer(monkeypatch, "json")
+        inputs = new_inputs(tmp_path, "a")
+        result = run_capture(g_args(inputs))
+        assert result.code == 1
+>       assert result.value("usage recovery") == "not written"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+packages/cli/tests/test_cli_batch_i_recovery.py:542: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = Captured(code=1, error=None, out='', err='error: unexpected failure (TypeError)\n', engine=FakeEngine(chunk_scripts=[C...ne, policy_ref=None, delete_on_expiry=False)), configured_language='mr'))], warnings=()), factory_calls=1, requests=[])
+label = 'usage recovery'
+
+    def value(self, label: str) -> str:
+        found = [line for line in self.out.splitlines() if line.startswith(f"{label}: ")]
+>       assert len(found) == 1, (label, self.out)
+               ^^^^^^^^^^^^^^^
+E       AssertionError: ('usage recovery', '')
+
+packages/cli/tests/cli_batchi_support.py:67: AssertionError
+_ test_the_engine_declares_that_it_streams_usage_and_takes_on_usage_by_keyword _
+
+    def test_the_engine_declares_that_it_streams_usage_and_takes_on_usage_by_keyword() -> None:
+        cls = engine_mod().SarvamStt
+>       assert cls.streams_usage is True
+               ^^^^^^^^^^^^^^^^^
+E       AttributeError: type object 'SarvamStt' has no attribute 'streams_usage'
+
+packages/evalproviders/tests/test_sarvam_usage_stream.py:62: AttributeError
+__________ test_the_streaming_protocol_of_evalcore_accepts_the_engine __________
+
+tmp_path = PosixPath('<tmp>)
+
+    def test_the_streaming_protocol_of_evalcore_accepts_the_engine(tmp_path: Path) -> None:
+>       protocol = stt().UsageStreamingSttEngine
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalcore.stt' has no attribute 'UsageStreamingSttEngine'
+
+packages/evalproviders/tests/test_sarvam_usage_stream.py:75: AttributeError
+_________ test_each_record_is_handed_out_before_the_next_chunk_is_sent _________
+
+tmp_path = PosixPath('<tmp>)
+
+    def test_each_record_is_handed_out_before_the_next_chunk_is_sent(tmp_path: Path) -> None:
+        sink = Sink()
+        seen: list[tuple[int, int]] = []
+    
+        def step(i: int) -> Any:
+            def respond(request: httpx.Request) -> httpx.Response:
+                seen.append((i, len(sink.records)))
+                return _ok(i)
+    
+            return respond
+    
+        rig = Rig(tmp_path, [step(0), step(1), step(2)])
+>       rig.engine().transcribe(small_plan(), context("mr"), on_usage=sink)
+E       TypeError: SarvamStt.transcribe() got an unexpected keyword argument 'on_usage'
+
+packages/evalproviders/tests/test_sarvam_usage_stream.py:95: TypeError
+_ test_the_records_are_one_per_chunk_in_chunk_order_and_are_the_outcome_records _
+
+tmp_path = PosixPath('<tmp>)
+
+    def test_the_records_are_one_per_chunk_in_chunk_order_and_are_the_outcome_records(
+        tmp_path: Path,
+    ) -> None:
+        sink = Sink()
+        ctx = context("mr")
+        plan = small_plan()
+        rig = Rig(tmp_path, [_ok(0), _ok(1), _ok(2)])
+>       outcome = rig.engine().transcribe(plan, ctx, on_usage=sink)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: SarvamStt.transcribe() got an unexpected keyword argument 'on_usage'
+
+packages/evalproviders/tests/test_sarvam_usage_stream.py:107: TypeError
+_______________ test_without_on_usage_the_outcome_is_what_it_was _______________
+
+tmp_path = PosixPath('<tmp>)
+
+    def test_without_on_usage_the_outcome_is_what_it_was(tmp_path: Path) -> None:
+        rig_a = Rig(tmp_path / "a", [_ok(0), _ok(1), _ok(2)])
+        plain = rig_a.engine().transcribe(small_plan(), context("mr"))
+        rig_b = Rig(tmp_path / "b", [_ok(0), _ok(1), _ok(2)])
+>       explicit = rig_b.engine().transcribe(small_plan(), context("mr"), on_usage=None)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: SarvamStt.transcribe() got an unexpected keyword argument 'on_usage'
+
+packages/evalproviders/tests/test_sarvam_usage_stream.py:130: TypeError
+___________________ test_a_retried_chunk_is_handed_out_once ____________________
+
+tmp_path = PosixPath('<tmp>)
+
+    def test_a_retried_chunk_is_handed_out_once(tmp_path: Path) -> None:
+        sink = Sink()
+        rig = Rig(tmp_path, [_ok(0), _bad(503), _ok(1), _ok(2)])
+>       outcome = rig.engine().transcribe(small_plan(), context("mr"), on_usage=sink)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: SarvamStt.transcribe() got an unexpected keyword argument 'on_usage'
+
+packages/evalproviders/tests/test_sarvam_usage_stream.py:139: TypeError
+_________________ test_a_plan_without_chunks_hands_nothing_out _________________
+
+tmp_path = PosixPath('<tmp>)
+
+    def test_a_plan_without_chunks_hands_nothing_out(tmp_path: Path) -> None:
+        sink = Sink()
+        plan = chunk_pcm(b"", sample_rate_hz=24000, channels=1)
+        rig = Rig(tmp_path, [])
+>       outcome = rig.engine().transcribe(plan, context("mr"), on_usage=sink)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: SarvamStt.transcribe() got an unexpected keyword argument 'on_usage'
+
+packages/evalproviders/tests/test_sarvam_usage_stream.py:149: TypeError
+____ test_a_language_the_engine_refuses_hands_nothing_out_and_sends_nothing ____
+
+tmp_path = PosixPath('<tmp>)
+
+    def test_a_language_the_engine_refuses_hands_nothing_out_and_sends_nothing(tmp_path: Path) -> None:
+        sink = Sink()
+        rig = Rig(tmp_path, [_ok(0)])
+        with pytest.raises(stt().SttLanguageNotSupportedError):
+>           rig.engine().transcribe(small_plan(), context("hi"), on_usage=sink)
+E           TypeError: SarvamStt.transcribe() got an unexpected keyword argument 'on_usage'
+
+packages/evalproviders/tests/test_sarvam_usage_stream.py:159: TypeError
+____ test_a_chunk_that_fails_with_an_stt_error_leaves_the_records_before_it ____
+
+tmp_path = PosixPath('<tmp>)
+
+    def test_a_chunk_that_fails_with_an_stt_error_leaves_the_records_before_it(tmp_path: Path) -> None:
+        sink = Sink()
+        rig = Rig(tmp_path, [_ok(0), _bad(403)])
+>       outcome = rig.engine().transcribe(small_plan(), context("mr"), on_usage=sink)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: SarvamStt.transcribe() got an unexpected keyword argument 'on_usage'
+
+packages/evalproviders/tests/test_sarvam_usage_stream.py:170: TypeError
+_ test_an_exception_of_the_transport_on_chunk_2_leaves_the_record_of_chunk_1[RuntimeError] _
+
+tmp_path = PosixPath('<tmp>)
+exc = RuntimeError('boom')
+
+    @pytest.mark.parametrize(
+        "exc",
+        [RuntimeError("boom"), ValueError("boom"), KeyboardInterrupt(), OSError(errno.EIO, "boom")],
+        ids=["RuntimeError", "ValueError", "KeyboardInterrupt", "OSError"],
+    )
+    def test_an_exception_of_the_transport_on_chunk_2_leaves_the_record_of_chunk_1(
+        tmp_path: Path, exc: BaseException
+    ) -> None:
+        sink = Sink()
+        rig = Rig(tmp_path, [_ok(0), exc])
+        with pytest.raises(type(exc)) as raised:
+>           rig.engine().transcribe(small_plan(), context("mr"), on_usage=sink)
+E           TypeError: SarvamStt.transcribe() got an unexpected keyword argument 'on_usage'
+
+packages/evalproviders/tests/test_sarvam_usage_stream.py:188: TypeError
+_ test_an_exception_of_the_transport_on_chunk_2_leaves_the_record_of_chunk_1[ValueError] _
+
+tmp_path = PosixPath('<tmp>)
+exc = ValueError('boom')
+
+    @pytest.mark.parametrize(
+        "exc",
+        [RuntimeError("boom"), ValueError("boom"), KeyboardInterrupt(), OSError(errno.EIO, "boom")],
+        ids=["RuntimeError", "ValueError", "KeyboardInterrupt", "OSError"],
+    )
+    def test_an_exception_of_the_transport_on_chunk_2_leaves_the_record_of_chunk_1(
+        tmp_path: Path, exc: BaseException
+    ) -> None:
+        sink = Sink()
+        rig = Rig(tmp_path, [_ok(0), exc])
+        with pytest.raises(type(exc)) as raised:
+>           rig.engine().transcribe(small_plan(), context("mr"), on_usage=sink)
+E           TypeError: SarvamStt.transcribe() got an unexpected keyword argument 'on_usage'
+
+packages/evalproviders/tests/test_sarvam_usage_stream.py:188: TypeError
+_ test_an_exception_of_the_transport_on_chunk_2_leaves_the_record_of_chunk_1[KeyboardInterrupt] _
+
+tmp_path = PosixPath('<tmp>)
+exc = KeyboardInterrupt()
+
+    @pytest.mark.parametrize(
+        "exc",
+        [RuntimeError("boom"), ValueError("boom"), KeyboardInterrupt(), OSError(errno.EIO, "boom")],
+        ids=["RuntimeError", "ValueError", "KeyboardInterrupt", "OSError"],
+    )
+    def test_an_exception_of_the_transport_on_chunk_2_leaves_the_record_of_chunk_1(
+        tmp_path: Path, exc: BaseException
+    ) -> None:
+        sink = Sink()
+        rig = Rig(tmp_path, [_ok(0), exc])
+        with pytest.raises(type(exc)) as raised:
+>           rig.engine().transcribe(small_plan(), context("mr"), on_usage=sink)
+E           TypeError: SarvamStt.transcribe() got an unexpected keyword argument 'on_usage'
+
+packages/evalproviders/tests/test_sarvam_usage_stream.py:188: TypeError
+_ test_an_exception_of_the_transport_on_chunk_2_leaves_the_record_of_chunk_1[OSError] _
+
+tmp_path = PosixPath('<tmp>)
+exc = OSError(5, 'boom')
+
+    @pytest.mark.parametrize(
+        "exc",
+        [RuntimeError("boom"), ValueError("boom"), KeyboardInterrupt(), OSError(errno.EIO, "boom")],
+        ids=["RuntimeError", "ValueError", "KeyboardInterrupt", "OSError"],
+    )
+    def test_an_exception_of_the_transport_on_chunk_2_leaves_the_record_of_chunk_1(
+        tmp_path: Path, exc: BaseException
+    ) -> None:
+        sink = Sink()
+        rig = Rig(tmp_path, [_ok(0), exc])
+        with pytest.raises(type(exc)) as raised:
+>           rig.engine().transcribe(small_plan(), context("mr"), on_usage=sink)
+E           TypeError: SarvamStt.transcribe() got an unexpected keyword argument 'on_usage'
+
+packages/evalproviders/tests/test_sarvam_usage_stream.py:188: TypeError
+_ test_an_oserror_of_the_call_log_before_chunk_2_leaves_the_record_of_chunk_1 __
+
+tmp_path = PosixPath('<tmp>)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10df96eb0>
+
+    def test_an_oserror_of_the_call_log_before_chunk_2_leaves_the_record_of_chunk_1(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        calllog = calllog_mod()
+        real = calllog.CallLog._write
+        seen = {"n": 0}
+    
+        def write(self: Any, *args: Any, **kwargs: Any) -> Any:
+            seen["n"] += 1
+            if seen["n"] == 3:
+                raise OSError(errno.ENOSPC, "no space")
+            return real(self, *args, **kwargs)
+    
+        monkeypatch.setattr(calllog.CallLog, "_write", write)
+        sink = Sink()
+        rig = Rig(tmp_path, [_ok(0), _ok(1)])
+        with pytest.raises(OSError, match="no space"):
+>           rig.engine().transcribe(small_plan(), context("mr"), on_usage=sink)
+E           TypeError: SarvamStt.transcribe() got an unexpected keyword argument 'on_usage'
+
+packages/evalproviders/tests/test_sarvam_usage_stream.py:212: TypeError
+________ test_an_observer_that_raises_stops_the_send_and_is_not_hidden _________
+
+tmp_path = PosixPath('<tmp>)
+
+    def test_an_observer_that_raises_stops_the_send_and_is_not_hidden(tmp_path: Path) -> None:
+        # An observer that cannot keep a record must not let the engine go on paying for chunks
+        # nobody accounts for: its exception leaves transcribe unchanged and no further chunk is sent.
+        class Broken(Exception):
+            pass
+    
+        def observer(record: Any) -> None:
+            raise Broken
+    
+        rig = Rig(tmp_path, [_ok(0), _ok(1), _ok(2)])
+        with pytest.raises(Broken):
+>           rig.engine().transcribe(small_plan(), context("mr"), on_usage=observer)
+E           TypeError: SarvamStt.transcribe() got an unexpected keyword argument 'on_usage'
+
+packages/evalproviders/tests/test_sarvam_usage_stream.py:228: TypeError
+_______ test_the_module_exports_the_two_new_names_and_keeps_the_old_ones _______
+
+    def test_the_module_exports_the_two_new_names_and_keeps_the_old_ones() -> None:
+        for name in ("UsageSink", "UsageStreamingSttEngine"):
+>           assert name in stt.__all__, name
+E           AssertionError: UsageSink
+E           assert 'UsageSink' in ['SttAuthError', 'SttConfigurationError', 'SttContext', 'SttEngine', 'SttError', 'SttKeyMissingError', ...]
+E            +  where ['SttAuthError', 'SttConfigurationError', 'SttContext', 'SttEngine', 'SttError', 'SttKeyMissingError', ...] = stt.__all__
+
+packages/evalcore/tests/test_stt_usage_streaming.py:28: AssertionError
+_ test_an_engine_of_the_old_protocol_is_an_stt_engine_and_not_a_streaming_one __
+
+    def test_an_engine_of_the_old_protocol_is_an_stt_engine_and_not_a_streaming_one() -> None:
+        engine = FakeEngine()
+        assert isinstance(engine, stt.SttEngine)
+>       assert not isinstance(engine, stt.UsageStreamingSttEngine)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalcore.stt' has no attribute 'UsageStreamingSttEngine'
+
+packages/evalcore/tests/test_stt_usage_streaming.py:43: AttributeError
+______ test_an_engine_with_the_flag_and_the_keyword_is_a_streaming_engine ______
+
+    def test_an_engine_with_the_flag_and_the_keyword_is_a_streaming_engine() -> None:
+        class Streaming:
+            streams_usage = True
+    
+            def transcribe(self, plan: Any, context: Any, *, on_usage: Any = None) -> Any:
+                raise NotImplementedError
+    
+        engine = Streaming()
+        assert isinstance(engine, stt.SttEngine)
+>       assert isinstance(engine, stt.UsageStreamingSttEngine)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalcore.stt' has no attribute 'UsageStreamingSttEngine'
+
+packages/evalcore/tests/test_stt_usage_streaming.py:55: AttributeError
+________ test_the_streaming_protocol_needs_the_flag_not_only_the_method ________
+
+    def test_the_streaming_protocol_needs_the_flag_not_only_the_method() -> None:
+        class NoFlag:
+            def transcribe(self, plan: Any, context: Any, *, on_usage: Any = None) -> Any:
+                raise NotImplementedError
+    
+        assert isinstance(NoFlag(), stt.SttEngine)
+>       assert not isinstance(NoFlag(), stt.UsageStreamingSttEngine)
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalcore.stt' has no attribute 'UsageStreamingSttEngine'
+
+packages/evalcore/tests/test_stt_usage_streaming.py:64: AttributeError
+_ test_the_streaming_transcribe_takes_on_usage_by_keyword_with_a_none_default __
+
+    def test_the_streaming_transcribe_takes_on_usage_by_keyword_with_a_none_default() -> None:
+>       parameter = inspect.signature(stt.UsageStreamingSttEngine.transcribe).parameters["on_usage"]
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalcore.stt' has no attribute 'UsageStreamingSttEngine'
+
+packages/evalcore/tests/test_stt_usage_streaming.py:68: AttributeError
+=========================== short test summary info ============================
+FAILED packages/cli/tests/test_cli_batch_i_docs.py::test_r3_the_documents_say_the_leaf_directory_is_0700_and_the_parents_follow_the_umask[concept page]
+FAILED packages/cli/tests/test_cli_batch_i_docs.py::test_r3_the_documents_say_the_leaf_directory_is_0700_and_the_parents_follow_the_umask[ADR 0024]
+FAILED packages/cli/tests/test_cli_batch_i_docs.py::test_r3_the_concept_page_says_an_existing_out_earns_a_warning
+FAILED packages/cli/tests/test_cli_batch_i_docs.py::test_r3_the_run_book_says_who_creates_the_out_directory_and_what_the_code_does
+FAILED packages/cli/tests/test_cli_batch_i_docs.py::test_r1_adr_0024_names_the_streaming_interface_and_the_ctrl_c_case
+FAILED packages/cli/tests/test_cli_batch_i_docs.py::test_r6_adr_0024_names_the_refusal_of_a_linked_store
+FAILED packages/cli/tests/test_cli_batch_i_instant.py::test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T24:00:00Z]
+FAILED packages/cli/tests/test_cli_batch_i_instant.py::test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T24:00:00+05:30]
+FAILED packages/cli/tests/test_cli_batch_i_instant.py::test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T24:00:00-08:00]
+FAILED packages/cli/tests/test_cli_batch_i_instant.py::test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T24:00:00.000000Z]
+FAILED packages/cli/tests/test_cli_batch_i_instant.py::test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T24:00:00.5Z]
+FAILED packages/cli/tests/test_cli_batch_i_instant.py::test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T24:00:01Z]
+FAILED packages/cli/tests/test_cli_batch_i_instant.py::test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T24:30:00Z]
+FAILED packages/cli/tests/test_cli_batch_i_instant.py::test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T24:59:59Z]
+FAILED packages/cli/tests/test_cli_batch_i_instant.py::test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T24:00:00+00:00]
+FAILED packages/cli/tests/test_cli_batch_i_instant.py::test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-12-31T24:00:00Z]
+FAILED packages/cli/tests/test_cli_batch_i_instant.py::test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-02-28T24:00:00Z]
+FAILED packages/cli/tests/test_cli_batch_i_instant.py::test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T25:00:00Z]
+FAILED packages/cli/tests/test_cli_batch_i_instant.py::test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T99:00:00Z]
+FAILED packages/cli/tests/test_cli_batch_i_instant.py::test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T10:60:00Z]
+FAILED packages/cli/tests/test_cli_batch_i_instant.py::test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T10:00:60Z]
+FAILED packages/cli/tests/test_cli_batch_i_instant.py::test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T10:00:00+24:00]
+FAILED packages/cli/tests/test_cli_batch_i_instant.py::test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T10:00:00-24:00]
+FAILED packages/cli/tests/test_cli_batch_i_instant.py::test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T10:00:00+05:60]
+FAILED packages/cli/tests/test_cli_batch_i_instant.py::test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T10:00:00-05:60]
+FAILED packages/cli/tests/test_cli_batch_i_instant.py::test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T10:00:00+05:99]
+FAILED packages/cli/tests/test_cli_batch_i_instant.py::test_r5_the_pattern_refuses_an_hour_24_and_the_other_time_ranges_on_every_python[2026-10-20T10:00:00+99:00]
+FAILED packages/cli/tests/test_cli_batch_i_instant.py::test_r5_the_converter_refuses_with_an_argument_type_error[2026-10-20T10:00:00+05:60]
+FAILED packages/cli/tests/test_cli_batch_i_instant.py::test_r5_the_converter_refuses_with_an_argument_type_error[2026-10-20T10:00:00-05:60]
+FAILED packages/cli/tests/test_cli_batch_i_instant.py::test_r5_the_converter_refuses_with_an_argument_type_error[2026-10-20T10:00:00+05:99]
+FAILED packages/cli/tests/test_cli_batch_i_instant.py::test_r5_consent_recorded_at_out_of_range_is_a_usage_error[2026-10-20T10:00:00+05:60]
+FAILED packages/cli/tests/test_cli_batch_i_instant.py::test_r5_consent_recorded_at_out_of_range_is_a_usage_error[2026-10-20T10:00:00-05:60]
+FAILED packages/cli/tests/test_cli_batch_i_instant.py::test_r5_consent_recorded_at_out_of_range_is_a_usage_error[2026-10-20T10:00:00+05:99]
+FAILED packages/cli/tests/test_cli_batch_i_output.py::test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning[493]
+FAILED packages/cli/tests/test_cli_batch_i_output.py::test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning[488]
+FAILED packages/cli/tests/test_cli_batch_i_output.py::test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning[453]
+FAILED packages/cli/tests/test_cli_batch_i_output.py::test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning[504]
+FAILED packages/cli/tests/test_cli_batch_i_output.py::test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning[511]
+FAILED packages/cli/tests/test_cli_batch_i_output.py::test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning[509]
+FAILED packages/cli/tests/test_cli_batch_i_output.py::test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning[449]
+FAILED packages/cli/tests/test_cli_batch_i_output.py::test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning[456]
+FAILED packages/cli/tests/test_cli_batch_i_output.py::test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning[480]
+FAILED packages/cli/tests/test_cli_batch_i_output.py::test_r3_an_existing_out_with_group_or_other_bits_earns_exactly_one_warning[452]
+FAILED packages/cli/tests/test_cli_batch_i_output.py::test_r3_the_warning_is_the_same_over_the_sarvam_engine_and_a_replay
+FAILED packages/cli/tests/test_cli_batch_i_output.py::test_r3_the_warning_comes_before_the_embed_warning
+FAILED packages/cli/tests/test_cli_batch_i_output.py::test_r3_the_warning_does_not_change_the_exit_code_of_a_failure_after_the_send
+FAILED packages/cli/tests/test_cli_batch_i_output.py::test_r3_the_special_bits_are_not_shown[1517-0755]
+FAILED packages/cli/tests/test_cli_batch_i_output.py::test_r3_the_special_bits_are_not_shown[1000-0750]
+FAILED packages/cli/tests/test_cli_batch_i_output.py::test_r6_a_link_in_place_of_the_store_is_refused_before_the_engine[file]
+FAILED packages/cli/tests/test_cli_batch_i_output.py::test_r6_a_link_in_place_of_the_store_is_refused_before_the_engine[directory]
+FAILED packages/cli/tests/test_cli_batch_i_output.py::test_r6_a_link_in_place_of_the_store_is_refused_before_the_engine[dangling]
+FAILED packages/cli/tests/test_cli_batch_i_output.py::test_r6_the_same_over_the_real_sarvam_engine_sends_and_creates_nothing[file]
+FAILED packages/cli/tests/test_cli_batch_i_output.py::test_r6_the_same_over_the_real_sarvam_engine_sends_and_creates_nothing[directory]
+FAILED packages/cli/tests/test_cli_batch_i_output.py::test_r6_the_same_over_the_real_sarvam_engine_sends_and_creates_nothing[dangling]
+FAILED packages/cli/tests/test_cli_batch_i_output.py::test_r6_the_store_itself_refuses_a_link_so_a_late_planted_one_is_caught[file]
+FAILED packages/cli/tests/test_cli_batch_i_output.py::test_r6_the_store_itself_refuses_a_link_so_a_late_planted_one_is_caught[directory]
+FAILED packages/cli/tests/test_cli_batch_i_output.py::test_r6_the_store_itself_refuses_a_link_so_a_late_planted_one_is_caught[dangling]
+FAILED packages/cli/tests/test_cli_batch_i_recovery.py::test_r1_an_exception_of_the_transport_on_chunk_2_keeps_the_usage_of_chunk_1[RuntimeError]
+FAILED packages/cli/tests/test_cli_batch_i_recovery.py::test_r1_an_exception_of_the_transport_on_chunk_2_keeps_the_usage_of_chunk_1[ValueError]
+FAILED packages/cli/tests/test_cli_batch_i_recovery.py::test_r1_an_exception_of_the_transport_on_chunk_2_keeps_the_usage_of_chunk_1[OSError]
+FAILED packages/cli/tests/test_cli_batch_i_recovery.py::test_r1_an_exception_of_the_transport_on_chunk_2_keeps_the_usage_of_chunk_1[ZeroDivisionError]
+FAILED packages/cli/tests/test_cli_batch_i_recovery.py::test_r1_an_exception_of_the_transport_on_chunk_2_keeps_the_usage_of_chunk_1[LookupError]
+FAILED packages/cli/tests/test_cli_batch_i_recovery.py::test_r1_the_usage_of_every_answered_chunk_is_kept_whatever_chunk_fails[1]
+FAILED packages/cli/tests/test_cli_batch_i_recovery.py::test_r1_the_usage_of_every_answered_chunk_is_kept_whatever_chunk_fails[2]
+FAILED packages/cli/tests/test_cli_batch_i_recovery.py::test_r1_the_usage_of_every_answered_chunk_is_kept_whatever_chunk_fails[3]
+FAILED packages/cli/tests/test_cli_batch_i_recovery.py::test_r1_a_ctrl_c_on_chunk_2_keeps_the_usage_of_chunk_1_and_is_raised_again
+FAILED packages/cli/tests/test_cli_batch_i_recovery.py::test_r1_a_ctrl_c_on_the_last_of_four_chunks_keeps_the_three_that_were_answered
+FAILED packages/cli/tests/test_cli_batch_i_recovery.py::test_r1_a_failure_during_the_alignment_keeps_the_usage_of_both_chunks[KeyboardInterrupt]
+FAILED packages/cli/tests/test_cli_batch_i_recovery.py::test_r1_a_call_log_error_before_chunk_2_keeps_the_usage_of_chunk_1
+FAILED packages/cli/tests/test_cli_batch_i_recovery.py::test_r1_a_call_log_error_after_chunk_2_was_sent_keeps_only_the_answer_that_was_read
+FAILED packages/cli/tests/test_cli_batch_i_recovery.py::test_r1_the_command_hands_an_engine_that_streams_usage_a_callback
+FAILED packages/cli/tests/test_cli_batch_i_recovery.py::test_r1_an_engine_that_streams_usage_and_dies_leaves_the_records_it_handed_out
+FAILED packages/cli/tests/test_cli_batch_i_recovery.py::test_r1_an_engine_of_the_old_protocol_that_answered_keeps_its_usage_on_a_ctrl_c
+FAILED packages/cli/tests/test_cli_batch_i_recovery.py::test_r1_a_ctrl_c_while_the_store_is_written_keeps_the_usage_and_is_raised_again
+FAILED packages/cli/tests/test_cli_batch_i_recovery.py::test_r2_a_recovery_file_that_cannot_be_created_is_said_in_the_pipeline_path
+FAILED packages/cli/tests/test_cli_batch_i_recovery.py::test_r2_a_writer_that_fails_with_another_error_is_said_and_hides_nothing
+FAILED packages/cli/tests/test_cli_batch_i_recovery.py::test_r2_a_ctrl_c_is_still_raised_when_the_recovery_cannot_be_written
+FAILED packages/cli/tests/test_cli_batch_i_recovery.py::test_r2_a_store_path_writer_that_fails_with_another_error_still_writes_the_report[json]
+FAILED packages/cli/tests/test_cli_batch_i_recovery.py::test_r2_a_store_path_writer_that_fails_with_another_error_still_writes_the_report[dump]
+FAILED packages/cli/tests/test_cli_batch_i_recovery.py::test_r2_a_store_path_writer_that_fails_does_not_stop_the_report_of_an_injected_engine
+FAILED packages/evalproviders/tests/test_sarvam_usage_stream.py::test_the_engine_declares_that_it_streams_usage_and_takes_on_usage_by_keyword
+FAILED packages/evalproviders/tests/test_sarvam_usage_stream.py::test_the_streaming_protocol_of_evalcore_accepts_the_engine
+FAILED packages/evalproviders/tests/test_sarvam_usage_stream.py::test_each_record_is_handed_out_before_the_next_chunk_is_sent
+FAILED packages/evalproviders/tests/test_sarvam_usage_stream.py::test_the_records_are_one_per_chunk_in_chunk_order_and_are_the_outcome_records
+FAILED packages/evalproviders/tests/test_sarvam_usage_stream.py::test_without_on_usage_the_outcome_is_what_it_was
+FAILED packages/evalproviders/tests/test_sarvam_usage_stream.py::test_a_retried_chunk_is_handed_out_once
+FAILED packages/evalproviders/tests/test_sarvam_usage_stream.py::test_a_plan_without_chunks_hands_nothing_out
+FAILED packages/evalproviders/tests/test_sarvam_usage_stream.py::test_a_language_the_engine_refuses_hands_nothing_out_and_sends_nothing
+FAILED packages/evalproviders/tests/test_sarvam_usage_stream.py::test_a_chunk_that_fails_with_an_stt_error_leaves_the_records_before_it
+FAILED packages/evalproviders/tests/test_sarvam_usage_stream.py::test_an_exception_of_the_transport_on_chunk_2_leaves_the_record_of_chunk_1[RuntimeError]
+FAILED packages/evalproviders/tests/test_sarvam_usage_stream.py::test_an_exception_of_the_transport_on_chunk_2_leaves_the_record_of_chunk_1[ValueError]
+FAILED packages/evalproviders/tests/test_sarvam_usage_stream.py::test_an_exception_of_the_transport_on_chunk_2_leaves_the_record_of_chunk_1[KeyboardInterrupt]
+FAILED packages/evalproviders/tests/test_sarvam_usage_stream.py::test_an_exception_of_the_transport_on_chunk_2_leaves_the_record_of_chunk_1[OSError]
+FAILED packages/evalproviders/tests/test_sarvam_usage_stream.py::test_an_oserror_of_the_call_log_before_chunk_2_leaves_the_record_of_chunk_1
+FAILED packages/evalproviders/tests/test_sarvam_usage_stream.py::test_an_observer_that_raises_stops_the_send_and_is_not_hidden
+FAILED packages/evalcore/tests/test_stt_usage_streaming.py::test_the_module_exports_the_two_new_names_and_keeps_the_old_ones
+FAILED packages/evalcore/tests/test_stt_usage_streaming.py::test_an_engine_of_the_old_protocol_is_an_stt_engine_and_not_a_streaming_one
+FAILED packages/evalcore/tests/test_stt_usage_streaming.py::test_an_engine_with_the_flag_and_the_keyword_is_a_streaming_engine
+FAILED packages/evalcore/tests/test_stt_usage_streaming.py::test_the_streaming_protocol_needs_the_flag_not_only_the_method
+FAILED packages/evalcore/tests/test_stt_usage_streaming.py::test_the_streaming_transcribe_takes_on_usage_by_keyword_with_a_none_default
+100 failed, 139 passed in 4.38s
