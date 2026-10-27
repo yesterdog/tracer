@@ -33,6 +33,7 @@ HERE = Path(__file__).resolve().parent
 LOOPBACK_MODULES = {
     "test_evalsim_hostile_loopback.py",
     "test_evalsim_loopback_guard.py",
+    "test_evalsim_runner_loopback.py",  # Phase 4 batch E spec change S-E1
     "test_evalsim_webrtc.py",
     "test_evalsim_websocket_loopback.py",
 }

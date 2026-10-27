@@ -111,11 +111,20 @@ def test_adr0004_check_has_teeth(name: str) -> None:
 
 def test_adr0004_check_refuses_pending_sets_that_do_not_fit() -> None:
     text = sup.ADR04.read_text("utf-8")
-    assert _problems(text, frozenset()), "the binding test is not defined yet: it must be pending"
+    # Phase 4 batch E spec change S-E5: the binding test is defined now (P4-21), so the pending set
+    # is empty and the checker accepts that; the refusals are kept by naming a binding test that is
+    # not defined (it must be pending) and one that is (it must leave the pending set)
+    assert _problems(text, frozenset()) == [], "the binding test is defined: nothing is pending"
+    assert sup.check_adr04(
+        text,
+        defined=sup.defined_tests() - {BINDING},
+        pending=frozenset(),
+        scope=sup.scope_names(),
+    ), "a binding test that is not defined must be pending"
     assert _problems(text, sup.PENDING["0004"] | {"test_zz_invented"})
     assert sup.check_adr04(
         text,
         defined=sup.defined_tests() | {BINDING},
-        pending=sup.PENDING["0004"],
+        pending=frozenset({BINDING}),
         scope=sup.scope_names(),
     ), "a name that landed must leave the pending set"

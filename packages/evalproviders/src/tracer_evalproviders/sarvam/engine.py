@@ -21,10 +21,11 @@ from tracer_evalproviders.calllog import CallLog
 from tracer_evalproviders.sarvam.client import SarvamClient
 from tracer_evalproviders.sarvam.mapping import map_responses, map_usage_records
 from tracer_evalproviders.sarvam.models import DEFAULT_MODEL, ChunkResponse, language_code_for
-from tracer_evalproviders.secrets import load_api_key
+from tracer_evalproviders.secrets import load_api_key, load_role_key
+from tracer_evalproviders.simcalllog import SimCallLog
 from tracer_evalschema.usage import UsageRecord
 
-__all__ = ["SarvamStt", "create_sarvam_stt"]
+__all__ = ["SarvamStt", "create_sarvam_stt", "create_sarvam_stt_for_run"]
 
 
 def _utc_now() -> datetime:
@@ -119,3 +120,27 @@ def create_sarvam_stt(
         key, call_log=log, model=model, transport=transport, sleep=sleep, monotonic=monotonic
     )
     return SarvamStt(client, call_log=log)
+
+
+def create_sarvam_stt_for_run(
+    *,
+    call_log: SimCallLog,
+    model: str,
+    environ: Mapping[str, str] | None = None,
+    env_file: str | os.PathLike[str] | None = None,
+    transport: httpx.BaseTransport | None = None,
+    sleep: Callable[[float], None] = time.sleep,
+    monotonic: Callable[[], float] = time.monotonic,
+) -> SarvamStt:
+    """The speech-to-text engine of a simulated run: its request lines go into the one call log of
+    the run (ADR 0024 amendment A8), which the run owns and closes. ``model`` has no default."""
+    key = load_role_key("stt", environ=environ, env_file=env_file)
+    client = SarvamClient(
+        key,
+        call_log=call_log.for_stt(),
+        model=model,
+        transport=transport,
+        sleep=sleep,
+        monotonic=monotonic,
+    )
+    return SarvamStt(client)

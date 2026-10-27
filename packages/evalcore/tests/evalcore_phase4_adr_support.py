@@ -50,19 +50,6 @@ DIALECT_HEADING = "## Dialect specifications"
 # ADR 0026 rules and invariants
 _P0026: frozenset[str] = frozenset(
     {
-        # P4-21
-        "test_order_of_operations_pinned_by_call_trace",
-        "test_refusals_happen_before_any_key_read_or_connect",
-        "test_usage_survives_ctrl_c_mid_call",
-        # P4-23
-        "test_simulate_dry_run_prints_plan_and_sends_nothing",
-        "test_simulate_exit_codes",
-        "test_simulate_never_prints_target_number_or_key",
-        "test_simulate_output_never_claims_accuracy_or_quality",
-        "test_simulate_requires_caps_for_real_engines",
-        # P4-24
-        "test_sim_report_labels_synthetic_audio",
-        "test_sim_report_never_claims_accuracy_or_quality",
         # P4-26
         "test_samplebot_scripted_bot_uses_no_model",
         # P4-27
@@ -93,23 +80,6 @@ _P0026: frozenset[str] = frozenset(
 # ADR 0027 rules and invariants
 _P0027: frozenset[str] = frozenset(
     {
-        # P4-21
-        "test_available_inputs_never_lists_agent_transcript_without_agent_record",
-        "test_privacy_marker_false_only_with_role_evidence",
-        "test_simulated_bundle_passes_check_run_bundle",
-        # P4-22
-        "test_agreement_partition_compares_agent_role_only",
-        "test_median_is_nearest_rank_with_n_recorded",
-        "test_outcome_check_inert_and_no_verdict",
-        "test_partition_changes_scorer_version",
-        "test_timing_definitions_have_no_pass_rule",
-        # P4-24
-        "test_sim_report_labels_synthetic_audio",
-        "test_sim_report_states_outcome_not_evaluated",
-        "test_sim_report_timing_shows_quantum_and_dialect",
-        # P4-25
-        "test_simulated_bundle_stores_on_both_backends",
-        "test_simulated_run_round_trips_through_store_byte_identical",
         # P4-28
         "test_e2e_sim_report_and_store_consistent",
         "test_e2e_sim_synthetic_mr_exact_outputs",
@@ -126,8 +96,6 @@ _P0027: frozenset[str] = frozenset(
 # ADR 0028 rules and invariants
 _P0028: frozenset[str] = frozenset(
     {
-        # P4-23
-        "test_simulate_requires_caps_for_real_engines",
         # P4-31
         "test_target_not_on_allowlist_refused_before_any_key_or_socket",
         # P4-32
@@ -138,13 +106,6 @@ _P0028: frozenset[str] = frozenset(
 # ADR 0029 rules and invariants
 _P0029: frozenset[str] = frozenset(
     {
-        # P4-21
-        "test_order_of_operations_pinned_by_call_trace",
-        "test_refusals_happen_before_any_key_read_or_connect",
-        # P4-23
-        "test_simulate_never_prints_target_number_or_key",
-        # P4-24
-        "test_sim_report_labels_synthetic_audio",
         # P4-30
         "test_key_canaries_never_in_any_output_channel",
         # P4-31
@@ -163,8 +124,6 @@ _P0029: frozenset[str] = frozenset(
 # ADR 0024 Phase 4 amendment (A1-A9, IA1-IA4)
 _P0024A: frozenset[str] = frozenset(
     {
-        # P4-21
-        "test_refusals_happen_before_any_key_read_or_connect",
         # P4-30
         "test_guard_rejects_staged_sim_outputs_and_allowlist",
         "test_key_canaries_never_in_any_output_channel",
@@ -174,15 +133,6 @@ _P0024A: frozenset[str] = frozenset(
 # ADR 0023 Phase 4 amendment (A1-A3, IA1-IA2)
 _P0023A: frozenset[str] = frozenset(
     {
-        # P4-21
-        "test_simulated_bundle_passes_check_run_bundle",
-        # P4-22
-        "test_agreement_partition_compares_agent_role_only",
-        "test_partition_changes_scorer_version",
-        # P4-23
-        "test_simulate_output_never_claims_accuracy_or_quality",
-        # P4-24
-        "test_sim_report_never_claims_accuracy_or_quality",
         # P4-29
         "test_tdeg_sim_export_present_agreement_scored",
         # P4-37
@@ -191,12 +141,7 @@ _P0023A: frozenset[str] = frozenset(
 )
 
 # ADR 0004 Decision 11 and I43
-_P0004: frozenset[str] = frozenset(
-    {
-        # P4-21
-        "test_available_inputs_never_lists_agent_transcript_without_agent_record",
-    }
-)
+_P0004: frozenset[str] = frozenset()
 
 # END PENDING SETS
 

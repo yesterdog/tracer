@@ -489,8 +489,10 @@ def test_phase4_locked_closures_are_the_reviewed_ones() -> None:
             if name not in seen:
                 seen.add(name)
                 todo += [canonicalize_name(d["name"]) for d in lock[name].get("dependencies", [])]
-        assert "websockets" not in seen, dist
-        assert "tracer-evalsim" not in seen, dist
+        # Phase 4 batch E spec change S-E2: the command line reaches the base closure only
+        assert ("websockets" in seen) == (dist == "tracer-cli"), dist
+        assert ("tracer-evalsim" in seen) == (dist == "tracer-cli"), dist
+        assert not seen & WEBRTC_CLOSURE, dist
 
 
 @pytest.mark.parametrize("module", ["aiortc", "websockets"])

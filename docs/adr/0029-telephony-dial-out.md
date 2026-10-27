@@ -31,6 +31,7 @@ Machine-read by `test_adr0029_rules_are_tested`, in the format of ADR 0023: ever
 - No telephony code exists before O5 is answered; Phase 4A does not depend on this ADR.
 - Every PSTN call needs an allowlist entry, a logged authorisation, caps, the audit, and the owner's regulation statement.
 - When O5 is answered, P4-40 rewrites the "at P4-40" items with the provider's names and sets the status to Accepted, with an index revision and a Changes entry.
+- (2026-10-27, owner decision; BACKLOG BL-311.) Telephony is moved out of Phase 4 to a later stage that starts with a design and research study, because several CPaaS providers, individual SIP servers and trunks, and telco-specific behaviours have to be thought through first; this ADR is therefore a provisional sketch, not a decision, and its recommended design (provider REST dial-out plus a media-stream WebSocket) will be revisited, probably rewritten, by that study's ADR.
 
 ## Invariants (testable)
 - I1. A number not on the allowlist is refused before any credential is read or any provider request is sent, and no text can change the number. Tests: `test_dial_refuses_number_not_on_allowlist_before_any_request`, `test_injection_from_agent_never_changes_dial_target_or_tools`.

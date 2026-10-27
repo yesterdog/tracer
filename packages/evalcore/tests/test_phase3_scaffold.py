@@ -117,12 +117,20 @@ CLI = Pkg(
         "tracer-evalcore==0.0.1",
         "tracer-evalproviders==0.0.1",
         "tracer-evaldb==0.0.1",
+        "tracer-evalsim==0.0.1",  # Phase 4 batch E spec change S-E2: `tracer simulate`
     ),
     frozenset(
         CORE_CLOSURE
         | HTTPX_CLOSURE
         | EVALDB_BASE
-        | {"tracer-evalschema", "tracer-evalcore", "tracer-evalproviders", "tracer-evaldb"}
+        | {
+            "tracer-evalschema",
+            "tracer-evalcore",
+            "tracer-evalproviders",
+            "tracer-evaldb",
+            "tracer-evalsim",  # Phase 4 batch E spec change S-E2
+            "websockets",
+        }
     ),
     {"tracer": "tracer_cli.cli:main"},
 )

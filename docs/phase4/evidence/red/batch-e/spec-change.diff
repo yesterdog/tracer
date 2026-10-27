@@ -1,0 +1,280 @@
+diff --git a/packages/cli/tests/test_cli_report.py b/packages/cli/tests/test_cli_report.py
+index 0072b80..175a303 100644
+--- a/packages/cli/tests/test_cli_report.py
++++ b/packages/cli/tests/test_cli_report.py
+@@ -574,6 +574,13 @@ def test_key_never_in_store_and_report_outputs(
+         streams.append(result.out + result.err)
+     assert key not in caplog.text
+     assert key not in "".join(streams)
++    # Phase 4 batch E spec change S-E4 (SCOPE P4-24: "extended to three keys"): the same check over
++    # a simulated run's three provider roles, a bearer token and every output channel
++    from cli_p4e_support import (  # type: ignore[import-not-found,unused-ignore]
++        assert_sim_three_keys_never_in_outputs,
++    )
++
++    assert_sim_three_keys_never_in_outputs(tmp_path / "simulated", caplog)
+ 
+ 
+ # ------------------------------------------------------------------ structure and content
+diff --git a/packages/cli/tests/test_cli_scaffold.py b/packages/cli/tests/test_cli_scaffold.py
+index b77541b..d3ce6e7 100644
+--- a/packages/cli/tests/test_cli_scaffold.py
++++ b/packages/cli/tests/test_cli_scaffold.py
+@@ -39,6 +39,7 @@ ALLOWED_IMPORTS = {
+     "tracer_evalcore",
+     "tracer_evalproviders",
+     "tracer_evaldb",
++    "tracer_evalsim",  # Phase 4 batch E spec change S-E3 (used by simulate.py)
+     "tracer_cli",
+ }
+ #: Third-party top-level modules that may appear in sys.modules after importing every module:
+@@ -55,6 +56,7 @@ ALLOWED_LOADED = ALLOWED_IMPORTS | {
+     "alembic",
+     "mako",
+     "markupsafe",
++    "websockets",  # Phase 4 batch E spec change S-E3: loaded through tracer_evalsim
+     "pydantic",
+     "pydantic_core",
+     "annotated_types",
+@@ -73,7 +75,6 @@ FORBIDDEN_LOADED = {
+     "requests",
+     "urllib3",
+     "aiohttp",
+-    "websockets",
+     "sarvamai",
+     "pytest",
+     "jsonschema",
+diff --git a/packages/evalcore/tests/evalcore_phase4_adr_support.py b/packages/evalcore/tests/evalcore_phase4_adr_support.py
+index e6990d4..303891b 100644
+--- a/packages/evalcore/tests/evalcore_phase4_adr_support.py
++++ b/packages/evalcore/tests/evalcore_phase4_adr_support.py
+@@ -50,19 +50,6 @@ DIALECT_HEADING = "## Dialect specifications"
+ # ADR 0026 rules and invariants
+ _P0026: frozenset[str] = frozenset(
+     {
+-        # P4-21
+-        "test_order_of_operations_pinned_by_call_trace",
+-        "test_refusals_happen_before_any_key_read_or_connect",
+-        "test_usage_survives_ctrl_c_mid_call",
+-        # P4-23
+-        "test_simulate_dry_run_prints_plan_and_sends_nothing",
+-        "test_simulate_exit_codes",
+-        "test_simulate_never_prints_target_number_or_key",
+-        "test_simulate_output_never_claims_accuracy_or_quality",
+-        "test_simulate_requires_caps_for_real_engines",
+-        # P4-24
+-        "test_sim_report_labels_synthetic_audio",
+-        "test_sim_report_never_claims_accuracy_or_quality",
+         # P4-26
+         "test_samplebot_scripted_bot_uses_no_model",
+         # P4-27
+@@ -93,23 +80,6 @@ _P0026: frozenset[str] = frozenset(
+ # ADR 0027 rules and invariants
+ _P0027: frozenset[str] = frozenset(
+     {
+-        # P4-21
+-        "test_available_inputs_never_lists_agent_transcript_without_agent_record",
+-        "test_privacy_marker_false_only_with_role_evidence",
+-        "test_simulated_bundle_passes_check_run_bundle",
+-        # P4-22
+-        "test_agreement_partition_compares_agent_role_only",
+-        "test_median_is_nearest_rank_with_n_recorded",
+-        "test_outcome_check_inert_and_no_verdict",
+-        "test_partition_changes_scorer_version",
+-        "test_timing_definitions_have_no_pass_rule",
+-        # P4-24
+-        "test_sim_report_labels_synthetic_audio",
+-        "test_sim_report_states_outcome_not_evaluated",
+-        "test_sim_report_timing_shows_quantum_and_dialect",
+-        # P4-25
+-        "test_simulated_bundle_stores_on_both_backends",
+-        "test_simulated_run_round_trips_through_store_byte_identical",
+         # P4-28
+         "test_e2e_sim_report_and_store_consistent",
+         "test_e2e_sim_synthetic_mr_exact_outputs",
+@@ -126,8 +96,6 @@ _P0027: frozenset[str] = frozenset(
+ # ADR 0028 rules and invariants
+ _P0028: frozenset[str] = frozenset(
+     {
+-        # P4-23
+-        "test_simulate_requires_caps_for_real_engines",
+         # P4-31
+         "test_target_not_on_allowlist_refused_before_any_key_or_socket",
+         # P4-32
+@@ -138,13 +106,6 @@ _P0028: frozenset[str] = frozenset(
+ # ADR 0029 rules and invariants
+ _P0029: frozenset[str] = frozenset(
+     {
+-        # P4-21
+-        "test_order_of_operations_pinned_by_call_trace",
+-        "test_refusals_happen_before_any_key_read_or_connect",
+-        # P4-23
+-        "test_simulate_never_prints_target_number_or_key",
+-        # P4-24
+-        "test_sim_report_labels_synthetic_audio",
+         # P4-30
+         "test_key_canaries_never_in_any_output_channel",
+         # P4-31
+@@ -163,8 +124,6 @@ _P0029: frozenset[str] = frozenset(
+ # ADR 0024 Phase 4 amendment (A1-A9, IA1-IA4)
+ _P0024A: frozenset[str] = frozenset(
+     {
+-        # P4-21
+-        "test_refusals_happen_before_any_key_read_or_connect",
+         # P4-30
+         "test_guard_rejects_staged_sim_outputs_and_allowlist",
+         "test_key_canaries_never_in_any_output_channel",
+@@ -174,15 +133,6 @@ _P0024A: frozenset[str] = frozenset(
+ # ADR 0023 Phase 4 amendment (A1-A3, IA1-IA2)
+ _P0023A: frozenset[str] = frozenset(
+     {
+-        # P4-21
+-        "test_simulated_bundle_passes_check_run_bundle",
+-        # P4-22
+-        "test_agreement_partition_compares_agent_role_only",
+-        "test_partition_changes_scorer_version",
+-        # P4-23
+-        "test_simulate_output_never_claims_accuracy_or_quality",
+-        # P4-24
+-        "test_sim_report_never_claims_accuracy_or_quality",
+         # P4-29
+         "test_tdeg_sim_export_present_agreement_scored",
+         # P4-37
+@@ -191,12 +141,7 @@ _P0023A: frozenset[str] = frozenset(
+ )
+ 
+ # ADR 0004 Decision 11 and I43
+-_P0004: frozenset[str] = frozenset(
+-    {
+-        # P4-21
+-        "test_available_inputs_never_lists_agent_transcript_without_agent_record",
+-    }
+-)
++_P0004: frozenset[str] = frozenset()
+ 
+ # END PENDING SETS
+ 
+diff --git a/packages/evalcore/tests/test_adr0004_simulated_agent_transcript_rule_cites_test.py b/packages/evalcore/tests/test_adr0004_simulated_agent_transcript_rule_cites_test.py
+index 208cfbf..3348841 100644
+--- a/packages/evalcore/tests/test_adr0004_simulated_agent_transcript_rule_cites_test.py
++++ b/packages/evalcore/tests/test_adr0004_simulated_agent_transcript_rule_cites_test.py
+@@ -111,11 +111,20 @@ def test_adr0004_check_has_teeth(name: str) -> None:
+ 
+ def test_adr0004_check_refuses_pending_sets_that_do_not_fit() -> None:
+     text = sup.ADR04.read_text("utf-8")
+-    assert _problems(text, frozenset()), "the binding test is not defined yet: it must be pending"
++    # Phase 4 batch E spec change S-E5: the binding test is defined now (P4-21), so the pending set
++    # is empty and the checker accepts that; the refusals are kept by naming a binding test that is
++    # not defined (it must be pending) and one that is (it must leave the pending set)
++    assert _problems(text, frozenset()) == [], "the binding test is defined: nothing is pending"
++    assert sup.check_adr04(
++        text,
++        defined=sup.defined_tests() - {BINDING},
++        pending=frozenset(),
++        scope=sup.scope_names(),
++    ), "a binding test that is not defined must be pending"
+     assert _problems(text, sup.PENDING["0004"] | {"test_zz_invented"})
+     assert sup.check_adr04(
+         text,
+         defined=sup.defined_tests() | {BINDING},
+-        pending=sup.PENDING["0004"],
++        pending=frozenset({BINDING}),
+         scope=sup.scope_names(),
+     ), "a name that landed must leave the pending set"
+diff --git a/packages/evalcore/tests/test_phase3_licenses.py b/packages/evalcore/tests/test_phase3_licenses.py
+index 4fe0088..53980c5 100644
+--- a/packages/evalcore/tests/test_phase3_licenses.py
++++ b/packages/evalcore/tests/test_phase3_licenses.py
+@@ -48,6 +48,7 @@ REQUIRES = {
+         "tracer-evalcore==0.0.1",
+         "tracer-evalproviders==0.0.1",
+         "tracer-evaldb==0.0.1",
++        "tracer-evalsim==0.0.1",  # Phase 4 batch E spec change S-E2: `tracer simulate`
+     ],
+ }
+ DIST = {"evalcore": "tracer-evalcore", "evalproviders": "tracer-evalproviders", "cli": "tracer-cli"}
+@@ -71,6 +72,7 @@ CLOSURES = {
+             "mako",
+             "markupsafe",
+             "sqlalchemy",
++            "websockets",  # Phase 4 batch E spec change S-E2 (tracer-evalsim's dependency)
+         ]
+     ),
+ }
+diff --git a/packages/evalcore/tests/test_phase3_scaffold.py b/packages/evalcore/tests/test_phase3_scaffold.py
+index e96ace8..03db213 100644
+--- a/packages/evalcore/tests/test_phase3_scaffold.py
++++ b/packages/evalcore/tests/test_phase3_scaffold.py
+@@ -117,12 +117,20 @@ CLI = Pkg(
+         "tracer-evalcore==0.0.1",
+         "tracer-evalproviders==0.0.1",
+         "tracer-evaldb==0.0.1",
++        "tracer-evalsim==0.0.1",  # Phase 4 batch E spec change S-E2: `tracer simulate`
+     ),
+     frozenset(
+         CORE_CLOSURE
+         | HTTPX_CLOSURE
+         | EVALDB_BASE
+-        | {"tracer-evalschema", "tracer-evalcore", "tracer-evalproviders", "tracer-evaldb"}
++        | {
++            "tracer-evalschema",
++            "tracer-evalcore",
++            "tracer-evalproviders",
++            "tracer-evaldb",
++            "tracer-evalsim",  # Phase 4 batch E spec change S-E2
++            "websockets",
++        }
+     ),
+     {"tracer": "tracer_cli.cli:main"},
+ )
+diff --git a/packages/evalcore/tests/test_phase4_licenses.py b/packages/evalcore/tests/test_phase4_licenses.py
+index 6e4dc85..579111c 100644
+--- a/packages/evalcore/tests/test_phase4_licenses.py
++++ b/packages/evalcore/tests/test_phase4_licenses.py
+@@ -80,6 +80,7 @@ PHASE3_REQUIRES = {
+         "tracer-evalcore==0.0.1",
+         "tracer-evalproviders==0.0.1",
+         "tracer-evaldb==0.0.1",
++        "tracer-evalsim==0.0.1",  # Phase 4 batch E spec change S-E2: `tracer simulate`
+     ],
+ }
+ #: The packages the sample bots bring that are copyleft or hold copyleft binaries (tool-only).
+@@ -182,7 +183,8 @@ def test_license_policy_lists_phase4_closures() -> None:
+         assert sorted(_key(d) for d in runtime[key]["requires_dist"]) == sorted(
+             _key(d) for d in requires
+         ), key
+-        assert "websockets" not in runtime[key]["closure"], key
++        # Phase 4 batch E spec change S-E2: the command line now carries websockets
++        assert ("websockets" in runtime[key]["closure"]) == (key == "cli"), key
+     assert set(runtime["evaldb"]) == {"closure", "extras_postgres", "requires_dist"}
+     assert runtime["requires_dist"] == ["pydantic>=2.11,<3", "rfc8785>=0.1.4,<0.2"]
+     assert set(runtime["closure"]) <= set(block["closure"])
+diff --git a/packages/evalsim/tests/test_evalsim_loopback_guard.py b/packages/evalsim/tests/test_evalsim_loopback_guard.py
+index 9b91d27..2e36570 100644
+--- a/packages/evalsim/tests/test_evalsim_loopback_guard.py
++++ b/packages/evalsim/tests/test_evalsim_loopback_guard.py
+@@ -33,6 +33,7 @@ HERE = Path(__file__).resolve().parent
+ LOOPBACK_MODULES = {
+     "test_evalsim_hostile_loopback.py",
+     "test_evalsim_loopback_guard.py",
++    "test_evalsim_runner_loopback.py",  # Phase 4 batch E spec change S-E1
+     "test_evalsim_webrtc.py",
+     "test_evalsim_websocket_loopback.py",
+ }
+diff --git a/packages/evalsim/tests/test_evalsim_scaffold.py b/packages/evalsim/tests/test_evalsim_scaffold.py
+index f4e8c16..11e75ec 100644
+--- a/packages/evalsim/tests/test_evalsim_scaffold.py
++++ b/packages/evalsim/tests/test_evalsim_scaffold.py
+@@ -489,8 +489,10 @@ def test_phase4_locked_closures_are_the_reviewed_ones() -> None:
+             if name not in seen:
+                 seen.add(name)
+                 todo += [canonicalize_name(d["name"]) for d in lock[name].get("dependencies", [])]
+-        assert "websockets" not in seen, dist
+-        assert "tracer-evalsim" not in seen, dist
++        # Phase 4 batch E spec change S-E2: the command line reaches the base closure only
++        assert ("websockets" in seen) == (dist == "tracer-cli"), dist
++        assert ("tracer-evalsim" in seen) == (dist == "tracer-cli"), dist
++        assert not seen & WEBRTC_CLOSURE, dist
+ 
+ 
+ @pytest.mark.parametrize("module", ["aiortc", "websockets"])

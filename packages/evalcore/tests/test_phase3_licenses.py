@@ -48,6 +48,7 @@ REQUIRES = {
         "tracer-evalcore==0.0.1",
         "tracer-evalproviders==0.0.1",
         "tracer-evaldb==0.0.1",
+        "tracer-evalsim==0.0.1",  # Phase 4 batch E spec change S-E2: `tracer simulate`
     ],
 }
 DIST = {"evalcore": "tracer-evalcore", "evalproviders": "tracer-evalproviders", "cli": "tracer-cli"}
@@ -71,6 +72,7 @@ CLOSURES = {
             "mako",
             "markupsafe",
             "sqlalchemy",
+            "websockets",  # Phase 4 batch E spec change S-E2 (tracer-evalsim's dependency)
         ]
     ),
 }

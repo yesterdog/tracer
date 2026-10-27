@@ -80,6 +80,7 @@ PHASE3_REQUIRES = {
         "tracer-evalcore==0.0.1",
         "tracer-evalproviders==0.0.1",
         "tracer-evaldb==0.0.1",
+        "tracer-evalsim==0.0.1",  # Phase 4 batch E spec change S-E2: `tracer simulate`
     ],
 }
 #: The packages the sample bots bring that are copyleft or hold copyleft binaries (tool-only).
@@ -182,7 +183,8 @@ def test_license_policy_lists_phase4_closures() -> None:
         assert sorted(_key(d) for d in runtime[key]["requires_dist"]) == sorted(
             _key(d) for d in requires
         ), key
-        assert "websockets" not in runtime[key]["closure"], key
+        # Phase 4 batch E spec change S-E2: the command line now carries websockets
+        assert ("websockets" in runtime[key]["closure"]) == (key == "cli"), key
     assert set(runtime["evaldb"]) == {"closure", "extras_postgres", "requires_dist"}
     assert runtime["requires_dist"] == ["pydantic>=2.11,<3", "rfc8785>=0.1.4,<0.2"]
     assert set(runtime["closure"]) <= set(block["closure"])

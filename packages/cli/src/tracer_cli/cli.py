@@ -32,6 +32,7 @@ from typing import Any, Final, TextIO
 
 from tracer_cli import report, store, summary
 from tracer_cli.replay import ReplayStt
+from tracer_cli.simargs import add_simulate_arguments, simulate_usage_problem
 from tracer_evalcore import definitions, pipeline
 from tracer_evalcore.align import ALIGN_MAX_TOKENS
 from tracer_evalcore.audio.chunker import (
@@ -156,6 +157,7 @@ class Environment:
     sleep: Callable[[float], None]
     transport: Any = None
     engine_factory: EngineFactory | None = None
+    sim: Any = None  # a tracer_cli.simulate.SimWorld: the seams of `tracer simulate` (tests only)
 
     @classmethod
     def system(cls) -> Environment:
@@ -404,16 +406,18 @@ def build_parser(
         action="store_true",
         help="continue past export warnings that drop a line",
     )
-    commands.add_parser(
+    simulate = commands.add_parser(
         "simulate",
-        help="place one simulated call to an agent (scaffold: options arrive with P4-23)",
+        help="place one simulated call to an agent",
         description=(
             "Place one simulated call from a synthetic caller to an agent under test, record "
-            "both sides and score the recording. The options are added with the pipeline."
+            "both sides and score the recording. Every value that decides the call or its spend "
+            "is yours: none has a default. Nothing is sent before every check has passed."
         ),
         allow_abbrev=False,
         streams=streams,
     )
+    add_simulate_arguments(simulate)
     return parser
 
 
@@ -902,6 +906,10 @@ def run(argv: Sequence[str], environment: Environment) -> int:
             raise UsageError("--priced-at needs --price-file", parser.format_usage())
         if args.command == "score":
             _check_options(args, parser.format_usage())
+        if args.command == "simulate":
+            problem = simulate_usage_problem(args)
+            if problem is not None:
+                raise UsageError(problem, parser.format_usage())
     except UsageError as error:
         environment.stderr.write(error.usage)
         environment.stderr.write(f"tracer: error: {_printable(str(error))}\n")
@@ -910,6 +918,10 @@ def run(argv: Sequence[str], environment: Environment) -> int:
         parser.print_help(environment.stderr)
         return EXIT_USAGE
     try:
+        if args.command == "simulate":
+            from tracer_cli import simulate as simulate_module
+
+            return simulate_module.run_simulate(args, environment)
         return _score(args, environment)
     except (Refusal, InputRefusedError, SttConfigurationError, CatalogRefusedError) as error:
         environment.stderr.write(f"error: {_printable(str(error))}\n")

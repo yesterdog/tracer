@@ -25,6 +25,7 @@ from tracer_evalschema.usage import UsageRecord
 
 __all__ = [
     "SttAuthError",
+    "SttCapReachedError",
     "SttConfigurationError",
     "SttContext",
     "SttEngine",
@@ -110,6 +111,10 @@ class SttTransportError(SttError):
 
 class SttResponseInvalid(SttError):
     """A response that is not the documented success shape. Never retried."""
+
+
+class SttCapReachedError(SttError):
+    """The seconds cap of the run would be crossed by the next request, so nothing was sent."""
 
 
 class SttConfigurationError(SttError, ValueError):

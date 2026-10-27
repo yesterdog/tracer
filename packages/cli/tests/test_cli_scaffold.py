@@ -39,6 +39,7 @@ ALLOWED_IMPORTS = {
     "tracer_evalcore",
     "tracer_evalproviders",
     "tracer_evaldb",
+    "tracer_evalsim",  # Phase 4 batch E spec change S-E3 (used by simulate.py)
     "tracer_cli",
 }
 #: Third-party top-level modules that may appear in sys.modules after importing every module:
@@ -55,6 +56,7 @@ ALLOWED_LOADED = ALLOWED_IMPORTS | {
     "alembic",
     "mako",
     "markupsafe",
+    "websockets",  # Phase 4 batch E spec change S-E3: loaded through tracer_evalsim
     "pydantic",
     "pydantic_core",
     "annotated_types",
@@ -73,7 +75,6 @@ FORBIDDEN_LOADED = {
     "requests",
     "urllib3",
     "aiohttp",
-    "websockets",
     "sarvamai",
     "pytest",
     "jsonschema",

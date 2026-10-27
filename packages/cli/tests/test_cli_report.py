@@ -574,6 +574,13 @@ def test_key_never_in_store_and_report_outputs(
         streams.append(result.out + result.err)
     assert key not in caplog.text
     assert key not in "".join(streams)
+    # Phase 4 batch E spec change S-E4 (SCOPE P4-24: "extended to three keys"): the same check over
+    # a simulated run's three provider roles, a bearer token and every output channel
+    from cli_p4e_support import (  # type: ignore[import-not-found,unused-ignore]
+        assert_sim_three_keys_never_in_outputs,
+    )
+
+    assert_sim_three_keys_never_in_outputs(tmp_path / "simulated", caplog)
 
 
 # ------------------------------------------------------------------ structure and content

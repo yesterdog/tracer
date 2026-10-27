@@ -103,8 +103,9 @@ requires_dist = [
 ]
 
 [runtime.cli]
-# Runtime closure of tracer-cli: the union of the evalschema, evaldb base and httpx closures. No
-# extra is declared (the Postgres driver is not part of the command line).
+# Runtime closure of tracer-cli: the union of the evalschema, evaldb base, httpx and evalsim
+# (websockets) closures. No extra is declared (the Postgres driver is not part of the command
+# line).
 closure = [
     "alembic",
     "annotated-types",
@@ -122,12 +123,14 @@ closure = [
     "sqlalchemy",
     "typing-extensions",
     "typing-inspection",
+    "websockets",
 ]
 requires_dist = [
     "tracer-evalschema==0.0.1",
     "tracer-evalcore==0.0.1",
     "tracer-evalproviders==0.0.1",
     "tracer-evaldb==0.0.1",
+    "tracer-evalsim==0.0.1",
 ]
 
 [runtime.evalsim]
