@@ -33,7 +33,7 @@ from tracer_evalcore.stt import (
     SttServerError,
     SttTransportError,
 )
-from tracer_evalproviders.calllog import CallLog, safe_request_id
+from tracer_evalproviders.calllog import SttCallLog, safe_request_id
 from tracer_evalproviders.sarvam.mapping import usage_audio_seconds
 from tracer_evalproviders.sarvam.models import (
     DEFAULT_MODEL,
@@ -55,6 +55,7 @@ __all__ = [
     "RETRY_AFTER_MAX_SECONDS",
     "WRITE_TIMEOUT_SECONDS",
     "SarvamClient",
+    "build_http_client",
 ]
 
 MAX_ATTEMPTS: Final = 4
@@ -82,6 +83,21 @@ _TRANSPORT_KINDS: Final = (
     (httpx.ReadError, "read_error"),
     (httpx.WriteError, "write_error"),
 )
+
+
+def build_http_client(transport: httpx.BaseTransport | None) -> httpx.Client:
+    """The one HTTP client of every Sarvam adapter: no redirect, no environment, TLS verified."""
+    return httpx.Client(
+        transport=transport,
+        follow_redirects=False,
+        trust_env=False,
+        timeout=httpx.Timeout(
+            connect=CONNECT_TIMEOUT_SECONDS,
+            read=READ_TIMEOUT_SECONDS,
+            write=WRITE_TIMEOUT_SECONDS,
+            pool=POOL_TIMEOUT_SECONDS,
+        ),
+    )
 
 
 def _transport_kind(error: httpx.RequestError) -> str:
@@ -171,7 +187,7 @@ class SarvamClient:
         self,
         api_key: ApiKey,
         *,
-        call_log: CallLog,
+        call_log: SttCallLog,
         model: str = DEFAULT_MODEL,
         transport: httpx.BaseTransport | None = None,
         sleep: Callable[[float], None] = time.sleep,
@@ -186,17 +202,7 @@ class SarvamClient:
         self._log = call_log
         self._sleep = sleep
         self._monotonic = monotonic
-        self._http = httpx.Client(
-            transport=transport,
-            follow_redirects=False,
-            trust_env=False,
-            timeout=httpx.Timeout(
-                connect=CONNECT_TIMEOUT_SECONDS,
-                read=READ_TIMEOUT_SECONDS,
-                write=WRITE_TIMEOUT_SECONDS,
-                pool=POOL_TIMEOUT_SECONDS,
-            ),
-        )
+        self._http = build_http_client(transport)
 
     @property
     def model(self) -> str:

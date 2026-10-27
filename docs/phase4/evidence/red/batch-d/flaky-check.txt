@@ -1,0 +1,32 @@
+# Repeated runs of the loopback-marked tests (pytest -m loopback packages/evalsim/tests), oracle, Python 3.12,
+# a fresh PYTHONPYCACHEPREFIX each time, while three other test suites (other batches) and the oracle's full suite
+# ran on the same machine. Result lines, in order:
+76 passed, 280 deselected in 5.68s
+76 passed, 280 deselected in 4.51s
+76 passed, 280 deselected in 4.54s
+76 passed, 280 deselected in 4.57s
+76 passed, 280 deselected in 4.83s
+76 passed, 280 deselected in 4.43s
+76 passed, 280 deselected in 4.45s
+76 passed, 280 deselected in 4.56s
+76 passed, 280 deselected in 4.54s
+76 passed, 280 deselected in 4.98s
+76 passed, 280 deselected in 4.44s
+76 passed, 280 deselected in 4.47s
+# 12 of 12 identical. Timing-sensitive tests (all with generous bounds): handshake timeout (0.3 s timeout, bound 3 s),
+# close timeout (0.3 s, bound 2.5 s), hang-up during a slow drip (bound 4 s), system clock never early (lower bound only),
+# frame flood (bounded by the rate cap, not by time). No test uses a sleep to wait for a condition: they poll with a deadline.
+
+# Second series after the last change of the tests (same command, machine otherwise idle): 12 of 12 passed
+76 passed, 280 deselected in 4.27s
+76 passed, 280 deselected in 4.83s
+76 passed, 280 deselected in 4.07s
+76 passed, 280 deselected in 4.06s
+76 passed, 280 deselected in 4.05s
+76 passed, 280 deselected in 4.07s
+76 passed, 280 deselected in 4.07s
+76 passed, 280 deselected in 4.06s
+76 passed, 280 deselected in 4.06s
+76 passed, 280 deselected in 4.06s
+76 passed, 280 deselected in 4.06s
+76 passed, 280 deselected in 4.06s

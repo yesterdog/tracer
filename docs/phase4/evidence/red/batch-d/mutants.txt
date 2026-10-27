@@ -1,0 +1,159 @@
+# Mutants of the batch D oracle (tracer_evalsim) and of the test infrastructure (loopback guard, conftest, fake agents, virtual clock).
+# Each mutant is one source edit; the 349 new test items of packages/evalsim/tests (pytest -x; the 7 scaffold items are deselected: they build a wheel) are run against it,
+# Python 3.13, a fresh PYTHONPYCACHEPREFIX each, on a copy of the final oracle and the final tests.
+# 149 mutants: 146 killed, 3 survived (all three equivalent, reasons below).
+# History: a first run of 149 mutants against an earlier test set had 12 survivors; 9 led to test additions (the tenth byte of a varint in an unknown
+# field, upper-case codes, a text message that would parse as protobuf, base64 that skips bad characters, a binary message holding valid JSON,
+# the profile document without a variable, the kill switch before a frame that does not wait, a watchdog that sets fired after the hang-up,
+# a padded signalling reply over the cap), 3 are equivalent mutants.
+# columns: index, result, mutant, first failing test (or the reason it survives)
+
+0	KILLED	errors: setup_failed end reason	test_evalsim_connection_labels.py::test_transport_errors_hold_facts_only
+1	KILLED	errors: refusal is not a ValueError	test_evalsim_connection_labels.py::test_missing_auth_token_env_refused_before_socket
+2	KILLED	errors: http status lower bound	test_evalsim_connection_labels.py::test_transport_errors_hold_facts_only
+3	KILLED	errors: code allows upper case	test_evalsim_connection_labels.py::test_transport_errors_hold_facts_only
+4	KILLED	errors: pickle drops http status	test_evalsim_connection_labels.py::test_transport_errors_hold_facts_only
+5	KILLED	errors: hint on every code	test_evalsim_connection_labels.py::test_bearer_token_from_env_never_stored
+6	KILLED	errors: transport end reason	test_evalsim_connection_labels.py::test_transport_errors_hold_facts_only
+7	KILLED	clock: wakes early	test_evalsim_hostile_loopback.py::test_a_dropped_connection_mid_line_stops_the_sender_with_a_transport_error
+8	KILLED	limits: message cap off by one	test_evalsim_inbound_reader.py::test_inbound_caps_are_named_constants_and_stated_in_changelog
+9	KILLED	limits: rate cap off by one	test_evalsim_inbound_reader.py::test_inbound_caps_are_named_constants_and_stated_in_changelog
+10	KILLED	limits: no watchdog grace	test_evalsim_inbound_reader.py::test_inbound_caps_are_named_constants_and_stated_in_changelog
+11	KILLED	limits: frame 10 ms	test_evalsim_inbound_reader.py::test_inbound_caps_are_named_constants_and_stated_in_changelog
+12	KILLED	wire: sample_rate field 5	test_evalsim_fake_agents.py::test_fake_agents_are_deterministic[protobuf]
+13	KILLED	wire: pts written when truthy	test_evalsim_protobuf_codec.py::test_protobuf_codec_golden_vectors_encode[audio_full]
+14	KILLED	wire: zero ids written	test_evalsim_pipecat_protobuf.py::test_protobuf_dialect_roundtrip_in_memory
+15	KILLED	wire: varint boundary	test_evalsim_protobuf_codec.py::test_protobuf_codec_matches_independent_reference_encoder_on_400_frames
+16	KILLED	wire: first member wins	test_evalsim_protobuf_codec.py::test_protobuf_codec_decode_tolerates_order_unknown_fields_and_last_member_wins
+17	KILLED	wire: groups skipped	test_evalsim_protobuf_codec.py::test_protobuf_codec_decode_refuses_malformed_wire[start_group]
+18	KILLED	wire: utf8 replaced	test_evalsim_pipecat_protobuf.py::test_protobuf_dialect_unknown_message_ignored_and_counted
+19	KILLED	wire: uint32 overflow accepted	test_evalsim_protobuf_codec.py::test_protobuf_codec_decode_refuses_malformed_wire[uint32_overflow]
+20	KILLED	wire: tenth byte unchecked	test_evalsim_protobuf_codec.py::test_protobuf_codec_decode_refuses_malformed_wire[unknown_field_varint_overflo
+21	KILLED	wire: length overrun unchecked	test_evalsim_protobuf_codec.py::test_protobuf_codec_decode_refuses_malformed_wire[nested_length_past_end]
+22	KILLED	wire: unknown frame raises	test_evalsim_protobuf_codec.py::test_protobuf_codec_decode_tolerates_order_unknown_fields_and_last_member_wins
+23	KILLED	wire: bool accepted as int	test_evalsim_protobuf_codec.py::test_protobuf_codec_encode_refuses_values_that_do_not_fit
+24	KILLED	wire: empty member omitted	test_evalsim_protobuf_codec.py::test_protobuf_codec_golden_vectors_encode[text_empty]
+25	SURVIVED	wire: negative uint accepted	equivalent: a negative integer then fails in the varint writer with the same ValueError
+26	KILLED	wire: field tag wire type 0 for bytes	test_evalsim_pipecat_protobuf.py::test_protobuf_dialect_roundtrip_in_memory
+27	KILLED	reader: size cap >=	test_evalsim_hostile_loopback.py::test_a_message_of_exactly_the_cap_is_accepted
+28	KILLED	reader: size in characters	test_evalsim_inbound_reader.py::test_inbound_reader_message_cap_is_exact_and_counts_bytes[pipecat-protobuf/1]
+29	KILLED	reader: rate cap >	test_evalsim_hostile_loopback.py::test_a_flood_of_small_messages_ends_the_call_at_the_rate_cap
+30	KILLED	reader: window boundary	test_evalsim_inbound_reader.py::test_inbound_reader_rate_cap_is_a_sliding_one_second_window[pipecat-protobuf/1
+31	KILLED	reader: window two seconds	test_evalsim_inbound_reader.py::test_inbound_reader_rate_cap_is_a_sliding_one_second_window[pipecat-protobuf/1
+32	KILLED	reader: after close still read	test_evalsim_inbound_reader.py::test_inbound_reader_after_close_interprets_nothing_and_never_raises[pipecat-pr
+33	KILLED	reader: ignored not counted	test_evalsim_fake_agents.py::test_fake_agents_are_deterministic[protobuf]
+34	KILLED	reader: clear not recorded	test_evalsim_twilio.py::test_twilio_dialect_agent_clear_message_is_barge_in_evidence
+35	KILLED	reader: arrival not stamped	test_evalsim_inbound_reader.py::test_inbound_reader_stamps_arrival_with_the_injected_clock[pipecat-protobuf/1]
+36	KILLED	reader: clean inverted	test_evalsim_hostile_loopback.py::test_a_storm_of_immediate_closes_leaves_nothing_behind
+37	KILLED	reader: end reason inverted	test_evalsim_inbound_reader.py::test_inbound_end_reasons_are_end_reasons_of_the_state_machine
+38	KILLED	hang_up: no close	test_evalsim_twilio.py::test_twilio_dialect_mark_optional_never_awaited
+39	KILLED	hang_up: close before stop	test_evalsim_twilio.py::test_twilio_dialect_mark_optional_never_awaited
+40	KILLED	hang_up: dead peer raises	test_evalsim_twilio.py::test_hang_up_when_the_peer_is_already_gone_still_closes_and_does_not_raise
+41	KILLED	base: frame width	test_evalsim_pipecat_protobuf.py::test_protobuf_dialect_roundtrip_in_memory
+42	KILLED	base: frame size unchecked	test_evalsim_pipecat_protobuf.py::test_protobuf_dialect_frame_is_twenty_ms_of_pcm[8000]
+43	KILLED	base: stats not frozen copy	test_evalsim_inbound_reader.py::test_inbound_stats_are_a_frozen_snapshot[pipecat-protobuf/1]
+44	KILLED	proto dialect: id written	test_evalsim_pipecat_protobuf.py::test_protobuf_dialect_roundtrip_in_memory
+45	KILLED	proto dialect: rate mismatch accepted	test_evalsim_pipecat_protobuf.py::test_protobuf_dialect_refuses_agent_audio_at_another_rate_or_channel_count
+46	KILLED	proto dialect: channels unchecked	test_evalsim_pipecat_protobuf.py::test_protobuf_dialect_refuses_agent_audio_at_another_rate_or_channel_count
+47	KILLED	proto dialect: odd length accepted	test_evalsim_pipecat_protobuf.py::test_protobuf_dialect_refuses_agent_audio_at_another_rate_or_channel_count
+48	KILLED	proto dialect: text kept	test_evalsim_hostile_loopback.py::test_agent_words_never_reach_a_log_record
+49	KILLED	proto dialect: text messages parsed	test_evalsim_pipecat_protobuf.py::test_protobuf_dialect_unknown_message_ignored_and_counted
+50	KILLED	proto dialect: rate range relaxed	test_evalsim_pipecat_protobuf.py::test_protobuf_dialect_requires_a_valid_sample_rate[0]
+51	KILLED	proto dialect: opening message	test_evalsim_pipecat_protobuf.py::test_protobuf_dialect_has_no_opening_or_closing_message
+52	KILLED	twilio: real-looking sids	test_evalsim_twilio.py::test_twilio_dialect_message_sequence_exact
+53	KILLED	twilio: no synthetic marker	test_evalsim_twilio.py::test_twilio_dialect_message_sequence_exact
+54	KILLED	twilio: chunk from zero	test_evalsim_twilio.py::test_twilio_dialect_message_sequence_exact
+55	KILLED	twilio: sequence frozen	test_evalsim_twilio.py::test_twilio_dialect_message_sequence_exact
+56	KILLED	twilio: timestamp from chunk	test_evalsim_twilio.py::test_twilio_dialect_message_sequence_exact
+57	KILLED	twilio: mark sent after start	test_evalsim_twilio.py::test_twilio_dialect_message_sequence_exact
+58	KILLED	twilio: stop without sequence	test_evalsim_twilio.py::test_twilio_dialect_message_sequence_exact
+59	KILLED	twilio: outbound track	test_evalsim_twilio.py::test_twilio_dialect_message_sequence_exact
+60	KILLED	twilio: start treated as clear	test_evalsim_twilio.py::test_twilio_dialect_decodes_agent_media_and_ignores_what_it_does_not_know
+61	KILLED	twilio: lenient base64	test_evalsim_twilio.py::test_twilio_dialect_decodes_agent_media_and_ignores_what_it_does_not_know
+62	KILLED	twilio: counter unchecked	test_evalsim_twilio.py::test_twilio_dialect_counter_must_be_a_positive_integer[0]
+63	KILLED	twilio: reopen allowed	test_evalsim_twilio.py::test_twilio_dialect_stream_state_is_enforced
+64	KILLED	twilio: media before start allowed	test_evalsim_twilio.py::test_twilio_dialect_stream_state_is_enforced
+65	KILLED	twilio: binary accepted	test_evalsim_twilio.py::test_twilio_dialect_decodes_agent_media_and_ignores_what_it_does_not_know
+66	KILLED	twilio: mark without name accepted	test_evalsim_twilio.py::test_twilio_dialect_decodes_agent_media_and_ignores_what_it_does_not_know
+67	KILLED	twilio: stop not tied to close	test_evalsim_twilio.py::test_twilio_dialect_stream_state_is_enforced
+68	KILLED	ws: proxy from environment	test_evalsim_websocket_loopback.py::test_the_proxy_environment_is_ignored_the_connection_goes_direct
+69	KILLED	ws: redirects followed	test_evalsim_websocket_loopback.py::test_a_redirect_in_the_handshake_is_never_followed[301]
+70	KILLED	ws: library logging on	test_evalsim_hostile_loopback.py::test_agent_words_never_reach_a_log_record
+71	KILLED	ws: compression offered	test_evalsim_websocket_loopback.py::test_websocket_client_offers_no_extension_and_no_subprotocol
+72	KILLED	ws: tls unverified	test_evalsim_websocket_loopback.py::test_wss_certificate_verification_is_on_by_default
+73	KILLED	ws: origin dropped	test_evalsim_websocket_loopback.py::test_origin_header_from_entry_or_absent
+74	KILLED	ws: token in query	test_evalsim_websocket_loopback.py::test_bearer_token_only_in_authorization_header_never_path_or_query
+75	KILLED	ws: token in subprotocol too	test_evalsim_websocket_loopback.py::test_bearer_token_only_in_authorization_header_never_path_or_query
+76	KILLED	ws: credentials true accepted	test_evalsim_twilio.py::test_twilio_target_with_bot_credentials_refused
+77	KILLED	ws: credentials field optional	test_evalsim_twilio.py::test_twilio_entry_without_credentials_field_refused
+78	KILLED	ws: key read before label check	test_evalsim_twilio.py::test_twilio_target_with_bot_credentials_refused
+79	KILLED	ws: empty token accepted	test_evalsim_connection_labels.py::test_missing_auth_token_env_refused_before_socket
+80	KILLED	ws: token charset unchecked	test_evalsim_connection_labels.py::test_bearer_token_from_env_never_stored
+81	KILLED	ws: token repr leaks	test_evalsim_connection_labels.py::test_bearer_token_from_env_never_stored
+82	KILLED	ws: token copyable	test_evalsim_connection_labels.py::test_bearer_token_from_env_never_stored
+83	KILLED	ws: token picklable	test_evalsim_connection_labels.py::test_bearer_token_from_env_never_stored
+84	KILLED	ws: query allowed	test_evalsim_connection_labels.py::test_target_url_with_query_userinfo_fragment_or_oddity_is_refused[ws://127.
+85	KILLED	ws: plain ws allowed anywhere	test_evalsim_connection_labels.py::test_plain_ws_is_refused_for_every_target_that_is_not_loopback[192.0.2.1]
+86	KILLED	ws: 127/8 counts as loopback	test_evalsim_connection_labels.py::test_plain_ws_is_refused_for_every_target_that_is_not_loopback[127.0.0.2]
+87	KILLED	ws: userinfo allowed	test_evalsim_connection_labels.py::test_target_url_with_query_userinfo_fragment_or_oddity_is_refused[ws://user
+88	KILLED	ws: redirect status mapped to rejected	test_evalsim_websocket_loopback.py::test_a_redirect_in_the_handshake_is_never_followed[301]
+89	KILLED	ws: open timeout not passed	test_evalsim_websocket_loopback.py::test_a_handshake_that_never_completes_is_setup_failed_within_the_timeout
+90	KILLED	ws: max_size not passed	test_evalsim_hostile_loopback.py::test_a_frame_over_the_cap_ends_the_call_with_transport_error[cap_plus_one]
+91	KILLED	ws: too big becomes a close	test_evalsim_hostile_loopback.py::test_a_frame_over_the_cap_ends_the_call_with_transport_error[cap_plus_one]
+92	KILLED	ws: close always clean	test_evalsim_websocket_loopback.py::test_close_info_reports_who_closed_and_how
+93	KILLED	ws: send after close silent	test_evalsim_hostile_loopback.py::test_a_dropped_connection_mid_line_stops_the_sender_with_a_transport_error
+94	KILLED	ws: connection state keeps token	test_evalsim_websocket_loopback.py::test_bearer_token_not_in_errors_or_connection_state
+95	KILLED	ws: tls error as timeout	test_evalsim_websocket_loopback.py::test_wss_certificate_verification_is_on_by_default
+96	KILLED	ws: profile leaks token name only	test_evalsim_connection_labels.py::test_bearer_token_from_env_never_stored
+97	KILLED	ws: origin pattern relaxed	test_evalsim_connection_labels.py::test_connection_labels_refuse_a_bad_origin[HTTP://example.test]
+98	KILLED	ws: env name pattern relaxed	test_evalsim_connection_labels.py::test_connection_labels_refuse_a_bad_variable_name[lower]
+99	KILLED	sender: no pacing	test_evalsim_hostile_loopback.py::test_a_dropped_connection_mid_line_stops_the_sender_with_a_transport_error
+100	KILLED	sender: no re-anchor	test_evalsim_pacing.py::test_sender_does_not_burst_after_a_stall_it_moves_the_schedule
+101	KILLED	sender: re-anchor threshold	test_evalsim_pacing.py::test_sender_reanchors_exactly_at_one_frame_of_lateness
+102	KILLED	sender: re-anchor half frame	test_evalsim_pacing.py::test_sender_absorbs_a_lateness_below_one_frame
+103	KILLED	sender: scheduled is sent	test_evalsim_pacing.py::test_sender_does_not_burst_after_a_stall_it_moves_the_schedule
+104	KILLED	sender: logged before write	test_evalsim_pacing.py::test_sender_logs_a_frame_only_after_its_write_completed
+105	KILLED	sender: stop not rechecked after wait	test_evalsim_pacing.py::test_sender_should_stop_is_consulted_before_every_frame_and_after_each_wait
+106	KILLED	sender: stop checked once	test_evalsim_pacing.py::test_sender_should_stop_is_checked_before_a_frame_that_does_not_wait
+107	KILLED	sender: lines share origin	test_evalsim_pacing.py::test_sender_lines_have_their_own_origin_and_index
+108	KILLED	sender: concurrent writes	test_evalsim_hostile_loopback.py::test_a_dropped_connection_mid_line_stops_the_sender_with_a_transport_error
+109	KILLED	sender: pad with zero for mulaw	test_evalsim_pacing.py::test_split_frames_cuts_whole_twenty_ms_frames_and_pads_the_last_with_silence
+110	KILLED	sender: first frame waits	test_evalsim_pacing.py::test_sender_paces_real_time_with_injected_clock
+111	KILLED	watchdog: no grace	test_evalsim_watchdog.py::test_watchdog_hangs_up_even_if_state_machine_stalls
+112	KILLED	watchdog: double grace	test_evalsim_watchdog.py::test_watchdog_hangs_up_even_if_state_machine_stalls
+113	KILLED	watchdog: hang_up failure swallowed	test_evalsim_watchdog.py::test_watchdog_hang_up_failure_is_not_swallowed
+114	KILLED	watchdog: start twice	test_evalsim_watchdog.py::test_watchdog_validates_its_arguments_and_starts_once
+115	KILLED	watchdog: fired after hang_up	test_evalsim_watchdog.py::test_watchdog_reports_fired_when_it_starts_to_hang_up_not_when_it_finishes
+116	KILLED	watchdog: zero duration ok	test_evalsim_watchdog.py::test_watchdog_validates_its_arguments_and_starts_once
+117	KILLED	watchdog: not cancelled on close	test_evalsim_watchdog.py::test_watchdog_cancelled_before_its_deadline_never_fires
+118	KILLED	watchdog: imports the sender	test_evalsim_watchdog.py::test_watchdog_module_depends_on_nothing_that_could_stall_it
+119	KILLED	webrtc: None instead of empty list	test_evalsim_webrtc.py::test_webrtc_no_stun_by_default
+120	KILLED	webrtc: default stun added	test_evalsim_webrtc.py::test_webrtc_no_stun_by_default
+121	KILLED	webrtc: offer sends nulls	test_evalsim_webrtc.py::test_webrtc_signalling_body_matches_pinned_pipecat
+122	KILLED	webrtc: restart false dropped	test_evalsim_webrtc.py::test_webrtc_signalling_body_matches_pinned_pipecat
+123	KILLED	webrtc: answer type unchecked	test_evalsim_webrtc.py::test_webrtc_answer_is_validated_strictly
+124	KILLED	webrtc: pc_id charset unchecked	test_evalsim_webrtc.py::test_webrtc_answer_is_validated_strictly
+125	KILLED	webrtc: sdp cap unchecked	test_evalsim_webrtc.py::test_webrtc_answer_is_validated_strictly
+126	KILLED	webrtc: redirect as rejected	test_evalsim_webrtc.py::test_signalling_redirect_is_never_followed
+127	KILLED	webrtc: ice not required	test_evalsim_webrtc.py::test_webrtc_non_loopback_target_needs_an_explicit_ice_server
+128	KILLED	webrtc: ice credentials accepted	test_evalsim_webrtc.py::test_ice_server_that_is_not_a_plain_stun_or_turn_url_is_refused[turn:user:secret@turn.
+129	SURVIVED	webrtc: missing extra not refused	equivalent: 'failed' implies 'module is None'
+130	KILLED	webrtc: response cap unchecked	test_evalsim_webrtc.py::test_signalling_failures_are_setup_failures_with_facts_only
+131	KILLED	webrtc: no bearer header	test_evalsim_webrtc.py::test_signalling_token_is_sent_only_as_a_bearer_header_and_origin_only_from_the_entry
+132	KILLED	webrtc: no origin header	test_evalsim_webrtc.py::test_signalling_token_is_sent_only_as_a_bearer_header_and_origin_only_from_the_entry
+133	KILLED	webrtc: path suffix unchecked	test_evalsim_webrtc.py::test_webrtc_target_url_rules[http://127.0.0.1:7860/api/other-target_invalid]
+134	KILLED	webrtc: aiortc imported at top	test_evalsim_webrtc.py::test_webrtc_module_imports_without_the_extra_in_a_fresh_interpreter
+135	KILLED	guard: any host allowed	test_evalsim_loopback_guard.py::test_loopback_marked_test_cannot_connect_anywhere_else[192.0.2.1]
+136	KILLED	guard: wildcard bind allowed	test_evalsim_loopback_guard.py::test_loopback_marked_test_can_bind_only_a_literal_loopback_address[0.0.0.0]
+137	KILLED	guard: localhost not verified	test_evalsim_loopback_guard.py::test_loopback_marked_test_cannot_use_a_name_that_resolves_away
+138	KILLED	guard: udp allowed	test_evalsim_loopback_guard.py::test_loopback_marked_test_cannot_use_udp_or_unix_sockets
+139	KILLED	guard: create_server host None allowed	test_evalsim_loopback_guard.py::test_loopback_marked_test_can_bind_only_a_literal_loopback_address[]
+140	KILLED	guard: ipv4 mapped any	test_evalsim_loopback_guard.py::test_loopback_marked_test_cannot_connect_anywhere_else[::ffff:198.51.100.7]
+141	SURVIVED	guard: unix allowed	equivalent: the next check (the address must be a (host, port) tuple) already refuses a Unix path
+142	KILLED	guard: getaddrinfo unchecked	test_evalsim_loopback_guard.py::test_loopback_marked_test_cannot_use_a_name_that_resolves_away
+143	KILLED	conftest: loopback for everyone	test_evalsim_loopback_guard.py::test_unmarked_test_keeps_the_full_guard_loopback_included
+144	KILLED	conftest: marker not registered	
+145	KILLED	conftest: unmarked guard dropped	test_evalsim_loopback_guard.py::test_unmarked_test_keeps_the_full_guard_loopback_included
+146	KILLED	conftest: key variable kept	test_evalsim_loopback_guard.py::test_the_conftest_registers_the_marker_and_still_clears_the_key_variable
+147	KILLED	agents: unseeded noise	test_evalsim_fake_agents.py::test_fake_agents_are_deterministic[protobuf]
+148	KILLED	clock harness: jumps past deadline	test_evalsim_fake_agents.py::test_fake_agent_records_what_the_client_sent_and_when

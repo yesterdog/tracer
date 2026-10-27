@@ -1,0 +1,29 @@
+Red reasons on the current tree (d940404 + the staged tests at their final paths), Python 3.13: 592 failed, 4 passed
+one line per distinct reason (first line of each traceback, --tb=line), with its count; 589 failure lines
+
+ 503  ModuleNotFoundError: No module named 'tracer_evalproviders.simcalllog'
+  32  ModuleNotFoundError: No module named 'tracer_evalcore.audio.activity'
+  22  ModuleNotFoundError: No module named 'tracer_evalproviders.ttscache'
+   5  ModuleNotFoundError: No module named 'tracer_evalproviders.sarvam.chat'
+   5  AttributeError: module 'tracer_evalproviders.secrets' has no attribute 'load_role_key'. Did you mean: 'load_api_key'?
+   4  ModuleNotFoundError: No module named 'tracer_evalproviders.sarvam.tts'
+   4  AttributeError: module 'tracer_evalproviders.sarvam.models' has no attribute 'TTS_MAX_TEXT_CHARS'
+   4  AttributeError: module 'tracer_evalproviders.sarvam.models' has no attribute 'tts_max_audio_bytes'
+   2  AttributeError: 'SttContext' object has no attribute 'role'
+   1  AssertionError: assert set() == {'CHAT_URL', 'TTS_URL'}
+   1  AttributeError: module 'tracer_evalproviders.sarvam.client' has no attribute 'build_http_client'
+   1  AttributeError: module 'tracer_evalproviders.sarvam.models' has no attribute 'tts_max_response_bytes'
+   1  AttributeError: module 'tracer_evalproviders.sarvam.models' has no attribute 'TTS_MAX_AUDIO_SECONDS'
+   1  AttributeError: module 'tracer_evalproviders.sarvam.models' has no attribute 'LLM_MAX_REPLY_BYTES'
+   1  AttributeError: module 'tracer_evalproviders.cost' has no attribute 'compute_usage_cost'. Did you mean: 'compute_stt_cost'?
+   1  AttributeError: module 'tracer_evalproviders.secrets' has no attribute 'ENV_VAR_NAMES'. Did you mean: 'ENV_VAR_NAME'?
+   1  AttributeError: 'ChunkPlan' object has no attribute 'channel'. Did you mean: 'channels'?
+
+No failure is an error of a test module itself (no collection error, no syntax error, no fixture error): the 12 files collect,
+every failure is a missing module or attribute of the batch B code, or the assertion that the module list lacks it.
+
+The 4 tests that pass on the red tree are guards of facts that already hold (nothing to explain):
+  test_sarvam_tts_retry_taxonomy_matches_stt_rules[class_tree] and test_sarvam_llm_retry_taxonomy_matches_stt_rules[class_tree]
+      (the Tts*/Llm* class tree of batch 0b: 7 direct subclasses, ConfigurationError a ValueError, KeyMissingError below it)
+  test_every_sarvam_role_records_the_name_of_the_key_never_its_value  (provider_config_ref exists since Phase 3)
+  test_phase_3_load_api_key_is_unchanged  (the Phase 3 loader and its error class)

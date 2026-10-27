@@ -191,7 +191,7 @@ def map_responses(
             "metadata": metadata,
             "transcript_id": transcript_id,
             "seq": len(turns),
-            "role": "unknown",
+            "role": context.role,
             "source": "our_stt",
             "text": response.transcript,
             "timing_source": "none",

@@ -13,9 +13,9 @@ import re
 from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Final
+from typing import Final, Protocol
 
-__all__ = ["CALL_LOG_NAME", "CallLog", "safe_request_id"]
+__all__ = ["CALL_LOG_NAME", "CallLog", "SttCallLog", "safe_request_id"]
 
 CALL_LOG_NAME: Final = "sarvam_call_log.jsonl"
 _SAFE_ID: Final = re.compile(r"[A-Za-z0-9_.:-]{1,128}")
@@ -23,6 +23,29 @@ _SAFE_KIND: Final = re.compile(r"[a-z0-9_]{1,64}")
 _SAFE_SECONDS: Final = re.compile(r"[0-9]{1,20}(?:\.[0-9]{1,18})?")
 _FILE_MODE: Final = 0o600
 _DIR_MODE: Final = 0o700
+
+
+class SttCallLog(Protocol):
+    """What the STT client needs of a call log: ``CallLog`` and the view of ``SimCallLog``."""
+
+    def before(
+        self, *, chunk_index: int, attempt: int, bytes_sent: int, audio_seconds: str
+    ) -> None: ...
+
+    def after(
+        self,
+        *,
+        chunk_index: int,
+        attempt: int,
+        bytes_sent: int,
+        audio_seconds: str,
+        status: int | None,
+        error_kind: str | None,
+        elapsed_ms: int,
+        request_id: str | None,
+    ) -> None: ...
+
+    def close(self) -> None: ...
 
 
 def safe_request_id(value: object) -> str | None:

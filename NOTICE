@@ -22,3 +22,9 @@ This repository contains or derives data from the sources below. Terms were chec
 - Test fixtures: output from the Sarvam AI speech APIs (Sarvam AI terms of service, version 2.0)
   and short quotes from the Langfuse documentation (MIT) and Pipecat documentation (BSD-2-Clause,
   copyright Daily). The Sarvam audio redistribution terms are open on the release checklist.
+- Wire format facts of the Pipecat protobuf dialect: the names, types and field numbers of the
+  five frame messages of `src/pipecat/frames/frames.proto` at tag v1.14.0 of
+  https://github.com/pipecat-ai/pipecat (BSD-2-Clause, Copyright (c) 2024-2026, Daily) are
+  recorded in docs/adr/0026-simulated-caller-architecture.md and implemented by a hand-written
+  encoder and decoder (tracer_evalsim/dialects/protobuf_wire.py). No Pipecat source file is
+  copied, nothing is generated from the `.proto` file, and no Pipecat module is imported.

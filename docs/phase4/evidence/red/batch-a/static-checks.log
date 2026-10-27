@@ -1,0 +1,21 @@
+# static checks of the staged tests (at their final path) and of the oracle modules, Python 3.13 environment, pinned ruff and mypy of the lock
+$ ruff format --check <8 test files> <5 oracle modules>
+13 files already formatted
+$ ruff check <8 test files> <5 oracle modules>
+All checks passed!
+$ mypy (strict, root configuration) <8 test files> <5 oracle modules>
+Success: no issues found in 13 source files
+$ non-ASCII bytes in the staged files
+tests/test_sim_callstate.py:0
+tests/test_sim_g711.py:0
+tests/test_sim_timing.py:0
+tests/evalcore_batcha_support.py:0
+src/tracer_evalcore/g711.py:0
+src/tracer_evalcore/callstate.py:0
+tests/test_sim_recorder.py:0
+tests/test_sim_turntaking.py:0
+src/tracer_evalcore/simtiming.py:0
+tests/test_sim_core_conventions.py:0
+tests/evalcore_phase4_adr_support.py:0
+src/tracer_evalcore/turntaking.py:0
+src/tracer_evalcore/recorder.py:0

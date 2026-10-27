@@ -23,7 +23,13 @@ from tracer_evalschema.loader import loads_strict
 from tracer_evalschema.pricing import PriceEntry, PriceProvenance, PricingCatalog
 from tracer_evalschema.usage import UsageRecord
 
-__all__ = ["CatalogRefusedError", "SttCost", "compute_stt_cost", "load_user_catalog"]
+__all__ = [
+    "CatalogRefusedError",
+    "SttCost",
+    "compute_stt_cost",
+    "compute_usage_cost",
+    "load_user_catalog",
+]
 
 _DOMAIN: Final = "evaluation"
 _PRECISION: Final = 200
@@ -145,3 +151,6 @@ def compute_stt_cost(
         records, domain=_DOMAIN, summary_id=CostSummaryId.new(), created_at=created_at
     )
     return SttCost(records=tuple(records), summary=summary)
+
+
+compute_usage_cost = compute_stt_cost

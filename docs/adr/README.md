@@ -1,6 +1,13 @@
 # Architecture Decision Records: Phase 1 (`tracer-evalschema` 0.0.1), Phase 2 (`tracer-evaldb`), Phase 3 (recorded-audio scoring) and Phase 4 (the simulated caller)
 
-Revision 50, 2026-10-27. Authoritative scope: `docs/phase1/SCOPE.md` (ADRs 0001 to 0018), `docs/phase2/SCOPE.md` (ADRs 0019 to 0022), `docs/phase3/SCOPE.md` (ADRs 0023 to 0025) and `docs/phase4/SCOPE.md` (ADRs 0026 to 0029).
+Revision 51, 2026-10-27. Authoritative scope: `docs/phase1/SCOPE.md` (ADRs 0001 to 0018), `docs/phase2/SCOPE.md` (ADRs 0019 to 0022), `docs/phase3/SCOPE.md` (ADRs 0023 to 0025) and `docs/phase4/SCOPE.md` (ADRs 0026 to 0029).
+
+## Changes in revision 51
+- **Editorial amendments after the Phase 4 batch A, C and D red tests** (docs only, 2026-10-27; decision log "PHASE 4 BATCH A", "PHASE 4 BATCH C" and "PHASE 4 BATCH D", readings auto-approved by the lead). No rule or invariant is added or removed: ADR 0026 keeps 24 rules and I1 to I10, ADR 0028 keeps 12 rules and I1 to I7, and ADR 0024's Phase 3 block (rules 1 to 17, I1 to I9) is unchanged.
+  - **ADR 0026 rule 10:** `max_silence_ms` is the wait budget: the call ends with `max_silence` once the simulator has waited `max_silence_ms` since its wait began without being able to take its turn (the earlier wording could never end a comfort-noise call); the owner consequence is noted at SCOPE O4.
+  - **ADR 0026 rule 23 and the ADR 0024 Phase 4 amendment (intro paragraph, for rule 17):** `loopback`-marked tests in `packages/evalsim/tests` run in the default suite under an adversarial loopback-only guard (localhost or a literal loopback address only, loopback-only bind, no UDP or Unix socket); unmarked tests keep the full guard; the marker is confined to declared modules by a test. Rejected: deselecting by default like `postgres`, reusing `integration`, in-memory only, mocking websockets. The Phase 3 claim "cannot reach any other host" is read as holding for the patched socket paths only (BL-289, BL-290).
+  - **ADR 0028 Ambiguities 5 and 6 and Consequences:** line feeds are removed so words glue (rule 4 pinned literally; a later amendment to replace tab, LF and CR with one space, BL-303); no ZWJ or ZWNJ in caller lines (BL-304); an LLM caller may speak a number the agent dictated, but no agent-dictated number reaches a dial action (SCOPE P4-14 reworded).
+  - BACKLOG BL-303 to BL-310.
 
 ## Changes in revision 50
 - **Phase 4 batch 0, docs only** (`docs/phase4/SCOPE.md` tasks P4-00a to P4-00e; Q1 to Q22 auto-approved by the lead on the recommended options, decision log "PHASE 4 SCOPE DELIVERED"; SCOPE Decisions D1 and D5). No evalschema file changed; `SCHEMA_VERSION` stays `0.0.1`. Every new rule cites a test name of the Phase 4 task table (SCOPE section A); qa writes the ADR rule tests next, red first, each with a set of not-yet-defined names that shrinks to empty by P4-G.

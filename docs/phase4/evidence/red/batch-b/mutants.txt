@@ -1,0 +1,168 @@
+Mutants of the oracle (batch B) against the staged tests, Python 3.13, a fresh PYTHONPYCACHEPREFIX for each run, the pytest run stops at the first failing test.
+159 mutants: 155 killed, 4 survived; the 4 are equivalent mutants (reason on each line). Format: id, KILLED|SURVIVED, what was changed | pytest summary.
+The first run (151 mutants, before the tests were completed) had 19 survivors; they led to these test additions (all killed in this run):
+  T16 text stripped on the wire (padded and nbsp texts), T21 usage model constant (second voice model), T37 data chunk shorter than its size,
+  T40 request type unchecked (TTS), P11 elapsed factor (tick of 3.5 s), P21 header fallback of the request id (success and error), S14 no fsync (counting os.fsync),
+  S17 no UTC conversion (+05:30 clock), A09 two caller channels (select_stt_channel), and A01/A03/A04/A06/A09/A10/A11/A13/A17 (the first run had used the
+  provider tests only for the evalcore mutants: re-run with the activity tests, all killed but A03).
+
+T01 KILLED non-mr language not refused | 1 failed, 1077 passed in 19.29s
+T02 KILLED limit off by one (>=) | 1 failed, 1086 passed in 16.97s
+T03 KILLED limit off by one (+1) | 1 failed, 884 passed in 15.14s
+T04 KILLED limit in bytes | 1 failed, 1086 passed in 17.65s
+T05 KILLED cap off by one | 1 failed, 933 passed in 14.70s
+T06 KILLED cap never charged | 1 failed, 933 passed in 14.12s
+T07 KILLED cache never hit | 1 failed, 884 passed in 13.95s
+T08 KILLED cache cap off by one | 1 failed, 1264 passed in 19.21s
+T09 KILLED cache odd length accepted | 1 failed, 1263 passed in 18.30s
+T10 KILLED cache never written | 1 failed, 884 passed in 14.31s
+T11 KILLED wire language mr | 1 failed, 1057 passed in 16.81s
+T12 KILLED wire speaker fixed | 1 failed, 1057 passed in 16.99s
+T13 KILLED wire pace fixed | 1 failed, 1057 passed in 16.91s
+T14 KILLED wire rate fixed | 1 failed, 1057 passed in 17.35s
+T15 KILLED wire codec fixed | 1 failed, 1058 passed in 17.03s
+T16 KILLED text stripped on the wire | 1 failed, 1072 passed in 17.42s
+T17 KILLED wire model fixed | 1 failed, 1074 passed in 16.81s
+T18 KILLED log characters in bytes | 1 failed, 880 passed in 13.59s
+T19 KILLED usage characters in bytes | 1 failed, 996 passed in 13.96s
+T20 KILLED usage source | 1 failed, 996 passed in 14.38s
+T21 KILLED usage model fixed | 1 failed, 996 passed in 14.36s
+T22 KILLED usage requests count | 1 failed, 996 passed in 14.84s
+T23 KILLED usage never handed out | 1 failed, 973 passed in 14.69s
+T24 KILLED occurred_at from the context | 1 failed, 996 passed in 15.03s
+T25 KILLED two audios accepted | 1 failed, 1228 passed in 20.12s
+T26 SURVIVED lenient base64 | 1285 passed in 19.70s  [EQUIVALENT: equivalent on the 3.13 environment of the mutant run: b64decode(validate=True) is strict there; the Python 3.11 oracle run caught excess padding ('AAEC=') in a first run, and the grammar check of the oracle was added (case 'audio extra padding' of the shape test)]
+T27 KILLED audio cap off by one | 1 failed, 1051 passed in 16.44s
+T28 SURVIVED empty decoded audio accepted | 1285 passed in 19.79s  [EQUIVALENT: equivalent: an empty decoded audio is unreachable after the empty-string check and the strict base64 grammar (no valid non-empty base64 decodes to nothing)]
+T29 KILLED id length cap off by one | 1 failed, 1222 passed in 18.58s
+T30 KILLED channels not checked | 1 failed, 1040 passed in 14.62s
+T31 KILLED rate not checked | 1 failed, 1038 passed in 15.96s
+T32 KILLED bits not checked | 1 failed, 1041 passed in 14.38s
+T33 KILLED odd length wav accepted | 1 failed, 1049 passed in 13.71s
+T34 KILLED empty wav accepted | 1 failed, 1050 passed in 14.41s
+T35 KILLED container not stripped | 1 failed, 1031 passed in 12.82s
+T36 KILLED cap never enforced | 1 failed, 933 passed in 14.53s
+T37 KILLED short data chunk accepted | 1 failed, 1048 passed in 14.76s
+T38 KILLED riff tag not checked | 1 failed, 1045 passed in 14.55s
+T39 KILLED cap range not checked | 1 failed, 937 passed in 13.85s
+T40 KILLED request type not checked | 1 failed, 1099 passed in 17.48s
+P01 KILLED 4xx retried | 1 failed, 556 passed in 12.87s
+P02 KILLED 403 not auth | 1 failed, 580 passed in 13.28s
+P03 KILLED auth code not honoured | 1 failed, 551 passed in 12.94s
+P04 KILLED retry-after replaces backoff | 1 failed, 609 passed in 13.97s
+P05 KILLED bound off by one | 1 failed, 608 passed in 13.25s
+P06 KILLED 503 retry-after ignored | 1 failed, 604 passed in 13.39s
+P07 KILLED no identity | 1 failed, 489 passed in 12.85s
+P08 KILLED no content type | 1 failed, 489 passed in 13.13s
+P09 KILLED other key header | 1 failed, 489 passed in 12.80s
+P10 KILLED no before line | 1 failed, 501 passed in 12.72s
+P11 KILLED elapsed | 1 failed, 930 passed in 14.03s
+P12 KILLED content type not checked | 1 failed, 549 passed in 13.13s
+P13 KILLED body cap off by one | 1 failed, 546 passed in 12.90s
+P14 KILLED unexpected status | 1 failed, 650 passed in 13.26s
+P15 KILLED backoff constant | 1 failed, 572 passed in 13.42s
+P16 KILLED no cap at all | 1 failed, 546 passed in 13.62s
+P17 KILLED surrogate accepted | 1 failed, 963 passed in 14.13s
+P18 KILLED duplicate keys accepted | 1 failed, 506 passed in 13.47s
+P19 KILLED undecodable class | 1 failed, 555 passed in 13.69s
+P20 KILLED three attempts | 1 failed, 550 passed in 13.37s
+P21 KILLED no header fallback | 1 failed, 660 passed in 13.33s
+P22 KILLED bytes sent wrong | 1 failed, 881 passed in 14.06s
+P23 SURVIVED oversize flag ignored | 1285 passed in 19.55s  [EQUIVALENT: equivalent: an oversize read leaves body None, so the second condition already covers it]
+L01 KILLED llm cap off by one | 1 failed, 944 passed in 14.57s
+L02 KILLED llm cap counts completion only | 1 failed, 943 passed in 14.70s
+L03 KILLED max_tokens wire | 1 failed, 472 passed in 13.30s
+L04 KILLED seed 0 not sent | 1 failed, 484 passed in 13.08s
+L05 KILLED effort never sent | 1 failed, 487 passed in 13.38s
+L06 KILLED two choices accepted | 1 failed, 518 passed in 14.33s
+L07 KILLED reply cap off by one | 1 failed, 545 passed in 13.27s
+L08 KILLED cached equals prompt refused | 1 failed, 494 passed in 12.88s
+L09 KILLED cached not split | 1 failed, 494 passed in 13.61s
+L10 KILLED cache_read always | 1 failed, 472 passed in 11.66s
+L11 KILLED no seed guarantee key | 1 failed, 498 passed in 9.35s
+L12 KILLED seed not recorded | 1 failed, 498 passed in 10.85s
+L13 KILLED llm source | 1 failed, 493 passed in 12.49s
+L14 KILLED bool token count accepted | 1 failed, 534 passed in 10.98s
+L15 KILLED huge token count accepted | 1 failed, 537 passed in 11.14s
+L16 KILLED seed claim | 1 failed, 499 passed in 11.08s
+L17 KILLED llm id cap off by one | 1 failed, 512 passed in 10.92s
+L18 KILLED llm model fixed (wire/usage) | 1 failed, 473 passed in 11.59s
+L19 KILLED content type unchecked | 1 failed, 523 passed in 12.32s
+L20 KILLED usage type unchecked | 1 failed, 527 passed in 15.08s
+L21 KILLED messages truncated | 1 failed, 472 passed in 18.40s
+L22 KILLED effort not recorded | 1 failed, 9 passed in 10.21s
+S01 KILLED stage unchecked | 1 failed, 908 passed in 16.10s
+S02 KILLED tts shape unchecked | 1 failed, 910 passed in 18.63s
+S03 KILLED stt shape unchecked | 1 failed, 914 passed in 18.47s
+S04 KILLED follows links | 1 failed, 926 passed in 17.88s
+S05 KILLED mode 0644 | 1 failed, 924 passed in 15.12s
+S06 KILLED dir 0755 | 1 failed, 924 passed in 15.84s
+S07 KILLED unsafe ids logged | 1 failed, 923 passed in 15.54s
+S08 KILLED unsafe kind logged | 1 failed, 923 passed in 15.40s
+S09 KILLED dialect unchecked | 1 failed, 888 passed in 15.30s
+S10 KILLED end reason unchecked | 1 failed, 894 passed in 15.41s
+S11 KILLED count key unchecked | 1 failed, 897 passed in 15.36s
+S12 KILLED negative count accepted | 1 failed, 905 passed in 15.26s
+S13 KILLED stt index shifted | 1 failed, 885 passed in 15.48s
+S14 KILLED no fsync (not observable here) | 1 failed, 932 passed in 15.50s
+S16 KILLED ints unchecked | 1 failed, 920 passed in 15.71s
+S17 KILLED no utc conversion (not observable) | 1 failed, 931 passed in 15.02s
+S18 KILLED audio_seconds unchecked | 1 failed, 915 passed in 15.03s
+C-provider KILLED key without provider | 1 failed, 1251 passed in 20.83s
+C-model KILLED key without model | 1 failed, 1251 passed in 20.11s
+C-speaker KILLED key without speaker | 1 failed, 1251 passed in 20.42s
+C-language_code KILLED key without language_code | 1 failed, 1251 passed in 22.52s
+C-sample_rate_hz KILLED key without sample_rate_hz | 1 failed, 1251 passed in 21.00s
+C-codec KILLED key without codec | 1 failed, 1251 passed in 21.16s
+C-pace KILLED key without pace | 1 failed, 1251 passed in 20.76s
+C-text KILLED key without text | 1 failed, 1247 passed in 20.17s
+C09 KILLED ascii-escaped canonical json | 1 failed, 1251 passed in 20.63s
+C10 KILLED unsorted json | 1 failed, 1251 passed in 20.36s
+C11 KILLED get follows links | 1 failed, 1256 passed in 19.92s
+C12 KILLED put follows links | 1 failed, 1256 passed in 21.21s
+C13 KILLED open follows dir link | 1 failed, 1257 passed in 20.89s
+C14 KILLED entry 0644 | 1 failed, 1256 passed in 22.06s
+C15 KILLED key unchecked | 1 failed, 1260 passed in 20.68s
+C16 KILLED get: non-regular accepted | 1 failed, 1259 passed in 32.07s
+C17 KILLED cache dir 0755 | 1 failed, 1256 passed in 28.01s
+C18 KILLED upper-case keys | 1 failed, 1260 passed in 15.25s
+C19 KILLED empty audio stored | 1 failed, 1260 passed in 16.47s
+C20 KILLED rate type unchecked | 1 failed, 1253 passed in 18.31s
+K01 KILLED tts own variable | 1 failed, 979 passed in 12.96s
+K02 KILLED tts error class | 1 failed, 982 passed in 12.58s
+K03 KILLED llm error class | 1 failed, 983 passed in 10.39s
+K04 KILLED role unchecked | 1 failed, 985 passed in 12.71s
+K05 KILLED role type unchecked | 1 failed, 985 passed in 18.30s
+A01 KILLED gap equal joins | 1 failed in 0.59s
+A02 KILLED always channel 0 | 1 failed in 0.56s
+A03 SURVIVED end beyond total | 36 passed in 1.35s  [EQUIVALENT: equivalent: slicing past the end of the channel returns the same samples, so the bound of the segment is the same]
+A04 KILLED threshold of 1 | 1 failed in 0.57s
+A05 KILLED chunk index fixed | 1 failed in 0.57s
+A06 KILLED inferred map accepted | 1 failed, 15 passed in 1.23s
+A07 KILLED default caller | 1 failed, 13 passed in 1.15s
+A08 KILLED no offset | 1 failed in 0.58s
+A09 KILLED two agents accepted | 1 failed, 20 passed in 1.19s
+A10 KILLED channel == channels accepted | 1 failed, 12 passed in 1.15s
+A11 KILLED wait 0 accepted | 1 failed, 12 passed in 1.17s
+A12 KILLED frame size off | 1 failed in 0.59s
+A13 KILLED no frame_ms | 1 failed, 11 passed in 1.15s
+A14 KILLED no channel in metadata | 1 failed, 11 passed in 1.19s
+A15 KILLED format stays /1 | 1 failed, 11 passed in 1.15s
+A17 KILLED chunk channels 2 | 1 failed in 0.56s
+E01 KILLED role ignored | 1 failed, 21 passed in 1.30s
+E02 KILLED 8k refused for mono too | 1 failed, 239 passed in 12.47s
+E03 KILLED 8k not refused | 1 failed, 1016 passed in 16.13s
+E04 KILLED role unchecked | 1 failed, 1018 passed in 17.95s
+E05 KILLED default role agent | 1 failed, 661 passed in 9.45s
+E06 KILLED trust_env | 1 failed, 439 passed in 9.58s
+E07 KILLED redirects followed | 1 failed, 92 passed in 7.24s
+E08 KILLED 8k reason | 1 failed, 1022 passed in 10.34s
+S19 KILLED stt view closes the shared log | 1 failed, 886 passed in 8.07s
+L23 KILLED reply cap in characters | 1 failed, 545 passed in 7.64s
+L24 KILLED reply stripped | 1 failed, 491 passed in 7.58s
+L25 KILLED id unchecked | 1 failed, 508 passed in 7.69s
+T41 KILLED invalid cache entry accepted | 1 failed, 1262 passed in 11.00s
+T42 KILLED cache hit audio altered | 1 failed, 1246 passed in 10.76s
+T43 KILLED audio altered after parse | 1 failed, 1031 passed in 8.43s
+P24 KILLED 400 is auth | 1 failed, 571 passed in 7.78s
+TOTAL 159 killed 155 survived 4 not-applicable 0

@@ -50,50 +50,6 @@ DIALECT_HEADING = "## Dialect specifications"
 # ADR 0026 rules and invariants
 _P0026: frozenset[str] = frozenset(
     {
-        # P4-04
-        "test_kill_switch_reaches_ended_from_every_state",
-        "test_max_duration_is_min_of_evaluator_and_cap",
-        "test_no_event_after_ended",
-        "test_setup_failure_is_an_end_reason_not_an_exception",
-        "test_state_machine_transition_table_exact",
-        # P4-05
-        "test_agent_activity_is_any_nonzero_sample_no_threshold",
-        "test_barge_in_fires_at_offset_from_agent_onset",
-        "test_comfort_noise_agent_never_goes_silent_is_max_silence_not_a_hang",
-        "test_simulator_never_speaks_while_brain_pending",
-        "test_wait_for_silence_parameter_has_no_default",
-        # P4-06
-        "test_recorder_is_deterministic_from_frame_log",
-        # P4-08
-        "test_sarvam_tts_sends_explicit_model_speaker_language_rate",
-        # P4-09
-        "test_sarvam_llm_model_and_max_tokens_required",
-        "test_sarvam_llm_seed_recorded_never_claimed_deterministic",
-        # P4-11
-        "test_tts_cache_hit_sends_nothing_and_records_no_usage",
-        "test_tts_cache_key_covers_every_parameter",
-        # P4-14
-        "test_adversarial_agent_text_never_breaks_report_or_store",
-        # P4-15
-        "test_replay_brain_missing_file_is_a_refusal_before_connect",
-        "test_scripted_mode_makes_no_llm_request",
-        # P4-16
-        "test_dialect_spec_cites_docs_with_retrieval_date",
-        "test_protobuf_dialect_roundtrip_in_memory",
-        "test_protobuf_dialect_unknown_message_ignored_and_counted",
-        # P4-17
-        "test_twilio_dialect_agent_clear_message_is_barge_in_evidence",
-        "test_twilio_dialect_ids_are_synthetic_and_marked",
-        "test_twilio_dialect_message_sequence_exact",
-        # P4-18
-        "test_webrtc_extra_absent_gives_clear_refusal",
-        "test_webrtc_no_stun_by_default",
-        "test_webrtc_signalling_body_matches_pinned_pipecat",
-        # P4-19
-        "test_fake_agents_are_deterministic",
-        # P4-20
-        "test_sender_paces_real_time_with_injected_clock",
-        "test_watchdog_hangs_up_even_if_state_machine_stalls",
         # P4-21
         "test_order_of_operations_pinned_by_call_trace",
         "test_refusals_happen_before_any_key_read_or_connect",
@@ -137,34 +93,6 @@ _P0026: frozenset[str] = frozenset(
 # ADR 0027 rules and invariants
 _P0027: frozenset[str] = frozenset(
     {
-        # P4-05
-        "test_wait_for_silence_parameter_has_no_default",
-        # P4-06
-        "test_g711_mulaw_alaw_decode_matches_itu_table",
-        "test_recorder_burst_arrival_uses_playback_model",
-        "test_recorder_channel_0_is_exactly_what_was_sent",
-        "test_recorder_is_deterministic_from_frame_log",
-        "test_recorder_refuses_rate_mismatch_never_resamples",
-        # P4-07
-        "test_simulator_self_latency_excluded_from_agent_gap",
-        "test_timing_first_agent_audio_exact_on_synthetic_log",
-        "test_timing_gap_measured_from_last_sent_frame",
-        "test_timing_value_without_both_edges_is_error_never_zero",
-        "test_timing_values_carry_quantum_and_dialect",
-        # P4-10
-        "test_activity_chunk_plan_is_deterministic_and_covers_agent_audio",
-        "test_phase3_mono_mapping_unchanged",
-        "test_stt_agent_channel_turns_have_role_agent_from_declared_map",
-        "test_stt_never_runs_on_caller_channel_by_default",
-        # P4-11
-        "test_tts_cache_hit_sends_nothing_and_records_no_usage",
-        # P4-12
-        "test_sim_cost_not_available_without_usd_catalog",
-        "test_sim_usage_records_per_request_with_stages",
-        # P4-13
-        "test_prompt_template_hash_recorded_in_sim_profile",
-        # P4-15
-        "test_scripted_mode_makes_no_llm_request",
         # P4-21
         "test_available_inputs_never_lists_agent_transcript_without_agent_record",
         "test_privacy_marker_false_only_with_role_evidence",
@@ -198,28 +126,6 @@ _P0027: frozenset[str] = frozenset(
 # ADR 0028 rules and invariants
 _P0028: frozenset[str] = frozenset(
     {
-        # P4-05
-        "test_simulator_never_speaks_while_brain_pending",
-        # P4-07
-        "test_simulator_self_latency_excluded_from_agent_gap",
-        # P4-09
-        "test_sarvam_llm_model_and_max_tokens_required",
-        "test_sarvam_llm_seed_recorded_never_claimed_deterministic",
-        # P4-10
-        "test_stt_agent_channel_turns_have_role_agent_from_declared_map",
-        # P4-13
-        "test_agent_text_only_inside_fenced_data_block",
-        "test_caller_output_length_cap_required",
-        "test_caller_output_outside_persona_script_refused_once_then_ends",
-        "test_expected_outcome_never_in_any_llm_request",
-        "test_prompt_template_hash_recorded_in_sim_profile",
-        # P4-14
-        "test_adversarial_agent_text_never_breaks_report_or_store",
-        "test_injection_cannot_leak_expected_outcome_or_key_canary",
-        "test_injection_from_agent_never_changes_dial_target_or_tools",
-        # P4-15
-        "test_replay_brain_missing_file_is_a_refusal_before_connect",
-        "test_scripted_mode_makes_no_llm_request",
         # P4-23
         "test_simulate_requires_caps_for_real_engines",
         # P4-31
@@ -232,10 +138,6 @@ _P0028: frozenset[str] = frozenset(
 # ADR 0029 rules and invariants
 _P0029: frozenset[str] = frozenset(
     {
-        # P4-12
-        "test_sim_call_log_has_no_text_no_number_no_key",
-        # P4-14
-        "test_injection_from_agent_never_changes_dial_target_or_tools",
         # P4-21
         "test_order_of_operations_pinned_by_call_trace",
         "test_refusals_happen_before_any_key_read_or_connect",
@@ -261,34 +163,6 @@ _P0029: frozenset[str] = frozenset(
 # ADR 0024 Phase 4 amendment (A1-A9, IA1-IA4)
 _P0024A: frozenset[str] = frozenset(
     {
-        # P4-06
-        "test_g711_mulaw_alaw_decode_matches_itu_table",
-        "test_recorder_refuses_rate_mismatch_never_resamples",
-        # P4-08
-        "test_sarvam_tts_base_url_not_overridable",
-        "test_sarvam_tts_refuses_non_mr_and_over_2500_chars_before_send",
-        "test_sarvam_tts_response_rejects_wrong_shape_and_oversize",
-        "test_sarvam_tts_retry_taxonomy_matches_stt_rules",
-        "test_sarvam_tts_sends_explicit_model_speaker_language_rate",
-        # P4-09
-        "test_sarvam_llm_model_and_max_tokens_required",
-        "test_sarvam_llm_response_rejects_wrong_shape_and_oversize",
-        "test_sarvam_llm_seed_recorded_never_claimed_deterministic",
-        "test_sarvam_llm_usage_maps_tokens_exactly",
-        # P4-10
-        "test_activity_chunk_plan_is_deterministic_and_covers_agent_audio",
-        "test_phase3_mono_mapping_unchanged",
-        "test_stt_agent_channel_turns_have_role_agent_from_declared_map",
-        "test_stt_never_runs_on_caller_channel_by_default",
-        # P4-11
-        "test_tts_cache_hit_sends_nothing_and_records_no_usage",
-        "test_tts_cache_key_covers_every_parameter",
-        "test_tts_cache_refuses_links_and_is_private",
-        # P4-12
-        "test_sim_call_log_has_no_text_no_number_no_key",
-        "test_sim_call_log_written_before_and_after_each_request",
-        "test_sim_cost_not_available_without_usd_catalog",
-        "test_sim_usage_records_per_request_with_stages",
         # P4-21
         "test_refusals_happen_before_any_key_read_or_connect",
         # P4-30

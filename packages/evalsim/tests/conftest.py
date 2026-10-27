@@ -1,11 +1,21 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 The Tracer contributors
-"""The no-network guard of the tracer-evalsim tests (ADR 0024 rule 17, ADR 0026 rule 1).
+"""The no-network guard of the tracer-evalsim tests (ADR 0024 rule 17, ADR 0026 rules 1 and 23).
 
 Every test runs with ``socket.connect`` and its relatives replaced by a function that raises an
 ``AssertionError`` (not an ``OSError``: code that retries or translates transport errors must not
-swallow it). A test that reaches the network, the loopback included, therefore fails. There is no
-loopback exemption at P4-01; a later task that needs one adds it for its own marked tests.
+swallow it). A test that reaches the network, the loopback included, therefore fails.
+
+One exception (batch D, named conftest change S-D1): a test that carries the ``loopback`` marker
+talks to a fake server that the test starts itself, in its own process, on the loopback
+interface. For such a test, and only for such a test, the socket paths and the asyncio connection
+paths are replaced by the loopback-only versions of ``evalsim_loopback_guard`` (a destination
+that is not ``localhost`` or a literal loopback address is still refused, a server may bind a
+loopback address only, UDP and Unix sockets are refused). The marker is registered here (so no
+repository file changes) and is NOT deselected by default: these tests have no external
+resource, no key and no second process, and they run in every leg of the normal test job. The
+marker ``integration`` of ADR 0026 rule 23 (tools/samplebot, a separate job) is a different thing.
+Unmarked tests keep the full guard, loopback included.
 """
 
 from __future__ import annotations
@@ -15,6 +25,16 @@ import socket
 from typing import Any
 
 import pytest
+
+from evalsim_loopback_guard import MARKER, install_loopback_only  # type: ignore[import-not-found,unused-ignore]
+
+
+def pytest_configure(config: pytest.Config) -> None:
+    config.addinivalue_line(
+        "markers",
+        f"{MARKER}: opens sockets to a fake server started by the test itself on 127.0.0.1 or ::1 "
+        "(no key, no external host); run by default, see docs/phase4/api-surface-batch-d.md",
+    )
 
 
 def _refuse(*args: Any, **kwargs: Any) -> Any:
@@ -26,12 +46,15 @@ async def _refuse_async(*args: Any, **kwargs: Any) -> Any:
 
 
 @pytest.fixture(autouse=True)
-def _no_network(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(socket.socket, "connect", _refuse)
-    monkeypatch.setattr(socket.socket, "connect_ex", _refuse)
-    monkeypatch.setattr(socket, "create_connection", _refuse)
-    monkeypatch.setattr(socket, "getaddrinfo", _refuse)
-    monkeypatch.setattr(asyncio.BaseEventLoop, "create_connection", _refuse_async)
-    monkeypatch.setattr(asyncio.BaseEventLoop, "sock_connect", _refuse_async)
+def _no_network(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch) -> None:
+    if request.node.get_closest_marker(MARKER) is not None:
+        install_loopback_only(monkeypatch)
+    else:
+        monkeypatch.setattr(socket.socket, "connect", _refuse)
+        monkeypatch.setattr(socket.socket, "connect_ex", _refuse)
+        monkeypatch.setattr(socket, "create_connection", _refuse)
+        monkeypatch.setattr(socket, "getaddrinfo", _refuse)
+        monkeypatch.setattr(asyncio.BaseEventLoop, "create_connection", _refuse_async)
+        monkeypatch.setattr(asyncio.BaseEventLoop, "sock_connect", _refuse_async)
     # no test reads a key from the machine's environment
     monkeypatch.delenv("SARVAM_API_KEY", raising=False)

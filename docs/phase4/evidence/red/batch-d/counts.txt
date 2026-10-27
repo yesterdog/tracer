@@ -1,0 +1,33 @@
+Phase 4 batch D (P4-16 to P4-20): counts per Python version (uv environments synced --locked --all-groups --offline;
+websockets 17.3, aiortc 1.15.0, cryptography 50.0.2)
+
+New test items in packages/evalsim/tests: 349 (13 test files; 76 of them carry the `loopback` marker)
+Files compared by the red and oracle runs: packages/evalsim/tests (356 items with the 7 scaffold items) plus the three evalcore ADR readers
+  that use the pending set (test_adr0026_rules_are_tested.py, test_phase4_adrs_cite_only_existing_or_pending_tests.py,
+  test_phase4_adr_index_and_gate.py) = 406 items
+
+RED (the staged files at their final path in a mirror of the CURRENT tree; no product code, no NOTICE/CHANGELOG text):
+  py3.11  298 failed, 107 passed, 1 skipped
+  py3.12  298 failed, 107 passed, 1 skipped
+  py3.13  298 failed, 107 passed, 1 skipped   (run 1 and run 2 identical)
+  py3.14  298 failed, 107 passed, 1 skipped
+  The 107 passes: 49 earlier ADR reader tests, 7 earlier scaffold tests, 27 guard tests, 13 codec tests that need no product code (12 golden
+  vectors reproduced by the independent reference encoder, the ADR field-table comparison), 10 harness tests (fake agents, virtual clock,
+  in-memory wire), 1 scan teeth test. The 1 skipped is the opt-in gate test (TRACER_PHASE4_GATE=1).
+
+ORACLE (same 406 items):
+  py3.11  405 passed, 1 skipped
+  py3.12  405 passed, 1 skipped
+  py3.13  405 passed, 1 skipped
+  py3.14  405 passed, 1 skipped
+  py3.12 with aiortc and av blocked, test_evalsim_webrtc.py: 30 passed, 1 skipped (test_webrtc_no_stun_by_default)
+
+ORACLE, whole workspace (uv run pytest, default addopts):
+  py3.11  13309 passed, 1 skipped, 1288 deselected
+  py3.12  13309 passed, 1 skipped, 1288 deselected
+  py3.13  13309 passed, 1 skipped, 1288 deselected
+  py3.14  13309 passed, 1 skipped, 1288 deselected
+  (12,960 earlier + 349 new = 13,309; the 32 warnings are the earlier EnvFileModeWarning tests)
+
+MUTANTS: 149, 146 killed, 3 survived (equivalent); see mutants.txt
+LINT: ruff check, ruff format --check and mypy --strict clean on all 21 staged files and on the oracle's source

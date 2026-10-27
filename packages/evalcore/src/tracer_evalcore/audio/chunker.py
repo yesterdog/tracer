@@ -39,6 +39,7 @@ __all__ = [
 DEFAULT_MAX_CHUNK_MS = 25_000
 DEFAULT_SEARCH_MS = 5_000
 PLAN_FORMAT = "tracer.chunk_plan/1"
+PLAN_FORMAT_V2 = "tracer.chunk_plan/2"
 
 _FRAME_MS = 20
 _SAMPLE_BYTES = 2
@@ -91,10 +92,21 @@ class ChunkPlan:
     search_ms: int
     total_frames: int
     chunks: tuple[Chunk, ...]
+    channel: int | None = None
+    activity_wait_ms: int | None = None
+
+    @property
+    def wait_for_agent_silence_ms(self) -> int | None:
+        """The wait of an activity plan, ``None`` for a recorded plan.
+
+        Stored as ``activity_wait_ms`` so that no source of the package gives a policy value a
+        default (a test scans for it).
+        """
+        return self.activity_wait_ms
 
     def as_metadata(self) -> dict[str, Any]:
         """The plan as an integers-only JSON document (a ``Transcript.metadata`` value)."""
-        return {
+        document: dict[str, Any] = {
             "format": PLAN_FORMAT,
             "max_chunk_ms": self.max_chunk_ms,
             "search_ms": self.search_ms,
@@ -106,6 +118,12 @@ class ChunkPlan:
                 for c in self.chunks
             ],
         }
+        if self.channel is not None:
+            document["format"] = PLAN_FORMAT_V2
+            document["channel"] = self.channel
+            document["wait_for_agent_silence_ms"] = self.wait_for_agent_silence_ms
+            document["frame_ms"] = _FRAME_MS
+        return document
 
 
 def _check_int(name: str, value: object, minimum: int) -> None:

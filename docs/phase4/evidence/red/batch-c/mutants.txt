@@ -1,0 +1,174 @@
+Mutants of the oracle (callerline.py, prompt.py, brains.py), Python 3.13, each run with a fresh PYTHONPYCACHEPREFIX.
+Each mutant changes one place of the oracle; the seven new test files (200 items) run with -x; "caught" = the run failed.
+163 mutants: 149 caught, 14 equivalent (no test can tell them apart, reason in brackets), 0 survived.
+First run (before the final tests): 14 survivors. C18-C22, C25, C26, B29, B31 are equivalent (below). The other five led to test
+additions: C35 (U+0900 to U+0903 counted as letters) -> V09 test with the four marks; P37 (PromptInputs not checking
+its instructions) -> test_prompt_inputs_record_checks_its_own_shape; B27 (extra text in the replay error message) -> exact
+message assertions; B28 (the replay brain keeping the directory path) -> test_replay_brain_keeps_no_path_and_its_errors_have_one_shape
+(and scan_for now reads path-like objects and slots); L33 (the raw reply kept in the history) -> test_the_history_holds_the_accepted_line_not_the_raw_reply.
+Later additions from review (X1 the 2**53-1 bound, X2 the context check; the script copy and the two-brains test have no
+mutant: the oracle copies naturally) were run alone after the 161 (rows X1, X2 at the end).
+Columns: id, file, verdict, seconds, last pytest line. The mutant definitions are in oracle-mutants-def.py of this folder.
+C01   callerline.py  caught       2.2s  1 failed in 1.17s
+C02   callerline.py  caught       2.2s  1 failed in 1.17s
+C03   callerline.py  caught       2.7s  1 failed in 1.68s
+C04   callerline.py  caught       3.0s  1 failed, 32 passed in 1.78s
+C05   callerline.py  caught       2.8s  1 failed, 33 passed in 1.76s
+C06   callerline.py  caught       2.0s  1 failed in 1.05s
+C07   callerline.py  caught       1.9s  1 failed in 0.97s
+C08   callerline.py  caught       2.5s  1 failed, 26 passed in 1.53s
+C09   callerline.py  caught       2.4s  1 failed, 26 passed in 1.49s
+C10   callerline.py  caught       2.4s  1 failed, 30 passed in 1.48s
+C11   callerline.py  caught       2.4s  1 failed, 26 passed in 1.50s
+C12   callerline.py  caught       2.5s  1 failed, 23 passed in 1.51s
+C13   callerline.py  caught       1.9s  1 failed in 0.96s
+C14   callerline.py  caught       1.8s  1 failed in 0.96s
+C15   callerline.py  caught       1.9s  1 failed in 0.97s
+C16   callerline.py  caught       2.4s  1 failed, 2 passed in 1.47s
+C17   callerline.py  caught       2.5s  1 failed, 2 passed in 1.61s
+C18   callerline.py  equivalent  11.3s  200 passed in 10.16s   [no allow range holds a Latin letter, a control or a format character, and the Devanagari block has no unassigned code point (Unicode 14 to 16), so the deny is redundant by the table's own design]
+C19   callerline.py  equivalent  10.9s  200 passed in 9.91s   [no allow range holds a Latin letter, a control or a format character, and the Devanagari block has no unassigned code point (Unicode 14 to 16), so the deny is redundant by the table's own design]
+C20   callerline.py  equivalent  11.1s  200 passed in 10.13s   [no allow range holds a Latin letter, a control or a format character, and the Devanagari block has no unassigned code point (Unicode 14 to 16), so the deny is redundant by the table's own design]
+C21   callerline.py  equivalent  10.9s  200 passed in 9.89s   [no allow range holds a Latin letter, a control or a format character, and the Devanagari block has no unassigned code point (Unicode 14 to 16), so the deny is redundant by the table's own design]
+C22   callerline.py  equivalent  11.3s  200 passed in 10.25s   [no allow range holds a Latin letter, a control or a format character, and the Devanagari block has no unassigned code point (Unicode 14 to 16), so the deny is redundant by the table's own design]
+C23   callerline.py  caught       2.5s  1 failed, 2 passed in 1.50s
+C24   callerline.py  caught       2.3s  1 failed, 2 passed in 1.46s
+C25   callerline.py  equivalent  11.7s  200 passed in 10.67s   [no allow range holds a Latin letter, a control or a format character, and the Devanagari block has no unassigned code point (Unicode 14 to 16), so the deny is redundant by the table's own design]
+C26   callerline.py  equivalent  10.9s  200 passed in 9.80s   [no allow range holds a Latin letter, a control or a format character, and the Devanagari block has no unassigned code point (Unicode 14 to 16), so the deny is redundant by the table's own design]
+C27   callerline.py  equivalent  14.1s  200 passed in 12.87s   [V06 ranges are all Cf or Cn: V07 already denies them (redundant by the table's own design)]
+C28   callerline.py  caught       3.0s  1 failed, 2 passed in 1.89s
+C29   callerline.py  caught       3.0s  1 failed, 2 passed in 1.85s
+C30   callerline.py  caught       3.0s  1 failed, 2 passed in 1.95s
+C31   callerline.py  caught       3.1s  1 failed, 2 passed in 2.00s
+C32   callerline.py  caught       3.0s  1 failed, 2 passed in 1.89s
+C33   callerline.py  caught       3.0s  1 failed, 2 passed in 1.91s
+C34   callerline.py  caught       3.0s  1 failed, 2 passed in 1.86s
+C35   callerline.py  caught       3.0s  1 failed, 25 passed in 1.90s
+C36   callerline.py  caught       3.0s  1 failed, 25 passed in 1.92s
+C37   callerline.py  caught       2.8s  1 failed, 25 passed in 1.70s
+C38   callerline.py  caught       2.6s  1 failed, 25 passed in 1.62s
+C39   callerline.py  caught       2.7s  1 failed, 28 passed in 1.65s
+C40   callerline.py  caught       2.3s  1 failed, 34 passed in 1.46s
+C41   callerline.py  caught       2.3s  1 failed, 34 passed in 1.45s
+C42   callerline.py  caught       2.4s  1 failed, 26 passed in 1.51s
+C43   callerline.py  caught       2.4s  1 failed, 26 passed in 1.48s
+C44   callerline.py  caught       1.8s  1 failed, 1 passed in 0.95s
+C45   callerline.py  caught       2.1s  1 failed, 1 passed in 1.09s
+P01   prompt.py      caught       2.7s  1 failed, 38 passed in 1.70s
+P02   prompt.py      caught       2.7s  1 failed, 38 passed in 1.74s
+P03   prompt.py      caught       2.8s  1 failed, 47 passed in 1.91s
+P04   prompt.py      caught       2.7s  1 failed, 47 passed in 1.86s
+P05   prompt.py      caught       2.8s  1 failed, 47 passed in 1.95s
+P06   prompt.py      caught       3.0s  1 failed, 47 passed in 2.00s
+P07   prompt.py      caught       2.9s  1 failed, 47 passed in 1.92s
+P08   prompt.py      caught       2.9s  1 failed, 48 passed in 2.00s
+P09   prompt.py      caught       3.5s  1 failed, 48 passed in 2.34s
+P10   prompt.py      caught       3.6s  1 failed, 48 passed in 2.45s
+P11   prompt.py      caught       3.2s  1 failed, 48 passed in 2.22s
+P12   prompt.py      caught       3.8s  1 failed, 50 passed in 2.76s
+P13   prompt.py      caught       3.7s  1 failed, 48 passed in 2.47s
+P14   prompt.py      caught       3.3s  1 failed, 48 passed in 2.25s
+P15   prompt.py      caught       3.6s  1 failed, 47 passed in 2.51s
+P16   prompt.py      caught       4.1s  1 failed, 51 passed in 3.02s
+P17   prompt.py      caught       3.8s  1 failed, 51 passed in 2.68s
+P18   prompt.py      caught       3.9s  1 failed, 53 passed in 2.92s
+P19   prompt.py      caught       4.7s  1 failed, 53 passed in 3.69s
+P20   prompt.py      caught       3.9s  1 failed, 53 passed in 2.72s
+P21   prompt.py      caught       3.3s  1 failed, 59 passed in 2.35s
+P22   prompt.py      caught       2.9s  1 failed, 44 passed in 1.84s
+P24   prompt.py      caught       3.0s  1 failed, 44 passed in 1.89s
+P25   prompt.py      caught       3.0s  1 failed, 40 passed in 1.89s
+P27   prompt.py      caught       5.0s  1 failed, 99 passed in 3.86s
+P28   prompt.py      caught       3.1s  1 failed, 43 passed in 2.01s
+P29   prompt.py      caught       3.0s  1 failed, 43 passed in 1.93s
+P30   prompt.py      caught       2.8s  1 failed, 36 passed in 1.78s
+P31   prompt.py      caught       3.0s  1 failed, 36 passed in 1.96s
+P32   prompt.py      caught       2.8s  1 failed, 36 passed in 1.76s
+P33   prompt.py      caught       2.8s  1 failed, 36 passed in 1.76s
+P36   prompt.py      caught       3.3s  1 failed, 54 passed in 2.37s
+P37   prompt.py      caught       2.7s  1 failed, 41 passed in 1.71s
+P38   prompt.py      caught       3.5s  1 failed, 53 passed in 2.60s
+P39   prompt.py      caught       2.9s  1 failed, 39 passed in 1.87s
+P40   prompt.py      equivalent  14.3s  200 passed in 13.10s   [a ValueError vs a TypeError for a malformed pair is not specified (the test accepts either)]
+B01   brains.py      caught       5.1s  1 failed, 128 passed in 3.85s
+B02   brains.py      caught       5.1s  1 failed, 131 passed in 3.95s
+B03   brains.py      caught       4.7s  1 failed, 131 passed in 3.64s
+B03b  brains.py      caught       4.8s  1 failed, 131 passed in 3.73s
+B04   brains.py      caught       5.1s  1 failed, 134 passed in 4.00s
+B05   brains.py      caught       4.6s  1 failed, 134 passed in 3.59s
+B06   brains.py      caught       5.9s  1 failed, 131 passed in 4.77s
+B07   brains.py      caught       5.0s  1 failed, 160 passed in 3.93s
+B07b  brains.py      caught       5.8s  1 failed, 160 passed in 4.31s
+B08   brains.py      caught       4.7s  1 failed, 160 passed in 3.69s
+B09   brains.py      caught       4.9s  1 failed, 161 passed in 3.78s
+B10   brains.py      equivalent  13.2s  200 passed in 12.02s   [lstat already refuses a link; O_NOFOLLOW only closes a race that a unit test cannot create]
+B11   brains.py      equivalent  13.4s  200 passed in 12.09s   [the post-read size check closes a race (a file that grows after lstat); not creatable in a unit test]
+B12   brains.py      caught       5.3s  1 failed, 145 passed in 4.20s
+B13   brains.py      caught       5.2s  1 failed, 158 passed in 4.05s
+B14   brains.py      caught       5.3s  1 failed, 157 passed in 4.19s
+B15   brains.py      caught       5.4s  1 failed, 153 passed in 4.20s
+B16   brains.py      caught       5.0s  1 failed, 133 passed in 4.00s
+B17   brains.py      caught       5.0s  1 failed, 140 passed in 3.92s
+B18   brains.py      caught       4.9s  1 failed, 127 passed in 3.81s
+B19   brains.py      caught       4.8s  1 failed, 136 passed in 3.66s
+B20   brains.py      caught       4.9s  1 failed, 137 passed in 3.79s
+B21   brains.py      caught       5.0s  1 failed, 162 passed in 3.94s
+B22   brains.py      caught       5.1s  1 failed, 133 passed in 3.95s
+B24   brains.py      caught       5.2s  1 failed, 138 passed in 4.12s
+B25   brains.py      caught       5.2s  1 failed, 136 passed in 4.17s
+B26   brains.py      caught       5.0s  1 failed, 159 passed in 3.92s
+B27   brains.py      caught       4.8s  1 failed, 136 passed in 3.79s
+B28   brains.py      caught       4.7s  1 failed, 138 passed in 3.64s
+B29   brains.py      equivalent  14.1s  200 passed in 12.98s   [the validator strips the line anyway, so keeping it stripped changes nothing observable]
+B30   brains.py      caught       4.9s  1 failed, 164 passed in 3.88s
+B31   brains.py      equivalent  13.0s  200 passed in 11.81s   [Path(directory) raises TypeError for a non-path itself; the explicit check is the same error earlier]
+B32   brains.py      caught       4.2s  1 failed, 133 passed in 3.17s
+L01   brains.py      caught       4.9s  1 failed, 114 passed in 3.89s
+L02   brains.py      caught       4.8s  1 failed, 122 passed in 3.77s
+L04   brains.py      caught       4.7s  1 failed, 121 passed in 3.67s
+L05   brains.py      caught       4.8s  1 failed, 109 passed in 3.71s
+L06   brains.py      caught       4.3s  1 failed, 109 passed in 3.32s
+L07   brains.py      caught       4.0s  1 failed, 104 passed in 2.96s
+L08   brains.py      caught       4.5s  1 failed, 104 passed in 3.46s
+L09   brains.py      caught       4.5s  1 failed, 120 passed in 3.50s
+L10   brains.py      caught       4.9s  1 failed, 114 passed in 3.78s
+L11   brains.py      caught       4.8s  1 failed, 114 passed in 3.71s
+L12   brains.py      caught       4.5s  1 failed, 93 passed in 3.47s
+L14   brains.py      caught       2.9s  1 failed, 46 passed in 1.81s
+L15   brains.py      caught       4.9s  1 failed, 109 passed in 3.89s
+L16   brains.py      caught       4.7s  1 failed, 103 passed in 3.59s
+L17   brains.py      caught       4.8s  1 failed, 103 passed in 3.67s
+L18   brains.py      caught       4.9s  1 failed, 103 passed in 3.77s
+L19   brains.py      caught       4.6s  1 failed, 103 passed in 3.44s
+L20   brains.py      caught       4.9s  1 failed, 124 passed in 3.88s
+L21   brains.py      caught       4.8s  1 failed, 97 passed in 3.78s
+L21b  brains.py      caught       4.6s  1 failed, 97 passed in 3.45s
+L21c  brains.py      caught       4.9s  1 failed, 94 passed in 3.86s
+L21d  brains.py      caught       4.6s  1 failed, 97 passed in 3.53s
+L21e  brains.py      caught       4.7s  1 failed, 97 passed in 3.58s
+L21f  brains.py      caught       4.8s  1 failed, 97 passed in 3.76s
+L22   brains.py      caught       4.7s  1 failed, 109 passed in 3.70s
+L23   brains.py      caught       5.0s  1 failed, 108 passed in 3.77s
+L24a  brains.py      caught       5.2s  1 failed, 99 passed in 4.15s
+L24b  brains.py      caught       4.4s  1 failed, 99 passed in 3.25s
+L24c  brains.py      caught       4.5s  1 failed, 99 passed in 3.44s
+L24d  brains.py      caught       4.3s  1 failed, 99 passed in 3.37s
+L24e  brains.py      caught       4.2s  1 failed, 99 passed in 3.15s
+L25   brains.py      caught       5.3s  1 failed, 93 passed in 3.96s
+L28   brains.py      caught       5.9s  1 failed, 124 passed in 4.60s
+L29   brains.py      caught       5.6s  1 failed, 121 passed in 4.31s
+L31   brains.py      caught       5.7s  1 failed, 104 passed in 4.42s
+L32   brains.py      caught       6.7s  1 failed, 174 passed in 5.41s
+L33   brains.py      caught       5.9s  1 failed, 106 passed in 4.55s
+L34   brains.py      equivalent  16.2s  200 passed in 14.61s   [a non-text agent text still raises TypeError in the prompt builder; the brain's own check is the same error earlier]
+L35   brains.py      caught       4.5s  1 failed, 93 passed in 4.07s
+U01   brains.py      caught       8.6s  1 failed, 178 passed in 7.42s
+U02   brains.py      caught       8.9s  1 failed, 178 passed in 7.82s
+U03   brains.py      caught       9.3s  1 failed, 178 passed in 8.09s
+U04   prompt.py      caught       9.5s  1 failed, 178 passed in 8.29s
+U05   callerline.py  caught      10.1s  1 failed, 178 passed in 8.71s
+U06   brains.py      caught       9.2s  1 failed, 178 passed in 7.93s
+U07   brains.py      caught       5.9s  1 failed, 128 passed in 4.60s
+U08   brains.py      caught       6.5s  1 failed, 136 passed in 5.11s
+X1    brains.py      caught       6.4s  1 failed, 99 passed in 4.99s
+X2    brains.py      caught       6.3s  1 failed, 99 passed in 4.47s

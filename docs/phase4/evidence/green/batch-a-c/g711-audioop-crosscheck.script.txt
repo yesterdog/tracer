@@ -1,0 +1,13 @@
+import audioop, hashlib, importlib.util, struct, sys
+spec = importlib.util.spec_from_file_location("g711", sys.argv[1])
+g = importlib.util.module_from_spec(spec); spec.loader.exec_module(g)
+allb = bytes(range(256))
+def vals(b): return struct.unpack("<256h", b)
+mu = vals(audioop.ulaw2lin(allb, 2)); al = vals(audioop.alaw2lin(allb, 2))
+print(sys.version.split()[0])
+print("mulaw == audioop.ulaw2lin:", mu == g.MULAW_DECODE_TABLE)
+print("alaw  == audioop.alaw2lin:", al == g.ALAW_DECODE_TABLE)
+print("decode_mulaw bytes equal:", g.decode_mulaw(allb) == audioop.ulaw2lin(allb, 2))
+print("decode_alaw bytes equal:", g.decode_alaw(allb) == audioop.alaw2lin(allb, 2))
+h = lambda t: hashlib.sha256(",".join(str(v) for v in t).encode()).hexdigest()
+print("sha mulaw", h(g.MULAW_DECODE_TABLE)); print("sha alaw", h(g.ALAW_DECODE_TABLE))

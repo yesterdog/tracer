@@ -1,0 +1,410 @@
+# Mutants of the oracle (scratch tree: the five tracer_evalcore modules callstate, turntaking, g711, recorder, simtiming), Phase 4 batch A.
+# Each entry: ONE change to one module of the oracle, then the six new test files (test_sim_callstate, test_sim_turntaking, test_sim_g711, test_sim_recorder,
+# test_sim_timing, test_sim_core_conventions) run on Python 3.13 with -x and a fresh PYTHONPYCACHEPREFIX. CAUGHT = at least one test fails; the first failing test
+# (in file order, because of -x) is named. 196 mutants: 190 caught, 0 survived, 6 equivalent (argued below, not run).
+# Groups: C = call state machine (45), T = turn-taking (53), G = G.711 (14), R = recorder (34), M = timing (50).
+# History: a first run aborted at an anchor that the formatter had split (C37, fixed in the harness). The second run had 5 survivors that were not equivalent and
+# led to test changes: T13 (zero wait allowed: the test's second invalid value masked the first; each value now fails alone and the code is pinned), T29 (a stale
+# onset: test_the_onset_of_one_wait_is_not_the_onset_of_the_next added), M18 (a pause exactly the silence value: the 800 ms and 799 ms cases added to
+# test_barge_in_stop_is_the_end_of_the_interrupted_activity), M45 (a stop without a barge-in: the document fault now has consistent counts so that only that rule is
+# violated), M35 (anchor fixed). The third run: 6 survivors, all equivalent:
+#   T27  the latch after the onset frame only caches what poll, may_send and the next frame's pre-latch compute again
+#   T31  a wait can only close through line_started, which refuses while the brain is pending, so the flag is already clear
+#   T50  poll's latch only caches: the next frame's pre-latch and every query recompute the same decision
+#   M14  the dialect is validated twice (extract_timing and validate_timing_document); removing one leaves the same refusal
+#   M17  a last active frame exactly the silence value before t0 can only be in a run that ends with it, so its stop is not positive either way
+#   M47  the turn sequence rule is checked twice (extract_timing and validate_timing_document); removing one leaves the same refusal
+# Not mutated (not reachable here): the hosted CI, Python 3.15, any asyncio or socket code (batch D), a real clock, the ITU document itself (see ambiguity 9).
+C01 [CAUGHT] preflight connect_started skips connecting
+    caught by: test_state_machine_transition_table_exact
+C02 [CAUGHT] connecting connected goes to caller_speaking
+    caught by: test_state_machine_transition_table_exact
+C03 [CAUGHT] connect_failed ends without ending
+    caught by: test_state_machine_transition_table_exact
+C04 [CAUGHT] connected caller_line_started to awaiting_agent
+    caught by: test_state_machine_transition_table_exact
+C05 [CAUGHT] connected agent_active to awaiting_agent
+    caught by: test_state_machine_transition_table_exact
+C06 [CAUGHT] connected agent_silent to agent_speaking
+    caught by: test_state_machine_transition_table_exact
+C07 [CAUGHT] connected end_requested to ended
+    caught by: test_state_machine_transition_table_exact
+C08 [CAUGHT] caller_speaking line_finished to agent_speaking
+    caught by: test_state_machine_transition_table_exact
+C09 [CAUGHT] caller_speaking agent_active to agent_speaking (no overlap)
+    caught by: test_state_machine_transition_table_exact
+C10 [CAUGHT] caller_speaking agent_silent to awaiting_agent
+    caught by: test_state_machine_transition_table_exact
+C11 [CAUGHT] awaiting_agent line_started to agent_speaking
+    caught by: test_state_machine_transition_table_exact
+C12 [CAUGHT] awaiting_agent agent_active stays
+    caught by: test_state_machine_transition_table_exact
+C13 [CAUGHT] awaiting_agent agent_silent to agent_speaking
+    caught by: test_state_machine_transition_table_exact
+C14 [CAUGHT] agent_speaking line_started to awaiting_agent (barge-in)
+    caught by: test_state_machine_transition_table_exact
+C15 [CAUGHT] agent_speaking agent_silent stays
+    caught by: test_state_machine_transition_table_exact
+C16 [CAUGHT] agent_speaking agent_active to awaiting_agent
+    caught by: test_state_machine_transition_table_exact
+C17 [CAUGHT] ending hangup_complete stays ending
+    caught by: test_state_machine_transition_table_exact
+C18 [CAUGHT] ending refuses one event
+    caught by: test_state_machine_transition_table_exact
+C19 [CAUGHT] ended first cell goes back to preflight
+    caught by: test_state_machine_transition_table_exact
+C20 [CAUGHT] ended refuses hangup_complete
+    caught by: test_state_machine_transition_table_exact
+C21 [CAUGHT] connected allows connect_started
+    caught by: test_state_machine_transition_table_exact
+C22 [CAUGHT] caller_speaking allows a second line start
+    caught by: test_state_machine_transition_table_exact
+C23 [CAUGHT] preflight allows agent_active
+    caught by: test_state_machine_transition_table_exact
+C24 [CAUGHT] setup_failed is a requestable reason
+    caught by: test_state_machine_transition_table_exact
+C25 [CAUGHT] pre-connect reasons include max_duration
+    caught by: test_state_machine_transition_table_exact
+C26 [CAUGHT] TRANSITIONS is a plain dict
+    caught by: test_state_machine_transition_table_exact
+C27 [CAUGHT] second end request overwrites the reason
+    caught by: test_kill_switch_reaches_ended_from_every_state
+C28 [CAUGHT] connect_failed records the request reason (None)
+    caught by: test_kill_switch_reaches_ended_after_any_legal_prefix
+C29 [CAUGHT] established set when the attempt starts
+    caught by: test_no_event_after_ended
+C30 [CAUGHT] a reason with another event is accepted
+    caught by: test_arguments_are_validated_and_only_the_machine_error_is_raised
+C31 [CAUGHT] pre-connect reason rule removed
+    caught by: test_setup_failure_is_an_end_reason_not_an_exception
+C32 [CAUGHT] unknown event not checked
+    caught by: test_arguments_are_validated_and_only_the_machine_error_is_raised
+C33 [CAUGHT] changed flag always true
+    caught by: test_state_machine_transition_table_exact
+C34 [CAUGHT] max duration uses max
+    caught by: test_max_duration_is_min_of_evaluator_and_cap
+C35 [CAUGHT] cap seconds times 100
+    caught by: test_max_duration_is_min_of_evaluator_and_cap
+C36 [CAUGHT] no cap returns twice the evaluator value
+    caught by: test_max_duration_is_min_of_evaluator_and_cap
+C37 [CAUGHT] evaluator upper bound one too high
+    caught by: test_max_duration_is_min_of_evaluator_and_cap
+C38 [CAUGHT] cap upper bound one too high
+    caught by: test_max_duration_is_min_of_evaluator_and_cap
+C39 [CAUGHT] evaluator bool accepted
+    caught by: test_max_duration_is_min_of_evaluator_and_cap
+C40 [CAUGHT] cap bool accepted
+    caught by: test_max_duration_is_min_of_evaluator_and_cap
+C41 [CAUGHT] two events swapped in CALL_EVENTS
+    caught by: test_state_machine_transition_table_exact
+C42 [CAUGHT] no pre-connect reason
+    caught by: test_state_machine_transition_table_exact
+C43 [CAUGHT] late events after ended raise
+    caught by: test_state_machine_transition_table_exact
+C44 [CAUGHT] evaluator lower bound allows 0
+    caught by: test_max_duration_is_min_of_evaluator_and_cap
+C45 [CAUGHT] cap lower bound allows 0
+    caught by: test_max_duration_is_min_of_evaluator_and_cap
+T01 [CAUGHT] activity needs a threshold (> 3 per byte)
+    caught by: test_agent_activity_is_any_nonzero_sample_no_threshold
+T02 [CAUGHT] activity reads the first sample only
+    caught by: test_agent_activity_is_any_nonzero_sample_no_threshold
+T03 [CAUGHT] activity reads low bytes only
+    caught by: test_agent_activity_is_any_nonzero_sample_no_threshold
+T04 [CAUGHT] activity reads high bytes only
+    caught by: test_agent_activity_is_any_nonzero_sample_no_threshold
+T05 [CAUGHT] odd frame accepted
+    caught by: test_agent_activity_is_any_nonzero_sample_no_threshold
+T06 [CAUGHT] empty frame accepted
+    caught by: test_agent_activity_is_any_nonzero_sample_no_threshold
+T07 [CAUGHT] bytearray frame accepted
+    caught by: test_agent_activity_is_any_nonzero_sample_no_threshold
+T08 [CAUGHT] max_silence_ms has a default
+    caught by: test_wait_for_silence_parameter_has_no_default
+T09 [CAUGHT] all policy fields have defaults
+    caught by: test_wait_for_silence_parameter_has_no_default
+T10 [CAUGHT] from_profile defaults the wait value
+    caught by: test_wait_for_silence_parameter_has_no_default
+T11 [CAUGHT] max below wait allowed
+    caught by: test_policy_values_are_validated
+T12 [CAUGHT] max equal to wait refused
+    caught by: test_policy_values_are_validated
+T13 [CAUGHT] zero wait allowed
+    caught by: test_policy_values_are_validated
+T14 [CAUGHT] bool is an int
+    caught by: test_policy_values_are_validated
+T15 [CAUGHT] silence at the instant not enough (<)
+    caught by: test_barge_in_fires_at_offset_from_agent_onset
+T16 [CAUGHT] tie goes to the end
+    caught by: test_barge_in_fires_at_offset_from_agent_onset
+T17 [CAUGHT] end needs strictly later
+    caught by: test_barge_in_fires_at_offset_from_agent_onset
+T18 [CAUGHT] silence counted from the wait start
+    caught by: test_barge_in_fires_at_offset_from_agent_onset
+T19 [CAUGHT] barge offset from the last active frame
+    caught by: test_barge_in_fires_at_offset_from_agent_onset
+T20 [CAUGHT] silent frames set the onset
+    caught by: test_barge_in_fires_at_offset_from_agent_onset
+T21 [CAUGHT] onset moves with each frame
+    caught by: test_barge_in_fires_at_offset_from_agent_onset
+T22 [CAUGHT] barge offset in microseconds
+    caught by: test_barge_in_fires_at_offset_from_agent_onset
+T23 [CAUGHT] every wait is a first line
+    caught by: test_the_first_line_of_a_caller_that_speaks_first_does_not_wait
+T24 [CAUGHT] first line ignores the flag
+    caught by: test_barge_in_fires_at_offset_from_agent_onset
+T25 [CAUGHT] barge-in on the first line allowed
+    caught by: test_barge_in_fires_at_offset_from_agent_onset
+T26 [CAUGHT] no latch before a frame is added
+    caught by: test_silence_rule_speaks_wait_ms_after_the_last_active_frame
+T27 [EQUIVALENT] no latch after the onset frame
+    argument: the latch after the onset frame only caches what poll, may_send and the next frame's pre-latch compute again
+T28 [CAUGHT] barge-in ignored (silence rule used)
+    caught by: test_barge_in_fires_at_offset_from_agent_onset
+T29 [CAUGHT] onset survives a new wait
+    caught by: test_the_onset_of_one_wait_is_not_the_onset_of_the_next
+T30 [CAUGHT] last active survives a new wait
+    caught by: test_comfort_noise_agent_never_goes_silent_is_max_silence_not_a_hang
+T31 [EQUIVALENT] pending survives a new wait
+    argument: a wait can only close through line_started, which refuses while the brain is pending, so the flag is already clear
+T32 [CAUGHT] may_send ignores a pending brain
+    caught by: test_simulator_never_speaks_while_brain_pending
+T33 [CAUGHT] line_started leaves the wait open
+    caught by: test_comfort_noise_agent_never_goes_silent_is_max_silence_not_a_hang
+T34 [CAUGHT] line_started without a decision allowed
+    caught by: test_simulator_never_speaks_while_brain_pending
+T35 [CAUGHT] end counts as a speak decision
+    caught by: test_simulator_never_speaks_while_brain_pending
+T36 [CAUGHT] time may go backwards
+    caught by: test_time_never_goes_backwards_and_inputs_are_checked
+T37 [CAUGHT] a refused frame still takes the instant
+    caught by: test_a_refused_call_changes_nothing
+T38 [CAUGHT] end cause is max_duration
+    caught by: test_barge_in_fires_at_offset_from_agent_onset
+T39 [CAUGHT] end one ns late
+    caught by: test_barge_in_fires_at_offset_from_agent_onset
+T40 [CAUGHT] comfort noise never ends (hang)
+    caught by: test_barge_in_fires_at_offset_from_agent_onset
+T41 [CAUGHT] brain double start allowed
+    caught by: test_simulator_never_speaks_while_brain_pending
+T42 [CAUGHT] brain finish without start allowed
+    caught by: test_simulator_never_speaks_while_brain_pending
+T43 [CAUGHT] poll without a wait returns wait
+    caught by: test_state_of_one_wait_does_not_leak_into_the_next
+T44 [CAUGHT] any policy object accepted
+    caught by: test_policy_values_are_validated
+T45 [CAUGHT] second open wait allowed
+    caught by: test_state_of_one_wait_does_not_leak_into_the_next
+T46 [CAUGHT] negative barge offset allowed
+    caught by: test_barge_in_fires_at_offset_from_agent_onset
+T47 [CAUGHT] decision record mutable
+    caught by: test_decisions_are_plain_values
+T48 [CAUGHT] causes reordered
+    caught by: test_decisions_are_plain_values
+T49 [CAUGHT] wait budget from the last frame
+    caught by: test_barge_in_fires_at_offset_from_agent_onset
+T50 [EQUIVALENT] poll does not latch
+    argument: poll's latch only caches: the next frame's pre-latch and every query recompute the same decision
+T51 [CAUGHT] frames after a decision still move the silence
+    caught by: test_silence_rule_speaks_wait_ms_after_the_last_active_frame
+T52 [CAUGHT] refused begin_wait takes the instant
+    caught by: test_time_never_goes_backwards_and_inputs_are_checked
+T53 [CAUGHT] refused line_started takes the instant
+    caught by: test_a_refused_call_changes_nothing
+G01 [CAUGHT] mu-law bias 0x80
+    caught by: test_agent_activity_is_any_nonzero_sample_no_threshold
+G02 [CAUGHT] mu-law sign flipped
+    caught by: test_g711_mulaw_alaw_decode_matches_itu_table
+G03 [CAUGHT] A-law without the even-bit inversion
+    caught by: test_g711_mulaw_alaw_decode_matches_itu_table
+G04 [CAUGHT] A-law segment 0 offset 1
+    caught by: test_g711_mulaw_alaw_decode_matches_itu_table
+G05 [CAUGHT] A-law segment base 0x100
+    caught by: test_g711_mulaw_alaw_decode_matches_itu_table
+G06 [CAUGHT] A-law sign inverted
+    caught by: test_g711_mulaw_alaw_decode_matches_itu_table
+G07 [CAUGHT] decoded big-endian
+    caught by: test_g711_mulaw_alaw_decode_matches_itu_table
+G08 [CAUGHT] decode_alaw uses the mu-law bytes
+    caught by: test_g711_mulaw_alaw_decode_matches_itu_table
+G09 [CAUGHT] A-law table of 255 entries
+    caught by: test_g711_mulaw_alaw_decode_matches_itu_table
+G10 [CAUGHT] mu-law decode accepts str
+    caught by: test_g711_mulaw_alaw_decode_matches_itu_table
+G11 [CAUGHT] mu-law mantissa shift 2
+    caught by: test_g711_mulaw_alaw_decode_matches_itu_table
+G12 [CAUGHT] mu-law segment mask
+    caught by: test_g711_mulaw_alaw_decode_matches_itu_table
+G13 [CAUGHT] A-law segment shift
+    caught by: test_agent_activity_is_any_nonzero_sample_no_threshold
+G14 [CAUGHT] decode_alaw accepts list
+    caught by: test_g711_mulaw_alaw_decode_matches_itu_table
+R01 [CAUGHT] sample position rounds to nearest
+    caught by: test_recorder_matches_the_reference_for_random_frame_logs
+R02 [CAUGHT] sample position at ms granularity
+    caught by: test_recorder_matches_the_reference_for_random_frame_logs
+R03 [CAUGHT] agent placed at arrival only
+    caught by: test_recorder_is_deterministic_from_frame_log
+R04 [CAUGHT] agent always queued, arrival ignored
+    caught by: test_recorder_is_deterministic_from_frame_log
+R05 [CAUGHT] playback queue forgets the frame length
+    caught by: test_recorder_is_deterministic_from_frame_log
+R06 [CAUGHT] channels swapped
+    caught by: test_recorder_is_deterministic_from_frame_log
+R07 [CAUGHT] overlap not counted
+    caught by: test_recorder_matches_the_reference_for_random_frame_logs
+R08 [CAUGHT] byte rate wrong
+    caught by: test_recorder_is_deterministic_from_frame_log
+R09 [CAUGHT] block align wrong
+    caught by: test_recorder_is_deterministic_from_frame_log
+R10 [CAUGHT] header says mono
+    caught by: test_recorder_is_deterministic_from_frame_log
+R11 [CAUGHT] data size wrong
+    caught by: test_recorder_is_deterministic_from_frame_log
+R12 [CAUGHT] riff size wrong
+    caught by: test_recorder_is_deterministic_from_frame_log
+R13 [CAUGHT] rate mismatch not refused
+    caught by: test_recorder_refuses_rate_mismatch_never_resamples
+R14 [CAUGHT] channel count not refused
+    caught by: test_recorder_refuses_rate_mismatch_never_resamples
+R15 [CAUGHT] codec mismatch not refused
+    caught by: test_recorder_refuses_rate_mismatch_never_resamples
+R16 [CAUGHT] order not refused
+    caught by: test_frames_must_be_in_order_inside_the_timeline_and_non_empty
+R17 [CAUGHT] before-origin not refused
+    caught by: test_frames_must_be_in_order_inside_the_timeline_and_non_empty
+R18 [CAUGHT] empty payload not refused
+    caught by: test_frames_must_be_in_order_inside_the_timeline_and_non_empty
+R19 [CAUGHT] odd pcm payload not refused
+    caught by: test_frames_must_be_in_order_inside_the_timeline_and_non_empty
+R20 [CAUGHT] too long not refused
+    caught by: test_frames_must_be_in_order_inside_the_timeline_and_non_empty
+R21 [CAUGHT] timeline limit one second more
+    caught by: test_frames_must_be_in_order_inside_the_timeline_and_non_empty
+R22 [CAUGHT] mu-law payload decoded as A-law
+    caught by: test_agent_activity_is_any_nonzero_sample_no_threshold
+R23 [CAUGHT] empty logs refused
+    caught by: test_recorder_matches_the_reference_for_random_frame_logs
+R24 [CAUGHT] positions use the absolute instant
+    caught by: test_recorder_is_deterministic_from_frame_log
+R25 [CAUGHT] error index off by one
+    caught by: test_recorder_refuses_rate_mismatch_never_resamples
+R26 [CAUGHT] error reason swapped
+    caught by: test_recorder_refuses_rate_mismatch_never_resamples
+R27 [CAUGHT] codec list gains opus
+    caught by: test_recorder_refuses_rate_mismatch_never_resamples
+R28 [CAUGHT] length is the shorter channel
+    caught by: test_recorder_is_deterministic_from_frame_log
+R29 [CAUGHT] A-law payload decoded as mu-law
+    caught by: test_frame_and_format_records_validate_their_fields
+R30 [CAUGHT] later caller frame does not win
+    caught by: test_recorder_matches_the_reference_for_random_frame_logs
+R31 [CAUGHT] agent frames written to the caller channel
+    caught by: test_recorder_is_deterministic_from_frame_log
+R32 [CAUGHT] format accepts any rate
+    caught by: test_recorder_refuses_rate_mismatch_never_resamples
+R33 [CAUGHT] caller overlap counted from start only
+    caught by: test_recorder_matches_the_reference_for_random_frame_logs
+R34 [CAUGHT] bool origin accepted
+    caught by: test_frame_and_format_records_validate_their_fields
+M01 [CAUGHT] first audio from the attempt start
+    caught by: test_timing_first_agent_audio_exact_on_synthetic_log
+M02 [CAUGHT] silent frames count as audio
+    caught by: test_timing_first_agent_audio_exact_on_synthetic_log
+M03 [CAUGHT] first audio rounds up
+    caught by: test_timing_first_agent_audio_exact_on_synthetic_log
+M04 [CAUGHT] gap edge from the first frame
+    caught by: test_timing_gap_measured_from_last_sent_frame
+M05 [CAUGHT] gap edge without the last frame's duration
+    caught by: test_timing_gap_measured_from_last_sent_frame
+M06 [CAUGHT] gap needs a frame strictly after the edge
+    caught by: test_timing_gap_measured_from_last_sent_frame
+M07 [CAUGHT] gap takes any frame after the first frame
+    caught by: test_timing_first_agent_audio_exact_on_synthetic_log
+M08 [CAUGHT] no answer is a zero gap
+    caught by: test_timing_gap_measured_from_last_sent_frame
+M09 [CAUGHT] overlap window includes the edge
+    caught by: test_overlap_is_the_duration_of_active_agent_frames_arriving_while_the_caller_speaks
+M10 [CAUGHT] overlap window excludes the first frame
+    caught by: test_overlap_is_the_duration_of_active_agent_frames_arriving_while_the_caller_speaks
+M11 [CAUGHT] overlap uses 20 ms per frame
+    caught by: test_overlap_is_the_duration_of_active_agent_frames_arriving_while_the_caller_speaks
+M12 [CAUGHT] quantum rounds down
+    caught by: test_timing_values_carry_quantum_and_dialect
+M13 [CAUGHT] quantum ignores the caller frame
+    caught by: test_timing_values_carry_quantum_and_dialect
+M14 [EQUIVALENT] dialect not validated
+    argument: the dialect is validated twice (extract_timing and validate_timing_document); removing one leaves the same refusal
+M15 [CAUGHT] median is the upper element
+    caught by: test_simulator_self_latency_excluded_from_agent_gap
+M16 [CAUGHT] gap_n counts every turn
+    caught by: test_timing_first_agent_audio_exact_on_synthetic_log
+M17 [EQUIVALENT] barge run ends at a pause equal to the silence value (>=)
+    argument: a last active frame exactly the silence value before t0 can only be in a run that ends with it (any later frame is more than the silence value away), so its stop is not positive either way
+M18 [CAUGHT] barge run extension uses <=
+    caught by: test_barge_in_stop_is_the_end_of_the_interrupted_activity
+M19 [CAUGHT] open run still gives a stop
+    caught by: test_timing_value_without_both_edges_is_error_never_zero
+M20 [CAUGHT] stop of zero or less is a zero
+    caught by: test_barge_in_stop_is_the_end_of_the_interrupted_activity
+M21 [CAUGHT] barge stop from the turn's edge
+    caught by: test_timing_value_without_both_edges_is_error_never_zero
+M22 [CAUGHT] barge stop to the arrival of the last frame
+    caught by: test_timing_value_without_both_edges_is_error_never_zero
+M23 [CAUGHT] stop computed without a barge-in
+    caught by: test_overlap_is_the_duration_of_active_agent_frames_arriving_while_the_caller_speaks
+M24 [CAUGHT] self times dropped
+    caught by: test_simulator_self_latency_excluded_from_agent_gap
+M25 [CAUGHT] a missing edge is a zero value
+    caught by: test_timing_value_without_both_edges_is_error_never_zero
+M26 [CAUGHT] edge message names another edge
+    caught by: test_timing_value_without_both_edges_is_error_never_zero
+M27 [CAUGHT] validator: median check removed
+    caught by: test_timing_value_without_both_edges_is_error_never_zero
+M28 [CAUGHT] validator: overlap sum check removed
+    caught by: test_the_validator_accepts_what_the_extractor_builds_and_refuses_each_fault
+M29 [CAUGHT] validator: ordering check removed
+    caught by: test_the_validator_accepts_what_the_extractor_builds_and_refuses_each_fault
+M30 [CAUGHT] validator: bool is an int
+    caught by: test_simulator_self_latency_excluded_from_agent_gap
+M31 [CAUGHT] unestablished call computed as established
+    caught by: test_timing_value_without_both_edges_is_error_never_zero
+M32 [CAUGHT] frames of an unestablished call accepted
+    caught by: test_turn_and_call_inputs_are_checked_not_repaired
+M33 [CAUGHT] overlapping turns accepted
+    caught by: test_turn_and_call_inputs_are_checked_not_repaired
+M34 [CAUGHT] clock label wrong
+    caught by: test_timing_first_agent_audio_exact_on_synthetic_log
+M35 [CAUGHT] no turn: overlap absent
+    caught by: test_timing_gap_measured_from_last_sent_frame
+M36 [CAUGHT] setup absent for a failed attempt
+    caught by: test_turn_and_call_inputs_are_checked_not_repaired
+M37 [CAUGHT] answered count missing from metrics
+    caught by: test_timing_value_without_both_edges_is_error_never_zero
+M38 [CAUGHT] frame duration fixed at 20 ms
+    caught by: test_timing_values_carry_quantum_and_dialect
+M39 [CAUGHT] mu-law activity read on the wire bytes
+    caught by: test_timing_first_agent_audio_exact_on_synthetic_log
+M40 [CAUGHT] gap is a difference of floors
+    caught by: test_extraction_matches_the_reference_on_random_calls
+M41 [CAUGHT] setup is a difference of floors
+    caught by: test_first_agent_audio_and_setup_are_floors_of_differences
+M42 [CAUGHT] schema bound changed
+    caught by: test_the_validator_accepts_what_the_extractor_builds_and_refuses_each_fault
+M43 [CAUGHT] first audio ignores the origin
+    caught by: test_timing_first_agent_audio_exact_on_synthetic_log
+M44 [CAUGHT] validator: barge median check removed
+    caught by: test_timing_value_without_both_edges_is_error_never_zero
+M45 [CAUGHT] validator: stop without barge allowed
+    caught by: test_the_validator_accepts_what_the_extractor_builds_and_refuses_each_fault
+M46 [CAUGHT] metric unknown not refused
+    caught by: test_timing_value_without_both_edges_is_error_never_zero
+M47 [EQUIVALENT] unordered turn sequence accepted
+    argument: the turn sequence rule is checked twice (extract_timing and validate_timing_document); removing one leaves the same refusal
+M48 [CAUGHT] observation end not checked
+    caught by: test_turn_and_call_inputs_are_checked_not_repaired
+M49 [CAUGHT] barge run checks the wrong direction
+    caught by: test_barge_in_stop_is_the_end_of_the_interrupted_activity
+M50 [CAUGHT] established without instant accepted
+    caught by: test_turn_and_call_inputs_are_checked_not_repaired
+# total 196: caught 190, survived 0, equivalent (argued, not run) 6

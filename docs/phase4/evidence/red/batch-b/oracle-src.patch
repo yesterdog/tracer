@@ -1,0 +1,1616 @@
+diff --color -ruN -x __pycache__ qa-batch-b-9f03f8-pristine/packages/evalcore/src/tracer_evalcore/audio/activity.py qa-batch-b-9f03f8/packages/evalcore/src/tracer_evalcore/audio/activity.py
+--- a/packages/evalcore/src/tracer_evalcore/audio/activity.py
++++ b/packages/evalcore/src/tracer_evalcore/audio/activity.py
+@@ -0,0 +1,146 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The agent-activity chunk plan and the choice of the STT channel (oracle of batch B)."""
++
++from __future__ import annotations
++
++import sys
++from array import array
++from dataclasses import dataclass
++from typing import Final
++
++from tracer_evalcore.audio.chunker import (
++    DEFAULT_MAX_CHUNK_MS,
++    DEFAULT_SEARCH_MS,
++    PLAN_FORMAT_V2,
++    ChannelsRefusedError,
++    Chunk,
++    ChunkerInputError,
++    ChunkerParameterError,
++    ChunkPlan,
++    chunk_pcm,
++)
++from tracer_evalcore.errors import InputRefusedError
++from tracer_evalschema.artifact import ChannelMap
++
++__all__ = [
++    "ACTIVITY_FRAME_MS",
++    "ACTIVITY_PLAN_FORMAT",
++    "ChannelMapRefusedError",
++    "SttChannel",
++    "activity_chunk_plan",
++    "select_stt_channel",
++]
++
++ACTIVITY_FRAME_MS: Final = 20
++ACTIVITY_PLAN_FORMAT: Final = PLAN_FORMAT_V2
++
++
++class ChannelMapRefusedError(InputRefusedError):
++    """The channel map does not declare what the speech-to-text needs."""
++
++
++@dataclass(frozen=True)
++class SttChannel:
++    index: int
++    role: str
++
++
++def select_stt_channel(channel_map: ChannelMap, *, role: str = "agent") -> SttChannel:
++    if not isinstance(channel_map, ChannelMap):
++        raise TypeError("channel_map must be a ChannelMap")
++    if role not in ("agent", "caller"):
++        raise ValueError("role must be 'agent' or 'caller'")
++    if channel_map.determination != "declared":
++        raise ChannelMapRefusedError("the channel map is not declared")
++    found = [c for c in channel_map.channels if c.role == role]
++    if len(found) != 1:
++        raise ChannelMapRefusedError("the channel map does not declare exactly one such channel")
++    return SttChannel(index=found[0].index, role=role)
++
++
++def _int(name: str, value: object, minimum: int) -> int:
++    if type(value) is not int or value < minimum:
++        raise ChunkerParameterError(f"{name} must be an int of {minimum} or more")
++    return value
++
++
++def activity_chunk_plan(
++    pcm: bytes,
++    *,
++    sample_rate_hz: int,
++    channels: int,
++    channel: int,
++    wait_for_agent_silence_ms: int,
++    max_chunk_ms: int = DEFAULT_MAX_CHUNK_MS,
++    search_ms: int = DEFAULT_SEARCH_MS,
++) -> ChunkPlan:
++    _int("sample_rate_hz", sample_rate_hz, 1)
++    _int("channels", channels, 1)
++    _int("channel", channel, 0)
++    _int("wait_for_agent_silence_ms", wait_for_agent_silence_ms, 1)
++    _int("max_chunk_ms", max_chunk_ms, 1)
++    _int("search_ms", search_ms, 0)
++    if search_ms > max_chunk_ms:
++        raise ChunkerParameterError("search_ms must not exceed max_chunk_ms")
++    if channels > 2:
++        raise ChannelsRefusedError("more than two channels are never accepted")
++    if channel >= channels:
++        raise ChunkerParameterError("channel is not in the recording")
++    if not isinstance(pcm, bytes):
++        raise TypeError("pcm must be bytes")
++    block = channels * 2
++    if len(pcm) % block:
++        raise ChunkerInputError("not a whole number of sample frames")
++    data = array("h")
++    data.frombytes(pcm)
++    if sys.byteorder == "big":
++        data.byteswap()
++    mono = data[channel::channels]
++    total = len(mono)
++    size = sample_rate_hz * ACTIVITY_FRAME_MS // 1000
++    count = -(-total // size) if size else 0
++    active = [any(mono[k * size : (k + 1) * size]) for k in range(count)]
++    runs: list[list[int]] = []
++    for k, flag in enumerate(active):
++        if not flag:
++            continue
++        if runs and (k - runs[-1][1] - 1) * ACTIVITY_FRAME_MS < wait_for_agent_silence_ms:
++            runs[-1][1] = k
++        else:
++            runs.append([k, k])
++    chunks: list[Chunk] = []
++    for first, last in runs:
++        start, end = first * size, min((last + 1) * size, total)
++        segment = mono[start:end]
++        if sys.byteorder == "big":
++            segment = array("h", segment)
++            segment.byteswap()
++        part = chunk_pcm(
++            segment.tobytes(),
++            sample_rate_hz=sample_rate_hz,
++            channels=1,
++            max_chunk_ms=max_chunk_ms,
++            search_ms=search_ms,
++        )
++        for piece in part.chunks:
++            chunks.append(
++                Chunk(
++                    index=len(chunks),
++                    start_frame=start + piece.start_frame,
++                    end_frame=start + piece.end_frame,
++                    sample_rate_hz=sample_rate_hz,
++                    channels=1,
++                    wav=piece.wav,
++                )
++            )
++    return ChunkPlan(
++        sample_rate_hz=sample_rate_hz,
++        channels=channels,
++        max_chunk_ms=max_chunk_ms,
++        search_ms=search_ms,
++        total_frames=total,
++        chunks=tuple(chunks),
++        channel=channel,
++        wait_for_agent_silence_ms=wait_for_agent_silence_ms,
++    )
+diff --color -ruN -x __pycache__ qa-batch-b-9f03f8-pristine/packages/evalcore/src/tracer_evalcore/audio/chunker.py qa-batch-b-9f03f8/packages/evalcore/src/tracer_evalcore/audio/chunker.py
+--- a/packages/evalcore/src/tracer_evalcore/audio/chunker.py
++++ b/packages/evalcore/src/tracer_evalcore/audio/chunker.py
+@@ -39,6 +39,7 @@
+ DEFAULT_MAX_CHUNK_MS = 25_000
+ DEFAULT_SEARCH_MS = 5_000
+ PLAN_FORMAT = "tracer.chunk_plan/1"
++PLAN_FORMAT_V2 = "tracer.chunk_plan/2"
+ 
+ _FRAME_MS = 20
+ _SAMPLE_BYTES = 2
+@@ -91,10 +92,12 @@
+     search_ms: int
+     total_frames: int
+     chunks: tuple[Chunk, ...]
++    channel: int | None = None
++    wait_for_agent_silence_ms: int | None = None
+ 
+     def as_metadata(self) -> dict[str, Any]:
+         """The plan as an integers-only JSON document (a ``Transcript.metadata`` value)."""
+-        return {
++        document: dict[str, Any] = {
+             "format": PLAN_FORMAT,
+             "max_chunk_ms": self.max_chunk_ms,
+             "search_ms": self.search_ms,
+@@ -106,6 +109,12 @@
+                 for c in self.chunks
+             ],
+         }
++        if self.channel is not None:
++            document["format"] = PLAN_FORMAT_V2
++            document["channel"] = self.channel
++            document["wait_for_agent_silence_ms"] = self.wait_for_agent_silence_ms
++            document["frame_ms"] = _FRAME_MS
++        return document
+ 
+ 
+ def _check_int(name: str, value: object, minimum: int) -> None:
+diff --color -ruN -x __pycache__ qa-batch-b-9f03f8-pristine/packages/evalcore/src/tracer_evalcore/stt.py qa-batch-b-9f03f8/packages/evalcore/src/tracer_evalcore/stt.py
+--- a/packages/evalcore/src/tracer_evalcore/stt.py
++++ b/packages/evalcore/src/tracer_evalcore/stt.py
+@@ -136,6 +136,11 @@
+     created_at: datetime
+     privacy: PrivacyMarker
+     configured_language: str
++    role: str = "unknown"
++
++    def __post_init__(self) -> None:
++        if self.role not in ("caller", "agent", "unknown"):
++            raise ValueError("role: not an accepted value")
+ 
+ 
+ @dataclass(frozen=True)
+diff --color -ruN -x __pycache__ qa-batch-b-9f03f8-pristine/packages/evalproviders/src/tracer_evalproviders/cost.py qa-batch-b-9f03f8/packages/evalproviders/src/tracer_evalproviders/cost.py
+--- a/packages/evalproviders/src/tracer_evalproviders/cost.py
++++ b/packages/evalproviders/src/tracer_evalproviders/cost.py
+@@ -23,7 +23,13 @@
+ from tracer_evalschema.pricing import PriceEntry, PriceProvenance, PricingCatalog
+ from tracer_evalschema.usage import UsageRecord
+ 
+-__all__ = ["CatalogRefusedError", "SttCost", "compute_stt_cost", "load_user_catalog"]
++__all__ = [
++    "CatalogRefusedError",
++    "SttCost",
++    "compute_stt_cost",
++    "compute_usage_cost",
++    "load_user_catalog",
++]
+ 
+ _DOMAIN: Final = "evaluation"
+ _PRECISION: Final = 200
+@@ -145,3 +151,6 @@
+         records, domain=_DOMAIN, summary_id=CostSummaryId.new(), created_at=created_at
+     )
+     return SttCost(records=tuple(records), summary=summary)
++
++
++compute_usage_cost = compute_stt_cost
+diff --color -ruN -x __pycache__ qa-batch-b-9f03f8-pristine/packages/evalproviders/src/tracer_evalproviders/sarvam/_post.py qa-batch-b-9f03f8/packages/evalproviders/src/tracer_evalproviders/sarvam/_post.py
+--- a/packages/evalproviders/src/tracer_evalproviders/sarvam/_post.py
++++ b/packages/evalproviders/src/tracer_evalproviders/sarvam/_post.py
+@@ -0,0 +1,235 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""One JSON POST with the retry, size and error rules of ADR 0024 (oracle of batch B)."""
++
++from __future__ import annotations
++
++import json
++from collections.abc import Callable
++from dataclasses import dataclass
++from types import ModuleType
++from typing import Any
++
++import httpx
++
++from tracer_evalproviders.calllog import safe_request_id
++from tracer_evalproviders.sarvam.client import (
++    BACKOFF_SECONDS,
++    MAX_ATTEMPTS,
++    RETRY_AFTER_MAX_SECONDS,
++    _Attempt,
++    _error_facts,
++    _http_date,
++    _retry_after_seconds,
++    _transport_kind,
++    build_http_client,
++)
++from tracer_evalproviders.secrets import ApiKey
++from tracer_evalproviders.simcalllog import SimCallLog
++from tracer_evalschema.loader import loads_strict
++
++__all__ = ["JsonPoster", "Reply", "read_document"]
++
++_KEY_HEADER = "api-subscription-key"
++
++
++def _has_lone_surrogate(value: Any) -> bool:
++    if isinstance(value, str):
++        return any(0xD800 <= ord(char) <= 0xDFFF for char in value)
++    if isinstance(value, dict):
++        return any(_has_lone_surrogate(k) or _has_lone_surrogate(v) for k, v in value.items())
++    if isinstance(value, list):
++        return any(_has_lone_surrogate(item) for item in value)
++    return False
++
++
++def read_document(body: bytes) -> tuple[bool, Any]:
++    """``(True, document)`` or ``(False, None)``: strict JSON, no lone surrogate."""
++    try:
++        text = body.decode("utf-8")
++        loads_strict(text)
++        document = json.loads(text)
++        if _has_lone_surrogate(document):
++            return False, None
++    except Exception:
++        return False, None
++    return True, document
++
++
++@dataclass(frozen=True)
++class Reply:
++    body: bytes
++    date: Any
++    attempts: int
++
++
++class JsonPoster:
++    def __init__(
++        self,
++        api_key: ApiKey,
++        *,
++        url: str,
++        stage: str,
++        errors: ModuleType,
++        prefix: str,
++        call_log: SimCallLog,
++        id_member: str,
++        transport: httpx.BaseTransport | None,
++        sleep: Callable[[float], None],
++        monotonic: Callable[[], float],
++    ) -> None:
++        self._key = api_key
++        self._url = url
++        self._stage = stage
++        self._errors = errors
++        self._prefix = prefix
++        self._log = call_log
++        self._id_member = id_member
++        self._sleep = sleep
++        self._monotonic = monotonic
++        self._http = build_http_client(transport)
++
++    def close(self) -> None:
++        self._http.close()
++
++    def _err(self, suffix: str, **facts: Any) -> Any:
++        return getattr(self._errors, self._prefix + suffix)(**facts)
++
++    def post(
++        self,
++        *,
++        index: int,
++        body: bytes,
++        log_fields: dict[str, Any],
++        max_bytes: int,
++    ) -> Reply | Any:
++        for attempt in range(1, MAX_ATTEMPTS + 1):
++            result = self._once(index, attempt, body, log_fields, max_bytes)
++            classified = self._classify(index, attempt, result)
++            if isinstance(classified, Reply):
++                return classified
++            retry, error = classified
++            if not retry or attempt == MAX_ATTEMPTS:
++                return error
++            wait = BACKOFF_SECONDS[attempt - 1]
++            if result.status in (429, 503):
++                asked = _retry_after_seconds(result.headers)
++                if asked is not None and asked > RETRY_AFTER_MAX_SECONDS:
++                    return self._err(
++                        "RateLimited",
++                        index=index,
++                        status=result.status,
++                        code=error.code,
++                        request_id=error.request_id,
++                        attempts=attempt,
++                        reason="retry_after_above_bound",
++                    )
++                if asked is not None:
++                    wait = max(wait, float(asked))
++            self._sleep(wait)
++        raise AssertionError("unreachable")  # pragma: no cover
++
++    def _once(
++        self, index: int, attempt: int, body: bytes, log_fields: dict[str, Any], max_bytes: int
++    ) -> _Attempt:
++        request = self._http.build_request(
++            "POST",
++            self._url,
++            headers={
++                _KEY_HEADER: self._key.reveal(),
++                "accept-encoding": "identity",
++                "content-type": "application/json",
++            },
++            content=body,
++        )
++        sent = len(request.read())
++        self._log.before(
++            stage=self._stage, index=index, attempt=attempt, bytes_sent=sent, **log_fields
++        )
++        result = _Attempt()
++        started = self._monotonic()
++        try:
++            self._receive(request, result, max_bytes)
++        except httpx.DecodingError:
++            result.undecodable = True
++        except httpx.RequestError as error:
++            result.transport_kind = _transport_kind(error)
++        finished = self._monotonic()
++        if result.status is None:
++            request_id = None
++        elif result.status == 200:
++            request_id = self._success_id(result)
++        else:
++            request_id = _error_facts(result.headers, result.body)[1]
++        self._log.after(
++            stage=self._stage,
++            index=index,
++            attempt=attempt,
++            bytes_sent=sent,
++            status=result.status,
++            error_kind=result.transport_kind,
++            elapsed_ms=int((finished - started) * 1000),
++            request_id=request_id,
++            **log_fields,
++        )
++        return result
++
++    def _success_id(self, result: _Attempt) -> str | None:
++        found = None
++        if result.body is not None:
++            try:
++                document = json.loads(result.body)
++            except (ValueError, RecursionError):
++                document = None
++            if isinstance(document, dict):
++                found = safe_request_id(document.get(self._id_member))
++        return found if found is not None else safe_request_id(result.headers.get("x-request-id"))
++
++    def _receive(self, request: httpx.Request, result: _Attempt, max_bytes: int) -> None:
++        response = self._http.send(request, stream=True)
++        try:
++            result.status = response.status_code
++            result.headers = response.headers
++            buffer = bytearray()
++            for piece in response.iter_bytes():
++                buffer += piece
++                if len(buffer) > max_bytes:
++                    result.oversize = True
++                    return
++            result.body = bytes(buffer)
++        finally:
++            response.close()
++
++    def _classify(self, index: int, attempt: int, result: _Attempt) -> Reply | tuple[bool, Any]:
++        facts: dict[str, Any] = {"index": index, "attempts": attempt}
++        if result.transport_kind is not None:
++            return True, self._err("TransportError", kind=result.transport_kind, **facts)
++        if result.undecodable:
++            return False, self._err("ResponseInvalid", reason="body_undecodable", **facts)
++        status = result.status
++        if status is None:
++            return True, self._err("TransportError", kind="transport_error", **facts)
++        if status == 200:
++            media_type = result.headers.get("content-type", "").split(";")[0].strip().lower()
++            if media_type != "application/json":
++                return False, self._err(
++                    "ResponseInvalid", reason="content_type", status=200, **facts
++                )
++            if result.oversize or result.body is None:
++                return False, self._err(
++                    "ResponseInvalid", reason="body_too_large", status=200, **facts
++                )
++            return Reply(result.body, _http_date(result.headers.get("date")), attempt)
++        if not 400 <= status < 600:
++            return False, self._err(
++                "ResponseInvalid", status=status, reason="unexpected_status", **facts
++            )
++        code, request_id = _error_facts(result.headers, result.body)
++        known: dict[str, Any] = {"status": status, "code": code, "request_id": request_id, **facts}
++        if status in (401, 403) or code == "invalid_api_key_error":
++            return False, self._err("AuthError", **known)
++        if status == 429:
++            return True, self._err("RateLimited", **known)
++        if status >= 500:
++            return True, self._err("ServerError", **known)
++        return False, self._err("RequestRejected", **known)
+diff --color -ruN -x __pycache__ qa-batch-b-9f03f8-pristine/packages/evalproviders/src/tracer_evalproviders/sarvam/chat.py qa-batch-b-9f03f8/packages/evalproviders/src/tracer_evalproviders/sarvam/chat.py
+--- a/packages/evalproviders/src/tracer_evalproviders/sarvam/chat.py
++++ b/packages/evalproviders/src/tracer_evalproviders/sarvam/chat.py
+@@ -0,0 +1,236 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The Sarvam chat completions v2 adapter (oracle of batch B; ADR 0024 amendments A1, A3, A7)."""
++
++from __future__ import annotations
++
++import json
++import os
++import time
++from collections.abc import Callable, Mapping
++from types import TracebackType
++from typing import Any, ClassVar, Final
++
++import httpx
++
++from tracer_evalcore import llm as core
++from tracer_evalcore.llm import LlmContext, LlmOutcome, LlmRequest
++from tracer_evalcore.stt import UsageSink
++from tracer_evalproviders.sarvam._post import JsonPoster, Reply, read_document
++from tracer_evalproviders.sarvam.models import CHAT_URL, LLM_MAX_REPLY_BYTES, MAX_RESPONSE_BYTES
++from tracer_evalproviders.secrets import ApiKey, load_role_key
++from tracer_evalproviders.simcalllog import SimCallLog
++from tracer_evalschema import SCHEMA_VERSION
++from tracer_evalschema.ids import UsageRecordId
++from tracer_evalschema.usage import UsageRecord
++
++__all__ = ["SEED_STATEMENT", "SarvamLlm", "create_sarvam_llm"]
++
++PROVIDER: Final = "sarvam"
++SEED_STATEMENT: Final = "replies may differ between requests, even with the same seed"
++_MAX_SAFE: Final = 2**53 - 1
++
++
++def _check_cap(cap: object) -> int | None:
++    if cap is None:
++        return None
++    if type(cap) is not int or not 0 <= cap <= _MAX_SAFE:
++        raise ValueError("cap must be None or an integer from 0 to 2**53 - 1")
++    return cap
++
++
++def _count(value: object) -> int | None:
++    if type(value) is not int or not 0 <= value <= _MAX_SAFE:
++        return None
++    return value
++
++
++class SarvamLlm:
++    provider = "sarvam"
++    streams_usage: ClassVar[bool] = True
++
++    def __init__(
++        self,
++        api_key: ApiKey,
++        *,
++        call_log: SimCallLog,
++        cap_tokens: int | None,
++        transport: httpx.BaseTransport | None = None,
++        sleep: Callable[[float], None] = time.sleep,
++        monotonic: Callable[[], float] = time.monotonic,
++    ) -> None:
++        if not isinstance(api_key, ApiKey):
++            raise TypeError("api_key must be an ApiKey")
++        self._cap = _check_cap(cap_tokens)
++        self._reported = 0
++        self._post = JsonPoster(
++            api_key,
++            url=CHAT_URL,
++            stage="llm",
++            errors=core,
++            prefix="Llm",
++            call_log=call_log,
++            id_member="id",
++            transport=transport,
++            sleep=sleep,
++            monotonic=monotonic,
++        )
++
++    def close(self) -> None:
++        self._post.close()
++
++    def __enter__(self) -> SarvamLlm:
++        return self
++
++    def __exit__(
++        self,
++        exc_type: type[BaseException] | None,
++        exc: BaseException | None,
++        traceback: TracebackType | None,
++    ) -> None:
++        self.close()
++
++    def complete(
++        self, request: LlmRequest, context: LlmContext, *, on_usage: UsageSink | None = None
++    ) -> LlmOutcome:
++        if not isinstance(request, LlmRequest) or not isinstance(context, LlmContext):
++            raise TypeError("request and context must be records")
++        if self._cap is not None and self._reported + request.max_tokens > self._cap:
++            return LlmOutcome(
++                text=None,
++                usage=(),
++                failure=core.LlmCapReachedError(index=request.index, reason="llm_tokens"),
++            )
++        payload: dict[str, Any] = {
++            "model": request.model,
++            "messages": [{"role": m.role, "content": m.content} for m in request.messages],
++            "max_tokens": request.max_tokens,
++        }
++        if request.seed is not None:
++            payload["seed"] = request.seed
++        if request.reasoning_effort is not None:
++            payload["reasoning_effort"] = request.reasoning_effort
++        reply = self._post.post(
++            index=request.index,
++            body=json.dumps(payload).encode("utf-8"),
++            log_fields={},
++            max_bytes=MAX_RESPONSE_BYTES,
++        )
++        if not isinstance(reply, Reply):
++            return LlmOutcome(text=None, usage=(), failure=reply)
++        parsed = self._parse(request, reply)
++        if isinstance(parsed, core.LlmError):
++            return LlmOutcome(text=None, usage=(), failure=parsed)
++        text, reply_id, prompt, completion, cached = parsed
++        self._reported += prompt + completion
++        record = self._record(request, context, reply, reply_id, prompt, completion, cached)
++        if on_usage is not None:
++            on_usage(record)
++        return LlmOutcome(text=text, usage=(record,), failure=None)
++
++    def _parse(
++        self, request: LlmRequest, reply: Reply
++    ) -> tuple[str, str, int, int, int | None] | core.LlmError:
++        facts: dict[str, Any] = {"index": request.index, "attempts": reply.attempts, "status": 200}
++
++        def invalid(reason: str) -> core.LlmError:
++            return core.LlmResponseInvalid(reason=reason, **facts)
++
++        ok, document = read_document(reply.body)
++        if not ok:
++            return invalid("not_json")
++        if not isinstance(document, dict):
++            return invalid("not_object")
++        reply_id = document.get("id")
++        if not isinstance(reply_id, str) or not 1 <= len(reply_id) <= 256:
++            return invalid("id_invalid")
++        choices = document.get("choices")
++        if not (isinstance(choices, list) and len(choices) == 1):
++            return invalid("choices_invalid")
++        message = choices[0].get("message") if isinstance(choices[0], dict) else None
++        if not isinstance(message, dict):
++            return invalid("message_invalid")
++        content = message.get("content")
++        if not isinstance(content, str):
++            return invalid("content_invalid")
++        if len(content.encode("utf-8")) > LLM_MAX_REPLY_BYTES:
++            return invalid("reply_too_large")
++        usage = document.get("usage")
++        if not isinstance(usage, dict):
++            return invalid("usage_invalid")
++        prompt = _count(usage.get("prompt_tokens"))
++        completion = _count(usage.get("completion_tokens"))
++        if prompt is None or completion is None:
++            return invalid("usage_invalid")
++        cached: int | None = None
++        details = usage.get("prompt_tokens_details")
++        if isinstance(details, dict) and "cached_tokens" in details:
++            cached = _count(details["cached_tokens"])
++            if cached is None or cached > prompt:
++                return invalid("usage_invalid")
++        return content, reply_id, prompt, completion, cached
++
++    def _record(
++        self,
++        request: LlmRequest,
++        context: LlmContext,
++        reply: Reply,
++        reply_id: str,
++        prompt: int,
++        completion: int,
++        cached: int | None,
++    ) -> UsageRecord:
++        quantities: list[dict[str, Any]] = [
++            {"unit": "input_tokens", "count": prompt - (cached or 0)}
++        ]
++        if cached is not None:
++            quantities.append({"unit": "cache_read_input_tokens", "count": cached})
++        quantities += [
++            {"unit": "output_tokens", "count": completion},
++            {"unit": "requests", "count": 1},
++        ]
++        metadata: dict[str, Any] = {"tracer.request_index": request.index}
++        if request.seed is not None:
++            metadata["tracer.seed"] = request.seed
++            metadata["tracer.seed_guarantee"] = "none"
++        if request.reasoning_effort is not None:
++            metadata["tracer.reasoning_effort"] = request.reasoning_effort
++        document: dict[str, Any] = {
++            "id": UsageRecordId.new(),
++            "schema_version": SCHEMA_VERSION,
++            "created_at": context.created_at,
++            "metadata": metadata,
++            "run_id": context.run_id,
++            "domain": "evaluation",
++            "stage": "sim_caller_llm",
++            "provider": PROVIDER,
++            "model": request.model,
++            "provider_call_ref": {"system": PROVIDER, "kind": "request_id", "value": reply_id},
++            "quantities": quantities,
++            "source": "provider_reported",
++            "raw": None,
++        }
++        if reply.date is not None:
++            document["occurred_at"] = reply.date
++        return UsageRecord.model_validate(document)
++
++
++def create_sarvam_llm(
++    *,
++    call_log: SimCallLog,
++    cap_tokens: int | None,
++    environ: Mapping[str, str] | None = None,
++    env_file: str | os.PathLike[str] | None = None,
++    transport: httpx.BaseTransport | None = None,
++    sleep: Callable[[float], None] = time.sleep,
++    monotonic: Callable[[], float] = time.monotonic,
++) -> SarvamLlm:
++    key = load_role_key("llm", environ=environ, env_file=env_file)
++    return SarvamLlm(
++        key,
++        call_log=call_log,
++        cap_tokens=cap_tokens,
++        transport=transport,
++        sleep=sleep,
++        monotonic=monotonic,
++    )
+diff --color -ruN -x __pycache__ qa-batch-b-9f03f8-pristine/packages/evalproviders/src/tracer_evalproviders/sarvam/client.py qa-batch-b-9f03f8/packages/evalproviders/src/tracer_evalproviders/sarvam/client.py
+--- a/packages/evalproviders/src/tracer_evalproviders/sarvam/client.py
++++ b/packages/evalproviders/src/tracer_evalproviders/sarvam/client.py
+@@ -55,6 +55,7 @@
+     "RETRY_AFTER_MAX_SECONDS",
+     "WRITE_TIMEOUT_SECONDS",
+     "SarvamClient",
++    "build_http_client",
+ ]
+ 
+ MAX_ATTEMPTS: Final = 4
+@@ -84,6 +85,21 @@
+ )
+ 
+ 
++def build_http_client(transport: httpx.BaseTransport | None) -> httpx.Client:
++    """The one HTTP client of every Sarvam adapter: no redirect, no environment, TLS verified."""
++    return httpx.Client(
++        transport=transport,
++        follow_redirects=False,
++        trust_env=False,
++        timeout=httpx.Timeout(
++            connect=CONNECT_TIMEOUT_SECONDS,
++            read=READ_TIMEOUT_SECONDS,
++            write=WRITE_TIMEOUT_SECONDS,
++            pool=POOL_TIMEOUT_SECONDS,
++        ),
++    )
++
++
+ def _transport_kind(error: httpx.RequestError) -> str:
+     for cls, kind in _TRANSPORT_KINDS:
+         if isinstance(error, cls):
+@@ -186,17 +202,7 @@
+         self._log = call_log
+         self._sleep = sleep
+         self._monotonic = monotonic
+-        self._http = httpx.Client(
+-            transport=transport,
+-            follow_redirects=False,
+-            trust_env=False,
+-            timeout=httpx.Timeout(
+-                connect=CONNECT_TIMEOUT_SECONDS,
+-                read=READ_TIMEOUT_SECONDS,
+-                write=WRITE_TIMEOUT_SECONDS,
+-                pool=POOL_TIMEOUT_SECONDS,
+-            ),
+-        )
++        self._http = build_http_client(transport)
+ 
+     @property
+     def model(self) -> str:
+diff --color -ruN -x __pycache__ qa-batch-b-9f03f8-pristine/packages/evalproviders/src/tracer_evalproviders/sarvam/engine.py qa-batch-b-9f03f8/packages/evalproviders/src/tracer_evalproviders/sarvam/engine.py
+--- a/packages/evalproviders/src/tracer_evalproviders/sarvam/engine.py
++++ b/packages/evalproviders/src/tracer_evalproviders/sarvam/engine.py
+@@ -16,7 +16,7 @@
+ import httpx
+ 
+ from tracer_evalcore.audio.chunker import ChunkPlan
+-from tracer_evalcore.stt import SttContext, SttError, SttOutcome, UsageSink
++from tracer_evalcore.stt import SttConfigurationError, SttContext, SttError, SttOutcome, UsageSink
+ from tracer_evalproviders.calllog import CallLog
+ from tracer_evalproviders.sarvam.client import SarvamClient
+ from tracer_evalproviders.sarvam.mapping import map_responses, map_usage_records
+@@ -57,6 +57,8 @@
+         one of ``on_usage``, leaves unchanged and no further chunk is sent.
+         """
+         language_code_for(context.configured_language)  # refused before any request
++        if plan.channel is not None and any(c.sample_rate_hz == 8000 for c in plan.chunks):
++            raise SttConfigurationError(reason="sample_rate_not_accepted")
+         answered: list[ChunkResponse] = []
+         records: list[UsageRecord] = []
+         failure: SttError | None = None
+diff --color -ruN -x __pycache__ qa-batch-b-9f03f8-pristine/packages/evalproviders/src/tracer_evalproviders/sarvam/mapping.py qa-batch-b-9f03f8/packages/evalproviders/src/tracer_evalproviders/sarvam/mapping.py
+--- a/packages/evalproviders/src/tracer_evalproviders/sarvam/mapping.py
++++ b/packages/evalproviders/src/tracer_evalproviders/sarvam/mapping.py
+@@ -191,7 +191,7 @@
+             "metadata": metadata,
+             "transcript_id": transcript_id,
+             "seq": len(turns),
+-            "role": "unknown",
++            "role": context.role,
+             "source": "our_stt",
+             "text": response.transcript,
+             "timing_source": "none",
+diff --color -ruN -x __pycache__ qa-batch-b-9f03f8-pristine/packages/evalproviders/src/tracer_evalproviders/sarvam/models.py qa-batch-b-9f03f8/packages/evalproviders/src/tracer_evalproviders/sarvam/models.py
+--- a/packages/evalproviders/src/tracer_evalproviders/sarvam/models.py
++++ b/packages/evalproviders/src/tracer_evalproviders/sarvam/models.py
+@@ -15,11 +15,19 @@
+ 
+ __all__ = [
+     "API_BASE_URL",
++    "CHAT_PATH",
++    "CHAT_URL",
+     "DEFAULT_MODEL",
+     "FORM_FIELD_NAMES",
++    "LLM_MAX_REPLY_BYTES",
+     "MAX_RESPONSE_BYTES",
+     "STT_PATH",
+     "STT_URL",
++    "TTS_LANGUAGE",
++    "TTS_MAX_AUDIO_SECONDS",
++    "TTS_MAX_TEXT_CHARS",
++    "TTS_PATH",
++    "TTS_URL",
+     "ChunkResponse",
+     "SarvamPhrase",
+     "SarvamRequest",
+@@ -27,12 +35,22 @@
+     "SarvamSttResponse",
+     "language_code_for",
+     "parse_response",
++    "tts_max_audio_bytes",
++    "tts_max_response_bytes",
+ ]
+ 
+ API_BASE_URL: Final = "https://api.sarvam.ai"
+ STT_PATH: Final = "/speech-to-text"
+ STT_URL: Final = API_BASE_URL + STT_PATH
+ DEFAULT_MODEL: Final = "saaras:v4"
++TTS_PATH: Final = "/text-to-speech"
++TTS_URL: Final = API_BASE_URL + TTS_PATH
++CHAT_PATH: Final = "/v2/chat/completions"
++CHAT_URL: Final = API_BASE_URL + CHAT_PATH
++TTS_LANGUAGE: Final = "mr-IN"
++TTS_MAX_TEXT_CHARS: Final = 2500
++TTS_MAX_AUDIO_SECONDS: Final = 600
++LLM_MAX_REPLY_BYTES: Final = 65_536
+ FORM_FIELD_NAMES: Final = ("file", "language_code", "model", "with_timestamps")
+ MAX_RESPONSE_BYTES: Final = 1_048_576
+ 
+@@ -189,3 +207,19 @@
+             raise SarvamResponseShapeError("timestamps_invalid")
+         phrases.append(SarvamPhrase(word, start, end))
+     return tuple(phrases)
++
++
++def tts_max_audio_bytes(sample_rate_hz: int, codec: str) -> int:
++    """The most decoded audio bytes a reply may hold: 600 s of the requested rate."""
++    if codec == "linear16":
++        width = 2
++    elif codec == "mulaw":
++        width = 1
++    else:
++        raise ValueError("codec: not an accepted value")
++    return sample_rate_hz * width * TTS_MAX_AUDIO_SECONDS
++
++
++def tts_max_response_bytes(sample_rate_hz: int, codec: str) -> int:
++    """The most JSON body bytes read: the base64 length of the audio cap plus 4,096."""
++    return 4 * -(-tts_max_audio_bytes(sample_rate_hz, codec) // 3) + 4096
+diff --color -ruN -x __pycache__ qa-batch-b-9f03f8-pristine/packages/evalproviders/src/tracer_evalproviders/sarvam/tts.py qa-batch-b-9f03f8/packages/evalproviders/src/tracer_evalproviders/sarvam/tts.py
+--- a/packages/evalproviders/src/tracer_evalproviders/sarvam/tts.py
++++ b/packages/evalproviders/src/tracer_evalproviders/sarvam/tts.py
+@@ -0,0 +1,300 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The Sarvam text-to-speech adapter (oracle of batch B; ADR 0024 amendments A1, A2, A7, A9)."""
++
++from __future__ import annotations
++
++import base64
++import binascii
++import json
++import os
++import re
++import struct
++import time
++from collections.abc import Callable, Mapping
++from decimal import Decimal
++from types import TracebackType
++from typing import Any, ClassVar, Final
++
++import httpx
++
++from tracer_evalcore import tts as core
++from tracer_evalcore.stt import UsageSink
++from tracer_evalcore.tts import (
++    TtsContext,
++    TtsOutcome,
++    TtsRequest,
++)
++from tracer_evalproviders.sarvam._post import JsonPoster, Reply, read_document
++from tracer_evalproviders.sarvam.models import (
++    TTS_LANGUAGE,
++    TTS_MAX_TEXT_CHARS,
++    TTS_URL,
++    tts_max_audio_bytes,
++    tts_max_response_bytes,
++)
++from tracer_evalproviders.secrets import ApiKey, load_role_key
++from tracer_evalproviders.simcalllog import SimCallLog
++from tracer_evalproviders.ttscache import TtsCache, tts_cache_key
++from tracer_evalschema import SCHEMA_VERSION
++from tracer_evalschema.ids import UsageRecordId
++from tracer_evalschema.usage import UsageRecord
++
++__all__ = ["SarvamTts", "create_sarvam_tts"]
++
++PROVIDER: Final = "sarvam"
++_MAX_SAFE: Final = 2**53 - 1
++_B64: Final = re.compile(rb"(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?")
++_HEADER = struct.Struct("<4sI4s4sIHHIIHH4sI")
++
++
++def _check_cap(cap: object) -> int | None:
++    if cap is None:
++        return None
++    if type(cap) is not int or not 0 <= cap <= _MAX_SAFE:
++        raise ValueError("cap must be None or an integer from 0 to 2**53 - 1")
++    return cap
++
++
++def _wav_data(raw: bytes, rate: int, codec: str) -> bytes | str:
++    """The data of a canonical WAV, or the reason key (the container is an assumption)."""
++    if len(raw) < _HEADER.size:
++        return "audio_not_recognised"
++    riff, _size, wave, fmt, fmt_size, tag, chans, hz, _br, _ba, bits, data, length = (
++        _HEADER.unpack_from(raw)
++    )
++    if riff != b"RIFF" or wave != b"WAVE" or fmt != b"fmt " or fmt_size != 16 or data != b"data":
++        return "audio_not_recognised"
++    payload = raw[_HEADER.size : _HEADER.size + length]
++    if len(payload) != length:
++        return "audio_not_recognised"
++    expected = (1, 16) if codec == "linear16" else (7, 8)
++    if (tag, bits) != expected or chans != 1 or hz != rate:
++        return "audio_format_mismatch"
++    if length == 0:
++        return "audio_empty"
++    if codec == "linear16" and length % 2:
++        return "audio_not_recognised"
++    return payload
++
++
++class SarvamTts:
++    provider = "sarvam"
++    streams_usage: ClassVar[bool] = True
++
++    def __init__(
++        self,
++        api_key: ApiKey,
++        *,
++        call_log: SimCallLog,
++        cap_characters: int | None,
++        cache: TtsCache | None = None,
++        transport: httpx.BaseTransport | None = None,
++        sleep: Callable[[float], None] = time.sleep,
++        monotonic: Callable[[], float] = time.monotonic,
++    ) -> None:
++        if not isinstance(api_key, ApiKey):
++            raise TypeError("api_key must be an ApiKey")
++        self._cap = _check_cap(cap_characters)
++        self._used = 0
++        self._cache = cache
++        self._post = JsonPoster(
++            api_key,
++            url=TTS_URL,
++            stage="tts",
++            errors=core,
++            prefix="Tts",
++            call_log=call_log,
++            id_member="request_id",
++            transport=transport,
++            sleep=sleep,
++            monotonic=monotonic,
++        )
++
++    def close(self) -> None:
++        self._post.close()
++
++    def __enter__(self) -> SarvamTts:
++        return self
++
++    def __exit__(
++        self,
++        exc_type: type[BaseException] | None,
++        exc: BaseException | None,
++        traceback: TracebackType | None,
++    ) -> None:
++        self.close()
++
++    def synthesise(
++        self, request: TtsRequest, context: TtsContext, *, on_usage: UsageSink | None = None
++    ) -> TtsOutcome:
++        if not isinstance(request, TtsRequest) or not isinstance(context, TtsContext):
++            raise TypeError("request and context must be records")
++        voice = request.voice
++        if voice.language_code != TTS_LANGUAGE:
++            raise core.TtsLanguageNotSupportedError(
++                index=request.index, reason="language_not_supported"
++            )
++        if len(request.text) > TTS_MAX_TEXT_CHARS:
++            raise core.TtsTextTooLongError(index=request.index, reason="text_too_long")
++        audio_cap = tts_max_audio_bytes(request.sample_rate_hz, request.codec)
++        key = None
++        if self._cache is not None:
++            key = tts_cache_key(
++                provider=voice.provider,
++                model=voice.model,
++                speaker=voice.speaker,
++                language_code=voice.language_code,
++                sample_rate_hz=request.sample_rate_hz,
++                codec=request.codec,
++                pace=voice.pace,
++                text=request.text,
++            )
++            hit = self._cache.get(key)
++            if hit is not None:
++                valid = bool(hit) and len(hit) <= audio_cap
++                if request.codec == "linear16" and len(hit) % 2:
++                    valid = False
++                if not valid:
++                    return TtsOutcome(
++                        audio=None,
++                        usage=(),
++                        failure=core.TtsResponseInvalid(
++                            index=request.index, reason="cache_entry_invalid"
++                        ),
++                    )
++                return TtsOutcome(audio=hit, usage=(), failure=None)
++        if self._cap is not None and self._used + len(request.text) > self._cap:
++            return TtsOutcome(
++                audio=None,
++                usage=(),
++                failure=core.TtsCapReachedError(index=request.index, reason="tts_chars"),
++            )
++        self._used += len(request.text)
++        body = json.dumps(
++            {
++                "text": request.text,
++                "language_code": voice.language_code,
++                "speaker": voice.speaker,
++                "model": voice.model,
++                "pace": Decimal(voice.pace),
++                "speech_sample_rate": request.sample_rate_hz,
++                "output_audio_codec": request.codec,
++            },
++            default=_pace_json_default,
++        ).encode("utf-8")
++        reply = self._post.post(
++            index=request.index,
++            body=body,
++            log_fields={"characters": len(request.text)},
++            max_bytes=tts_max_response_bytes(request.sample_rate_hz, request.codec),
++        )
++        if not isinstance(reply, Reply):
++            return TtsOutcome(audio=None, usage=(), failure=reply)
++        parsed = self._parse(request, reply, audio_cap)
++        if isinstance(parsed, core.TtsError):
++            return TtsOutcome(audio=None, usage=(), failure=parsed)
++        audio, request_id = parsed
++        if self._cache is not None and key is not None:
++            self._cache.put(key, audio)
++        record = self._record(request, context, reply, request_id)
++        if on_usage is not None:
++            on_usage(record)
++        return TtsOutcome(audio=audio, usage=(record,), failure=None)
++
++    def _parse(
++        self, request: TtsRequest, reply: Reply, audio_cap: int
++    ) -> tuple[bytes, str] | core.TtsError:
++        facts: dict[str, Any] = {"index": request.index, "attempts": reply.attempts, "status": 200}
++
++        def invalid(reason: str) -> core.TtsError:
++            return core.TtsResponseInvalid(reason=reason, **facts)
++
++        ok, document = read_document(reply.body)
++        if not ok:
++            return invalid("not_json")
++        if not isinstance(document, dict):
++            return invalid("not_object")
++        request_id = document.get("request_id")
++        if not isinstance(request_id, str) or not 1 <= len(request_id) <= 256:
++            return invalid("request_id_invalid")
++        audios = document.get("audios")
++        if not (isinstance(audios, list) and len(audios) == 1 and isinstance(audios[0], str)):
++            return invalid("audios_invalid")
++        text = audios[0]
++        if text == "":
++            return invalid("audio_empty")
++        raw: bytes | None
++        try:
++            encoded = text.encode("ascii")
++            # the same grammar on every Python: 3.11 accepts excess padding under validate=True
++            raw = base64.b64decode(encoded, validate=True) if _B64.fullmatch(encoded) else None
++        except (ValueError, binascii.Error):
++            raw = None
++        if raw is None:
++            return invalid("audio_not_base64")
++        if not raw:
++            return invalid("audio_empty")
++        if len(raw) > audio_cap:
++            return invalid("audio_too_large")
++        data = _wav_data(raw, request.sample_rate_hz, request.codec)
++        if isinstance(data, str):
++            return invalid(data)
++        return data, request_id
++
++    def _record(
++        self, request: TtsRequest, context: TtsContext, reply: Reply, request_id: str
++    ) -> UsageRecord:
++        document: dict[str, Any] = {
++            "id": UsageRecordId.new(),
++            "schema_version": SCHEMA_VERSION,
++            "created_at": context.created_at,
++            "metadata": {
++                "tracer.request_index": request.index,
++                "tracer.model_basis": "requested_not_echoed",
++            },
++            "run_id": context.run_id,
++            "domain": "evaluation",
++            "stage": "sim_caller_tts",
++            "provider": PROVIDER,
++            "model": request.voice.model,
++            "provider_call_ref": {"system": PROVIDER, "kind": "request_id", "value": request_id},
++            "quantities": [
++                {"unit": "input_characters", "count": len(request.text)},
++                {"unit": "requests", "count": 1},
++            ],
++            "source": "measured",
++            "raw": None,
++        }
++        if reply.date is not None:
++            document["occurred_at"] = reply.date
++        return UsageRecord.model_validate(document)
++
++
++def _pace_json_default(value: object) -> Any:
++    if isinstance(value, Decimal):
++        return float(value)
++    raise TypeError("not serialisable")
++
++
++def create_sarvam_tts(
++    *,
++    call_log: SimCallLog,
++    cap_characters: int | None,
++    environ: Mapping[str, str] | None = None,
++    env_file: str | os.PathLike[str] | None = None,
++    cache: TtsCache | None = None,
++    transport: httpx.BaseTransport | None = None,
++    sleep: Callable[[float], None] = time.sleep,
++    monotonic: Callable[[], float] = time.monotonic,
++) -> SarvamTts:
++    key = load_role_key("tts", environ=environ, env_file=env_file)
++    return SarvamTts(
++        key,
++        call_log=call_log,
++        cap_characters=cap_characters,
++        cache=cache,
++        transport=transport,
++        sleep=sleep,
++        monotonic=monotonic,
++    )
+diff --color -ruN -x __pycache__ qa-batch-b-9f03f8-pristine/packages/evalproviders/src/tracer_evalproviders/secrets.py qa-batch-b-9f03f8/packages/evalproviders/src/tracer_evalproviders/secrets.py
+--- a/packages/evalproviders/src/tracer_evalproviders/secrets.py
++++ b/packages/evalproviders/src/tracer_evalproviders/secrets.py
+@@ -15,22 +15,28 @@
+ from collections.abc import Mapping
+ from typing import Any, Final, NoReturn
+ 
++from tracer_evalcore.errors import EvalcoreError
++from tracer_evalcore.llm import LlmKeyMissingError
+ from tracer_evalcore.stt import SttKeyMissingError
++from tracer_evalcore.tts import TtsKeyMissingError
+ from tracer_evalschema.provider import ProviderConfigRef
+ 
+ __all__ = [
+     "CONFIG_REF",
+     "ENV_FILE_MAX_BYTES",
+     "ENV_VAR_NAME",
++    "ENV_VAR_NAMES",
+     "PLACEHOLDER",
+     "ApiKey",
+     "EnvFileModeWarning",
+     "load_api_key",
++    "load_role_key",
+     "provider_config_ref",
+ ]
+ 
+ ENV_VAR_NAME: Final = "SARVAM_API_KEY"
+ CONFIG_REF: Final = "env:SARVAM_API_KEY"
++ENV_VAR_NAMES: Final = {"stt": ENV_VAR_NAME, "tts": ENV_VAR_NAME, "llm": ENV_VAR_NAME}
+ PLACEHOLDER: Final = "<redacted api key>"
+ ENV_FILE_MAX_BYTES: Final = 65_536
+ 
+@@ -188,3 +194,32 @@
+     return ProviderConfigRef.model_validate(
+         {"provider": "sarvam", "model": model, "config_ref": CONFIG_REF}
+     )
++
++
++_ROLE_ERRORS: Final[dict[str, type[EvalcoreError]]] = {
++    "stt": SttKeyMissingError,
++    "tts": TtsKeyMissingError,
++    "llm": LlmKeyMissingError,
++}
++
++
++def load_role_key(
++    role: str,
++    *,
++    environ: Mapping[str, str] | None = None,
++    env_file: str | os.PathLike[str] | None = None,
++) -> ApiKey:
++    """The key of one role (``stt``, ``tts`` or ``llm``); a failure is that role's own error."""
++    if not isinstance(role, str):
++        raise TypeError("role must be a string")
++    if role not in _ROLE_ERRORS:
++        raise ValueError("role must be stt, tts or llm")
++    reason: str | None = None
++    key: ApiKey | None = None
++    try:
++        key = load_api_key(environ=environ, env_file=env_file)
++    except SttKeyMissingError as error:
++        reason = error.reason
++    if key is not None:
++        return key
++    raise _ROLE_ERRORS[role](reason=reason)  # type: ignore[call-arg]
+diff --color -ruN -x __pycache__ qa-batch-b-9f03f8-pristine/packages/evalproviders/src/tracer_evalproviders/simcalllog.py qa-batch-b-9f03f8/packages/evalproviders/src/tracer_evalproviders/simcalllog.py
+--- a/packages/evalproviders/src/tracer_evalproviders/simcalllog.py
++++ b/packages/evalproviders/src/tracer_evalproviders/simcalllog.py
+@@ -0,0 +1,261 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The call log of a simulated run (oracle of batch B; ADR 0024 amendment A8)."""
++
++from __future__ import annotations
++
++import json
++import os
++import re
++from collections.abc import Callable, Mapping
++from datetime import UTC, datetime
++from pathlib import Path
++from typing import Final
++
++from tracer_evalproviders.calllog import safe_request_id
++
++__all__ = ["SIM_CALL_LOG_NAME", "SimCallLog", "SttCallLogView"]
++
++SIM_CALL_LOG_NAME: Final = "sim_call_log.jsonl"
++_SAFE_KIND: Final = re.compile(r"[a-z0-9_]{1,64}")
++_SAFE_SECONDS: Final = re.compile(r"[0-9]{1,20}(?:\.[0-9]{1,18})?")
++_COUNT_KEY: Final = re.compile(r"[a-z][a-z0-9_]{0,63}")
++_STAGES: Final = ("tts", "llm", "stt")
++_DIALECTS: Final = ("pipecat-protobuf/1", "twilio-media-stream/1", "smallwebrtc/1")
++_END_REASONS: Final = (
++    "script_complete",
++    "caller_end_call",
++    "agent_hangup",
++    "max_duration",
++    "max_turns",
++    "max_silence",
++    "kill_switch",
++    "setup_failed",
++    "transport_error",
++    "brain_invalid_output",
++    "spend_cap",
++)
++
++
++def _utc_now() -> datetime:
++    return datetime.now(UTC)
++
++
++def _is_int(value: object) -> bool:
++    return type(value) is int
++
++
++class SimCallLog:
++    def __init__(self, path: Path, *, clock: Callable[[], datetime] = _utc_now) -> None:
++        self._path = path
++        self._clock = clock
++        descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_APPEND | os.O_NOFOLLOW, 0o600)
++        os.fchmod(descriptor, 0o600)
++        self._descriptor = descriptor
++
++    @classmethod
++    def open(
++        cls, out_dir: str | os.PathLike[str], *, clock: Callable[[], datetime] = _utc_now
++    ) -> SimCallLog:
++        directory = Path(out_dir)
++        directory.mkdir(mode=0o700, parents=True, exist_ok=True)
++        return cls(directory / SIM_CALL_LOG_NAME, clock=clock)
++
++    @property
++    def path(self) -> Path:
++        return self._path
++
++    def for_stt(self) -> SttCallLogView:
++        return SttCallLogView(self)
++
++    def close(self) -> None:
++        if self._descriptor >= 0:
++            os.close(self._descriptor)
++            self._descriptor = -1
++
++    def _stamp(self) -> str:
++        return self._clock().astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
++
++    def _emit(self, line: dict[str, object]) -> None:
++        data = (json.dumps(line, separators=(",", ":"), ensure_ascii=True) + "\n").encode("ascii")
++        view = memoryview(data)
++        while view:
++            view = view[os.write(self._descriptor, view) :]
++        os.fsync(self._descriptor)
++
++    def _request_line(
++        self,
++        event: str,
++        stage: object,
++        index: object,
++        attempt: object,
++        bytes_sent: object,
++        characters: object,
++        audio_seconds: object,
++        status: int | None,
++        error_kind: str | None,
++        elapsed_ms: object,
++        request_id: object,
++    ) -> None:
++        if stage not in _STAGES:
++            raise ValueError("stage: not an accepted value")
++        if not (_is_int(index) and _is_int(attempt) and _is_int(bytes_sent)):
++            raise TypeError("a call log line holds integers only")
++        if characters is not None and not _is_int(characters):
++            raise TypeError("characters must be an integer")
++        if audio_seconds is not None:
++            if not isinstance(audio_seconds, str):
++                raise TypeError("audio_seconds must be a decimal string")
++            if not _SAFE_SECONDS.fullmatch(audio_seconds):
++                raise ValueError("audio_seconds must be a decimal string")
++        if stage == "tts" and (characters is None or audio_seconds is not None):
++            raise ValueError("a tts line counts characters and nothing else")
++        if stage == "stt" and (audio_seconds is None or characters is not None):
++            raise ValueError("an stt line counts audio seconds and nothing else")
++        if stage == "llm" and (characters is not None or audio_seconds is not None):
++            raise ValueError("an llm line counts neither")
++        for number in (status, elapsed_ms):
++            if number is not None and not _is_int(number):
++                raise TypeError("a call log line holds integers only")
++        if event == "after" and not _is_int(elapsed_ms):
++            raise TypeError("a call log line holds integers only")
++        self._emit(
++            {
++                "at": self._stamp(),
++                "event": event,
++                "stage": stage,
++                "index": index,
++                "attempt": attempt,
++                "bytes_sent": bytes_sent,
++                "characters": characters,
++                "audio_seconds": audio_seconds,
++                "status": status,
++                "error_kind": error_kind
++                if error_kind and _SAFE_KIND.fullmatch(error_kind)
++                else None,
++                "elapsed_ms": elapsed_ms,
++                "request_id": safe_request_id(request_id),
++            }
++        )
++
++    def before(
++        self,
++        *,
++        stage: str,
++        index: int,
++        attempt: int,
++        bytes_sent: int,
++        characters: int | None = None,
++        audio_seconds: str | None = None,
++    ) -> None:
++        self._request_line(
++            "before",
++            stage,
++            index,
++            attempt,
++            bytes_sent,
++            characters,
++            audio_seconds,
++            None,
++            None,
++            None,
++            None,
++        )
++
++    def after(
++        self,
++        *,
++        stage: str,
++        index: int,
++        attempt: int,
++        bytes_sent: int,
++        status: int | None,
++        error_kind: str | None,
++        elapsed_ms: int,
++        request_id: str | None,
++        characters: int | None = None,
++        audio_seconds: str | None = None,
++    ) -> None:
++        self._request_line(
++            "after",
++            stage,
++            index,
++            attempt,
++            bytes_sent,
++            characters,
++            audio_seconds,
++            status,
++            error_kind,
++            elapsed_ms,
++            request_id,
++        )
++
++    def connect(self, *, dialect: str) -> None:
++        if dialect not in _DIALECTS:
++            raise ValueError("dialect: not an accepted value")
++        self._emit({"at": self._stamp(), "event": "connect", "stage": "call", "dialect": dialect})
++
++    def end(self, *, end_reason: str, counts: Mapping[str, int]) -> None:
++        if end_reason not in _END_REASONS:
++            raise ValueError("end_reason: not an accepted value")
++        if not isinstance(counts, Mapping):
++            raise TypeError("counts must be a mapping")
++        for key, value in counts.items():
++            if not (isinstance(key, str) and _COUNT_KEY.fullmatch(key)):
++                raise ValueError("counts: not a machine key")
++            if not _is_int(value) or value < 0:
++                raise ValueError("counts: not a non-negative integer")
++        self._emit(
++            {
++                "at": self._stamp(),
++                "event": "end",
++                "stage": "call",
++                "end_reason": end_reason,
++                "counts": dict(counts),
++            }
++        )
++
++
++class SttCallLogView:
++    """The shape of ``CallLog`` over the shared log, for the STT client."""
++
++    def __init__(self, log: SimCallLog) -> None:
++        self._log = log
++
++    def before(
++        self, *, chunk_index: int, attempt: int, bytes_sent: int, audio_seconds: str
++    ) -> None:
++        self._log.before(
++            stage="stt",
++            index=chunk_index,
++            attempt=attempt,
++            bytes_sent=bytes_sent,
++            audio_seconds=audio_seconds,
++        )
++
++    def after(
++        self,
++        *,
++        chunk_index: int,
++        attempt: int,
++        bytes_sent: int,
++        audio_seconds: str,
++        status: int | None,
++        error_kind: str | None,
++        elapsed_ms: int,
++        request_id: str | None,
++    ) -> None:
++        self._log.after(
++            stage="stt",
++            index=chunk_index,
++            attempt=attempt,
++            bytes_sent=bytes_sent,
++            audio_seconds=audio_seconds,
++            status=status,
++            error_kind=error_kind,
++            elapsed_ms=elapsed_ms,
++            request_id=request_id,
++        )
++
++    def close(self) -> None:
++        return None
+diff --color -ruN -x __pycache__ qa-batch-b-9f03f8-pristine/packages/evalproviders/src/tracer_evalproviders/ttscache.py qa-batch-b-9f03f8/packages/evalproviders/src/tracer_evalproviders/ttscache.py
+--- a/packages/evalproviders/src/tracer_evalproviders/ttscache.py
++++ b/packages/evalproviders/src/tracer_evalproviders/ttscache.py
+@@ -0,0 +1,120 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The content-addressed TTS cache (oracle of batch B; ADR 0024 amendment A9)."""
++
++from __future__ import annotations
++
++import contextlib
++import hashlib
++import json
++import os
++import re
++import stat
++from pathlib import Path
++from typing import Final
++
++__all__ = ["TTS_CACHE_DIR_NAME", "TtsCache", "tts_cache_key"]
++
++TTS_CACHE_DIR_NAME: Final = "tts-cache"
++_KEY: Final = re.compile(r"[0-9a-f]{64}")
++_MAX_ENTRY_BYTES: Final = 1 << 31
++
++
++def tts_cache_key(
++    *,
++    provider: str,
++    model: str,
++    speaker: str,
++    language_code: str,
++    sample_rate_hz: int,
++    codec: str,
++    pace: str,
++    text: str,
++) -> str:
++    for name, value in (
++        ("provider", provider),
++        ("model", model),
++        ("speaker", speaker),
++        ("language_code", language_code),
++        ("codec", codec),
++        ("pace", pace),
++        ("text", text),
++    ):
++        if type(value) is not str:
++            raise TypeError(f"{name} must be a string")
++    if type(sample_rate_hz) is not int:
++        raise TypeError("sample_rate_hz must be an int")
++    document = {
++        "provider": provider,
++        "model": model,
++        "speaker": speaker,
++        "language_code": language_code,
++        "sample_rate_hz": sample_rate_hz,
++        "codec": codec,
++        "pace": pace,
++        "text": text,
++    }
++    canonical = json.dumps(document, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
++    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
++
++
++def _check(key: object) -> str:
++    if not isinstance(key, str):
++        raise TypeError("key must be a string")
++    if not _KEY.fullmatch(key):
++        raise ValueError("key: not a lower-case hex sha-256")
++    return key
++
++
++class TtsCache:
++    def __init__(self, directory: Path) -> None:
++        self._dir = directory
++
++    @classmethod
++    def open(cls, out_dir: str | os.PathLike[str]) -> TtsCache:
++        out = Path(out_dir)
++        out.mkdir(mode=0o700, parents=True, exist_ok=True)
++        directory = out / TTS_CACHE_DIR_NAME
++        with contextlib.suppress(FileExistsError):
++            directory.mkdir(mode=0o700)
++        descriptor = os.open(directory, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
++        os.close(descriptor)
++        return cls(directory)
++
++    @property
++    def path(self) -> Path:
++        return self._dir
++
++    def get(self, key: str) -> bytes | None:
++        name = _check(key)
++        try:
++            descriptor = os.open(self._dir / name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
++        except FileNotFoundError:
++            return None
++        try:
++            if not stat.S_ISREG(os.fstat(descriptor).st_mode):
++                raise OSError("a cache entry is not a regular file")
++            with os.fdopen(descriptor, "rb", closefd=False) as handle:
++                return handle.read(_MAX_ENTRY_BYTES)
++        finally:
++            os.close(descriptor)
++
++    def put(self, key: str, audio: bytes) -> None:
++        name = _check(key)
++        if not isinstance(audio, bytes):
++            raise TypeError("audio must be bytes")
++        if not audio:
++            raise ValueError("audio: empty")
++        descriptor = os.open(
++            self._dir / name, os.O_WRONLY | os.O_CREAT | os.O_NOFOLLOW | os.O_NONBLOCK, 0o600
++        )
++        try:
++            if not stat.S_ISREG(os.fstat(descriptor).st_mode):
++                raise OSError("a cache entry is not a regular file")
++            os.fchmod(descriptor, 0o600)
++            os.ftruncate(descriptor, 0)
++            view = memoryview(audio)
++            while view:
++                view = view[os.write(descriptor, view) :]
++        finally:
++            os.close(descriptor)

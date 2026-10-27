@@ -16,7 +16,7 @@ from typing import ClassVar
 import httpx
 
 from tracer_evalcore.audio.chunker import ChunkPlan
-from tracer_evalcore.stt import SttContext, SttError, SttOutcome, UsageSink
+from tracer_evalcore.stt import SttConfigurationError, SttContext, SttError, SttOutcome, UsageSink
 from tracer_evalproviders.calllog import CallLog
 from tracer_evalproviders.sarvam.client import SarvamClient
 from tracer_evalproviders.sarvam.mapping import map_responses, map_usage_records
@@ -57,6 +57,8 @@ class SarvamStt:
         one of ``on_usage``, leaves unchanged and no further chunk is sent.
         """
         language_code_for(context.configured_language)  # refused before any request
+        if plan.channel is not None and any(c.sample_rate_hz == 8000 for c in plan.chunks):
+            raise SttConfigurationError(reason="sample_rate_not_accepted")
         answered: list[ChunkResponse] = []
         records: list[UsageRecord] = []
         failure: SttError | None = None

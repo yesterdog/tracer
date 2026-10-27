@@ -1,0 +1,130 @@
+# Reason of each failure of the 67 new tests on the CURRENT tree (Python 3.13). One line per failing test.
+# Every reason is a module that does not exist yet (ModuleNotFoundError), or, for the two source scans,
+# the file they must read does not exist; no failure is an import error of a test itself.
+# 63 failures.
+test_sim_callstate::test_state_machine_transition_table_exact
+    ModuleNotFoundError: No module named 'tracer_evalcore.callstate'
+test_sim_callstate::test_max_duration_is_min_of_evaluator_and_cap
+    ModuleNotFoundError: No module named 'tracer_evalcore.callstate'
+test_sim_callstate::test_max_duration_property_is_the_smaller_of_the_two
+    ModuleNotFoundError: No module named 'tracer_evalcore.callstate'
+test_sim_callstate::test_kill_switch_reaches_ended_from_every_state
+    ModuleNotFoundError: No module named 'tracer_evalcore.callstate'
+test_sim_callstate::test_kill_switch_reaches_ended_after_any_legal_prefix
+    ModuleNotFoundError: No module named 'tracer_evalcore.callstate'
+test_sim_callstate::test_no_event_after_ended
+    ModuleNotFoundError: No module named 'tracer_evalcore.callstate'
+test_sim_callstate::test_no_state_is_entered_after_ended
+    ModuleNotFoundError: No module named 'tracer_evalcore.callstate'
+test_sim_callstate::test_setup_failure_is_an_end_reason_not_an_exception
+    ModuleNotFoundError: No module named 'tracer_evalcore.callstate'
+test_sim_callstate::test_every_end_reason_is_reachable_with_its_own_value
+    ModuleNotFoundError: No module named 'tracer_evalcore.callstate'
+test_sim_callstate::test_the_first_end_reason_wins
+    ModuleNotFoundError: No module named 'tracer_evalcore.callstate'
+test_sim_callstate::test_late_events_while_ending_are_ignored_but_a_refused_event_changes_nothing
+    ModuleNotFoundError: No module named 'tracer_evalcore.callstate'
+test_sim_callstate::test_established_only_after_connected_and_only_once_connecting
+    ModuleNotFoundError: No module named 'tracer_evalcore.callstate'
+test_sim_callstate::test_arguments_are_validated_and_only_the_machine_error_is_raised
+    ModuleNotFoundError: No module named 'tracer_evalcore.callstate'
+test_sim_callstate::test_machine_follows_the_reference_model_on_random_event_sequences
+    ModuleNotFoundError: No module named 'tracer_evalcore.callstate'
+test_sim_core_conventions::test_sim_core_modules_import_no_clock_or_randomness
+    AssertionError: callstate.py does not exist (a scan of nothing proves nothing)
+test_sim_core_conventions::test_sim_core_modules_follow_package_conventions
+    FileNotFoundError: [Errno 2] No such file or directory: '<tree>/packages/evalcore/src/tracer_evalcore/callstate.py'
+test_sim_core_conventions::test_shipped_timing_schema_equals_adr0027_block
+    ModuleNotFoundError: No module named 'tracer_evalcore.simtiming'
+test_sim_g711::test_g711_mulaw_alaw_decode_matches_itu_table
+    ModuleNotFoundError: No module named 'tracer_evalcore.g711'
+test_sim_g711::test_g711_tables_have_the_structure_of_the_standard
+    ModuleNotFoundError: No module named 'tracer_evalcore.g711'
+test_sim_g711::test_g711_decode_is_bytewise_and_length_doubling
+    ModuleNotFoundError: No module named 'tracer_evalcore.g711'
+test_sim_recorder::test_recorder_is_deterministic_from_frame_log
+    ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+test_sim_recorder::test_recorder_matches_the_reference_for_random_frame_logs
+    ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+test_sim_recorder::test_recorder_channel_0_is_exactly_what_was_sent
+    ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+test_sim_recorder::test_recorder_burst_arrival_uses_playback_model
+    ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+test_sim_recorder::test_agent_frames_play_back_to_back_and_never_overlap
+    ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+test_sim_recorder::test_recorder_refuses_rate_mismatch_never_resamples
+    ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+test_sim_recorder::test_a_frame_is_accepted_iff_its_rate_is_the_recorders
+    ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+test_sim_recorder::test_wav_layout_is_the_canonical_pcm_header
+    ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+test_sim_recorder::test_empty_logs_give_a_valid_empty_recording
+    ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+test_sim_recorder::test_caller_frames_that_overlap_in_time_are_counted_not_hidden
+    ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+test_sim_recorder::test_frames_must_be_in_order_inside_the_timeline_and_non_empty
+    ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+test_sim_recorder::test_frame_and_format_records_validate_their_fields
+    ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+test_sim_timing::test_timing_first_agent_audio_exact_on_synthetic_log
+    ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+test_sim_timing::test_first_agent_audio_and_setup_are_floors_of_differences
+    ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+test_sim_timing::test_timing_gap_measured_from_last_sent_frame
+    ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+test_sim_timing::test_simulator_self_latency_excluded_from_agent_gap
+    ModuleNotFoundError: No module named 'tracer_evalcore.simtiming'
+test_sim_timing::test_timing_values_carry_quantum_and_dialect
+    ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+test_sim_timing::test_timing_value_without_both_edges_is_error_never_zero
+    ModuleNotFoundError: No module named 'tracer_evalcore.simtiming'
+test_sim_timing::test_quantum_is_the_larger_of_the_caller_frame_and_the_longest_agent_frame
+    ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+test_sim_timing::test_overlap_is_the_duration_of_active_agent_frames_arriving_while_the_caller_speaks
+    ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+test_sim_timing::test_barge_in_stop_is_the_end_of_the_interrupted_activity
+    ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+test_sim_timing::test_nearest_rank_median_helper
+    ModuleNotFoundError: No module named 'tracer_evalcore.simtiming'
+test_sim_timing::test_nearest_rank_median_is_a_member_with_half_at_or_below
+    ModuleNotFoundError: No module named 'tracer_evalcore.simtiming'
+test_sim_timing::test_turn_and_call_inputs_are_checked_not_repaired
+    ModuleNotFoundError: No module named 'tracer_evalcore.simtiming'
+test_sim_timing::test_extraction_matches_the_reference_on_random_calls
+    ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+test_sim_timing::test_the_validator_accepts_what_the_extractor_builds_and_refuses_each_fault
+    ModuleNotFoundError: No module named 'tracer_evalcore.simtiming'
+test_sim_turntaking::test_agent_activity_is_any_nonzero_sample_no_threshold
+    ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+test_sim_turntaking::test_activity_equals_any_nonzero_sample_for_random_frames
+    ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+test_sim_turntaking::test_wait_for_silence_parameter_has_no_default
+    ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+test_sim_turntaking::test_policy_values_are_validated
+    ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+test_sim_turntaking::test_barge_in_fires_at_offset_from_agent_onset
+    ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+test_sim_turntaking::test_barge_in_instant_is_onset_plus_offset_or_the_end
+    ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+test_sim_turntaking::test_comfort_noise_agent_never_goes_silent_is_max_silence_not_a_hang
+    ModuleNotFoundError: No module named 'tracer_evalcore.callstate'
+test_sim_turntaking::test_simulator_never_speaks_while_brain_pending
+    ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+test_sim_turntaking::test_a_line_never_starts_while_the_brain_is_pending
+    ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+test_sim_turntaking::test_silence_rule_speaks_wait_ms_after_the_last_active_frame
+    ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+test_sim_turntaking::test_the_first_line_of_a_caller_that_speaks_first_does_not_wait
+    ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+test_sim_turntaking::test_state_of_one_wait_does_not_leak_into_the_next
+    ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+test_sim_turntaking::test_the_onset_of_one_wait_is_not_the_onset_of_the_next
+    ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+test_sim_turntaking::test_time_never_goes_backwards_and_inputs_are_checked
+    ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+test_sim_turntaking::test_a_refused_call_changes_nothing
+    ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+test_sim_turntaking::test_decision_matches_the_reference_on_random_recorded_frame_sequences
+    ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+test_sim_turntaking::test_decisions_are_plain_values
+    ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'

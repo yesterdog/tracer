@@ -1,0 +1,1339 @@
+........................................................................ [  6%]
+........................................................................ [ 13%]
+........................................................................ [ 19%]
+........................................................................ [ 26%]
+........................................................................ [ 33%]
+........................................................................ [ 39%]
+........................................................................ [ 46%]
+........................................................................ [ 53%]
+........................................................................ [ 59%]
+........s............................................................... [ 66%]
+........................................................................ [ 73%]
+..............................................................FFFFFFFFFF [ 79%]
+FFFF.FFF........FFFFFFFFFFFFFFF.FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF......... [ 86%]
+........................................................................ [ 93%]
+........................................................................ [ 99%]
+..                                                                       [100%]
+=================================== FAILURES ===================================
+__________________ test_state_machine_transition_table_exact ___________________
+packages/evalcore/tests/test_sim_callstate.py:61: in test_state_machine_transition_table_exact
+    cs = callstate_mod()
+         ^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:48: in callstate_mod
+    return importlib.import_module("tracer_evalcore.callstate")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.callstate'
+________________ test_max_duration_is_min_of_evaluator_and_cap _________________
+packages/evalcore/tests/test_sim_callstate.py:122: in test_max_duration_is_min_of_evaluator_and_cap
+    cs = callstate_mod()
+         ^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:48: in callstate_mod
+    return importlib.import_module("tracer_evalcore.callstate")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.callstate'
+_____________ test_max_duration_property_is_the_smaller_of_the_two _____________
+packages/evalcore/tests/test_sim_callstate.py:163: in test_max_duration_property_is_the_smaller_of_the_two
+    evaluator=st.integers(min_value=1, max_value=14_400_000),
+               ^^^
+packages/evalcore/tests/test_sim_callstate.py:169: in test_max_duration_property_is_the_smaller_of_the_two
+    got = callstate_mod().effective_max_duration_ms(evaluator, cap)
+          ^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:48: in callstate_mod
+    return importlib.import_module("tracer_evalcore.callstate")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.callstate'
+E   Failing test case: test_max_duration_property_is_the_smaller_of_the_two(
+E       evaluator=1,
+E       cap=None,
+E   )
+_______________ test_kill_switch_reaches_ended_from_every_state ________________
+packages/evalcore/tests/test_sim_callstate.py:179: in test_kill_switch_reaches_ended_from_every_state
+    cs = callstate_mod()
+         ^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:48: in callstate_mod
+    return importlib.import_module("tracer_evalcore.callstate")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.callstate'
+____________ test_kill_switch_reaches_ended_after_any_legal_prefix _____________
+packages/evalcore/tests/test_sim_callstate.py:199: in test_kill_switch_reaches_ended_after_any_legal_prefix
+    prefix=st.lists(st.tuples(st.sampled_from(EVENTS), st.sampled_from(REQUESTABLE)), max_size=25)
+               ^^^
+packages/evalcore/tests/test_sim_callstate.py:207: in test_kill_switch_reaches_ended_after_any_legal_prefix
+    cs = callstate_mod()
+         ^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:48: in callstate_mod
+    return importlib.import_module("tracer_evalcore.callstate")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.callstate'
+E   Failing test case: test_kill_switch_reaches_ended_after_any_legal_prefix(
+E       prefix=[],
+E   )
+__________________________ test_no_event_after_ended ___________________________
+packages/evalcore/tests/test_sim_callstate.py:228: in test_no_event_after_ended
+    cs = callstate_mod()
+         ^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:48: in callstate_mod
+    return importlib.import_module("tracer_evalcore.callstate")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.callstate'
+_____________________ test_no_state_is_entered_after_ended _____________________
+packages/evalcore/tests/test_sim_callstate.py:262: in test_no_state_is_entered_after_ended
+    tail=st.lists(
+               ^^^
+packages/evalcore/tests/test_sim_callstate.py:269: in test_no_state_is_entered_after_ended
+    cs = callstate_mod()
+         ^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:48: in callstate_mod
+    return importlib.import_module("tracer_evalcore.callstate")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.callstate'
+E   Failing test case: test_no_state_is_entered_after_ended(
+E       tail=[('connect_started', 'script_complete')],
+E   )
+_____________ test_setup_failure_is_an_end_reason_not_an_exception _____________
+packages/evalcore/tests/test_sim_callstate.py:278: in test_setup_failure_is_an_end_reason_not_an_exception
+    cs = callstate_mod()
+         ^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:48: in callstate_mod
+    return importlib.import_module("tracer_evalcore.callstate")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.callstate'
+____________ test_every_end_reason_is_reachable_with_its_own_value _____________
+packages/evalcore/tests/test_sim_callstate.py:331: in test_every_end_reason_is_reachable_with_its_own_value
+    cs = callstate_mod()
+         ^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:48: in callstate_mod
+    return importlib.import_module("tracer_evalcore.callstate")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.callstate'
+________________________ test_the_first_end_reason_wins ________________________
+packages/evalcore/tests/test_sim_callstate.py:350: in test_the_first_end_reason_wins
+    cs = callstate_mod()
+         ^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:48: in callstate_mod
+    return importlib.import_module("tracer_evalcore.callstate")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.callstate'
+_ test_late_events_while_ending_are_ignored_but_a_refused_event_changes_nothing _
+packages/evalcore/tests/test_sim_callstate.py:365: in test_late_events_while_ending_are_ignored_but_a_refused_event_changes_nothing
+    cs = callstate_mod()
+         ^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:48: in callstate_mod
+    return importlib.import_module("tracer_evalcore.callstate")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.callstate'
+________ test_established_only_after_connected_and_only_once_connecting ________
+packages/evalcore/tests/test_sim_callstate.py:383: in test_established_only_after_connected_and_only_once_connecting
+    cs = callstate_mod()
+         ^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:48: in callstate_mod
+    return importlib.import_module("tracer_evalcore.callstate")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.callstate'
+______ test_arguments_are_validated_and_only_the_machine_error_is_raised _______
+packages/evalcore/tests/test_sim_callstate.py:396: in test_arguments_are_validated_and_only_the_machine_error_is_raised
+    cs = callstate_mod()
+         ^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:48: in callstate_mod
+    return importlib.import_module("tracer_evalcore.callstate")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.callstate'
+______ test_machine_follows_the_reference_model_on_random_event_sequences ______
+packages/evalcore/tests/test_sim_callstate.py:421: in test_machine_follows_the_reference_model_on_random_event_sequences
+    steps=st.lists(
+               ^^^
+packages/evalcore/tests/test_sim_callstate.py:432: in test_machine_follows_the_reference_model_on_random_event_sequences
+    cs = callstate_mod()
+         ^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:48: in callstate_mod
+    return importlib.import_module("tracer_evalcore.callstate")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.callstate'
+E   Failing test case: test_machine_follows_the_reference_model_on_random_event_sequences(
+E       steps=[],
+E   )
+_____________ test_sim_core_modules_import_no_clock_or_randomness ______________
+packages/evalcore/tests/test_sim_core_conventions.py:122: in test_sim_core_modules_import_no_clock_or_randomness
+    assert path.is_file(), f"{path.name} does not exist (a scan of nothing proves nothing)"
+E   AssertionError: callstate.py does not exist (a scan of nothing proves nothing)
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('<red-tree>/packages/evalcore/src/tracer_evalcore/callstate.py').is_file
+_______________ test_sim_core_modules_follow_package_conventions _______________
+packages/evalcore/tests/test_sim_core_conventions.py:199: in test_sim_core_modules_follow_package_conventions
+    text = path.read_text("utf-8")
+           ^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/pathlib.py:1058: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/pathlib.py:1044: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '<red-tree>/packages/evalcore/src/tracer_evalcore/callstate.py'
+_______________ test_shipped_timing_schema_equals_adr0027_block ________________
+packages/evalcore/tests/test_sim_core_conventions.py:231: in test_shipped_timing_schema_equals_adr0027_block
+    shipped = simtiming_mod().TIMING_JSON_SCHEMA
+              ^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:64: in simtiming_mod
+    return importlib.import_module("tracer_evalcore.simtiming")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.simtiming'
+________________ test_g711_mulaw_alaw_decode_matches_itu_table _________________
+packages/evalcore/tests/test_sim_g711.py:74: in test_g711_mulaw_alaw_decode_matches_itu_table
+    g = g711_mod()
+        ^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:56: in g711_mod
+    return importlib.import_module("tracer_evalcore.g711")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.g711'
+_____________ test_g711_tables_have_the_structure_of_the_standard ______________
+packages/evalcore/tests/test_sim_g711.py:112: in test_g711_tables_have_the_structure_of_the_standard
+    g = g711_mod()
+        ^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:56: in g711_mod
+    return importlib.import_module("tracer_evalcore.g711")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.g711'
+_______________ test_g711_decode_is_bytewise_and_length_doubling _______________
+packages/evalcore/tests/test_sim_g711.py:145: in test_g711_decode_is_bytewise_and_length_doubling
+    @HSETTINGS
+               
+packages/evalcore/tests/test_sim_g711.py:148: in test_g711_decode_is_bytewise_and_length_doubling
+    g = g711_mod()
+        ^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:56: in g711_mod
+    return importlib.import_module("tracer_evalcore.g711")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.g711'
+E   Failing test case: test_g711_decode_is_bytewise_and_length_doubling(
+E       data=b'',
+E   )
+________________ test_recorder_is_deterministic_from_frame_log _________________
+packages/evalcore/tests/test_sim_recorder.py:119: in test_recorder_is_deterministic_from_frame_log
+    first = build(*frames())
+                   ^^^^^^^^
+packages/evalcore/tests/test_sim_recorder.py:111: in frames
+    caller = [log_frame(T0 + ms(20 * k), pcm([k + 1] * 160)) for k in range(6)]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalcore/tests/test_sim_recorder.py:111: in <listcomp>
+    caller = [log_frame(T0 + ms(20 * k), pcm([k + 1] * 160)) for k in range(6)]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:219: in log_frame
+    return recorder_mod().LogFrame(
+           ^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:60: in recorder_mod
+    return importlib.import_module("tracer_evalcore.recorder")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+__________ test_recorder_matches_the_reference_for_random_frame_logs ___________
+packages/evalcore/tests/test_sim_recorder.py:147: in test_recorder_matches_the_reference_for_random_frame_logs
+    caller=st.lists(
+               ^^^
+packages/evalcore/tests/test_sim_recorder.py:177: in test_recorder_matches_the_reference_for_random_frame_logs
+    got = build(
+packages/evalcore/tests/test_sim_recorder.py:58: in build
+    rec = recorder_mod()
+          ^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:60: in recorder_mod
+    return importlib.import_module("tracer_evalcore.recorder")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+E   Failing test case: test_recorder_matches_the_reference_for_random_frame_logs(
+E       caller=[],
+E       agent=[],
+E       rate=8000,
+E       value=0,
+E       shift=0,
+E   )
+_______________ test_recorder_channel_0_is_exactly_what_was_sent _______________
+packages/evalcore/tests/test_sim_recorder.py:202: in test_recorder_channel_0_is_exactly_what_was_sent
+    agent = [log_frame(T0 + ms(10 * k), pcm([777] * 160)) for k in range(12)]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalcore/tests/test_sim_recorder.py:202: in <listcomp>
+    agent = [log_frame(T0 + ms(10 * k), pcm([777] * 160)) for k in range(12)]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:219: in log_frame
+    return recorder_mod().LogFrame(
+           ^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:60: in recorder_mod
+    return importlib.import_module("tracer_evalcore.recorder")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+_______________ test_recorder_burst_arrival_uses_playback_model ________________
+packages/evalcore/tests/test_sim_recorder.py:251: in test_recorder_burst_arrival_uses_playback_model
+    burst = [log_frame(T0 + ms(100), pcm([k] * 160)) for k in range(1, 6)]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalcore/tests/test_sim_recorder.py:251: in <listcomp>
+    burst = [log_frame(T0 + ms(100), pcm([k] * 160)) for k in range(1, 6)]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:219: in log_frame
+    return recorder_mod().LogFrame(
+           ^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:60: in recorder_mod
+    return importlib.import_module("tracer_evalcore.recorder")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+____________ test_agent_frames_play_back_to_back_and_never_overlap _____________
+packages/evalcore/tests/test_sim_recorder.py:285: in test_agent_frames_play_back_to_back_and_never_overlap
+    frames=st.lists(
+               ^^^
+packages/evalcore/tests/test_sim_recorder.py:296: in test_agent_frames_play_back_to_back_and_never_overlap
+    got = build([], [log_frame(T0 + t, pcm([k + 1] * n)) for k, (t, n) in enumerate(log)])
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalcore/tests/test_sim_recorder.py:296: in <listcomp>
+    got = build([], [log_frame(T0 + t, pcm([k + 1] * n)) for k, (t, n) in enumerate(log)])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:219: in log_frame
+    return recorder_mod().LogFrame(
+           ^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:60: in recorder_mod
+    return importlib.import_module("tracer_evalcore.recorder")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+E   Failing test case: test_agent_frames_play_back_to_back_and_never_overlap(
+E       frames=[(0, 1)],
+E   )
+_____________ test_recorder_refuses_rate_mismatch_never_resamples ______________
+packages/evalcore/tests/test_sim_recorder.py:307: in test_recorder_refuses_rate_mismatch_never_resamples
+    rec = recorder_mod()
+          ^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:60: in recorder_mod
+    return importlib.import_module("tracer_evalcore.recorder")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+____________ test_a_frame_is_accepted_iff_its_rate_is_the_recorders ____________
+packages/evalcore/tests/test_sim_recorder.py:369: in test_a_frame_is_accepted_iff_its_rate_is_the_recorders
+    @HSETTINGS
+               
+packages/evalcore/tests/test_sim_recorder.py:372: in test_a_frame_is_accepted_iff_its_rate_is_the_recorders
+    rec = recorder_mod()
+          ^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:60: in recorder_mod
+    return importlib.import_module("tracer_evalcore.recorder")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+E   Failing test case: test_a_frame_is_accepted_iff_its_rate_is_the_recorders(
+E       rate=8000,
+E       declared=8000,
+E   )
+_________________ test_wav_layout_is_the_canonical_pcm_header __________________
+packages/evalcore/tests/test_sim_recorder.py:391: in test_wav_layout_is_the_canonical_pcm_header
+    [log_frame(T0, pcm([1, 2, 3]), rate=rate)],
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:219: in log_frame
+    return recorder_mod().LogFrame(
+           ^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:60: in recorder_mod
+    return importlib.import_module("tracer_evalcore.recorder")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+_________________ test_empty_logs_give_a_valid_empty_recording _________________
+packages/evalcore/tests/test_sim_recorder.py:409: in test_empty_logs_give_a_valid_empty_recording
+    got = build([], [])
+          ^^^^^^^^^^^^^
+packages/evalcore/tests/test_sim_recorder.py:58: in build
+    rec = recorder_mod()
+          ^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:60: in recorder_mod
+    return importlib.import_module("tracer_evalcore.recorder")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+________ test_caller_frames_that_overlap_in_time_are_counted_not_hidden ________
+packages/evalcore/tests/test_sim_recorder.py:422: in test_caller_frames_that_overlap_in_time_are_counted_not_hidden
+    a = log_frame(T0, pcm([1] * 160))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:219: in log_frame
+    return recorder_mod().LogFrame(
+           ^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:60: in recorder_mod
+    return importlib.import_module("tracer_evalcore.recorder")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+________ test_frames_must_be_in_order_inside_the_timeline_and_non_empty ________
+packages/evalcore/tests/test_sim_recorder.py:439: in test_frames_must_be_in_order_inside_the_timeline_and_non_empty
+    rec = recorder_mod()
+          ^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:60: in recorder_mod
+    return importlib.import_module("tracer_evalcore.recorder")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+_____________ test_frame_and_format_records_validate_their_fields ______________
+packages/evalcore/tests/test_sim_recorder.py:476: in test_frame_and_format_records_validate_their_fields
+    rec = recorder_mod()
+          ^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:60: in recorder_mod
+    return importlib.import_module("tracer_evalcore.recorder")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+_____________ test_timing_first_agent_audio_exact_on_synthetic_log _____________
+packages/evalcore/tests/test_sim_timing.py:129: in test_timing_first_agent_audio_exact_on_synthetic_log
+    log_frame(T0 + ms(0), silent()),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:219: in log_frame
+    return recorder_mod().LogFrame(
+           ^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:60: in recorder_mod
+    return importlib.import_module("tracer_evalcore.recorder")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+__________ test_first_agent_audio_and_setup_are_floors_of_differences __________
+packages/evalcore/tests/test_sim_timing.py:179: in test_first_agent_audio_and_setup_are_floors_of_differences
+    offset_ns=st.integers(min_value=0, max_value=3_600_000_000_000),
+               ^^^
+packages/evalcore/tests/test_sim_timing.py:192: in test_first_agent_audio_and_setup_are_floors_of_differences
+    [log_frame(origin + offset_ns, active())],
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:219: in log_frame
+    return recorder_mod().LogFrame(
+           ^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:60: in recorder_mod
+    return importlib.import_module("tracer_evalcore.recorder")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+E   Failing test case: test_first_agent_audio_and_setup_are_floors_of_differences(
+E       offset_ns=0,
+E       origin_shift=0,
+E       setup_ns=0,
+E   )
+________________ test_timing_gap_measured_from_last_sent_frame _________________
+packages/evalcore/tests/test_sim_timing.py:205: in test_timing_gap_measured_from_last_sent_frame
+    log_frame(T0 + ms(500), active()),  # before the turn: not an answer to it
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:219: in log_frame
+    return recorder_mod().LogFrame(
+           ^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:60: in recorder_mod
+    return importlib.import_module("tracer_evalcore.recorder")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+_____________ test_simulator_self_latency_excluded_from_agent_gap ______________
+packages/evalcore/tests/test_sim_timing.py:274: in test_simulator_self_latency_excluded_from_agent_gap
+    fast = call(0, self_times(reply_ms=1100, wait_ms=800, stt_ms=0, brain_ms=0, tts_ms=0))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalcore/tests/test_sim_timing.py:54: in self_times
+    return simtiming_mod().SelfTimes(**merged)
+           ^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:64: in simtiming_mod
+    return importlib.import_module("tracer_evalcore.simtiming")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.simtiming'
+_________________ test_timing_values_carry_quantum_and_dialect _________________
+packages/evalcore/tests/test_sim_timing.py:316: in test_timing_values_carry_quantum_and_dialect
+    document = extract([], [], dialect=dialect)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalcore/tests/test_sim_timing.py:95: in extract
+    rec = recorder_mod()
+          ^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:60: in recorder_mod
+    return importlib.import_module("tracer_evalcore.recorder")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+___________ test_timing_value_without_both_edges_is_error_never_zero ___________
+packages/evalcore/tests/test_sim_timing.py:372: in test_timing_value_without_both_edges_is_error_never_zero
+    st_mod = simtiming_mod()
+             ^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:64: in simtiming_mod
+    return importlib.import_module("tracer_evalcore.simtiming")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.simtiming'
+__ test_quantum_is_the_larger_of_the_caller_frame_and_the_longest_agent_frame __
+packages/evalcore/tests/test_sim_timing.py:460: in test_quantum_is_the_larger_of_the_caller_frame_and_the_longest_agent_frame
+    sizes=st.lists(st.integers(min_value=1, max_value=4000), min_size=0, max_size=6),
+               ^^^
+packages/evalcore/tests/test_sim_timing.py:474: in test_quantum_is_the_larger_of_the_caller_frame_and_the_longest_agent_frame
+    document = extract([], agent, rate=rate)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalcore/tests/test_sim_timing.py:95: in extract
+    rec = recorder_mod()
+          ^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:60: in recorder_mod
+    return importlib.import_module("tracer_evalcore.recorder")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+E   Failing test case: test_quantum_is_the_larger_of_the_caller_frame_and_the_longest_agent_frame(
+E       sizes=[],
+E       rate=8000,
+E   )
+_ test_overlap_is_the_duration_of_active_agent_frames_arriving_while_the_caller_speaks _
+packages/evalcore/tests/test_sim_timing.py:486: in test_overlap_is_the_duration_of_active_agent_frames_arriving_while_the_caller_speaks
+    log_frame(T0 + ms(990), active()),  # before the line (1000): no
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:219: in log_frame
+    return recorder_mod().LogFrame(
+           ^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:60: in recorder_mod
+    return importlib.import_module("tracer_evalcore.recorder")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+__________ test_barge_in_stop_is_the_end_of_the_interrupted_activity ___________
+packages/evalcore/tests/test_sim_timing.py:514: in test_barge_in_stop_is_the_end_of_the_interrupted_activity
+    talk = burst(T0 + ms(900), 31, active())
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalcore/tests/test_sim_timing.py:79: in burst
+    return [log_frame(start_ns + ms(step_ms * k), payload) for k in range(count)]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalcore/tests/test_sim_timing.py:79: in <listcomp>
+    return [log_frame(start_ns + ms(step_ms * k), payload) for k in range(count)]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:219: in log_frame
+    return recorder_mod().LogFrame(
+           ^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:60: in recorder_mod
+    return importlib.import_module("tracer_evalcore.recorder")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+_______________________ test_nearest_rank_median_helper ________________________
+packages/evalcore/tests/test_sim_timing.py:557: in test_nearest_rank_median_helper
+    median = simtiming_mod().nearest_rank_median
+             ^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:64: in simtiming_mod
+    return importlib.import_module("tracer_evalcore.simtiming")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.simtiming'
+__________ test_nearest_rank_median_is_a_member_with_half_at_or_below __________
+packages/evalcore/tests/test_sim_timing.py:575: in test_nearest_rank_median_is_a_member_with_half_at_or_below
+    @HSETTINGS
+               
+packages/evalcore/tests/test_sim_timing.py:579: in test_nearest_rank_median_is_a_member_with_half_at_or_below
+    got = simtiming_mod().nearest_rank_median(values)
+          ^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:64: in simtiming_mod
+    return importlib.import_module("tracer_evalcore.simtiming")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.simtiming'
+E   Failing test case: test_nearest_rank_median_is_a_member_with_half_at_or_below(
+E       values=[0],
+E   )
+______________ test_turn_and_call_inputs_are_checked_not_repaired ______________
+packages/evalcore/tests/test_sim_timing.py:588: in test_turn_and_call_inputs_are_checked_not_repaired
+    st_mod = simtiming_mod()
+             ^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:64: in simtiming_mod
+    return importlib.import_module("tracer_evalcore.simtiming")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.simtiming'
+____________ test_extraction_matches_the_reference_on_random_calls _____________
+packages/evalcore/tests/test_sim_timing.py:792: in test_extraction_matches_the_reference_on_random_calls
+    @HSETTINGS
+               
+packages/evalcore/tests/test_sim_timing.py:807: in test_extraction_matches_the_reference_on_random_calls
+    got = extract(call["turns"], call["agent"], **kwargs)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalcore/tests/test_sim_timing.py:95: in extract
+    rec = recorder_mod()
+          ^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:60: in recorder_mod
+    return importlib.import_module("tracer_evalcore.recorder")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.recorder'
+E   Failing test case: test_extraction_matches_the_reference_on_random_calls(
+E       call={'turns': [],
+E        'agent': [],
+E        'wait_ms': 100,
+E        'setup_ns': 0,
+E        'tail_ns': 0},
+E   )
+_ test_the_validator_accepts_what_the_extractor_builds_and_refuses_each_fault __
+packages/evalcore/tests/test_sim_timing.py:844: in test_the_validator_accepts_what_the_extractor_builds_and_refuses_each_fault
+    st_mod = simtiming_mod()
+             ^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:64: in simtiming_mod
+    return importlib.import_module("tracer_evalcore.simtiming")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.simtiming'
+____________ test_agent_activity_is_any_nonzero_sample_no_threshold ____________
+packages/evalcore/tests/test_sim_turntaking.py:84: in test_agent_activity_is_any_nonzero_sample_no_threshold
+    tt = turntaking_mod()
+         ^^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:52: in turntaking_mod
+    return importlib.import_module("tracer_evalcore.turntaking")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+__________ test_activity_equals_any_nonzero_sample_for_random_frames ___________
+packages/evalcore/tests/test_sim_turntaking.py:125: in test_activity_equals_any_nonzero_sample_for_random_frames
+    samples=st.lists(
+               ^^^
+packages/evalcore/tests/test_sim_turntaking.py:135: in test_activity_equals_any_nonzero_sample_for_random_frames
+    got = turntaking_mod().agent_frame_is_active(struct.pack(f"<{len(samples)}h", *samples))
+          ^^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:52: in turntaking_mod
+    return importlib.import_module("tracer_evalcore.turntaking")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+E   Failing test case: test_activity_equals_any_nonzero_sample_for_random_frames(
+E       samples=[0],
+E   )
+________________ test_wait_for_silence_parameter_has_no_default ________________
+packages/evalcore/tests/test_sim_turntaking.py:140: in test_wait_for_silence_parameter_has_no_default
+    tt = turntaking_mod()
+         ^^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:52: in turntaking_mod
+    return importlib.import_module("tracer_evalcore.turntaking")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+_______________________ test_policy_values_are_validated _______________________
+packages/evalcore/tests/test_sim_turntaking.py:201: in test_policy_values_are_validated
+    tt = turntaking_mod()
+         ^^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:52: in turntaking_mod
+    return importlib.import_module("tracer_evalcore.turntaking")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+________________ test_barge_in_fires_at_offset_from_agent_onset ________________
+packages/evalcore/tests/test_sim_turntaking.py:233: in test_barge_in_fires_at_offset_from_agent_onset
+    tt = turntaking_mod()
+         ^^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:52: in turntaking_mod
+    return importlib.import_module("tracer_evalcore.turntaking")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+____________ test_barge_in_instant_is_onset_plus_offset_or_the_end _____________
+packages/evalcore/tests/test_sim_turntaking.py:301: in test_barge_in_instant_is_onset_plus_offset_or_the_end
+    onset=st.integers(min_value=0, max_value=4_000),
+               ^^^
+packages/evalcore/tests/test_sim_turntaking.py:312: in test_barge_in_instant_is_onset_plus_offset_or_the_end
+    tk = taker(maximum=maximum)
+         ^^^^^^^^^^^^^^^^^^^^^^
+packages/evalcore/tests/test_sim_turntaking.py:62: in taker
+    return turntaking_mod().TurnTaker(policy(first, wait, maximum))
+           ^^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:52: in turntaking_mod
+    return importlib.import_module("tracer_evalcore.turntaking")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+E   Failing test case: test_barge_in_instant_is_onset_plus_offset_or_the_end(
+E       onset=0,
+E       offset=0,
+E       run=0,
+E   )
+_____ test_comfort_noise_agent_never_goes_silent_is_max_silence_not_a_hang _____
+packages/evalcore/tests/test_sim_turntaking.py:328: in test_comfort_noise_agent_never_goes_silent_is_max_silence_not_a_hang
+    cs = callstate_mod()
+         ^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:48: in callstate_mod
+    return importlib.import_module("tracer_evalcore.callstate")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.callstate'
+_______________ test_simulator_never_speaks_while_brain_pending ________________
+packages/evalcore/tests/test_sim_turntaking.py:380: in test_simulator_never_speaks_while_brain_pending
+    tt = turntaking_mod()
+         ^^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:52: in turntaking_mod
+    return importlib.import_module("tracer_evalcore.turntaking")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+_____________ test_a_line_never_starts_while_the_brain_is_pending ______________
+packages/evalcore/tests/test_sim_turntaking.py:447: in test_a_line_never_starts_while_the_brain_is_pending
+    ops=st.lists(
+               ^^^
+packages/evalcore/tests/test_sim_turntaking.py:463: in test_a_line_never_starts_while_the_brain_is_pending
+    tt = turntaking_mod()
+         ^^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:52: in turntaking_mod
+    return importlib.import_module("tracer_evalcore.turntaking")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+E   Failing test case: test_a_line_never_starts_while_the_brain_is_pending(
+E       ops=[],
+E   )
+_________ test_silence_rule_speaks_wait_ms_after_the_last_active_frame _________
+packages/evalcore/tests/test_sim_turntaking.py:499: in test_silence_rule_speaks_wait_ms_after_the_last_active_frame
+    tk = taker(wait=800)
+         ^^^^^^^^^^^^^^^
+packages/evalcore/tests/test_sim_turntaking.py:62: in taker
+    return turntaking_mod().TurnTaker(policy(first, wait, maximum))
+           ^^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:52: in turntaking_mod
+    return importlib.import_module("tracer_evalcore.turntaking")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+_______ test_the_first_line_of_a_caller_that_speaks_first_does_not_wait ________
+packages/evalcore/tests/test_sim_turntaking.py:543: in test_the_first_line_of_a_caller_that_speaks_first_does_not_wait
+    tk = taker(first=True)
+         ^^^^^^^^^^^^^^^^^
+packages/evalcore/tests/test_sim_turntaking.py:62: in taker
+    return turntaking_mod().TurnTaker(policy(first, wait, maximum))
+           ^^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:52: in turntaking_mod
+    return importlib.import_module("tracer_evalcore.turntaking")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+______________ test_state_of_one_wait_does_not_leak_into_the_next ______________
+packages/evalcore/tests/test_sim_turntaking.py:560: in test_state_of_one_wait_does_not_leak_into_the_next
+    tt = turntaking_mod()
+         ^^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:52: in turntaking_mod
+    return importlib.import_module("tracer_evalcore.turntaking")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+___________ test_the_onset_of_one_wait_is_not_the_onset_of_the_next ____________
+packages/evalcore/tests/test_sim_turntaking.py:583: in test_the_onset_of_one_wait_is_not_the_onset_of_the_next
+    tk = taker(wait=300, maximum=5_000)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalcore/tests/test_sim_turntaking.py:62: in taker
+    return turntaking_mod().TurnTaker(policy(first, wait, maximum))
+           ^^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:52: in turntaking_mod
+    return importlib.import_module("tracer_evalcore.turntaking")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+____________ test_time_never_goes_backwards_and_inputs_are_checked _____________
+packages/evalcore/tests/test_sim_turntaking.py:599: in test_time_never_goes_backwards_and_inputs_are_checked
+    tt = turntaking_mod()
+         ^^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:52: in turntaking_mod
+    return importlib.import_module("tracer_evalcore.turntaking")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+_____________________ test_a_refused_call_changes_nothing ______________________
+packages/evalcore/tests/test_sim_turntaking.py:624: in test_a_refused_call_changes_nothing
+    tt = turntaking_mod()
+         ^^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:52: in turntaking_mod
+    return importlib.import_module("tracer_evalcore.turntaking")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+____ test_decision_matches_the_reference_on_random_recorded_frame_sequences ____
+packages/evalcore/tests/test_sim_turntaking.py:653: in test_decision_matches_the_reference_on_random_recorded_frame_sequences
+    first=st.booleans(),
+               ^^^
+packages/evalcore/tests/test_sim_turntaking.py:695: in test_decision_matches_the_reference_on_random_recorded_frame_sequences
+    tk = taker(first=first, wait=wait, maximum=maximum)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalcore/tests/test_sim_turntaking.py:62: in taker
+    return turntaking_mod().TurnTaker(policy(first, wait, maximum))
+           ^^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:52: in turntaking_mod
+    return importlib.import_module("tracer_evalcore.turntaking")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+E   Failing test case: test_decision_matches_the_reference_on_random_recorded_frame_sequences(
+E       first=False,
+E       wait=1,
+E       extra=0,
+E       barge=None,
+E       frames=[],
+E       poll_gaps=[],
+E   )
+_______________________ test_decisions_are_plain_values ________________________
+packages/evalcore/tests/test_sim_turntaking.py:713: in test_decisions_are_plain_values
+    tt = turntaking_mod()
+         ^^^^^^^^^^^^^^^^
+packages/evalcore/tests/evalcore_batcha_support.py:52: in turntaking_mod
+    return importlib.import_module("tracer_evalcore.turntaking")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<cpython-3.11.16>/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1140: in _find_and_load_unlocked
+    ???
+E   ModuleNotFoundError: No module named 'tracer_evalcore.turntaking'
+=========================== short test summary info ============================
+FAILED packages/evalcore/tests/test_sim_callstate.py::test_state_machine_transition_table_exact
+FAILED packages/evalcore/tests/test_sim_callstate.py::test_max_duration_is_min_of_evaluator_and_cap
+FAILED packages/evalcore/tests/test_sim_callstate.py::test_max_duration_property_is_the_smaller_of_the_two
+FAILED packages/evalcore/tests/test_sim_callstate.py::test_kill_switch_reaches_ended_from_every_state
+FAILED packages/evalcore/tests/test_sim_callstate.py::test_kill_switch_reaches_ended_after_any_legal_prefix
+FAILED packages/evalcore/tests/test_sim_callstate.py::test_no_event_after_ended
+FAILED packages/evalcore/tests/test_sim_callstate.py::test_no_state_is_entered_after_ended
+FAILED packages/evalcore/tests/test_sim_callstate.py::test_setup_failure_is_an_end_reason_not_an_exception
+FAILED packages/evalcore/tests/test_sim_callstate.py::test_every_end_reason_is_reachable_with_its_own_value
+FAILED packages/evalcore/tests/test_sim_callstate.py::test_the_first_end_reason_wins
+FAILED packages/evalcore/tests/test_sim_callstate.py::test_late_events_while_ending_are_ignored_but_a_refused_event_changes_nothing
+FAILED packages/evalcore/tests/test_sim_callstate.py::test_established_only_after_connected_and_only_once_connecting
+FAILED packages/evalcore/tests/test_sim_callstate.py::test_arguments_are_validated_and_only_the_machine_error_is_raised
+FAILED packages/evalcore/tests/test_sim_callstate.py::test_machine_follows_the_reference_model_on_random_event_sequences
+FAILED packages/evalcore/tests/test_sim_core_conventions.py::test_sim_core_modules_import_no_clock_or_randomness
+FAILED packages/evalcore/tests/test_sim_core_conventions.py::test_sim_core_modules_follow_package_conventions
+FAILED packages/evalcore/tests/test_sim_core_conventions.py::test_shipped_timing_schema_equals_adr0027_block
+FAILED packages/evalcore/tests/test_sim_g711.py::test_g711_mulaw_alaw_decode_matches_itu_table
+FAILED packages/evalcore/tests/test_sim_g711.py::test_g711_tables_have_the_structure_of_the_standard
+FAILED packages/evalcore/tests/test_sim_g711.py::test_g711_decode_is_bytewise_and_length_doubling
+FAILED packages/evalcore/tests/test_sim_recorder.py::test_recorder_is_deterministic_from_frame_log
+FAILED packages/evalcore/tests/test_sim_recorder.py::test_recorder_matches_the_reference_for_random_frame_logs
+FAILED packages/evalcore/tests/test_sim_recorder.py::test_recorder_channel_0_is_exactly_what_was_sent
+FAILED packages/evalcore/tests/test_sim_recorder.py::test_recorder_burst_arrival_uses_playback_model
+FAILED packages/evalcore/tests/test_sim_recorder.py::test_agent_frames_play_back_to_back_and_never_overlap
+FAILED packages/evalcore/tests/test_sim_recorder.py::test_recorder_refuses_rate_mismatch_never_resamples
+FAILED packages/evalcore/tests/test_sim_recorder.py::test_a_frame_is_accepted_iff_its_rate_is_the_recorders
+FAILED packages/evalcore/tests/test_sim_recorder.py::test_wav_layout_is_the_canonical_pcm_header
+FAILED packages/evalcore/tests/test_sim_recorder.py::test_empty_logs_give_a_valid_empty_recording
+FAILED packages/evalcore/tests/test_sim_recorder.py::test_caller_frames_that_overlap_in_time_are_counted_not_hidden
+FAILED packages/evalcore/tests/test_sim_recorder.py::test_frames_must_be_in_order_inside_the_timeline_and_non_empty
+FAILED packages/evalcore/tests/test_sim_recorder.py::test_frame_and_format_records_validate_their_fields
+FAILED packages/evalcore/tests/test_sim_timing.py::test_timing_first_agent_audio_exact_on_synthetic_log
+FAILED packages/evalcore/tests/test_sim_timing.py::test_first_agent_audio_and_setup_are_floors_of_differences
+FAILED packages/evalcore/tests/test_sim_timing.py::test_timing_gap_measured_from_last_sent_frame
+FAILED packages/evalcore/tests/test_sim_timing.py::test_simulator_self_latency_excluded_from_agent_gap
+FAILED packages/evalcore/tests/test_sim_timing.py::test_timing_values_carry_quantum_and_dialect
+FAILED packages/evalcore/tests/test_sim_timing.py::test_timing_value_without_both_edges_is_error_never_zero
+FAILED packages/evalcore/tests/test_sim_timing.py::test_quantum_is_the_larger_of_the_caller_frame_and_the_longest_agent_frame
+FAILED packages/evalcore/tests/test_sim_timing.py::test_overlap_is_the_duration_of_active_agent_frames_arriving_while_the_caller_speaks
+FAILED packages/evalcore/tests/test_sim_timing.py::test_barge_in_stop_is_the_end_of_the_interrupted_activity
+FAILED packages/evalcore/tests/test_sim_timing.py::test_nearest_rank_median_helper
+FAILED packages/evalcore/tests/test_sim_timing.py::test_nearest_rank_median_is_a_member_with_half_at_or_below
+FAILED packages/evalcore/tests/test_sim_timing.py::test_turn_and_call_inputs_are_checked_not_repaired
+FAILED packages/evalcore/tests/test_sim_timing.py::test_extraction_matches_the_reference_on_random_calls
+FAILED packages/evalcore/tests/test_sim_timing.py::test_the_validator_accepts_what_the_extractor_builds_and_refuses_each_fault
+FAILED packages/evalcore/tests/test_sim_turntaking.py::test_agent_activity_is_any_nonzero_sample_no_threshold
+FAILED packages/evalcore/tests/test_sim_turntaking.py::test_activity_equals_any_nonzero_sample_for_random_frames
+FAILED packages/evalcore/tests/test_sim_turntaking.py::test_wait_for_silence_parameter_has_no_default
+FAILED packages/evalcore/tests/test_sim_turntaking.py::test_policy_values_are_validated
+FAILED packages/evalcore/tests/test_sim_turntaking.py::test_barge_in_fires_at_offset_from_agent_onset
+FAILED packages/evalcore/tests/test_sim_turntaking.py::test_barge_in_instant_is_onset_plus_offset_or_the_end
+FAILED packages/evalcore/tests/test_sim_turntaking.py::test_comfort_noise_agent_never_goes_silent_is_max_silence_not_a_hang
+FAILED packages/evalcore/tests/test_sim_turntaking.py::test_simulator_never_speaks_while_brain_pending
+FAILED packages/evalcore/tests/test_sim_turntaking.py::test_a_line_never_starts_while_the_brain_is_pending
+FAILED packages/evalcore/tests/test_sim_turntaking.py::test_silence_rule_speaks_wait_ms_after_the_last_active_frame
+FAILED packages/evalcore/tests/test_sim_turntaking.py::test_the_first_line_of_a_caller_that_speaks_first_does_not_wait
+FAILED packages/evalcore/tests/test_sim_turntaking.py::test_state_of_one_wait_does_not_leak_into_the_next
+FAILED packages/evalcore/tests/test_sim_turntaking.py::test_the_onset_of_one_wait_is_not_the_onset_of_the_next
+FAILED packages/evalcore/tests/test_sim_turntaking.py::test_time_never_goes_backwards_and_inputs_are_checked
+FAILED packages/evalcore/tests/test_sim_turntaking.py::test_a_refused_call_changes_nothing
+FAILED packages/evalcore/tests/test_sim_turntaking.py::test_decision_matches_the_reference_on_random_recorded_frame_sequences
+FAILED packages/evalcore/tests/test_sim_turntaking.py::test_decisions_are_plain_values
+63 failed, 1018 passed, 1 skipped in 63.00s (0:01:02)

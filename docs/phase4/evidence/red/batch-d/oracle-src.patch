@@ -1,0 +1,1655 @@
+--- a/packages/evalsim/CHANGELOG.md
++++ b/packages/evalsim/CHANGELOG.md
+@@ -5,3 +5,13 @@
+ Status: not released. No version tag exists and nothing is published to PyPI. Scaffold (P4-01):
+ the package, its error base and the optional extra `webrtc`. The pure engine boundaries (TTS, LLM,
+ caller brain) live in `tracer-evalcore`.
++
++## Dialect transports (P4-16 to P4-20)
++
++Technical bounds of ADR 0026 rule 22 (not measured values):
++
++- `MAX_INBOUND_MESSAGE_BYTES`: 65536 bytes per inbound message (text measured in UTF-8 bytes); a
++  larger message ends the call with `transport_error`.
++- `MAX_INBOUND_MESSAGES_PER_SECOND`: 1000 inbound messages in any sliding second; more ends the
++  call with `transport_error`.
++- `WATCHDOG_GRACE_NS`: one second added to the maximum call duration before the watchdog hangs up.
+--- a/packages/evalsim/NOTICE
++++ b/packages/evalsim/NOTICE
+@@ -22,3 +22,9 @@
+ - Test fixtures: output from the Sarvam AI speech APIs (Sarvam AI terms of service, version 2.0)
+   and short quotes from the Langfuse documentation (MIT) and Pipecat documentation (BSD-2-Clause,
+   copyright Daily). The Sarvam audio redistribution terms are open on the release checklist.
++- Wire format facts of the Pipecat protobuf dialect: the names, types and field numbers of the
++  five frame messages of `src/pipecat/frames/frames.proto` at tag v1.14.0 of
++  https://github.com/pipecat-ai/pipecat (BSD-2-Clause, Copyright (c) 2024-2026, Daily) are
++  recorded in docs/adr/0026-simulated-caller-architecture.md and implemented by a hand-written
++  encoder and decoder (tracer_evalsim/dialects/protobuf_wire.py). No Pipecat source file is
++  copied, nothing is generated from the `.proto` file, and no Pipecat module is imported.
+--- a/packages/evalsim/src/tracer_evalsim/clock.py
++++ b/packages/evalsim/src/tracer_evalsim/clock.py
+@@ -0,0 +1,30 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The injected clock of the simulator (ADR 0026 rule 8)."""
++
++from __future__ import annotations
++
++import asyncio
++import time
++from typing import Protocol
++
++__all__ = ["Clock", "SystemClock"]
++
++
++class Clock(Protocol):
++    def monotonic_ns(self) -> int: ...
++
++    async def sleep_until_ns(self, deadline_ns: int) -> None: ...
++
++
++class SystemClock:
++    def monotonic_ns(self) -> int:
++        return time.monotonic_ns()
++
++    async def sleep_until_ns(self, deadline_ns: int) -> None:
++        while True:
++            remaining = deadline_ns - time.monotonic_ns()
++            if remaining <= 0:
++                await asyncio.sleep(0)
++                return
++            await asyncio.sleep(remaining / 1e9)
+--- a/packages/evalsim/src/tracer_evalsim/dialects/__init__.py
++++ b/packages/evalsim/src/tracer_evalsim/dialects/__init__.py
+@@ -0,0 +1,5 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Wire dialects of the simulated caller (ADR 0026 rule 5)."""
++
++from __future__ import annotations
+--- a/packages/evalsim/src/tracer_evalsim/dialects/base.py
++++ b/packages/evalsim/src/tracer_evalsim/dialects/base.py
+@@ -0,0 +1,206 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The dialect interface, the wire connection protocol and the inbound reader (ADR 0026 rules 5, 22)."""  # noqa: E501
++
++from __future__ import annotations
++
++from abc import ABC, abstractmethod
++from collections import deque
++from collections.abc import Callable
++from dataclasses import dataclass
++from typing import ClassVar, Protocol
++
++from tracer_evalsim.clock import Clock
++from tracer_evalsim.errors import TransportError
++from tracer_evalsim.limits import (
++    FRAME_NS,
++    MAX_INBOUND_MESSAGE_BYTES,
++    MAX_INBOUND_MESSAGES_PER_SECOND,
++    NS_PER_S,
++)
++
++__all__ = [
++    "AGENT_EVENT_KINDS",
++    "AgentEvent",
++    "CloseInfo",
++    "Decoded",
++    "Dialect",
++    "InboundEnd",
++    "InboundReader",
++    "InboundStats",
++    "WireConnection",
++    "hang_up",
++]
++
++AGENT_EVENT_KINDS = ("audio", "clear", "mark", "interruption", "text", "transcription", "message")
++
++
++@dataclass(frozen=True)
++class CloseInfo:
++    code: int | None
++    clean: bool
++
++
++class WireConnection(Protocol):
++    async def send(self, message: bytes | str) -> None: ...
++
++    async def recv(self) -> bytes | str | None: ...
++
++    async def close(self, code: int = 1000) -> None: ...
++
++    @property
++    def close_info(self) -> CloseInfo | None: ...
++
++
++@dataclass(frozen=True)
++class Decoded:
++    kind: str
++    audio: bytes | None = None
++
++
++@dataclass(frozen=True)
++class AgentEvent:
++    kind: str
++    arrival_ns: int
++    audio: bytes | None = None
++
++
++class Dialect(ABC):
++    dialect_id: ClassVar[str]
++    wire_codec: ClassVar[str]
++    spec_sources: ClassVar[tuple[str, ...]]
++    spec_retrieved: ClassVar[str]
++    sample_rate_hz: int
++
++    @property
++    def frame_bytes(self) -> int:
++        width = 2 if self.wire_codec == "pcm_s16le" else 1
++        return self.sample_rate_hz * FRAME_NS // NS_PER_S * width
++
++    @abstractmethod
++    def opening_messages(self) -> tuple[bytes | str, ...]: ...
++
++    @abstractmethod
++    def encode_audio(self, frame: bytes, *, stream_ms: int) -> bytes | str: ...
++
++    @abstractmethod
++    def closing_messages(self) -> tuple[bytes | str, ...]: ...
++
++    @abstractmethod
++    def decode(self, message: bytes | str) -> Decoded | None: ...
++
++    def _check_frame(self, frame: bytes) -> None:
++        if not isinstance(frame, bytes) or len(frame) != self.frame_bytes:
++            raise ValueError("an audio frame must be exactly 20 ms of wire audio")
++
++
++@dataclass(frozen=True)
++class InboundStats:
++    messages: int
++    audio_frames: int
++    audio_bytes: int
++    ignored: int
++    after_close: int
++    by_kind: dict[str, int]
++    clear_arrival_ns: tuple[int, ...]
++
++
++@dataclass(frozen=True)
++class InboundEnd:
++    clean: bool
++    close_code: int | None
++
++    @property
++    def end_reason(self) -> str:
++        return "agent_hangup" if self.clean else "transport_error"
++
++
++class InboundReader:
++    def __init__(
++        self,
++        dialect: Dialect,
++        clock: Clock,
++        *,
++        max_message_bytes: int = MAX_INBOUND_MESSAGE_BYTES,
++        max_messages_per_second: int = MAX_INBOUND_MESSAGES_PER_SECOND,
++    ) -> None:
++        self._dialect = dialect
++        self._clock = clock
++        self._max_bytes = max_message_bytes
++        self._max_rate = max_messages_per_second
++        self._window: deque[int] = deque()
++        self._closed = False
++        self._messages = 0
++        self._audio_frames = 0
++        self._audio_bytes = 0
++        self._ignored = 0
++        self._after_close = 0
++        self._by_kind: dict[str, int] = {}
++        self._clears: list[int] = []
++
++    @property
++    def stats(self) -> InboundStats:
++        return InboundStats(
++            messages=self._messages,
++            audio_frames=self._audio_frames,
++            audio_bytes=self._audio_bytes,
++            ignored=self._ignored,
++            after_close=self._after_close,
++            by_kind=dict(self._by_kind),
++            clear_arrival_ns=tuple(self._clears),
++        )
++
++    def mark_closed(self) -> None:
++        self._closed = True
++
++    def feed(self, message: bytes | str) -> AgentEvent | None:
++        if self._closed:
++            self._after_close += 1
++            return None
++        size = len(message) if isinstance(message, bytes) else len(message.encode("utf-8"))
++        if size > self._max_bytes:
++            raise TransportError(code="message_too_large")
++        now = self._clock.monotonic_ns()
++        while self._window and self._window[0] <= now - NS_PER_S:
++            self._window.popleft()
++        if len(self._window) >= self._max_rate:
++            raise TransportError(code="inbound_rate_exceeded")
++        self._window.append(now)
++        self._messages += 1
++        decoded = self._dialect.decode(message)
++        if decoded is None:
++            self._ignored += 1
++            return None
++        self._by_kind[decoded.kind] = self._by_kind.get(decoded.kind, 0) + 1
++        if decoded.kind == "audio":
++            self._audio_frames += 1
++            self._audio_bytes += len(decoded.audio or b"")
++        elif decoded.kind == "clear":
++            self._clears.append(now)
++        return AgentEvent(kind=decoded.kind, arrival_ns=now, audio=decoded.audio)
++
++    async def run(self, conn: WireConnection, on_event: Callable[[AgentEvent], None]) -> InboundEnd:
++        while True:
++            message = await conn.recv()
++            if message is None:
++                self.mark_closed()
++                info = conn.close_info
++                if info is None:
++                    return InboundEnd(clean=False, close_code=None)
++                return InboundEnd(clean=info.clean, close_code=info.code)
++            event = self.feed(message)
++            if event is not None:
++                on_event(event)
++
++
++async def hang_up(conn: WireConnection, dialect: Dialect, *, close_code: int = 1000) -> None:
++    """End the call: the dialect's closing messages, then close the socket (never wait for a reply).
++
++    A peer that is already gone is not an error: the close is still attempted.
++    """
++    try:
++        for message in dialect.closing_messages():
++            await conn.send(message)
++    except TransportError:
++        pass
++    await conn.close(close_code)
+--- a/packages/evalsim/src/tracer_evalsim/dialects/protobuf_dialect.py
++++ b/packages/evalsim/src/tracer_evalsim/dialects/protobuf_dialect.py
+@@ -0,0 +1,74 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""``pipecat-protobuf/1``: the Pipecat development runner's ``/ws-client`` (ADR 0026 rule 5)."""
++
++from __future__ import annotations
++
++from typing import ClassVar
++
++from tracer_evalsim.dialects.base import Decoded, Dialect
++from tracer_evalsim.dialects.protobuf_wire import (
++    AudioRawFrame,
++    InterruptionFrame,
++    MessageFrame,
++    ProtobufDecodeError,
++    TextFrame,
++    TranscriptionFrame,
++    decode_frame,
++    encode_frame,
++)
++from tracer_evalsim.errors import TransportError
++
++__all__ = ["PipecatProtobufDialect"]
++
++
++class PipecatProtobufDialect(Dialect):
++    dialect_id: ClassVar[str] = "pipecat-protobuf/1"
++    wire_codec: ClassVar[str] = "pcm_s16le"
++    spec_sources: ClassVar[tuple[str, ...]] = (
++        "https://raw.githubusercontent.com/pipecat-ai/pipecat/v1.14.0/src/pipecat/frames/frames.proto",
++        "https://raw.githubusercontent.com/pipecat-ai/pipecat/v1.14.0/src/pipecat/serializers/protobuf.py",
++    )
++    spec_retrieved: ClassVar[str] = "2026-10-27"
++
++    def __init__(self, *, sample_rate_hz: int) -> None:
++        if isinstance(sample_rate_hz, bool) or not isinstance(sample_rate_hz, int):
++            raise ValueError("sample_rate_hz is not an integer")
++        if not 8000 <= sample_rate_hz <= 48000 or sample_rate_hz % 50:
++            raise ValueError("sample_rate_hz must be 8000..48000 and a multiple of 50")
++        self.sample_rate_hz = sample_rate_hz
++
++    def opening_messages(self) -> tuple[bytes | str, ...]:
++        return ()
++
++    def closing_messages(self) -> tuple[bytes | str, ...]:
++        return ()
++
++    def encode_audio(self, frame: bytes, *, stream_ms: int) -> bytes:
++        self._check_frame(frame)
++        return encode_frame(
++            AudioRawFrame(audio=frame, sample_rate=self.sample_rate_hz, num_channels=1)
++        )
++
++    def decode(self, message: bytes | str) -> Decoded | None:
++        if not isinstance(message, bytes):
++            return None
++        try:
++            frame = decode_frame(message)
++        except ProtobufDecodeError:
++            return None
++        if isinstance(frame, AudioRawFrame):
++            if frame.sample_rate != self.sample_rate_hz or frame.num_channels != 1:
++                raise TransportError(code="audio_format_mismatch")
++            if len(frame.audio) % 2:
++                raise TransportError(code="audio_frame_invalid")
++            return Decoded(kind="audio", audio=frame.audio)
++        if isinstance(frame, InterruptionFrame):
++            return Decoded(kind="interruption")
++        if isinstance(frame, TextFrame):
++            return Decoded(kind="text")
++        if isinstance(frame, TranscriptionFrame):
++            return Decoded(kind="transcription")
++        if isinstance(frame, MessageFrame):
++            return Decoded(kind="message")
++        return None
+--- a/packages/evalsim/src/tracer_evalsim/dialects/protobuf_wire.py
++++ b/packages/evalsim/src/tracer_evalsim/dialects/protobuf_wire.py
+@@ -0,0 +1,250 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""A hand-written protobuf (proto3) codec for the five frames of ``pipecat-protobuf/1``.
++
++Written from the public wire-format description (varints, tags, length-delimited fields) and from
++the message names, types and field numbers that ADR 0026 records for ``frames.proto`` at tag
++``v1.14.0`` of ``pipecat-ai/pipecat`` (BSD-2-Clause, Copyright (c) 2024-2026, Daily; interface
++facts only, no code and no file copied, nothing generated). One binary WebSocket message is one
++serialised ``Frame``. Strict where the input is hostile: a truncated or over-long varint, a length
++past the end, a group, an invalid UTF-8 string and a 32-bit field above 2**32-1 are refused.
++"""
++
++from __future__ import annotations
++
++from dataclasses import dataclass
++from typing import Final
++
++from tracer_evalsim.errors import EvalsimError
++
++__all__ = [
++    "AudioRawFrame",
++    "Frame",
++    "InterruptionFrame",
++    "MessageFrame",
++    "ProtobufDecodeError",
++    "TextFrame",
++    "TranscriptionFrame",
++    "UnknownFrame",
++    "decode_frame",
++    "encode_frame",
++]
++
++_U32: Final = 2**32 - 1
++_U64: Final = 2**64 - 1
++
++
++class ProtobufDecodeError(EvalsimError, ValueError):
++    def __init__(self, code: str) -> None:
++        super().__init__(f"ProtobufDecodeError: code {code}")
++        self.code = code
++
++
++@dataclass(frozen=True)
++class TextFrame:
++    id: int = 0
++    name: str = ""
++    text: str = ""
++
++
++@dataclass(frozen=True)
++class AudioRawFrame:
++    id: int = 0
++    name: str = ""
++    audio: bytes = b""
++    sample_rate: int = 0
++    num_channels: int = 0
++    pts: int | None = None
++
++
++@dataclass(frozen=True)
++class TranscriptionFrame:
++    id: int = 0
++    name: str = ""
++    text: str = ""
++    user_id: str = ""
++    timestamp: str = ""
++
++
++@dataclass(frozen=True)
++class MessageFrame:
++    data: str = ""
++
++
++@dataclass(frozen=True)
++class InterruptionFrame:
++    id: int = 0
++    name: str = ""
++
++
++@dataclass(frozen=True)
++class UnknownFrame:
++    """A ``Frame`` with no recognised oneof member."""
++
++
++Frame = (
++    TextFrame | AudioRawFrame | TranscriptionFrame | MessageFrame | InterruptionFrame | UnknownFrame
++)
++
++# message class -> ((attribute, kind, field number), ...); kinds: u64, u32, str, bytes, opt_u64
++_FIELDS: Final = {
++    TextFrame: (("id", "u64", 1), ("name", "str", 2), ("text", "str", 3)),
++    AudioRawFrame: (
++        ("id", "u64", 1),
++        ("name", "str", 2),
++        ("audio", "bytes", 3),
++        ("sample_rate", "u32", 4),
++        ("num_channels", "u32", 5),
++        ("pts", "opt_u64", 6),
++    ),
++    TranscriptionFrame: (
++        ("id", "u64", 1),
++        ("name", "str", 2),
++        ("text", "str", 3),
++        ("user_id", "str", 4),
++        ("timestamp", "str", 5),
++    ),
++    MessageFrame: (("data", "str", 1),),
++    InterruptionFrame: (("id", "u64", 1), ("name", "str", 2)),
++}
++_MEMBER: Final = {
++    TextFrame: 1,
++    AudioRawFrame: 2,
++    TranscriptionFrame: 3,
++    MessageFrame: 4,
++    InterruptionFrame: 5,
++}
++_BY_NUMBER: Final = {number: cls for cls, number in _MEMBER.items()}
++
++
++def _varint(value: int) -> bytes:
++    out = bytearray()
++    while value > 0x7F:
++        out.append((value & 0x7F) | 0x80)
++        value >>= 7
++    out.append(value)
++    return bytes(out)
++
++
++def _uint(value: object, limit: int, name: str) -> int:
++    if isinstance(value, bool) or not isinstance(value, int) or not 0 <= value <= limit:
++        raise ValueError(f"{name} is out of range")
++    return value
++
++
++def _encode_message(frame: object) -> bytes:
++    out = bytearray()
++    for attr, kind, number in _FIELDS[type(frame)]:
++        value = getattr(frame, attr)
++        if kind in ("u64", "u32"):
++            value = _uint(value, _U64 if kind == "u64" else _U32, attr)
++            if value:
++                out += _varint(number << 3) + _varint(value)
++        elif kind == "opt_u64":
++            if value is not None:
++                out += _varint(number << 3) + _varint(_uint(value, _U64, attr))
++        elif kind == "str":
++            if not isinstance(value, str):
++                raise ValueError(f"{attr} is not a string")
++            if value:
++                raw = value.encode("utf-8")
++                out += _varint((number << 3) | 2) + _varint(len(raw)) + raw
++        else:
++            if not isinstance(value, bytes | bytearray | memoryview):
++                raise ValueError(f"{attr} is not bytes")
++            if len(value):
++                out += _varint((number << 3) | 2) + _varint(len(value)) + bytes(value)
++    return bytes(out)
++
++
++def encode_frame(frame: Frame) -> bytes:
++    """Serialise a ``Frame`` with the given member set (an empty member is still present)."""
++    if type(frame) not in _MEMBER:
++        raise ValueError("not an encodable frame")
++    body = _encode_message(frame)
++    return _varint((_MEMBER[type(frame)] << 3) | 2) + _varint(len(body)) + body
++
++
++def _read_varint(data: bytes, pos: int) -> tuple[int, int]:
++    result = 0
++    for index in range(10):
++        if pos >= len(data):
++            raise ProtobufDecodeError("truncated_varint")
++        byte = data[pos]
++        pos += 1
++        if index == 9 and byte > 1:
++            raise ProtobufDecodeError("varint_too_long")
++        result |= (byte & 0x7F) << (7 * index)
++        if not byte & 0x80:
++            return result, pos
++    raise ProtobufDecodeError("varint_too_long")
++
++
++def _walk(data: bytes) -> list[tuple[int, int, int | bytes]]:
++    pos = 0
++    found: list[tuple[int, int, int | bytes]] = []
++    while pos < len(data):
++        key, pos = _read_varint(data, pos)
++        number, wire = key >> 3, key & 7
++        if number == 0:
++            raise ProtobufDecodeError("invalid_tag")
++        value: int | bytes
++        if wire == 0:
++            value, pos = _read_varint(data, pos)
++        elif wire == 2:
++            size, pos = _read_varint(data, pos)
++            if size > len(data) - pos:
++                raise ProtobufDecodeError("length_overrun")
++            value, pos = data[pos : pos + size], pos + size
++        elif wire == 1 or wire == 5:
++            width = 8 if wire == 1 else 4
++            if width > len(data) - pos:
++                raise ProtobufDecodeError("length_overrun")
++            value, pos = data[pos : pos + width], pos + width
++        else:
++            raise ProtobufDecodeError("unsupported_wire_type")
++        found.append((number, wire, value))
++    return found
++
++
++def _decode_message(cls: type, body: bytes) -> object:
++    values: dict[str, object] = {}
++    spec = {number: (attr, kind) for attr, kind, number in _FIELDS[cls]}
++    for number, wire, value in _walk(body):
++        if number not in spec:
++            continue
++        attr, kind = spec[number]
++        if kind in ("u64", "u32", "opt_u64"):
++            if wire != 0:
++                continue
++            if not isinstance(value, int):
++                raise ProtobufDecodeError("invalid_tag")
++            limit = _U32 if kind == "u32" else _U64
++            if value > limit:
++                raise ProtobufDecodeError("value_out_of_range")
++            values[attr] = value
++        else:
++            if wire != 2:
++                continue
++            if not isinstance(value, bytes):
++                raise ProtobufDecodeError("invalid_tag")
++            if kind == "str":
++                try:
++                    values[attr] = value.decode("utf-8")
++                except UnicodeDecodeError:
++                    raise ProtobufDecodeError("invalid_utf8") from None
++            else:
++                values[attr] = value
++    return cls(**values)
++
++
++def decode_frame(data: bytes | bytearray | memoryview) -> Frame:
++    """Parse one serialised ``Frame``; the last oneof member on the wire wins."""
++    raw = bytes(data)
++    chosen: tuple[type, bytes] | None = None
++    for number, wire, value in _walk(raw):
++        if number in _BY_NUMBER and wire == 2 and isinstance(value, bytes):
++            chosen = (_BY_NUMBER[number], value)
++    if chosen is None:
++        return UnknownFrame()
++    return _decode_message(chosen[0], chosen[1])  # type: ignore[return-value]
+--- a/packages/evalsim/src/tracer_evalsim/dialects/twilio.py
++++ b/packages/evalsim/src/tracer_evalsim/dialects/twilio.py
+@@ -0,0 +1,127 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""``twilio-media-stream/1``: a Twilio-compatible media stream to the runner's ``/ws`` (rule 6)."""
++
++from __future__ import annotations
++
++import base64
++import binascii
++import json
++from typing import Any, ClassVar
++
++from tracer_evalsim.dialects.base import Decoded, Dialect
++
++__all__ = ["TwilioMediaStreamDialect"]
++
++
++class TwilioMediaStreamDialect(Dialect):
++    dialect_id: ClassVar[str] = "twilio-media-stream/1"
++    wire_codec: ClassVar[str] = "mulaw"
++    spec_sources: ClassVar[tuple[str, ...]] = (
++        "https://www.twilio.com/docs/voice/media-streams/websocket-messages",
++        "https://www.twilio.com/docs/voice/media-streams",
++        "https://raw.githubusercontent.com/pipecat-ai/pipecat/v1.14.0/src/pipecat/serializers/twilio.py",
++    )
++    spec_retrieved: ClassVar[str] = "2026-10-27"
++
++    def __init__(self, *, counter: int) -> None:
++        valid = isinstance(counter, int) and not isinstance(counter, bool)
++        if not valid or not 1 <= counter <= 999_999_999:
++            raise ValueError("counter must be an integer from 1 to 999999999")
++        self.sample_rate_hz = 8000
++        self.account_sid = f"tracer-sim-account-{counter}"
++        self.stream_sid = f"tracer-sim-stream-{counter}"
++        self.call_sid = f"tracer-sim-call-{counter}"
++        self._state = "new"
++        self._sequence = 0
++        self._chunk = 0
++
++    def _dump(self, body: dict[str, Any]) -> str:
++        return json.dumps(body, separators=(",", ":"))
++
++    def _next(self) -> str:
++        self._sequence += 1
++        return str(self._sequence)
++
++    def opening_messages(self) -> tuple[bytes | str, ...]:
++        if self._state != "new":
++            raise RuntimeError("the stream is already open")
++        self._state = "open"
++        connected = self._dump({"event": "connected", "protocol": "Call", "version": "1.0.0"})
++        start = self._dump(
++            {
++                "event": "start",
++                "sequenceNumber": self._next(),
++                "start": {
++                    "accountSid": self.account_sid,
++                    "streamSid": self.stream_sid,
++                    "callSid": self.call_sid,
++                    "tracks": ["inbound"],
++                    "mediaFormat": {"encoding": "audio/x-mulaw", "sampleRate": 8000, "channels": 1},
++                    "customParameters": {"tracer_synthetic": "true"},
++                },
++                "streamSid": self.stream_sid,
++            }
++        )
++        return (connected, start)
++
++    def encode_audio(self, frame: bytes, *, stream_ms: int) -> str:
++        if self._state != "open":
++            raise RuntimeError("the stream is not open")
++        self._check_frame(frame)
++        self._chunk += 1
++        return self._dump(
++            {
++                "event": "media",
++                "sequenceNumber": self._next(),
++                "media": {
++                    "track": "inbound",
++                    "chunk": str(self._chunk),
++                    "timestamp": str(stream_ms),
++                    "payload": base64.b64encode(frame).decode("ascii"),
++                },
++                "streamSid": self.stream_sid,
++            }
++        )
++
++    def closing_messages(self) -> tuple[bytes | str, ...]:
++        if self._state != "open":
++            raise RuntimeError("the stream is not open")
++        self._state = "closed"
++        return (
++            self._dump(
++                {
++                    "event": "stop",
++                    "sequenceNumber": self._next(),
++                    "stop": {"accountSid": self.account_sid, "callSid": self.call_sid},
++                    "streamSid": self.stream_sid,
++                }
++            ),
++        )
++
++    def decode(self, message: bytes | str) -> Decoded | None:
++        if not isinstance(message, str):
++            return None
++        try:
++            body = json.loads(message)
++        except ValueError:
++            return None
++        if not isinstance(body, dict):
++            return None
++        event = body.get("event")
++        if event == "media":
++            media = body.get("media")
++            payload = media.get("payload") if isinstance(media, dict) else None
++            if not isinstance(payload, str):
++                return None
++            try:
++                return Decoded(kind="audio", audio=base64.b64decode(payload, validate=True))
++            except (binascii.Error, ValueError):
++                return None
++        if event == "clear":
++            return Decoded(kind="clear")
++        if event == "mark":
++            mark = body.get("mark")
++            if isinstance(mark, dict) and isinstance(mark.get("name"), str):
++                return Decoded(kind="mark")
++        return None
+--- a/packages/evalsim/src/tracer_evalsim/errors.py
++++ b/packages/evalsim/src/tracer_evalsim/errors.py
+@@ -1,13 +1,127 @@
+ # SPDX-License-Identifier: Apache-2.0
+ # Copyright 2026 The Tracer contributors
+-"""Error base of the simulator package."""
++"""Errors of the simulator package: facts only, never a payload, a header or a secret."""
+ 
+ from __future__ import annotations
+ 
++import re
++from typing import Any
++
+ from tracer_evalcore.errors import EvalcoreError
+ 
+-__all__ = ["EvalsimError"]
++__all__ = [
++    "REFUSAL_CODES",
++    "SETUP_CODES",
++    "TRANSPORT_CODES",
++    "EvalsimError",
++    "SetupFailedError",
++    "TargetRefusedError",
++    "TransportError",
++    "TransportFactError",
++    "WatchdogError",
++]
+ 
++REFUSAL_CODES = (
++    "auth_env_name_invalid",
++    "auth_token_invalid",
++    "auth_token_missing",
++    "bot_credentials_field_missing",
++    "bot_holds_telephony_credentials",
++    "dialect_unknown",
++    "ice_server_invalid",
++    "ice_server_required",
++    "insecure_target",
++    "labels_inconsistent",
++    "origin_invalid",
++    "target_invalid",
++    "webrtc_extra_missing",
++)
++SETUP_CODES = (
++    "answer_invalid",
++    "connect_timeout",
++    "connection_failed",
++    "connection_refused",
++    "handshake_failed",
++    "handshake_rejected",
++    "redirect_refused",
++    "tls_failed",
++)
++TRANSPORT_CODES = (
++    "audio_format_mismatch",
++    "audio_frame_invalid",
++    "connection_closed",
++    "connection_lost",
++    "inbound_rate_exceeded",
++    "message_too_large",
++    "send_failed",
++)
++#: fixed text per code (never derived from an input)
++_HINTS = {"webrtc_extra_missing": "install the optional extra: tracer-evalsim[webrtc]"}
++_CODE = re.compile(r"[a-z][a-z0-9_]{0,63}")
+ 
++
+ class EvalsimError(EvalcoreError):
+     """Base of every error raised by tracer-evalsim."""
++
++
++class TransportFactError(EvalsimError):
++    """An error that holds machine facts only (ADR 0026 rule 4 pattern)."""
++
++    END_REASON: str | None = None
++
++    def __init__(
++        self, *, code: str, http_status: int | None = None, close_code: int | None = None
++    ) -> None:
++        if not isinstance(code, str) or not _CODE.fullmatch(code):
++            raise ValueError("code is not a machine code")
++        if http_status is not None and (
++            isinstance(http_status, bool)
++            or not isinstance(http_status, int)
++            or not 100 <= http_status <= 599
++        ):
++            raise ValueError("http_status is not an HTTP status")
++        if close_code is not None and (
++            isinstance(close_code, bool)
++            or not isinstance(close_code, int)
++            or not 0 <= close_code <= 65535
++        ):
++            raise ValueError("close_code is not a close code")
++        parts = [f"code {code}"]
++        if http_status is not None:
++            parts.append(f"HTTP {http_status}")
++        if close_code is not None:
++            parts.append(f"close {close_code}")
++        text = f"{type(self).__name__}: " + ", ".join(parts)
++        if code in _HINTS:
++            text += f" ({_HINTS[code]})"
++        super().__init__(text)
++        self.code = code
++        self.http_status = http_status
++        self.close_code = close_code
++
++    def __reduce__(self) -> tuple[Any, ...]:
++        return (_rebuild, (type(self), self.code, self.http_status, self.close_code))
++
++
++def _rebuild(cls: type[TransportFactError], code: str, http: int | None, close: int | None) -> Any:
++    return cls(code=code, http_status=http, close_code=close)
++
++
++class TargetRefusedError(TransportFactError, ValueError):
++    """A target or a connection label was refused before any socket was opened (exit 4)."""
++
++
++class SetupFailedError(TransportFactError):
++    """The call could not be established: the end reason ``setup_failed`` (ADR 0026 rule 9)."""
++
++    END_REASON = "setup_failed"
++
++
++class TransportError(TransportFactError):
++    """The transport failed during the call: the end reason ``transport_error``."""
++
++    END_REASON = "transport_error"
++
++
++class WatchdogError(EvalsimError):
++    """The watchdog's hang-up failed."""
+--- a/packages/evalsim/src/tracer_evalsim/limits.py
++++ b/packages/evalsim/src/tracer_evalsim/limits.py
+@@ -0,0 +1,27 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Technical bounds of the simulator (ADR 0026 rule 22); not measured values."""
++
++from __future__ import annotations
++
++from typing import Final
++
++__all__ = [
++    "FRAME_NS",
++    "MAX_AUTH_TOKEN_CHARS",
++    "MAX_INBOUND_MESSAGES_PER_SECOND",
++    "MAX_INBOUND_MESSAGE_BYTES",
++    "MAX_SDP_BYTES",
++    "MAX_SIGNALLING_RESPONSE_BYTES",
++    "NS_PER_S",
++    "WATCHDOG_GRACE_NS",
++]
++
++NS_PER_S: Final = 1_000_000_000
++FRAME_NS: Final = 20_000_000
++MAX_INBOUND_MESSAGE_BYTES: Final = 65_536
++MAX_INBOUND_MESSAGES_PER_SECOND: Final = 1_000
++WATCHDOG_GRACE_NS: Final = NS_PER_S
++MAX_AUTH_TOKEN_CHARS: Final = 4096
++MAX_SDP_BYTES: Final = 65_536
++MAX_SIGNALLING_RESPONSE_BYTES: Final = 131_072
+--- a/packages/evalsim/src/tracer_evalsim/sender.py
++++ b/packages/evalsim/src/tracer_evalsim/sender.py
+@@ -0,0 +1,86 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The paced sender (ADR 0026 rule 8): real-time 20 ms frames, backpressure, never a burst."""
++
++from __future__ import annotations
++
++from collections.abc import Awaitable, Callable, Sequence
++from dataclasses import dataclass
++
++from tracer_evalsim.clock import Clock
++from tracer_evalsim.limits import FRAME_NS
++
++__all__ = ["FrameRecord", "LineResult", "PacedSender", "split_frames"]
++
++
++@dataclass(frozen=True)
++class FrameRecord:
++    line_index: int
++    frame_index: int
++    scheduled_ns: int
++    sent_ns: int
++    size: int
++
++    @property
++    def lateness_ns(self) -> int:
++        return self.sent_ns - self.scheduled_ns
++
++
++@dataclass(frozen=True)
++class LineResult:
++    line_index: int
++    frames_sent: int
++    stopped: bool
++
++
++def split_frames(audio: bytes, *, sample_rate_hz: int, codec: str) -> list[bytes]:
++    if codec not in ("pcm_s16le", "mulaw"):
++        raise ValueError("unknown wire codec")
++    size = sample_rate_hz * 20 // 1000 * (2 if codec == "pcm_s16le" else 1)
++    if size <= 0 or sample_rate_hz % 50:
++        raise ValueError("sample rate does not give whole 20 ms frames")
++    pad = b"\x00" if codec == "pcm_s16le" else b"\xff"
++    frames = [audio[i : i + size] for i in range(0, len(audio), size)]
++    if frames and len(frames[-1]) < size:
++        frames[-1] = frames[-1] + pad * (size - len(frames[-1]))
++    return frames
++
++
++class PacedSender:
++    def __init__(self, clock: Clock, send_frame: Callable[[bytes], Awaitable[None]]) -> None:
++        self._clock = clock
++        self._send_frame = send_frame
++        self._log: list[FrameRecord] = []
++        self._lines = 0
++
++    @property
++    def log(self) -> tuple[FrameRecord, ...]:
++        return tuple(self._log)
++
++    async def send_line(
++        self, frames: Sequence[bytes], *, should_stop: Callable[[], bool] | None = None
++    ) -> LineResult:
++        line = self._lines
++        self._lines += 1
++        sent = 0
++        origin = self._clock.monotonic_ns()
++        anchor = origin
++        for index, frame in enumerate(frames):
++            if should_stop is not None and should_stop():
++                return LineResult(line, sent, True)
++            target = anchor + index * FRAME_NS
++            now = self._clock.monotonic_ns()
++            if index > 0 and now >= target + FRAME_NS:
++                anchor += now - target
++                target = now
++            elif now < target:
++                await self._clock.sleep_until_ns(target)
++                if should_stop is not None and should_stop():
++                    return LineResult(line, sent, True)
++            sent_ns = self._clock.monotonic_ns()
++            await self._send_frame(frame)
++            self._log.append(
++                FrameRecord(line, index, origin + index * FRAME_NS, sent_ns, len(frame))
++            )
++            sent += 1
++        return LineResult(line, sent, False)
+--- a/packages/evalsim/src/tracer_evalsim/watchdog.py
++++ b/packages/evalsim/src/tracer_evalsim/watchdog.py
+@@ -0,0 +1,61 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The wall-clock watchdog (ADR 0026 rule 8), independent of the state machine and the sender."""
++
++from __future__ import annotations
++
++import asyncio
++from collections.abc import Awaitable, Callable
++
++from tracer_evalsim.clock import Clock
++from tracer_evalsim.errors import WatchdogError
++from tracer_evalsim.limits import WATCHDOG_GRACE_NS
++
++__all__ = ["Watchdog"]
++
++
++class Watchdog:
++    def __init__(
++        self,
++        clock: Clock,
++        *,
++        max_duration_ns: int,
++        hang_up: Callable[[], Awaitable[None]],
++        grace_ns: int = WATCHDOG_GRACE_NS,
++    ) -> None:
++        valid = isinstance(max_duration_ns, int) and not isinstance(max_duration_ns, bool)
++        if not valid or max_duration_ns <= 0:
++            raise ValueError("max_duration_ns must be a positive integer")
++        self._clock = clock
++        self._max = max_duration_ns
++        self._grace = grace_ns
++        self._hang_up = hang_up
++        self._task: asyncio.Future[None] | None = None
++        self.deadline_ns: int | None = None
++        self.fired = False
++        self.fired_at_ns: int | None = None
++        self._failed = False
++
++    def start(self) -> None:
++        if self._task is not None:
++            raise RuntimeError("the watchdog is already started")
++        self.deadline_ns = self._clock.monotonic_ns() + self._max + self._grace
++        self._task = asyncio.ensure_future(self._run(self.deadline_ns))
++
++    async def _run(self, deadline_ns: int) -> None:
++        await self._clock.sleep_until_ns(deadline_ns)
++        self.fired = True
++        self.fired_at_ns = self._clock.monotonic_ns()
++        try:
++            await self._hang_up()
++        except Exception:
++            self._failed = True
++
++    async def aclose(self) -> None:
++        task = self._task
++        if task is not None and not task.done():
++            task.cancel()
++        if task is not None:
++            await asyncio.gather(task, return_exceptions=True)
++        if self._failed:
++            raise WatchdogError("the hang-up of the watchdog failed")
+--- a/packages/evalsim/src/tracer_evalsim/webrtc.py
++++ b/packages/evalsim/src/tracer_evalsim/webrtc.py
+@@ -0,0 +1,241 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""``smallwebrtc/1``: signalling and configuration (ADR 0026 rule 7). aiortc is imported lazily."""
++
++from __future__ import annotations
++
++import asyncio
++import http.client
++import importlib
++import json
++import re
++import ssl
++from collections.abc import Sequence
++from dataclasses import dataclass
++from types import ModuleType
++from typing import Any
++
++from tracer_evalsim.errors import SetupFailedError, TargetRefusedError
++from tracer_evalsim.limits import MAX_SDP_BYTES, MAX_SIGNALLING_RESPONSE_BYTES
++from tracer_evalsim.ws import BearerToken, ConnectionLabels, parse_target_url
++
++__all__ = [
++    "DIALECT_ID",
++    "SPEC_RETRIEVED",
++    "SPEC_SOURCES",
++    "Answer",
++    "HttpSignalling",
++    "WebRtcPlan",
++    "build_rtc_configuration",
++    "load_aiortc",
++    "make_webrtc_plan",
++    "offer_request_body",
++    "parse_answer",
++    "parse_ice_server",
++    "patch_request_body",
++]
++
++DIALECT_ID = "smallwebrtc/1"
++SPEC_RETRIEVED = "2026-10-27"
++SPEC_SOURCES = (
++    "https://raw.githubusercontent.com/pipecat-ai/pipecat/v1.14.0/src/pipecat/runner/run.py",
++    "https://raw.githubusercontent.com/pipecat-ai/pipecat/v1.14.0/src/pipecat/transports/smallwebrtc/request_handler.py",
++    "https://raw.githubusercontent.com/pipecat-ai/pipecat/v1.14.0/src/pipecat/transports/smallwebrtc/connection.py",
++)
++OFFER_SUFFIX = "/api/offer"
++_ICE = re.compile(r"(?:stuns?|turns?):[A-Za-z0-9.\-\[\]:]{1,200}(?:\?transport=(?:udp|tcp))?")
++_PC_ID = re.compile(r"[A-Za-z0-9_.:-]{1,256}")
++
++
++def parse_ice_server(text: str) -> str:
++    if not isinstance(text, str) or not _ICE.fullmatch(text):
++        raise TargetRefusedError(code="ice_server_invalid")
++    return text
++
++
++@dataclass(frozen=True)
++class WebRtcPlan:
++    offer_url: str
++    ice_servers: tuple[str, ...]
++    loopback: bool
++
++
++def make_webrtc_plan(offer_url: str, ice_servers: Sequence[str]) -> WebRtcPlan:
++    parsed = parse_target_url(offer_url, schemes=("http", "https"))
++    if not parsed.path.endswith(OFFER_SUFFIX):
++        raise TargetRefusedError(code="target_invalid")
++    servers = tuple(parse_ice_server(s) for s in ice_servers)
++    if not parsed.loopback and not servers:
++        raise TargetRefusedError(code="ice_server_required")
++    return WebRtcPlan(offer_url, servers, parsed.loopback)
++
++
++def load_aiortc() -> ModuleType:
++    failed = False
++    module: ModuleType | None = None
++    try:
++        module = importlib.import_module("aiortc")
++    except ImportError:
++        failed = True
++    if failed or module is None:
++        raise TargetRefusedError(code="webrtc_extra_missing")
++    return module
++
++
++def build_rtc_configuration(plan: WebRtcPlan) -> Any:
++    aiortc = load_aiortc()
++    servers = [aiortc.RTCIceServer(urls=url) for url in plan.ice_servers]
++    # an EMPTY list, never None: aiortc turns None into its default Google STUN server
++    return aiortc.RTCConfiguration(iceServers=servers)
++
++
++def offer_request_body(
++    sdp: str,
++    *,
++    pc_id: str | None = None,
++    restart_pc: bool | None = None,
++    request_data: Any = None,
++) -> dict[str, Any]:
++    if not isinstance(sdp, str) or not sdp:
++        raise ValueError("sdp must be a non-empty string")
++    body: dict[str, Any] = {"sdp": sdp, "type": "offer"}
++    if pc_id is not None:
++        body["pc_id"] = pc_id
++    if restart_pc is not None:
++        body["restart_pc"] = restart_pc
++    if request_data is not None:
++        body["request_data"] = request_data
++    return body
++
++
++def patch_request_body(pc_id: str, candidates: Sequence[tuple[str, str, int]]) -> dict[str, Any]:
++    if not isinstance(pc_id, str) or not _PC_ID.fullmatch(pc_id):
++        raise ValueError("pc_id is not a safe identifier")
++    return {
++        "pc_id": pc_id,
++        "candidates": [
++            {"candidate": c, "sdp_mid": mid, "sdp_mline_index": index}
++            for c, mid, index in candidates
++        ],
++    }
++
++
++@dataclass(frozen=True)
++class Answer:
++    sdp: str
++    type: str
++    pc_id: str
++
++
++def parse_answer(payload: object) -> Answer:
++    ok = False
++    if isinstance(payload, dict):
++        sdp, kind, pc_id = payload.get("sdp"), payload.get("type"), payload.get("pc_id")
++        ok = (
++            isinstance(sdp, str)
++            and 0 < len(sdp.encode("utf-8")) <= MAX_SDP_BYTES
++            and kind == "answer"
++            and isinstance(pc_id, str)
++            and _PC_ID.fullmatch(pc_id) is not None
++        )
++    if not ok:
++        raise SetupFailedError(code="answer_invalid")
++    return Answer(sdp=payload["sdp"], type="answer", pc_id=payload["pc_id"])  # type: ignore[index]
++
++
++def _request(
++    method: str,
++    url: str,
++    body: bytes,
++    headers: dict[str, str],
++    timeout_s: float,
++    context: ssl.SSLContext | None,
++) -> tuple[str | None, int | None, bytes]:
++    parsed = parse_target_url(url, schemes=("http", "https"))
++    conn: http.client.HTTPConnection
++    if parsed.scheme == "https":
++        conn = http.client.HTTPSConnection(
++            parsed.host,
++            parsed.port,
++            timeout=timeout_s,
++            context=context or ssl.create_default_context(),
++        )
++    else:
++        conn = http.client.HTTPConnection(parsed.host, parsed.port, timeout=timeout_s)
++    try:
++        conn.request(method, parsed.path, body, headers)
++        response = conn.getresponse()
++        data = response.read(MAX_SIGNALLING_RESPONSE_BYTES + 1)
++        return None, response.status, data
++    except ssl.SSLError:
++        return "tls_failed", None, b""
++    except TimeoutError:
++        return "connect_timeout", None, b""
++    except ConnectionRefusedError:
++        return "connection_refused", None, b""
++    except http.client.HTTPException:
++        return "handshake_failed", None, b""
++    except OSError:
++        return "connection_failed", None, b""
++    finally:
++        conn.close()
++
++
++class HttpSignalling:
++    def __init__(
++        self,
++        plan: WebRtcPlan,
++        *,
++        labels: ConnectionLabels,
++        token: BearerToken | None,
++        timeout_s: float,
++        ssl_context: ssl.SSLContext | None = None,
++    ) -> None:
++        self._plan = plan
++        self._labels = labels
++        self._token = token
++        self._timeout_s = timeout_s
++        self._ssl = ssl_context
++
++    def _headers(self) -> dict[str, str]:
++        headers = {"Content-Type": "application/json", "Accept": "application/json"}
++        if self._token is not None:
++            headers["Authorization"] = self._token.authorization_header_value()
++        if self._labels.origin is not None:
++            headers["Origin"] = self._labels.origin
++        return headers
++
++    async def _call(self, method: str, body: dict[str, Any]) -> dict[str, Any]:
++        data = json.dumps(body, separators=(",", ":")).encode("utf-8")
++        code, status, payload = await asyncio.to_thread(
++            _request,
++            method,
++            self._plan.offer_url,
++            data,
++            self._headers(),
++            self._timeout_s,
++            self._ssl,
++        )
++        if code is not None:
++            raise SetupFailedError(code=code)
++        if status is None:
++            raise SetupFailedError(code="handshake_failed")
++        if 300 <= status < 400:
++            raise SetupFailedError(code="redirect_refused", http_status=status)
++        if not 200 <= status < 300:
++            raise SetupFailedError(code="handshake_rejected", http_status=status)
++        if len(payload) > MAX_SIGNALLING_RESPONSE_BYTES:
++            raise SetupFailedError(code="answer_invalid")
++        try:
++            parsed = json.loads(payload)
++        except ValueError:
++            parsed = None
++        if not isinstance(parsed, dict):
++            raise SetupFailedError(code="answer_invalid")
++        return parsed
++
++    async def post_offer(self, body: dict[str, Any]) -> dict[str, Any]:
++        return await self._call("POST", body)
++
++    async def patch_candidates(self, body: dict[str, Any]) -> dict[str, Any]:
++        return await self._call("PATCH", body)
+--- a/packages/evalsim/src/tracer_evalsim/ws.py
++++ b/packages/evalsim/src/tracer_evalsim/ws.py
+@@ -0,0 +1,283 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The WebSocket client of the two WebSocket dialects (ADR 0026 rules 5, 6, 16, 22)."""
++
++from __future__ import annotations
++
++import logging
++import re
++import ssl
++from collections.abc import Mapping
++from dataclasses import dataclass
++from typing import Any, NoReturn
++from urllib.parse import urlsplit
++
++from websockets.asyncio.client import connect
++from websockets.exceptions import ConnectionClosed, InvalidHandshake, InvalidStatus
++from websockets.typing import Origin
++
++from tracer_evalsim.dialects.base import CloseInfo, Dialect
++from tracer_evalsim.errors import SetupFailedError, TargetRefusedError, TransportError
++from tracer_evalsim.limits import MAX_AUTH_TOKEN_CHARS, MAX_INBOUND_MESSAGE_BYTES
++
++__all__ = [
++    "BearerToken",
++    "ConnectionLabels",
++    "ParsedTarget",
++    "WebSocketConnection",
++    "WebSocketTarget",
++    "check_connection_labels",
++    "open_websocket",
++    "parse_target_url",
++    "prepare_connection",
++    "read_bearer_token",
++]
++
++_ENV_NAME = re.compile(r"[A-Z_][A-Z0-9_]{0,63}")
++_ORIGIN = re.compile(r"(?:https?|wss?)://[a-z0-9.-]+(?::[0-9]{1,5})?")
++_TOKEN = re.compile(r"[A-Za-z0-9._~+/-]+=*")
++_LOOPBACK_HOSTS = ("localhost", "127.0.0.1", "::1")
++
++_SILENT = logging.getLogger("tracer_evalsim.ws.silent")
++_SILENT.propagate = False
++_SILENT.addHandler(logging.NullHandler())
++_SILENT.setLevel(logging.CRITICAL + 1)
++
++
++@dataclass(frozen=True)
++class ConnectionLabels:
++    auth_token_env: str | None
++    origin: str | None
++    bot_holds_telephony_credentials: bool | None
++
++    def __post_init__(self) -> None:
++        if self.auth_token_env is not None and not (
++            isinstance(self.auth_token_env, str) and _ENV_NAME.fullmatch(self.auth_token_env)
++        ):
++            raise TargetRefusedError(code="auth_env_name_invalid")
++        if self.origin is not None and not (
++            isinstance(self.origin, str) and _ORIGIN.fullmatch(self.origin)
++        ):
++            raise TargetRefusedError(code="origin_invalid")
++        if self.bot_holds_telephony_credentials is not None and not isinstance(
++            self.bot_holds_telephony_credentials, bool
++        ):
++            raise TargetRefusedError(code="labels_inconsistent")
++
++    def as_profile_connection(self) -> dict[str, Any]:
++        return {
++            "auth_token_env": self.auth_token_env,
++            "origin": self.origin,
++            "bot_holds_telephony_credentials": self.bot_holds_telephony_credentials,
++        }
++
++
++@dataclass(frozen=True)
++class WebSocketTarget:
++    url: str
++    labels: ConnectionLabels
++
++
++class BearerToken:
++    __slots__ = ("_value",)
++
++    def __init__(self, value: str) -> None:
++        object.__setattr__(self, "_value", value)
++
++    def __setattr__(self, name: str, value: object) -> None:
++        raise AttributeError("a bearer token is immutable")
++
++    def __repr__(self) -> str:
++        return "BearerToken(<redacted>)"
++
++    __str__ = __repr__
++
++    def __format__(self, spec: str) -> str:
++        return "BearerToken(<redacted>)"
++
++    def __reduce__(self) -> NoReturn:
++        raise TypeError("a bearer token is never copied or pickled")
++
++    def __copy__(self) -> NoReturn:
++        raise TypeError("a bearer token is never copied or pickled")
++
++    def __deepcopy__(self, memo: object) -> NoReturn:
++        raise TypeError("a bearer token is never copied or pickled")
++
++    def authorization_header_value(self) -> str:
++        return "Bearer " + str(object.__getattribute__(self, "_value"))
++
++
++def read_bearer_token(
++    labels: ConnectionLabels, *, environ: Mapping[str, str]
++) -> BearerToken | None:
++    name = labels.auth_token_env
++    if name is None:
++        return None
++    value = environ.get(name)
++    if not value:
++        raise TargetRefusedError(code="auth_token_missing")
++    if len(value) > MAX_AUTH_TOKEN_CHARS or not _TOKEN.fullmatch(value):
++        raise TargetRefusedError(code="auth_token_invalid")
++    return BearerToken(value)
++
++
++def check_connection_labels(dialect_id: str, labels: ConnectionLabels) -> None:
++    if dialect_id == "twilio-media-stream/1":
++        if labels.bot_holds_telephony_credentials is None:
++            raise TargetRefusedError(code="bot_credentials_field_missing")
++        if labels.bot_holds_telephony_credentials:
++            raise TargetRefusedError(code="bot_holds_telephony_credentials")
++    elif dialect_id in ("pipecat-protobuf/1", "smallwebrtc/1"):
++        if labels.bot_holds_telephony_credentials is not None:
++            raise TargetRefusedError(code="labels_inconsistent")
++    else:
++        raise TargetRefusedError(code="dialect_unknown")
++
++
++def prepare_connection(
++    dialect_id: str, labels: ConnectionLabels, *, environ: Mapping[str, str]
++) -> BearerToken | None:
++    """Step 2 refusals first (labels), then step 6 (the key read from the environment)."""
++    check_connection_labels(dialect_id, labels)
++    return read_bearer_token(labels, environ=environ)
++
++
++@dataclass(frozen=True)
++class ParsedTarget:
++    scheme: str
++    host: str
++    port: int
++    path: str
++    loopback: bool
++
++
++def parse_target_url(url: str, *, schemes: tuple[str, ...]) -> ParsedTarget:
++    if not isinstance(url, str) or not url.isascii() or not url.isprintable() or " " in url:
++        raise TargetRefusedError(code="target_invalid")
++    if "?" in url or "#" in url:
++        raise TargetRefusedError(code="target_invalid")
++    try:
++        parts = urlsplit(url)
++        port = parts.port
++        host = parts.hostname
++    except ValueError:
++        raise TargetRefusedError(code="target_invalid") from None
++    if parts.scheme not in schemes or not host or "@" in parts.netloc:
++        raise TargetRefusedError(code="target_invalid")
++    secure = parts.scheme in ("wss", "https")
++    if port is None:
++        port = 443 if secure else 80
++    if not 1 <= port <= 65535:
++        raise TargetRefusedError(code="target_invalid")
++    loopback = host in _LOOPBACK_HOSTS
++    if not secure and not loopback:
++        raise TargetRefusedError(code="insecure_target")
++    return ParsedTarget(parts.scheme, host, port, parts.path or "/", loopback)
++
++
++class _NoRedirectConnect(connect):
++    """websockets follows redirects by default (even to another host): a redirect is an error."""
++
++    def process_redirect(self, exc: Exception) -> Exception | str:
++        return exc
++
++
++class WebSocketConnection:
++    def __init__(self, ws: Any) -> None:
++        self._ws = ws
++        self._close_info: CloseInfo | None = None
++
++    @property
++    def close_info(self) -> CloseInfo | None:
++        return self._close_info
++
++    async def send(self, message: bytes | str) -> None:
++        failed = False
++        try:
++            await self._ws.send(message)
++        except ConnectionClosed:
++            failed = True
++        if failed:
++            raise TransportError(code="connection_closed")
++
++    async def recv(self) -> bytes | str | None:
++        too_big = False
++        try:
++            message: bytes | str = await self._ws.recv()
++            return message
++        except ConnectionClosed as exc:
++            sent, rcvd = exc.sent, exc.rcvd
++            if sent is not None and sent.code == 1009:
++                too_big = True
++            else:
++                self._close_info = CloseInfo(
++                    code=rcvd.code if rcvd is not None else 1006, clean=rcvd is not None
++                )
++        if too_big:
++            self._close_info = CloseInfo(code=1009, clean=True)
++            raise TransportError(code="message_too_large", close_code=1009)
++        return None
++
++    async def close(self, code: int = 1000) -> None:
++        await self._ws.close(code)
++        if self._close_info is None:
++            self._close_info = CloseInfo(code=code, clean=True)
++
++
++async def open_websocket(
++    target: WebSocketTarget,
++    dialect: Dialect,
++    *,
++    token: BearerToken | None,
++    open_timeout_s: float,
++    close_timeout_s: float,
++    ssl_context: ssl.SSLContext | None = None,
++) -> WebSocketConnection:
++    parsed = parse_target_url(target.url, schemes=("ws", "wss"))
++    check_connection_labels(dialect.dialect_id, target.labels)
++    if target.labels.auth_token_env is None and token is not None:
++        raise TargetRefusedError(code="labels_inconsistent")
++    if target.labels.auth_token_env is not None and token is None:
++        raise TargetRefusedError(code="auth_token_missing")
++    headers = {"Authorization": token.authorization_header_value()} if token is not None else None
++    kwargs: dict[str, Any] = {}
++    if parsed.scheme == "wss":
++        kwargs["ssl"] = ssl_context or ssl.create_default_context()
++    failure: tuple[type[Exception], int | None] | None = None
++    ws: Any = None
++    try:
++        ws = await _NoRedirectConnect(
++            target.url,
++            additional_headers=headers,
++            origin=Origin(target.labels.origin) if target.labels.origin is not None else None,
++            compression=None,
++            max_size=MAX_INBOUND_MESSAGE_BYTES,
++            open_timeout=open_timeout_s,
++            close_timeout=close_timeout_s,
++            proxy=None,
++            logger=_SILENT,
++            **kwargs,
++        )
++    except ssl.SSLError:
++        failure = (SetupFailedError, None)
++        code = "tls_failed"
++    except TimeoutError:
++        failure = (SetupFailedError, None)
++        code = "connect_timeout"
++    except InvalidStatus as exc:
++        status = exc.response.status_code
++        failure = (SetupFailedError, status)
++        code = "redirect_refused" if 300 <= status < 400 else "handshake_rejected"
++    except ConnectionRefusedError:
++        failure = (SetupFailedError, None)
++        code = "connection_refused"
++    except InvalidHandshake:
++        failure = (SetupFailedError, None)
++        code = "handshake_failed"
++    except OSError:
++        failure = (SetupFailedError, None)
++        code = "connection_failed"
++    if failure is not None:
++        raise SetupFailedError(code=code, http_status=failure[1])
++    return WebSocketConnection(ws)
+--- a/NOTICE
++++ b/NOTICE
+@@ -22,3 +22,9 @@
+ - Test fixtures: output from the Sarvam AI speech APIs (Sarvam AI terms of service, version 2.0)
+   and short quotes from the Langfuse documentation (MIT) and Pipecat documentation (BSD-2-Clause,
+   copyright Daily). The Sarvam audio redistribution terms are open on the release checklist.
++- Wire format facts of the Pipecat protobuf dialect: the names, types and field numbers of the
++  five frame messages of `src/pipecat/frames/frames.proto` at tag v1.14.0 of
++  https://github.com/pipecat-ai/pipecat (BSD-2-Clause, Copyright (c) 2024-2026, Daily) are
++  recorded in docs/adr/0026-simulated-caller-architecture.md and implemented by a hand-written
++  encoder and decoder (tracer_evalsim/dialects/protobuf_wire.py). No Pipecat source file is
++  copied, nothing is generated from the `.proto` file, and no Pipecat module is imported.
+--- a/packages/cli/NOTICE
++++ b/packages/cli/NOTICE
+@@ -22,3 +22,9 @@
+ - Test fixtures: output from the Sarvam AI speech APIs (Sarvam AI terms of service, version 2.0)
+   and short quotes from the Langfuse documentation (MIT) and Pipecat documentation (BSD-2-Clause,
+   copyright Daily). The Sarvam audio redistribution terms are open on the release checklist.
++- Wire format facts of the Pipecat protobuf dialect: the names, types and field numbers of the
++  five frame messages of `src/pipecat/frames/frames.proto` at tag v1.14.0 of
++  https://github.com/pipecat-ai/pipecat (BSD-2-Clause, Copyright (c) 2024-2026, Daily) are
++  recorded in docs/adr/0026-simulated-caller-architecture.md and implemented by a hand-written
++  encoder and decoder (tracer_evalsim/dialects/protobuf_wire.py). No Pipecat source file is
++  copied, nothing is generated from the `.proto` file, and no Pipecat module is imported.
+--- a/packages/evalcore/NOTICE
++++ b/packages/evalcore/NOTICE
+@@ -22,3 +22,9 @@
+ - Test fixtures: output from the Sarvam AI speech APIs (Sarvam AI terms of service, version 2.0)
+   and short quotes from the Langfuse documentation (MIT) and Pipecat documentation (BSD-2-Clause,
+   copyright Daily). The Sarvam audio redistribution terms are open on the release checklist.
++- Wire format facts of the Pipecat protobuf dialect: the names, types and field numbers of the
++  five frame messages of `src/pipecat/frames/frames.proto` at tag v1.14.0 of
++  https://github.com/pipecat-ai/pipecat (BSD-2-Clause, Copyright (c) 2024-2026, Daily) are
++  recorded in docs/adr/0026-simulated-caller-architecture.md and implemented by a hand-written
++  encoder and decoder (tracer_evalsim/dialects/protobuf_wire.py). No Pipecat source file is
++  copied, nothing is generated from the `.proto` file, and no Pipecat module is imported.
+--- a/packages/evaldb/NOTICE
++++ b/packages/evaldb/NOTICE
+@@ -22,3 +22,9 @@
+ - Test fixtures: output from the Sarvam AI speech APIs (Sarvam AI terms of service, version 2.0)
+   and short quotes from the Langfuse documentation (MIT) and Pipecat documentation (BSD-2-Clause,
+   copyright Daily). The Sarvam audio redistribution terms are open on the release checklist.
++- Wire format facts of the Pipecat protobuf dialect: the names, types and field numbers of the
++  five frame messages of `src/pipecat/frames/frames.proto` at tag v1.14.0 of
++  https://github.com/pipecat-ai/pipecat (BSD-2-Clause, Copyright (c) 2024-2026, Daily) are
++  recorded in docs/adr/0026-simulated-caller-architecture.md and implemented by a hand-written
++  encoder and decoder (tracer_evalsim/dialects/protobuf_wire.py). No Pipecat source file is
++  copied, nothing is generated from the `.proto` file, and no Pipecat module is imported.
+--- a/packages/evalproviders/NOTICE
++++ b/packages/evalproviders/NOTICE
+@@ -22,3 +22,9 @@
+ - Test fixtures: output from the Sarvam AI speech APIs (Sarvam AI terms of service, version 2.0)
+   and short quotes from the Langfuse documentation (MIT) and Pipecat documentation (BSD-2-Clause,
+   copyright Daily). The Sarvam audio redistribution terms are open on the release checklist.
++- Wire format facts of the Pipecat protobuf dialect: the names, types and field numbers of the
++  five frame messages of `src/pipecat/frames/frames.proto` at tag v1.14.0 of
++  https://github.com/pipecat-ai/pipecat (BSD-2-Clause, Copyright (c) 2024-2026, Daily) are
++  recorded in docs/adr/0026-simulated-caller-architecture.md and implemented by a hand-written
++  encoder and decoder (tracer_evalsim/dialects/protobuf_wire.py). No Pipecat source file is
++  copied, nothing is generated from the `.proto` file, and no Pipecat module is imported.
+--- a/packages/evalschema/NOTICE
++++ b/packages/evalschema/NOTICE
+@@ -22,3 +22,9 @@
+ - Test fixtures: output from the Sarvam AI speech APIs (Sarvam AI terms of service, version 2.0)
+   and short quotes from the Langfuse documentation (MIT) and Pipecat documentation (BSD-2-Clause,
+   copyright Daily). The Sarvam audio redistribution terms are open on the release checklist.
++- Wire format facts of the Pipecat protobuf dialect: the names, types and field numbers of the
++  five frame messages of `src/pipecat/frames/frames.proto` at tag v1.14.0 of
++  https://github.com/pipecat-ai/pipecat (BSD-2-Clause, Copyright (c) 2024-2026, Daily) are
++  recorded in docs/adr/0026-simulated-caller-architecture.md and implemented by a hand-written
++  encoder and decoder (tracer_evalsim/dialects/protobuf_wire.py). No Pipecat source file is
++  copied, nothing is generated from the `.proto` file, and no Pipecat module is imported.

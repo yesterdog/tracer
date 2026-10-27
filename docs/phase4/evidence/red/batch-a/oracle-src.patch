@@ -1,0 +1,1227 @@
+--- /dev/null
++++ b/packages/evalcore/src/tracer_evalcore/callstate.py
+@@ -0,0 +1,176 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The call state machine (ADR 0026 rule 9; contract docs/phase4/api-surface-batch-a.md section 2).
++
++Pure and table-driven: eight states, nine events, eleven end reasons. No clock, no randomness and
++no I/O. A call ends in ``ended`` with exactly one end reason; nothing changes after ``ended``.
++"""
++
++from __future__ import annotations
++
++from collections.abc import Mapping
++from dataclasses import dataclass
++from types import MappingProxyType
++from typing import Final
++
++from tracer_evalcore.errors import InputRefusedError
++from tracer_evalcore.simtypes import CALL_STATES, END_REASONS
++
++__all__ = [
++    "CALL_EVENTS",
++    "PRECONNECT_END_REASONS",
++    "REQUESTABLE_END_REASONS",
++    "TRANSITIONS",
++    "CallMachine",
++    "CallStateError",
++    "Transition",
++    "effective_max_duration_ms",
++]
++
++CALL_EVENTS: Final = (
++    "connect_started",
++    "connected",
++    "connect_failed",
++    "caller_line_started",
++    "caller_line_finished",
++    "agent_active",
++    "agent_silent",
++    "end_requested",
++    "hangup_complete",
++)
++REQUESTABLE_END_REASONS: Final = tuple(r for r in END_REASONS if r != "setup_failed")
++PRECONNECT_END_REASONS: Final = ("kill_switch",)
++
++_N: Final = None  # a refused cell: the event cannot happen in that state (a runner defect)
++_ROWS: Final[dict[str, tuple[str | None, ...]]] = {
++    #                 cs            cn           cf        ls                lf                aa
++    "preflight": ("connecting", _N, _N, _N, _N, _N, _N, "ending", _N),
++    "connecting": (_N, "connected", "ending", _N, _N, _N, _N, "ending", _N),
++    "connected": (
++        _N,
++        _N,
++        _N,
++        "caller_speaking",
++        _N,
++        "agent_speaking",
++        "connected",
++        "ending",
++        _N,
++    ),
++    "caller_speaking": (
++        _N,
++        _N,
++        _N,
++        _N,
++        "awaiting_agent",
++        "caller_speaking",
++        "caller_speaking",
++        "ending",
++        _N,
++    ),
++    "awaiting_agent": (
++        _N,
++        _N,
++        _N,
++        "caller_speaking",
++        _N,
++        "agent_speaking",
++        "awaiting_agent",
++        "ending",
++        _N,
++    ),
++    "agent_speaking": (
++        _N,
++        _N,
++        _N,
++        "caller_speaking",
++        _N,
++        "agent_speaking",
++        "awaiting_agent",
++        "ending",
++        _N,
++    ),
++    "ending": ("ending",) * 8 + ("ended",),
++    "ended": ("ended",) * 9,
++}
++TRANSITIONS: Final[Mapping[tuple[str, str], str | None]] = MappingProxyType(
++    {(state, event): row[i] for state, row in _ROWS.items() for i, event in enumerate(CALL_EVENTS)}
++)
++
++
++class CallStateError(InputRefusedError):
++    """An event or a reason was refused. ``code`` is the stable reason; the message is the code."""
++
++    def __init__(self, code: str) -> None:
++        self.code = code
++        super().__init__(code)
++
++
++@dataclass(frozen=True)
++class Transition:
++    """What one event did: the state before and after, and whether the state changed."""
++
++    source: str
++    event: str
++    target: str
++    changed: bool
++
++
++class CallMachine:
++    """One call's state. ``apply`` is the only way to move it."""
++
++    def __init__(self) -> None:
++        self._state = CALL_STATES[0]
++        self._end_reason: str | None = None
++        self._established = False
++
++    @property
++    def state(self) -> str:
++        return self._state
++
++    @property
++    def end_reason(self) -> str | None:
++        return self._end_reason
++
++    @property
++    def call_established(self) -> bool:
++        return self._established
++
++    def apply(self, event: str, reason: str | None = None) -> Transition:
++        if event not in CALL_EVENTS:
++            raise CallStateError("unknown_event")
++        if event == "end_requested":
++            if reason not in REQUESTABLE_END_REASONS:
++                raise CallStateError("end_reason_invalid")
++        elif reason is not None:
++            raise CallStateError("reason_not_allowed")
++        source = self._state
++        target = TRANSITIONS[(source, event)]
++        if target is None:
++            raise CallStateError("event_not_allowed_in_state")
++        if (
++            event == "end_requested"
++            and source in ("preflight", "connecting")
++            and reason not in PRECONNECT_END_REASONS
++        ):
++            raise CallStateError("end_reason_not_allowed_before_connect")
++        if target == "ending" and source not in ("ending", "ended"):
++            self._end_reason = "setup_failed" if event == "connect_failed" else reason
++        if event == "connected" and source == "connecting":
++            self._established = True
++        self._state = target
++        return Transition(source, event, target, target != source)
++
++
++def effective_max_duration_ms(evaluator_max_duration_ms: int, max_call_seconds: int | None) -> int:
++    """The call's maximum duration: the smaller of the Evaluator's and the call cap (rule 9)."""
++    if (
++        type(evaluator_max_duration_ms) is not int
++        or not 1 <= evaluator_max_duration_ms <= 14_400_000
++    ):
++        raise CallStateError("evaluator_max_duration_invalid")
++    if max_call_seconds is None:
++        return evaluator_max_duration_ms
++    if type(max_call_seconds) is not int or not 1 <= max_call_seconds <= 14_400:
++        raise CallStateError("max_call_seconds_invalid")
++    return min(evaluator_max_duration_ms, max_call_seconds * 1000)
+--- /dev/null
++++ b/packages/evalcore/src/tracer_evalcore/turntaking.py
+@@ -0,0 +1,225 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Turn-taking: when the simulated caller speaks (ADR 0026 rule 10, ADR 0028 rule 9).
++
++Pure: instants are integers of nanoseconds read by the caller from its own injected monotonic
++clock; nothing here reads a clock. Agent activity is a received frame holding any non-zero
++sample: no threshold, no model. The three policy values have no default.
++"""
++
++from __future__ import annotations
++
++from collections.abc import Mapping
++from dataclasses import dataclass
++from typing import Any, Final
++
++from tracer_evalcore.errors import InputRefusedError
++
++__all__ = [
++    "SPEAK_CAUSES",
++    "TURN_DECISION_KINDS",
++    "TurnDecision",
++    "TurnTaker",
++    "TurnTakingError",
++    "TurnTakingPolicy",
++    "agent_frame_is_active",
++]
++
++TURN_DECISION_KINDS: Final = ("wait", "speak", "end")
++SPEAK_CAUSES: Final = ("caller_first", "agent_silent", "barge_in")
++_MAX: Final = 9007199254740991
++_NS_PER_MS: Final = 1_000_000
++
++
++class TurnTakingError(InputRefusedError):
++    """A policy value or a call was refused. ``code`` is the stable reason; the message is it."""
++
++    def __init__(self, code: str) -> None:
++        self.code = code
++        super().__init__(code)
++
++
++def _is_int(value: object) -> bool:
++    return type(value) is int
++
++
++@dataclass(frozen=True)
++class TurnTakingPolicy:
++    """The ``turn_taking`` object of ``tracer.sim_profile/1``; every value is required."""
++
++    caller_speaks_first: bool
++    wait_for_agent_silence_ms: int
++    max_silence_ms: int
++
++    def __post_init__(self) -> None:
++        if type(self.caller_speaks_first) is not bool:
++            raise TurnTakingError("caller_speaks_first_invalid")
++        for name in ("wait_for_agent_silence_ms", "max_silence_ms"):
++            value = getattr(self, name)
++            if not _is_int(value) or not 1 <= value <= _MAX:
++                raise TurnTakingError(f"{name}_invalid")
++        if self.max_silence_ms < self.wait_for_agent_silence_ms:
++            raise TurnTakingError("max_silence_below_wait")
++
++    @classmethod
++    def from_profile(cls, section: Mapping[str, Any]) -> TurnTakingPolicy:
++        """Read the profile's ``turn_taking`` object: exactly its three keys, no default."""
++        keys = {"caller_speaks_first", "wait_for_agent_silence_ms", "max_silence_ms"}
++        if not isinstance(section, Mapping):
++            raise TurnTakingError("turn_taking_not_an_object")
++        for key in sorted(keys - set(section)):
++            raise TurnTakingError(f"{key}_missing")
++        if set(section) - keys:
++            raise TurnTakingError("turn_taking_unknown_key")
++        return cls(
++            caller_speaks_first=section["caller_speaks_first"],
++            wait_for_agent_silence_ms=section["wait_for_agent_silence_ms"],
++            max_silence_ms=section["max_silence_ms"],
++        )
++
++
++def agent_frame_is_active(pcm: bytes) -> bool:
++    """True iff the 16-bit little-endian frame holds any non-zero sample (no threshold)."""
++    if type(pcm) is not bytes or not pcm or len(pcm) % 2:
++        raise TurnTakingError("frame_invalid")
++    return any(pcm)
++
++
++@dataclass(frozen=True)
++class TurnDecision:
++    """``wait``; ``speak`` at ``at_ns`` for a cause of ``SPEAK_CAUSES``; or ``end``."""
++
++    kind: str
++    at_ns: int | None
++    cause: str | None
++
++
++_WAIT: Final = TurnDecision("wait", None, None)
++
++
++class TurnTaker:
++    """Decides, from the agent frames of one wait, when the caller speaks or the call ends.
++
++    A call that raises changes nothing: no instant is taken, no decision is latched.
++    """
++
++    def __init__(self, policy: TurnTakingPolicy) -> None:
++        if not isinstance(policy, TurnTakingPolicy):
++            raise TurnTakingError("policy_invalid")
++        self._policy = policy
++        self._waits = 0
++        self._open = False
++        self._w = 0
++        self._barge: int | None = None
++        self._onset: int | None = None
++        self._last_active: int | None = None
++        self._decision: TurnDecision | None = None
++        self._pending = False
++        self._clock = 0
++
++    def _check_time(self, now_ns: int) -> None:
++        if not _is_int(now_ns) or now_ns < 0 or now_ns < self._clock:
++            raise TurnTakingError("time_invalid")
++
++    def begin_wait(self, now_ns: int, *, barge_in_after_ms: int | None = None) -> None:
++        self._check_time(now_ns)
++        if self._open:
++            raise TurnTakingError("wait_open")
++        if barge_in_after_ms is not None and (
++            not _is_int(barge_in_after_ms) or not 0 <= barge_in_after_ms <= _MAX
++        ):
++            raise TurnTakingError("barge_in_after_ms_invalid")
++        first = self._waits == 0 and self._policy.caller_speaks_first
++        if first and barge_in_after_ms is not None:
++            raise TurnTakingError("barge_in_on_first_line")
++        self._clock = now_ns
++        self._waits += 1
++        self._open = True
++        self._w = now_ns
++        self._barge = barge_in_after_ms
++        self._onset = None
++        self._last_active = None
++        self._pending = False
++        self._decision = TurnDecision("speak", now_ns, "caller_first") if first else None
++
++    def _speak_instant(self) -> tuple[int, str] | None:
++        if self._barge is not None:
++            if self._onset is None:
++                return None
++            return self._onset + self._barge * _NS_PER_MS, "barge_in"
++        if self._last_active is None:
++            return None
++        due = self._last_active + self._policy.wait_for_agent_silence_ms * _NS_PER_MS
++        return due, "agent_silent"
++
++    def _decide(self, now_ns: int) -> TurnDecision | None:
++        """The decision that holds at ``now_ns`` (``None``: still waiting); stores nothing."""
++        if not self._open:
++            return None
++        if self._decision is not None:
++            return self._decision
++        end = self._w + self._policy.max_silence_ms * _NS_PER_MS
++        speak = self._speak_instant()
++        if speak is not None and speak[0] <= now_ns and speak[0] <= end:
++            return TurnDecision("speak", speak[0], speak[1])
++        if end <= now_ns:
++            return TurnDecision("end", end, "max_silence")
++        return None
++
++    def agent_frame(self, now_ns: int, pcm: bytes) -> bool:
++        self._check_time(now_ns)
++        active = agent_frame_is_active(pcm)
++        self._clock = now_ns
++        before = self._decide(now_ns)
++        if before is not None:
++            self._decision = before
++        elif self._open and active:
++            if self._onset is None:
++                self._onset = now_ns
++            self._last_active = now_ns
++            self._decision = self._decide(now_ns)
++        return active
++
++    def poll(self, now_ns: int) -> TurnDecision:
++        self._check_time(now_ns)
++        if not self._open:
++            raise TurnTakingError("no_wait")
++        self._clock = now_ns
++        decision = self._decide(now_ns)
++        if decision is not None:
++            self._decision = decision
++            return decision
++        return _WAIT
++
++    def brain_started(self, now_ns: int) -> None:
++        self._check_time(now_ns)
++        if not self._open:
++            raise TurnTakingError("no_wait")
++        if self._pending:
++            raise TurnTakingError("brain_already_pending")
++        self._clock = now_ns
++        self._pending = True
++
++    def brain_finished(self, now_ns: int) -> None:
++        self._check_time(now_ns)
++        if not self._pending:
++            raise TurnTakingError("brain_not_pending")
++        self._clock = now_ns
++        self._pending = False
++
++    def may_send(self, now_ns: int) -> bool:
++        """Whether a line may start now; a query that changes nothing."""
++        self._check_time(now_ns)
++        if not self._open:
++            raise TurnTakingError("no_wait")
++        decision = self._decide(now_ns)
++        return decision is not None and decision.kind == "speak" and not self._pending
++
++    def line_started(self, now_ns: int) -> None:
++        if not self.may_send(now_ns):
++            if self._pending:
++                raise TurnTakingError("brain_pending")
++            raise TurnTakingError("no_speak_decision")
++        self._clock = now_ns
++        self._decision = self._decide(now_ns)
++        self._open = False
+--- /dev/null
++++ b/packages/evalcore/src/tracer_evalcore/g711.py
+@@ -0,0 +1,49 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""G.711 mu-law and A-law decoding to 16-bit linear PCM (ADR 0027 rule 4).
++
++Pure tables: 256 entries each, the conventional 16-bit scaling of the ITU-T G.711 decision values
++(mu-law 0xFF and 0x7F decode to 0; A-law has no zero: 0xD5 is +8 and 0x55 is -8). Nothing is
++resampled; the output has two bytes (little-endian) per input byte.
++"""
++
++from __future__ import annotations
++
++import struct
++from typing import Final
++
++__all__ = ["ALAW_DECODE_TABLE", "MULAW_DECODE_TABLE", "decode_alaw", "decode_mulaw"]
++
++
++def _mulaw(code: int) -> int:
++    u = ~code & 0xFF
++    t = (((u & 0x0F) << 3) + 0x84) << ((u & 0x70) >> 4)
++    return 0x84 - t if u & 0x80 else t - 0x84
++
++
++def _alaw(code: int) -> int:
++    a = code ^ 0x55
++    t = (a & 0x0F) << 4
++    seg = (a & 0x70) >> 4
++    t = t + 8 if seg == 0 else (t + 0x108) << (seg - 1)
++    return t if a & 0x80 else -t
++
++
++MULAW_DECODE_TABLE: Final = tuple(_mulaw(c) for c in range(256))
++ALAW_DECODE_TABLE: Final = tuple(_alaw(c) for c in range(256))
++_MU_BYTES: Final = tuple(struct.pack("<h", v) for v in MULAW_DECODE_TABLE)
++_A_BYTES: Final = tuple(struct.pack("<h", v) for v in ALAW_DECODE_TABLE)
++
++
++def decode_mulaw(data: bytes) -> bytes:
++    """16-bit little-endian PCM of mu-law bytes."""
++    if not isinstance(data, bytes | bytearray):
++        raise TypeError("data: not bytes")
++    return b"".join([_MU_BYTES[b] for b in data])
++
++
++def decode_alaw(data: bytes) -> bytes:
++    """16-bit little-endian PCM of A-law bytes."""
++    if not isinstance(data, bytes | bytearray):
++        raise TypeError("data: not bytes")
++    return b"".join([_A_BYTES[b] for b in data])
+--- /dev/null
++++ b/packages/evalcore/src/tracer_evalcore/recorder.py
+@@ -0,0 +1,179 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""The stereo recorder (ADR 0027 rules 3 and 4; contract docs/phase4/api-surface-batch-a.md).
++
++One timeline in integer nanoseconds of the caller's injected monotonic clock. A caller frame is
++placed at its exact send instant, an agent frame at the later of its arrival and the end of the
++previous agent frame (the playback model). G.711 is decoded by pure tables and nothing is ever
++resampled: a frame at another rate, channel count or codec is refused. Pure: no clock, no I/O.
++"""
++
++from __future__ import annotations
++
++import struct
++from collections.abc import Sequence
++from dataclasses import dataclass
++from typing import Final
++
++from tracer_evalcore._engine_errors import FactError
++from tracer_evalcore.g711 import decode_alaw, decode_mulaw
++
++__all__ = [
++    "MAX_RECORDING_SECONDS",
++    "RECORDER_CODECS",
++    "LogFrame",
++    "RecorderFormat",
++    "RecorderFrameError",
++    "Recording",
++    "build_recording",
++    "decode_to_pcm16",
++]
++
++RECORDER_CODECS: Final = ("pcm_s16le", "mulaw", "alaw")
++MAX_RECORDING_SECONDS: Final = 14_400
++_NS: Final = 1_000_000_000
++
++
++class RecorderFrameError(FactError, ValueError):
++    """A frame was refused. ``index`` is its position in its log, ``kind`` the fact, ``reason``
++    the log (``caller`` or ``agent``). The message holds those facts and never the payload."""
++
++
++@dataclass(frozen=True)
++class RecorderFormat:
++    """What every frame of the call must be: the dialect's rate and wire codec, mono."""
++
++    sample_rate_hz: int
++    codec: str
++
++    def __post_init__(self) -> None:
++        if type(self.sample_rate_hz) is not int or not 8000 <= self.sample_rate_hz <= 48000:
++            raise ValueError("sample_rate_hz: not 8000 to 48000")
++        if self.codec not in RECORDER_CODECS:
++            raise ValueError("codec: not a recorder codec")
++
++
++@dataclass(frozen=True)
++class LogFrame:
++    """One frame of a log: its instant (absolute integer ns) and what it carried."""
++
++    t_ns: int
++    payload: bytes
++    sample_rate_hz: int
++    channels: int
++    codec: str
++
++    def __post_init__(self) -> None:
++        if type(self.t_ns) is not int or self.t_ns < 0:
++            raise ValueError("t_ns: not a non-negative integer")
++        if type(self.payload) is not bytes:
++            raise ValueError("payload: not bytes")
++        if type(self.sample_rate_hz) is not int or self.sample_rate_hz <= 0:
++            raise ValueError("sample_rate_hz: not a positive integer")
++        if type(self.channels) is not int or self.channels <= 0:
++            raise ValueError("channels: not a positive integer")
++        if self.codec not in RECORDER_CODECS:
++            raise ValueError("codec: not a recorder codec")
++
++
++@dataclass(frozen=True)
++class Recording:
++    """The stereo WAV and where each frame went (sample indexes on the timeline)."""
++
++    wav: bytes
++    sample_rate_hz: int
++    n_samples: int
++    caller_start_samples: tuple[int, ...]
++    agent_start_samples: tuple[int, ...]
++    caller_overlap_samples: int
++
++
++def decode_to_pcm16(codec: str, payload: bytes) -> bytes:
++    """16-bit little-endian PCM of a payload of ``codec``."""
++    if codec == "pcm_s16le":
++        if len(payload) % 2:
++            raise ValueError("payload: odd length for 16-bit samples")
++        return payload
++    if codec == "mulaw":
++        return decode_mulaw(payload)
++    if codec == "alaw":
++        return decode_alaw(payload)
++    raise ValueError("codec: not a recorder codec")
++
++
++def _check(
++    fmt: RecorderFormat, frames: Sequence[LogFrame], origin_ns: int, who: str
++) -> list[tuple[int, bytes]]:
++    """Validate one log; return (start sample, pcm) per frame in log order."""
++    out: list[tuple[int, bytes]] = []
++    previous = origin_ns
++    limit = MAX_RECORDING_SECONDS * fmt.sample_rate_hz
++    for index, frame in enumerate(frames):
++        for ok, kind in (
++            (frame.t_ns >= origin_ns, "before_origin"),
++            (frame.t_ns >= previous, "order"),
++            (frame.sample_rate_hz == fmt.sample_rate_hz, "sample_rate"),
++            (frame.channels == 1, "channels"),
++            (frame.codec == fmt.codec, "codec"),
++            (len(frame.payload) > 0 and (frame.codec != "pcm_s16le" or len(frame.payload) % 2 == 0),
++             "payload_size"),
++        ):  # fmt: skip
++            if not ok:
++                raise RecorderFrameError(index=index, kind=kind, reason=who)
++        previous = frame.t_ns
++        pcm = decode_to_pcm16(frame.codec, frame.payload)
++        start = (frame.t_ns - origin_ns) * fmt.sample_rate_hz // _NS
++        if start + len(pcm) // 2 > limit:
++            raise RecorderFrameError(index=index, kind="too_long", reason=who)
++        out.append((start, pcm))
++    return out
++
++
++def build_recording(
++    fmt: RecorderFormat,
++    origin_ns: int,
++    caller: Sequence[LogFrame],
++    agent: Sequence[LogFrame],
++) -> Recording:
++    """The stereo recording of two frame logs; the same logs give the same bytes."""
++    if type(origin_ns) is not int or origin_ns < 0:
++        raise ValueError("origin_ns: not a non-negative integer")
++    caller_placed = _check(fmt, caller, origin_ns, "caller")
++    agent_arrivals = _check(fmt, agent, origin_ns, "agent")
++    agent_placed: list[tuple[int, bytes]] = []
++    free = 0
++    for arrival, pcm in agent_arrivals:
++        start = max(arrival, free)
++        free = start + len(pcm) // 2
++        agent_placed.append((start, pcm))
++    caller_end = max((s + len(p) // 2 for s, p in caller_placed), default=0)
++    n = max(caller_end, free)
++    left = bytearray(2 * n)
++    right = bytearray(2 * n)
++    overlap = 0
++    covered = 0
++    for start, pcm in caller_placed:
++        count = len(pcm) // 2
++        overlap += min(count, max(0, covered - start))
++        covered = max(covered, start + count)
++        left[2 * start : 2 * (start + count)] = pcm
++    for start, pcm in agent_placed:
++        right[2 * start : 2 * start + len(pcm)] = pcm
++    body = bytearray(4 * n)
++    body[0::4] = left[0::2]
++    body[1::4] = left[1::2]
++    body[2::4] = right[0::2]
++    body[3::4] = right[1::2]
++    rate = fmt.sample_rate_hz
++    header = struct.pack(
++        "<4sI4s4sIHHIIHH4sI",
++        b"RIFF", 36 + 4 * n, b"WAVE", b"fmt ", 16, 1, 2, rate, rate * 4, 4, 16, b"data", 4 * n,
++    )  # fmt: skip
++    return Recording(
++        wav=header + bytes(body),
++        sample_rate_hz=rate,
++        n_samples=n,
++        caller_start_samples=tuple(s for s, _ in caller_placed),
++        agent_start_samples=tuple(s for s, _ in agent_placed),
++        caller_overlap_samples=overlap,
++    )
+--- /dev/null
++++ b/packages/evalcore/src/tracer_evalcore/simtiming.py
+@@ -0,0 +1,583 @@
++# SPDX-License-Identifier: Apache-2.0
++# Copyright 2026 The Tracer contributors
++"""Timing extraction: the ``tracer.timing/1`` document (ADR 0027 rules 1, 10 and 11).
++
++Pure: every instant is an integer of nanoseconds of the caller's injected monotonic clock. Every
++value is an integer number of milliseconds (floored) between two such instants, or a count; a
++value with a missing edge is ``None`` and never 0. The structural check is written by hand over
++the schema this module ships (``jsonschema`` is not a runtime dependency).
++"""
++
++from __future__ import annotations
++
++import json
++from collections.abc import Mapping, Sequence
++from dataclasses import dataclass
++from typing import Any, Final
++
++from tracer_evalcore.errors import InputRefusedError
++from tracer_evalcore.recorder import LogFrame, RecorderFormat, _check, decode_to_pcm16
++from tracer_evalcore.simtypes import DIALECTS, FRAME_MS
++from tracer_evalcore.turntaking import agent_frame_is_active
++
++__all__ = [
++    "TIMING_EDGE_MISSING",
++    "TIMING_FORMAT",
++    "TIMING_JSON_SCHEMA",
++    "TIMING_METADATA_KEY",
++    "TIMING_METRICS",
++    "CallerTurn",
++    "SelfTimes",
++    "TimingDocumentError",
++    "TimingValue",
++    "extract_timing",
++    "nearest_rank_median",
++    "timing_value",
++    "validate_timing_document",
++]
++
++TIMING_FORMAT: Final = "tracer.timing/1"
++TIMING_METADATA_KEY: Final = "tracer.timing"
++TIMING_EDGE_MISSING: Final = "timing_edge_missing"
++_MAX: Final = 9007199254740991
++_MS: Final = 1_000_000
++_SCHEMA_TEXT: Final = r"""{
++ "$schema": "https://json-schema.org/draft/2020-12/schema",
++ "title": "tracer.timing/1",
++ "type": "object",
++ "additionalProperties": false,
++ "required": [
++  "format",
++  "dialect",
++  "clock",
++  "quantum_ms",
++  "caller_frame_ms",
++  "setup_ms",
++  "first_agent_audio_ms",
++  "overlap_ms",
++  "answered_caller_turns",
++  "gap_median_ms",
++  "gap_n",
++  "barge_in_stop_median_ms",
++  "barge_in_n",
++  "turns"
++ ],
++ "properties": {
++  "format": {
++   "type": "string",
++   "enum": [
++    "tracer.timing/1"
++   ]
++  },
++  "dialect": {
++   "type": "string",
++   "enum": [
++    "pipecat-protobuf/1",
++    "twilio-media-stream/1",
++    "smallwebrtc/1"
++   ]
++  },
++  "clock": {
++   "type": "string",
++   "enum": [
++    "simulator_monotonic"
++   ]
++  },
++  "quantum_ms": {
++   "type": "integer",
++   "minimum": 1,
++   "maximum": 9007199254740991
++  },
++  "caller_frame_ms": {
++   "type": "integer",
++   "enum": [
++    20
++   ]
++  },
++  "setup_ms": {
++   "type": [
++    "integer",
++    "null"
++   ],
++   "minimum": 0,
++   "maximum": 9007199254740991
++  },
++  "first_agent_audio_ms": {
++   "type": [
++    "integer",
++    "null"
++   ],
++   "minimum": 0,
++   "maximum": 9007199254740991
++  },
++  "overlap_ms": {
++   "type": [
++    "integer",
++    "null"
++   ],
++   "minimum": 0,
++   "maximum": 9007199254740991
++  },
++  "answered_caller_turns": {
++   "type": "integer",
++   "minimum": 0,
++   "maximum": 9007199254740991
++  },
++  "gap_median_ms": {
++   "type": [
++    "integer",
++    "null"
++   ],
++   "minimum": 0,
++   "maximum": 9007199254740991
++  },
++  "gap_n": {
++   "type": "integer",
++   "minimum": 0,
++   "maximum": 9007199254740991
++  },
++  "barge_in_stop_median_ms": {
++   "type": [
++    "integer",
++    "null"
++   ],
++   "minimum": 0,
++   "maximum": 9007199254740991
++  },
++  "barge_in_n": {
++   "type": "integer",
++   "minimum": 0,
++   "maximum": 9007199254740991
++  },
++  "turns": {
++   "type": "array",
++   "items": {
++    "type": "object",
++    "additionalProperties": false,
++    "required": [
++     "turn_seq",
++     "gap_ms",
++     "overlap_ms",
++     "barge_in_after_ms",
++     "barge_in_stop_ms",
++     "self"
++    ],
++    "properties": {
++     "turn_seq": {
++      "type": "integer",
++      "minimum": 0,
++      "maximum": 9007199254740991
++     },
++     "gap_ms": {
++      "type": [
++       "integer",
++       "null"
++      ],
++      "minimum": 0,
++      "maximum": 9007199254740991
++     },
++     "overlap_ms": {
++      "type": "integer",
++      "minimum": 0,
++      "maximum": 9007199254740991
++     },
++     "barge_in_after_ms": {
++      "type": [
++       "integer",
++       "null"
++      ],
++      "minimum": 0,
++      "maximum": 9007199254740991
++     },
++     "barge_in_stop_ms": {
++      "type": [
++       "integer",
++       "null"
++      ],
++      "minimum": 0,
++      "maximum": 9007199254740991
++     },
++     "self": {
++      "type": "object",
++      "additionalProperties": false,
++      "required": [
++       "reply_ms",
++       "wait_ms",
++       "stt_ms",
++       "brain_ms",
++       "tts_ms"
++      ],
++      "properties": {
++       "reply_ms": {
++        "type": [
++         "integer",
++         "null"
++        ],
++        "minimum": 0,
++        "maximum": 9007199254740991
++       },
++       "wait_ms": {
++        "type": [
++         "integer",
++         "null"
++        ],
++        "minimum": 0,
++        "maximum": 9007199254740991
++       },
++       "stt_ms": {
++        "type": [
++         "integer",
++         "null"
++        ],
++        "minimum": 0,
++        "maximum": 9007199254740991
++       },
++       "brain_ms": {
++        "type": [
++         "integer",
++         "null"
++        ],
++        "minimum": 0,
++        "maximum": 9007199254740991
++       },
++       "tts_ms": {
++        "type": [
++         "integer",
++         "null"
++        ],
++        "minimum": 0,
++        "maximum": 9007199254740991
++       }
++      }
++     }
++    }
++   }
++  }
++ }
++}"""
++TIMING_JSON_SCHEMA: Final[Mapping[str, Any]] = json.loads(_SCHEMA_TEXT)
++#: metric key -> (document field, name of the missing edge, count field or None)
++TIMING_METRICS: Final = {
++    "sim_first_agent_audio_ms": ("first_agent_audio_ms", "first active agent frame", None),
++    "sim_agent_response_gap_median_ms": (
++        "gap_median_ms",
++        "active agent frame after a caller turn",
++        "gap_n",
++    ),
++    "sim_overlap_ms": ("overlap_ms", "established call", None),
++    "sim_barge_in_stop_ms": (
++        "barge_in_stop_median_ms",
++        "end of the interrupted agent activity",
++        "barge_in_n",
++    ),
++    "sim_answered_caller_turns": ("answered_caller_turns", "", None),
++}
++_SELF_KEYS: Final = ("reply_ms", "wait_ms", "stt_ms", "brain_ms", "tts_ms")
++
++
++class TimingDocumentError(InputRefusedError):
++    """A timing input or document was refused. ``code`` is the stable reason; the message is it."""
++
++    def __init__(self, code: str) -> None:
++        self.code = code
++        super().__init__(code)
++
++
++def _int(value: object) -> bool:
++    return type(value) is int
++
++
++def _opt_ms(value: object) -> bool:
++    return value is None or (_int(value) and 0 <= value <= _MAX)  # type: ignore[operator]
++
++
++@dataclass(frozen=True)
++class SelfTimes:
++    """The simulator's own times before one caller turn, each in ms or ``None`` (not run)."""
++
++    reply_ms: int | None
++    wait_ms: int | None
++    stt_ms: int | None
++    brain_ms: int | None
++    tts_ms: int | None
++
++    def __post_init__(self) -> None:
++        for key in _SELF_KEYS:
++            if not _opt_ms(getattr(self, key)):
++                raise TimingDocumentError(f"self_{key}_invalid")
++
++
++@dataclass(frozen=True)
++class CallerTurn:
++    """One caller line as sent: send instants of its first and last frame."""
++
++    turn_seq: int
++    first_frame_ns: int
++    last_frame_ns: int
++    barge_in_after_ms: int | None
++    self_times: SelfTimes
++
++    def __post_init__(self) -> None:
++        if not _int(self.turn_seq) or self.turn_seq < 0:
++            raise TimingDocumentError("turn_seq_invalid")
++        for value in (self.first_frame_ns, self.last_frame_ns):
++            if not _int(value) or value < 0:
++                raise TimingDocumentError("turn_instant_invalid")
++        if self.last_frame_ns < self.first_frame_ns:
++            raise TimingDocumentError("turn_instants_reversed")
++        if not _opt_ms(self.barge_in_after_ms):
++            raise TimingDocumentError("barge_in_after_ms_invalid")
++        if not isinstance(self.self_times, SelfTimes):
++            raise TimingDocumentError("self_times_invalid")
++
++
++def nearest_rank_median(values: Sequence[int]) -> int | None:
++    """The value at rank ``ceil(n / 2)`` of the sorted values; ``None`` for no value."""
++    if not values:
++        return None
++    ordered = sorted(values)
++    return ordered[(len(ordered) + 1) // 2 - 1]
++
++
++def _duration_ns(frame: LogFrame) -> int:
++    samples = len(decode_to_pcm16(frame.codec, frame.payload)) // 2
++    return samples * 1_000_000_000 // frame.sample_rate_hz
++
++
++def extract_timing(
++    *,
++    dialect: str,
++    fmt: RecorderFormat,
++    wait_for_agent_silence_ms: int,
++    connect_started_ns: int | None,
++    connect_ended_ns: int | None,
++    established: bool,
++    observed_until_ns: int,
++    caller_turns: Sequence[CallerTurn],
++    agent_frames: Sequence[LogFrame],
++) -> dict[str, Any]:
++    if dialect not in DIALECTS:
++        raise TimingDocumentError("dialect_invalid")
++    if not _int(wait_for_agent_silence_ms) or not 1 <= wait_for_agent_silence_ms <= _MAX:
++        raise TimingDocumentError("wait_for_agent_silence_ms_invalid")
++    for value in (connect_started_ns, connect_ended_ns):
++        if value is not None and (not _int(value) or value < 0):
++            raise TimingDocumentError("connect_instant_invalid")
++    if type(established) is not bool:
++        raise TimingDocumentError("established_invalid")
++    if connect_ended_ns is not None and connect_started_ns is None:
++        raise TimingDocumentError("connect_started_missing")
++    if (
++        connect_started_ns is not None
++        and connect_ended_ns is not None
++        and connect_ended_ns < connect_started_ns
++    ):
++        raise TimingDocumentError("connect_instants_reversed")
++    if established and connect_ended_ns is None:
++        raise TimingDocumentError("established_without_instant")
++    if not established and (caller_turns or agent_frames):
++        raise TimingDocumentError("frames_without_call")
++    if not _int(observed_until_ns) or observed_until_ns < 0:
++        raise TimingDocumentError("observed_until_invalid")
++    setup_ms = (
++        (connect_ended_ns - connect_started_ns) // _MS
++        if connect_started_ns is not None and connect_ended_ns is not None
++        else None
++    )
++    frame_ns = FRAME_MS * _MS
++    if not established:
++        return _finish(dialect, FRAME_MS, setup_ms, None, None, [])
++    origin = connect_ended_ns if connect_ended_ns is not None else 0
++    _check(fmt, agent_frames, origin, "agent")
++    previous_end = origin
++    for turn in caller_turns:
++        if turn.first_frame_ns < origin or turn.first_frame_ns < previous_end:
++            raise TimingDocumentError("turns_out_of_order")
++        previous_end = turn.last_frame_ns + frame_ns
++    seqs = [t.turn_seq for t in caller_turns]
++    if seqs != sorted(set(seqs)):
++        raise TimingDocumentError("turn_seq_not_increasing")
++    longest = max((_duration_ns(f) for f in agent_frames), default=0)
++    quantum = max(FRAME_MS, -(-longest // _MS))
++    active = [
++        (f.t_ns, f.t_ns + _duration_ns(f))
++        for f in agent_frames
++        if agent_frame_is_active(decode_to_pcm16(f.codec, f.payload))
++    ]
++    last_seen = max(
++        [observed_until_ns, *(t.last_frame_ns + frame_ns for t in caller_turns),
++         *(f.t_ns for f in agent_frames)]
++    )  # fmt: skip
++    if observed_until_ns < last_seen:
++        raise TimingDocumentError("observed_until_before_events")
++    first_audio = (active[0][0] - origin) // _MS if active else None
++    silence_ns = wait_for_agent_silence_ms * _MS
++    turns: list[dict[str, Any]] = []
++    for turn in caller_turns:
++        edge = turn.last_frame_ns + frame_ns
++        gap = next(((a - edge) // _MS for a, _ in active if a >= edge), None)
++        overlap_ns = sum(e - a for a, e in active if turn.first_frame_ns <= a < edge)
++        stop = None
++        if turn.barge_in_after_ms is not None:
++            stop = _barge_stop(active, turn.first_frame_ns, observed_until_ns, silence_ns)
++        turns.append(
++            {
++                "turn_seq": turn.turn_seq,
++                "gap_ms": gap,
++                "overlap_ms": overlap_ns // _MS,
++                "barge_in_after_ms": turn.barge_in_after_ms,
++                "barge_in_stop_ms": stop,
++                "self": {k: getattr(turn.self_times, k) for k in _SELF_KEYS},
++            }
++        )
++    return _finish(
++        dialect, quantum, setup_ms, first_audio, sum(t["overlap_ms"] for t in turns), turns
++    )
++
++
++def _barge_stop(
++    active: list[tuple[int, int]], t0: int, observed_until: int, silence_ns: int
++) -> int | None:
++    before = [i for i, (a, _) in enumerate(active) if a <= t0]
++    if not before:
++        return None
++    i = before[-1]
++    if t0 - active[i][0] >= silence_ns:
++        return None
++    while i + 1 < len(active) and active[i + 1][0] - active[i][0] < silence_ns:
++        i += 1
++    if observed_until - active[i][0] < silence_ns:
++        return None
++    stop = active[i][1] - t0
++    return stop // _MS if stop > 0 else None
++
++
++def _finish(
++    dialect: str,
++    quantum: int,
++    setup_ms: int | None,
++    first_audio: int | None,
++    overlap: int | None,
++    turns: list[dict[str, Any]],
++) -> dict[str, Any]:
++    gaps = [t["gap_ms"] for t in turns if t["gap_ms"] is not None]
++    stops = [t["barge_in_stop_ms"] for t in turns if t["barge_in_stop_ms"] is not None]
++    document = {
++        "format": TIMING_FORMAT,
++        "dialect": dialect,
++        "clock": "simulator_monotonic",
++        "quantum_ms": quantum,
++        "caller_frame_ms": FRAME_MS,
++        "setup_ms": setup_ms,
++        "first_agent_audio_ms": first_audio,
++        "overlap_ms": overlap,
++        "answered_caller_turns": len(gaps),
++        "gap_median_ms": nearest_rank_median(gaps),
++        "gap_n": len(gaps),
++        "barge_in_stop_median_ms": nearest_rank_median(stops),
++        "barge_in_n": len(stops),
++        "turns": turns,
++    }
++    validate_timing_document(document)
++    return document
++
++
++@dataclass(frozen=True)
++class TimingValue:
++    """A metric's value from a document: the integer, or the error code with its message."""
++
++    value: int | None
++    error_code: str | None
++    message: str | None
++
++
++def timing_value(document: Mapping[str, Any], metric: str) -> TimingValue:
++    """The value of ``metric`` or ``timing_edge_missing`` with a message of counts; never 0."""
++    if metric not in TIMING_METRICS:
++        raise TimingDocumentError("metric_unknown")
++    field, edge, count = TIMING_METRICS[metric]
++    value = document[field]
++    if value is not None:
++        return TimingValue(value, None, None)
++    detail = f"caller turns {len(document['turns'])}"
++    if count is not None:
++        detail += f", {count} {document[count]}"
++    message = f"{TIMING_EDGE_MISSING}: {field} has no value; missing edge: {edge}; {detail}"
++    return TimingValue(None, TIMING_EDGE_MISSING, message)
++
++
++# ------------------------------------------------------------------------ the validator
++
++_PROPS: Final = TIMING_JSON_SCHEMA["properties"]
++_TOP: Final = frozenset(TIMING_JSON_SCHEMA["required"])
++_TURN: Final = frozenset(_PROPS["turns"]["items"]["required"])
++_SELF: Final = frozenset(_PROPS["turns"]["items"]["properties"]["self"]["required"])
++
++
++def _bad(code: str) -> TimingDocumentError:
++    return TimingDocumentError(code)
++
++
++def _ms_or_none(value: object, code: str) -> None:
++    if not _opt_ms(value):
++        raise _bad(code)
++
++
++def validate_timing_document(document: Mapping[str, Any]) -> None:
++    if not isinstance(document, Mapping) or set(document) != _TOP:
++        raise _bad("document_keys")
++    if document["format"] != TIMING_FORMAT:
++        raise _bad("format_invalid")
++    if document["dialect"] not in DIALECTS:
++        raise _bad("dialect_invalid")
++    if document["clock"] != "simulator_monotonic":
++        raise _bad("clock_invalid")
++    if document["caller_frame_ms"] != FRAME_MS or type(document["caller_frame_ms"]) is not int:
++        raise _bad("caller_frame_ms_invalid")
++    quantum = document["quantum_ms"]
++    if not _int(quantum) or not FRAME_MS <= quantum <= _MAX:
++        raise _bad("quantum_ms_invalid")
++    for key in ("setup_ms", "first_agent_audio_ms", "overlap_ms", "gap_median_ms",
++                "barge_in_stop_median_ms"):  # fmt: skip
++        _ms_or_none(document[key], f"{key}_invalid")
++    for key in ("answered_caller_turns", "gap_n", "barge_in_n"):
++        if not _int(document[key]) or not 0 <= document[key] <= _MAX:
++            raise _bad(f"{key}_invalid")
++    turns = document["turns"]
++    if not isinstance(turns, list):
++        raise _bad("turns_invalid")
++    seqs: list[int] = []
++    for turn in turns:
++        if not isinstance(turn, Mapping) or set(turn) != _TURN:
++            raise _bad("turn_keys")
++        if not _int(turn["turn_seq"]) or not 0 <= turn["turn_seq"] <= _MAX:
++            raise _bad("turn_seq_invalid")
++        seqs.append(turn["turn_seq"])
++        for key in ("gap_ms", "barge_in_after_ms", "barge_in_stop_ms"):
++            _ms_or_none(turn[key], f"turn_{key}_invalid")
++        if not _opt_ms(turn["overlap_ms"]) or turn["overlap_ms"] is None:
++            raise _bad("turn_overlap_ms_invalid")
++        own = turn["self"]
++        if not isinstance(own, Mapping) or set(own) != _SELF:
++            raise _bad("self_keys")
++        for key in _SELF_KEYS:
++            _ms_or_none(own[key], f"self_{key}_invalid")
++        if turn["barge_in_after_ms"] is None and turn["barge_in_stop_ms"] is not None:
++            raise _bad("barge_in_stop_without_barge_in")
++    if seqs != sorted(set(seqs)):
++        raise _bad("turns_not_sorted_unique")
++    gaps = [t["gap_ms"] for t in turns if t["gap_ms"] is not None]
++    stops = [t["barge_in_stop_ms"] for t in turns if t["barge_in_stop_ms"] is not None]
++    if document["answered_caller_turns"] != len(gaps) or document["gap_n"] != len(gaps):
++        raise _bad("answered_count_mismatch")
++    if document["gap_median_ms"] != nearest_rank_median(gaps):
++        raise _bad("gap_median_mismatch")
++    if document["barge_in_n"] != len(stops):
++        raise _bad("barge_in_count_mismatch")
++    if document["barge_in_stop_median_ms"] != nearest_rank_median(stops):
++        raise _bad("barge_in_median_mismatch")
++    if document["overlap_ms"] is None:
++        if turns:
++            raise _bad("overlap_missing_with_turns")
++    elif document["overlap_ms"] != sum(t["overlap_ms"] for t in turns):
++        raise _bad("overlap_sum_mismatch")

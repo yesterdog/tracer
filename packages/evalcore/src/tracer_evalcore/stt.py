@@ -136,6 +136,11 @@ class SttContext:
     created_at: datetime
     privacy: PrivacyMarker
     configured_language: str
+    role: str = "unknown"
+
+    def __post_init__(self) -> None:
+        if self.role not in ("caller", "agent", "unknown"):
+            raise ValueError("role: not an accepted value")
 
 
 @dataclass(frozen=True)

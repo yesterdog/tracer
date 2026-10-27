@@ -62,7 +62,32 @@ def test_the_index_announces_the_three_amendments_with_their_labels() -> None:
     assert re.search(r"ADR 0024 amended\*\*.*rules A1 to A9 and invariants IA1 to IA4", changes)
     assert re.search(r"ADR 0023 amended\*\*.*rules A1 to A3 and invariants IA1 and IA2", changes)
     assert re.search(r"ADR 0004 Decision 11 added\*\*.*invariant I43", changes)
-    assert "Revision 50" in sup.README.read_text("utf-8").split("\n", 3)[2]
+    assert index_header_problems(sup.README.read_text("utf-8")) == []
+
+
+def index_header_problems(text: str) -> list[str]:
+    """Named spec change (revision 51): the header may move on; revision 50 must stay announced."""
+    problems: list[str] = []
+    header = next((ln for ln in text.splitlines() if ln.startswith("Revision ")), "")
+    match = re.match(r"Revision (\d+)\b", header)
+    if match is None or int(match.group(1)) < 50:
+        problems.append(f"the index header is not 'Revision N' with N >= 50: {header[:30]!r}")
+    if len(re.findall(r"^## Changes in revision 50[ \t]*$", text, re.MULTILINE)) != 1:
+        problems.append("the section 'Changes in revision 50' is not there exactly once")
+    return problems
+
+
+def test_the_index_header_check_has_teeth() -> None:
+    text = sup.README.read_text("utf-8")
+    assert index_header_problems(text) == []
+    assert index_header_problems(
+        text.replace("Revision 5", "Revision 49", 1).replace("Revision 491", "Revision 49", 1)
+    )
+    assert index_header_problems(
+        text.replace("## Changes in revision 50", "## Changes in revision 5O", 1)
+    )
+    assert index_header_problems(text.replace("Revision ", "Rev. ", 1))
+    assert index_header_problems(text.replace("Revision 5", "Revision 99", 1)) == []
 
 
 def test_the_scope_names_the_batch_zero_tests_of_this_batch() -> None:

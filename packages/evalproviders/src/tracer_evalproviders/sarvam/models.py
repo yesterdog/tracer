@@ -15,11 +15,19 @@ from tracer_evalschema.loader import loads_strict
 
 __all__ = [
     "API_BASE_URL",
+    "CHAT_PATH",
+    "CHAT_URL",
     "DEFAULT_MODEL",
     "FORM_FIELD_NAMES",
+    "LLM_MAX_REPLY_BYTES",
     "MAX_RESPONSE_BYTES",
     "STT_PATH",
     "STT_URL",
+    "TTS_LANGUAGE",
+    "TTS_MAX_AUDIO_SECONDS",
+    "TTS_MAX_TEXT_CHARS",
+    "TTS_PATH",
+    "TTS_URL",
     "ChunkResponse",
     "SarvamPhrase",
     "SarvamRequest",
@@ -27,12 +35,22 @@ __all__ = [
     "SarvamSttResponse",
     "language_code_for",
     "parse_response",
+    "tts_max_audio_bytes",
+    "tts_max_response_bytes",
 ]
 
 API_BASE_URL: Final = "https://api.sarvam.ai"
 STT_PATH: Final = "/speech-to-text"
 STT_URL: Final = API_BASE_URL + STT_PATH
 DEFAULT_MODEL: Final = "saaras:v4"
+TTS_PATH: Final = "/text-to-speech"
+TTS_URL: Final = API_BASE_URL + TTS_PATH
+CHAT_PATH: Final = "/v2/chat/completions"
+CHAT_URL: Final = API_BASE_URL + CHAT_PATH
+TTS_LANGUAGE: Final = "mr-IN"
+TTS_MAX_TEXT_CHARS: Final = 2500
+TTS_MAX_AUDIO_SECONDS: Final = 600
+LLM_MAX_REPLY_BYTES: Final = 65_536
 FORM_FIELD_NAMES: Final = ("file", "language_code", "model", "with_timestamps")
 MAX_RESPONSE_BYTES: Final = 1_048_576
 
@@ -189,3 +207,19 @@ def _phrases(stamps: Any) -> tuple[SarvamPhrase, ...]:
             raise SarvamResponseShapeError("timestamps_invalid")
         phrases.append(SarvamPhrase(word, start, end))
     return tuple(phrases)
+
+
+def tts_max_audio_bytes(sample_rate_hz: int, codec: str) -> int:
+    """The most decoded audio bytes a reply may hold: 600 s of the requested rate."""
+    if codec == "linear16":
+        width = 2
+    elif codec == "mulaw":
+        width = 1
+    else:
+        raise ValueError("codec: not an accepted value")
+    return sample_rate_hz * width * TTS_MAX_AUDIO_SECONDS
+
+
+def tts_max_response_bytes(sample_rate_hz: int, codec: str) -> int:
+    """The most JSON body bytes read: the base64 length of the audio cap plus 4,096."""
+    return 4 * -(-tts_max_audio_bytes(sample_rate_hz, codec) // 3) + 4096

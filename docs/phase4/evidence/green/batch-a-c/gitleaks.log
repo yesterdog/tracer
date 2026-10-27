@@ -1,0 +1,22 @@
+# gitleaks 8.30.1
+$ gitleaks git . --config .gitleaks.toml  (repo history)
+8:33AM INF 77 commits scanned.
+8:33AM INF scanned ~117319062 bytes (117.32 MB) in 13.9s
+8:33AM INF no leaks found
+
+$ gitleaks dir <fresh rsync copy of git ls-files + untracked non-ignored, without .env* and fixtures/private>
+files copied:     3208
+8:33AM INF scanned ~128935129 bytes (128.94 MB) in 8.93s
+8:33AM WRN leaks found: 142
+findings in files of batches A and C: 0
+findings by location (all are in paths that predate this work or belong to batch D):
+  118 docs/phase1
+  4 docs/phase3
+  1 docs/phase4
+  1 packages/evalschema/tests/_support_b16.py
+  5 packages/evalschema/tests/fixtures/real/pipecat-1.13.0/en/provenance.json
+  5 packages/evalschema/tests/fixtures/real/pipecat-1.13.0/en_tool/provenance.json
+  5 packages/evalschema/tests/fixtures/real/pipecat-1.13.0/hi/provenance.json
+  1 packages/evalschema/tests/fixtures/synthetic/langfuse-2026-10-23/provenance.json
+  1 packages/evalschema/tests/test_entity_base.py
+  1 packages/evalsim/tests/test_evalsim_webrtc.py

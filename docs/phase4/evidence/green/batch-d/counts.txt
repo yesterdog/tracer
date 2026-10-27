@@ -1,0 +1,28 @@
+Phase 4 batch D (P4-16 to P4-20), dev run, 2026-10-27. websockets 17.3 and aiortc 1.15.0 (locked); the lowest-direct leg
+uses websockets 15.0 and aiortc 1.15.0 (uv lock --offline --resolution lowest-direct in a scratch copy).
+
+packages/evalsim/tests alone (shared .venv, py3.11 default): 356 passed (349 new + 7 scaffold); 76 carry the loopback marker.
+Loopback flakiness: 10 runs of `pytest packages/evalsim/tests -m loopback`: 76 passed every time (flaky-check.txt).
+Lowest-direct phase 4 leg (py3.11, websockets 15.0): 355 passed, 1 deselected (the locked-closure test, as CI deselects it).
+Process: logs are condensed (failure bodies and warning bodies removed; paths scrubbed); the counts line is the real pytest summary.
+
+Whole workspace (uv run --locked --all-groups pytest):
+  py3.11  3 failed, 13573 passed, 1 skipped
+  py3.12  1 failed, 13576 passed, 1 skipped
+  py3.13  1 failed, 13576 passed, 1 skipped
+  py3.14  13577 passed, 1 skipped
+  py3.15  1 failed, 13576 passed, 1 skipped
+  oldest pydantic 2.11.0 (py3.12, CI deselect): 1 failed, 13575 passed, 1 skipped
+The failures are all outside the batch D files, in files other agents were writing during the runs:
+  - the language-token scan (test_tdrift) reports the batch B oracle logs under docs/phase4/evidence/red/batch-b/ (py3.11 run: also
+    a batch C evidence script without an SPDX header, and the ADR index revision number 50 vs 51 while the architect edited it);
+  - on py3.14 the same scan was green because the batch B logs were being rewritten at that moment.
+  The skipped test is the opt-in gate (TRACER_PHASE4_GATE=1).
+== follow-up 2026-10-27 (dev): SECRET built from parts in test_evalsim_webrtc.py; 20 staged evalsim copies removed
+356 passed in 6.72s
+76 passed, 280 deselected in 4.38s
+All checks passed!
+583 files already formatted
+Success: no issues found in 421 source files
+check_headers rc=0
+gitleaks 8.30.1 dir (scratch copy): no leaks found; gitleaks git (repo): no leaks found

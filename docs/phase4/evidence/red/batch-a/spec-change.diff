@@ -1,0 +1,65 @@
+--- a/packages/evalcore/tests/evalcore_phase4_adr_support.py
++++ b/packages/evalcore/tests/evalcore_phase4_adr_support.py
+@@ -50,20 +50,6 @@
+ # ADR 0026 rules and invariants
+ _P0026: frozenset[str] = frozenset(
+     {
+-        # P4-04
+-        "test_kill_switch_reaches_ended_from_every_state",
+-        "test_max_duration_is_min_of_evaluator_and_cap",
+-        "test_no_event_after_ended",
+-        "test_setup_failure_is_an_end_reason_not_an_exception",
+-        "test_state_machine_transition_table_exact",
+-        # P4-05
+-        "test_agent_activity_is_any_nonzero_sample_no_threshold",
+-        "test_barge_in_fires_at_offset_from_agent_onset",
+-        "test_comfort_noise_agent_never_goes_silent_is_max_silence_not_a_hang",
+-        "test_simulator_never_speaks_while_brain_pending",
+-        "test_wait_for_silence_parameter_has_no_default",
+-        # P4-06
+-        "test_recorder_is_deterministic_from_frame_log",
+         # P4-08
+         "test_sarvam_tts_sends_explicit_model_speaker_language_rate",
+         # P4-09
+@@ -137,20 +123,6 @@
+ # ADR 0027 rules and invariants
+ _P0027: frozenset[str] = frozenset(
+     {
+-        # P4-05
+-        "test_wait_for_silence_parameter_has_no_default",
+-        # P4-06
+-        "test_g711_mulaw_alaw_decode_matches_itu_table",
+-        "test_recorder_burst_arrival_uses_playback_model",
+-        "test_recorder_channel_0_is_exactly_what_was_sent",
+-        "test_recorder_is_deterministic_from_frame_log",
+-        "test_recorder_refuses_rate_mismatch_never_resamples",
+-        # P4-07
+-        "test_simulator_self_latency_excluded_from_agent_gap",
+-        "test_timing_first_agent_audio_exact_on_synthetic_log",
+-        "test_timing_gap_measured_from_last_sent_frame",
+-        "test_timing_value_without_both_edges_is_error_never_zero",
+-        "test_timing_values_carry_quantum_and_dialect",
+         # P4-10
+         "test_activity_chunk_plan_is_deterministic_and_covers_agent_audio",
+         "test_phase3_mono_mapping_unchanged",
+@@ -198,10 +170,6 @@
+ # ADR 0028 rules and invariants
+ _P0028: frozenset[str] = frozenset(
+     {
+-        # P4-05
+-        "test_simulator_never_speaks_while_brain_pending",
+-        # P4-07
+-        "test_simulator_self_latency_excluded_from_agent_gap",
+         # P4-09
+         "test_sarvam_llm_model_and_max_tokens_required",
+         "test_sarvam_llm_seed_recorded_never_claimed_deterministic",
+@@ -261,9 +229,6 @@
+ # ADR 0024 Phase 4 amendment (A1-A9, IA1-IA4)
+ _P0024A: frozenset[str] = frozenset(
+     {
+-        # P4-06
+-        "test_g711_mulaw_alaw_decode_matches_itu_table",
+-        "test_recorder_refuses_rate_mismatch_never_resamples",
+         # P4-08
+         "test_sarvam_tts_base_url_not_overridable",
+         "test_sarvam_tts_refuses_non_mr_and_over_2500_chars_before_send",

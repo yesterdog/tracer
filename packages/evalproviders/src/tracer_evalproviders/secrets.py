@@ -15,22 +15,28 @@ import warnings
 from collections.abc import Mapping
 from typing import Any, Final, NoReturn
 
+from tracer_evalcore.errors import EvalcoreError
+from tracer_evalcore.llm import LlmKeyMissingError
 from tracer_evalcore.stt import SttKeyMissingError
+from tracer_evalcore.tts import TtsKeyMissingError
 from tracer_evalschema.provider import ProviderConfigRef
 
 __all__ = [
     "CONFIG_REF",
     "ENV_FILE_MAX_BYTES",
     "ENV_VAR_NAME",
+    "ENV_VAR_NAMES",
     "PLACEHOLDER",
     "ApiKey",
     "EnvFileModeWarning",
     "load_api_key",
+    "load_role_key",
     "provider_config_ref",
 ]
 
 ENV_VAR_NAME: Final = "SARVAM_API_KEY"
 CONFIG_REF: Final = "env:SARVAM_API_KEY"
+ENV_VAR_NAMES: Final = {"stt": ENV_VAR_NAME, "tts": ENV_VAR_NAME, "llm": ENV_VAR_NAME}
 PLACEHOLDER: Final = "<redacted api key>"
 ENV_FILE_MAX_BYTES: Final = 65_536
 
@@ -188,3 +194,32 @@ def provider_config_ref(model: str) -> ProviderConfigRef:
     return ProviderConfigRef.model_validate(
         {"provider": "sarvam", "model": model, "config_ref": CONFIG_REF}
     )
+
+
+_ROLE_ERRORS: Final[dict[str, type[EvalcoreError]]] = {
+    "stt": SttKeyMissingError,
+    "tts": TtsKeyMissingError,
+    "llm": LlmKeyMissingError,
+}
+
+
+def load_role_key(
+    role: str,
+    *,
+    environ: Mapping[str, str] | None = None,
+    env_file: str | os.PathLike[str] | None = None,
+) -> ApiKey:
+    """The key of one role (``stt``, ``tts`` or ``llm``); a failure is that role's own error."""
+    if not isinstance(role, str):
+        raise TypeError("role must be a string")
+    if role not in _ROLE_ERRORS:
+        raise ValueError("role must be stt, tts or llm")
+    reason: str | None = None
+    key: ApiKey | None = None
+    try:
+        key = load_api_key(environ=environ, env_file=env_file)
+    except SttKeyMissingError as error:
+        reason = error.reason
+    if key is not None:
+        return key
+    raise _ROLE_ERRORS[role](reason=reason)  # type: ignore[call-arg]
