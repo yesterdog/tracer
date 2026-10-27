@@ -63,6 +63,7 @@ def test_the_reader_covers_every_adr_from_0026_and_the_three_amendments() -> Non
         "ADR 0027",
         "ADR 0028",
         "ADR 0029",
+        "ADR 0030",
         "ADR 0024A",
         "ADR 0023A",
         "ADR 0004",
@@ -70,14 +71,15 @@ def test_the_reader_covers_every_adr_from_0026_and_the_three_amendments() -> Non
         assert adr in labels, adr
     numbers = [sup.adr_number(p) for p in sup.later_adr_paths()]
     assert numbers == sorted(numbers)
-    assert {26, 27, 28, 29} <= set(numbers)
+    assert {26, 27, 28, 29, 30} <= set(numbers)
     assert all(n >= 26 for n in numbers)
 
 
 def test_a_later_adr_is_read_too_and_has_no_pending_set() -> None:
-    """An ADR 0030 would be read whole; it can cite only existing tests (no registry key)."""
-    text = "# ADR 0030: x\n\n## Decision\n1. **a.** `test_zz_not_there`.\n"
-    reads = [sup.Reading("ADR 0030", text, "1. **a.** `test_zz_not_there`.")]
+    """An ADR 0031 would be read whole; it can cite only existing tests (no registry key). Batch J
+    spec change: this was ADR 0030 until ADR 0030 got its own pending set."""
+    text = "# ADR 0031: x\n\n## Decision\n1. **a.** `test_zz_not_there`.\n"
+    reads = [sup.Reading("ADR 0031", text, "1. **a.** `test_zz_not_there`.")]
     assert _problems(reads), "an ADR from 0030 cites an undefined name"
     defined = sup.defined_tests() | {"test_zz_not_there"}
     assert _problems(reads, defined=defined) == []

@@ -35,6 +35,10 @@ PRIVATE = "private fixture or env file"
 REPORT = "tracer report file"
 STORE = "tracer store file"
 CALL_LOG = "tracer call log"
+JUDGE_EXCHANGE = "tracer judge exchange file"
+# <out>/judge/<run>/item-<id>-<attempt>.json: the request and the raw reply of one judge request
+JUDGE_EXCHANGE_NAME = re.compile(r"(?:^|/)judge/[^/]+/item-[a-z0-9_]+-[12]\.json\Z")
+JUDGE_EXCHANGE_MARKER = re.compile(rb'"format"\s*:\s*"tracer\.judge_exchange/1"')
 
 
 def _is_env_file(path: str) -> bool:
@@ -62,6 +66,8 @@ def kind_by_name(path: str) -> str | None:
         return STORE
     if name == CALL_LOG_NAME and path not in CALL_LOG_ALLOWED:
         return CALL_LOG
+    if JUDGE_EXCHANGE_NAME.search(path):
+        return JUDGE_EXCHANGE
     return None
 
 
@@ -72,6 +78,8 @@ def kind_by_content(path: str, head: bytes) -> str | None:
         suffix = path.rsplit("/", 1)[-1].lower().rpartition(".")[2]
         if suffix in {"html", "htm"} or DOCUMENT_START.match(head):
             return REPORT
+    if JUDGE_EXCHANGE_MARKER.search(head):
+        return JUDGE_EXCHANGE
     if path.lower().endswith(".jsonl"):
         first = head.split(b"\n", 1)[0]
         if b'"bytes_sent"' in first and b'"audio_seconds"' in first:

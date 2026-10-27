@@ -1,0 +1,1323 @@
+diff --git a/docs/adr/0023-recorded-call-agreement-scoring.md b/docs/adr/0023-recorded-call-agreement-scoring.md
+index 2c43047..669a543 100644
+--- a/docs/adr/0023-recorded-call-agreement-scoring.md
++++ b/docs/adr/0023-recorded-call-agreement-scoring.md
+@@ -54,7 +54,7 @@ Machine-read by `test_adr0023_rules_are_tested`, in the format of ADR 0021 and A
+ 19. **Two clips are a demonstration (BL-170).** The owner fixes `flag_min_confidence` and the review budget, and they are written in the decision log, before any real result is seen (P3-29); on 2026-10-25 the owner pre-registered `flag_min_confidence` = 0.5, and the base-case budget is the labelled placeholder of rule 17 (SCOPE Decisions D10). Results of the two calls are reported per call with their counts and denominators, never as an aggregate claim, and no threshold is tuned on them. The run-to-run and chunk-boundary measurements (P3-31) report Jaccard indices of the flagged token sets with their counts. Rejected: choosing the threshold from the real results (the numbers would describe the choice, not the method). Trade-off: the first threshold may flag too much or too little; a change after R1 is a new pre-registration, logged with its reason. Tests: `test_flag_threshold_has_no_default`, `test_measurement_report_has_counts_and_denominators`.
+
+ ## Phase 4 amendment: simulated runs
+-Revision 50, 2026-10-27, Phase 4 batch 0, task P4-00d (`docs/phase4/SCOPE.md` F6, Q19, Q21, Q22 and P4-22 (a); auto-approved, SCOPE Decisions D1). A simulated run (ADR 0026, ADR 0027) is scored by the agreement path of this ADR when the user supplies the agent's export, and adds timing values. Rules 1 to 19 keep their numbers and meaning for recorded runs; the rules of this section are labelled A1 to A3 so that the rule numbering of the Decision, which `test_adr0023_rules_are_tested` pins, is unchanged. Machine-read: each rule A1 to A3 and each invariant IA1 and IA2 cites at least one test name in backticks; a cited name that no test defines yet must be one that the task table of `docs/phase4/SCOPE.md` (section A) names, and that set shrinks to empty by the gate P4-G (`test_adr0023_rules_are_tested`, extended by qa in Phase 4).
++Revision 50, 2026-10-27, Phase 4 batch 0, task P4-00d (`docs/phase4/SCOPE.md` F6, Q19, Q21, Q22 and P4-22 (a); auto-approved, SCOPE Decisions D1). A simulated run (ADR 0026, ADR 0027) is scored by the agreement path of this ADR when the user supplies the agent's export, and adds timing values. Rules 1 to 19 keep their numbers and meaning for recorded runs; the rules of this section are labelled A1 to A4 so that the rule numbering of the Decision, which `test_adr0023_rules_are_tested` pins, is unchanged. Machine-read: each rule A1 to A4 and each invariant IA1 and IA2 cites at least one test name in backticks; a cited name that no test defines yet must be one that the task table of `docs/phase4/SCOPE.md` (section A) names, and that set shrinks to empty by the gate P4-G (`test_adr0023_rules_are_tested`, extended by qa in Phase 4). Rule A4 was added in revision 52 (Phase 4 batch J, task P4-J02; ADR 0030 rule 9).
+
+ A1. **The claim words of rule 1, extended for simulated runs (Q21, Q22).** Tracer-authored text of the `tracer simulate` output, of the report of a simulated run and of the concept page `docs/concepts/simulated-calls.md` contains none of the words of rule 1 and none of these, matched case-insensitively as whole words or phrases: `latency`, `response time`, `quality`, `task success`, `realism`, `realistic`, `fidelity`, `deterministic`, `determinism`. Timing values are labelled by what they are ("first agent audio", "gap after the caller's line", "overlap", "time for the agent's audio to stop", "answered caller turns"), each with "observed at the simulator over <dialect>", its quantum and N where it is a median; the metric kind `latency` is a record value and is not printed as a label. The concept page contains, in the fenced block of its section "Not claimed", exactly one sentence that names them, verbatim: "Tracer reports what it observed at the simulator over one wire dialect; it does not measure accuracy, the agent's latency or quality, task success, persona realism or determinism, and none of its numbers is a WER, a CER, an error rate, a recall or a precision." and no deny-listed word outside that sentence. The deny-list applies to the text Tracer writes, not to transcript text a user supplied or our STT produced, which is shown escaped (ADR 0017). Rejected: reusing the recorded-call list alone (it does not cover latency, quality, realism or determinism, which a simulated call invites); a free-text disclaimer without a check. Trade-off: the word list can miss a paraphrase; the review gate P4-G is the rest. Tests: `test_simulate_output_never_claims_accuracy_or_quality`, `test_sim_report_never_claims_accuracy_or_quality`, `test_sim_concept_page_states_no_claims`.
+
+@@ -62,6 +62,8 @@ A2. **The per-role partition for simulated runs (P4-22 (a); F6).** In a simulate
+
+ A3. **The language steps of a simulated run (F12 of Phase 3 revisited; ADR 0004 Decision 6d).** In a simulated run the agent-channel STT turns have role `agent`, so the bundle's own applicability re-run reads them together with the export's agent turns for a metric that requires `agent_transcript` (Ambiguity 1 of this ADR does not arise: the turns are read). The partitioned scorer therefore takes the language outcome that `applicability` computes over those read turns: an STT turn of another primary language gives `not_applicable` `unsupported_language`, an STT turn without an observed language gives `language_not_observed`, each with the language provenance the re-run computes, and the error codes of rule 14 are not used for simulated runs. The export's turns keep their declared language (ADR 0004 Decision 6g). Rejected: the rule 14 error codes in a simulated run (they were the only valid answer when the STT turns were unread; here the truthful not-applicable reason is valid). Trade-off: recorded and simulated runs report a non-mr STT chunk differently (an `error` for recorded runs until BL-193, a not-applicable reason for simulated runs); the report labels both "not scored: unsupported language detected". Tests: `test_simulated_bundle_passes_check_run_bundle`, `test_agreement_partition_compares_agent_role_only`.
+
++A4. **The claim words for judge outputs (ADR 0030 rule 9; Phase 4 batch J, P4-J02).** Tracer-authored text of the judge lines of the `tracer simulate` and `tracer judge` output, of the judge section of the report ("uncalibrated judge signal"), of the agreement report of `tracer labels agreement` and of the concept page `docs/concepts/llm-judge.md` contains none of the words of rule 1 and A1 and none of these, matched case-insensitively as whole words or phrases: `correct`, `incorrect`, `correctness`, `factual`, `factuality`, `truthful`, `hallucination`, `ground truth`, `calibrated` (whole word only, so that "uncalibrated" stays allowed and required), `probability`, `confidence`, `pass`, `fail`, `passed`, `failed`, `score of the agent`. The concept page contains, in the fenced block of its section "Not claimed", exactly one sentence that names them, verbatim: "Tracer's judge is an uncalibrated language-model signal: it reports whether a model said that an agent's answer agrees with the expected facts; it does not measure accuracy, correctness, factuality or quality, it is not a pass or fail of the agent, and none of its numbers is a confidence, a probability, an error rate, a recall or a precision." and no deny-listed word outside that sentence. The deny-list applies to the text Tracer writes, not to record keys and values (for example `confidence: "none_claimed"` in `tracer.judge/1`), and not to transcript text, golden-set text or label text, which is shown escaped (ADR 0017). Rejected: reusing rule 1 and A1 alone (they do not cover correctness, factuality, hallucination, confidence or pass and fail, which a judge invites); a free-text disclaimer without a check. Trade-off: the word list can miss a paraphrase; the review gate P4-G is the rest. Tests: `test_judge_report_never_claims_accuracy_or_quality`, `test_agreement_report_counts_only_never_rates_or_accuracy`, `test_judge_concept_page_states_no_claims`.
++
+ ### Invariants of the Phase 4 amendment (testable)
+ - IA1. No simulated-run output and no line of the simulated-calls concept page outside its one fixed sentence holds a claim word of rule 1 or A1. Tests: `test_simulate_output_never_claims_accuracy_or_quality`, `test_sim_report_never_claims_accuracy_or_quality`, `test_sim_concept_page_states_no_claims`.
+ - IA2. In a simulated run only agent-role export turns are compared, against agent-channel STT turns, by definitions whose identity names the partition. Tests: `test_agreement_partition_compares_agent_role_only`, `test_partition_changes_scorer_version`.
+diff --git a/docs/adr/0024-provider-adapters-byok-sarvam-rest.md b/docs/adr/0024-provider-adapters-byok-sarvam-rest.md
+index ef457b3..0b1b9bf 100644
+--- a/docs/adr/0024-provider-adapters-byok-sarvam-rest.md
++++ b/docs/adr/0024-provider-adapters-byok-sarvam-rest.md
+@@ -47,7 +47,7 @@ Machine-read by `test_adr0024_rules_are_tested`, in the format of ADR 0021 and A
+
+ ## Phase 4 amendment: TTS and LLM adapters, several BYOK variables, per-channel STT, 8 kHz and mu-law
+ Amended 2026-10-27 (ADR index revision 51; Phase 4 batch D, named spec change S-D1, auto-approved; BL-289), without changing rule 17 of the Phase 3 block: the no-network guard of rule 17 extends to `tracer-evalsim` (ADR 0026 rule 23), where tests carrying the `loopback` marker run in the default suite under an adversarial loopback-only guard (only `localhost` or a literal loopback address, a loopback-only bind, no UDP and no Unix socket); unmarked tests keep the full guard, and a test confines the marker to the declared evalsim modules. Rejected: deselecting them by default like the `postgres` tests, reusing the `integration` marker, in-memory transports only, mocking websockets. Read rule 17's "a `postgres`-marked test still cannot reach any other host", and the same claim for `loopback`-marked tests, as holding for the socket paths each guard patches: `socket.gethostbyname*`, UDP `sendto` without `connect`, the direct `_socket` module and subprocesses are not patched by the Phase 3 guard (BL-289), and a marked test can reach any listener on the loopback interface (BL-290).
+-Revision 50, 2026-10-27, Phase 4 batch 0, task P4-00d (`docs/phase4/SCOPE.md` F8, Q10, Q13, Q17 and the rows P4-08 to P4-12; auto-approved, SCOPE Decisions D1). The simulated caller (ADR 0026) needs speech synthesis for the caller, an LLM for the LLM caller, and speech-to-text of one channel of a stereo recording that may be 8 kHz G.711. Rules 1 to 17 above keep their numbers and meaning; the rules of this section are labelled A1 to A9 so that the rule numbering of the Decision, which `test_adr0024_rules_are_tested` pins, is unchanged. Machine-read: each rule A1 to A9 and each invariant IA1 to IA4 cites at least one test name in backticks; a cited name that no test defines yet must be one that the task table of `docs/phase4/SCOPE.md` (section A) names, and that set shrinks to empty by the gate P4-G (`test_adr0024_rules_are_tested`, extended by qa in Phase 4).
++Revision 50, 2026-10-27, Phase 4 batch 0, task P4-00d (`docs/phase4/SCOPE.md` F8, Q10, Q13, Q17 and the rows P4-08 to P4-12; auto-approved, SCOPE Decisions D1). The simulated caller (ADR 0026) needs speech synthesis for the caller, an LLM for the LLM caller, and speech-to-text of one channel of a stereo recording that may be 8 kHz G.711. Rules 1 to 17 above keep their numbers and meaning; the rules of this section are labelled A1 to A13 so that the rule numbering of the Decision, which `test_adr0024_rules_are_tested` pins, is unchanged. Machine-read: each rule A1 to A13 and each invariant IA1 to IA4 cites at least one test name in backticks; a cited name that no test defines yet must be one that the task table of `docs/phase4/SCOPE.md` (section A) names, and that set shrinks to empty by the gate P4-G (`test_adr0024_rules_are_tested`, extended by qa in Phase 4). Rules A10 to A13 were added in revision 52 (Phase 4 batch J, task P4-J02; ADR 0030 rules 12 to 16 and 18).
+
+ A1. **TTS and LLM engines follow this ADR (P4-03, P4-08, P4-09).** The Sarvam TTS adapter and the Sarvam chat v2 adapter live in `tracer-evalproviders` behind the `TtsEngine` and `LlmEngine` protocols of `tracer-evalcore` (ADR 0026 rule 4). Rules 1 to 5, 8 to 10 and 15 to 17 apply to them as they apply to STT: no network module in the core; httpx with an injected transport; a fixed endpoint with no URL override, no redirect, TLS verified and `trust_env=False`; the key read at run time and redacted; strict reply validation with a size cap; at most 4 attempts with the backoff and the bounded `Retry-After` of rule 9; the error taxonomy of rule 10 with provider-neutral names (`Tts...`, `Llm...`); the call log; no socket in tests. Rejected: the vendor SDK (`sarvamai` declares no licence). Trade-off: three adapters to keep in step with one set of rules. Tests: `test_sarvam_tts_base_url_not_overridable`, `test_sarvam_tts_retry_taxonomy_matches_stt_rules`, `test_tts_llm_errors_hold_facts_only_and_no_chain`, `test_engines_stream_usage_before_next_request`.
+
+@@ -67,6 +67,14 @@ A8. **One call log for a simulated run (rule 15; P4-12).** `tracer simulate` wri
+
+ A9. **The content-addressed TTS cache (P4-11; Q11).** Synthesised audio is cached under `--out/tts-cache/`, keyed by the SHA-256 of the canonical JSON of exactly `{provider, model, speaker, language_code, sample_rate_hz, codec, pace, text}`; the file name is the lower-case hexadecimal key (no text in any name), the directory is 0700, files 0600, and every open uses `O_NOFOLLOW`, so a link is refused. A hit makes no request and no UsageRecord, and is validated like a reply before use (an invalid entry is a refusal, never repaired or re-fetched silently). The cache and the call log are git-ignored and refused by the guard when staged. Rejected: a cache keyed by text only (a voice change would replay the old voice); a cache outside `--out` (Tracer writes only inside the user's output directory). Trade-off: the cache grows with every distinct line; deleting it is the user's. Tests: `test_tts_cache_hit_sends_nothing_and_records_no_usage`, `test_tts_cache_key_covers_every_parameter`, `test_tts_cache_refuses_links_and_is_private`, `test_guard_rejects_staged_sim_outputs_and_allowlist`.
+
++A10. **The generic chat-completions client (ADR 0030 rules 12 and 16; P4-J12).** `JsonPoster` is generalised for the judge: the auth scheme is a bearer token or one named header, the URL is the exact URL of one validated judge allowlist entry (ADR 0030 rule 14), and the usage stage is `judge`. Rule 3's fixed endpoint keeps holding for every Sarvam adapter, and the existing `SarvamLlm` is unchanged; the judge client's endpoint is fixed for a run by the owner's allowlist entry and never by an argument, an environment variable or the judge configuration. Timeouts, attempts, `Retry-After` and the error taxonomy are those of rules 9 and 10. Rejected: the `openai` Python SDK (retries, proxy-environment handling and redirect behaviour not ours to audit; more dependencies); a URL override on the Sarvam adapters. Trade-off: one more client shape to audit. Tests: `test_openai_compat_request_body_subset_exact`, `test_openai_compat_retry_taxonomy_matches_adr0024`, `test_sarvam_base_url_not_overridable`.
++
++A11. **Provider profiles (ADR 0030 rule 13; P4-J13).** The judge client sends only what one profile of the closed, versioned set of ADR 0030 lists, and refuses an unknown profile; each profile cites the dossier `docs/security/P4-J-providers.md` fact by fact, and an `unverified` profile is refused for a real run until its first owner-gated request is logged. Rejected: a generic profile with a user base URL. Trade-off: a new provider needs a profile, a dossier row and tests. Tests: `test_unknown_profile_refused`, `test_profile_never_sends_unlisted_field`, `test_unverified_profile_refused_for_real_run`.
++
++A12. **The judge allowlist and key binding (ADR 0030 rules 14 and 15; P4-J14).** The judge key is read by the variable name of the matched allowlist entry, only after the entry matches, and is sent only to that entry's host; `follow_redirects=False`, `trust_env=False`, TLS verified and every DNS answer checked as rule 3 and ADR 0026 rule 16 require; the key appears in no output channel (rule 5, A4). Rejected: keys or base URLs in the judge configuration. Trade-off: the owner adds each endpoint by hand. Tests: `test_judge_host_not_on_allowlist_refused_before_any_key_read`, `test_judge_key_bound_to_its_host_never_sent_elsewhere`, `test_judge_key_canaries_never_in_any_output_channel`.
++
++A13. **Judge usage (ADR 0030 rule 18; ADR 0014).** Each answered judge request makes one UsageRecord with `stage=judge`, `domain=evaluation`, the model as requested and the prompt and completion tokens mapped exactly; cached tokens only when reported; cost `not_available` without a user USD catalog; OpenRouter credits are never stored as a cost; usage is handed out before the next request (rule 16 (d)). Rejected: credits as money; a cost from an unverified price page. Trade-off: no cost is shown for judged runs until a USD catalog exists. Tests: `test_openai_compat_usage_maps_prompt_completion_cached_exactly`, `test_judge_engine_streams_usage_before_next_request`.
++
+ ### Invariants of the Phase 4 amendment (testable)
+ - IA1. The TTS and LLM requests send exactly their fields, with explicit models and no server defaults, and refuse non-mr text or text over 2,500 characters before the send. Tests: `test_sarvam_tts_sends_explicit_model_speaker_language_rate`, `test_sarvam_tts_refuses_non_mr_and_over_2500_chars_before_send`, `test_sarvam_llm_model_and_max_tokens_required`.
+ - IA2. Every key of every provider appears in no output channel. Tests: `test_key_canaries_never_in_any_output_channel`.
+diff --git a/docs/adr/0027-simulated-run-records.md b/docs/adr/0027-simulated-run-records.md
+index 95774dc..3b11a9a 100644
+--- a/docs/adr/0027-simulated-run-records.md
++++ b/docs/adr/0027-simulated-run-records.md
+@@ -24,6 +24,7 @@ Machine-read by `test_adr0027_rules_are_tested`, in the format of ADR 0023: ever
+ 10. **Timing extraction: the `tracer.timing/1` document (F10, Q21; P4-07).** Every value is an integer number of milliseconds (or a count) between two instants of the simulator's own monotonic clock, floored to the millisecond, and is read with the document's `dialect` and `quantum_ms`; `quantum_ms` is the larger of the caller frame duration (20 ms) and the longest agent frame received, rounded up to a whole millisecond, because the position of a sample inside a frame is not observed. Agent activity is a frame holding any non-zero sample (ADR 0026 rule 10), dated by its arrival instant (not its playback position, rule 4). The values: `setup_ms`, from the start of the connection attempt to its establishment; `first_agent_audio_ms`, from establishment to the first active agent frame; for each caller turn, `gap_ms`, from the end edge of the turn (the send instant of its last frame plus 20 ms) to the first active agent frame arriving at or after that edge; `overlap_ms` per turn and in total, the summed duration of active agent frames that arrive while a caller line is being sent; `barge_in_stop_ms` for a turn sent with `barge_in_after_ms`, from the send instant of its first frame to the end of the last active agent frame of the activity it interrupted; `answered_caller_turns`, the caller turns with a `gap_ms`; and, separately, the simulator's own reply time before each caller turn (`self`: the wait, the in-call STT, the brain and the TTS times, each `null` where that step did not run). A value with a missing edge is `null` and is never 0. The simulator's own reply time is never inside an agent gap: a gap ends at the agent's first sample, before the simulator decides to speak. Each value is "observed at the simulator over <dialect>": it includes the network and both sides' buffering and is not the agent's internal latency. Rejected: a voice-activity threshold for the agent's onset (ADR 0026 rule 10); playback positions for timing (they move a burst later than it arrived); 0 for a missing edge (a fabricated measurement). Trade-off: every value is coarse to one frame and includes the transport. Tests: `test_timing_first_agent_audio_exact_on_synthetic_log`, `test_timing_gap_measured_from_last_sent_frame`, `test_simulator_self_latency_excluded_from_agent_gap`, `test_timing_values_carry_quantum_and_dialect`, `test_timing_value_without_both_edges_is_error_never_zero`.
+ 11. **Timing definitions with no pass rule (P4-22 (b)).** Shipped templates, `language_independent`, `script_sensitive=false`, `aggregation=per_conversation`, `requires=["audio", "turn_timing"]`, no pass rule, `implementation_ref` `builtin:<key>`: `sim_first_agent_audio_ms`, `sim_agent_response_gap_median_ms` (the nearest-rank median of the turns' `gap_ms` values, N recorded as `gap_n`), `sim_overlap_ms` (the total) and `sim_barge_in_stop_ms` (the nearest-rank median over the barge-ins with both edges, N recorded), each `kind=latency`, unit `ms`; and `sim_answered_caller_turns`, `kind=deterministic`, unit `count`. `sim_barge_in_stop_ms` is bound only when the sim profile schedules at least one barge-in, so the set of result keys is fixed by the configuration and equal across every case of one configuration. Each scored result carries the run's `tracer.timing/1` document (rule 1). A value whose edges are missing (an agent that never spoke, a barge-in the agent never stopped for) cannot be `not_applicable` in a valid 0.0.1 bundle when `audio` and `turn_timing` are available (the re-run of ADR 0004 Decision 9 would compute an applicable result), so it is `status=error` with `error.code=timing_edge_missing` and a message that names the missing edge and counts, never a value, never 0 and never a pass or fail (the ADR 0023 rule 15 pattern; BL-292). Rejected: a pass rule (a latency target is the owner's to set, never a shipped value); a mean (one long gap would move it; the median with N is stated); 0 for no agent audio. Trade-off: an agent that never spoke shows timing errors, which the report labels "not measured: no agent audio", never as an agent failure. Tests: `test_timing_definitions_have_no_pass_rule`, `test_median_is_nearest_rank_with_n_recorded`, `test_sim_report_timing_shows_quantum_and_dialect`, `test_tdeg_sim_schema_identical_across_cases`.
+ 12. **The outcome document and the inert expected-outcome check (F7, Q19).** `tracer.sim_outcome/1` records whether the call was established, its one end reason (ADR 0026 rule 9), the cap that ended it if any, the clock of `started_at`, the connected duration, the SHA-256 of the authorisation reference (ADR 0026 rule 21), the brain mode and the counts (frames, requests, cache hits, regenerations, ignored messages, signals). Its `outcome` member is always `not_evaluated`. The snapshot's rubric holds the inert check of ADR 0023 rule 17 (named `simulated_call_no_outcome_check`, judge model recorded as not run, never run, no result, no verdict) as its only required item, the agreement and timing definitions as optional items; no `RunVerdict` is produced (BL-270), and the CLI, the report and the concept page say "outcome not evaluated". The `Evaluator` is the user's own (instructions, expected outcome, scripted turns, maximum duration). Rejected: running a judge on the expected outcome (no judge, no calibration, BL-269); an end reason in free text. Trade-off: the snapshot holds a required check that never runs until the judge phase. Tests: `test_outcome_check_inert_and_no_verdict`, `test_sim_report_states_outcome_not_evaluated`, `test_adr0027_documents_match_json_schemas`.
++12a. **The snapshot may embed judge definitions; the check stays inert (ADR 0030 rules 8 and 10; Phase 4 batch J, P4-J02).** A run of `tracer simulate --golden` embeds, beside the inert check of rule 12, one optional `llm_judge` definition and binding per golden item (ADR 0030 rule 8) and the document `tracer.judge_profile/1` in `ConfigSnapshot.metadata["tracer.judge_profile"]`; the endpoint path recorded there is a stated exception to rule 1's "no path" (it is a URL path, not a file path). The inert check stays the only required rubric item, `outcome` stays `not_evaluated`, and no RunVerdict is produced. A run without `--golden` embeds none of it. Rejected: making the check real (a pass or fail of the agent from an uncalibrated model; ADR 0030 rule 10). Trade-off: the snapshot of a judged run is larger by one definition per item. Tests: `test_expected_outcome_check_stays_inert_with_judge`, `test_judged_bundle_passes_check_run_bundle`.
+ 13. **The sim profile in the snapshot (Q7, Q10, Q17).** `tracer.sim_profile/1` records, as used: the dialect, the connection labels of the target's allowlist entry (amended 2026-10-27, lead decision E-a; ADR 0026 rules 6 and 16: the name of the environment variable that held the bearer token or `null`, never its value; the `Origin` header sent or `null`; and, for `twilio-media-stream/1` only, the operator's `bot_holds_telephony_credentials` statement), the audio format on the wire, the turn-taking values (`caller_speaks_first`, `wait_for_agent_silence_ms`, `max_silence_ms`), the scheduled barge-ins, the caller brain (mode; for LLM mode the provider, model, `max_tokens`, `seed`, `reasoning_effort`, `max_line_chars`, `max_turns`, the end sentinel and the prompt template id and SHA-256, ADR 0028), the resolved voice of the run's persona (the input file may map several personas; only the entry used is stored), the STT engine, and the limits (the four caps as given, `null` where an engine is a fake and no cap was given, and the minimum interval). Every value is required in the input file and has no default in code. Rejected: storing the whole voice table (entries of other personas are not part of the run); caps outside the snapshot (a run could not be reproduced under the same limits); leaving the connection labels out (a profile that carries them would be invalid against the schema, and a reader could not tell how the target was reached); putting them in free-text metadata (unvalidated). Trade-off: the snapshot digest changes with any cap and with the connection labels. Tests: `test_prompt_template_hash_recorded_in_sim_profile`, `test_wait_for_silence_parameter_has_no_default`, `test_adr0027_documents_match_json_schemas`.
+ 14. **Privacy markers (Q14; ADR 0016 Decisions 5 and 7a).** The producer builds every marker after the call, when the Run already carries the declared channel map, by `derive_human_subject(run, turns)` over the run's turns: with role evidence of only `caller` and `agent` it is `false`, so the artifact and every transcript carry `human_subject=false` with no consent record and no retention policy (P-46). Where the derivation is `true` (an export with an `unknown` role turn), the marker is `true` with consent `status=unknown` (the only truthful value for a simulator) and a retention policy with `delete_on_expiry=false` (the local store keeps it; O7). A record written before role evidence exists (none in the pinned order; a later incremental writer) is `true` with reason `marked_before_role_evidence`, consent `unknown` and that retention, and is re-derived at export (ADR 0016 Decision 7a). A call to a target where a human may answer is refused by the allowlist (ADR 0026 rule 16), and a human-present mode is BL-281. Rejected: `true` on every simulated payload (it would block benchmarks of synthetic calls for no subject); a consent status of `obtained` (nobody gave it). Trade-off: a simulated run with an agent export that has `unknown` turns becomes human-subject, which is the conservative reading. Tests: `test_privacy_marker_false_only_with_role_evidence`, `test_simulated_bundle_passes_check_run_bundle`.
+ 15. **Usage and cost (P4-12).** Every answered request of every engine makes one UsageRecord with `domain=evaluation` (ADR 0024 amendment A7): `sim_caller_tts` (`input_characters`, `requests`), `sim_caller_llm` (`input_tokens`, `cache_read_input_tokens` where reported, `output_tokens`, `requests`) and `stt` (`audio_input_seconds`, `requests`). A TTS cache hit makes no record. Without a user USD catalog every CostRecord is `not_available` (`no_price_for_model`), never 0. None of these is usage of the agent under test, so `usage` is never an available input (rule 8). Rejected: one record per call (the per-request record is what the provider can bill). Trade-off: many records per call. Tests: `test_sim_usage_records_per_request_with_stages`, `test_sim_cost_not_available_without_usd_catalog`, `test_tts_cache_hit_sends_nothing_and_records_no_usage`.
+diff --git a/docs/phase4/staging/0030-llm-judge-uncalibrated-signal.md b/docs/adr/0030-llm-judge-uncalibrated-signal.md
+similarity index 71%
+rename from docs/phase4/staging/0030-llm-judge-uncalibrated-signal.md
+rename to docs/adr/0030-llm-judge-uncalibrated-signal.md
+index 5538164..effe0cd 100644
+--- a/docs/phase4/staging/0030-llm-judge-uncalibrated-signal.md
++++ b/docs/adr/0030-llm-judge-uncalibrated-signal.md
+@@ -1,7 +1,6 @@
+ # ADR 0030: LLM judge as an uncalibrated signal: golden sets, OpenAI-compatible provider profiles, human labels
+
+-- Status: Proposed (Phase 4 batch J, task P4-J01; schema-architect with security-licensing). Records the owner decision of 2026-10-28 (the LLM judge is built in Phase 4 as an uncalibrated signal, provider-agnostic through the OpenAI chat-completions specification) and the questions Q-J1 to Q-J20 of `docs/phase4/SCOPE.md` section J, auto-approved by the lead on the recommended option under the owner's standing rule of 2026-10-23 (decision log 2026-10-28 "OWNER DECISION ... LLM JUDGE" and "PHASE 4 BATCH J (LLM JUDGE, uncalibrated signal) SCOPE DELIVERED"). The rejected options and trade-offs are the staff-reviewer's (scope report of 2026-10-28) where the report gives them; where it gives none, the rule says "(architect)" and the lead may change them. Every provider fact below is what the staff-reviewer read in a primary source on 2026-10-28, with its source; a fact marked "not verified" was not read and is not assumed. The terms clauses are facts read from the terms, not legal advice. The points the scope leaves open are listed under "Ambiguities resolved" for the lead. Open for the owner: O-J1 to O-J6 (SCOPE section J.6), all before the first real judge request (P4-J28), none before the offline work.
+-- Staging (2026-10-28): this file is staged at `docs/phase4/staging/0030-llm-judge-uncalibrated-signal.md`, not under `docs/adr/`, because the Phase 4 whole-ADR reader (`test_no_adr_from_0026_cites_a_test_that_neither_exists_nor_is_pending`) reads every `docs/adr/NNNN-*.md` from 0026 and an ADR from 0030 has no pending set yet, so its citations of not-yet-written tests would fail it; and because the bare-name check (`test_bare_test_names_are_refused_except_recorded_renames`) applies there too. It moves to `docs/adr/0030-llm-judge-uncalibrated-signal.md` in the commit in which qa adds `SPECS["0030"]` and its pending set (P4-J01), with an ADR index revision (section "Proposed index entry").
++- Status: Accepted (Phase 4 batch J, task P4-J01; schema-architect with security-licensing). Records the owner decision of 2026-10-28 (the LLM judge is built in Phase 4 as an uncalibrated signal, provider-agnostic through the OpenAI chat-completions specification) and the questions Q-J1 to Q-J20 of `docs/phase4/SCOPE.md` section J, auto-approved by the lead on the recommended option under the owner's standing rule of 2026-10-23 (decision log 2026-10-28 "OWNER DECISION ... LLM JUDGE" and "PHASE 4 BATCH J (LLM JUDGE, uncalibrated signal) SCOPE DELIVERED"). The rejected options and trade-offs are the staff-reviewer's (scope report of 2026-10-28) where the report gives them; where it gives none, the rule says "(architect)" and the lead may change them. Every provider fact below is what the staff-reviewer read in a primary source on 2026-10-28, with its source; a fact marked "not verified" was not read and is not assumed. The terms clauses are facts read from the terms, not legal advice. The points the scope leaves open are listed under "Ambiguities resolved" for the lead. Open for the owner: O-J1 to O-J6 (SCOPE section J.6), all before the first real judge request (P4-J28), none before the offline work. Accepted when it moved from the staging directory to `docs/adr/` (task P4-J01, 2026-10-28, lead auto-approval of the recommended options and of Ambiguities 1 to 6), in the same change as the amendments of ADRs 0023, 0024 and 0027 (task P4-J02) and ADR index revision 52; the owner gates O-J1 to O-J6 are not decisions of this ADR and bind only the first real judge request.
+ - Date: 2026-10-28
+ - Task: P4-J01 (amendments P4-J02; documents P4-J03 to P4-J05; implemented by P4-J06 to P4-J25, P4-J30 and P4-J32; audited by P4-J26; first real run P4-J28; measurement P4-J29; gate P4-JG)
+
+@@ -21,7 +20,7 @@ The staff-reviewer's findings shape the design (SCOPE section J.1):
+ - FJ10: golden items need the scripted caller in Phase 4 (rules 1 and 3).
+
+ ## Decision
+-Machine-read by `test_adr0030_rules_are_tested`, in the format of ADRs 0026 to 0029: every numbered rule of this section and every invariant cites at least one test name in backticks; a cited name that no test defines yet must be one that the task table of `docs/phase4/SCOPE.md` (section A.10) names, and that set of not-yet-defined names shrinks to empty by the gate (P4-G, gate item 15). While this ADR is Proposed its rules bind no code; batch J implements them after the ADR is Accepted.
++Machine-read by `test_adr0030_rules_are_tested`, in the format of ADRs 0026 to 0029: every numbered rule of this section and every invariant cites at least one test name in backticks; a cited name that no test defines yet must be one that the task table of `docs/phase4/SCOPE.md` (section A.10) names, and that set of not-yet-defined names shrinks to empty by the gate (P4-G, gate item 15). The ADR is Accepted: its rules bind batch J, which implements them task by task.
+
+ 1. **Scope: simulated scripted runs only (owner decision 2026-10-28; Q-J9, Q-J10; FJ10).** The judge runs only inside `tracer simulate`, on a run whose caller is the scripted brain (ADR 0028 rule 1), on the golden items of one golden set (rule 2). It never runs on a Phase 3 recorded call (`tracer score`), never on real-caller data (BL-266), never on flagged spans (BL-174), and never on the whole call (the expected-outcome check stays inert, rule 10). A run without `--golden` is unchanged: same records, same key set, no judge request. Rejected: the judge on recorded or real calls (BACKLOG row, see SCOPE J.10); golden runs with the LLM caller (the question text is generated, so there is no fixed question to compare with, FJ10); the agent's export as the answer source (it needs a shared time base, BL-167, or turn ids). Trade-off: in Phase 4 the judge sees only simulated scripted calls. Tests: `test_golden_set_refused_with_llm_caller`, `test_tdeg_run_without_golden_set_unchanged`.
+ 2. **The golden set document `tracer.golden_set/1` (P4-J04 to P4-J06).** A golden set is a strict JSON file read with `loads_strict` (a duplicate key is refused), with closed keys and a version member naming `tracer.golden_set/1`; at most 100 items, at most 10 expected facts per item, at most 300 characters per fact and at most 1,000 per expected answer; text in NFC and within the indic-linguistics character table for mr. Each item binds to one scripted turn (rule 3) and names its match mode (rule 7: `all_facts` with expected facts, or `equivalent_answer` with an expected answer). Every item of the project's synthetic fixture (`packages/evalcore/tests/fixtures/golden_mr.json`, P4-J04) carries `needs_native_review: true` and is for the apparatus only; a real golden set is the owner's (O-J6). Refusals happen at step 1 of rule 20, before any key is read. The key and SHA-256 of the golden set are recorded in `tracer.judge_profile/1` (rule 8). Its JSON Schema (draft 2020-12, closed keys) is machine-checked against the constants `tracer-evalcore` ships (P4-J05). Rejected (architect): a lenient loader (a repeated key would silently keep one value); no caps (a large set multiplies requests and spend). Trade-off: a set larger than the caps is split by the user into several runs. Tests: `test_golden_set_strict_json_closed_keys_and_version`, `test_golden_set_caps_items_facts_chars`, `test_golden_fixture_mr_valid_and_marked_for_native_review`, `test_adr0030_documents_match_json_schemas`.
+@@ -40,7 +39,7 @@ Machine-read by `test_adr0030_rules_are_tested`, in the format of ADRs 0026 to 0
+ 15. **BYOK by variable name; canaries (ADR 0007; ADR 0024 amendment A4).** The judge key is read at run time from the environment variable the allowlist entry names (or from `--env-file`, read for that name only), held in a redacting wrapper, and never written to any output: exception, repr, log at any level (DEBUG included), exchange file, store, report, recovery file, labels file or agreement report. The configuration names variables, never values; a `key_env` value that does not match the variable-name pattern, or a configuration that holds a key-shaped value, is refused. Rejected: keys in the judge configuration or the allowlist (both are files a user may share). Trade-off: one more variable per judge provider. Tests: `test_judge_key_env_name_pattern_and_never_value_in_config`, `test_judge_key_bound_to_its_host_never_sent_elsewhere`, `test_judge_key_canaries_never_in_any_output_channel`.
+ 16. **Retries, timeouts and the error taxonomy (ADR 0024 rules 9 and 10).** The judge client uses the timeouts, the bounded attempts and the bounded `Retry-After` of ADR 0024 rule 9 and decides as rule 10 does: on the HTTP status and on a short machine-key `error.code`, never on message text, which can echo input. `Judge*` errors hold facts only, are raised outside handlers and carry no cause and no context (the `_engine_errors` pattern). An authentication failure stops every further judge request of the run, and the remaining items are `error` with its code. Rejected (architect): retrying an authentication failure (the key will not become valid between attempts, and each attempt is a request against a key that is refused). Trade-off: one bad key ends the judging of the run. Tests: `test_openai_compat_retry_taxonomy_matches_adr0024`, `test_judge_errors_hold_facts_only_and_no_chain`, `test_tdeg_judge_auth_failure_stops_requests_and_errors_remaining`.
+ 17. **Caps (Q-J13).** A real judge engine requires `--max-judge-requests` (every attempt and every regeneration counts), `--max-judge-tokens` and `max_tokens` per request in the judge configuration, each with no default in code; a missing cap is refused at step 4 of rule 20. The token cap is checked as reported usage plus the next request's `max_tokens`, so the prompt tokens of one request can cross it (no tokenizer; BL-295, extended). A reply over 4,096 bytes is refused (rule 7). When a cap is reached no further request is sent and the remaining items are `error` with the cap's code. Rejected (architect): defaults in code (Tracer supplies no value; O-J3). Trade-off: the user states every limit for every real run. Tests: `test_judge_caps_required_for_real_engine_no_defaults`, `test_tdeg_judge_cap_reached_no_request_beyond_cap`, `test_judge_output_over_size_cap_refused`.
+-18. **Usage and cost (Q-J12; ADR 0014).** Each answered judge request makes one `UsageRecord` with `stage=judge` and `domain=evaluation`, the model as requested, `prompt_tokens` and `completion_tokens` mapped exactly, cached tokens only when the reply reports them (absent stays absent, never 0); usage is handed out before the next request and survives an interruption (rule 20). Cost is `not_available` without a user USD price catalog; OpenRouter's `usage.cost` is "Cost in credits" and is never stored as a cost; no currency is converted. Rejected (architect): computing a cost from a provider price page (pricing is not verified, BL-151); storing credits as money. Trade-off: judged runs show no cost until a USD catalog exists. Tests: `test_openai_compat_usage_maps_prompt_completion_cached_exactly`, `test_judge_engine_streams_usage_before_next_request`, `test_judge_usage_survives_ctrl_c_mid_judging`.
++18. **Usage and cost (Q-J12; ADR 0014).** Each answered judge request makes one `UsageRecord` with `stage=judge` and `domain=evaluation`, the model as requested, `prompt_tokens` and `completion_tokens` mapped exactly, cached tokens only when the reply reports them (absent stays absent, never 0); usage is handed out before the next request and survives an interruption (rule 20). Cost is `not_available` without a user USD price catalog; OpenRouter's `usage.cost` is "Cost in credits" and is never stored as a cost; no currency is converted. Rejected (architect): computing a cost from a provider price page (pricing is not verified, BL-151); storing credits as money. Trade-off: judged runs show no cost until a USD catalog exists. Tests: `test_openai_compat_usage_maps_prompt_completion_cached_exactly`, `test_judge_cost_not_available_without_usd_catalog_and_credits_never_stored_as_cost`, `test_judge_engine_streams_usage_before_next_request`, `test_judge_usage_survives_ctrl_c_mid_judging`.
+ 19. **Exchange files, replay and reproducibility (Q-J14).** Each attempt writes `<out>/judge/<run>/item-<id>-<attempt>.json` (`tracer.judge_exchange/1`: the request messages, the raw response body, the request id and the status), mode 0600, opened with `O_NOFOLLOW`, git-ignored and guarded; the store holds the exchange SHA-256 (rule 8), never a raw reply. The `replay:<dir>` engine answers from those files and reproduces the stored verdicts byte for byte; the `fake:<scenario>` engine is deterministic and sends nothing. Judged and rescoring bundles round-trip through the store byte for byte, on SQLite and on Postgres. No determinism of any provider is claimed: a seed is recorded as sent, with `seed_guarantee: none`. Rejected (architect): raw replies in the store (a second copy of model output that may hold injected material, as ADR 0028 rule 12). Trade-off: replay needs the local exchange directory, which is never committed. Tests: `test_judge_exchange_files_private_no_follow_and_guarded`, `test_replay_judge_reproduces_stored_verdicts_byte_identical`, `test_fake_judge_is_deterministic_and_sends_nothing`, `test_judged_bundle_round_trips_through_store_byte_identical`, `test_judged_and_rescoring_bundles_store_on_both_backends`, `test_e2e_judge_synthetic_mr_exact_outputs`.
+ 20. **Order of operations and recovery (Q-J6; extends ADR 0026 rule 14).** (1) parse and validate the target, evaluator, sim profile, golden set (against the evaluator) and judge configuration; (2) the target allowlist and the judge allowlist (host, profile, key name); (3) the terms gates, including `--judge-authorisation-reference`, stored as its SHA-256 only; (4) every cap present, the judge caps included; (5) the output probe; (6) the engine factories read the keys (the judge key by its bound name) and the call logs open; (7) to (12) as ADR 0026 rule 14 (the call, the hang-up, the STT); (13) scoring; (13b) the judge: items in golden-set order, sequential, one request in flight, usage streamed to the recovery file, an authentication failure stopping further requests, the cap checked before each request; (14) the store; (15) the report. A `BaseException` during 13b writes `usage-recovery` and is raised again (Phase 3 rule 16 (d)). A judge failure gives exit 2 (`exit_code_of`). The dry run prints the judge plan and sends nothing. Rejected: judging only later, after the run is stored (the judge definitions must be in the run's snapshot from the start, FJ6). Trade-off: the judge model is fixed when `tracer simulate` runs; re-judging with another model needs a new run. Tests: `test_simulate_with_golden_order_of_operations_pinned`, `test_judge_refusals_before_any_key_read_or_connect`, `test_judge_usage_survives_ctrl_c_mid_judging`, `test_simulate_dry_run_prints_judge_plan_and_sends_nothing`, `test_simulate_judge_errors_exit_2`.
+ 21. **`tracer judge`: rescoring and repeats on fixed answers (Q-J16; FJ6, FJ7; ADR 0022 rule 5).** `tracer judge --out <dir> --bundle <id> --judge <engine> [--repeats K]` re-judges a stored judged run and stores one rescoring bundle per repeat, sharing the call's records and adding judge results. It is refused when the run's snapshot holds no judge definitions, and when the engine's model differs from the definitions' `judge_model_ref`. K repeats re-judge the same stored answers K times, so their counts of verdict changes measure the judge, not the agent. Rejected: measuring stability by repeating whole calls (the agent varies too, FJ7); a later judge with another model on a stored run (the snapshot fixes the definitions, FJ6). Trade-off: comparing judge models needs one new run per model. Tests: `test_tracer_judge_rescoring_bundle_shares_records_and_adds_judge_results`, `test_tracer_judge_refuses_run_without_judge_definitions`, `test_tracer_judge_model_must_equal_definition_model_ref`, `test_tracer_judge_repeats_store_one_bundle_each`.
+@@ -64,11 +63,724 @@ The facts of the closed set of rule 13, as the staff-reviewer read them on 2026-
+
+ Not verified by anyone on 2026-10-28: xAI Chat Completions usage, errors, `seed` and token field; Gemini usage fields and whether `temperature`, `max_tokens` and `seed` are honoured; OpenRouter error codes; every provider's terms, data retention and training use; every provider's Marathi competence; the Sarvam v2 auth header requirement; pricing and currencies; the DNS rebinding race in httpx.
+
+-## JSON Schemas of the five documents (reserved for P4-J05)
+-`tracer.golden_set/1` (the golden set file), `tracer.judge_profile/1` (in `ConfigSnapshot.metadata["tracer.judge_profile"]`), `tracer.judge/1` (in `MetricResult.metadata["tracer.judge"]`), `tracer.judge_exchange/1` (a local exchange file) and `tracer.judge_labels/1` (a labels file): draft 2020-12, closed keys, machine-checked against the constants the code ships (`test_adr0030_documents_match_json_schemas`). The members named by rules 2, 7, 8, 19 and 22 are the content; the exact member names, types and bounds of each schema are written into this section by P4-J05 before the ADR is Accepted. They are not written here, because the scope fixes the members but not every name and bound, and an invented field name would become a contract.
++## The five documents (P4-J05)
++Draft 2020-12, closed keys, every integer bounded by 2**53 - 1, machine-checked against the constants the code ships and against the code's enumerations and caps (`test_adr0030_documents_match_json_schemas`). Every member names the rule it comes from; no member exists that a rule does not need. The schemas are given below, one section each (the member tables list every member, nested ones included, with the rule of the ADR it comes from).
+
+-## Amendments to earlier ADRs (proposed text, task P4-J02)
+-Proposed only. ADRs 0022 to 0029 are not edited by this staging, because their guard tests pin their text and counts. Each amendment is applied in the P4-J02 commit together with the named spec changes listed at the end of this section, and an ADR index revision.
++## The `tracer.golden_set/1` format
++The golden set file `tracer.golden_set/1`, read with `loads_strict` by `tracer_evalcore.golden.parse_golden_set`. The cross-field rules a schema cannot state (an item's `question` equals the scripted line, the caller is the scripted brain, no barge-in turn, NFC and the character table `mr-caller-charset/1`, unique item ids) are code (rule 3).
++
++```json
++{
++  "$schema": "https://json-schema.org/draft/2020-12/schema",
++  "title": "tracer.golden_set/1",
++  "type": "object",
++  "additionalProperties": false,
++  "required": [
++    "format",
++    "key",
++    "language",
++    "items"
++  ],
++  "properties": {
++    "format": {
++      "type": "string",
++      "enum": [
++        "tracer.golden_set/1"
++      ]
++    },
++    "key": {
++      "type": "string",
++      "pattern": "^[a-z][a-z0-9]*(_[a-z0-9]+)*$",
++      "minLength": 1,
++      "maxLength": 64
++    },
++    "language": {
++      "type": "string",
++      "enum": [
++        "mr"
++      ]
++    },
++    "items": {
++      "type": "array",
++      "minItems": 1,
++      "maxItems": 100,
++      "items": {
++        "oneOf": [
++          {
++            "type": "object",
++            "additionalProperties": false,
++            "required": [
++              "id",
++              "scripted_turn_index",
++              "question",
++              "needs_native_review",
++              "match_mode",
++              "expected_facts"
++            ],
++            "properties": {
++              "id": {
++                "type": "string",
++                "pattern": "^[a-z][a-z0-9]*(_[a-z0-9]+)*$",
++                "minLength": 1,
++                "maxLength": 40
++              },
++              "scripted_turn_index": {
++                "type": "integer",
++                "minimum": 0,
++                "maximum": 9007199254740991
++              },
++              "question": {
++                "type": "string",
++                "minLength": 1,
++                "maxLength": 2500
++              },
++              "needs_native_review": {
++                "type": "boolean"
++              },
++              "match_mode": {
++                "type": "string",
++                "enum": [
++                  "all_facts"
++                ]
++              },
++              "expected_facts": {
++                "type": "array",
++                "minItems": 1,
++                "maxItems": 10,
++                "items": {
++                  "type": "string",
++                  "minLength": 1,
++                  "maxLength": 300
++                }
++              }
++            }
++          },
++          {
++            "type": "object",
++            "additionalProperties": false,
++            "required": [
++              "id",
++              "scripted_turn_index",
++              "question",
++              "needs_native_review",
++              "match_mode",
++              "expected_answer"
++            ],
++            "properties": {
++              "id": {
++                "type": "string",
++                "pattern": "^[a-z][a-z0-9]*(_[a-z0-9]+)*$",
++                "minLength": 1,
++                "maxLength": 40
++              },
++              "scripted_turn_index": {
++                "type": "integer",
++                "minimum": 0,
++                "maximum": 9007199254740991
++              },
++              "question": {
++                "type": "string",
++                "minLength": 1,
++                "maxLength": 2500
++              },
++              "needs_native_review": {
++                "type": "boolean"
++              },
++              "match_mode": {
++                "type": "string",
++                "enum": [
++                  "equivalent_answer"
++                ]
++              },
++              "expected_answer": {
++                "type": "string",
++                "minLength": 1,
++                "maxLength": 1000
++              }
++            }
++          }
++        ]
++      }
++    }
++  }
++}
++```
++
++| Member | Source | Meaning |
++|---|---|---|
++| `format` | rule 2 | the version member; the value is the format name |
++| `key` | rules 2, 8 | the set's name, recorded in `tracer.judge_profile/1` with the SHA-256 of the file |
++| `language` | rules 2, 11 | mr only |
++| `items` | rules 2, 3 | 1 to 100 items, each bound to one scripted turn |
++| `items[].id` | rule 8 | snake case; the metric key is `judge_golden_<id>` |
++| `items[].scripted_turn_index` | rule 3 | the scripted turn the item is bound to |
++| `items[].question` | rules 3, 5 | equal to `Evaluator.scripted_turns[scripted_turn_index].text`, at most 2,500 characters |
++| `items[].match_mode` | rules 2, 7 | `all_facts` or `equivalent_answer`; picks the branch of `oneOf` |
++| `items[].expected_facts` | rules 2, 7 | mode `all_facts`: 1 to 10 facts of at most 300 characters |
++| `items[].expected_answer` | rules 2, 7 | mode `equivalent_answer`: at most 1,000 characters |
++| `items[].needs_native_review` | rule 2, P4-J04 | true for every item of the synthetic fixture |
++
++## The `tracer.judge_profile/1` format
++The profile document in `ConfigSnapshot.metadata["tracer.judge_profile"]`, built by `tracer_evalcore.judgerecords.build_judge_profile_document` (ADR 0027 rule 12a). `profile` is one of the seven profiles of rule 13 or `fake/1`, the profile of the offline fake engine (Ambiguity 7); `host`, `path` and `key_env` are null for it.
++
++```json
++{
++  "$schema": "https://json-schema.org/draft/2020-12/schema",
++  "title": "tracer.judge_profile/1",
++  "type": "object",
++  "additionalProperties": false,
++  "required": [
++    "format",
++    "profile",
++    "host",
++    "path",
++    "model",
++    "params",
++    "caps",
++    "key_env",
++    "golden_set",
++    "template_sha256",
++    "calibration"
++  ],
++  "properties": {
++    "format": {
++      "type": "string",
++      "enum": [
++        "tracer.judge_profile/1"
++      ]
++    },
++    "profile": {
++      "type": "string",
++      "enum": [
++        "anthropic_compat/1",
++        "gemini_compat/1",
++        "xai/1",
++        "openrouter/1",
++        "sarvam_v2/1",
++        "openai/1",
++        "local_loopback/1",
++        "fake/1"
++      ]
++    },
++    "host": {
++      "type": [
++        "string",
++        "null"
++      ],
++      "pattern": "^[a-z0-9.-]{1,253}(:[0-9]{1,5})?$|^\\[[0-9a-f:]{2,45}\\](:[0-9]{1,5})?$"
++    },
++    "path": {
++      "type": [
++        "string",
++        "null"
++      ],
++      "pattern": "^/[A-Za-z0-9._~/-]{0,255}$"
++    },
++    "model": {
++      "type": "string",
++      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$"
++    },
++    "params": {
++      "type": "object",
++      "additionalProperties": false,
++      "required": [],
++      "properties": {
++        "max_tokens": {
++          "type": "integer",
++          "minimum": 1,
++          "maximum": 9007199254740991
++        },
++        "max_completion_tokens": {
++          "type": "integer",
++          "minimum": 1,
++          "maximum": 9007199254740991
++        },
++        "temperature": {
++          "type": "number",
++          "minimum": 0,
++          "maximum": 2
++        },
++        "seed": {
++          "type": "integer",
++          "minimum": 0,
++          "maximum": 9007199254740991
++        },
++        "seed_guarantee": {
++          "type": "string",
++          "enum": [
++            "none"
++          ]
++        },
++        "reasoning_effort": {
++          "type": "string",
++          "pattern": "^[a-z][a-z0-9_]{0,31}$"
++        },
++        "response_format": {
++          "type": "string",
++          "enum": [
++            "json_schema"
++          ]
++        },
++        "provider": {
++          "type": "object",
++          "additionalProperties": false,
++          "required": [
++            "order",
++            "allow_fallbacks",
++            "require_parameters",
++            "data_collection"
++          ],
++          "properties": {
++            "order": {
++              "type": "array",
++              "minItems": 1,
++              "maxItems": 1,
++              "items": {
++                "type": "string",
++                "pattern": "^[a-z0-9][a-z0-9._/-]{0,63}$"
++              }
++            },
++            "allow_fallbacks": {
++              "type": "boolean",
++              "enum": [
++                false
++              ]
++            },
++            "require_parameters": {
++              "type": "boolean",
++              "enum": [
++                true
++              ]
++            },
++            "data_collection": {
++              "type": "string",
++              "enum": [
++                "deny"
++              ]
++            }
++          }
++        }
++      }
++    },
++    "caps": {
++      "type": "object",
++      "additionalProperties": false,
++      "required": [
++        "max_judge_requests",
++        "max_judge_tokens"
++      ],
++      "properties": {
++        "max_judge_requests": {
++          "type": [
++            "integer",
++            "null"
++          ],
++          "minimum": 1,
++          "maximum": 9007199254740991
++        },
++        "max_judge_tokens": {
++          "type": [
++            "integer",
++            "null"
++          ],
++          "minimum": 1,
++          "maximum": 9007199254740991
++        }
++      }
++    },
++    "key_env": {
++      "type": [
++        "string",
++        "null"
++      ],
++      "pattern": "^[A-Z][A-Z0-9_]{0,63}$"
++    },
++    "golden_set": {
++      "type": "object",
++      "additionalProperties": false,
++      "required": [
++        "key",
++        "sha256"
++      ],
++      "properties": {
++        "key": {
++          "type": "string",
++          "pattern": "^[a-z][a-z0-9]*(_[a-z0-9]+)*$",
++          "minLength": 1,
++          "maxLength": 64
++        },
++        "sha256": {
++          "type": "string",
++          "pattern": "^[0-9a-f]{64}$"
++        }
++      }
++    },
++    "template_sha256": {
++      "type": "object",
++      "additionalProperties": false,
++      "required": [
++        "all_facts",
++        "equivalent_answer"
++      ],
++      "properties": {
++        "all_facts": {
++          "type": "string",
++          "pattern": "^[0-9a-f]{64}$"
++        },
++        "equivalent_answer": {
++          "type": "string",
++          "pattern": "^[0-9a-f]{64}$"
++        }
++      }
++    },
++    "calibration": {
++      "type": "string",
++      "enum": [
++        "uncalibrated"
++      ]
++    }
++  }
++}
++```
++
++| Member | Source | Meaning |
++|---|---|---|
++| `format` | rule 8 | the version member |
++| `profile` | rule 13 | the profile name and version |
++| `host` | rule 14 | host and non-default port of the allowlist entry, or null |
++| `path` | rules 8, 14 | the endpoint path (a stated exception to ADR 0027 rule 1: a URL path, not a file path), or null |
++| `model` | rule 8 | the model asked for |
++| `params` | rules 8, 12 | the call parameters as sent; `seed_guarantee` is always `none` |
++| `params.max_tokens` | rule 12 | the token field of the profile, one of the two |
++| `params.max_completion_tokens` | rule 12 | the token field of the profile `openai/1` |
++| `params.temperature` | rule 12 | present only when the configuration sets it |
++| `params.seed` | rule 12 | present only where the profile honours it |
++| `params.seed_guarantee` | rule 19 | recorded with a seed: none is guaranteed |
++| `params.reasoning_effort` | rule 13 | sent explicitly by `sarvam_v2/1` only |
++| `params.response_format` | rule 12 | `json_schema` on the profiles whose documentation verifies it |
++| `params.provider` | rule 13 | the pinned provider object of `openrouter/1` |
++| `caps` | rule 17 | the caps of the run, null when none applies |
++| `caps.max_judge_requests` | rule 17 | every attempt and regeneration counts |
++| `caps.max_judge_tokens` | rule 17 | reported usage plus the next `max_tokens` |
++| `key_env` | rules 14, 15 | the NAME of the key variable, never a value; null when no key is used |
++| `golden_set` | rules 2, 8 | the golden set's key and the SHA-256 of its file |
++| `template_sha256` | rules 6, 8 | the SHA-256 of the fixed template of each match mode |
++| `calibration` | rule 9 | always `uncalibrated` |
++
++## The `tracer.judge/1` format
++The result document in `MetricResult.metadata["tracer.judge"]`, built by `tracer_evalcore.judgerecords.build_judge_document`. Cross-field rules (code): `verdict` is null if and only if `reason_code` is null and `facts` is empty; `regenerated` is true if and only if `attempts` is 2; with `attempts` 0 the verdict and `exchange_sha256` are null.
++
++```json
++{
++  "$schema": "https://json-schema.org/draft/2020-12/schema",
++  "title": "tracer.judge/1",
++  "type": "object",
++  "additionalProperties": false,
++  "required": [
++    "format",
++    "verdict",
++    "reason_code",
++    "facts",
++    "window_turn_seqs",
++    "excluded_turns",
++    "attempts",
++    "regenerated",
++    "exchange_sha256",
++    "calibration",
++    "confidence"
++  ],
++  "properties": {
++    "format": {
++      "type": "string",
++      "enum": [
++        "tracer.judge/1"
++      ]
++    },
++    "verdict": {
++      "type": [
++        "string",
++        "null"
++      ],
++      "enum": [
++        "agrees",
++        "disagrees",
++        "cannot_tell",
++        null
++      ]
++    },
++    "reason_code": {
++      "type": [
++        "string",
++        "null"
++      ],
++      "enum": [
++        "all_facts_stated",
++        "fact_contradicted",
++        "fact_absent",
++        "meaning_differs",
++        "meaning_same",
++        "answer_off_topic",
++        "answer_unintelligible",
++        "insufficient_information",
++        null
++      ]
++    },
++    "facts": {
++      "type": "array",
++      "maxItems": 10,
++      "items": {
++        "type": "object",
++        "additionalProperties": false,
++        "required": [
++          "index",
++          "status"
++        ],
++        "properties": {
++          "index": {
++            "type": "integer",
++            "minimum": 0,
++            "maximum": 9
++          },
++          "status": {
++            "type": "string",
++            "enum": [
++              "stated",
++              "contradicted",
++              "absent",
++              "cannot_tell"
++            ]
++          }
++        }
++      }
++    },
++    "window_turn_seqs": {
++      "type": "array",
++      "items": {
++        "type": "integer",
++        "minimum": 0,
++        "maximum": 9007199254740991
++      }
++    },
++    "excluded_turns": {
++      "type": "integer",
++      "minimum": 0,
++      "maximum": 9007199254740991
++    },
++    "attempts": {
++      "type": "integer",
++      "minimum": 0,
++      "maximum": 2
++    },
++    "regenerated": {
++      "type": "boolean"
++    },
++    "exchange_sha256": {
++      "type": [
++        "string",
++        "null"
++      ],
++      "pattern": "^[0-9a-f]{64}$"
++    },
++    "calibration": {
++      "type": "string",
++      "enum": [
++        "uncalibrated"
++      ]
++    },
++    "confidence": {
++      "type": "string",
++      "enum": [
++        "none_claimed"
++      ]
++    }
++  }
++}
++```
++
++| Member | Source | Meaning |
++|---|---|---|
++| `format` | rule 8 | the version member |
++| `verdict` | rules 7, 8 | `agrees`, `disagrees` or `cannot_tell`; null when the judge gave no usable verdict |
++| `reason_code` | rule 7 | one of the eight codes; null with the verdict |
++| `facts` | rule 7 | the status of each expected fact, empty in mode `equivalent_answer` |
++| `facts[].index` | rule 7 | the position in `expected_facts`, from 0 |
++| `facts[].status` | rule 7 | `stated`, `contradicted`, `absent` or `cannot_tell` |
++| `window_turn_seqs` | rules 4, 8 | the `seq` of each `our_stt` turn of the answer window |
++| `excluded_turns` | rules 4, 8 | the number of `our_stt` agent turns that start before the window opens |
++| `attempts` | rules 7, 8 | requests made for the item: 0 when none was sent, 2 after a regeneration |
++| `regenerated` | rules 7, 8 | whether the identical request was sent a second time |
++| `exchange_sha256` | rules 8, 19 | the SHA-256 of the exchange file of the last attempt, or null |
++| `calibration` | rule 9 | always `uncalibrated` |
++| `confidence` | rule 9 | always `none_claimed`: no judge number is a confidence |
++
++## The `tracer.judge_exchange/1` format
++The local exchange file `<out>/judge/<run>/item-<id>-<attempt>.json`, written by `tracer_evalproviders.judgeexchange.ExchangeStore` as the RFC 8785 form of this document (mode 0600). The store holds only its SHA-256.
++
++```json
++{
++  "$schema": "https://json-schema.org/draft/2020-12/schema",
++  "title": "tracer.judge_exchange/1",
++  "type": "object",
++  "additionalProperties": false,
++  "required": [
++    "format",
++    "messages",
++    "response_body",
++    "request_id",
++    "status"
++  ],
++  "properties": {
++    "format": {
++      "type": "string",
++      "enum": [
++        "tracer.judge_exchange/1"
++      ]
++    },
++    "messages": {
++      "type": "array",
++      "minItems": 2,
++      "maxItems": 2,
++      "items": {
++        "type": "object",
++        "additionalProperties": false,
++        "required": [
++          "role",
++          "content"
++        ],
++        "properties": {
++          "role": {
++            "type": "string",
++            "enum": [
++              "system",
++              "user"
++            ]
++          },
++          "content": {
++            "type": "string",
++            "minLength": 1,
++            "maxLength": 100000
++          }
++        }
++      }
++    },
++    "response_body": {
++      "type": "string",
++      "maxLength": 65536
++    },
++    "request_id": {
++      "type": [
++        "string",
++        "null"
++      ],
++      "pattern": "^[A-Za-z0-9_.:-]{1,128}$"
++    },
++    "status": {
++      "type": "integer",
++      "minimum": 100,
++      "maximum": 599
++    }
++  }
++}
++```
++
++| Member | Source | Meaning |
++|---|---|---|
++| `format` | rule 19 | the version member |
++| `messages` | rule 19 | the system and the user message that were sent |
++| `messages[].role` | rule 5 | `system` or `user` |
++| `messages[].content` | rule 5 | the text sent, at most 100,000 characters |
++| `response_body` | rule 19 | the raw reply body of an answered request, at most 65,536 characters |
++| `request_id` | rule 19 | the provider's request id when it has a plain form, else null |
++| `status` | rule 19 | the HTTP status of the reply |
++
++## The `tracer.judge_labels/1` format
++The human labels file, one file per labeller, validated by `tracer_evalcore.judgelabels.validate_judge_labels` (the command `tracer labels check` is task P4-J21). A null `verdict` is an unlabelled item, shown separately and never counted as a disagreement.
++
++```json
++{
++  "$schema": "https://json-schema.org/draft/2020-12/schema",
++  "title": "tracer.judge_labels/1",
++  "type": "object",
++  "additionalProperties": false,
++  "required": [
++    "format",
++    "bundle_id",
++    "labeller",
++    "labels"
++  ],
++  "properties": {
++    "format": {
++      "type": "string",
++      "enum": [
++        "tracer.judge_labels/1"
++      ]
++    },
++    "bundle_id": {
++      "type": "string",
++      "pattern": "^rbnd_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
++    },
++    "labeller": {
++      "type": "string",
++      "pattern": "^[a-z][a-z0-9_-]{0,63}$"
++    },
++    "labels": {
++      "type": "array",
++      "minItems": 1,
++      "maxItems": 100,
++      "items": {
++        "type": "object",
++        "additionalProperties": false,
++        "required": [
++          "item_id",
++          "verdict",
++          "basis"
++        ],
++        "properties": {
++          "item_id": {
++            "type": "string",
++            "pattern": "^[a-z][a-z0-9]*(_[a-z0-9]+)*$",
++            "minLength": 1,
++            "maxLength": 40
++          },
++          "verdict": {
++            "type": [
++              "string",
++              "null"
++            ],
++            "enum": [
++              "agrees",
++              "disagrees",
++              "cannot_tell",
++              null
++            ]
++          },
++          "basis": {
++            "type": "string",
++            "enum": [
++              "audio",
++              "stt_text",
++              "both"
++            ]
++          }
++        }
++      }
++    }
++  }
++}
++```
++
++| Member | Source | Meaning |
++|---|---|---|
++| `format` | rule 22 | the version member |
++| `bundle_id` | rule 22 | the judged run bundle the labels refer to |
++| `labeller` | rule 22 | a pseudonym; two labellers give the human by human counts |
++| `labels` | rule 22 | one label per item |
++| `labels[].item_id` | rules 3, 22 | the golden item |
++| `labels[].verdict` | rule 22 | the human's verdict, null when not labelled |
++| `labels[].basis` | rule 22 | `audio`, `stt_text` or `both`: what the human judged on |
++
++## Amendments to earlier ADRs (applied, task P4-J02)
++Applied in the same change as the move of this ADR (task P4-J02), together with the named spec changes listed at the end of this section and ADR index revision 52. The text below is the text now in ADRs 0023, 0024 and 0027.
+
+ ### ADR 0023, Phase 4 amendment, new rule A4 (after A3, before the amendment's invariants)
+ ```text
+@@ -92,7 +804,7 @@ The intro paragraph then says "labelled A1 to A13" (and names task P4-J02). No n
+ The label `12a.` is deliberately not of the form `N. **`, so the rule count of ADR 0027 (17 rules, I1 to I10) is unchanged and rule 12a is read as part of rule 12's body by the rule reader.
+
+ ### Tests that need a named spec change when the amendments and this ADR are applied
+-qa makes each change (before and after, disclosed); none is edited by this staging.
++qa made each change (before and after, disclosed in `docs/phase4/evidence/red/batch-j1/spec-change.diff`).
+ - `packages/evalcore/tests/evalcore_phase4_adr_support.py`: `SPECS["0023A"]` from 3 rules to 4 and `SPECS["0024A"]` from 9 rules to 13 (invariant counts unchanged); `PENDING["0023A"]`, `PENDING["0024A"]` and `PENDING["0027"]` gain the batch J names the new text cites that no test defines yet; a new `SPECS["0030"]` (25 rules, 9 invariants, self test `test_adr0030_rules_are_tested`) with `PENDING["0030"]`; the message suffix "(an ADR from 0030 has no pending set)" of `whole_adr_problems` changes meaning; the module docstring.
+ - The ADR 0023 amendment module of `packages/evalcore/tests` (the module of `test_adr0023_phase4_amendment_is_tested`): `test_adr0023_phase4_amendment_has_the_pinned_labels` (A1 to A4) and `test_adr0023_phase4_amendment_says_where_it_is_machine_read` ("labelled A1 to A3" becomes "labelled A1 to A4"; "task P4-00d" stays).
+ - The ADR 0024 amendment module of `packages/evalcore/tests` (the module of `test_adr0024_phase4_amendment_is_tested`): `test_adr0024_phase4_amendment_has_the_pinned_labels` (A1 to A13) and `test_adr0024_phase4_amendment_says_where_it_is_machine_read` ("labelled A1 to A9" becomes "labelled A1 to A13").
+@@ -109,6 +821,8 @@ For the lead (SCOPE section J covers Q-J1 to Q-J20; these are readings the scope
+ - **Ambiguity 5. A self-test invariant.** The scope gives invariants I1 to I8, mirroring rules 5, 7, 9, 10, 14, 19, 22 and 23; the machine-read format of ADRs 0026 to 0029 requires that the last invariant cites the ADR's own test. **Recommendation:** I9 cites `test_adr0030_rules_are_tested`, as I7 of ADR 0028 and I4 of ADR 0029 do.
+ - **Ambiguity 6. Cost names no test.** Rule 18's "cost `not_available` without a USD catalog" and "credits never stored as cost" are gate item 20 but no named test of section A.10 states them; the usage tests cover the mapping only. **Recommendation:** qa adds a named test to P4-J12 or P4-J17 (a SCOPE row change logged by the lead), and rule 18 cites it.
+
++- **Ambiguity 7. The profile of the offline engines.** The scope fixes seven profiles for real providers; a judged run with `fake:<scenario>` still needs a valid `tracer.judge_profile/1`. **Recommendation:** the document's `profile` may also be `fake/1` (host, path and `key_env` null); `fake/1` is not a profile of rule 13 and is refused as a real profile (`unknown_profile`). Rejected: no profile document for a fake run (the snapshot would differ in shape between a fake and a real run).
++
+ ## Consequences
+ - A judged run costs one judge request per golden item plus at most one regeneration each; every number is capped by the user.
+ - No judge number is a claim: counts with denominators only; human agreement only from the owner's labels.
+@@ -128,7 +842,7 @@ For the lead (SCOPE section J covers Q-J1 to Q-J20; these are readings the scope
+ - I8. Every degradation case gives the same key set and schema, and a missing question or answer is never `disagrees`. Tests: `test_tdeg_judge_schema_identical_across_cases`, `test_tdeg_judge_question_not_sent_is_error_never_disagrees`.
+ - I9. Every numbered rule and every invariant cites a test. Test: `test_adr0030_rules_are_tested`.
+
+-## Proposed index entry
+-For the ADR index revision that moves this file to `docs/adr/` (P4-J01) and applies the amendments (P4-J02); not written into `docs/adr/README.md` now, because the index header is pinned at Revision 51 by `test_the_index_header_check_has_teeth`.
+-- Row: `| [0030](0030-llm-judge-uncalibrated-signal.md) | LLM judge as an uncalibrated signal (golden sets, OpenAI-compatible provider profiles, human labels) | Proposed | the whole ADR until P4-J01 makes it Accepted; owner O-J1 to O-J6 open |`
+-- Changes entry: "**New ADR 0030** (P4-J01): the LLM judge as an uncalibrated signal. 25 numbered rules and invariants I1 to I9 (`test_adr0030_rules_are_tested`) ... **ADR 0023 amended** (P4-J02): rule A4, the judge claim words and the fixed sentence of `docs/concepts/llm-judge.md` ... **ADR 0024 amended** (P4-J02): rules A10 to A13 ... **ADR 0027 rule 12a added** (P4-J02) ...", each with the named spec changes listed above.
++## Index entry
++Written into `docs/adr/README.md` as revision 52 (P4-J01, P4-J02). The mutation of `test_the_index_header_check_has_teeth` replaced "Revision 5" by "Revision 49", which reads "Revision 492" at revision 52 and was accepted by the header check; the test now replaces the number of the header line by 49 (disclosed in the spec change).
++- Row: `| [0030](0030-llm-judge-uncalibrated-signal.md) | LLM judge as an uncalibrated signal (golden sets, OpenAI-compatible provider profiles, human labels) | Accepted | none (P4-J01, rev 52: Q-J1 to Q-J20 and Ambiguities 1 to 7 auto-approved by the lead; the owner gates O-J1 to O-J6 are before the first real judge request) |`
++- Changes entry (as written in revision 52): "**New ADR 0030** (P4-J01): the LLM judge as an uncalibrated signal. 25 numbered rules and invariants I1 to I9 (`test_adr0030_rules_are_tested`) ... **ADR 0023 amended** (P4-J02): rule A4, the judge claim words and the fixed sentence of `docs/concepts/llm-judge.md` ... **ADR 0024 amended** (P4-J02): rules A10 to A13 ... **ADR 0027 rule 12a added** (P4-J02) ...", each with the named spec changes listed above.
+diff --git a/docs/adr/README.md b/docs/adr/README.md
+index 180f323..8eb1842 100644
+--- a/docs/adr/README.md
++++ b/docs/adr/README.md
+@@ -1,6 +1,15 @@
+ # Architecture Decision Records: Phase 1 (`tracer-evalschema` 0.0.1), Phase 2 (`tracer-evaldb`), Phase 3 (recorded-audio scoring) and Phase 4 (the simulated caller)
+
+-Revision 51, 2026-10-27. Authoritative scope: `docs/phase1/SCOPE.md` (ADRs 0001 to 0018), `docs/phase2/SCOPE.md` (ADRs 0019 to 0022), `docs/phase3/SCOPE.md` (ADRs 0023 to 0025) and `docs/phase4/SCOPE.md` (ADRs 0026 to 0029).
++Revision 52, 2026-10-28. Authoritative scope: `docs/phase1/SCOPE.md` (ADRs 0001 to 0018), `docs/phase2/SCOPE.md` (ADRs 0019 to 0022), `docs/phase3/SCOPE.md` (ADRs 0023 to 0025) and `docs/phase4/SCOPE.md` (ADRs 0026 to 0030).
++
++## Changes in revision 52
++- **ADR 0030 added and ADRs 0023, 0024 and 0027 amended for the LLM judge** (Phase 4 batch J, tasks P4-J01 and P4-J02; docs and specs, 2026-10-28; decision log "OWNER DECISION ... LLM JUDGE" and "PHASE 4 BATCH J ... SCOPE DELIVERED"; readings auto-approved by the lead). No rule or invariant of an earlier Decision block is added or removed: ADR 0023 keeps 19 rules and I1 to I10, ADR 0024 keeps rules 1 to 17 and I1 to I9, ADR 0027 keeps 17 rules and I1 to I10.
++  - **New ADR 0030** (P4-J01): the LLM judge as an uncalibrated signal (golden sets, OpenAI-compatible provider profiles, human labels). 25 numbered rules and invariants I1 to I9 (`test_adr0030_rules_are_tested`); Accepted; the owner gates O-J1 to O-J6 come before the first real judge request; Ambiguities 1 to 7 for the lead.
++  - **ADR 0023 amended** (P4-J02): rule A4, the claim words for judge outputs and the fixed sentence of `docs/concepts/llm-judge.md`; the amendment is rules A1 to A4 and invariants IA1 and IA2.
++  - **ADR 0024 amended** (P4-J02): rules A10 to A13 (the generic chat client, the provider profiles, the judge allowlist and key binding, judge usage); the amendment is rules A1 to A13 and invariants IA1 to IA4.
++  - **ADR 0027 rule 12a added** (P4-J02): the snapshot may embed judge definitions and the inert check stays inert; not a numbered label, so the 17 rules and I1 to I10 are unchanged.
++  - Named spec changes (qa, disclosed in `docs/phase4/evidence/red/batch-j1/spec-change.diff`): the pending sets and counts of `evalcore_phase4_adr_support.py`, the amendment-label tests of ADRs 0023 and 0024, the index tests (status, parametrised lists, and the mutant of `test_the_index_header_check_has_teeth`), the whole-ADR reader tests and the loopback module list.
++  - BACKLOG BL-314 to BL-332.
+
+ ## Changes in revision 51
+ - **Editorial amendments after the Phase 4 batch A, C and D red tests** (docs only, 2026-10-27; decision log "PHASE 4 BATCH A", "PHASE 4 BATCH C" and "PHASE 4 BATCH D", readings auto-approved by the lead). No rule or invariant is added or removed: ADR 0026 keeps 24 rules and I1 to I10, ADR 0028 keeps 12 rules and I1 to I7, and ADR 0024's Phase 3 block (rules 1 to 17, I1 to I9) is unchanged.
+@@ -524,6 +533,7 @@ Status meanings:
+ | [0027](0027-simulated-run-records.md) | Simulated-run records (stereo artifact, transcripts, F6 inputs, `tracer.sim_profile/1`, `tracer.sim_outcome/1`, `tracer.timing/1`, privacy) | Accepted | none (P4-00b, rev 50: F5 to F7, F10, Q1, Q12 to Q14, Q19, Q21 auto-approved, SCOPE D1 and D5; Ambiguities 1 to 6 for the lead, among them the timing error finding, BL-292; owner O7 open) |
+ | [0028](0028-caller-brain-prompt-contract.md) | Caller brain: prompt contract, injection hardening, scripted and replay modes | Accepted | none (P4-00c, rev 50: Q8 to Q11 auto-approved, SCOPE D1; Ambiguities 1 to 4 for the lead, among them in-call STT of each agent reply; owner O1, O4 open) |
+ | [0029](0029-telephony-dial-out.md) | Telephony dial-out (design only: allowlist, rate limits, authorisation record, terms 10.2(5), 10.2(8), 10.3(6)) | Proposed | the whole ADR, until owner question O5 (P4-40 makes it Accepted for the named provider); deferred to a later stage by the owner on 2026-10-27, a provisional sketch that the telephony stage's design study revisits (BACKLOG BL-311) |
++| [0030](0030-llm-judge-uncalibrated-signal.md) | LLM judge as an uncalibrated signal (golden sets, OpenAI-compatible provider profiles, human labels) | Accepted | none (P4-J01, rev 52: Q-J1 to Q-J20 and Ambiguities 1 to 7 auto-approved by the lead; owner O-J1 to O-J6 open before the first real judge request) |
+
+ ## Decisions on proposals
+ "Decide before" is the task that cannot start correctly without the decision. Gate item 11 requires none to be open at the gate. Decided rows stay for traceability. Open after revision 33: none in this table (N83 implemented). Open after revision 21: none in this table (N83 decided in the decision log, option A, implementation pending). Open after revision 20: N83 (api-surface 23.10, revision 20 paragraph); N77 to N82 decided in revision 20, auto-approved under the owner's standing rule. Open after revision 18: none in this table; the new findings N77 to N82 are listed in api-surface 23.10 (N70 to N76 decided in revision 18, auto-approved under the owner's standing rule). (Revision 17 text: open after revision 17: the findings N70 to N76 at the end of the table (N63 to N69 decided in revision 17, auto-approved under the owner's standing rule of 2026-10-23).) (Revision 16 text: open after revision 16: the owner findings N63 to N69 at the end of the table.) (Revision 15 text: open after revision 15: the owner items N44, N45, N47r, N49r, N50r, N51r, N53r, N59r, N61, N62; "r" marks the undecided remainder of a decided item; all decided in revision 16.) Open after revision 14: none (N42 decided by the owner in revision 14, option A). (Revision 13 text: open after revision 13: finding N42 only (last row; O3a, O8, O9 and N41 decided by the owner in revision 13, all option A).) (Revision 12 text: open after revision 12: owner items O3a, O8, O9 and N41 at the end of the table (O1 to O7 decided by the owner in revision 12, all option A).) (Revision 11 text: open after revision 11: no [Proposed] item; the owner questions O1 to O7 at the end of the table.) (Revision 10 text: open after revision 10: P-62 only.) Every item P-01..P-61 is decided (P-58 by the user in revision 7; P-59 and P-60 by the owner in revision 9; P-61 by the owner in revision 10). The owner's decisions on findings N14 and N15 (revision 10) are listed after P-62.
+diff --git a/docs/phase4/SCOPE.md b/docs/phase4/SCOPE.md
+index e65ecd5..6566d63 100644
+--- a/docs/phase4/SCOPE.md
++++ b/docs/phase4/SCOPE.md
+@@ -451,7 +451,7 @@ Added 2026-10-28 (owner decision 2026-10-28: the judge is built in Phase 4 as an
+
+ | ID | Owner | Task | Acceptance | Tests (red first) | h |
+ |---|---|---|---|---|---|
+-| P4-J12 | dev | Generic chat-completions client. Generalise `JsonPoster` (auth scheme: bearer or a named header; URL from a validated allowlist entry; stage `judge`). Request subset per section J.3 (Q-J1). Response parse: `id`, `model`, `choices` exactly one, `message.content` a string, `finish_reason`, `usage.prompt_tokens`/`completion_tokens`, optional cached and reasoning tokens. Retries and taxonomy as ADR 0024 rules 9 and 10. An OpenRouter choice-level `error` is a typed failure | The existing `SarvamLlm` is unchanged | `test_openai_compat_request_body_subset_exact`, `test_openai_compat_response_parse_rejects_wrong_shape_and_oversize`, `test_openai_compat_usage_maps_prompt_completion_cached_exactly`, `test_openai_compat_retry_taxonomy_matches_adr0024`, `test_openai_compat_choice_level_error_is_typed_failure` | 10 |
++| P4-J12 | dev | Generic chat-completions client. Generalise `JsonPoster` (auth scheme: bearer or a named header; URL from a validated allowlist entry; stage `judge`). Request subset per section J.3 (Q-J1). Response parse: `id`, `model`, `choices` exactly one, `message.content` a string, `finish_reason`, `usage.prompt_tokens`/`completion_tokens`, optional cached and reasoning tokens. Retries and taxonomy as ADR 0024 rules 9 and 10. An OpenRouter choice-level `error` is a typed failure | The existing `SarvamLlm` is unchanged | `test_openai_compat_request_body_subset_exact`, `test_openai_compat_response_parse_rejects_wrong_shape_and_oversize`, `test_openai_compat_usage_maps_prompt_completion_cached_exactly`, `test_judge_cost_not_available_without_usd_catalog_and_credits_never_stored_as_cost`, `test_openai_compat_retry_taxonomy_matches_adr0024`, `test_openai_compat_choice_level_error_is_typed_failure` | 10 |
+ | P4-J13 | dev+SL | Provider profiles (closed set; section J.3, Q-J2). Each profile fixes what is sent, omitted or required. An unverified profile is refused for real runs until its first owner-gated request is logged | Profiles cite the dossier | `test_profile_anthropic_compat_never_sends_response_format_or_seed`, `test_profile_temperature_not_sent_unless_configured`, `test_profile_openrouter_sends_pinned_provider_without_fallback_and_data_collection_deny`, `test_profile_reported_model_recorded_verbatim`, `test_profile_sarvam_v2_uses_subscription_key_header`, `test_unknown_profile_refused`, `test_profile_never_sends_unlisted_field`, `test_unverified_profile_refused_for_real_run` | 6 |
+ | P4-J14 | dev+SL | Pinned hosts (section J.3, Q-J4). Owner allowlist file (git-ignored, 0600, no links). Each entry: exact `https://host[:port]/path`, `profile=`, `key_env=`. https only, except literal loopback with `http`. No userinfo, query or fragment. `follow_redirects=False`, `trust_env=False`, TLS verified. A DNS answer that is private, loopback or link-local is refused for a public entry. The key is read by name only after the entry matches and is bound to that host | Refusal before any key read | `test_judge_host_not_on_allowlist_refused_before_any_key_read`, `test_judge_key_bound_to_its_host_never_sent_elsewhere`, `test_judge_https_only_except_loopback_literal`, `test_judge_client_never_follows_redirects_or_reads_proxy_env`, `test_judge_dns_answer_private_refused_for_public_entry`, `test_judge_allowlist_mode_and_link_rules`, `test_judge_key_env_name_pattern_and_never_value_in_config` | 6 |
+ | P4-J15 | dev | Exchange files `<out>/judge/<run>/item-<id>-<attempt>.json` (`tracer.judge_exchange/1`: request messages, raw response body, request id, status). 0600, `O_NOFOLLOW`, git-ignored and guarded. `replay:<dir>` engine; `fake:<scenario>` deterministic engine | Replay reproduces the stored results | `test_judge_exchange_files_private_no_follow_and_guarded`, `test_replay_judge_reproduces_stored_verdicts_byte_identical`, `test_fake_judge_is_deterministic_and_sends_nothing` | 5 |
+diff --git a/docs/security/P4-J-providers.md b/docs/security/P4-J-providers.md
+new file mode 100644
+index 0000000..b5497b6
+--- /dev/null
++++ b/docs/security/P4-J-providers.md
+@@ -0,0 +1,98 @@
++<!-- SPDX-License-Identifier: Apache-2.0 -->
++<!-- Copyright 2026 The Tracer contributors -->
++# P4-J provider dossier: OpenAI-compatible judge providers
++
++Task P4-J03 (security-licensing), Phase 4 batch J, ADR 0030 rule 13 and rule 24. One row per fact
++that a provider profile depends on, each with its source URL and the date it was retrieved, or
++marked `not verified`. Nothing in this file is a new web claim: every fact below is one that the
++staff-reviewer read in a primary source on 2026-10-28 (ADR 0030 "Provider profiles" and SCOPE
++sections J.1 and J.5), copied with its source; a fact that the reviewer did not read, or took from
++a table without a source, is `not verified` and stays so. Nothing here is a statement of what a
++provider does with data: the terms and data-use page of each provider is an owner gate (see the
++last section), never an assumption.
++
++No new runtime dependency: the judge client is Tracer's own thin client on `httpx`, which the
++Sarvam adapters already use (ADR 0030 rule 12). The `openai` and `anthropic` Python SDKs and any
++other provider SDK are not dependencies.
++
++A profile is `verified` only when every fact row of that profile is `verified`. A profile that is
++`unverified` is refused for a real run until its first owner-gated request is logged (ADR 0030
++rule 13); the profile `local_loopback/1` reaches a literal loopback address only and is never a
++real provider. The status table below is machine-read against the profiles shipped in
++`tracer_evalproviders.judgeprofiles` (`test_judge_profile_status_matches_dossier`), and every fact
++row is machine-read for its URL and date (`test_judge_provider_dossier_cites_url_and_date_per_fact`).
++
++## Profile status
++
++| Profile | Status | Basis |
++|---|---|---|
++| `anthropic_compat/1` | unverified | the authorisation scheme and the token field are the reviewer's table, with no primary source read; the page itself calls the layer not production-ready |
++| `gemini_compat/1` | unverified | the token field, the honoured parameters and the usage fields are not verified; the page says "still in beta" |
++| `xai/1` | unverified | the authorisation scheme, token field, `seed`, usage and errors are not verified |
++| `openrouter/1` | unverified | the authorisation scheme, the token field, the optional headers and the error codes are not verified |
++| `sarvam_v2/1` | unverified | the v2 page lists both authentication headers as required and the repository sends one (the requirement is not verified); the v1 and v2 pages disagree |
++| `openai/1` | unverified | the API reference page returned 403; every fact is read from the openai-python source on `main`, not from the API reference and not from a tag |
++| `local_loopback/1` | unverified | the behaviour of a user's own local server is not verified; the profile reaches a literal loopback address only |
++
++## Facts
++
++Columns: the profile, the fact, the source URL (one or more, `none` when not verified), the date it
++was retrieved (`none` when not verified) and the verification.
++
++| Profile | Fact | Source | Retrieved | Verification |
++|---|---|---|---|---|
++| `anthropic_compat/1` | Base URL `https://api.anthropic.com/v1/chat/completions` (the page was redirected from docs.claude.com) | https://platform.claude.com/docs/en/api/openai-sdk | 2026-10-28 | verified |
++| `anthropic_compat/1` | `response_format` is "Ignored"; the `strict` flag on tools is ignored: "the tool use JSON is not guaranteed to follow the supplied schema" | https://platform.claude.com/docs/en/api/openai-sdk | 2026-10-28 | verified |
++| `anthropic_compat/1` | `seed`, `logprobs` and `reasoning_effort` are ignored | https://platform.claude.com/docs/en/api/openai-sdk | 2026-10-28 | verified |
++| `anthropic_compat/1` | `temperature` below 1 returns a 400 error on Claude 4.7 and later models ("omit it"); the same for `top_p`; both together return 400 | https://platform.claude.com/docs/en/api/openai-sdk | 2026-10-28 | verified |
++| `anthropic_compat/1` | `n` must be 1; `usage.prompt_tokens_details` is "Always empty", so cached tokens are never reported | https://platform.claude.com/docs/en/api/openai-sdk | 2026-10-28 | verified |
++| `anthropic_compat/1` | Forced `tool_choice` returns an error on Claude Opus and Sonnet 5.5; the layer is "primarily intended to test and compare model capabilities, and is not considered a long-term or production-ready solution" | https://platform.claude.com/docs/en/api/openai-sdk | 2026-10-28 | verified |
++| `anthropic_compat/1` | Non-workspace keys need an `anthropic-workspace-id` header (optional header of the profile) | https://platform.claude.com/docs/en/api/openai-sdk | 2026-10-28 | verified |
++| `anthropic_compat/1` | The authorisation scheme is Bearer (the reviewer's table; no primary source read) | none | none | not verified |
++| `anthropic_compat/1` | The token field is `max_tokens` (the reviewer's table; no primary source read) | none | none | not verified |
++| `gemini_compat/1` | Base URL `https://generativelanguage.googleapis.com/v1beta/openai/chat/completions`; Bearer authorisation | https://ai.google.dev/gemini-api/docs/openai | 2026-10-28 | verified |
++| `gemini_compat/1` | The page says "still in beta"; parameters it does not list are "silently ignored" (in its image section); the page has internal inconsistencies flagged by the fetch summary | https://ai.google.dev/gemini-api/docs/openai | 2026-10-28 | verified |
++| `gemini_compat/1` | `json_schema` structured output is shown only through the SDK `parse` example | https://ai.google.dev/gemini-api/docs/openai | 2026-10-28 | verified |
++| `gemini_compat/1` | The token field | none | none | not verified |
++| `gemini_compat/1` | Whether `temperature`, `max_tokens` or `seed` is honoured (the page does not list them) | none | none | not verified |
++| `gemini_compat/1` | The usage fields | none | none | not verified |
++| `xai/1` | Base `https://api.x.ai/v1`; a `chat.completions.create` example with `json_schema` (grok-4.7); xAI calls the Responses API "the preferred way"; the guide's text "SpaceXSI models" is quoted as fetched (the exact page path was not recorded by the reviewer: the structured-outputs guide of the docs site) | https://docs.x.ai | 2026-10-28 | verified |
++| `xai/1` | The authorisation scheme is Bearer (the reviewer's table; not in the verified list) | none | none | not verified |
++| `xai/1` | The token field | none | none | not verified |
++| `xai/1` | Whether `seed` is honoured | none | none | not verified |
++| `xai/1` | The usage and error shapes of Chat Completions | none | none | not verified |
++| `openrouter/1` | Endpoint `https://openrouter.ai/api/v1/chat/completions`; `model` is optional ("If omitted, the user's or payer's default is used"); the response `model` may differ from the request; `usage.cost` is "Cost in credits" | https://openrouter.ai/docs/api-reference/overview; https://openrouter.ai/docs/features/provider-routing | 2026-10-28 | verified |
++| `openrouter/1` | `allow_fallbacks` defaults to true; load balancing is on by default; `data_collection` defaults to `allow` ("providers which store user data non-transiently and may train on it") | https://openrouter.ai/docs/features/provider-routing | 2026-10-28 | verified |
++| `openrouter/1` | `seed` is an integer; `json_schema` with `strict` is supported and "The request will fail" if the model does not support it | https://openrouter.ai/docs/features/structured-outputs | 2026-10-28 | verified |
++| `openrouter/1` | The authorisation scheme is Bearer and the token field is `max_tokens` (not marked verified in the reviewer's table) | none | none | not verified |
++| `openrouter/1` | The optional headers `HTTP-Referer` and `X-OpenRouter-Title` | none | none | not verified |
++| `openrouter/1` | The error codes | none | none | not verified |
++| `sarvam_v2/1` | Endpoint `https://api.sarvam.ai/v2/chat/completions`; `max_tokens` includes reasoning tokens; `response_format` `json_schema` "guarantees the model generates output matching the supplied JSON Schema" | https://docs.sarvam.ai/api-reference/chat/chat-completions-v2.md | 2026-10-28 | verified |
++| `sarvam_v2/1` | `reasoning_effort` defaults to `max` on glm5.3 and deepseekv4.1-flash and counts against `max_tokens`, so the profile sends it explicitly | https://docs.sarvam.ai/api-reference/chat/chat-completions-v2.md | 2026-10-28 | verified |
++| `sarvam_v2/1` | 413 above 10,485,760 bytes; 502 `model_call_failed`; 503 `model_overloaded` | https://docs.sarvam.ai/api-reference/chat/chat-completions-v2.md | 2026-10-28 | verified |
++| `sarvam_v2/1` | The v1 page shows `POST /v1/chat/completions`, the models `sarvam-105b` and `sarvam-105b-conversations`, and `seed` as "Beta. Determinism is not guaranteed": the v1 and v2 pages disagree (FJ9) | https://docs.sarvam.ai/api-reference-docs/chat/chat-completions | 2026-10-28 | verified |
++| `sarvam_v2/1` | The v2 page lists both authentication headers as "required"; the repository sends only `api-subscription-key` (marked UNVERIFIED in the source); the requirement is not verified | none | none | not verified |
++| `openai/1` | Endpoint `https://api.openai.com/v1/chat/completions`; Bearer authorisation (per the openai-python SDK source on `main`, files `completion_create_params.py` and `completion_usage.py`; the exact URL path beyond the repository prefix was not recorded by the reviewer) | https://raw.githubusercontent.com/openai/openai-python/main/ | 2026-10-28 | verified |
++| `openai/1` | `max_tokens` is "deprecated in favor of `max_completion_tokens`"; `seed` is Beta and "Determinism is not guaranteed"; the usage detail fields (same SDK source) | https://raw.githubusercontent.com/openai/openai-python/main/ | 2026-10-28 | verified |
++| `openai/1` | The API reference page on platform.openai.com returned 403: it was not read | none | none | not verified |
++| `local_loopback/1` | The behaviour of a user's own local server | none | none | not verified |
++
++## Terms and data use (owner gate)
++
++The terms and the data-use page of each provider were NOT fetched. They are recorded here as an
++owner gate (O-J2, ADR 0030 rule 24), never as an assumption: before the first real judge request
++security-licensing records each chosen provider's terms and data-use page with its URL and the
++retrieval date, and the owner logs the data-sharing decision. Real-caller data never goes to a
++judge without a new owner decision (BL-266).
++
++| Provider | Terms and data use | Gate |
++|---|---|---|
++| anthropic | not fetched; no statement about retention or training is made here | owner gate O-J2 |
++| gemini | not fetched; no statement about retention or training is made here | owner gate O-J2 |
++| xai | not fetched; no statement about retention or training is made here | owner gate O-J2 |
++| openrouter | not fetched; the profile always sends `data_collection: "deny"` and that is a request, not a record of what any upstream does | owner gate O-J2 |
++| sarvam | not fetched in this batch; terms 10.5(a) forbid using Sarvam output to "test ... any artificial intelligence system" (read on 2026-10-27, BL-188), so a Sarvam judge needs its own owner decision | owner gate O-J2 and BL-188 |
++| openai | not fetched; no statement about retention or training is made here | owner gate O-J2 |
++
++Also not verified by anyone on 2026-10-28: every provider's Marathi competence, pricing and
++currencies, and the DNS rebinding race in `httpx` (BL-326).
+diff --git a/packages/evalcore/tests/evalcore_phase4_adr_support.py b/packages/evalcore/tests/evalcore_phase4_adr_support.py
+index 303891b..1e05cd2 100644
+--- a/packages/evalcore/tests/evalcore_phase4_adr_support.py
++++ b/packages/evalcore/tests/evalcore_phase4_adr_support.py
+@@ -1,6 +1,6 @@
+ # SPDX-License-Identifier: Apache-2.0
+ # Copyright 2026 The Tracer contributors
+-"""Shared helpers of the Phase 4 batch 0 ADR tests (ADRs 0026 to 0029 and the Phase 4 amendments
++"""Shared helpers of the Phase 4 batch 0 ADR tests (ADRs 0026 to 0030 and the Phase 4 amendments
+ of ADRs 0004, 0023 and 0024). Contract: docs/phase4/api-surface-batch-0.md.
+
+ Nothing here imports a ``tracer_*`` package: these are documentation-reading tests, in the format
+@@ -37,6 +37,7 @@ ADR26 = ADR_DIR / "0026-simulated-caller-architecture.md"
+ ADR27 = ADR_DIR / "0027-simulated-run-records.md"
+ ADR28 = ADR_DIR / "0028-caller-brain-prompt-contract.md"
+ ADR29 = ADR_DIR / "0029-telephony-dial-out.md"
++ADR30 = ADR_DIR / "0030-llm-judge-uncalibrated-signal.md"
+
+ AMENDMENT_HEADING = "## Phase 4 amendment"
+ AMENDMENT_INVARIANTS = "### Invariants of the Phase 4 amendment (testable)"
+@@ -121,22 +122,97 @@ _P0029: frozenset[str] = frozenset(
+     }
+ )
+
+-# ADR 0024 Phase 4 amendment (A1-A9, IA1-IA4)
++# ADR 0030 rules and invariants (batch J; the names of P4-J17 and later)
++_P0030: frozenset[str] = frozenset(
++    {
++        # P4-J17
++        "test_judge_caps_required_for_real_engine_no_defaults",
++        "test_judge_refusals_before_any_key_read_or_connect",
++        "test_judge_usage_survives_ctrl_c_mid_judging",
++        "test_simulate_dry_run_prints_judge_plan_and_sends_nothing",
++        "test_simulate_judge_errors_exit_2",
++        "test_simulate_with_golden_order_of_operations_pinned",
++        # P4-J18
++        "test_tracer_judge_model_must_equal_definition_model_ref",
++        "test_tracer_judge_refuses_run_without_judge_definitions",
++        "test_tracer_judge_repeats_store_one_bundle_each",
++        "test_tracer_judge_rescoring_bundle_shares_records_and_adds_judge_results",
++        # P4-J19
++        "test_judge_lines_labelled_uncalibrated_everywhere",
++        "test_judge_report_never_claims_accuracy_or_quality",
++        "test_judge_report_shows_counts_with_denominators",
++        "test_judge_report_states_outcome_not_evaluated",
++        # P4-J20
++        "test_judged_and_rescoring_bundles_store_on_both_backends",
++        "test_judged_bundle_round_trips_through_store_byte_identical",
++        # P4-J21
++        "test_agreement_report_counts_only_never_rates_or_accuracy",
++        "test_agreement_report_human_human_counts_when_two_labellers",
++        "test_agreement_report_unlabelled_never_counted_as_disagreement",
++        "test_label_packet_never_shows_judge_verdict",
++        "test_labels_file_strict_closed_keys_and_version",
++        "test_labels_import_content_addressed_and_private",
++        # P4-J22
++        "test_judge_injection_cannot_change_output_format",
++        "test_judge_injection_cannot_flip_verdict_without_consistent_fields",
++        "test_judge_injection_cannot_leak_expected_facts_into_any_output",
++        "test_judge_injection_cannot_store_free_text",
++        "test_judge_injection_forged_delimiter_stays_data",
++        "test_judge_never_receives_caller_brain_prompt_or_profile_values",
++        # P4-J23
++        "test_tdeg_judge_auth_failure_stops_requests_and_errors_remaining",
++        "test_tdeg_judge_cannot_tell_is_judge_undetermined_error",
++        "test_tdeg_judge_cap_reached_no_request_beyond_cap",
++        "test_tdeg_judge_empty_answer_window_is_error_never_disagrees",
++        "test_tdeg_judge_invalid_output_twice_is_error",
++        "test_tdeg_judge_non_mr_turn_unsupported_language_all_items",
++        "test_tdeg_judge_question_not_sent_is_error_never_disagrees",
++        "test_tdeg_judge_schema_identical_across_cases",
++        "test_tdeg_judge_setup_failed_all_missing_input_no_request",
++        "test_tdeg_judge_stt_failed_missing_input_no_request",
++        "test_tdeg_run_without_golden_set_unchanged",
++        # P4-J24
++        "test_e2e_judge_report_store_and_agreement_consistent",
++        "test_e2e_judge_synthetic_mr_exact_outputs",
++        # P4-J25
++        "test_guard_rejects_staged_judge_exchanges_labels_and_allowlist",
++        "test_judge_key_canaries_never_in_any_output_channel",
++        # P4-J26
++        "test_p4j_audit_items_cite_tests",
++        # P4-J29
++        "test_p4j_measurement_report_follows_template",
++        # P4-J30
++        "test_judge_concept_page_states_no_claims",
++        "test_judge_readme_quick_start_runs_offline",
++        # P4-J32
++        "test_samplebot_golden_scenario_uses_no_model",
++    }
++)
++
++# ADR 0024 Phase 4 amendment (A1-A13, IA1-IA4)
+ _P0024A: frozenset[str] = frozenset(
+     {
+         # P4-30
+         "test_guard_rejects_staged_sim_outputs_and_allowlist",
+         "test_key_canaries_never_in_any_output_channel",
++        # P4-J25
++        "test_judge_key_canaries_never_in_any_output_channel",
+     }
+ )
+
+-# ADR 0023 Phase 4 amendment (A1-A3, IA1-IA2)
++# ADR 0023 Phase 4 amendment (A1-A4, IA1-IA2)
+ _P0023A: frozenset[str] = frozenset(
+     {
+         # P4-29
+         "test_tdeg_sim_export_present_agreement_scored",
+         # P4-37
+         "test_sim_concept_page_states_no_claims",
++        # P4-J19
++        "test_judge_report_never_claims_accuracy_or_quality",
++        # P4-J21
++        "test_agreement_report_counts_only_never_rates_or_accuracy",
++        # P4-J30
++        "test_judge_concept_page_states_no_claims",
+     }
+ )
+
+@@ -151,6 +227,7 @@ PENDING: dict[str, frozenset[str]] = {
+     "0027": _P0027,
+     "0028": _P0028,
+     "0029": _P0029,
++    "0030": _P0030,
+     "0024A": _P0024A,
+     "0023A": _P0023A,
+     "0004": _P0004,
+@@ -269,8 +346,9 @@ SPECS: dict[str, AdrSpec] = {
+     "0027": AdrSpec("0027", ADR27, 17, 10, self_test="test_adr0027_rules_are_tested"),
+     "0028": AdrSpec("0028", ADR28, 12, 7, self_test="test_adr0028_rules_are_tested"),
+     "0029": AdrSpec("0029", ADR29, 10, 4, self_test="test_adr0029_rules_are_tested"),
+-    "0024A": AdrSpec("0024A", ADR24, 9, 4, amendment=True),
+-    "0023A": AdrSpec("0023A", ADR23, 3, 2, amendment=True),
++    "0030": AdrSpec("0030", ADR30, 25, 9, self_test="test_adr0030_rules_are_tested"),
++    "0024A": AdrSpec("0024A", ADR24, 13, 4, amendment=True),
++    "0023A": AdrSpec("0023A", ADR23, 4, 2, amendment=True),
+ }
+
+
+@@ -490,7 +568,7 @@ def whole_adr_problems(
+                 continue
+             number = int(key[:4])
+             where = "a rule or invariant" if name in in_items else "its text"
+-            suffix = "" if number < 30 else " (an ADR from 0030 has no pending set)"
++            suffix = "" if number < 31 else " (an ADR from 0031 has no pending set)"
+             problems.append(f"{read.label} cites {name} in {where}: no test, not pending{suffix}")
+     return problems
+
+diff --git a/packages/evalcore/tests/test_adr0023_phase4_amendment_is_tested.py b/packages/evalcore/tests/test_adr0023_phase4_amendment_is_tested.py
+index 6663cd5..14f0cac 100644
+--- a/packages/evalcore/tests/test_adr0023_phase4_amendment_is_tested.py
++++ b/packages/evalcore/tests/test_adr0023_phase4_amendment_is_tested.py
+@@ -4,7 +4,7 @@
+
+ ``test_adr0023_rules_are_tested`` (which stays as it is) pins the Decision block of ADR 0023: 19
+ rules and 10 invariants, and reads nothing after "## Decision" ends. The amendment is a separate
+-section, "## Phase 4 amendment: ...", with rules A1 to A3 and invariants IA1 to IA2, so that
++section, "## Phase 4 amendment: ...", with rules A1 to A4 and invariants IA1 to IA2, so that
+ the old test is not edited. This module reads that section in the format of the old test: every
+ rule and every invariant cites at least one test name in backticks; a cited name is defined in a
+ ``packages/*/tests`` file or is on ``PENDING["0023A"]`` (``evalcore_phase4_adr_support``), which
+@@ -30,7 +30,7 @@ def test_adr0023_phase4_amendment_is_tested() -> None:
+
+ def test_adr0023_phase4_amendment_has_the_pinned_labels() -> None:
+     rules, invariants = sup.items_of(SPEC, sup.ADR23.read_text("utf-8"))
+-    assert [label for label, _ in rules] == [f"A{i}" for i in range(1, 4)]
++    assert [label for label, _ in rules] == [f"A{i}" for i in range(1, 5)]
+     assert [label for label, _ in invariants] == [f"IA{i}" for i in range(1, 3)]
+
+
+@@ -51,7 +51,7 @@ def test_adr0023_phase4_amendment_leaves_the_decision_block_counts_alone() -> No
+ def test_adr0023_phase4_amendment_says_where_it_is_machine_read() -> None:
+     section = sup.heading_section(sup.ADR23.read_text("utf-8"), sup.AMENDMENT_HEADING, prefix=True)
+     intro = section.split("\nA1. ", 1)[0]
+-    assert "labelled A1 to A3" in intro
++    assert "labelled A1 to A4" in intro
+     assert "IA1 and IA2" in intro
+     assert "`test_adr0023_rules_are_tested`" in intro
+     assert "task P4-00d" in intro
+diff --git a/packages/evalcore/tests/test_adr0024_phase4_amendment_is_tested.py b/packages/evalcore/tests/test_adr0024_phase4_amendment_is_tested.py
+index 7905ed0..60fa72b 100644
+--- a/packages/evalcore/tests/test_adr0024_phase4_amendment_is_tested.py
++++ b/packages/evalcore/tests/test_adr0024_phase4_amendment_is_tested.py
+@@ -4,7 +4,7 @@
+
+ ``test_adr0024_rules_are_tested`` (which stays as it is) pins the Decision block of ADR 0024: 17
+ rules and 9 invariants, and reads nothing after "## Decision" ends. The amendment is a separate
+-section, "## Phase 4 amendment: ...", with rules A1 to A9 and invariants IA1 to IA4, so that
++section, "## Phase 4 amendment: ...", with rules A1 to A13 and invariants IA1 to IA4, so that
+ the old test is not edited. This module reads that section in the format of the old test: every
+ rule and every invariant cites at least one test name in backticks; a cited name is defined in a
+ ``packages/*/tests`` file or is on ``PENDING["0024A"]`` (``evalcore_phase4_adr_support``), which
+@@ -30,7 +30,7 @@ def test_adr0024_phase4_amendment_is_tested() -> None:
+
+ def test_adr0024_phase4_amendment_has_the_pinned_labels() -> None:
+     rules, invariants = sup.items_of(SPEC, sup.ADR24.read_text("utf-8"))
+-    assert [label for label, _ in rules] == [f"A{i}" for i in range(1, 10)]
++    assert [label for label, _ in rules] == [f"A{i}" for i in range(1, 14)]
+     assert [label for label, _ in invariants] == [f"IA{i}" for i in range(1, 5)]
+
+
+@@ -51,7 +51,7 @@ def test_adr0024_phase4_amendment_leaves_the_decision_block_counts_alone() -> No
+ def test_adr0024_phase4_amendment_says_where_it_is_machine_read() -> None:
+     section = sup.heading_section(sup.ADR24.read_text("utf-8"), sup.AMENDMENT_HEADING, prefix=True)
+     intro = section.split("\nA1. ", 1)[0]
+-    assert "labelled A1 to A9" in intro
++    assert "labelled A1 to A13" in intro
+     assert "IA1 to IA4" in intro
+     assert "`test_adr0024_rules_are_tested`" in intro
+     assert "task P4-00d" in intro
+diff --git a/packages/evalcore/tests/test_phase4_adr_index_and_gate.py b/packages/evalcore/tests/test_phase4_adr_index_and_gate.py
+index c658702..7b7beab 100644
+--- a/packages/evalcore/tests/test_phase4_adr_index_and_gate.py
++++ b/packages/evalcore/tests/test_phase4_adr_index_and_gate.py
+@@ -18,21 +18,34 @@ import pytest
+
+ import evalcore_phase4_adr_support as sup  # type: ignore[import-not-found,unused-ignore]
+
+-STATUS = {"0026": "Accepted", "0027": "Accepted", "0028": "Accepted", "0029": "Proposed"}
+-
+-
+-def _changes() -> str:
+-    section: str = sup.heading_section(sup.README.read_text("utf-8"), "## Changes in revision 50")
++STATUS = {
++    "0026": "Accepted",
++    "0027": "Accepted",
++    "0028": "Accepted",
++    "0029": "Proposed",
++    "0030": "Accepted",
++}
++
++
++def _changes(revision: int = 50) -> str:
++    section: str = sup.heading_section(
++        sup.README.read_text("utf-8"), f"## Changes in revision {revision}"
++    )
+     return section
+
+
+ def _bullet(adr: str) -> str:
+-    lines = [ln for ln in _changes().splitlines() if f"**New ADR {adr}**" in ln]
++    """ADRs 0026 to 0029 are announced in revision 50, ADR 0030 in revision 52 (batch J)."""
++    lines = [
++        ln
++        for ln in _changes(52 if adr == "0030" else 50).splitlines()
++        if f"**New ADR {adr}**" in ln
++    ]
+     assert len(lines) == 1, adr
+     return lines[0]
+
+
+-@pytest.mark.parametrize("adr", ["0026", "0027", "0028", "0029"])
++@pytest.mark.parametrize("adr", ["0026", "0027", "0028", "0029", "0030"])
+ def test_the_index_announces_the_rule_and_invariant_counts_the_adr_has(adr: str) -> None:
+     spec = sup.SPECS[adr]
+     rules, invariants = sup.items_of(spec, spec.path.read_text("utf-8"))
+@@ -42,7 +55,7 @@ def test_the_index_announces_the_rule_and_invariant_counts_the_adr_has(adr: str)
+     assert f"`test_adr{adr}_rules_are_tested`" in _bullet(adr)
+
+
+-@pytest.mark.parametrize("adr", ["0026", "0027", "0028", "0029"])
++@pytest.mark.parametrize("adr", ["0026", "0027", "0028", "0029", "0030"])
+ def test_the_index_row_and_the_adr_agree_on_status(adr: str) -> None:
+     rows = [ln for ln in sup.README.read_text("utf-8").splitlines() if ln.startswith(f"| [{adr}]")]
+     assert len(rows) == 1, adr
+@@ -80,8 +93,10 @@ def index_header_problems(text: str) -> list[str]:
+ def test_the_index_header_check_has_teeth() -> None:
+     text = sup.README.read_text("utf-8")
+     assert index_header_problems(text) == []
++    # revision 52 fix: replacing "Revision 5" by "Revision 49" reads "Revision 492" at any revision
++    # from 52 to 59, which the check accepts; the mutant now replaces the whole number of the header
+     assert index_header_problems(
+-        text.replace("Revision 5", "Revision 49", 1).replace("Revision 491", "Revision 49", 1)
++        re.sub(r"^Revision \d+", "Revision 49", text, count=1, flags=re.MULTILINE)
+     )
+     assert index_header_problems(
+         text.replace("## Changes in revision 50", "## Changes in revision 5O", 1)
+diff --git a/packages/evalcore/tests/test_phase4_adrs_cite_only_existing_or_pending_tests.py b/packages/evalcore/tests/test_phase4_adrs_cite_only_existing_or_pending_tests.py
+index 00335b4..387981c 100644
+--- a/packages/evalcore/tests/test_phase4_adrs_cite_only_existing_or_pending_tests.py
++++ b/packages/evalcore/tests/test_phase4_adrs_cite_only_existing_or_pending_tests.py
+@@ -63,6 +63,7 @@ def test_the_reader_covers_every_adr_from_0026_and_the_three_amendments() -> Non
+         "ADR 0027",
+         "ADR 0028",
+         "ADR 0029",
++        "ADR 0030",
+         "ADR 0024A",
+         "ADR 0023A",
+         "ADR 0004",
+@@ -70,14 +71,15 @@ def test_the_reader_covers_every_adr_from_0026_and_the_three_amendments() -> Non
+         assert adr in labels, adr
+     numbers = [sup.adr_number(p) for p in sup.later_adr_paths()]
+     assert numbers == sorted(numbers)
+-    assert {26, 27, 28, 29} <= set(numbers)
++    assert {26, 27, 28, 29, 30} <= set(numbers)
+     assert all(n >= 26 for n in numbers)
+
+
+ def test_a_later_adr_is_read_too_and_has_no_pending_set() -> None:
+-    """An ADR 0030 would be read whole; it can cite only existing tests (no registry key)."""
+-    text = "# ADR 0030: x\n\n## Decision\n1. **a.** `test_zz_not_there`.\n"
+-    reads = [sup.Reading("ADR 0030", text, "1. **a.** `test_zz_not_there`.")]
++    """An ADR 0031 would be read whole; it can cite only existing tests (no registry key). Batch J
++    spec change: this was ADR 0030 until ADR 0030 got its own pending set."""
++    text = "# ADR 0031: x\n\n## Decision\n1. **a.** `test_zz_not_there`.\n"
++    reads = [sup.Reading("ADR 0031", text, "1. **a.** `test_zz_not_there`.")]
+     assert _problems(reads), "an ADR from 0030 cites an undefined name"
+     defined = sup.defined_tests() | {"test_zz_not_there"}
+     assert _problems(reads, defined=defined) == []
+diff --git a/packages/evalsim/tests/test_evalsim_loopback_guard.py b/packages/evalsim/tests/test_evalsim_loopback_guard.py
+index 2e36570..d235689 100644
+--- a/packages/evalsim/tests/test_evalsim_loopback_guard.py
++++ b/packages/evalsim/tests/test_evalsim_loopback_guard.py
+@@ -32,6 +32,7 @@ HERE = Path(__file__).resolve().parent
+ #: the only test modules that may carry the marker (a new one is a decision, not an accident)
+ LOOPBACK_MODULES = {
+     "test_evalsim_hostile_loopback.py",
++    "test_evalsim_judge_loopback.py",  # Phase 4 batch J spec change S-J1
+     "test_evalsim_loopback_guard.py",
+     "test_evalsim_runner_loopback.py",  # Phase 4 batch E spec change S-E1
+     "test_evalsim_webrtc.py",

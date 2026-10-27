@@ -32,6 +32,7 @@ HERE = Path(__file__).resolve().parent
 #: the only test modules that may carry the marker (a new one is a decision, not an accident)
 LOOPBACK_MODULES = {
     "test_evalsim_hostile_loopback.py",
+    "test_evalsim_judge_loopback.py",  # Phase 4 batch J spec change S-J1
     "test_evalsim_loopback_guard.py",
     "test_evalsim_runner_loopback.py",  # Phase 4 batch E spec change S-E1
     "test_evalsim_webrtc.py",

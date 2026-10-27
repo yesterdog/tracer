@@ -20,7 +20,7 @@ SIM_CALL_LOG_NAME: Final = "sim_call_log.jsonl"
 _SAFE_KIND: Final = re.compile(r"[a-z0-9_]{1,64}")
 _SAFE_SECONDS: Final = re.compile(r"[0-9]{1,20}(?:\.[0-9]{1,18})?")
 _COUNT_KEY: Final = re.compile(r"[a-z][a-z0-9_]{0,63}")
-_STAGES: Final = ("tts", "llm", "stt")
+_STAGES: Final = ("tts", "llm", "stt", "judge")
 _DIALECTS: Final = ("pipecat-protobuf/1", "twilio-media-stream/1", "smallwebrtc/1")
 _END_REASONS: Final = (
     "script_complete",
@@ -116,8 +116,8 @@ class SimCallLog:
             raise ValueError("a tts line counts characters and nothing else")
         if stage == "stt" and (audio_seconds is None or characters is not None):
             raise ValueError("an stt line counts audio seconds and nothing else")
-        if stage == "llm" and (characters is not None or audio_seconds is not None):
-            raise ValueError("an llm line counts neither")
+        if stage in ("llm", "judge") and (characters is not None or audio_seconds is not None):
+            raise ValueError("an llm or judge line counts neither")
         for number in (status, elapsed_ms):
             if number is not None and not _is_int(number):
                 raise TypeError("a call log line holds integers only")

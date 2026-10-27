@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 The Tracer contributors
-"""Shared helpers of the Phase 4 batch 0 ADR tests (ADRs 0026 to 0029 and the Phase 4 amendments
+"""Shared helpers of the Phase 4 batch 0 ADR tests (ADRs 0026 to 0030 and the Phase 4 amendments
 of ADRs 0004, 0023 and 0024). Contract: docs/phase4/api-surface-batch-0.md.
 
 Nothing here imports a ``tracer_*`` package: these are documentation-reading tests, in the format
@@ -37,6 +37,7 @@ ADR26 = ADR_DIR / "0026-simulated-caller-architecture.md"
 ADR27 = ADR_DIR / "0027-simulated-run-records.md"
 ADR28 = ADR_DIR / "0028-caller-brain-prompt-contract.md"
 ADR29 = ADR_DIR / "0029-telephony-dial-out.md"
+ADR30 = ADR_DIR / "0030-llm-judge-uncalibrated-signal.md"
 
 AMENDMENT_HEADING = "## Phase 4 amendment"
 AMENDMENT_INVARIANTS = "### Invariants of the Phase 4 amendment (testable)"
@@ -121,22 +122,97 @@ _P0029: frozenset[str] = frozenset(
     }
 )
 
-# ADR 0024 Phase 4 amendment (A1-A9, IA1-IA4)
+# ADR 0030 rules and invariants (batch J; the names of P4-J17 and later)
+_P0030: frozenset[str] = frozenset(
+    {
+        # P4-J17
+        "test_judge_caps_required_for_real_engine_no_defaults",
+        "test_judge_refusals_before_any_key_read_or_connect",
+        "test_judge_usage_survives_ctrl_c_mid_judging",
+        "test_simulate_dry_run_prints_judge_plan_and_sends_nothing",
+        "test_simulate_judge_errors_exit_2",
+        "test_simulate_with_golden_order_of_operations_pinned",
+        # P4-J18
+        "test_tracer_judge_model_must_equal_definition_model_ref",
+        "test_tracer_judge_refuses_run_without_judge_definitions",
+        "test_tracer_judge_repeats_store_one_bundle_each",
+        "test_tracer_judge_rescoring_bundle_shares_records_and_adds_judge_results",
+        # P4-J19
+        "test_judge_lines_labelled_uncalibrated_everywhere",
+        "test_judge_report_never_claims_accuracy_or_quality",
+        "test_judge_report_shows_counts_with_denominators",
+        "test_judge_report_states_outcome_not_evaluated",
+        # P4-J20
+        "test_judged_and_rescoring_bundles_store_on_both_backends",
+        "test_judged_bundle_round_trips_through_store_byte_identical",
+        # P4-J21
+        "test_agreement_report_counts_only_never_rates_or_accuracy",
+        "test_agreement_report_human_human_counts_when_two_labellers",
+        "test_agreement_report_unlabelled_never_counted_as_disagreement",
+        "test_label_packet_never_shows_judge_verdict",
+        "test_labels_file_strict_closed_keys_and_version",
+        "test_labels_import_content_addressed_and_private",
+        # P4-J22
+        "test_judge_injection_cannot_change_output_format",
+        "test_judge_injection_cannot_flip_verdict_without_consistent_fields",
+        "test_judge_injection_cannot_leak_expected_facts_into_any_output",
+        "test_judge_injection_cannot_store_free_text",
+        "test_judge_injection_forged_delimiter_stays_data",
+        "test_judge_never_receives_caller_brain_prompt_or_profile_values",
+        # P4-J23
+        "test_tdeg_judge_auth_failure_stops_requests_and_errors_remaining",
+        "test_tdeg_judge_cannot_tell_is_judge_undetermined_error",
+        "test_tdeg_judge_cap_reached_no_request_beyond_cap",
+        "test_tdeg_judge_empty_answer_window_is_error_never_disagrees",
+        "test_tdeg_judge_invalid_output_twice_is_error",
+        "test_tdeg_judge_non_mr_turn_unsupported_language_all_items",
+        "test_tdeg_judge_question_not_sent_is_error_never_disagrees",
+        "test_tdeg_judge_schema_identical_across_cases",
+        "test_tdeg_judge_setup_failed_all_missing_input_no_request",
+        "test_tdeg_judge_stt_failed_missing_input_no_request",
+        "test_tdeg_run_without_golden_set_unchanged",
+        # P4-J24
+        "test_e2e_judge_report_store_and_agreement_consistent",
+        "test_e2e_judge_synthetic_mr_exact_outputs",
+        # P4-J25
+        "test_guard_rejects_staged_judge_exchanges_labels_and_allowlist",
+        "test_judge_key_canaries_never_in_any_output_channel",
+        # P4-J26
+        "test_p4j_audit_items_cite_tests",
+        # P4-J29
+        "test_p4j_measurement_report_follows_template",
+        # P4-J30
+        "test_judge_concept_page_states_no_claims",
+        "test_judge_readme_quick_start_runs_offline",
+        # P4-J32
+        "test_samplebot_golden_scenario_uses_no_model",
+    }
+)
+
+# ADR 0024 Phase 4 amendment (A1-A13, IA1-IA4)
 _P0024A: frozenset[str] = frozenset(
     {
         # P4-30
         "test_guard_rejects_staged_sim_outputs_and_allowlist",
         "test_key_canaries_never_in_any_output_channel",
+        # P4-J25
+        "test_judge_key_canaries_never_in_any_output_channel",
     }
 )
 
-# ADR 0023 Phase 4 amendment (A1-A3, IA1-IA2)
+# ADR 0023 Phase 4 amendment (A1-A4, IA1-IA2)
 _P0023A: frozenset[str] = frozenset(
     {
         # P4-29
         "test_tdeg_sim_export_present_agreement_scored",
         # P4-37
         "test_sim_concept_page_states_no_claims",
+        # P4-J19
+        "test_judge_report_never_claims_accuracy_or_quality",
+        # P4-J21
+        "test_agreement_report_counts_only_never_rates_or_accuracy",
+        # P4-J30
+        "test_judge_concept_page_states_no_claims",
     }
 )
 
@@ -151,6 +227,7 @@ PENDING: dict[str, frozenset[str]] = {
     "0027": _P0027,
     "0028": _P0028,
     "0029": _P0029,
+    "0030": _P0030,
     "0024A": _P0024A,
     "0023A": _P0023A,
     "0004": _P0004,
@@ -269,8 +346,9 @@ SPECS: dict[str, AdrSpec] = {
     "0027": AdrSpec("0027", ADR27, 17, 10, self_test="test_adr0027_rules_are_tested"),
     "0028": AdrSpec("0028", ADR28, 12, 7, self_test="test_adr0028_rules_are_tested"),
     "0029": AdrSpec("0029", ADR29, 10, 4, self_test="test_adr0029_rules_are_tested"),
-    "0024A": AdrSpec("0024A", ADR24, 9, 4, amendment=True),
-    "0023A": AdrSpec("0023A", ADR23, 3, 2, amendment=True),
+    "0030": AdrSpec("0030", ADR30, 25, 9, self_test="test_adr0030_rules_are_tested"),
+    "0024A": AdrSpec("0024A", ADR24, 13, 4, amendment=True),
+    "0023A": AdrSpec("0023A", ADR23, 4, 2, amendment=True),
 }
 
 
@@ -490,7 +568,7 @@ def whole_adr_problems(
                 continue
             number = int(key[:4])
             where = "a rule or invariant" if name in in_items else "its text"
-            suffix = "" if number < 30 else " (an ADR from 0030 has no pending set)"
+            suffix = "" if number < 31 else " (an ADR from 0031 has no pending set)"
             problems.append(f"{read.label} cites {name} in {where}: no test, not pending{suffix}")
     return problems
 

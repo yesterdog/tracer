@@ -4,7 +4,7 @@
 
 ``test_adr0023_rules_are_tested`` (which stays as it is) pins the Decision block of ADR 0023: 19
 rules and 10 invariants, and reads nothing after "## Decision" ends. The amendment is a separate
-section, "## Phase 4 amendment: ...", with rules A1 to A3 and invariants IA1 to IA2, so that
+section, "## Phase 4 amendment: ...", with rules A1 to A4 and invariants IA1 to IA2, so that
 the old test is not edited. This module reads that section in the format of the old test: every
 rule and every invariant cites at least one test name in backticks; a cited name is defined in a
 ``packages/*/tests`` file or is on ``PENDING["0023A"]`` (``evalcore_phase4_adr_support``), which
@@ -30,7 +30,7 @@ def test_adr0023_phase4_amendment_is_tested() -> None:
 
 def test_adr0023_phase4_amendment_has_the_pinned_labels() -> None:
     rules, invariants = sup.items_of(SPEC, sup.ADR23.read_text("utf-8"))
-    assert [label for label, _ in rules] == [f"A{i}" for i in range(1, 4)]
+    assert [label for label, _ in rules] == [f"A{i}" for i in range(1, 5)]
     assert [label for label, _ in invariants] == [f"IA{i}" for i in range(1, 3)]
 
 
@@ -51,7 +51,7 @@ def test_adr0023_phase4_amendment_leaves_the_decision_block_counts_alone() -> No
 def test_adr0023_phase4_amendment_says_where_it_is_machine_read() -> None:
     section = sup.heading_section(sup.ADR23.read_text("utf-8"), sup.AMENDMENT_HEADING, prefix=True)
     intro = section.split("\nA1. ", 1)[0]
-    assert "labelled A1 to A3" in intro
+    assert "labelled A1 to A4" in intro
     assert "IA1 and IA2" in intro
     assert "`test_adr0023_rules_are_tested`" in intro
     assert "task P4-00d" in intro

@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 import json
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from types import ModuleType
 from typing import Any
@@ -61,12 +61,18 @@ class Reply:
     body: bytes
     date: Any
     attempts: int
+    status: int = 200
+    request_id: str | None = None
 
 
 class JsonPoster:
+    """One JSON POST with the retry, size and error rules of ADR 0024. The key travels in the one
+    named header (the default: Sarvam's), as a bearer token, or not at all (``auth_scheme``
+    ``"none"``, a loopback server of the tests); ``post`` may add headers to every attempt."""
+
     def __init__(
         self,
-        api_key: ApiKey,
+        api_key: ApiKey | None,
         *,
         url: str,
         stage: str,
@@ -77,8 +83,16 @@ class JsonPoster:
         transport: httpx.BaseTransport | None,
         sleep: Callable[[float], None],
         monotonic: Callable[[], float],
+        auth_scheme: str = "header",
+        auth_header: str = _KEY_HEADER,
     ) -> None:
+        if auth_scheme not in ("header", "bearer", "none"):
+            raise ValueError("auth_scheme: not an accepted value")
+        if (api_key is None) != (auth_scheme == "none"):
+            raise ValueError("a key goes with every auth scheme but none")
         self._key = api_key
+        self._scheme = auth_scheme
+        self._auth_header = auth_header
         self._url = url
         self._stage = stage
         self._errors = errors
@@ -102,9 +116,10 @@ class JsonPoster:
         body: bytes,
         log_fields: dict[str, Any],
         max_bytes: int,
+        extra_headers: Mapping[str, str] | None = None,
     ) -> Reply | Any:
         for attempt in range(1, MAX_ATTEMPTS + 1):
-            result = self._once(index, attempt, body, log_fields, max_bytes)
+            result = self._once(index, attempt, body, log_fields, max_bytes, extra_headers or {})
             classified = self._classify(index, attempt, result)
             if isinstance(classified, Reply):
                 return classified
@@ -130,18 +145,22 @@ class JsonPoster:
         raise AssertionError("unreachable")  # pragma: no cover
 
     def _once(
-        self, index: int, attempt: int, body: bytes, log_fields: dict[str, Any], max_bytes: int
+        self,
+        index: int,
+        attempt: int,
+        body: bytes,
+        log_fields: dict[str, Any],
+        max_bytes: int,
+        extra_headers: Mapping[str, str],
     ) -> _Attempt:
-        request = self._http.build_request(
-            "POST",
-            self._url,
-            headers={
-                _KEY_HEADER: self._key.reveal(),
-                "accept-encoding": "identity",
-                "content-type": "application/json",
-            },
-            content=body,
-        )
+        headers = {"accept-encoding": "identity", "content-type": "application/json"}
+        if self._key is not None:
+            if self._scheme == "bearer":
+                headers["authorization"] = f"Bearer {self._key.reveal()}"
+            else:
+                headers[self._auth_header] = self._key.reveal()
+        headers.update(extra_headers)
+        request = self._http.build_request("POST", self._url, headers=headers, content=body)
         sent = len(request.read())
         self._log.before(
             stage=self._stage, index=index, attempt=attempt, bytes_sent=sent, **log_fields
@@ -219,7 +238,13 @@ class JsonPoster:
                 return False, self._err(
                     "ResponseInvalid", reason="body_too_large", status=200, **facts
                 )
-            return Reply(result.body, _http_date(result.headers.get("date")), attempt)
+            return Reply(
+                result.body,
+                _http_date(result.headers.get("date")),
+                attempt,
+                200,
+                self._success_id(result),
+            )
         if not 400 <= status < 600:
             return False, self._err(
                 "ResponseInvalid", status=status, reason="unexpected_status", **facts

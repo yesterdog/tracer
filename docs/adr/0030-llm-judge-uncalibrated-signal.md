@@ -1,7 +1,6 @@
 # ADR 0030: LLM judge as an uncalibrated signal: golden sets, OpenAI-compatible provider profiles, human labels
 
-- Status: Proposed (Phase 4 batch J, task P4-J01; schema-architect with security-licensing). Records the owner decision of 2026-10-28 (the LLM judge is built in Phase 4 as an uncalibrated signal, provider-agnostic through the OpenAI chat-completions specification) and the questions Q-J1 to Q-J20 of `docs/phase4/SCOPE.md` section J, auto-approved by the lead on the recommended option under the owner's standing rule of 2026-10-23 (decision log 2026-10-28 "OWNER DECISION ... LLM JUDGE" and "PHASE 4 BATCH J (LLM JUDGE, uncalibrated signal) SCOPE DELIVERED"). The rejected options and trade-offs are the staff-reviewer's (scope report of 2026-10-28) where the report gives them; where it gives none, the rule says "(architect)" and the lead may change them. Every provider fact below is what the staff-reviewer read in a primary source on 2026-10-28, with its source; a fact marked "not verified" was not read and is not assumed. The terms clauses are facts read from the terms, not legal advice. The points the scope leaves open are listed under "Ambiguities resolved" for the lead. Open for the owner: O-J1 to O-J6 (SCOPE section J.6), all before the first real judge request (P4-J28), none before the offline work.
-- Staging (2026-10-28): this file is staged at `docs/phase4/staging/0030-llm-judge-uncalibrated-signal.md`, not under `docs/adr/`, because the Phase 4 whole-ADR reader (`test_no_adr_from_0026_cites_a_test_that_neither_exists_nor_is_pending`) reads every `docs/adr/NNNN-*.md` from 0026 and an ADR from 0030 has no pending set yet, so its citations of not-yet-written tests would fail it; and because the bare-name check (`test_bare_test_names_are_refused_except_recorded_renames`) applies there too. It moves to `docs/adr/0030-llm-judge-uncalibrated-signal.md` in the commit in which qa adds `SPECS["0030"]` and its pending set (P4-J01), with an ADR index revision (section "Proposed index entry").
+- Status: Accepted (Phase 4 batch J, task P4-J01; schema-architect with security-licensing). Records the owner decision of 2026-10-28 (the LLM judge is built in Phase 4 as an uncalibrated signal, provider-agnostic through the OpenAI chat-completions specification) and the questions Q-J1 to Q-J20 of `docs/phase4/SCOPE.md` section J, auto-approved by the lead on the recommended option under the owner's standing rule of 2026-10-23 (decision log 2026-10-28 "OWNER DECISION ... LLM JUDGE" and "PHASE 4 BATCH J (LLM JUDGE, uncalibrated signal) SCOPE DELIVERED"). The rejected options and trade-offs are the staff-reviewer's (scope report of 2026-10-28) where the report gives them; where it gives none, the rule says "(architect)" and the lead may change them. Every provider fact below is what the staff-reviewer read in a primary source on 2026-10-28, with its source; a fact marked "not verified" was not read and is not assumed. The terms clauses are facts read from the terms, not legal advice. The points the scope leaves open are listed under "Ambiguities resolved" for the lead. Open for the owner: O-J1 to O-J6 (SCOPE section J.6), all before the first real judge request (P4-J28), none before the offline work. Accepted when it moved from the staging directory to `docs/adr/` (task P4-J01, 2026-10-28, lead auto-approval of the recommended options and of Ambiguities 1 to 6), in the same change as the amendments of ADRs 0023, 0024 and 0027 (task P4-J02) and ADR index revision 52; the owner gates O-J1 to O-J6 are not decisions of this ADR and bind only the first real judge request.
 - Date: 2026-10-28
 - Task: P4-J01 (amendments P4-J02; documents P4-J03 to P4-J05; implemented by P4-J06 to P4-J25, P4-J30 and P4-J32; audited by P4-J26; first real run P4-J28; measurement P4-J29; gate P4-JG)
 
@@ -21,7 +20,7 @@ The staff-reviewer's findings shape the design (SCOPE section J.1):
 - FJ10: golden items need the scripted caller in Phase 4 (rules 1 and 3).
 
 ## Decision
-Machine-read by `test_adr0030_rules_are_tested`, in the format of ADRs 0026 to 0029: every numbered rule of this section and every invariant cites at least one test name in backticks; a cited name that no test defines yet must be one that the task table of `docs/phase4/SCOPE.md` (section A.10) names, and that set of not-yet-defined names shrinks to empty by the gate (P4-G, gate item 15). While this ADR is Proposed its rules bind no code; batch J implements them after the ADR is Accepted.
+Machine-read by `test_adr0030_rules_are_tested`, in the format of ADRs 0026 to 0029: every numbered rule of this section and every invariant cites at least one test name in backticks; a cited name that no test defines yet must be one that the task table of `docs/phase4/SCOPE.md` (section A.10) names, and that set of not-yet-defined names shrinks to empty by the gate (P4-G, gate item 15). The ADR is Accepted: its rules bind batch J, which implements them task by task.
 
 1. **Scope: simulated scripted runs only (owner decision 2026-10-28; Q-J9, Q-J10; FJ10).** The judge runs only inside `tracer simulate`, on a run whose caller is the scripted brain (ADR 0028 rule 1), on the golden items of one golden set (rule 2). It never runs on a Phase 3 recorded call (`tracer score`), never on real-caller data (BL-266), never on flagged spans (BL-174), and never on the whole call (the expected-outcome check stays inert, rule 10). A run without `--golden` is unchanged: same records, same key set, no judge request. Rejected: the judge on recorded or real calls (BACKLOG row, see SCOPE J.10); golden runs with the LLM caller (the question text is generated, so there is no fixed question to compare with, FJ10); the agent's export as the answer source (it needs a shared time base, BL-167, or turn ids). Trade-off: in Phase 4 the judge sees only simulated scripted calls. Tests: `test_golden_set_refused_with_llm_caller`, `test_tdeg_run_without_golden_set_unchanged`.
 2. **The golden set document `tracer.golden_set/1` (P4-J04 to P4-J06).** A golden set is a strict JSON file read with `loads_strict` (a duplicate key is refused), with closed keys and a version member naming `tracer.golden_set/1`; at most 100 items, at most 10 expected facts per item, at most 300 characters per fact and at most 1,000 per expected answer; text in NFC and within the indic-linguistics character table for mr. Each item binds to one scripted turn (rule 3) and names its match mode (rule 7: `all_facts` with expected facts, or `equivalent_answer` with an expected answer). Every item of the project's synthetic fixture (`packages/evalcore/tests/fixtures/golden_mr.json`, P4-J04) carries `needs_native_review: true` and is for the apparatus only; a real golden set is the owner's (O-J6). Refusals happen at step 1 of rule 20, before any key is read. The key and SHA-256 of the golden set are recorded in `tracer.judge_profile/1` (rule 8). Its JSON Schema (draft 2020-12, closed keys) is machine-checked against the constants `tracer-evalcore` ships (P4-J05). Rejected (architect): a lenient loader (a repeated key would silently keep one value); no caps (a large set multiplies requests and spend). Trade-off: a set larger than the caps is split by the user into several runs. Tests: `test_golden_set_strict_json_closed_keys_and_version`, `test_golden_set_caps_items_facts_chars`, `test_golden_fixture_mr_valid_and_marked_for_native_review`, `test_adr0030_documents_match_json_schemas`.
@@ -40,7 +39,7 @@ Machine-read by `test_adr0030_rules_are_tested`, in the format of ADRs 0026 to 0
 15. **BYOK by variable name; canaries (ADR 0007; ADR 0024 amendment A4).** The judge key is read at run time from the environment variable the allowlist entry names (or from `--env-file`, read for that name only), held in a redacting wrapper, and never written to any output: exception, repr, log at any level (DEBUG included), exchange file, store, report, recovery file, labels file or agreement report. The configuration names variables, never values; a `key_env` value that does not match the variable-name pattern, or a configuration that holds a key-shaped value, is refused. Rejected: keys in the judge configuration or the allowlist (both are files a user may share). Trade-off: one more variable per judge provider. Tests: `test_judge_key_env_name_pattern_and_never_value_in_config`, `test_judge_key_bound_to_its_host_never_sent_elsewhere`, `test_judge_key_canaries_never_in_any_output_channel`.
 16. **Retries, timeouts and the error taxonomy (ADR 0024 rules 9 and 10).** The judge client uses the timeouts, the bounded attempts and the bounded `Retry-After` of ADR 0024 rule 9 and decides as rule 10 does: on the HTTP status and on a short machine-key `error.code`, never on message text, which can echo input. `Judge*` errors hold facts only, are raised outside handlers and carry no cause and no context (the `_engine_errors` pattern). An authentication failure stops every further judge request of the run, and the remaining items are `error` with its code. Rejected (architect): retrying an authentication failure (the key will not become valid between attempts, and each attempt is a request against a key that is refused). Trade-off: one bad key ends the judging of the run. Tests: `test_openai_compat_retry_taxonomy_matches_adr0024`, `test_judge_errors_hold_facts_only_and_no_chain`, `test_tdeg_judge_auth_failure_stops_requests_and_errors_remaining`.
 17. **Caps (Q-J13).** A real judge engine requires `--max-judge-requests` (every attempt and every regeneration counts), `--max-judge-tokens` and `max_tokens` per request in the judge configuration, each with no default in code; a missing cap is refused at step 4 of rule 20. The token cap is checked as reported usage plus the next request's `max_tokens`, so the prompt tokens of one request can cross it (no tokenizer; BL-295, extended). A reply over 4,096 bytes is refused (rule 7). When a cap is reached no further request is sent and the remaining items are `error` with the cap's code. Rejected (architect): defaults in code (Tracer supplies no value; O-J3). Trade-off: the user states every limit for every real run. Tests: `test_judge_caps_required_for_real_engine_no_defaults`, `test_tdeg_judge_cap_reached_no_request_beyond_cap`, `test_judge_output_over_size_cap_refused`.
-18. **Usage and cost (Q-J12; ADR 0014).** Each answered judge request makes one `UsageRecord` with `stage=judge` and `domain=evaluation`, the model as requested, `prompt_tokens` and `completion_tokens` mapped exactly, cached tokens only when the reply reports them (absent stays absent, never 0); usage is handed out before the next request and survives an interruption (rule 20). Cost is `not_available` without a user USD price catalog; OpenRouter's `usage.cost` is "Cost in credits" and is never stored as a cost; no currency is converted. Rejected (architect): computing a cost from a provider price page (pricing is not verified, BL-151); storing credits as money. Trade-off: judged runs show no cost until a USD catalog exists. Tests: `test_openai_compat_usage_maps_prompt_completion_cached_exactly`, `test_judge_engine_streams_usage_before_next_request`, `test_judge_usage_survives_ctrl_c_mid_judging`.
+18. **Usage and cost (Q-J12; ADR 0014).** Each answered judge request makes one `UsageRecord` with `stage=judge` and `domain=evaluation`, the model as requested, `prompt_tokens` and `completion_tokens` mapped exactly, cached tokens only when the reply reports them (absent stays absent, never 0); usage is handed out before the next request and survives an interruption (rule 20). Cost is `not_available` without a user USD price catalog; OpenRouter's `usage.cost` is "Cost in credits" and is never stored as a cost; no currency is converted. Rejected (architect): computing a cost from a provider price page (pricing is not verified, BL-151); storing credits as money. Trade-off: judged runs show no cost until a USD catalog exists. Tests: `test_openai_compat_usage_maps_prompt_completion_cached_exactly`, `test_judge_cost_not_available_without_usd_catalog_and_credits_never_stored_as_cost`, `test_judge_engine_streams_usage_before_next_request`, `test_judge_usage_survives_ctrl_c_mid_judging`.
 19. **Exchange files, replay and reproducibility (Q-J14).** Each attempt writes `<out>/judge/<run>/item-<id>-<attempt>.json` (`tracer.judge_exchange/1`: the request messages, the raw response body, the request id and the status), mode 0600, opened with `O_NOFOLLOW`, git-ignored and guarded; the store holds the exchange SHA-256 (rule 8), never a raw reply. The `replay:<dir>` engine answers from those files and reproduces the stored verdicts byte for byte; the `fake:<scenario>` engine is deterministic and sends nothing. Judged and rescoring bundles round-trip through the store byte for byte, on SQLite and on Postgres. No determinism of any provider is claimed: a seed is recorded as sent, with `seed_guarantee: none`. Rejected (architect): raw replies in the store (a second copy of model output that may hold injected material, as ADR 0028 rule 12). Trade-off: replay needs the local exchange directory, which is never committed. Tests: `test_judge_exchange_files_private_no_follow_and_guarded`, `test_replay_judge_reproduces_stored_verdicts_byte_identical`, `test_fake_judge_is_deterministic_and_sends_nothing`, `test_judged_bundle_round_trips_through_store_byte_identical`, `test_judged_and_rescoring_bundles_store_on_both_backends`, `test_e2e_judge_synthetic_mr_exact_outputs`.
 20. **Order of operations and recovery (Q-J6; extends ADR 0026 rule 14).** (1) parse and validate the target, evaluator, sim profile, golden set (against the evaluator) and judge configuration; (2) the target allowlist and the judge allowlist (host, profile, key name); (3) the terms gates, including `--judge-authorisation-reference`, stored as its SHA-256 only; (4) every cap present, the judge caps included; (5) the output probe; (6) the engine factories read the keys (the judge key by its bound name) and the call logs open; (7) to (12) as ADR 0026 rule 14 (the call, the hang-up, the STT); (13) scoring; (13b) the judge: items in golden-set order, sequential, one request in flight, usage streamed to the recovery file, an authentication failure stopping further requests, the cap checked before each request; (14) the store; (15) the report. A `BaseException` during 13b writes `usage-recovery` and is raised again (Phase 3 rule 16 (d)). A judge failure gives exit 2 (`exit_code_of`). The dry run prints the judge plan and sends nothing. Rejected: judging only later, after the run is stored (the judge definitions must be in the run's snapshot from the start, FJ6). Trade-off: the judge model is fixed when `tracer simulate` runs; re-judging with another model needs a new run. Tests: `test_simulate_with_golden_order_of_operations_pinned`, `test_judge_refusals_before_any_key_read_or_connect`, `test_judge_usage_survives_ctrl_c_mid_judging`, `test_simulate_dry_run_prints_judge_plan_and_sends_nothing`, `test_simulate_judge_errors_exit_2`.
 21. **`tracer judge`: rescoring and repeats on fixed answers (Q-J16; FJ6, FJ7; ADR 0022 rule 5).** `tracer judge --out <dir> --bundle <id> --judge <engine> [--repeats K]` re-judges a stored judged run and stores one rescoring bundle per repeat, sharing the call's records and adding judge results. It is refused when the run's snapshot holds no judge definitions, and when the engine's model differs from the definitions' `judge_model_ref`. K repeats re-judge the same stored answers K times, so their counts of verdict changes measure the judge, not the agent. Rejected: measuring stability by repeating whole calls (the agent varies too, FJ7); a later judge with another model on a stored run (the snapshot fixes the definitions, FJ6). Trade-off: comparing judge models needs one new run per model. Tests: `test_tracer_judge_rescoring_bundle_shares_records_and_adds_judge_results`, `test_tracer_judge_refuses_run_without_judge_definitions`, `test_tracer_judge_model_must_equal_definition_model_ref`, `test_tracer_judge_repeats_store_one_bundle_each`.
@@ -64,11 +63,724 @@ The facts of the closed set of rule 13, as the staff-reviewer read them on 2026-
 
 Not verified by anyone on 2026-10-28: xAI Chat Completions usage, errors, `seed` and token field; Gemini usage fields and whether `temperature`, `max_tokens` and `seed` are honoured; OpenRouter error codes; every provider's terms, data retention and training use; every provider's Marathi competence; the Sarvam v2 auth header requirement; pricing and currencies; the DNS rebinding race in httpx.
 
-## JSON Schemas of the five documents (reserved for P4-J05)
-`tracer.golden_set/1` (the golden set file), `tracer.judge_profile/1` (in `ConfigSnapshot.metadata["tracer.judge_profile"]`), `tracer.judge/1` (in `MetricResult.metadata["tracer.judge"]`), `tracer.judge_exchange/1` (a local exchange file) and `tracer.judge_labels/1` (a labels file): draft 2020-12, closed keys, machine-checked against the constants the code ships (`test_adr0030_documents_match_json_schemas`). The members named by rules 2, 7, 8, 19 and 22 are the content; the exact member names, types and bounds of each schema are written into this section by P4-J05 before the ADR is Accepted. They are not written here, because the scope fixes the members but not every name and bound, and an invented field name would become a contract.
+## The five documents (P4-J05)
+Draft 2020-12, closed keys, every integer bounded by 2**53 - 1, machine-checked against the constants the code ships and against the code's enumerations and caps (`test_adr0030_documents_match_json_schemas`). Every member names the rule it comes from; no member exists that a rule does not need. The schemas are given below, one section each (the member tables list every member, nested ones included, with the rule of the ADR it comes from).
 
-## Amendments to earlier ADRs (proposed text, task P4-J02)
-Proposed only. ADRs 0022 to 0029 are not edited by this staging, because their guard tests pin their text and counts. Each amendment is applied in the P4-J02 commit together with the named spec changes listed at the end of this section, and an ADR index revision.
+## The `tracer.golden_set/1` format
+The golden set file `tracer.golden_set/1`, read with `loads_strict` by `tracer_evalcore.golden.parse_golden_set`. The cross-field rules a schema cannot state (an item's `question` equals the scripted line, the caller is the scripted brain, no barge-in turn, NFC and the character table `mr-caller-charset/1`, unique item ids) are code (rule 3).
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "tracer.golden_set/1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "key",
+    "language",
+    "items"
+  ],
+  "properties": {
+    "format": {
+      "type": "string",
+      "enum": [
+        "tracer.golden_set/1"
+      ]
+    },
+    "key": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(_[a-z0-9]+)*$",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "language": {
+      "type": "string",
+      "enum": [
+        "mr"
+      ]
+    },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 100,
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "scripted_turn_index",
+              "question",
+              "needs_native_review",
+              "match_mode",
+              "expected_facts"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9]*(_[a-z0-9]+)*$",
+                "minLength": 1,
+                "maxLength": 40
+              },
+              "scripted_turn_index": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "question": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2500
+              },
+              "needs_native_review": {
+                "type": "boolean"
+              },
+              "match_mode": {
+                "type": "string",
+                "enum": [
+                  "all_facts"
+                ]
+              },
+              "expected_facts": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 10,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 300
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "scripted_turn_index",
+              "question",
+              "needs_native_review",
+              "match_mode",
+              "expected_answer"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9]*(_[a-z0-9]+)*$",
+                "minLength": 1,
+                "maxLength": 40
+              },
+              "scripted_turn_index": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "question": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2500
+              },
+              "needs_native_review": {
+                "type": "boolean"
+              },
+              "match_mode": {
+                "type": "string",
+                "enum": [
+                  "equivalent_answer"
+                ]
+              },
+              "expected_answer": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1000
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+| Member | Source | Meaning |
+|---|---|---|
+| `format` | rule 2 | the version member; the value is the format name |
+| `key` | rules 2, 8 | the set's name, recorded in `tracer.judge_profile/1` with the SHA-256 of the file |
+| `language` | rules 2, 11 | mr only |
+| `items` | rules 2, 3 | 1 to 100 items, each bound to one scripted turn |
+| `items[].id` | rule 8 | snake case; the metric key is `judge_golden_<id>` |
+| `items[].scripted_turn_index` | rule 3 | the scripted turn the item is bound to |
+| `items[].question` | rules 3, 5 | equal to `Evaluator.scripted_turns[scripted_turn_index].text`, at most 2,500 characters |
+| `items[].match_mode` | rules 2, 7 | `all_facts` or `equivalent_answer`; picks the branch of `oneOf` |
+| `items[].expected_facts` | rules 2, 7 | mode `all_facts`: 1 to 10 facts of at most 300 characters |
+| `items[].expected_answer` | rules 2, 7 | mode `equivalent_answer`: at most 1,000 characters |
+| `items[].needs_native_review` | rule 2, P4-J04 | true for every item of the synthetic fixture |
+
+## The `tracer.judge_profile/1` format
+The profile document in `ConfigSnapshot.metadata["tracer.judge_profile"]`, built by `tracer_evalcore.judgerecords.build_judge_profile_document` (ADR 0027 rule 12a). `profile` is one of the seven profiles of rule 13 or `fake/1`, the profile of the offline fake engine (Ambiguity 7); `host`, `path` and `key_env` are null for it.
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "tracer.judge_profile/1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "profile",
+    "host",
+    "path",
+    "model",
+    "params",
+    "caps",
+    "key_env",
+    "golden_set",
+    "template_sha256",
+    "calibration"
+  ],
+  "properties": {
+    "format": {
+      "type": "string",
+      "enum": [
+        "tracer.judge_profile/1"
+      ]
+    },
+    "profile": {
+      "type": "string",
+      "enum": [
+        "anthropic_compat/1",
+        "gemini_compat/1",
+        "xai/1",
+        "openrouter/1",
+        "sarvam_v2/1",
+        "openai/1",
+        "local_loopback/1",
+        "fake/1"
+      ]
+    },
+    "host": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[a-z0-9.-]{1,253}(:[0-9]{1,5})?$|^\\[[0-9a-f:]{2,45}\\](:[0-9]{1,5})?$"
+    },
+    "path": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^/[A-Za-z0-9._~/-]{0,255}$"
+    },
+    "model": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$"
+    },
+    "params": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "max_tokens": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "max_completion_tokens": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "temperature": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "seed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "seed_guarantee": {
+          "type": "string",
+          "enum": [
+            "none"
+          ]
+        },
+        "reasoning_effort": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]{0,31}$"
+        },
+        "response_format": {
+          "type": "string",
+          "enum": [
+            "json_schema"
+          ]
+        },
+        "provider": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "order",
+            "allow_fallbacks",
+            "require_parameters",
+            "data_collection"
+          ],
+          "properties": {
+            "order": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 1,
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9._/-]{0,63}$"
+              }
+            },
+            "allow_fallbacks": {
+              "type": "boolean",
+              "enum": [
+                false
+              ]
+            },
+            "require_parameters": {
+              "type": "boolean",
+              "enum": [
+                true
+              ]
+            },
+            "data_collection": {
+              "type": "string",
+              "enum": [
+                "deny"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "caps": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_judge_requests",
+        "max_judge_tokens"
+      ],
+      "properties": {
+        "max_judge_requests": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "max_judge_tokens": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "key_env": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[A-Z][A-Z0-9_]{0,63}$"
+    },
+    "golden_set": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "sha256"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9]*(_[a-z0-9]+)*$",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "template_sha256": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "all_facts",
+        "equivalent_answer"
+      ],
+      "properties": {
+        "all_facts": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "equivalent_answer": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "calibration": {
+      "type": "string",
+      "enum": [
+        "uncalibrated"
+      ]
+    }
+  }
+}
+```
+
+| Member | Source | Meaning |
+|---|---|---|
+| `format` | rule 8 | the version member |
+| `profile` | rule 13 | the profile name and version |
+| `host` | rule 14 | host and non-default port of the allowlist entry, or null |
+| `path` | rules 8, 14 | the endpoint path (a stated exception to ADR 0027 rule 1: a URL path, not a file path), or null |
+| `model` | rule 8 | the model asked for |
+| `params` | rules 8, 12 | the call parameters as sent; `seed_guarantee` is always `none` |
+| `params.max_tokens` | rule 12 | the token field of the profile, one of the two |
+| `params.max_completion_tokens` | rule 12 | the token field of the profile `openai/1` |
+| `params.temperature` | rule 12 | present only when the configuration sets it |
+| `params.seed` | rule 12 | present only where the profile honours it |
+| `params.seed_guarantee` | rule 19 | recorded with a seed: none is guaranteed |
+| `params.reasoning_effort` | rule 13 | sent explicitly by `sarvam_v2/1` only |
+| `params.response_format` | rule 12 | `json_schema` on the profiles whose documentation verifies it |
+| `params.provider` | rule 13 | the pinned provider object of `openrouter/1` |
+| `caps` | rule 17 | the caps of the run, null when none applies |
+| `caps.max_judge_requests` | rule 17 | every attempt and regeneration counts |
+| `caps.max_judge_tokens` | rule 17 | reported usage plus the next `max_tokens` |
+| `key_env` | rules 14, 15 | the NAME of the key variable, never a value; null when no key is used |
+| `golden_set` | rules 2, 8 | the golden set's key and the SHA-256 of its file |
+| `template_sha256` | rules 6, 8 | the SHA-256 of the fixed template of each match mode |
+| `calibration` | rule 9 | always `uncalibrated` |
+
+## The `tracer.judge/1` format
+The result document in `MetricResult.metadata["tracer.judge"]`, built by `tracer_evalcore.judgerecords.build_judge_document`. Cross-field rules (code): `verdict` is null if and only if `reason_code` is null and `facts` is empty; `regenerated` is true if and only if `attempts` is 2; with `attempts` 0 the verdict and `exchange_sha256` are null.
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "tracer.judge/1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "verdict",
+    "reason_code",
+    "facts",
+    "window_turn_seqs",
+    "excluded_turns",
+    "attempts",
+    "regenerated",
+    "exchange_sha256",
+    "calibration",
+    "confidence"
+  ],
+  "properties": {
+    "format": {
+      "type": "string",
+      "enum": [
+        "tracer.judge/1"
+      ]
+    },
+    "verdict": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "agrees",
+        "disagrees",
+        "cannot_tell",
+        null
+      ]
+    },
+    "reason_code": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "all_facts_stated",
+        "fact_contradicted",
+        "fact_absent",
+        "meaning_differs",
+        "meaning_same",
+        "answer_off_topic",
+        "answer_unintelligible",
+        "insufficient_information",
+        null
+      ]
+    },
+    "facts": {
+      "type": "array",
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "index",
+          "status"
+        ],
+        "properties": {
+          "index": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "stated",
+              "contradicted",
+              "absent",
+              "cannot_tell"
+            ]
+          }
+        }
+      }
+    },
+    "window_turn_seqs": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 9007199254740991
+      }
+    },
+    "excluded_turns": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "attempts": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 2
+    },
+    "regenerated": {
+      "type": "boolean"
+    },
+    "exchange_sha256": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "calibration": {
+      "type": "string",
+      "enum": [
+        "uncalibrated"
+      ]
+    },
+    "confidence": {
+      "type": "string",
+      "enum": [
+        "none_claimed"
+      ]
+    }
+  }
+}
+```
+
+| Member | Source | Meaning |
+|---|---|---|
+| `format` | rule 8 | the version member |
+| `verdict` | rules 7, 8 | `agrees`, `disagrees` or `cannot_tell`; null when the judge gave no usable verdict |
+| `reason_code` | rule 7 | one of the eight codes; null with the verdict |
+| `facts` | rule 7 | the status of each expected fact, empty in mode `equivalent_answer` |
+| `facts[].index` | rule 7 | the position in `expected_facts`, from 0 |
+| `facts[].status` | rule 7 | `stated`, `contradicted`, `absent` or `cannot_tell` |
+| `window_turn_seqs` | rules 4, 8 | the `seq` of each `our_stt` turn of the answer window |
+| `excluded_turns` | rules 4, 8 | the number of `our_stt` agent turns that start before the window opens |
+| `attempts` | rules 7, 8 | requests made for the item: 0 when none was sent, 2 after a regeneration |
+| `regenerated` | rules 7, 8 | whether the identical request was sent a second time |
+| `exchange_sha256` | rules 8, 19 | the SHA-256 of the exchange file of the last attempt, or null |
+| `calibration` | rule 9 | always `uncalibrated` |
+| `confidence` | rule 9 | always `none_claimed`: no judge number is a confidence |
+
+## The `tracer.judge_exchange/1` format
+The local exchange file `<out>/judge/<run>/item-<id>-<attempt>.json`, written by `tracer_evalproviders.judgeexchange.ExchangeStore` as the RFC 8785 form of this document (mode 0600). The store holds only its SHA-256.
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "tracer.judge_exchange/1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "messages",
+    "response_body",
+    "request_id",
+    "status"
+  ],
+  "properties": {
+    "format": {
+      "type": "string",
+      "enum": [
+        "tracer.judge_exchange/1"
+      ]
+    },
+    "messages": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "role",
+          "content"
+        ],
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "system",
+              "user"
+            ]
+          },
+          "content": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100000
+          }
+        }
+      }
+    },
+    "response_body": {
+      "type": "string",
+      "maxLength": 65536
+    },
+    "request_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[A-Za-z0-9_.:-]{1,128}$"
+    },
+    "status": {
+      "type": "integer",
+      "minimum": 100,
+      "maximum": 599
+    }
+  }
+}
+```
+
+| Member | Source | Meaning |
+|---|---|---|
+| `format` | rule 19 | the version member |
+| `messages` | rule 19 | the system and the user message that were sent |
+| `messages[].role` | rule 5 | `system` or `user` |
+| `messages[].content` | rule 5 | the text sent, at most 100,000 characters |
+| `response_body` | rule 19 | the raw reply body of an answered request, at most 65,536 characters |
+| `request_id` | rule 19 | the provider's request id when it has a plain form, else null |
+| `status` | rule 19 | the HTTP status of the reply |
+
+## The `tracer.judge_labels/1` format
+The human labels file, one file per labeller, validated by `tracer_evalcore.judgelabels.validate_judge_labels` (the command `tracer labels check` is task P4-J21). A null `verdict` is an unlabelled item, shown separately and never counted as a disagreement.
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "tracer.judge_labels/1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "bundle_id",
+    "labeller",
+    "labels"
+  ],
+  "properties": {
+    "format": {
+      "type": "string",
+      "enum": [
+        "tracer.judge_labels/1"
+      ]
+    },
+    "bundle_id": {
+      "type": "string",
+      "pattern": "^rbnd_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "labeller": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+    },
+    "labels": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "item_id",
+          "verdict",
+          "basis"
+        ],
+        "properties": {
+          "item_id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(_[a-z0-9]+)*$",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "verdict": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "agrees",
+              "disagrees",
+              "cannot_tell",
+              null
+            ]
+          },
+          "basis": {
+            "type": "string",
+            "enum": [
+              "audio",
+              "stt_text",
+              "both"
+            ]
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+| Member | Source | Meaning |
+|---|---|---|
+| `format` | rule 22 | the version member |
+| `bundle_id` | rule 22 | the judged run bundle the labels refer to |
+| `labeller` | rule 22 | a pseudonym; two labellers give the human by human counts |
+| `labels` | rule 22 | one label per item |
+| `labels[].item_id` | rules 3, 22 | the golden item |
+| `labels[].verdict` | rule 22 | the human's verdict, null when not labelled |
+| `labels[].basis` | rule 22 | `audio`, `stt_text` or `both`: what the human judged on |
+
+## Amendments to earlier ADRs (applied, task P4-J02)
+Applied in the same change as the move of this ADR (task P4-J02), together with the named spec changes listed at the end of this section and ADR index revision 52. The text below is the text now in ADRs 0023, 0024 and 0027.
 
 ### ADR 0023, Phase 4 amendment, new rule A4 (after A3, before the amendment's invariants)
 ```text
@@ -92,7 +804,7 @@ The intro paragraph then says "labelled A1 to A13" (and names task P4-J02). No n
 The label `12a.` is deliberately not of the form `N. **`, so the rule count of ADR 0027 (17 rules, I1 to I10) is unchanged and rule 12a is read as part of rule 12's body by the rule reader.
 
 ### Tests that need a named spec change when the amendments and this ADR are applied
-qa makes each change (before and after, disclosed); none is edited by this staging.
+qa made each change (before and after, disclosed in `docs/phase4/evidence/red/batch-j1/spec-change.diff`).
 - `packages/evalcore/tests/evalcore_phase4_adr_support.py`: `SPECS["0023A"]` from 3 rules to 4 and `SPECS["0024A"]` from 9 rules to 13 (invariant counts unchanged); `PENDING["0023A"]`, `PENDING["0024A"]` and `PENDING["0027"]` gain the batch J names the new text cites that no test defines yet; a new `SPECS["0030"]` (25 rules, 9 invariants, self test `test_adr0030_rules_are_tested`) with `PENDING["0030"]`; the message suffix "(an ADR from 0030 has no pending set)" of `whole_adr_problems` changes meaning; the module docstring.
 - The ADR 0023 amendment module of `packages/evalcore/tests` (the module of `test_adr0023_phase4_amendment_is_tested`): `test_adr0023_phase4_amendment_has_the_pinned_labels` (A1 to A4) and `test_adr0023_phase4_amendment_says_where_it_is_machine_read` ("labelled A1 to A3" becomes "labelled A1 to A4"; "task P4-00d" stays).
 - The ADR 0024 amendment module of `packages/evalcore/tests` (the module of `test_adr0024_phase4_amendment_is_tested`): `test_adr0024_phase4_amendment_has_the_pinned_labels` (A1 to A13) and `test_adr0024_phase4_amendment_says_where_it_is_machine_read` ("labelled A1 to A9" becomes "labelled A1 to A13").
@@ -108,6 +820,8 @@ For the lead (SCOPE section J covers Q-J1 to Q-J20; these are readings the scope
 - **Ambiguity 4. The `equivalent_answer` mode.** With an empty `facts` list the fact rules of rule 7 do not constrain the verdict. **Recommendation:** in that mode the verdict is constrained by the code-to-verdict table of Ambiguity 3 only (`meaning_same` with `agrees`, `meaning_differs` or `answer_off_topic` with `disagrees`, `insufficient_information` or `answer_unintelligible` with `cannot_tell`), to be confirmed by P4-J09.
 - **Ambiguity 5. A self-test invariant.** The scope gives invariants I1 to I8, mirroring rules 5, 7, 9, 10, 14, 19, 22 and 23; the machine-read format of ADRs 0026 to 0029 requires that the last invariant cites the ADR's own test. **Recommendation:** I9 cites `test_adr0030_rules_are_tested`, as I7 of ADR 0028 and I4 of ADR 0029 do.
 - **Ambiguity 6. Cost names no test.** Rule 18's "cost `not_available` without a USD catalog" and "credits never stored as cost" are gate item 20 but no named test of section A.10 states them; the usage tests cover the mapping only. **Recommendation:** qa adds a named test to P4-J12 or P4-J17 (a SCOPE row change logged by the lead), and rule 18 cites it.
+
+- **Ambiguity 7. The profile of the offline engines.** The scope fixes seven profiles for real providers; a judged run with `fake:<scenario>` still needs a valid `tracer.judge_profile/1`. **Recommendation:** the document's `profile` may also be `fake/1` (host, path and `key_env` null); `fake/1` is not a profile of rule 13 and is refused as a real profile (`unknown_profile`). Rejected: no profile document for a fake run (the snapshot would differ in shape between a fake and a real run).
 
 ## Consequences
 - A judged run costs one judge request per golden item plus at most one regeneration each; every number is capped by the user.
@@ -128,7 +842,7 @@ For the lead (SCOPE section J covers Q-J1 to Q-J20; these are readings the scope
 - I8. Every degradation case gives the same key set and schema, and a missing question or answer is never `disagrees`. Tests: `test_tdeg_judge_schema_identical_across_cases`, `test_tdeg_judge_question_not_sent_is_error_never_disagrees`.
 - I9. Every numbered rule and every invariant cites a test. Test: `test_adr0030_rules_are_tested`.
 
-## Proposed index entry
-For the ADR index revision that moves this file to `docs/adr/` (P4-J01) and applies the amendments (P4-J02); not written into `docs/adr/README.md` now, because the index header is pinned at Revision 51 by `test_the_index_header_check_has_teeth`.
-- Row: `| [0030](0030-llm-judge-uncalibrated-signal.md) | LLM judge as an uncalibrated signal (golden sets, OpenAI-compatible provider profiles, human labels) | Proposed | the whole ADR until P4-J01 makes it Accepted; owner O-J1 to O-J6 open |`
-- Changes entry: "**New ADR 0030** (P4-J01): the LLM judge as an uncalibrated signal. 25 numbered rules and invariants I1 to I9 (`test_adr0030_rules_are_tested`) ... **ADR 0023 amended** (P4-J02): rule A4, the judge claim words and the fixed sentence of `docs/concepts/llm-judge.md` ... **ADR 0024 amended** (P4-J02): rules A10 to A13 ... **ADR 0027 rule 12a added** (P4-J02) ...", each with the named spec changes listed above.
+## Index entry
+Written into `docs/adr/README.md` as revision 52 (P4-J01, P4-J02). The mutation of `test_the_index_header_check_has_teeth` replaced "Revision 5" by "Revision 49", which reads "Revision 492" at revision 52 and was accepted by the header check; the test now replaces the number of the header line by 49 (disclosed in the spec change).
+- Row: `| [0030](0030-llm-judge-uncalibrated-signal.md) | LLM judge as an uncalibrated signal (golden sets, OpenAI-compatible provider profiles, human labels) | Accepted | none (P4-J01, rev 52: Q-J1 to Q-J20 and Ambiguities 1 to 7 auto-approved by the lead; the owner gates O-J1 to O-J6 are before the first real judge request) |`
+- Changes entry (as written in revision 52): "**New ADR 0030** (P4-J01): the LLM judge as an uncalibrated signal. 25 numbered rules and invariants I1 to I9 (`test_adr0030_rules_are_tested`) ... **ADR 0023 amended** (P4-J02): rule A4, the judge claim words and the fixed sentence of `docs/concepts/llm-judge.md` ... **ADR 0024 amended** (P4-J02): rules A10 to A13 ... **ADR 0027 rule 12a added** (P4-J02) ...", each with the named spec changes listed above.

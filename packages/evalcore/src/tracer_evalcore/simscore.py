@@ -34,6 +34,13 @@ from tracer_evalcore.definitions import (
     check_binding_parameters,
 )
 from tracer_evalcore.flagsdoc import FLAGS_METADATA_KEY
+from tracer_evalcore.judgerecords import (
+    JUDGE_KEY_PREFIX,
+    JUDGE_PROFILE_METADATA_KEY,
+    JudgeSetup,
+    judge_binding_params,
+    judge_definitions,
+)
 from tracer_evalcore.registry import (
     COUNT_KEY,
     MER_KEY,
@@ -200,6 +207,7 @@ class SimulatedConfiguration:
     snapshot: ConfigSnapshot
     test_profile: TestProfile | None
     parameters: ScoringParameters
+    judge: JudgeSetup | None = None
 
     def definition(self, key: str) -> MetricDefinition:
         for definition in self.snapshot.metric_definitions:
@@ -208,8 +216,17 @@ class SimulatedConfiguration:
         raise KeyError(key)
 
     def metric_keys(self) -> tuple[str, ...]:
+        """The shipped simulated-run metrics: not the inert check and not a judge definition."""
         return tuple(
-            d.key for d in self.snapshot.metric_definitions if d.key != SIM_PLACEHOLDER_KEY
+            d.key
+            for d in self.snapshot.metric_definitions
+            if d.key != SIM_PLACEHOLDER_KEY and not d.key.startswith(JUDGE_KEY_PREFIX)
+        )
+
+    def judge_keys(self) -> tuple[str, ...]:
+        """The keys of the judge definitions (one per golden item), in golden order."""
+        return tuple(
+            d.key for d in self.snapshot.metric_definitions if d.key.startswith(JUDGE_KEY_PREFIX)
         )
 
 
@@ -222,8 +239,13 @@ def build_simulated_configuration(
     flag_min_confidence: int | float,
     normaliser: str,
     created_at: datetime,
+    judge: JudgeSetup | None = None,
 ) -> SimulatedConfiguration:
-    """Build and seal the snapshot; ``sim_profile`` is stored in its metadata (digest-covered)."""
+    """Build and seal the snapshot; ``sim_profile`` is stored in its metadata (digest-covered).
+
+    With a ``judge`` setup (ADR 0030, ADR 0027 rule 12a) the snapshot also embeds one optional
+    ``llm_judge`` definition and binding per golden item and the ``tracer.judge_profile/1``
+    document; the inert check stays the only required rubric item."""
     from tracer_evalcore.simprofile import SIM_PROFILE_METADATA_KEY
 
     params = {PARAMETER_NAMES[0]: flag_min_confidence, PARAMETER_NAMES[1]: normaliser}
@@ -233,6 +255,19 @@ def build_simulated_configuration(
     definitions = [sim_definition(k, created_at=created_at) for k in keys]
     inert = _inert_check(created_at)
     definitions.append(inert)
+    judge_defs = [] if judge is None else judge_definitions(judge, created_at=created_at)
+    judge_params = (
+        {}
+        if judge is None
+        else dict(
+            zip(
+                (d.key for d in judge_defs),
+                (judge_binding_params(i) for i in judge.golden.items),
+                strict=True,
+            )
+        )
+    )
+    shown = [*definitions, *judge_defs]
 
     persona_record: Persona = _sealed(
         Persona,
@@ -255,13 +290,16 @@ def build_simulated_configuration(
         )
     evaluator_id = EvaluatorId.new()
     bindings: list[MetricBinding] = []
-    for definition in definitions:
+    for definition in shown:
         document = _base(MetricBindingId.new(), created_at)
+        bound_params = judge_params.get(definition.key)
+        if bound_params is None:
+            bound_params = dict(params) if definition.key in SIM_AGREEMENT_KEYS else {}
         document.update(
             {
                 "evaluator_id": str(evaluator_id),
                 "metric": _ref(definition),
-                "params": dict(params) if definition.key in SIM_AGREEMENT_KEYS else {},
+                "params": bound_params,
                 "enabled": True,
             }
         )
@@ -290,7 +328,7 @@ def build_simulated_configuration(
     evaluator_record: Evaluator = _sealed(Evaluator, evaluator_document)
 
     items = [{"binding": _ref(binding_of[cast(MetricDefinitionId, inert.id)]), "required": True}]
-    for definition in definitions[:-1]:
+    for definition in [*definitions[:-1], *judge_defs]:
         items.append(
             {
                 "binding": _ref(binding_of[cast(MetricDefinitionId, definition.id)]),
@@ -301,6 +339,8 @@ def build_simulated_configuration(
 
     document = _base(ConfigSnapshotId.new(), created_at, version=None)
     document["metadata"] = {SIM_PROFILE_METADATA_KEY: dict(sim_profile)}
+    if judge is not None:
+        document["metadata"][JUDGE_PROFILE_METADATA_KEY] = dict(judge.profile_document)
     document["metadata_flags"] = [
         flag.model_dump() for flag in compute_metadata_flags(document["metadata"])
     ]
@@ -308,14 +348,14 @@ def build_simulated_configuration(
         {
             "evaluator": evaluator_record.model_dump(mode="json", by_alias=True),
             "persona": persona_record.model_dump(mode="json", by_alias=True),
-            "metric_definitions": [d.model_dump(mode="json", by_alias=True) for d in definitions],
+            "metric_definitions": [d.model_dump(mode="json", by_alias=True) for d in shown],
             "metric_bindings": [b.model_dump(mode="json", by_alias=True) for b in bindings],
             "rubric": rubric.model_dump(mode="json", by_alias=True),
         }
     )
     digest = compute_snapshot_digest(document).model_dump(mode="json", exclude_none=True)
     snapshot = ConfigSnapshot.model_validate({**document, "content_digest": digest})
-    return SimulatedConfiguration(snapshot, profile_record, parameters)
+    return SimulatedConfiguration(snapshot, profile_record, parameters, judge)
 
 
 # ------------------------------------------------------------------------------------- scoring

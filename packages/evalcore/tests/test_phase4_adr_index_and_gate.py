@@ -18,21 +18,34 @@ import pytest
 
 import evalcore_phase4_adr_support as sup  # type: ignore[import-not-found,unused-ignore]
 
-STATUS = {"0026": "Accepted", "0027": "Accepted", "0028": "Accepted", "0029": "Proposed"}
+STATUS = {
+    "0026": "Accepted",
+    "0027": "Accepted",
+    "0028": "Accepted",
+    "0029": "Proposed",
+    "0030": "Accepted",
+}
 
 
-def _changes() -> str:
-    section: str = sup.heading_section(sup.README.read_text("utf-8"), "## Changes in revision 50")
+def _changes(revision: int = 50) -> str:
+    section: str = sup.heading_section(
+        sup.README.read_text("utf-8"), f"## Changes in revision {revision}"
+    )
     return section
 
 
 def _bullet(adr: str) -> str:
-    lines = [ln for ln in _changes().splitlines() if f"**New ADR {adr}**" in ln]
+    """ADRs 0026 to 0029 are announced in revision 50, ADR 0030 in revision 52 (batch J)."""
+    lines = [
+        ln
+        for ln in _changes(52 if adr == "0030" else 50).splitlines()
+        if f"**New ADR {adr}**" in ln
+    ]
     assert len(lines) == 1, adr
     return lines[0]
 
 
-@pytest.mark.parametrize("adr", ["0026", "0027", "0028", "0029"])
+@pytest.mark.parametrize("adr", ["0026", "0027", "0028", "0029", "0030"])
 def test_the_index_announces_the_rule_and_invariant_counts_the_adr_has(adr: str) -> None:
     spec = sup.SPECS[adr]
     rules, invariants = sup.items_of(spec, spec.path.read_text("utf-8"))
@@ -42,7 +55,7 @@ def test_the_index_announces_the_rule_and_invariant_counts_the_adr_has(adr: str)
     assert f"`test_adr{adr}_rules_are_tested`" in _bullet(adr)
 
 
-@pytest.mark.parametrize("adr", ["0026", "0027", "0028", "0029"])
+@pytest.mark.parametrize("adr", ["0026", "0027", "0028", "0029", "0030"])
 def test_the_index_row_and_the_adr_agree_on_status(adr: str) -> None:
     rows = [ln for ln in sup.README.read_text("utf-8").splitlines() if ln.startswith(f"| [{adr}]")]
     assert len(rows) == 1, adr
@@ -80,8 +93,10 @@ def index_header_problems(text: str) -> list[str]:
 def test_the_index_header_check_has_teeth() -> None:
     text = sup.README.read_text("utf-8")
     assert index_header_problems(text) == []
+    # revision 52 fix: replacing "Revision 5" by "Revision 49" reads "Revision 492" at any revision
+    # from 52 to 59, which the check accepts; the mutant now replaces the whole number of the header
     assert index_header_problems(
-        text.replace("Revision 5", "Revision 49", 1).replace("Revision 491", "Revision 49", 1)
+        re.sub(r"^Revision \d+", "Revision 49", text, count=1, flags=re.MULTILINE)
     )
     assert index_header_problems(
         text.replace("## Changes in revision 50", "## Changes in revision 5O", 1)

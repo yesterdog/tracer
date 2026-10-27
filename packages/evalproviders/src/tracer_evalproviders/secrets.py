@@ -16,6 +16,7 @@ from collections.abc import Mapping
 from typing import Any, Final, NoReturn
 
 from tracer_evalcore.errors import EvalcoreError
+from tracer_evalcore.judge import JudgeKeyMissingError
 from tracer_evalcore.llm import LlmKeyMissingError
 from tracer_evalcore.stt import SttKeyMissingError
 from tracer_evalcore.tts import TtsKeyMissingError
@@ -30,6 +31,7 @@ __all__ = [
     "ApiKey",
     "EnvFileModeWarning",
     "load_api_key",
+    "load_named_key",
     "load_role_key",
     "provider_config_ref",
 ]
@@ -223,3 +225,66 @@ def load_role_key(
     if key is not None:
         return key
     raise _ROLE_ERRORS[role](reason=reason)  # type: ignore[call-arg]
+
+
+_VARIABLE_NAME: Final = re.compile(r"[A-Z][A-Z0-9_]{0,63}")
+
+
+def _named_value(data: bytes, name: str) -> tuple[str, bytes | None]:
+    """``(state, value)`` of the line that defines ``name``; no other line is decoded."""
+    line_pattern = re.compile(
+        rb"[ \t]*(?:export[ \t]+)?" + re.escape(name.encode("ascii")) + rb"[ \t]*=(.*)", re.DOTALL
+    )
+    found = [m.group(1) for m in map(line_pattern.fullmatch, data.splitlines()) if m is not None]
+    if not found:
+        return "missing", None
+    if len(found) > 1:
+        return "ambiguous", None
+    return "found", found[0]
+
+
+def load_named_key(
+    name: str,
+    *,
+    environ: Mapping[str, str] | None = None,
+    env_file: str | os.PathLike[str] | None = None,
+) -> ApiKey:
+    """The key held by the variable ``name`` (the judge allowlist entry's ``key_env``).
+
+    As ``load_api_key`` for another variable: with ``env_file`` the file is the only source and only
+    that name is read from it; two definitions are refused; without it the variable is read from
+    ``environ`` (default ``os.environ``). A failure is a ``JudgeKeyMissingError`` with a short
+    ``reason`` (``key_missing``, ``key_invalid``, ``key_ambiguous`` or an env file reason), raised
+    outside any handler, quoting neither the name's value nor a line of the file.
+    """
+    if type(name) is not str or _VARIABLE_NAME.fullmatch(name) is None:
+        raise ValueError("name: not a variable name")
+    reason: str | None = None
+    raw: str | None = None
+    if env_file is not None:
+        data, refusal = _read_file(env_file)
+        if data is None:
+            reason = refusal
+        else:
+            state, value = _named_value(data, name)
+            if state == "ambiguous":
+                reason = "key_ambiguous"
+            elif value is not None:
+                raw = _decode(value)
+                if raw is None:
+                    reason = "key_invalid"
+    else:
+        raw = (os.environ if environ is None else environ).get(name)
+    key: ApiKey | None = None
+    if reason is None:
+        text = "" if raw is None else _unquote(raw)
+        if text:
+            try:
+                key = ApiKey(text)
+            except SttKeyMissingError as error:
+                reason = error.reason
+        else:
+            reason = "key_missing"
+    if key is not None:
+        return key
+    raise JudgeKeyMissingError(reason=reason)
