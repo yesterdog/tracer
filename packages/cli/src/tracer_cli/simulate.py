@@ -36,6 +36,7 @@ from tracer_cli.cli import (
     MAX_CONFIG_FILE_BYTES,
     MAX_TRANSCRIPT_FILE_BYTES,
     Environment,
+    ProviderFailure,
     Refusal,
 )
 from tracer_cli.fakes import FakeTts, ScenarioStt
@@ -99,6 +100,7 @@ from tracer_evalcore.tts import (
     TtsCapReachedError,
     TtsContext,
     TtsEngine,
+    TtsError,
     TtsOutcome,
     TtsRequest,
     TtsVoice,
@@ -1113,12 +1115,15 @@ def _after_keys(
         assert final is not None  # noqa: S101
         entries: list[SynthesisedLine] = []
         for index, text in enumerate(texts):
-            outcome = synthesise(text, index)
-            if outcome.failure is not None:
-                failure = outcome.failure
-                if isinstance(failure, TtsCapReachedError):
-                    raise Refusal("spend_cap_reached_before_the_call (tts_chars)")
-                raise failure
+            try:
+                outcome = synthesise(text, index)
+                if outcome.failure is not None:
+                    raise outcome.failure
+            except TtsCapReachedError:
+                raise Refusal("spend_cap_reached_before_the_call (tts_chars)") from None
+            except TtsError as error:
+                recovery.write_once("presynthesis", error, None)
+                raise ProviderFailure(_tts_failure_line(error)) from None
             assert outcome.audio is not None  # noqa: S101
             if not outcome.usage and args.tts == "sarvam":
                 cache_hits += 1
@@ -1171,6 +1176,14 @@ def _after_keys(
         )
     finally:
         database.dispose()
+
+
+def _tts_failure_line(error: TtsError) -> str:
+    """Class name, closed reason key and HTTP status only: never provider text, never a key."""
+    status = None if error.status in (None, 200) else f"HTTP {error.status}"  # 200: shape refused
+    facts = [x for x in (error.reason, status) if x]
+    suffix = f": {', '.join(facts)}" if facts else ""
+    return f"text-to-speech failed before the call ({type(error).__name__}{suffix})"
 
 
 async def _default_connect(request: ConnectRequest) -> WireConnection:

@@ -111,7 +111,7 @@ def test_requests_carry_only_the_line_and_the_explicit_voice(tmp_path: Path) -> 
         )
         assert (body["speech_sample_rate"], body["output_audio_codec"], body["pace"]) == (
             16000,
-            "linear16",
+            "wav",
             1,
         )
     sent = b"".join(r.content for r in sim.requests).decode("latin-1")
@@ -204,7 +204,7 @@ def test_a_failing_tts_provider_before_the_call_is_exit_1_and_nothing_connects(
         files, args=real_args(files), environ=real_env(), transport=SarvamSim(tts_status=503)
     )
     assert run.code == 1
-    assert run.err == "error: unexpected failure (TtsServerError)\n"
+    assert run.err == "error: text-to-speech failed before the call (TtsServerError: HTTP 503)\n"
     assert "connect" not in run.trace
     assert not list(files.out.glob("usage-recovery-*"))
     assert not list(files.out.glob("report-*"))

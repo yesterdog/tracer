@@ -1,0 +1,169 @@
+F..FFFF.F..FFF....F.......F........FFF....F............................. [ 40%]
+...........................................................FFF.F........ [ 80%]
+....................................                                     [100%]
+=================================== FAILURES ===================================
+______ test_wav_walker_request_asks_for_wav_for_the_domain_codec_linear16 ______
+packages/evalproviders/tests/test_sarvam_tts_wav_walker.py:83: in test_wav_walker_request_asks_for_wav_for_the_domain_codec_linear16
+    assert json.loads(rig.transport.requests[0].content)["output_audio_codec"] == "wav"
+E   AssertionError: assert 'linear16' == 'wav'
+E     
+E     - wav
+E     + linear16
+_ test_wav_walker_accepts_chunks_in_any_order_and_skips_unknown_ones[LIST chunk before data-<lambda>] _
+packages/evalproviders/tests/test_sarvam_tts_wav_walker.py:138: in test_wav_walker_accepts_chunks_in_any_order_and_skips_unknown_ones
+    assert outcome.failure is None, label  # type: ignore[attr-defined]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: LIST chunk before data
+E   assert TtsResponseInvalid('TtsResponseInvalid: request 0, HTTP 200, reason audio_not_recognised, 1 attempt(s)') is None
+E    +  where TtsResponseInvalid('TtsResponseInvalid: request 0, HTTP 200, reason audio_not_recognised, 1 attempt(s)') = TtsOutcome(audio=None, usage=(), failure=TtsResponseInvalid('TtsResponseInvalid: request 0, HTTP 200, reason audio_not_recognised, 1 attempt(s)')).failure
+_ test_wav_walker_accepts_chunks_in_any_order_and_skips_unknown_ones[LIST chunk of even size-<lambda>] _
+packages/evalproviders/tests/test_sarvam_tts_wav_walker.py:138: in test_wav_walker_accepts_chunks_in_any_order_and_skips_unknown_ones
+    assert outcome.failure is None, label  # type: ignore[attr-defined]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: LIST chunk of even size
+E   assert TtsResponseInvalid('TtsResponseInvalid: request 0, HTTP 200, reason audio_not_recognised, 1 attempt(s)') is None
+E    +  where TtsResponseInvalid('TtsResponseInvalid: request 0, HTTP 200, reason audio_not_recognised, 1 attempt(s)') = TtsOutcome(audio=None, usage=(), failure=TtsResponseInvalid('TtsResponseInvalid: request 0, HTTP 200, reason audio_not_recognised, 1 attempt(s)')).failure
+_ test_wav_walker_accepts_chunks_in_any_order_and_skips_unknown_ones[fmt of size 18-<lambda>] _
+packages/evalproviders/tests/test_sarvam_tts_wav_walker.py:138: in test_wav_walker_accepts_chunks_in_any_order_and_skips_unknown_ones
+    assert outcome.failure is None, label  # type: ignore[attr-defined]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: fmt of size 18
+E   assert TtsResponseInvalid('TtsResponseInvalid: request 0, HTTP 200, reason audio_not_recognised, 1 attempt(s)') is None
+E    +  where TtsResponseInvalid('TtsResponseInvalid: request 0, HTTP 200, reason audio_not_recognised, 1 attempt(s)') = TtsOutcome(audio=None, usage=(), failure=TtsResponseInvalid('TtsResponseInvalid: request 0, HTTP 200, reason audio_not_recognised, 1 attempt(s)')).failure
+_ test_wav_walker_accepts_chunks_in_any_order_and_skips_unknown_ones[data before fmt-<lambda>] _
+packages/evalproviders/tests/test_sarvam_tts_wav_walker.py:138: in test_wav_walker_accepts_chunks_in_any_order_and_skips_unknown_ones
+    assert outcome.failure is None, label  # type: ignore[attr-defined]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: data before fmt
+E   assert TtsResponseInvalid('TtsResponseInvalid: request 0, HTTP 200, reason audio_not_recognised, 1 attempt(s)') is None
+E    +  where TtsResponseInvalid('TtsResponseInvalid: request 0, HTTP 200, reason audio_not_recognised, 1 attempt(s)') = TtsOutcome(audio=None, usage=(), failure=TtsResponseInvalid('TtsResponseInvalid: request 0, HTTP 200, reason audio_not_recognised, 1 attempt(s)')).failure
+_ test_wav_walker_accepts_chunks_in_any_order_and_skips_unknown_ones[fact chunk-<lambda>] _
+packages/evalproviders/tests/test_sarvam_tts_wav_walker.py:138: in test_wav_walker_accepts_chunks_in_any_order_and_skips_unknown_ones
+    assert outcome.failure is None, label  # type: ignore[attr-defined]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: fact chunk
+E   assert TtsResponseInvalid('TtsResponseInvalid: request 0, HTTP 200, reason audio_not_recognised, 1 attempt(s)') is None
+E    +  where TtsResponseInvalid('TtsResponseInvalid: request 0, HTTP 200, reason audio_not_recognised, 1 attempt(s)') = TtsOutcome(audio=None, usage=(), failure=TtsResponseInvalid('TtsResponseInvalid: request 0, HTTP 200, reason audio_not_recognised, 1 attempt(s)')).failure
+__ test_wav_walker_accepts_a_streamed_size_when_the_rest_is_the_even_data[0] ___
+packages/evalproviders/tests/test_sarvam_tts_wav_walker.py:151: in test_wav_walker_accepts_a_streamed_size_when_the_rest_is_the_even_data
+    assert outcome.failure is None  # type: ignore[attr-defined]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: assert TtsResponseInvalid('TtsResponseInvalid: request 0, HTTP 200, reason audio_empty, 1 attempt(s)') is None
+E    +  where TtsResponseInvalid('TtsResponseInvalid: request 0, HTTP 200, reason audio_empty, 1 attempt(s)') = TtsOutcome(audio=None, usage=(), failure=TtsResponseInvalid('TtsResponseInvalid: request 0, HTTP 200, reason audio_empty, 1 attempt(s)')).failure
+_ test_wav_walker_accepts_a_streamed_size_when_the_rest_is_the_even_data[4294967295] _
+packages/evalproviders/tests/test_sarvam_tts_wav_walker.py:151: in test_wav_walker_accepts_a_streamed_size_when_the_rest_is_the_even_data
+    assert outcome.failure is None  # type: ignore[attr-defined]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: assert TtsResponseInvalid('TtsResponseInvalid: request 0, HTTP 200, reason audio_not_recognised, 1 attempt(s)') is None
+E    +  where TtsResponseInvalid('TtsResponseInvalid: request 0, HTTP 200, reason audio_not_recognised, 1 attempt(s)') = TtsOutcome(audio=None, usage=(), failure=TtsResponseInvalid('TtsResponseInvalid: request 0, HTTP 200, reason audio_not_recognised, 1 attempt(s)')).failure
+_________ test_wav_walker_refuses_a_streamed_size_with_an_odd_rest[0] __________
+packages/evalproviders/tests/test_sarvam_tts_wav_walker.py:158: in test_wav_walker_refuses_a_streamed_size_with_an_odd_rest
+    assert_refused(call(tmp_path, audio), "audio_not_recognised")
+packages/evalproviders/tests/test_sarvam_tts_wav_walker.py:71: in assert_refused
+    assert failure.reason == reason
+E   AssertionError: assert 'audio_empty' == 'audio_not_recognised'
+E     
+E     - audio_not_recognised
+E     + audio_empty
+_ test_wav_walker_refuses_what_is_not_the_requested_audio[wrong rate, fmt 18-<lambda>-audio_format_mismatch] _
+packages/evalproviders/tests/test_sarvam_tts_wav_walker.py:211: in test_wav_walker_refuses_what_is_not_the_requested_audio
+    assert_refused(outcome, reason)
+packages/evalproviders/tests/test_sarvam_tts_wav_walker.py:71: in assert_refused
+    assert failure.reason == reason
+E   AssertionError: assert 'audio_not_recognised' == 'audio_format_mismatch'
+E     
+E     - audio_format_mismatch
+E     + audio_not_recognised
+_ test_wav_walker_refuses_what_is_not_the_requested_audio[two data chunks-<lambda>-audio_not_recognised] _
+packages/evalproviders/tests/test_sarvam_tts_wav_walker.py:211: in test_wav_walker_refuses_what_is_not_the_requested_audio
+    assert_refused(outcome, reason)
+packages/evalproviders/tests/test_sarvam_tts_wav_walker.py:70: in assert_refused
+    assert type(failure) is core_tts().TtsResponseInvalid
+E   AssertionError: assert <class 'NoneType'> is <class 'tracer_evalcore.tts.TtsResponseInvalid'>
+E    +  where <class 'NoneType'> = type(None)
+E    +  and   <class 'tracer_evalcore.tts.TtsResponseInvalid'> = <module 'tracer_evalcore.tts' from '<repo>/packages/evalcore/src/tracer_evalcore/tts.py'>.TtsResponseInvalid
+E    +    where <module 'tracer_evalcore.tts' from '<repo>/packages/evalcore/src/tracer_evalcore/tts.py'> = core_tts()
+_ test_wav_walker_refuses_what_is_not_the_requested_audio[trailing garbage-<lambda>-audio_not_recognised] _
+packages/evalproviders/tests/test_sarvam_tts_wav_walker.py:211: in test_wav_walker_refuses_what_is_not_the_requested_audio
+    assert_refused(outcome, reason)
+packages/evalproviders/tests/test_sarvam_tts_wav_walker.py:70: in assert_refused
+    assert type(failure) is core_tts().TtsResponseInvalid
+E   AssertionError: assert <class 'NoneType'> is <class 'tracer_evalcore.tts.TtsResponseInvalid'>
+E    +  where <class 'NoneType'> = type(None)
+E    +  and   <class 'tracer_evalcore.tts.TtsResponseInvalid'> = <module 'tracer_evalcore.tts' from '<repo>/packages/evalcore/src/tracer_evalcore/tts.py'>.TtsResponseInvalid
+E    +    where <module 'tracer_evalcore.tts' from '<repo>/packages/evalcore/src/tracer_evalcore/tts.py'> = core_tts()
+_ test_wav_walker_refuses_what_is_not_the_requested_audio[one stray byte after an even chunk-<lambda>-audio_not_recognised] _
+packages/evalproviders/tests/test_sarvam_tts_wav_walker.py:211: in test_wav_walker_refuses_what_is_not_the_requested_audio
+    assert_refused(outcome, reason)
+packages/evalproviders/tests/test_sarvam_tts_wav_walker.py:70: in assert_refused
+    assert type(failure) is core_tts().TtsResponseInvalid
+E   AssertionError: assert <class 'NoneType'> is <class 'tracer_evalcore.tts.TtsResponseInvalid'>
+E    +  where <class 'NoneType'> = type(None)
+E    +  and   <class 'tracer_evalcore.tts.TtsResponseInvalid'> = <module 'tracer_evalcore.tts' from '<repo>/packages/evalcore/src/tracer_evalcore/tts.py'>.TtsResponseInvalid
+E    +    where <module 'tracer_evalcore.tts' from '<repo>/packages/evalcore/src/tracer_evalcore/tts.py'> = core_tts()
+_ test_wav_walker_refuses_what_is_not_the_requested_audio[two trailing bytes-<lambda>-audio_not_recognised] _
+packages/evalproviders/tests/test_sarvam_tts_wav_walker.py:211: in test_wav_walker_refuses_what_is_not_the_requested_audio
+    assert_refused(outcome, reason)
+packages/evalproviders/tests/test_sarvam_tts_wav_walker.py:70: in assert_refused
+    assert type(failure) is core_tts().TtsResponseInvalid
+E   AssertionError: assert <class 'NoneType'> is <class 'tracer_evalcore.tts.TtsResponseInvalid'>
+E    +  where <class 'NoneType'> = type(None)
+E    +  and   <class 'tracer_evalcore.tts.TtsResponseInvalid'> = <module 'tracer_evalcore.tts' from '<repo>/packages/evalcore/src/tracer_evalcore/tts.py'>.TtsResponseInvalid
+E    +    where <module 'tracer_evalcore.tts' from '<repo>/packages/evalcore/src/tracer_evalcore/tts.py'> = core_tts()
+__________ test_sarvam_tts_sends_explicit_model_speaker_language_rate __________
+packages/evalproviders/tests/test_sarvam_tts_request.py:85: in test_sarvam_tts_sends_explicit_model_speaker_language_rate
+    assert body["output_audio_codec"] == "wav"  # the domain codec linear16 goes as wav
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: assert 'linear16' == 'wav'
+E     
+E     - wav
+E     + linear16
+___ test_a_refused_tts_reply_before_the_call_names_the_class_and_the_reason ____
+packages/cli/tests/test_cli_simulate_tts_failure.py:55: in test_a_refused_tts_reply_before_the_call_names_the_class_and_the_reason
+    assert run.err == (
+E   AssertionError: assert 'error: unexp...nseInvalid)\n' == 'error: text-...recognised)\n'
+E     
+E     - error: text-to-speech failed before the call (TtsResponseInvalid: audio_not_recognised)
+E     + error: unexpected failure (TtsResponseInvalid)
+_______ test_a_refused_tts_reply_keeps_the_usage_of_the_earlier_request ________
+packages/cli/tests/test_cli_simulate_tts_failure.py:71: in test_a_refused_tts_reply_keeps_the_usage_of_the_earlier_request
+    assert document["failed_step"] == "presynthesis"
+E   AssertionError: assert 'call' == 'presynthesis'
+E     
+E     - presynthesis
+E     + call
+___________ test_a_tts_provider_error_names_the_class_and_the_status ___________
+packages/cli/tests/test_cli_simulate_tts_failure.py:83: in test_a_tts_provider_error_names_the_class_and_the_status
+    assert run.err == (
+E   AssertionError: assert 'error: unexp...erverError)\n' == 'error: text-...: HTTP 503)\n'
+E     
+E     - error: text-to-speech failed before the call (TtsServerError: HTTP 503)
+E     + error: unexpected failure (TtsServerError)
+___________ test_requests_carry_only_the_line_and_the_explicit_voice ___________
+packages/cli/tests/test_cli_simulate_engines.py:112: in test_requests_carry_only_the_line_and_the_explicit_voice
+    assert (body["speech_sample_rate"], body["output_audio_codec"], body["pace"]) == (
+E   AssertionError: assert (16000, 'linear16', 1.0) == (16000, 'wav', 1)
+E     
+E     At index 1 diff: 'linear16' != 'wav'
+E     Use -v to get more diff
+=========================== short test summary info ============================
+FAILED packages/evalproviders/tests/test_sarvam_tts_wav_walker.py::test_wav_walker_request_asks_for_wav_for_the_domain_codec_linear16
+FAILED packages/evalproviders/tests/test_sarvam_tts_wav_walker.py::test_wav_walker_accepts_chunks_in_any_order_and_skips_unknown_ones[LIST chunk before data-<lambda>]
+FAILED packages/evalproviders/tests/test_sarvam_tts_wav_walker.py::test_wav_walker_accepts_chunks_in_any_order_and_skips_unknown_ones[LIST chunk of even size-<lambda>]
+FAILED packages/evalproviders/tests/test_sarvam_tts_wav_walker.py::test_wav_walker_accepts_chunks_in_any_order_and_skips_unknown_ones[fmt of size 18-<lambda>]
+FAILED packages/evalproviders/tests/test_sarvam_tts_wav_walker.py::test_wav_walker_accepts_chunks_in_any_order_and_skips_unknown_ones[data before fmt-<lambda>]
+FAILED packages/evalproviders/tests/test_sarvam_tts_wav_walker.py::test_wav_walker_accepts_chunks_in_any_order_and_skips_unknown_ones[fact chunk-<lambda>]
+FAILED packages/evalproviders/tests/test_sarvam_tts_wav_walker.py::test_wav_walker_accepts_a_streamed_size_when_the_rest_is_the_even_data[0]
+FAILED packages/evalproviders/tests/test_sarvam_tts_wav_walker.py::test_wav_walker_accepts_a_streamed_size_when_the_rest_is_the_even_data[4294967295]
+FAILED packages/evalproviders/tests/test_sarvam_tts_wav_walker.py::test_wav_walker_refuses_a_streamed_size_with_an_odd_rest[0]
+FAILED packages/evalproviders/tests/test_sarvam_tts_wav_walker.py::test_wav_walker_refuses_what_is_not_the_requested_audio[wrong rate, fmt 18-<lambda>-audio_format_mismatch]
+FAILED packages/evalproviders/tests/test_sarvam_tts_wav_walker.py::test_wav_walker_refuses_what_is_not_the_requested_audio[two data chunks-<lambda>-audio_not_recognised]
+FAILED packages/evalproviders/tests/test_sarvam_tts_wav_walker.py::test_wav_walker_refuses_what_is_not_the_requested_audio[trailing garbage-<lambda>-audio_not_recognised]
+FAILED packages/evalproviders/tests/test_sarvam_tts_wav_walker.py::test_wav_walker_refuses_what_is_not_the_requested_audio[one stray byte after an even chunk-<lambda>-audio_not_recognised]
+FAILED packages/evalproviders/tests/test_sarvam_tts_wav_walker.py::test_wav_walker_refuses_what_is_not_the_requested_audio[two trailing bytes-<lambda>-audio_not_recognised]
+FAILED packages/evalproviders/tests/test_sarvam_tts_request.py::test_sarvam_tts_sends_explicit_model_speaker_language_rate
+FAILED packages/cli/tests/test_cli_simulate_tts_failure.py::test_a_refused_tts_reply_before_the_call_names_the_class_and_the_reason
+FAILED packages/cli/tests/test_cli_simulate_tts_failure.py::test_a_refused_tts_reply_keeps_the_usage_of_the_earlier_request
+FAILED packages/cli/tests/test_cli_simulate_tts_failure.py::test_a_tts_provider_error_names_the_class_and_the_status
+FAILED packages/cli/tests/test_cli_simulate_engines.py::test_requests_carry_only_the_line_and_the_explicit_voice
+19 failed, 161 passed in 7.12s

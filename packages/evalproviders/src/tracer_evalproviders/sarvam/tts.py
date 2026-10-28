@@ -45,7 +45,13 @@ __all__ = ["SarvamTts", "create_sarvam_tts"]
 PROVIDER: Final = "sarvam"
 _MAX_SAFE: Final = 2**53 - 1
 _B64: Final = re.compile(rb"(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?")
-_HEADER = struct.Struct("<4sI4s4sIHHIIHH4sI")
+_RIFF_HEAD: Final = 12
+_CHUNK = struct.Struct("<4sI")
+_FMT = struct.Struct("<HHIIHH")
+_STREAMED: Final = 0xFFFFFFFF
+#: the codec named in the request body for each domain codec (``linear16`` was seen to return
+#: headerless PCM, so the documented ``wav`` is asked for and its container is read)
+_WIRE_CODEC: Final = {"linear16": "wav", "mulaw": "mulaw"}
 
 
 def _check_cap(cap: object) -> int | None:
@@ -56,27 +62,52 @@ def _check_cap(cap: object) -> int | None:
     return cap
 
 
-# UNVERIFIED: the reply container; a canonical 44-byte WAV is assumed and anything else fails closed
 def _wav_data(raw: bytes, rate: int, codec: str) -> bytes | str:
-    """The data of a canonical WAV, or the reason key (the container is an assumption)."""
-    if len(raw) < _HEADER.size:
+    """The data of a RIFF/WAVE reply, or the reason key.
+
+    UNVERIFIED: for ``mulaw`` the container is assumed to be a WAV too (format tag 7, 8 bits); for
+    ``linear16`` the request asks for ``wav`` (the documented default) because the codec named
+    ``linear16`` was observed to return headerless PCM. Anything that is not a well-formed WAV of
+    the requested rate, one channel and the expected sample format fails closed.
+    """
+    if len(raw) < _RIFF_HEAD or raw[:4] != b"RIFF" or raw[8:12] != b"WAVE":
         return "audio_not_recognised"
-    riff, _size, wave, fmt, fmt_size, tag, chans, hz, _br, _ba, bits, data, length = (
-        _HEADER.unpack_from(raw)
-    )
-    if riff != b"RIFF" or wave != b"WAVE" or fmt != b"fmt " or fmt_size != 16 or data != b"data":
+    fmt: tuple[int, ...] | None = None
+    data: bytes | None = None
+    at = _RIFF_HEAD
+    end = len(raw)
+    while at < end:
+        if end - at < _CHUNK.size:
+            return "audio_not_recognised"
+        tag, size = _CHUNK.unpack_from(raw, at)
+        body = at + _CHUNK.size
+        if tag == b"data" and data is None and (size == _STREAMED or (size == 0 and body < end)):
+            data = raw[body:]  # a streamed size: the rest of the buffer is the audio
+            if len(data) % 2 and codec == "linear16":
+                return "audio_not_recognised"
+            break
+        if size > end - body:
+            return "audio_not_recognised"
+        if tag == b"fmt ":
+            if fmt is not None or size not in (16, 18):
+                return "audio_not_recognised"
+            fmt = _FMT.unpack_from(raw, body)
+        elif tag == b"data":
+            if data is not None:
+                return "audio_not_recognised"
+            data = raw[body : body + size]
+        at = min(body + size + (size & 1), end)  # an odd chunk is padded; a missing last pad is ok
+    if fmt is None or data is None:
         return "audio_not_recognised"
-    payload = raw[_HEADER.size : _HEADER.size + length]
-    if len(payload) != length:
-        return "audio_not_recognised"
+    tag_id, chans, hz, _byte_rate, _block, bits = fmt
     expected = (1, 16) if codec == "linear16" else (7, 8)
-    if (tag, bits) != expected or chans != 1 or hz != rate:
+    if (tag_id, bits) != expected or chans != 1 or hz != rate:
         return "audio_format_mismatch"
-    if length == 0:
+    if not data:
         return "audio_empty"
-    if codec == "linear16" and length % 2:
+    if codec == "linear16" and len(data) % 2:
         return "audio_not_recognised"
-    return payload
+    return data
 
 
 class SarvamTts:
@@ -180,7 +211,7 @@ class SarvamTts:
                 "model": voice.model,
                 "pace": Decimal(voice.pace),
                 "speech_sample_rate": request.sample_rate_hz,
-                "output_audio_codec": request.codec,
+                "output_audio_codec": _WIRE_CODEC[request.codec],
             },
             default=_pace_json_default,
         ).encode("utf-8")

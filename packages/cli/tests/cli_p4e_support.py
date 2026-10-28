@@ -369,7 +369,9 @@ class SarvamSim(httpx.MockTransport):
             rate = body["speech_sample_rate"]
             samples = (1000).to_bytes(2, "little", signed=True) * (rate // 50 * 5)
             audio = (
-                wav_bytes(samples, rate) if body["output_audio_codec"] == "linear16" else samples
+                wav_bytes(samples, rate)
+                if body["output_audio_codec"] in ("linear16", "wav")
+                else samples
             )
             return httpx.Response(
                 200,

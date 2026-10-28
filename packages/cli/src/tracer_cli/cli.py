@@ -136,6 +136,10 @@ class Refusal(Exception):
     """An input the command refuses (exit 4). The message is a code, a size or a class name."""
 
 
+class ProviderFailure(Exception):
+    """A provider failed before the call (exit 1); the message is a class name and closed keys."""
+
+
 @dataclass(frozen=True, kw_only=True)
 class EngineRequest:
     stt: str
@@ -1008,6 +1012,9 @@ def run(argv: Sequence[str], environment: Environment) -> int:
     except (Refusal, InputRefusedError, SttConfigurationError, CatalogRefusedError) as error:
         environment.stderr.write(f"error: {_printable(str(error))}\n")
         return EXIT_REFUSED
+    except ProviderFailure as error:
+        environment.stderr.write(f"error: {_printable(str(error))}\n")
+        return EXIT_UNEXPECTED
     except Exception as error:
         environment.stderr.write(f"error: unexpected failure ({type(error).__name__})\n")
         return EXIT_UNEXPECTED

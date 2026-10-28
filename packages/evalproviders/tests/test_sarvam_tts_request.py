@@ -82,7 +82,7 @@ def test_sarvam_tts_sends_explicit_model_speaker_language_rate(tmp_path: Path) -
         assert Decimal(str(body["pace"])) == Decimal("0.75")
         assert type(body["speech_sample_rate"]) is int
         assert body["speech_sample_rate"] == rate
-        assert body["output_audio_codec"] == "linear16"
+        assert body["output_audio_codec"] == "wav"  # the domain codec linear16 goes as wav
 
 
 def test_sarvam_tts_sends_explicit_model_speaker_language_rate_mulaw_for_telephony(
