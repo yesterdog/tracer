@@ -58,17 +58,22 @@ def test_the_hostile_strings_are_inside_the_cap_and_the_premise_holds_on_this_in
     """BL-352 / A-F3: the premise of the audit, proved on this interpreter and not assumed. Every
     shape is inside the 64 KiB cap and none is parsed; the depth at which the C scanner gives up
     differs between interpreters (on 3.14 the object shape of 12000 levels is a plain
-    ``JSONDecodeError``), so the premise is that the shapes at the cap, arrays among them, raise
-    ``RecursionError`` here: a run where none does would prove nothing."""
+    ``JSONDecodeError``), so the premise is that the shapes at the cap, arrays among them, are
+    inside the cap and raise a parse error here (``RecursionError`` on some platforms, which the
+    forced-exception tests below pin on every platform)."""
     raised: dict[str, str] = {}
     for name, text in HOSTILE_TEXT.items():
         assert len(text.encode("utf-8")) <= mod("limits").MAX_INBOUND_MESSAGE_BYTES, name
         with pytest.raises((RecursionError, ValueError)) as caught:
             json.loads(text)
         raised[name] = type(caught.value).__name__
-    assert raised["arrays_at_the_cap"] == "RecursionError", raised
-    assert raised["arrays"] == "RecursionError", raised
-    assert raised["media_then_arrays"] == "RecursionError", raised
+    # Named spec change (2026-10-28, hosted run 40674348632): the depth at which the C scanner
+    # gives up differs between PLATFORMS of one interpreter version (macOS: ``RecursionError``;
+    # the hosted Linux 3.14.7 and 3.15: ``JSONDecodeError``), so ``RecursionError`` is no longer
+    # required here. What stays: every shape raises a parse error (above), and the three array
+    # shapes agree. The ``RecursionError`` class is pinned on every platform by the forced-exception
+    # test ``test_twilio_decode_treats_any_exception_of_the_parser_as_ignored``.
+    assert raised["arrays"] == raised["arrays_at_the_cap"] == raised["media_then_arrays"], raised
 
 
 @pytest.mark.parametrize("name", sorted(HOSTILE_TEXT))
