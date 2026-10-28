@@ -32,7 +32,7 @@ from tracer_evalsim.dialects.base import (
     hang_up,
 )
 from tracer_evalsim.errors import SetupFailedError, TransportError
-from tracer_evalsim.limits import FRAME_NS, MAX_AGENT_AUDIO_BYTES
+from tracer_evalsim.limits import FRAME_NS, MAX_AGENT_AUDIO_BYTES, agent_audio_cap_bytes
 from tracer_evalsim.sender import PacedSender
 from tracer_evalsim.watchdog import Watchdog
 
@@ -91,6 +91,8 @@ class CallerEnd:
     regenerations: int = 0
     cap_reached: str | None = None
     requests: int = 0
+    failure_code: str | None = None
+    failure_status: int | None = None
 
 
 class LineProvider(Protocol):
@@ -149,6 +151,7 @@ class CallResult:
     failure_code: str | None
     watchdog_fired: bool
     counts: Mapping[str, int]
+    failure_http_status: int | None = None
 
 
 def _ms(ns: int) -> int:
@@ -164,12 +167,14 @@ class _Ended(Exception):
         cap: str | None = None,
         code: str | None = None,
         close_code: int | None = None,
+        status: int | None = None,
     ) -> None:
         super().__init__(reason)
         self.reason = reason
         self.cap = cap
         self.code = code
         self.close_code = close_code
+        self.status = status
 
 
 async def run_call(
@@ -180,9 +185,15 @@ async def run_call(
     lines: LineProvider,
     stop: StopFlag,
     segments: SegmentReader | None = None,
+    kill_switch: Callable[[], bool] | None = None,
 ) -> CallResult:
-    """Place one call. Every outcome of the call is a result; only a ``BaseException`` escapes."""
-    runner = _Run(settings, clock, connect, lines, stop, segments)
+    """Place one call. Every outcome of the call is a result; only a ``BaseException`` escapes.
+
+    ``kill_switch`` answers whether the kill-switch file is present. It is asked before the
+    connection and before every frame, and while the caller waits it is asked on a tick of one
+    frame, so its appearance hangs up within one frame of the injected clock.
+    """
+    runner = _Run(settings, clock, connect, lines, stop, segments, kill_switch)
     return await runner.run()
 
 
@@ -195,7 +206,9 @@ class _Run:
         lines: LineProvider,
         stop: StopFlag,
         segments: SegmentReader | None,
+        kill_switch: Callable[[], bool] | None = None,
     ) -> None:
+        self.kill_switch = kill_switch
         self.s = settings
         self.clock = clock
         self.connect = connect
@@ -215,6 +228,13 @@ class _Run:
         self.reader_task: asyncio.Task[None] | None = None
         self.watchdog_fired = False
         self.agent_bytes = 0
+        self.audio_cap = agent_audio_cap_bytes(
+            bytes_per_second=settings.dialect.realtime_bytes_per_second,
+            max_duration_ms=settings.max_duration_ms,
+            ceiling=settings.max_agent_audio_bytes,
+        )
+        self.watchdog: Watchdog | None = None
+        self.released = False
         self.empty_audio = 0
         self.barge_ins_fired = 0
         self.invalid = 0
@@ -248,7 +268,7 @@ class _Run:
             if self.first_active_ns is None:
                 self.first_active_ns = event.arrival_ns
             self.wait_active = True
-        if self.agent_bytes > self.s.max_agent_audio_bytes:
+        if self.agent_bytes > self.audio_cap:
             raise TransportError(code="message_too_large")
         self.wake.set()
 
@@ -283,6 +303,8 @@ class _Run:
         if self.watchdog_fired:
             raise _Ended("max_duration")
         if self.stop.requested:
+            raise _Ended("kill_switch")
+        if self.kill_switch is not None and self.kill_switch():
             raise _Ended("kill_switch")
         if now >= self.deadline_ns:
             raise _Ended("max_duration")
@@ -320,7 +342,7 @@ class _Run:
         established = False
         ended: _Ended | None = None
         ended_at = started
-        if self.stop.requested:
+        if self.stop.requested or (self.kill_switch is not None and self.kill_switch()):
             ended = _Ended("kill_switch")
             self.machine.apply("end_requested", "kill_switch")
         else:
@@ -335,7 +357,10 @@ class _Run:
                 established = True
         connect_ended = clock.monotonic_ns()
         if established:
-            ended = await self._call(connect_ended)
+            try:
+                ended = await self._call(connect_ended)
+            finally:
+                await self._release()  # on every exit, a BaseException included (BL-339)
             ended_at = clock.monotonic_ns()
         else:
             ended_at = connect_ended
@@ -371,6 +396,7 @@ class _Run:
             failure_code=self.failure_code or ended.code,
             watchdog_fired=self.watchdog_fired,
             counts=counts,
+            failure_http_status=ended.status,
         )
 
     async def _hang_up(self) -> None:
@@ -396,6 +422,7 @@ class _Run:
             hang_up=self._watchdog_hang_up,
         )
         watchdog.start()
+        self.watchdog = watchdog
         try:
             for message in dialect.opening_messages():
                 await self.conn.send(message)
@@ -424,12 +451,23 @@ class _Run:
         except TransportError:
             pass
         finally:
-            await watchdog.aclose()
-            if self.reader_task is not None and not self.reader_task.done():
-                self.reader_task.cancel()
-            if self.reader_task is not None:
-                await asyncio.gather(self.reader_task, return_exceptions=True)
+            await self._release()
         return result
+
+    async def _release(self) -> None:
+        """Close the watchdog, cancel the reader and retrieve its outcome; once (BL-339)."""
+        if self.released:
+            return
+        self.released = True
+        try:
+            if self.watchdog is not None:
+                await self.watchdog.aclose()
+        finally:
+            task = self.reader_task
+            if task is not None:
+                if not task.done():
+                    task.cancel()
+                await asyncio.gather(task, return_exceptions=True)
 
     async def _turns(self) -> NoReturn:
         policy = self.s.policy
@@ -476,7 +514,12 @@ class _Run:
                 self.regenerations += item.regenerations
                 self.llm_requests += item.requests
                 self.brain_requests += 1 if item.requests else 0
-                raise _Ended(item.end_reason, cap=item.cap_reached)
+                raise _Ended(
+                    item.end_reason,
+                    cap=item.cap_reached,
+                    code=item.failure_code,
+                    status=item.failure_status,
+                )
             self.invalid += item.invalid_outputs
             self.regenerations += item.regenerations
             self.llm_requests += item.requests
@@ -586,6 +629,8 @@ class _Run:
             if decision.kind == "end":
                 raise _Ended("max_silence")
             wake_at = min(end_ns, self.deadline_ns)
+            if self.kill_switch is not None:
+                wake_at = min(wake_at, now + FRAME_NS)
             if self.wait_active and self.last_active_ns is not None:
                 if barge is None:
                     wake_at = min(wake_at, self.last_active_ns + wait_ns)

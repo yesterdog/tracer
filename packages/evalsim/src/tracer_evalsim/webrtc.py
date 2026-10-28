@@ -239,7 +239,7 @@ class HttpSignalling:
             raise SetupFailedError(code="answer_invalid")
         try:
             parsed = json.loads(payload)
-        except ValueError:
+        except Exception:  # a RecursionError of a hostile body is an invalid answer
             parsed = None
         if not isinstance(parsed, dict):
             raise SetupFailedError(code="answer_invalid")

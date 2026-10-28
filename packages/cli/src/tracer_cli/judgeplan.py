@@ -124,7 +124,11 @@ def parse_inputs(args: argparse.Namespace, read: Callable[[str, str], str]) -> J
 
 
 def check_allowlist(
-    args: argparse.Namespace, inputs: JudgeInputs, *, resolver: Resolver | None
+    args: argparse.Namespace,
+    inputs: JudgeInputs,
+    *,
+    resolver: Resolver | None,
+    auth_token_env: str | None = None,
 ) -> JudgeEndpoint | None:
     """Step 2: the entry of the owner's judge allowlist, its profile and its DNS answers. The key
     is not read."""
@@ -133,6 +137,8 @@ def check_allowlist(
     if args.judge_allowlist is None:
         raise Refusal("judge_allowlist_missing")
     entries = read_judge_allowlist(args.judge_allowlist)
+    if auth_token_env is not None and any(entry.key_env == auth_token_env for entry in entries):
+        raise Refusal("auth_token_env_is_judge_key_env")  # one variable, two hosts (BL-354)
     assert inputs.config.endpoint is not None  # noqa: S101  (parse_inputs)
     return check_endpoint(
         entries,

@@ -14,16 +14,16 @@ from __future__ import annotations
 
 import os
 import re
-import stat
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Final
 
+from tracer_evalcore.privatefile import PrivateFileError, read_private_file
 from tracer_evalsim.errors import EvalsimError, TargetRefusedError
 from tracer_evalsim.ws import parse_target_url
 
 __all__ = [
     "MAX_ALLOWLIST_BYTES",
+    "RESERVED_AUTH_TOKEN_ENVS",
     "AllowlistEntry",
     "AllowlistError",
     "find_entry",
@@ -33,6 +33,8 @@ __all__ = [
 ]
 
 MAX_ALLOWLIST_BYTES: Final = 65_536
+#: variables that hold a provider's key: never the agent's bearer token (BL-354)
+RESERVED_AUTH_TOKEN_ENVS: Final = ("SARVAM_API_KEY",)
 _FIELDS: Final = ("bot_holds_telephony_credentials", "auth_token_env", "origin")
 _E164: Final = re.compile(r"\+[1-9][0-9]{6,14}")
 _ENV_NAME: Final = re.compile(r"[A-Z_][A-Z0-9_]{0,63}")
@@ -89,6 +91,8 @@ def parse_allowlist(text: str) -> tuple[AllowlistEntry, ...]:
         env = fields.get("auth_token_env")
         if env is not None and _ENV_NAME.fullmatch(env) is None:
             raise AllowlistError("allowlist_field_invalid")
+        if env in RESERVED_AUTH_TOKEN_ENVS:
+            raise AllowlistError("allowlist_auth_env_reserved")
         origin = fields.get("origin")
         if origin is not None and _ORIGIN.fullmatch(origin) is None:
             raise AllowlistError("allowlist_field_invalid")
@@ -97,24 +101,17 @@ def parse_allowlist(text: str) -> tuple[AllowlistEntry, ...]:
 
 
 def read_allowlist(path: str | os.PathLike[str]) -> tuple[AllowlistEntry, ...]:
-    """Read the file under the rules of rule 16; every refusal is an ``AllowlistError``."""
-    location = Path(path)
+    """Read the file under the rules of rule 16 (the shared private-file reader, BL-355); every
+    refusal is an ``AllowlistError``."""
     try:
-        info = os.lstat(location)
-    except OSError:
-        raise AllowlistError("allowlist_unreadable") from None
-    if stat.S_ISLNK(info.st_mode) or not stat.S_ISREG(info.st_mode):
-        raise AllowlistError("allowlist_not_a_regular_file")
-    if info.st_mode & 0o077:
-        raise AllowlistError("allowlist_mode_too_open")
-    if info.st_size > MAX_ALLOWLIST_BYTES:
-        raise AllowlistError("allowlist_too_large")
+        data = read_private_file(path, max_bytes=MAX_ALLOWLIST_BYTES)
+    except PrivateFileError as error:
+        raise AllowlistError(f"allowlist_{error.code}") from None
     try:
-        with open(location, "rb") as handle:
-            data = handle.read(MAX_ALLOWLIST_BYTES + 1)
-        return parse_allowlist(data.decode("utf-8"))
-    except (OSError, UnicodeDecodeError):
+        text = data.decode("utf-8")
+    except UnicodeDecodeError:
         raise AllowlistError("allowlist_unreadable") from None
+    return parse_allowlist(text)
 
 
 def find_entry(entries: tuple[AllowlistEntry, ...], target: str) -> AllowlistEntry | None:

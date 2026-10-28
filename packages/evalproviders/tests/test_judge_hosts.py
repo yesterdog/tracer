@@ -614,8 +614,12 @@ def test_judge_key_env_name_pattern_and_never_value_in_config() -> None:
     hosts = jmod("judgehosts")
     assert hosts.KEY_ENV_PATTERN.fullmatch("JUDGE_KEY_A")
     template = "https://api.openai.com/v1/chat/completions profile=openai/1 key_env={}"
-    for name in ("A", "OPENAI_API_KEY", "JUDGE_KEY_1", "X" * 64, "SARVAM_API_KEY"):
+    for name in ("A", "OPENAI_API_KEY", "JUDGE_KEY_1", "X" * 64):
         assert entries(template.format(name))[0].key_env == name, name
+    # BL-354: the Sarvam key variable belongs to the Sarvam host only (was accepted here)
+    assert refusal(lambda: entries(template.format("SARVAM_API_KEY"))) == (
+        "allowlist_key_env_reserved"
+    )
     for name in (
         "openai_api_key",
         "My_Key",

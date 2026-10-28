@@ -14,6 +14,7 @@ from tracer_evalsim.clock import Clock
 from tracer_evalsim.errors import TransportError
 from tracer_evalsim.limits import (
     FRAME_NS,
+    MAX_INBOUND_BYTES_PER_SECOND,
     MAX_INBOUND_MESSAGE_BYTES,
     MAX_INBOUND_MESSAGES_PER_SECOND,
     NS_PER_S,
@@ -77,6 +78,12 @@ class Dialect(ABC):
         width = 2 if self.wire_codec == "pcm_s16le" else 1
         return self.sample_rate_hz * FRAME_NS // NS_PER_S * width
 
+    @property
+    def realtime_bytes_per_second(self) -> int:
+        """The wire audio of one second of speech at the dialect rate (``frame_bytes`` x 50)."""
+        width = 2 if self.wire_codec == "pcm_s16le" else 1
+        return self.sample_rate_hz * width
+
     @abstractmethod
     def opening_messages(self) -> tuple[bytes | str, ...]: ...
 
@@ -123,12 +130,16 @@ class InboundReader:
         *,
         max_message_bytes: int = MAX_INBOUND_MESSAGE_BYTES,
         max_messages_per_second: int = MAX_INBOUND_MESSAGES_PER_SECOND,
+        max_bytes_per_second: int = MAX_INBOUND_BYTES_PER_SECOND,
     ) -> None:
         self._dialect = dialect
         self._clock = clock
         self._max_bytes = max_message_bytes
         self._max_rate = max_messages_per_second
+        self._max_rate_bytes = max_bytes_per_second
         self._window: deque[int] = deque()
+        self._byte_window: deque[tuple[int, int]] = deque()
+        self._window_bytes = 0
         self._closed = False
         self._messages = 0
         self._audio_frames = 0
@@ -163,9 +174,15 @@ class InboundReader:
         now = self._clock.monotonic_ns()
         while self._window and self._window[0] <= now - NS_PER_S:
             self._window.popleft()
+        while self._byte_window and self._byte_window[0][0] <= now - NS_PER_S:
+            self._window_bytes -= self._byte_window.popleft()[1]
         if len(self._window) >= self._max_rate:
             raise TransportError(code="inbound_rate_exceeded")
+        if self._window_bytes + size > self._max_rate_bytes:
+            raise TransportError(code="inbound_bytes_exceeded")
         self._window.append(now)
+        self._byte_window.append((now, size))
+        self._window_bytes += size
         self._messages += 1
         decoded = self._dialect.decode(message)
         if decoded is None:

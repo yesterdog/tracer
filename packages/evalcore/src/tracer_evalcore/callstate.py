@@ -2,7 +2,7 @@
 # Copyright 2026 The Tracer contributors
 """The call state machine (ADR 0026 rule 9; contract docs/phase4/api-surface-batch-a.md section 2).
 
-Pure and table-driven: eight states, nine events, eleven end reasons. No clock, no randomness and
+Pure and table-driven: eight states, nine events, twelve end reasons. No clock, no randomness and
 no I/O. A call ends in ``ended`` with exactly one end reason; nothing changes after ``ended``.
 """
 

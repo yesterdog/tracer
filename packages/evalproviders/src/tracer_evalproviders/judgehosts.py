@@ -18,13 +18,12 @@ import ipaddress
 import os
 import re
 import socket
-import stat
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Final
 
 from tracer_evalcore.errors import InputRefusedError
+from tracer_evalcore.privatefile import PrivateFileError, read_private_file
 from tracer_evalproviders import judgeprofiles
 from tracer_evalproviders.secrets import ApiKey, load_named_key
 from tracer_evalschema.credentials import contains_credential_pattern
@@ -32,6 +31,7 @@ from tracer_evalschema.credentials import contains_credential_pattern
 __all__ = [
     "KEY_ENV_PATTERN",
     "MAX_JUDGE_ALLOWLIST_BYTES",
+    "RESERVED_KEY_ENVS",
     "BoundEndpoint",
     "JudgeAllowlistError",
     "JudgeEndpoint",
@@ -47,6 +47,8 @@ __all__ = [
 
 MAX_JUDGE_ALLOWLIST_BYTES: Final = 65_536
 KEY_ENV_PATTERN: Final = re.compile(r"[A-Z][A-Z0-9_]{0,63}")
+#: variables that hold one provider's key, with the only hosts they may be routed to (BL-354)
+RESERVED_KEY_ENVS: Final = {"SARVAM_API_KEY": ("api.sarvam.ai",)}
 Resolver = Callable[[str, int], Sequence[str]]
 _FIELDS: Final = ("profile", "key_env")
 _NAME_HOST: Final = re.compile(r"[A-Za-z0-9.-]{1,253}")
@@ -183,6 +185,8 @@ def parse_judge_allowlist(text: str) -> tuple[JudgeEndpoint, ...]:
                 raise JudgeAllowlistError("allowlist_key_env_forbidden")
             if KEY_ENV_PATTERN.fullmatch(key_env) is None or contains_credential_pattern(key_env):
                 raise JudgeAllowlistError("allowlist_key_env_invalid")
+        if key_env in RESERVED_KEY_ENVS and host not in RESERVED_KEY_ENVS[key_env]:
+            raise JudgeAllowlistError("allowlist_key_env_reserved")
         entries.append(JudgeEndpoint(url, scheme, host, port, path, profile, key_env))
     if len({e.url for e in entries}) != len(entries):
         raise JudgeAllowlistError("allowlist_entry_repeated")
@@ -195,45 +199,16 @@ def parse_judge_allowlist(text: str) -> tuple[JudgeEndpoint, ...]:
     return tuple(entries)
 
 
-def _read_all(descriptor: int, limit: int) -> bytes:
-    """Up to ``limit`` bytes of an open file; ``os.read`` may return fewer than are there."""
-    chunks: list[bytes] = []
-    remaining = limit
-    while remaining > 0:
-        chunk = os.read(descriptor, remaining)
-        if not chunk:
-            break
-        chunks.append(chunk)
-        remaining -= len(chunk)
-    return b"".join(chunks)
-
-
 def read_judge_allowlist(path: str | os.PathLike[str]) -> tuple[JudgeEndpoint, ...]:
-    """Read the file under the rules of rule 14: a private regular file, no link of any kind."""
-    location = Path(path)
+    """Read the file under the rules of rule 14: a private regular file, no link of any kind (the
+    shared private-file reader, BL-355)."""
     try:
-        info = os.lstat(location)
-    except OSError:
-        raise JudgeAllowlistError("allowlist_unreadable") from None
-    if stat.S_ISLNK(info.st_mode) or not stat.S_ISREG(info.st_mode) or info.st_nlink != 1:
-        raise JudgeAllowlistError("allowlist_not_a_regular_file")
-    if info.st_mode & 0o077:
-        raise JudgeAllowlistError("allowlist_mode_too_open")
-    if info.st_size > MAX_JUDGE_ALLOWLIST_BYTES:
-        raise JudgeAllowlistError("allowlist_too_large")
+        data = read_private_file(path, max_bytes=MAX_JUDGE_ALLOWLIST_BYTES)
+    except PrivateFileError as error:
+        raise JudgeAllowlistError(f"allowlist_{error.code}") from None
     try:
-        descriptor = os.open(location, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
-        try:
-            opened = os.fstat(descriptor)
-            if (opened.st_ino, opened.st_dev) != (info.st_ino, info.st_dev):
-                raise JudgeAllowlistError("allowlist_not_a_regular_file")
-            data = _read_all(descriptor, MAX_JUDGE_ALLOWLIST_BYTES + 1)
-        finally:
-            os.close(descriptor)
-        if len(data) > MAX_JUDGE_ALLOWLIST_BYTES:
-            raise JudgeAllowlistError("allowlist_too_large")
         text = data.decode("utf-8")
-    except (OSError, UnicodeDecodeError):
+    except UnicodeDecodeError:
         raise JudgeAllowlistError("allowlist_unreadable") from None
     return parse_judge_allowlist(text)
 

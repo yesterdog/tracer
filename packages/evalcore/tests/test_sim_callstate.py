@@ -64,7 +64,7 @@ def test_state_machine_transition_table_exact() -> None:
     assert tuple(cs.CALL_EVENTS) == EVENTS
     assert tuple(simtypes_mod().END_REASONS) == END_REASONS
     assert tuple(cs.REQUESTABLE_END_REASONS) == REQUESTABLE
-    assert len(REQUESTABLE) == 10
+    assert len(REQUESTABLE) == 11
     assert "setup_failed" not in cs.REQUESTABLE_END_REASONS
     assert tuple(cs.PRECONNECT_END_REASONS) == ("kill_switch",)
     # the ADR names the eight states in this order in rule 9
@@ -326,7 +326,7 @@ def test_setup_failure_is_an_end_reason_not_an_exception() -> None:
 
 
 def test_every_end_reason_is_reachable_with_its_own_value() -> None:
-    """The eleven end reasons of ADR 0026 rule 9 are all reachable, each recorded as itself (a
+    """The twelve end reasons of ADR 0026 rule 9 are all reachable, each recorded as itself (a
     table that merged two reasons, or lost one, would pass the grid test alone)."""
     cs = callstate_mod()
     seen = set()
@@ -342,7 +342,7 @@ def test_every_end_reason_is_reachable_with_its_own_value() -> None:
     machine.apply("hangup_complete")
     seen.add(machine.end_reason)
     assert seen == set(END_REASONS)
-    assert len(seen) == 11
+    assert len(seen) == 12
 
 
 def test_the_first_end_reason_wins() -> None:

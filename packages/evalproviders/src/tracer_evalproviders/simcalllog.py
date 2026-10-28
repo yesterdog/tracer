@@ -34,6 +34,7 @@ _END_REASONS: Final = (
     "transport_error",
     "brain_invalid_output",
     "spend_cap",
+    "brain_failed",
 )
 
 

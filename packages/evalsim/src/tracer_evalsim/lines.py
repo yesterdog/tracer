@@ -16,16 +16,59 @@ from dataclasses import dataclass
 from typing import Any, Final, TypeVar
 
 from tracer_evalcore.brain import CallerBrain
-from tracer_evalcore.llm import LlmCapReachedError, LlmError
+from tracer_evalcore.llm import (
+    LlmAuthError,
+    LlmCapReachedError,
+    LlmError,
+    LlmRateLimited,
+    LlmRequestRejected,
+    LlmResponseInvalid,
+    LlmServerError,
+    LlmTransportError,
+)
 from tracer_evalcore.tts import TtsCapReachedError, TtsError, TtsOutcome
 from tracer_evalsim.clock import Clock
 from tracer_evalsim.runner import CallerEnd, PreparedLine
 from tracer_evalsim.sender import split_frames
 
-__all__ = ["LlmLines", "PresynthesisedLines", "SynthesisedLine", "run_in_thread"]
+__all__ = [
+    "BRAIN_FAILURE_CODES",
+    "LlmLines",
+    "PresynthesisedLines",
+    "SynthesisedLine",
+    "brain_failure_code",
+    "run_in_thread",
+]
 
 _MS: Final = 1_000_000
 T = TypeVar("T")
+
+#: the facts a failed brain leaves (BL-338): the class of the provider's error, as a stable code
+BRAIN_FAILURE_CODES: Final = (
+    "llm_auth",
+    "llm_error",
+    "llm_rate_limited",
+    "llm_rejected",
+    "llm_response_invalid",
+    "llm_server_error",
+    "llm_transport",
+)
+_BY_CLASS: Final = (
+    (LlmAuthError, "llm_auth"),
+    (LlmRequestRejected, "llm_rejected"),
+    (LlmRateLimited, "llm_rate_limited"),
+    (LlmServerError, "llm_server_error"),
+    (LlmTransportError, "llm_transport"),
+    (LlmResponseInvalid, "llm_response_invalid"),
+)
+
+
+def brain_failure_code(error: LlmError) -> str:
+    """The code of a provider failure: its class, never its message."""
+    for cls, code in _BY_CLASS:
+        if isinstance(error, cls):
+            return code
+    return "llm_error"
 
 
 async def run_in_thread(function: Callable[[], T]) -> T:
@@ -101,8 +144,13 @@ class LlmLines:
             return CallerEnd(
                 "spend_cap", cap_reached="llm_tokens", requests=self._requests_of() - before
             )
-        except LlmError:
-            return CallerEnd("transport_error", requests=self._requests_of() - before)
+        except LlmError as error:
+            return CallerEnd(
+                "brain_failed",
+                requests=self._requests_of() - before,
+                failure_code=brain_failure_code(error),
+                failure_status=error.status,
+            )
         brain_ms = (self._clock.monotonic_ns() - started) // _MS
         requests = self._requests_of() - before
         if decision.line is None:

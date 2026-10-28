@@ -33,7 +33,9 @@ REFUSAL_CODES = (
     "insecure_target",
     "labels_inconsistent",
     "origin_invalid",
+    "target_address_refused",
     "target_invalid",
+    "target_unresolvable",
     "webrtc_extra_missing",
 )
 SETUP_CODES = (
@@ -51,6 +53,7 @@ TRANSPORT_CODES = (
     "audio_frame_invalid",
     "connection_closed",
     "connection_lost",
+    "inbound_bytes_exceeded",
     "inbound_rate_exceeded",
     "message_too_large",
     "send_failed",

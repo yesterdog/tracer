@@ -1,0 +1,15 @@
+batch G (P4-31 and BL-338), 317 new test items in 12 test files (+ 2 support modules), 2026-10-28
+base: HEAD 5c8c18a (batches E, F, J1, J2 committed); the oracle is oracle-src.patch (14 source files); the shared test edits and the ADR and SCOPE proposals are spec-change.diff (12 files, 34 exact-string edits, S-G1 to S-G7)
+selection for red and oracle: the 12 new test files + the 6 shared test files the spec change edits + 5 ADR and index tests = 587 items (1 skipped by design: the opt-in gate check)
+python  red(spec change, no oracle)    oracle(new files + changed shared tests)  whole workspace with oracle
+3.11    297 failed, 289 passed, 1 skipped   586 passed, 1 skipped                 15573 passed, 1 skipped, 1301 deselected
+3.12    297 failed, 289 passed, 1 skipped   586 passed, 1 skipped                 15573 passed, 1 skipped, 1301 deselected
+3.13    297 failed, 289 passed, 1 skipped   586 passed, 1 skipped                 15573 passed, 1 skipped, 1301 deselected
+3.14    297 failed, 289 passed, 1 skipped   586 passed, 1 skipped                 15573 passed, 1 skipped, 1301 deselected
+red without the spec change (3.13): 295 failed, 290 passed, 1 skipped
+of the 289 that pass on the current tree, 30 are tests of batch G (regression and negative guards and the inventory), listed with their reasons in red-tests-that-pass-on-the-current-tree.txt; the other 259 are unchanged cases of the shared files
+oracle lint on the mirror: ruff check, ruff format --check, mypy strict (566 source files, tests included), scripts/guard_private_fixtures.py: clean
+secret scan: there is no gitleaks binary on this machine; a regex scan of the evidence directory and the contract for key patterns found nothing (the canaries in the tests are assembled from parts)
+mutants: 109  killed: 106  survived: 3 (all classified equivalent)  noapply: 0  (first round 97 killed, 10 survived, 1 noapply; the 7 test-weak survivors were killed after the tests were strengthened and the noapply mutant was replaced)
+not run: Postgres parity (no Docker), Python 3.15, the lowest-direct dependency leg, hosted CI, any real provider, gitleaks
+note: the whole-workspace runs used editable installs repointed to the oracle mirror; the mirror is a git repository with no commit (three Phase 3 tests call git) and carries .claude/agents (a Phase 1 drift test reads it)

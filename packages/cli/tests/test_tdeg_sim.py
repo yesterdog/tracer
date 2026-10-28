@@ -211,6 +211,7 @@ def test_tdeg_sim_setup_failed_all_not_applicable_exit_5(
     assert case.timing["first_agent_audio_ms"] is None
     assert case.timing["overlap_ms"] is None
     assert run.names() == [
+        "call.lock",
         "report-20261027T120000Z.html",
         "sim_call_log.jsonl",
         "tracer.sqlite",

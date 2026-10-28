@@ -104,7 +104,7 @@ class TwilioMediaStreamDialect(Dialect):
             return None
         try:
             body = json.loads(message)
-        except ValueError:
+        except Exception:  # any parser failure (a RecursionError included) is an ignored message
             return None
         if not isinstance(body, dict):
             return None

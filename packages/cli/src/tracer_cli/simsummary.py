@@ -62,12 +62,15 @@ def sim_facts(bundle: RunBundle) -> SimFacts:
 
 def exit_code_of(bundle: RunBundle) -> int:
     """5 when the call was not established, 3 when the speech-to-text failed, 2 when a result is an
-    error, else 0 (precedence 1, 5, 3, 2, 0; the 1 is the command's own, ADR 0026 rule 19)."""
+    error or the caller's language model failed (``brain_failed``), else 0 (precedence 1, 5, 3, 2,
+    0; the 1 is the command's own, ADR 0026 rule 19)."""
     facts = sim_facts(bundle)
     if not facts.outcome["call_established"]:
         return EXIT_NO_CALL
     if any(w.code == "stt_failed" for w in bundle.run.ingest_warnings):
         return 3
+    if facts.outcome["end_reason"] == "brain_failed":
+        return 2
     if any(r.status == "error" for r in bundle.results):
         return 2
     return 0

@@ -1,0 +1,80 @@
+$ uv lock --resolution lowest-direct
+Updated tzdata v2026.5 -> v2026.6
+Updated virtualenv v21.14.12 -> v21.15.1
+Updated websockets v17.3 -> v15.0
+$ pytest packages/evalsim/tests (phase 4 leg, py3.11)
+Using CPython 3.11.16
+Creating virtual environment at: <scratch>
+   Building tracer-cli @ file://<scratch>
+   Building tracer-evalcore @ file://<scratch>
+   Building tracer-evaldb @ file://<scratch>
+   Building tracer-evalproviders @ file://<scratch>
+   Building tracer-evalschema @ file://<scratch>
+   Building tracer-evalsim @ file://<scratch>
+      Built tracer-cli @ file://<scratch>
+      Built tracer-evalsim @ file://<scratch>
+      Built tracer-evalcore @ file://<scratch>
+      Built tracer-evalschema @ file://<scratch>
+      Built tracer-evalproviders @ file://<scratch>
+      Built tracer-evaldb @ file://<scratch>
+Installed 72 packages in 98ms
+============================= test session starts ==============================
+platform darwin -- Python 3.11.16, pytest-9.1.1, pluggy-1.7.0
+rootdir: <scratch>
+configfile: pyproject.toml
+plugins: platformdirs-4.13.7, hypothesis-6.170.5, anyio-4.15.1
+collected 788 items / 12 deselected / 776 selected
+
+packages/evalsim/tests/test_evalsim_allowlist_open.py ........           [  1%]
+packages/evalsim/tests/test_evalsim_audit_allowlist_reader.py .......... [  2%]
+.............                                                            [  3%]
+packages/evalsim/tests/test_evalsim_audit_audio_bounds.py .............. [  5%]
+.........................                                                [  9%]
+packages/evalsim/tests/test_evalsim_audit_auth_env_reserved.py .....     [  9%]
+packages/evalsim/tests/test_evalsim_audit_hostile_json.py .............. [ 11%]
+...............                                                          [ 13%]
+packages/evalsim/tests/test_evalsim_audit_task_hygiene.py .............. [ 15%]
+.......                                                                  [ 16%]
+packages/evalsim/tests/test_evalsim_brain_failed.py .................... [ 18%]
+.                                                                        [ 18%]
+packages/evalsim/tests/test_evalsim_call_lock.py ....................... [ 21%]
+...............................................                          [ 27%]
+packages/evalsim/tests/test_evalsim_connection_labels.py ............... [ 29%]
+..............................................................           [ 37%]
+packages/evalsim/tests/test_evalsim_dialect_policy.py ......             [ 38%]
+packages/evalsim/tests/test_evalsim_fake_agent_and_allowlist.py ........ [ 39%]
+..........................................                               [ 44%]
+packages/evalsim/tests/test_evalsim_fake_agents.py ............          [ 46%]
+packages/evalsim/tests/test_evalsim_hostile_loopback.py ................ [ 48%]
+.                                                                        [ 48%]
+packages/evalsim/tests/test_evalsim_inbound_reader.py .................. [ 51%]
+....                                                                     [ 51%]
+packages/evalsim/tests/test_evalsim_integration_guard.py .......         [ 52%]
+packages/evalsim/tests/test_evalsim_judge_loopback.py ....               [ 52%]
+packages/evalsim/tests/test_evalsim_kill_switch.py ..................... [ 55%]
+....                                                                     [ 56%]
+packages/evalsim/tests/test_evalsim_loopback_guard.py .................. [ 58%]
+.........                                                                [ 59%]
+packages/evalsim/tests/test_evalsim_no_socket.py .....                   [ 60%]
+packages/evalsim/tests/test_evalsim_pacing.py ...............            [ 62%]
+packages/evalsim/tests/test_evalsim_pipecat_protobuf.py ................ [ 64%]
+.....                                                                    [ 64%]
+packages/evalsim/tests/test_evalsim_protobuf_codec.py .................. [ 67%]
+........................................                                 [ 72%]
+packages/evalsim/tests/test_evalsim_runner.py .......................... [ 75%]
+....................                                                     [ 78%]
+packages/evalsim/tests/test_evalsim_runner_loopback.py ........          [ 79%]
+packages/evalsim/tests/test_evalsim_scaffold.py ......                   [ 80%]
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py ............. [ 81%]
+........                                                                 [ 82%]
+packages/evalsim/tests/test_evalsim_target_addresses.py ................ [ 84%]
+.......................                                                  [ 87%]
+packages/evalsim/tests/test_evalsim_twilio.py .......................    [ 90%]
+packages/evalsim/tests/test_evalsim_watchdog.py ........                 [ 91%]
+packages/evalsim/tests/test_evalsim_webrtc.py .......................... [ 95%]
+.....                                                                    [ 95%]
+packages/evalsim/tests/test_evalsim_websocket_loopback.py .............. [ 97%]
+..................                                                       [100%]
+
+===================== 776 passed, 12 deselected in 35.85s ======================
+exit 0

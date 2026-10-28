@@ -1,0 +1,109 @@
+ks-probe-follows-links	KILLED
+ks-probe-error-means-absent	KILLED
+ks-probe-absent-means-present	KILLED
+ks-name-changed	KILLED
+lock-name-changed	KILLED
+lock-interval-off-by-one	KILLED
+lock-interval-too-short	KILLED
+lock-future-allowed	KILLED
+lock-zero-interval-checks-clock	KILLED
+lock-created-world-readable	KILLED
+lock-mode-not-forced	KILLED
+lock-claim-follows-links	KILLED
+lock-check-follows-links	KILLED (after a test was strengthened; it survived the first round)
+lock-not-exclusive	KILLED
+lock-held-not-released	KILLED
+lock-mode-bits-accepted	KILLED
+lock-claim-mode-bits-accepted	KILLED
+lock-size-unchecked	KILLED (after a test was strengthened; it survived the first round)
+lock-extra-keys-accepted	KILLED
+lock-duplicate-keys-accepted	KILLED (after a test was strengthened; it survived the first round)
+lock-bool-monotonic-accepted	KILLED
+lock-negative-monotonic-accepted	KILLED
+lock-format-unchecked	KILLED
+lock-multiline-accepted	KILLED (after a test was strengthened; it survived the first round)
+lock-garbage-means-no-call	KILLED
+lock-claim-skips-recheck	KILLED
+lock-record-without-microseconds	KILLED
+lock-record-monotonic-zero	KILLED
+lock-record-appended	KILLED
+lock-record-not-written	KILLED
+lock-local-zone-compared	KILLED (after a test was strengthened; it survived the first round)
+lock-bad-interval-accepted	KILLED
+lock-naive-accepted	KILLED
+guard-code-unchecked	KILLED
+dns-private-allowed	KILLED
+dns-mapped-not-unwrapped	SURVIVED (equivalent on CPython 3.11.16 to 3.14.7, whose ipaddress judges an IPv4-mapped address by the IPv4 address it carries; the explicit unwrap keeps the rule independent of the patch release)
+dns-localhost-any	KILLED
+dns-literal-looked-up	KILLED
+dns-empty-answer-ok	KILLED
+dns-oserror-propagates	KILLED
+dns-first-address-only	KILLED
+dns-scope-not-stripped	SURVIVED (equivalent: the standard library parses a scope suffix itself since 3.9, so fe80::1%eth0 is judged link-local with or without the explicit strip)
+dns-garbage-answer-ok	KILLED
+dns-wrong-code-for-a-refused-address	KILLED
+dns-codes-unsorted	KILLED
+al-open-follows-links	KILLED
+al-open-blocks-on-fifo	KILLED
+al-mode-unchecked	KILLED
+al-type-unchecked	KILLED
+al-grown-file-parsed	KILLED (after a test was strengthened; it survived the first round)
+al-size-unchecked	SURVIVED (equivalent: the length of what was read is checked after the read and gives the same code allowlist_too_large; the fstat size check is the early exit of the same refusal)
+al-link-is-unreadable	KILLED
+al-read-unbounded	KILLED (after a test was strengthened; it survived the first round)
+run-kill-poll-not-in-check	KILLED
+run-kill-poll-not-before-connect	KILLED
+run-kill-no-tick	KILLED
+run-kill-tick-two-frames	KILLED
+run-kill-counted-as-signal	KILLED
+run-kill-reason-wrong	KILLED
+run-brain-status-dropped	KILLED
+run-brain-code-dropped	KILLED
+run-result-status-dropped	KILLED
+run-brain-end-not-counted	KILLED
+lines-auth-as-rejected	KILLED
+lines-server-as-transport	KILLED
+lines-ratelimit-as-server	KILLED
+lines-invalid-as-error	KILLED
+lines-fallback-wrong	KILLED
+lines-status-dropped	KILLED
+lines-still-transport-error	KILLED
+lines-failure-requests-zero	KILLED
+lines-swallows-defects	KILLED
+lines-cap-is-failure	KILLED
+lines-codes-unsorted	KILLED
+types-brain-failed-first	KILLED
+outcome-enum-lacks-brain-failed	KILLED
+outcome-no-llm-rule	KILLED
+outcome-rule-inverted	KILLED
+calllog-lacks-brain-failed	KILLED
+cmd-no-interval-check	KILLED
+cmd-interval-for-fake-too	KILLED
+cmd-no-kill-switch-refusal	KILLED
+cmd-guards-before-allowlist	KILLED
+cmd-no-claim	KILLED
+cmd-claim-for-fake-too	KILLED
+cmd-claim-never-released	KILLED
+cmd-claim-interval-zero	KILLED
+cmd-no-kill-poll	KILLED
+cmd-poll-wrong-dir	KILLED
+cmd-target-not-normalised	KILLED
+cmd-no-address-check	KILLED
+cmd-address-check-before-match	KILLED
+cmd-wrong-port-resolved	KILLED
+cmd-resolver-seam-ignored	KILLED
+cmd-guard-error-unmapped	KILLED
+cmd-brain-line-dropped	KILLED
+cmd-brain-line-always	KILLED
+cmd-brain-line-no-status	KILLED
+cmd-brain-line-after-bundle	KILLED
+cmd-resolver-field-missing	KILLED
+sum-brain-failed-exit-zero	KILLED
+sum-brain-failed-before-stt	KILLED
+sum-brain-failed-exit-three	KILLED
+sum-brain-failed-before-not-established	KILLED
+args-exit-text-old	KILLED
+report-note-missing	KILLED
+report-note-always	KILLED
+report-note-claims-agent	KILLED
+report-note-wrong-id	KILLED

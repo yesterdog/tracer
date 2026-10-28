@@ -59,6 +59,7 @@ END_REASONS = [
     "transport_error",
     "brain_invalid_output",
     "spend_cap",
+    "brain_failed",
 ]
 STATES = [
     "preflight",
@@ -181,7 +182,7 @@ def cross_document_problems(
         if f"`{dialect}`" not in rule5:
             problems.append(f"ADR 0026 rule 5 does not name `{dialect}`")
     if outcome["end_reason"]["enum"] != END_REASONS:
-        problems.append("sim_outcome: end_reason enum is not the eleven reasons in order")
+        problems.append("sim_outcome: end_reason enum is not the twelve reasons in order")
     rule9 = _rule(adr26, 9)
     for reason in END_REASONS:
         if f"`{reason}`" not in rule9:
@@ -813,7 +814,7 @@ def _dialect_drift(text: str) -> str:
 
 
 def _drop_end_reason(text: str) -> str:
-    return text.replace('"brain_invalid_output", "spend_cap"]', '"spend_cap"]', 1)
+    return text.replace('"spend_cap", "brain_failed"]', '"spend_cap"]', 1)
 
 
 def _drop_cap_name(text: str) -> str:

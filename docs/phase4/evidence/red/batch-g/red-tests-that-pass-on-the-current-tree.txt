@@ -1,0 +1,66 @@
+Tests of batch G that pass on the current tree (HEAD 5c8c18a + the staged tests + spec-change.diff, no oracle),
+30 of the batch's new tests (289 of the 586 selected pass; the rest of the passes are the unchanged shared tests of the changed files).
+Each is listed with the reason it is not red.
+
+  test_evalsim_allowlist_open::test_a_file_that_grows_after_it_was_measured_is_refused_by_what_was_read
+      mutant-killing guard of the rewritten read: true today because the current code measures the real size with lstat and never calls fstat; it fails for an implementation that trusts a reported size and does not check the length it read
+  test_evalsim_allowlist_open::test_a_file_of_exactly_the_cap_is_read
+      boundary guard of the allowlist size cap, true today; kills a mutant that refuses the cap itself
+  test_evalsim_allowlist_open::test_the_good_file_still_reads_and_a_directory_or_a_missing_file_has_its_code
+      behaviour guard of the allowlist read, true today; it must survive the rewrite of the open
+  test_evalsim_brain_failed::test_an_error_that_is_not_an_llm_error_is_not_swallowed
+      negative guard: a defect is not a provider failure; true today, kills a mutant that catches every exception
+  test_evalsim_brain_failed::test_a_good_request_is_a_line_with_no_failure_facts
+      positive control of the line provider: a good reply is a line; true today
+  test_cli_simulate_brain_failed::test_nothing_the_provider_sent_reaches_any_output[401]
+      regression guard of unchanged behaviour: the provider's text, the key and the reference already reach no output (the failure is an exception of facts only); it must stay so after the change
+  test_cli_simulate_brain_failed::test_nothing_the_provider_sent_reaches_any_output[403]
+      regression guard of unchanged behaviour: the provider's text, the key and the reference already reach no output (the failure is an exception of facts only); it must stay so after the change
+  test_cli_simulate_brain_failed::test_nothing_the_provider_sent_reaches_any_output[400]
+      regression guard of unchanged behaviour: the provider's text, the key and the reference already reach no output (the failure is an exception of facts only); it must stay so after the change
+  test_cli_simulate_brain_failed::test_nothing_the_provider_sent_reaches_any_output[429]
+      regression guard of unchanged behaviour: the provider's text, the key and the reference already reach no output (the failure is an exception of facts only); it must stay so after the change
+  test_cli_simulate_brain_failed::test_nothing_the_provider_sent_reaches_any_output[500]
+      regression guard of unchanged behaviour: the provider's text, the key and the reference already reach no output (the failure is an exception of facts only); it must stay so after the change
+  test_cli_simulate_brain_failed::test_nothing_the_provider_sent_reaches_any_output[503]
+      regression guard of unchanged behaviour: the provider's text, the key and the reference already reach no output (the failure is an exception of facts only); it must stay so after the change
+  test_cli_simulate_brain_failed::test_nothing_the_provider_sent_reaches_any_output[transport]
+      regression guard of unchanged behaviour: the provider's text, the key and the reference already reach no output (the failure is an exception of facts only); it must stay so after the change
+  test_cli_simulate_brain_failed::test_nothing_the_provider_sent_reaches_any_output[timeout]
+      regression guard of unchanged behaviour: the provider's text, the key and the reference already reach no output (the failure is an exception of facts only); it must stay so after the change
+  test_cli_simulate_brain_failed::test_nothing_the_provider_sent_reaches_any_output[bad_json]
+      regression guard of unchanged behaviour: the provider's text, the key and the reference already reach no output (the failure is an exception of facts only); it must stay so after the change
+  test_cli_simulate_brain_failed::test_nothing_the_provider_sent_reaches_any_output[no_choices]
+      regression guard of unchanged behaviour: the provider's text, the key and the reference already reach no output (the failure is an exception of facts only); it must stay so after the change
+  test_cli_simulate_brain_failed::test_a_call_that_ends_in_any_other_way_is_not_changed
+      regression guard: a spend cap of the brain and a brain that breaks the script twice keep their end reasons; they pass today and must keep passing
+  test_cli_simulate_brain_failed::test_other_reports_have_no_such_note
+      negative guard: no other report has the note; trivially true until the note exists, kills a mutant that always shows it
+  test_cli_simulate_interval::test_the_allowlist_is_checked_before_the_interval
+      order guard: true today because no interval is enforced; kills a mutant that checks the interval first
+  test_cli_simulate_interval::test_a_run_with_a_fake_agent_neither_reads_nor_writes_the_lock
+      negative guard: a fake-agent run leaves no lock; true today, kills a mutant that applies the lock to fake runs
+  test_cli_simulate_interval::test_a_dry_run_neither_reads_nor_writes_the_lock
+      negative guard: a dry run touches nothing; true today, kills a mutant that checks before the dry-run return
+  test_cli_simulate_interval::test_the_claim_is_released_when_the_invocation_ends_even_after_a_failure
+      release guard: no claim exists today so none is left held; kills a mutant that never releases the lock
+  test_cli_simulate_interval::test_nothing_about_the_lock_is_printed_or_stored_in_the_run
+      negative guard: nothing about a lock is printed, reported or stored; true today, kills a mutant that prints it
+  test_cli_simulate_kill_switch::test_a_dry_run_ignores_the_kill_switch_file
+      negative guard: a dry run ignores the file; true today, kills a mutant that checks it before the dry-run return
+  test_sim_brain_failed_records::test_the_closed_list_refuses_a_thirteenth_reason
+      negative guard of the schema: an unknown reason is a schema fault today and after
+  test_phase4_batch_g_wiring::test_the_scope_row_of_p4_31_names_the_five_tests
+      inventory and wiring guard: it checks the staged tests, the contract and the spec change, which exist in the mirror (two of them fail without the spec change, see red-without-spec-change.py3.13.txt)
+  test_phase4_batch_g_wiring::test_every_scope_name_of_p4_31_is_defined_by_exactly_one_test
+      inventory and wiring guard: it checks the staged tests, the contract and the spec change, which exist in the mirror (two of them fail without the spec change, see red-without-spec-change.py3.13.txt)
+  test_phase4_batch_g_wiring::test_no_scope_name_of_p4_31_is_left_on_a_pending_set
+      inventory and wiring guard: it checks the staged tests, the contract and the spec change, which exist in the mirror (two of them fail without the spec change, see red-without-spec-change.py3.13.txt)
+  test_phase4_batch_g_wiring::test_the_contract_lists_every_name_and_the_sections_the_tests_cite
+      inventory and wiring guard: it checks the staged tests, the contract and the spec change, which exist in the mirror (two of them fail without the spec change, see red-without-spec-change.py3.13.txt)
+  test_phase4_batch_g_wiring::test_no_batch_g_test_module_imports_a_batch_g_product_module_at_module_level
+      inventory and wiring guard: it checks the staged tests, the contract and the spec change, which exist in the mirror (two of them fail without the spec change, see red-without-spec-change.py3.13.txt)
+  test_phase4_batch_g_wiring::test_the_spec_change_reached_the_tests_that_pin_the_end_reasons
+      inventory and wiring guard: it checks the staged tests, the contract and the spec change, which exist in the mirror (two of them fail without the spec change, see red-without-spec-change.py3.13.txt)
+
+The other 259 passes are tests of the changed shared files that the spec change leaves true (every other case of the closed lists), and the ADR and index tests that pass because the pending names are defined.

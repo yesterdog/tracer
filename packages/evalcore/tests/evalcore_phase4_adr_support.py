@@ -51,11 +51,6 @@ DIALECT_HEADING = "## Dialect specifications"
 # ADR 0026 rules and invariants
 _P0026: frozenset[str] = frozenset(
     {
-        # P4-31
-        "test_allowlist_mode_and_link_rules",
-        "test_kill_switch_file_hangs_up_within_one_frame",
-        "test_one_call_per_invocation_and_min_interval",
-        "test_target_not_on_allowlist_refused_before_any_key_or_socket",
         # P4-32
         "test_p4_audit_items_cite_tests",
         # P4-37
@@ -69,8 +64,6 @@ _P0027: frozenset[str] = frozenset()
 # ADR 0028 rules and invariants
 _P0028: frozenset[str] = frozenset(
     {
-        # P4-31
-        "test_target_not_on_allowlist_refused_before_any_key_or_socket",
         # P4-32
         "test_p4_audit_items_cite_tests",
     }
@@ -79,9 +72,6 @@ _P0028: frozenset[str] = frozenset(
 # ADR 0029 rules and invariants
 _P0029: frozenset[str] = frozenset(
     {
-        # P4-31
-        "test_one_call_per_invocation_and_min_interval",
-        "test_target_not_on_allowlist_refused_before_any_key_or_socket",
         # P4-41
         "test_dial_credentials_never_in_any_output",
         "test_dial_hangup_on_every_end_reason",

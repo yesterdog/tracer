@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import contextlib
+import dataclasses
 import hashlib
 import os
 import signal
@@ -121,6 +122,8 @@ from tracer_evalschema.events import IngestWarning
 from tracer_evalschema.ids import ArtifactId, RunId
 from tracer_evalschema.transcript import LanguageDeclaration
 from tracer_evalschema.usage import UsageRecord
+from tracer_evalsim.addresses import Resolver as TargetResolver
+from tracer_evalsim.addresses import check_target_addresses, system_resolver
 from tracer_evalsim.allowlist import AllowlistError, find_entry, read_allowlist
 from tracer_evalsim.clock import Clock, SystemClock
 from tracer_evalsim.dialects.base import Dialect, WireConnection
@@ -133,6 +136,12 @@ from tracer_evalsim.fakeagent import (
     connect_fake_agent,
     parse_fake_agent,
     speech_texts,
+)
+from tracer_evalsim.guard import (
+    CallLock,
+    GuardError,
+    check_call_interval,
+    kill_switch_present,
 )
 from tracer_evalsim.limits import CLOSE_TIMEOUT_S, CONNECT_TIMEOUT_S
 from tracer_evalsim.lines import LlmLines, PresynthesisedLines, SynthesisedLine, run_in_thread
@@ -256,6 +265,7 @@ class SimWorld:
     trace: Callable[[str], None] | None = None
     run_blocking: Callable[[Callable[[], Any]], Awaitable[Any]] | None = None
     judge_resolver: Resolver | None = None  # the DNS lookup of a public judge entry
+    target_resolver: TargetResolver | None = None  # the DNS lookup of a named target (rule 16)
 
 
 class _Ledger:
@@ -367,7 +377,7 @@ def _pre_call_errors(function: Callable[[], T]) -> T:
         return function()
     except Refusal:
         raise
-    except (AllowlistError, TargetRefusedError) as error:
+    except (AllowlistError, TargetRefusedError, GuardError) as error:
         raise Refusal(error.code) from None
     except (InputRefusedError, ReplayDirectoryError, FakeAgentError) as error:
         raise Refusal(str(error)) from None
@@ -475,9 +485,15 @@ def _caps(args: argparse.Namespace) -> dict[str, int | None]:
 
 
 def _step2_allowlist(
-    args: argparse.Namespace, inputs: _Inputs
+    args: argparse.Namespace,
+    inputs: _Inputs,
+    resolver: TargetResolver | None = None,
 ) -> tuple[ConnectionLabels, dict[str, Any]]:
-    """The allowlist entry of the target and the stored profile document (no key is read)."""
+    """The allowlist entry of the target and the stored profile document (no key is read).
+
+    A target that is on the list is used, connected and stored as the entry wrote it (the
+    normalised form), then the addresses of its name are checked (ADR 0026 rule 16).
+    """
     dialect = inputs.profile_file.dialect
     if args.agent is not None:
         labels = ConnectionLabels(None, None, False if dialect == "twilio-media-stream/1" else None)
@@ -485,10 +501,12 @@ def _step2_allowlist(
         assert inputs.target is not None  # noqa: S101
         if args.allowlist is None:
             raise Refusal("allowlist_missing")
-        parse_target_url(inputs.target.url, schemes=("ws", "wss"))
+        parsed = parse_target_url(inputs.target.url, schemes=("ws", "wss"))
         entry = find_entry(read_allowlist(args.allowlist), inputs.target.url)
         if entry is None:
             raise Refusal("target_not_on_allowlist")
+        check_target_addresses(parsed.host, parsed.port, resolver=resolver or system_resolver)
+        inputs.target = dataclasses.replace(inputs.target, url=entry.target)
         labels = ConnectionLabels(
             entry.auth_token_env, entry.origin, entry.bot_holds_telephony_credentials
         )
@@ -503,6 +521,18 @@ def _step2_allowlist(
         document, scripted_turn_count=len(inputs.evaluator.scripted_turns), check_caps=False
     )
     return labels, document
+
+
+def _step2_guards(
+    args: argparse.Namespace, inputs: _Inputs, out_dir: Path, created_at: datetime
+) -> None:
+    """The minimum interval since the last call (a target run only) and the kill-switch file."""
+    if args.agent is None:
+        check_call_interval(
+            out_dir, now_utc=created_at, min_interval_ms=inputs.profile_file.min_call_interval_ms
+        )
+    if kill_switch_present(out_dir):
+        raise Refusal("kill_switch_file_present")
 
 
 def _step4_caps(args: argparse.Namespace, document: Mapping[str, Any]) -> None:
@@ -801,11 +831,19 @@ def run_simulate(args: argparse.Namespace, environment: Environment) -> int:
     if args.dry_run:
         return _dry_run(args, inputs, environment)
     trace("allowlist")
-    labels, document = _pre_call_errors(lambda: _step2_allowlist(args, inputs))
+    labels, document = _pre_call_errors(
+        lambda: _step2_allowlist(args, inputs, world.target_resolver)
+    )
+    _pre_call_errors(lambda: _step2_guards(args, inputs, out_dir, created_at))
     entry: JudgeEndpoint | None = None
     if inputs.judge is not None:
         entry = _pre_call_errors(
-            lambda: judgeplan.check_allowlist(args, inputs.judge, resolver=world.judge_resolver)  # type: ignore[arg-type]
+            lambda: judgeplan.check_allowlist(
+                args,
+                inputs.judge,  # type: ignore[arg-type]
+                resolver=world.judge_resolver,
+                auth_token_env=labels.auth_token_env,
+            )
         )
     trace("authorisation")
     if args.authorisation_reference is None:
@@ -1160,6 +1198,7 @@ def _execute(
     connector: Callable[[], Awaitable[WireConnection]],
     lines: Any,
     segments: Any,
+    kill_switch: Callable[[], bool] | None = None,
 ) -> CallResult:
     aborted = [False]
 
@@ -1175,7 +1214,13 @@ def _execute(
 
         with (world.signals or SystemSignals()).install(on_signal):
             return await run_call(
-                settings, clock=clock, connect=connector, lines=lines, stop=stop, segments=segments
+                settings,
+                clock=clock,
+                connect=connector,
+                lines=lines,
+                stop=stop,
+                segments=segments,
+                kill_switch=kill_switch,
             )
 
     run_async = world.run_async or _run_default
@@ -1325,14 +1370,30 @@ def _call_and_save(
         trace("call_loop")
         return connection
 
-    result = _execute(
-        world,
-        settings,
-        clock=clock,
-        connector=connector,
-        lines=lines,
-        segments=transcriber.in_call if lines.needs_agent_text else None,
-    )
+    claim: CallLock | None = None
+    if args.agent is None:
+        # the instants of the connect, claimed for the call (concurrency 1, ADR 0026 rule 18)
+        claim = _pre_call_errors(
+            lambda: CallLock.claim(
+                out_dir,
+                now_utc=environment.clock().astimezone(UTC),
+                monotonic_ns=clock.monotonic_ns(),
+                min_interval_ms=profile.min_call_interval_ms,
+            )
+        )
+    try:
+        result = _execute(
+            world,
+            settings,
+            clock=clock,
+            connector=connector,
+            lines=lines,
+            segments=transcriber.in_call if lines.needs_agent_text else None,
+            kill_switch=lambda: kill_switch_present(out_dir),
+        )
+    finally:
+        if claim is not None:
+            claim.close()
     trace("hang_up")
     established = result.call_established
     origin = result.connect_ended_ns or 0
@@ -1530,6 +1591,13 @@ def _call_and_save(
     environment.stdout.write(
         "".join(f"{label}: {value}\n" for label, value in simsummary.sim_summary_lines(bundle))
     )
+    if result.end_reason == "brain_failed":
+        status = result.failure_http_status
+        environment.stdout.write(
+            f"brain failure: {result.failure_code}"
+            + ("" if status is None else f" (HTTP {status})")
+            + "\n"
+        )
     environment.stdout.write(f"bundle: {bundle.id}\n")
     if judge is not None and judge.reference_sha256 is not None:
         environment.stdout.write(

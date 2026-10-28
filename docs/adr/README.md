@@ -1,6 +1,14 @@
 # Architecture Decision Records: Phase 1 (`tracer-evalschema` 0.0.1), Phase 2 (`tracer-evaldb`), Phase 3 (recorded-audio scoring) and Phase 4 (the simulated caller)
 
-Revision 52, 2026-10-28. Authoritative scope: `docs/phase1/SCOPE.md` (ADRs 0001 to 0018), `docs/phase2/SCOPE.md` (ADRs 0019 to 0022), `docs/phase3/SCOPE.md` (ADRs 0023 to 0025) and `docs/phase4/SCOPE.md` (ADRs 0026 to 0030).
+Revision 53, 2026-10-28. Authoritative scope: `docs/phase1/SCOPE.md` (ADRs 0001 to 0018), `docs/phase2/SCOPE.md` (ADRs 0019 to 0022), `docs/phase3/SCOPE.md` (ADRs 0023 to 0025) and `docs/phase4/SCOPE.md` (ADRs 0026 to 0030).
+
+## Changes in revision 53
+- **ADRs 0026, 0027, 0029 and 0030 amended after the Phase 4 batch G and G2 red tests** (docs only, 2026-10-28; decision log "PHASE 4 BATCH G + G2 RED TESTS DELIVERED" and "SECURITY AUDIT"; readings auto-approved by the lead). No rule or invariant is added or removed: ADR 0026 keeps 24 rules and I1 to I10, ADR 0027 keeps 17 rules and I1 to I10, ADR 0029 and ADR 0030 keep their counts.
+  - **ADR 0026** (BL-338, P4-31): rule 9 names twelve end reasons, `brain_failed` last, and defines it; rule 16 gains the step 2 address check (`target_address_refused`, `target_unresolvable`), the target used as the entry wrote it and the allowlist opened without following a link; rule 17 names the kill-switch file and its three checks; rule 18 names the lock file `call.lock` and its format; rule 19 extends exit 2 to `brain_failed`; invariant I3 says twelve end reasons.
+  - **ADR 0027:** the `end_reason` enum gains `brain_failed`, one cross-field rule (`brain_failed` implies an LLM caller and an established call), rule 16 (T-DEG) names the failed brain. **ADR 0029 rule 6** says twelve end reasons.
+  - **ADR 0030 rules 4 and 6** (BL-362): the U+000A between two agent turns is kept by the cleaning; each turn is cleaned alone.
+  - Named spec changes (qa, disclosed in `docs/phase4/evidence/red/batch-g/spec-change.diff` and `docs/phase4/evidence/red/batch-g2/spec-change.diff`).
+  - BACKLOG BL-338, BL-339, BL-352 to BL-355 and BL-362 fixed in this batch; BL-369 to BL-373 opened.
 
 ## Changes in revision 52
 - **ADR 0030 added and ADRs 0023, 0024 and 0027 amended for the LLM judge** (Phase 4 batch J, tasks P4-J01 and P4-J02; docs and specs, 2026-10-28; decision log "OWNER DECISION ... LLM JUDGE" and "PHASE 4 BATCH J ... SCOPE DELIVERED"; readings auto-approved by the lead). No rule or invariant of an earlier Decision block is added or removed: ADR 0023 keeps 19 rules and I1 to I10, ADR 0024 keeps rules 1 to 17 and I1 to I9, ADR 0027 keeps 17 rules and I1 to I10.

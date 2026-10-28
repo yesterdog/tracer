@@ -1,0 +1,73 @@
+mutants: 69  killed: 68  survived: 1  noapply: 0
+survivor, classified EQUIVALENT:
+  M59 fence neutralised per turn before the join: a fence sequence holds no U+000A, so replacing it before or after the join gives the same text (and the cut sees the same length)
+
+M01 twilio catches ValueError only: KILLED | 1 failed, 1 passed in 0.74s   (rerun: first run was noapply)
+M02 twilio swallows BaseException: KILLED | 1 failed, 13 passed in 0.84s   (rerun: first run was noapply)
+M03 twilio returns an empty audio event on a parse failure: KILLED | 1 failed, 1 passed in 0.81s   (rerun: first run was noapply)
+M04 signalling catches ValueError only: KILLED | 1 failed, 26 passed in 1.67s   (rerun: first run was noapply)
+M05 cap factor 4 -> 40: KILLED | 1 failed, 4 passed in 1.18s
+M06 cap factor 4 -> 2: KILLED | 1 failed, 4 passed in 1.05s
+M07 cap floor removed: KILLED | 1 failed, 10 passed in 1.13s
+M08 cap ceiling constant ignored: KILLED | 1 failed, 15 passed in 1.33s
+M09 cap ceiling argument ignored: KILLED | 1 failed, 15 passed in 1.43s
+M10 cap without the watchdog grace: KILLED | 1 failed, 5 passed in 1.09s
+M11 cap rounds up: KILLED | 1 failed, 14 passed in 1.02s
+M12 cap accepts bool: KILLED | 1 failed, 19 passed in 1.05s
+M13 floor 1 MiB -> 2 MiB: KILLED | 1 failed, 4 passed in 1.23s
+M14 byte window exclusive: KILLED | 1 failed, 24 passed in 1.17s
+M15 byte window never slides: KILLED | 1 failed, 25 passed in 1.33s
+M16 byte window slides one ns late: KILLED | 1 failed, 25 passed in 1.23s
+M17 byte window checked before the rate window: KILLED | 1 failed, 28 passed in 1.32s
+M18 byte window counts characters not bytes: KILLED | 1 failed, 27 passed in 1.23s
+M19 byte window forgets the message size: KILLED | 1 failed, 24 passed in 1.09s
+M20 byte limit 1 MiB -> 8 MiB: KILLED | 1 failed, 4 passed in 1.35s
+M21 realtime rate counts one byte per pcm sample: KILLED | 1 failed in 1.12s
+M22 runner keeps the old fixed cap: KILLED | 1 failed, 35 passed in 2.95s
+M23 runner cap ignores the call length: KILLED | 1 failed, 35 passed in 2.93s
+M24 runner cap ignores the dialect rate: KILLED | 1 failed, 35 passed in 2.83s
+M25 runner cap ignores the settings ceiling: KILLED | 1 failed, 38 passed in 3.35s
+M26 reader task left running on escape: KILLED | 1 failed in 1.56s
+M27 reader task cancelled but never retrieved: KILLED | 1 failed in 1.32s
+M28 watchdog not closed on escape: KILLED | 1 failed in 1.50s
+M29 clean-up only on the normal path: KILLED | 1 failed, 7 passed in 1.62s
+M30 a reader that failed is not retrieved: KILLED | 1 failed, 16 passed in 1.54s
+M30b clean-up runs twice: KILLED | 1 failed in 1.36s
+M30c a failing watchdog close skips the reader clean-up: KILLED | 1 failed in 1.42s
+M31 target reader: allowlist reserved removed: KILLED | 1 failed, 1 passed in 1.23s
+M32 target reader: reserved check by prefix: KILLED | 1 failed, 3 passed in 1.09s
+M33 target reader: reserved tuple emptied: KILLED | 1 failed in 1.27s
+M34 judge reader: reserved check removed: KILLED | 1 failed, 2 passed in 1.58s
+M35 judge reader: host by suffix: KILLED | 1 failed, 7 passed in 1.73s
+M36 judge reader: host check inverted: KILLED | 1 failed, 1 passed in 1.69s
+M37 judge reader: reserved after the sharing check: KILLED | 1 failed, 2 passed in 1.56s
+M38 cross-check removed: KILLED | 1 failed, 4 passed in 4.45s
+M39 cross-check only on the matched entry: KILLED | 1 failed, 5 passed in 4.19s
+M40 cross-check after the DNS lookup: KILLED | 1 failed, 3 passed in 4.06s
+M41 simulate does not pass the token variable: KILLED | 1 failed, 4 passed in 4.11s
+M42 private file: link count ignored: KILLED | 1 failed, 12 passed in 1.55s
+M43 private file: O_NOFOLLOW dropped: KILLED | 1 failed, 12 passed in 0.88s
+M44 private file: O_NONBLOCK dropped: KILLED | ............
+M45 private file: ELOOP read as unreadable: KILLED | 1 failed, 12 passed in 0.89s
+M46 private file: descriptor never closed: KILLED | 1 failed, 19 passed in 0.80s
+M47 private file: the size read is not checked: KILLED | 1 failed, 18 passed in 0.74s
+M48 private file: mode check on the owner bits too: KILLED | 1 failed, 1 passed in 0.97s
+M49 private file: group bit only: KILLED | 1 failed, 7 passed in 0.76s
+M50 private file: cap exclusive: KILLED | 1 failed, 2 passed in 0.81s
+M51 private file: error carries the path: KILLED | 1 failed, 2 passed in 0.68s
+M51b private file: fstat size not checked before the read: KILLED | 1 failed, 19 passed in 0.82s   (rerun: first run was survived)
+M51c private file: mode not checked: KILLED | 1 failed, 3 passed in 0.71s
+M52 target reader: own copy of the checks (no shared helper): KILLED | 1 failed, 1 passed in 0.71s
+M53 judge reader: no shared helper: KILLED | 1 failed, 16 passed in 1.17s
+M54 turns joined with nothing: KILLED | 1 failed, 1 passed in 0.99s
+M55 turns joined with a space: KILLED | 1 failed, 1 passed in 0.96s
+M56 empty turns kept: KILLED | 1 failed, 5 passed in 0.99s
+M57 whitespace-only turns dropped: KILLED | 1 failed, 5 passed in 1.00s
+M58 joined text cleaned as one (old behaviour): KILLED | 1 failed, 1 passed in 1.00s
+M59 fence neutralised per turn, before the join: SURVIVED | 18 passed in 1.20s
+M60 cut applied to each turn: KILLED | 1 failed, 6 passed in 0.94s
+M61 turn text keeps control characters: KILLED | 1 failed, 3 passed in 0.92s
+M62 ZWJ no longer kept: KILLED | 1 failed, 3 passed in 0.91s
+M63 template sentence removed: KILLED | 1 failed, 12 passed in 1.08s
+M64 template sentence reworded: KILLED | 1 failed, 12 passed in 1.19s
+M65 separator constant changed to a space: KILLED | 1 failed in 0.92s

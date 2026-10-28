@@ -1,0 +1,18 @@
+batch G2 (BL-352 A-F3, BL-353 A-F4, BL-354 A-F5, BL-355 A-F6, BL-339 A-F7, BL-362 J-F1), 190 new tests in 9 files (no support module), 2026-10-28
+base: HEAD 5c8c18a; the oracle is oracle-src.patch (+ oracle-src-runner.patch for runner.py); the shared test edits are spec-change.diff (4 tests in 3 files)
+targeted set = the 9 new files + the 3 edited files = 205 tests
+python  red (staged tests + spec change, no oracle)   oracle (same 205)   whole workspace with the oracle
+3.11    148 failed, 57 passed                          205 passed          15445 passed, 1 skipped, 1301 deselected
+3.12    146 failed, 59 passed                          205 passed          15445 passed, 1 skipped, 1301 deselected
+3.13    146 failed, 59 passed                          205 passed          15445 passed, 1 skipped, 1301 deselected
+3.14    143 failed, 62 passed                          205 passed          15445 passed, 1 skipped, 1301 deselected
+red differs by interpreter in the JSON recursion depth only: on 3.11 the arrays of depth 1100 and 5000 also overflow (2 more red);
+on 3.14 the object shape of 12000 levels does not overflow (3 fewer red). Every one of those tests passes with the oracle.
+the 4 edited existing tests: pass on the current tree without the spec change (15 passed of the three files), fail with the oracle
+without it (oracle-without-spec-change.py3.13.txt: 4 failed, 11 passed), pass with it.
+the 59 (3.13) tests that pass on the current tree are regression guards, controls and premise checks: red-tests-that-pass-on-the-current-tree.txt
+flaky check: the 190 new tests run 8 times on 3.13 and 3 times on 3.11, 190 passed every time
+mutants: 69  killed: 68  survived: 1 (classified equivalent)  noapply: 0   (M01-M04 and M51b were killed on a rerun: the first four after the anchor text of the lint changed, M51b after a test was added)
+lint on the oracle mirror: ruff check, ruff format --check, mypy strict (560 source files), scripts/guard_private_fixtures.py: clean
+not run: Postgres parity (no Docker), Python 3.15, hosted CI, the interop job against a real Pipecat, the lowest-direct dependency leg, gitleaks (binary not installed; the staged files were scanned by hand for key patterns), any real provider
+note: whole-workspace runs use editable installs that point at the oracle mirror (uv sync --locked --all-groups from the mirror); red runs use a second mirror at the base commit with the staged tests

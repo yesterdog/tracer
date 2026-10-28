@@ -1,0 +1,118 @@
+red on the current tree (HEAD 5c8c18a + the staged tests + spec-change.diff), Python 3.13: 297 failed, 289 passed, grouped by the first line of the failure
+
+  74  ModuleNotFoundError: No module named 'tracer_evalsim.guard'
+        e.g. test_evalsim_call_lock::test_the_guard_codes_are_a_closed_sorted_list_of_machine_codes
+        e.g. test_evalsim_call_lock::test_a_claim_writes_the_instants_of_the_connect_to_a_file_only_the_owner_can_use[0]
+        e.g. test_evalsim_call_lock::test_a_claim_writes_the_instants_of_the_connect_to_a_file_only_the_owner_can_use[18]
+  65  TypeError: SimWorld.__init__() got an unexpected keyword argument 'target_resolver'. Did you mean 'judge_resolver'?
+        e.g. test_cli_simulate_target_safety::test_target_not_on_allowlist_refused_before_any_key_or_socket[ws://127.0.0.1:8766/ws-client]
+        e.g. test_cli_simulate_target_safety::test_target_not_on_allowlist_refused_before_any_key_or_socket[ws://127.0.0.1/ws-client]
+        e.g. test_cli_simulate_target_safety::test_target_not_on_allowlist_refused_before_any_key_or_socket[ws://127.0.0.1:8765/ws-client/]
+  38  ModuleNotFoundError: No module named 'tracer_evalsim.addresses'
+        e.g. test_evalsim_target_addresses::test_a_public_name_with_only_public_addresses_passes_after_one_lookup[answer0]
+        e.g. test_evalsim_target_addresses::test_a_public_name_with_only_public_addresses_passes_after_one_lookup[answer1]
+        e.g. test_evalsim_target_addresses::test_a_public_name_with_only_public_addresses_passes_after_one_lookup[answer2]
+  27  TypeError: run_call() got an unexpected keyword argument 'kill_switch'
+        e.g. test_evalsim_brain_failed::test_the_runner_ends_the_call_brain_failed_after_a_line_and_keeps_what_was_recorded[protobuf]
+        e.g. test_evalsim_brain_failed::test_the_runner_ends_the_call_brain_failed_after_a_line_and_keeps_what_was_recorded[twilio]
+        e.g. test_evalsim_brain_failed::test_a_brain_that_fails_at_the_very_first_request_leaves_a_call_without_a_turn
+  23  AssertionError: ('result: call established
+        e.g. test_cli_simulate_brain_failed::test_a_failure_of_the_brain_at_the_first_request_is_not_a_successful_run[401]
+        e.g. test_cli_simulate_brain_failed::test_a_failure_of_the_brain_at_the_first_request_is_not_a_successful_run[403]
+        e.g. test_cli_simulate_brain_failed::test_a_failure_of_the_brain_at_the_first_request_is_not_a_successful_run[400]
+  13  AssertionError: assert 'transport_error' == 'brain_failed'
+        e.g. test_evalsim_brain_failed::test_a_failed_brain_request_ends_the_caller_with_brain_failed_and_typed_facts[error0-llm_auth-401]
+        e.g. test_evalsim_brain_failed::test_a_failed_brain_request_ends_the_caller_with_brain_failed_and_typed_facts[error1-llm_auth-403]
+        e.g. test_evalsim_brain_failed::test_a_failed_brain_request_ends_the_caller_with_brain_failed_and_typed_facts[error2-llm_rejected-400]
+   5  tracer_evalcore.simoutcome.SimOutcomeError: schema:/end_reason
+        e.g. test_sim_brain_failed_records::test_an_llm_call_that_lost_its_brain_is_a_valid_outcome
+        e.g. test_sim_brain_failed_records::test_brain_failed_needs_an_llm_caller[scripted]
+        e.g. test_sim_brain_failed_records::test_brain_failed_needs_an_llm_caller[replay]
+   4  assert 0 == 2
+        e.g. test_cli_simulate_brain_failed::test_a_brain_failed_run_round_trips_through_the_store_byte_identical
+        e.g. test_tdeg_sim_brain_failed::test_tdeg_sim_brain_failed_has_no_error_result_so_the_exit_code_is_the_end_reasons[brain_failed_first]
+        e.g. test_tdeg_sim_brain_failed::test_tdeg_sim_brain_failed_has_no_error_result_so_the_exit_code_is_the_end_reasons[brain_failed_later]
+   3  Failed: DID NOT RAISE AllowlistError
+        e.g. test_evalsim_allowlist_open::test_a_link_swapped_in_after_the_check_is_still_not_followed
+        e.g. test_evalsim_allowlist_open::test_a_mode_widened_after_the_check_is_still_refused
+        e.g. test_evalsim_allowlist_open::test_a_file_grown_after_the_check_is_refused_by_what_was_read
+   3  FileNotFoundError: [Errno 2] No such file or directory: '<path>'
+        e.g. test_cli_simulate_interval::test_one_call_per_invocation_and_min_interval
+        e.g. test_cli_simulate_interval::test_an_interval_of_zero_never_refuses_but_still_records
+        e.g. test_cli_simulate_interval::test_a_failed_connect_counts_as_a_call
+   3  AssertionError: assert ('script_comp...silence', ...) == ('script_comp...silence', ...)
+        e.g. test_sim_brain_failed_records::test_the_end_reasons_are_the_eleven_of_adr_0026_and_brain_failed_last
+        e.g. test_sim_callstate::test_state_machine_transition_table_exact
+        e.g. test_sim_engine_boundary::test_sim_constants_are_the_ones_the_adrs_state
+   3  tracer_evalcore.callstate.CallStateError: end_reason_invalid
+        e.g. test_sim_callstate::test_no_event_after_ended
+        e.g. test_sim_callstate::test_no_state_is_entered_after_ended
+        e.g. test_sim_callstate::test_every_end_reason_is_reachable_with_its_own_value
+   2  AttributeError: 'CallerEnd' object has no attribute 'failure_code'
+        e.g. test_evalsim_brain_failed::test_the_cap_is_still_a_spend_cap_and_not_a_failure
+        e.g. test_evalsim_brain_failed::test_the_end_record_has_the_new_fields_with_no_default_other_than_none
+   2  AssertionError: assert ['connect'] == []
+        e.g. test_cli_simulate_interval::test_a_call_too_soon_after_step_2_is_refused_at_the_claim_and_the_usage_is_kept
+        e.g. test_cli_simulate_kill_switch::test_a_file_that_appears_after_step_2_and_before_the_connection_ends_a_call_never_made
+   2  AssertionError: assert 'script_complete' == 'kill_switch'
+        e.g. test_cli_simulate_kill_switch::test_kill_switch_file_hangs_up_within_one_frame[while-waiting]
+        e.g. test_cli_simulate_kill_switch::test_kill_switch_file_hangs_up_within_one_frame[mid-line]
+   2  AssertionError: assert (0, '') == (4, 'error: k...le_present\n')
+        e.g. test_cli_simulate_kill_switch::test_the_file_stays_and_stops_the_next_run_until_the_operator_removes_it
+        e.g. test_cli_simulate_kill_switch::test_a_link_with_the_name_of_the_switch_is_a_kill_switch_and_is_not_followed
+   1  assert 0 < 0
+        e.g. test_evalsim_allowlist_open::test_at_most_one_byte_over_the_cap_is_ever_read
+   1  AssertionError: reading the allowlist blocked
+        e.g. test_evalsim_allowlist_open::test_a_fifo_is_refused_without_a_blocking_read
+   1  AttributeError: module 'tracer_evalsim.lines' has no attribute 'BRAIN_FAILURE_CODES'
+        e.g. test_evalsim_brain_failed::test_the_failure_codes_are_a_closed_sorted_list_of_machine_codes
+   1  AssertionError: assert {'target_addr...unresolvable'} <= {'auth_env_na...unknown', ...}
+        e.g. test_evalsim_target_addresses::test_the_new_codes_are_in_the_closed_sorted_list_of_refusals
+   1  ValueError: 'brain failure: llm_server_error (HTTP N)' is not in list
+        e.g. test_cli_simulate_brain_failed::test_the_line_sits_between_the_summary_and_the_paths
+   1  AssertionError: ('brain failure', "result: call established\nend reason: transport_error\noutcome: not evaluated\ndialect: pipecat-protobuf/1\ncaller audio: syn
+        e.g. test_cli_simulate_brain_failed::test_the_line_of_a_failure_with_a_status_never_exposes_more_than_the_status
+   1  AssertionError: assert 'a result was not scored' == 'a result was... model failed'
+        e.g. test_cli_simulate_brain_failed::test_the_exit_code_table_says_what_two_means_now
+   1  AssertionError: assert 0 == 2
+        e.g. test_cli_simulate_brain_failed::test_exit_code_of_follows_the_precedence_with_brain_failed
+   1  AssertionError: assert '' == 'The simulate...t under test.'
+        e.g. test_cli_simulate_brain_failed::test_the_report_says_the_caller_failed_and_says_nothing_about_the_agent
+   1  AssertionError: assert 'error: autho...nce_missing\n' == 'error: min_c...not_elapsed\n'
+        e.g. test_cli_simulate_interval::test_the_interval_is_checked_at_step_2_before_the_authorisation_and_any_key
+   1  AssertionError: ('garbage', 'result: call established
+        e.g. test_cli_simulate_interval::test_a_lock_that_cannot_be_trusted_refuses_the_run_and_is_left_as_it_is[garbage-<lambda>-call_lock_invalid]
+   1  AssertionError: ('wrong format', 'result: call established
+        e.g. test_cli_simulate_interval::test_a_lock_that_cannot_be_trusted_refuses_the_run_and_is_left_as_it_is[wrong format-<lambda>-call_lock_invalid]
+   1  AssertionError: ('recorded in the future', 'result: call established
+        e.g. test_cli_simulate_interval::test_a_lock_that_cannot_be_trusted_refuses_the_run_and_is_left_as_it_is[recorded in the future-<lambda>-call_lock_clock_inconsistent]
+   1  AssertionError: ('too large', 'result: call established
+        e.g. test_cli_simulate_interval::test_a_lock_that_cannot_be_trusted_refuses_the_run_and_is_left_as_it_is[too large-<lambda>-call_lock_invalid]
+   1  AssertionError: assert (0, '') == (4, 'error: c...ck_invalid\n')
+        e.g. test_cli_simulate_interval::test_a_lock_with_group_or_other_permission_or_a_link_refuses_the_run
+   1  assert 0 == 4
+        e.g. test_cli_simulate_interval::test_the_real_engines_are_not_built_before_the_interval_passes
+   1  AssertionError: assert ['sim_caller_... 'stt', 'stt'] == ['sim_caller_...r_tts', 'stt']
+        e.g. test_cli_simulate_kill_switch::test_a_killed_call_whose_store_write_fails_keeps_the_usage_in_a_recovery_file
+   1  AssertionError: assert ['kill-switch..., 'tts-cache'] == ['call.lock',....sqlite', ...]
+        e.g. test_cli_simulate_kill_switch::test_the_report_and_the_names_of_a_killed_call_are_the_usual_ones
+   1  AssertionError: assert 'target_resolver' in {'clock', 'connect', 'judge_resolver', 'llm_factory', 'run_async', 'run_blocking', ...}
+        e.g. test_cli_simulate_target_safety::test_the_world_has_a_seam_for_the_resolver_and_a_system_default
+   1  AssertionError: ('brain_failed_first', 'code')
+        e.g. test_tdeg_sim_brain_failed::test_tdeg_sim_brain_failed_every_case_is_exactly_what_adr_0027_rule_16_says[brain_failed_first]
+   1  AssertionError: ('brain_failed_later', 'code')
+        e.g. test_tdeg_sim_brain_failed::test_tdeg_sim_brain_failed_every_case_is_exactly_what_adr_0027_rule_16_says[brain_failed_later]
+   1  AssertionError: brain_failed_first
+        e.g. test_tdeg_sim_brain_failed::test_tdeg_sim_brain_failed_schema_identical_to_the_other_cases
+   1  AssertionError: assert 'brain_failed' in ('script_complete', 'caller_end_call', 'agent_hangup', 'max_duration', 'max_turns', 'max_silence', ...)
+        e.g. test_sim_brain_failed_records::test_the_call_machine_takes_brain_failed_from_every_connected_state
+   1  AssertionError: assert ['script_comp...silence', ...] == ['script_comp...silence', ...]
+        e.g. test_sim_brain_failed_records::test_the_outcome_schema_lists_twelve_end_reasons_in_the_same_order
+   1  AssertionError: assert {'$schema': '...': False, ...} == {'$schema': '...': False, ...}
+        e.g. test_sim_outcome_doc::test_shipped_sim_outcome_schema_equals_adr0027_block
+   1  AssertionError: assert 'end_reason_invalid' == 'end_reason_n...efore_connect'
+        e.g. test_sim_callstate::test_setup_failure_is_an_end_reason_not_an_exception
+   1  ValueError: end_reason: not an accepted value
+        e.g. test_sarvam_sim_calllog::test_sim_call_log_connect_and_end_lines
+   1  AssertionError: assert ['report-N...racer.sqlite'] == ['call.lock',...racer.sqlite']
+        e.g. test_tdeg_sim::test_tdeg_sim_setup_failed_all_not_applicable_exit_5
