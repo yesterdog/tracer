@@ -1,0 +1,297 @@
+--- a/packages/evalsim/tests/conftest.py
++++ b/packages/evalsim/tests/conftest.py
+@@ -26,17 +26,39 @@
+ 
+ import pytest
+ 
++import evalsim_integration_guard as integration_guard  # type: ignore[import-not-found,unused-ignore]
+ from evalsim_loopback_guard import MARKER, install_loopback_only  # type: ignore[import-not-found,unused-ignore]
+ 
++INTEGRATION_MARKER = integration_guard.MARKER
+ 
++
+ def pytest_configure(config: pytest.Config) -> None:
+     config.addinivalue_line(
+         "markers",
+         f"{MARKER}: opens sockets to a fake server started by the test itself on 127.0.0.1 or ::1 "
+         "(no key, no external host); run by default, see docs/phase4/api-surface-batch-d.md",
+     )
++    config.addinivalue_line(
++        "markers",
++        f"{INTEGRATION_MARKER}: runs against the sample bot of tools/samplebot on this machine "
++        "(loopback only, no key); deselected unless selected with -m integration (the interop CI "
++        "job), see docs/phase4/api-surface-batch-f.md",
++    )
+ 
+ 
++def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
++    """Batch F, named change S-F1: the interop tests are DESELECTED (never skipped) unless the run's
++    marker expression names the marker. Nothing else decides, so no test can skip itself."""
++    expression = config.getoption("markexpr", default="") or ""
++    if INTEGRATION_MARKER in expression:
++        return
++    kept = [i for i in items if i.get_closest_marker(INTEGRATION_MARKER) is None]
++    dropped = [i for i in items if i.get_closest_marker(INTEGRATION_MARKER) is not None]
++    if dropped:
++        config.hook.pytest_deselected(items=dropped)
++        items[:] = kept
++
++
+ def _refuse(*args: Any, **kwargs: Any) -> Any:
+     raise AssertionError("a unit test tried to use the network (ADR 0024 rule 17)")
+ 
+@@ -49,6 +71,8 @@
+ def _no_network(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch) -> None:
+     if request.node.get_closest_marker(MARKER) is not None:
+         install_loopback_only(monkeypatch)
++    elif request.node.get_closest_marker(INTEGRATION_MARKER) is not None:
++        integration_guard.install_integration_guard(monkeypatch)
+     else:
+         monkeypatch.setattr(socket.socket, "connect", _refuse)
+         monkeypatch.setattr(socket.socket, "connect_ex", _refuse)
+@@ -56,5 +80,9 @@
+         monkeypatch.setattr(socket, "getaddrinfo", _refuse)
+         monkeypatch.setattr(asyncio.BaseEventLoop, "create_connection", _refuse_async)
+         monkeypatch.setattr(asyncio.BaseEventLoop, "sock_connect", _refuse_async)
++        # batch F: an unmarked test starts no server and opens no datagram path either
++        monkeypatch.setattr(asyncio.BaseEventLoop, "create_server", _refuse_async)
++        monkeypatch.setattr(asyncio.BaseEventLoop, "create_datagram_endpoint", _refuse_async)
++        monkeypatch.setattr(socket.socket, "sendto", _refuse)
+     # no test reads a key from the machine's environment
+     monkeypatch.delenv("SARVAM_API_KEY", raising=False)
+--- a/packages/evalsim/tests/test_evalsim_loopback_guard.py
++++ b/packages/evalsim/tests/test_evalsim_loopback_guard.py
+@@ -282,10 +282,17 @@
+         sorted(using - LOOPBACK_MODULES),
+         sorted(LOOPBACK_MODULES - using),
+     )
+-    # `integration` (ADR 0026 rule 23: tools/samplebot, a separate job) is a different marker and is
+-    # not used by these tests
++    # `integration` (ADR 0026 rule 23: tools/samplebot, a separate job) is a different marker: only
++    # the interop modules and the test of its guard use it (Phase 4 batch F, named change S-F4)
++    interop = {
++        "test_integration_calibration.py",
++        "test_integration_pipecat_protobuf.py",
++        "test_integration_pipecat_twilio.py",
++        "test_integration_pipecat_webrtc.py",
++        "test_evalsim_integration_guard.py",
++    }
+     for path in HERE.glob("test_*.py"):
+-        if path.name != Path(__file__).name:
++        if path.name != Path(__file__).name and path.name not in interop:
+             assert "mark.integration" not in path.read_text(encoding="utf-8"), path.name
+ 
+ 
+@@ -382,6 +389,10 @@
+     (tmp_path / "evalsim_loopback_guard.py").write_bytes(
+         (HERE / "evalsim_loopback_guard.py").read_bytes()
+     )
++    # Phase 4 batch F, named change S-F4: the conftest also imports the integration guard
++    (tmp_path / "evalsim_integration_guard.py").write_bytes(
++        (HERE / "evalsim_integration_guard.py").read_bytes()
++    )
+     (tmp_path / "test_inner.py").write_text(textwrap.dedent(INNER), encoding="utf-8")
+     (tmp_path / "pytest.ini").write_text("[pytest]\n", encoding="utf-8")
+     done = subprocess.run(  # noqa: S603
+--- a/packages/evalsim/tests/test_evalsim_scaffold.py
++++ b/packages/evalsim/tests/test_evalsim_scaffold.py
+@@ -100,6 +100,7 @@
+ ALLOWED_IMPORTS = {
+     "websockets",
+     "aiortc",
++    "av",  # Phase 4 batch F, named change S-F5: audio frames of the WebRTC media path (lazy)
+     "tracer_evalschema",
+     "tracer_evalcore",
+     "tracer_evalsim",
+--- a/packages/evalcore/tests/evalcore_phase4_adr_support.py
++++ b/packages/evalcore/tests/evalcore_phase4_adr_support.py
+@@ -51,21 +51,6 @@
+ # ADR 0026 rules and invariants
+ _P0026: frozenset[str] = frozenset(
+     {
+-        # P4-26
+-        "test_samplebot_scripted_bot_uses_no_model",
+-        # P4-27
+-        "test_integration_calibration_gap_within_quantum",
+-        "test_integration_protobuf_dialect_against_pipecat",
+-        "test_integration_twilio_dialect_against_pipecat",
+-        "test_integration_webrtc_against_pipecat_loopback",
+-        # P4-28
+-        "test_e2e_sim_synthetic_mr_exact_outputs",
+-        # P4-29
+-        "test_tdeg_sim_kill_switch_keeps_partial_recording_and_usage",
+-        "test_tdeg_sim_setup_failed_all_not_applicable_exit_5",
+-        # P4-30
+-        "test_guard_rejects_staged_sim_outputs_and_allowlist",
+-        "test_integration_tests_loopback_only",
+         # P4-31
+         "test_allowlist_mode_and_link_rules",
+         "test_kill_switch_file_hangs_up_within_one_frame",
+@@ -79,20 +64,7 @@
+ )
+ 
+ # ADR 0027 rules and invariants
+-_P0027: frozenset[str] = frozenset(
+-    {
+-        # P4-28
+-        "test_e2e_sim_report_and_store_consistent",
+-        "test_e2e_sim_synthetic_mr_exact_outputs",
+-        # P4-29
+-        "test_tdeg_sim_export_present_agreement_scored",
+-        "test_tdeg_sim_kill_switch_keeps_partial_recording_and_usage",
+-        "test_tdeg_sim_no_export_agreement_missing_input",
+-        "test_tdeg_sim_schema_identical_across_cases",
+-        "test_tdeg_sim_setup_failed_all_not_applicable_exit_5",
+-        "test_tdeg_sim_stt_failure_missing_input_transcript",
+-    }
+-)
++_P0027: frozenset[str] = frozenset()
+ 
+ # ADR 0028 rules and invariants
+ _P0028: frozenset[str] = frozenset(
+@@ -107,8 +79,6 @@
+ # ADR 0029 rules and invariants
+ _P0029: frozenset[str] = frozenset(
+     {
+-        # P4-30
+-        "test_key_canaries_never_in_any_output_channel",
+         # P4-31
+         "test_one_call_per_invocation_and_min_interval",
+         "test_target_not_on_allowlist_refused_before_any_key_or_socket",
+@@ -192,9 +162,6 @@
+ # ADR 0024 Phase 4 amendment (A1-A13, IA1-IA4)
+ _P0024A: frozenset[str] = frozenset(
+     {
+-        # P4-30
+-        "test_guard_rejects_staged_sim_outputs_and_allowlist",
+-        "test_key_canaries_never_in_any_output_channel",
+         # P4-J25
+         "test_judge_key_canaries_never_in_any_output_channel",
+     }
+@@ -203,8 +170,6 @@
+ # ADR 0023 Phase 4 amendment (A1-A4, IA1-IA2)
+ _P0023A: frozenset[str] = frozenset(
+     {
+-        # P4-29
+-        "test_tdeg_sim_export_present_agreement_scored",
+         # P4-37
+         "test_sim_concept_page_states_no_claims",
+         # P4-J19
+@@ -235,9 +200,7 @@
+ 
+ #: Names that an ADR cites only OUTSIDE its rules and invariants (Context, Ambiguities, ...),
+ #: that no test defines yet and that SCOPE section A names. Same shrinking rule.
+-PENDING_OUTSIDE_RULES: frozenset[str] = frozenset(
+-    {"test_tdeg_sim_agent_silent_timing_not_measured"}
+-)
++PENDING_OUTSIDE_RULES: frozenset[str] = frozenset()
+ 
+ #: Test names that SCOPE Decisions D-a renamed. An ADR may still name the OLD name as history,
+ #: outside its rules and invariants, only while SCOPE records the rename (old name written, new
+--- a/packages/evalcore/tests/test_phase4_ci.py
++++ b/packages/evalcore/tests/test_phase4_ci.py
+@@ -140,8 +140,11 @@
+     assert check > max(builds), "the artifact check runs after every wheel is built"
+     assert "uv run --locked --all-groups python scripts/check_licenses.py\n" in text + "\n"
+     assert text.count("uv build --package tracer-evalsim") == 1
+-    # the sample bots are not built, installed or locked by the main jobs
++    # the sample bots are not built, installed or locked by the main jobs; the one job that runs the
++    # interop tests syncs the tool project from its own lock (Phase 4 batch F, named change S-F3)
+     for name, other in _workflow()["jobs"].items():
++        if name == "interop":
++            continue
+         run_text = "\n".join(_runs(other))
+         assert "samplebot" not in run_text, name
+         assert "pipecat" not in run_text.lower(), name
+--- a/packages/evalcore/tests/test_evalcore_no_socket.py
++++ b/packages/evalcore/tests/test_evalcore_no_socket.py
+@@ -21,7 +21,7 @@
+ from evalcore_batchf_support import ROOT, SCOPE  # type: ignore[import-not-found,unused-ignore]
+ 
+ PACKAGES = ROOT / "packages"
+-GUARDED = ("evalcore", "evalproviders", "cli")
++GUARDED = ("evalcore", "evalproviders", "cli", "evalsim")  # Phase 4 batch F, named change S-F2
+ #: The calls every guard must replace (the names of the attributes).
+ GUARDED_ATTRIBUTES = {
+     ("socket.socket", "connect"),
+--- a/packages/evalcore/tests/test_adr0027_rules_are_tested.py
++++ b/packages/evalcore/tests/test_adr0027_rules_are_tested.py
+@@ -48,7 +48,8 @@
+ 
+ def test_adr0027_pending_names_are_the_scope_names_of_later_tasks_only() -> None:
+     pending = sup.PENDING["0027"]
+-    assert pending, "ADR 0027 cites tests of later tasks; the set empties at the gate"
++    # Phase 4 batch F spec change S-F6: batch F defines the last tests ADR 0027 cites, so the set
++    # may be empty (it empties at the gate, and it has)
+     assert pending <= sup.scope_names()
+     assert not pending & sup.defined_tests()
+     assert "test_adr0027_rules_are_tested" not in pending
+@@ -76,9 +77,14 @@
+     pending = sup.PENDING["0027"]
+     kw = {"defined": defined, "scope": scope}
+     assert sup.check_adr(SPEC, text, pending=pending, **kw) == sup.check_adr_file("0027")
+-    assert sup.check_adr(SPEC, text, pending=frozenset(), **kw)
++    # Phase 4 batch F spec change S-F6: the set may be empty, so the refusals are kept by naming
++    # a cited test that is not defined (it must be pending) and a defined one on the set (it must
++    # leave it)
++    cited_defined = sorted(sup.cited(text) & defined)[0]
++    assert sup.check_adr(
++        SPEC, text, pending=pending, defined=defined - {cited_defined}, scope=scope
++    )
+     assert sup.check_adr(SPEC, text, pending=pending | {"test_zz_invented"}, **kw)
+     stale = next(iter(sorted(scope - sup.cited(text) - defined)))
+     assert sup.check_adr(SPEC, text, pending=pending | {stale}, **kw)
+-    landed = sorted(pending)[0]
+-    assert sup.check_adr(SPEC, text, pending=pending, defined=defined | {landed}, scope=scope)
++    assert sup.check_adr(SPEC, text, pending=pending | {cited_defined}, **kw)
+--- a/packages/evalcore/tests/test_adr0024_phase4_amendment_is_tested.py
++++ b/packages/evalcore/tests/test_adr0024_phase4_amendment_is_tested.py
+@@ -59,7 +59,8 @@
+ 
+ def test_adr0024_phase4_amendment_pending_names_are_scope_names_only() -> None:
+     pending = sup.PENDING["0024A"]
+-    assert pending, "the amendment cites tests of later tasks; the set empties at the gate"
++    # Phase 4 batch F spec change S-F7: the set may be empty (it is, once batch F and batch J have
++    # defined the tests the amendment cites)
+     assert pending <= sup.scope_names()
+     assert not pending & sup.defined_tests()
+ 
+@@ -85,10 +86,17 @@
+     scope = sup.scope_names()
+     pending = sup.PENDING["0024A"]
+     assert sup.check_adr(SPEC, text, defined=defined, pending=pending, scope=scope) == []
+-    assert sup.check_adr(SPEC, text, defined=defined, pending=frozenset(), scope=scope)
++    # Phase 4 batch F spec change S-F7: the set may be empty, so the refusals are kept by naming
++    # a cited test that is not defined (it must be pending) and a defined one on the set (it must
++    # leave it)
++    cited_defined = sorted(sup.cited(text) & defined)[0]
++    assert sup.check_adr(
++        SPEC, text, defined=defined - {cited_defined}, pending=pending, scope=scope
++    )
+     assert sup.check_adr(SPEC, text, defined=defined, pending=pending | {"test_zz_x"}, scope=scope)
+-    landed = sorted(pending)[0]
+-    assert sup.check_adr(SPEC, text, defined=defined | {landed}, pending=pending, scope=scope)
++    assert sup.check_adr(
++        SPEC, text, defined=defined, pending=pending | {cited_defined}, scope=scope
++    )
+ 
+ 
+ def test_adr0024_phase4_amendment_section_is_found_by_its_own_heading_only() -> None:
+--- a/packages/evalcore/tests/test_phase4_adrs_cite_only_existing_or_pending_tests.py
++++ b/packages/evalcore/tests/test_phase4_adrs_cite_only_existing_or_pending_tests.py
+@@ -173,10 +173,14 @@
+     assert sup.pending_outside_problems(
+         reads, defined=defined, outside=frozenset({"test_zz_x"}), scope=scope
+     )
++    # Phase 4 batch F spec change S-F8: the set is empty now, so a name that landed is shown by the
++    # one that was pending (defined, yet still on the set)
++    landed = "test_tdeg_sim_agent_silent_timing_not_measured"
++    assert landed in defined
+     assert sup.pending_outside_problems(
+         reads,
+         defined=defined | sup.PENDING_OUTSIDE_RULES,
+-        outside=sup.PENDING_OUTSIDE_RULES,
++        outside=sup.PENDING_OUTSIDE_RULES | {landed},
+         scope=scope,
+     )
+     inside = next(iter(sup.PENDING["0026"]))

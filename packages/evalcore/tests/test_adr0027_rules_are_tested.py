@@ -48,7 +48,8 @@ def test_adr0027_is_accepted() -> None:
 
 def test_adr0027_pending_names_are_the_scope_names_of_later_tasks_only() -> None:
     pending = sup.PENDING["0027"]
-    assert pending, "ADR 0027 cites tests of later tasks; the set empties at the gate"
+    # Phase 4 batch F spec change S-F6: batch F defines the last tests ADR 0027 cites, so the set
+    # may be empty (it empties at the gate, and it has)
     assert pending <= sup.scope_names()
     assert not pending & sup.defined_tests()
     assert "test_adr0027_rules_are_tested" not in pending
@@ -76,9 +77,14 @@ def test_adr0027_check_refuses_pending_sets_that_do_not_fit() -> None:
     pending = sup.PENDING["0027"]
     kw = {"defined": defined, "scope": scope}
     assert sup.check_adr(SPEC, text, pending=pending, **kw) == sup.check_adr_file("0027")
-    assert sup.check_adr(SPEC, text, pending=frozenset(), **kw)
+    # Phase 4 batch F spec change S-F6: the set may be empty, so the refusals are kept by naming
+    # a cited test that is not defined (it must be pending) and a defined one on the set (it must
+    # leave it)
+    cited_defined = sorted(sup.cited(text) & defined)[0]
+    assert sup.check_adr(
+        SPEC, text, pending=pending, defined=defined - {cited_defined}, scope=scope
+    )
     assert sup.check_adr(SPEC, text, pending=pending | {"test_zz_invented"}, **kw)
     stale = next(iter(sorted(scope - sup.cited(text) - defined)))
     assert sup.check_adr(SPEC, text, pending=pending | {stale}, **kw)
-    landed = sorted(pending)[0]
-    assert sup.check_adr(SPEC, text, pending=pending, defined=defined | {landed}, scope=scope)
+    assert sup.check_adr(SPEC, text, pending=pending | {cited_defined}, **kw)

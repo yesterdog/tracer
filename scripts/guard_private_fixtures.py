@@ -1,16 +1,20 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 The Tracer contributors
-"""Fail if a private fixture, a local env file or an output of `tracer score` is tracked, staged or
-in history.
+"""Fail if a private fixture, a local env file, an output of `tracer score` or `tracer simulate`
+or a target allowlist is tracked, staged or in history.
 
-The outputs of the command (the HTML report, the SQLite store and the call log) hold personal data
-(P3-34). Names are judged for every path of the index, of HEAD and of history. Content is judged for
+The outputs of the commands (the HTML report, the SQLite store, the call log, and for
+`tracer simulate` the stereo recording, the TTS cache and the usage recovery file) hold personal
+data (P3-34, P4-30). A target allowlist is local policy and may name the variable of a bearer
+token. Names are judged for every path of the index, of HEAD and of history. Content is judged for
 the paths of the index (staged and tracked) only, on the first 64 KiB of the staged blob: a path
-that is only in HEAD or in history is judged by its name alone.
+that is only in HEAD or in history is judged by its name alone. A `.wav` file in a directory that
+also holds an output is judged an output (the output directory is the unit).
 """
 
 from __future__ import annotations
 
+import json
 import re
 import subprocess
 import sys
@@ -27,6 +31,17 @@ STORE_SUFFIXES = (".sqlite", ".sqlite3")
 STORE_SIDECARS = ("-wal", "-shm", "-journal")
 SQLITE_MAGIC = b"SQLite format 3\x00"
 CALL_LOG_NAME = "sarvam_call_log.jsonl"
+SIM_CALL_LOG_NAME = "sim_call_log.jsonl"
+RECORDING_NAME = re.compile(r"recording-[0-9]{8}T[0-9]{6}Z\.wav")
+RECOVERY_NAME = re.compile(r"usage-recovery-[0-9]{8}T[0-9]{6}Z\.json")
+RECOVERY_FORMAT_ID = "tracer.usage_recovery/1"
+RECOVERY_START = re.compile(rb'\s*\{\s*"format"\s*:\s*"tracer\.usage_recovery/1"')
+CACHE_DIR = "tts-cache"
+ALLOWLIST_FIELDS = ("bot_holds_telephony_credentials", "auth_token_env", "origin")
+ALLOWLIST_ENTRY = re.compile(
+    r"(?:wss?|https?)://\S+(?:[ \t]+(?:bot_holds_telephony_credentials|auth_token_env|origin)=\S+)*"
+)
+RUNNER_PATHS = ("/ws", "/ws-client", "/api/offer")
 # The capture tool's own log, tracked since Phase 1 (an older line shape, no text). One exact path:
 # a Tracer call log at this path is still refused by its content.
 CALL_LOG_ALLOWED = frozenset({"tools/capture/sarvam_call_log.jsonl"})
@@ -39,6 +54,11 @@ JUDGE_EXCHANGE = "tracer judge exchange file"
 # <out>/judge/<run>/item-<id>-<attempt>.json: the request and the raw reply of one judge request
 JUDGE_EXCHANGE_NAME = re.compile(r"(?:^|/)judge/[^/]+/item-[a-z0-9_]+-[12]\.json\Z")
 JUDGE_EXCHANGE_MARKER = re.compile(rb'"format"\s*:\s*"tracer\.judge_exchange/1"')
+SIM_RECORDING = "tracer simulated recording"
+TTS_CACHE = "tracer TTS cache entry"
+RECOVERY = "tracer usage recovery file"
+ALLOWLIST = "tracer target allowlist"
+OUTPUT_KINDS = frozenset({REPORT, STORE, CALL_LOG, SIM_RECORDING, RECOVERY})
 
 
 def _is_env_file(path: str) -> bool:
@@ -68,7 +88,52 @@ def kind_by_name(path: str) -> str | None:
         return CALL_LOG
     if JUDGE_EXCHANGE_NAME.search(path):
         return JUDGE_EXCHANGE
+    if name == SIM_CALL_LOG_NAME:
+        return CALL_LOG
+    if RECORDING_NAME.fullmatch(name):
+        return SIM_RECORDING
+    if RECOVERY_NAME.fullmatch(name):
+        return RECOVERY
+    if CACHE_DIR in path.split("/")[:-1]:
+        return TTS_CACHE
+    lowered = name.lower()
+    if lowered in ("allowlist", "allowlist.txt") or lowered.endswith(".allowlist"):
+        return ALLOWLIST
     return None
+
+
+def _is_recovery(head: bytes) -> bool:
+    """A JSON object whose `format` is the recovery format (whatever the order of its members); a
+    file longer than the head is judged by its first member."""
+    try:
+        document = json.loads(head)
+    except ValueError:
+        return RECOVERY_START.match(head) is not None
+    return isinstance(document, dict) and document.get("format") == RECOVERY_FORMAT_ID
+
+
+def _is_allowlist(head: bytes) -> bool:
+    """Every non-blank, non-comment line is an entry, and an entry carries a field or ends in a
+    runner path: a list of ordinary links is not an allowlist."""
+    try:
+        text = head.decode("utf-8")
+    except UnicodeDecodeError:
+        return False
+    entries = []
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        if not ALLOWLIST_ENTRY.fullmatch(stripped):
+            return False
+        entries.append(stripped)
+    if not entries:
+        return False
+    return any(
+        any(f"{field}=" in line for field in ALLOWLIST_FIELDS)
+        or line.split()[0].rstrip("/").endswith(RUNNER_PATHS)
+        for line in entries
+    )
 
 
 def kind_by_content(path: str, head: bytes) -> str | None:
@@ -84,6 +149,10 @@ def kind_by_content(path: str, head: bytes) -> str | None:
         first = head.split(b"\n", 1)[0]
         if b'"bytes_sent"' in first and b'"audio_seconds"' in first:
             return CALL_LOG
+    if _is_recovery(head):
+        return RECOVERY
+    if _is_allowlist(head):
+        return ALLOWLIST
     return None
 
 
@@ -142,6 +211,11 @@ def findings(root: Path) -> list[tuple[str, str]]:
         kind = kind_by_content(path, head)
         if kind is not None:
             result.add((path, kind))
+    # the output directory is the unit: a .wav next to an output is a recording
+    output_dirs = {path.rpartition("/")[0] for path, kind in result if kind in OUTPUT_KINDS}
+    for path in found:
+        if path.lower().endswith(".wav") and path.rpartition("/")[0] in output_dirs:
+            result.add((path, SIM_RECORDING))
     return sorted(result)
 
 

@@ -1,0 +1,105 @@
+Phase 4 batch F mutants: 94 run, 92 killed, 2 survived, all 2 equivalent (reasons below).
+Each mutant is one exact-string edit of one file, run in a copy of the oracle tree against the 14 new test files of batch F
+with `pytest -x` on Python 3.13, a FRESH `PYTHONPYCACHEPREFIX` per mutant (the file restored afterwards). A kill is a failing test.
+The tests that were added after this run (the repository false-positive test, the key-order test of the recovery rule, the
+caplog fix, the three ADR spec changes) can only add kills. The mutant `guard-call-log-stage` of an earlier list was dropped
+with the rule it mutated (the existing content rule of the call log already catches a simulated log line).
+
+id | result | seconds | pytest last line
+exit-stt-as-2 | KILLED | 17 | 1 failed, 104 passed, 11 deselected in 16.63s
+exit-nocall-as-3 | KILLED | 17 | 1 failed, 99 passed, 11 deselected in 16.32s
+exit-error-as-0 | KILLED | 16 | 1 failed, 100 passed, 11 deselected in 15.57s
+timing-missing-as-zero | KILLED | 16 | 1 failed, 100 passed, 11 deselected in 15.47s
+timing-median-upper | KILLED | 3 | 1 failed, 11 deselected in 2.43s
+timing-edge-without-frame | KILLED | 3 | 1 failed, 11 deselected in 2.38s
+timing-gap-missing-zero | KILLED | 16 | 1 failed, 100 passed, 11 deselected in 15.21s
+timing-first-missing-zero | KILLED | 15 | 1 failed, 100 passed, 11 deselected in 14.85s
+timing-first-from-start | KILLED | 3 | 1 failed, 11 deselected in 2.22s
+score-edge-code | KILLED | 17 | 1 failed, 100 passed, 11 deselected in 16.42s
+bundle-no-agent-audio | KILLED | 3 | 1 failed, 11 deselected in 2.40s
+bundle-transcript-without-turns | SURVIVED | 23 | 229 passed, 11 deselected in 22.67s
+bundle-agent-transcript-any-export | KILLED | 17 | 1 failed, 114 passed, 11 deselected in 16.41s
+sim-stt-warning-code | KILLED | 16 | 1 failed, 104 passed, 11 deselected in 15.64s
+rec-agent-tail-cut | KILLED | 3 | 1 failed, 11 deselected in 2.22s
+rec-agent-burst | KILLED | 3 | 1 failed, 11 deselected in 2.33s
+run-kill-reason | SURVIVED | 24 | 229 passed, 11 deselected in 23.61s
+run-check-kill-reason | KILLED | 17 | 1 failed, 105 passed, 11 deselected in 16.19s
+score-export-not-partitioned | KILLED | 3 | 1 failed, 11 deselected in 2.37s
+score-partition-version | KILLED | 3 | 1 failed, 11 deselected in 2.52s
+call-log-separators | KILLED | 3 | 1 failed, 11 deselected in 2.53s
+fake-tts-duration | KILLED | 3 | 1 failed, 11 deselected in 2.00s
+auth-ref-hash | KILLED | 3 | 1 failed, 11 deselected in 2.37s
+leak-provider-code | KILLED | 14 | 1 failed, 87 passed, 11 deselected in 13.75s
+leak-recovery-message | KILLED | 15 | 1 failed, 93 passed, 11 deselected in 13.97s
+leak-stderr-message | KILLED | 15 | 1 failed, 96 passed, 11 deselected in 14.20s
+guard-recording-name | KILLED | 6 | 1 failed, 3 passed, 11 deselected in 5.57s
+guard-sim-log-name | KILLED | 7 | 1 failed, 3 passed, 11 deselected in 6.46s
+guard-cache-any-dir | KILLED | 7 | 1 failed, 3 passed, 11 deselected in 5.80s
+guard-recovery-name | KILLED | 7 | 1 failed, 3 passed, 11 deselected in 6.54s
+guard-recovery-content | KILLED | 10 | 1 failed, 29 passed, 11 deselected in 9.27s
+guard-recovery-any-format | KILLED | 10 | 1 failed, 32 passed, 11 deselected in 9.78s
+guard-allowlist-name | KILLED | 7 | 1 failed, 3 passed, 11 deselected in 6.38s
+guard-allowlist-content | KILLED | 11 | 1 failed, 41 passed, 11 deselected in 10.56s
+guard-allowlist-links-ok | KILLED | 12 | 1 failed, 45 passed, 11 deselected in 11.25s
+guard-allowlist-any-line | KILLED | 12 | 1 failed, 50 passed, 11 deselected in 11.71s
+guard-sibling-rule | KILLED | 8 | 1 failed, 8 passed, 11 deselected in 7.10s
+guard-every-wav | KILLED | 8 | 1 failed, 8 passed, 11 deselected in 6.86s
+guard-sibling-needs-store | KILLED | 8 | 1 failed, 8 passed, 11 deselected in 7.26s
+gitignore-recording | KILLED | 14 | 1 failed, 57 passed, 11 deselected in 12.91s
+gitignore-sim-log | KILLED | 13 | 1 failed, 59 passed, 11 deselected in 12.51s
+gitignore-cache | KILLED | 13 | 1 failed, 61 passed, 11 deselected in 12.70s
+gitignore-allowlist | KILLED | 14 | 1 failed, 64 passed, 11 deselected in 12.92s
+gitignore-allowlist-suffix | KILLED | 13 | 1 failed, 66 passed, 11 deselected in 12.44s
+gitignore-too-broad | KILLED | 13 | 1 failed, 67 passed, 11 deselected in 12.41s
+ci-no-timeout | KILLED | 21 | 1 failed, 127 passed, 11 deselected in 19.94s
+ci-py312 | KILLED | 19 | 1 failed, 127 passed, 11 deselected in 18.58s
+ci-tool-unlocked | KILLED | 19 | 1 failed, 127 passed, 11 deselected in 18.40s
+ci-no-marker | KILLED | 21 | 1 failed, 127 passed, 11 deselected in 20.47s
+conf-never-deselect | KILLED | 22 | 1 failed, 197 passed in 21.28s
+conf-deselect-nothing | KILLED | 22 | 1 failed, 197 passed, 11 deselected in 21.41s
+conf-integration-loopback-only | KILLED | 23 | 1 failed, 196 passed, 11 deselected in 22.69s
+conf-no-server-guard | KILLED | 25 | 1 failed, 205 passed, 11 deselected in 23.92s
+conf-no-datagram-guard | KILLED | 23 | 1 failed, 197 passed, 11 deselected in 21.88s
+conf-no-sendto-guard | KILLED | 23 | 1 failed, 197 passed, 11 deselected in 21.81s
+ig-wildcard-ok | KILLED | 22 | 1 failed, 196 passed, 11 deselected in 21.67s
+ig-multicast-ok | KILLED | 23 | 1 failed, 196 passed, 11 deselected in 22.18s
+ig-sendto-open | KILLED | 23 | 1 failed, 196 passed, 11 deselected in 22.19s
+ig-udp-bind-open | KILLED | 23 | 1 failed, 196 passed, 11 deselected in 22.01s
+ig-udp-connect-open | KILLED | 23 | 1 failed, 196 passed, 11 deselected in 22.10s
+ig-getaddrinfo-any-literal | KILLED | 23 | 1 failed, 196 passed, 11 deselected in 22.13s
+ig-remote-endpoint-open | KILLED | 23 | 1 failed, 196 passed, 11 deselected in 22.47s
+ig-probe-skipped | KILLED | 24 | 1 failed, 196 passed, 11 deselected in 22.98s
+dlg-odd-frame | KILLED | 24 | 1 failed, 213 passed, 11 deselected in 23.64s
+dlg-opening | KILLED | 24 | 1 failed, 209 passed, 11 deselected in 23.13s
+dlg-encode-no-check | KILLED | 23 | 1 failed, 213 passed, 11 deselected in 21.89s
+dlg-rate-step | KILLED | 22 | 1 failed, 216 passed, 11 deselected in 21.78s
+dlg-codec | KILLED | 23 | 1 failed, 208 passed, 11 deselected in 22.80s
+rtc-labels-unchecked | KILLED | 24 | 1 failed, 228 passed, 11 deselected in 23.67s
+rtc-dialect-unchecked | KILLED | 25 | 1 failed, 228 passed, 11 deselected in 23.81s
+rtc-token-unchecked | KILLED | 25 | 1 failed, 228 passed, 11 deselected in 24.48s
+sb-bool-int | KILLED | 23 | 1 failed, 153 passed, 11 deselected in 22.09s
+sb-dup-keys | KILLED | 23 | 1 failed, 153 passed, 11 deselected in 22.39s
+sb-ms-step | KILLED | 22 | 1 failed, 153 passed, 11 deselected in 21.49s
+sb-hz-range | KILLED | 22 | 1 failed, 153 passed, 11 deselected in 21.48s
+sb-replies-max | KILLED | 22 | 1 failed, 153 passed, 11 deselected in 21.49s
+sb-extra-keys | KILLED | 23 | 1 failed, 153 passed, 11 deselected in 22.32s
+sb-tone-freq | KILLED | 23 | 1 failed, 154 passed, 11 deselected in 22.47s
+sb-tone-len | KILLED | 22 | 1 failed, 154 passed, 11 deselected in 21.71s
+sb-hz-span | KILLED | 25 | 1 failed, 157 passed, 11 deselected in 24.41s
+sb-reply-count | KILLED | 23 | 1 failed, 158 passed, 11 deselected in 22.04s
+sb-open-turn | KILLED | 23 | 1 failed, 158 passed, 11 deselected in 22.51s
+sb-frames | KILLED | 22 | 1 failed, 158 passed, 11 deselected in 21.21s
+sb-auto-hang-up-on | KILLED | 21 | 1 failed, 149 passed, 11 deselected in 20.19s
+sb-auto-hang-up-default | KILLED | 19 | 1 failed, 149 passed, 11 deselected in 18.36s
+sb-account-sid | KILLED | 21 | 1 failed, 149 passed, 11 deselected in 19.93s
+sb-vad-import | KILLED | 20 | 1 failed, 148 passed, 11 deselected in 18.89s
+sb-openai-import | KILLED | 22 | 1 failed, 148 passed, 11 deselected in 20.71s
+sb-host-default | KILLED | 21 | 1 failed, 148 passed, 11 deselected in 20.60s
+sb-host-optional | KILLED | 23 | 1 failed, 148 passed, 11 deselected in 22.29s
+sb-port-default | KILLED | 25 | 1 failed, 151 passed, 11 deselected in 24.29s
+sb-timer-out | KILLED | 26 | 1 failed, 148 passed, 11 deselected in 24.67s
+sb-timer-energy | KILLED | 43 | 1 failed, 148 passed, 11 deselected in 41.60s
+sb-llm-bot-exists | KILLED | 26 | 1 failed, 148 passed, 11 deselected in 24.65s
+
+SURVIVOR bundle-transcript-without-turns: EQUIVALENT: an `SttOutcome` without a transcript is not constructible through the command (a failed transcription gives no outcome); it also survives every batch E test of the bundle and the whole cli test directory (918 passed).
+SURVIVOR run-kill-reason: EQUIVALENT: the `_Ended` reason of a stop requested before the connection is not read; the end reason comes from the call machine, which the mutant does not touch (the batch F test of the kill switch before the connection asserts the reason and passes).

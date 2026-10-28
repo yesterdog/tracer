@@ -173,10 +173,14 @@ def test_the_outside_rules_set_is_checked_against_the_scope() -> None:
     assert sup.pending_outside_problems(
         reads, defined=defined, outside=frozenset({"test_zz_x"}), scope=scope
     )
+    # Phase 4 batch F spec change S-F8: the set is empty now, so a name that landed is shown by the
+    # one that was pending (defined, yet still on the set)
+    landed = "test_tdeg_sim_agent_silent_timing_not_measured"
+    assert landed in defined
     assert sup.pending_outside_problems(
         reads,
         defined=defined | sup.PENDING_OUTSIDE_RULES,
-        outside=sup.PENDING_OUTSIDE_RULES,
+        outside=sup.PENDING_OUTSIDE_RULES | {landed},
         scope=scope,
     )
     inside = next(iter(sup.PENDING["0026"]))

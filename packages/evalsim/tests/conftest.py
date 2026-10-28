@@ -26,7 +26,10 @@ from typing import Any
 
 import pytest
 
+import evalsim_integration_guard as integration_guard  # type: ignore[import-not-found,unused-ignore]
 from evalsim_loopback_guard import MARKER, install_loopback_only  # type: ignore[import-not-found,unused-ignore]
+
+INTEGRATION_MARKER = integration_guard.MARKER
 
 
 def pytest_configure(config: pytest.Config) -> None:
@@ -35,6 +38,25 @@ def pytest_configure(config: pytest.Config) -> None:
         f"{MARKER}: opens sockets to a fake server started by the test itself on 127.0.0.1 or ::1 "
         "(no key, no external host); run by default, see docs/phase4/api-surface-batch-d.md",
     )
+    config.addinivalue_line(
+        "markers",
+        f"{INTEGRATION_MARKER}: runs against the sample bot of tools/samplebot on this machine "
+        "(loopback only, no key); deselected unless selected with -m integration (the interop CI "
+        "job), see docs/phase4/api-surface-batch-f.md",
+    )
+
+
+def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
+    """Batch F, named change S-F1: the interop tests are DESELECTED (never skipped) unless the run's
+    marker expression names the marker. Nothing else decides, so no test can skip itself."""
+    expression = config.getoption("markexpr", default="") or ""
+    if INTEGRATION_MARKER in expression:
+        return
+    kept = [i for i in items if i.get_closest_marker(INTEGRATION_MARKER) is None]
+    dropped = [i for i in items if i.get_closest_marker(INTEGRATION_MARKER) is not None]
+    if dropped:
+        config.hook.pytest_deselected(items=dropped)
+        items[:] = kept
 
 
 def _refuse(*args: Any, **kwargs: Any) -> Any:
@@ -49,6 +71,8 @@ async def _refuse_async(*args: Any, **kwargs: Any) -> Any:
 def _no_network(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch) -> None:
     if request.node.get_closest_marker(MARKER) is not None:
         install_loopback_only(monkeypatch)
+    elif request.node.get_closest_marker(INTEGRATION_MARKER) is not None:
+        integration_guard.install_integration_guard(monkeypatch)
     else:
         monkeypatch.setattr(socket.socket, "connect", _refuse)
         monkeypatch.setattr(socket.socket, "connect_ex", _refuse)
@@ -56,5 +80,9 @@ def _no_network(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch)
         monkeypatch.setattr(socket, "getaddrinfo", _refuse)
         monkeypatch.setattr(asyncio.BaseEventLoop, "create_connection", _refuse_async)
         monkeypatch.setattr(asyncio.BaseEventLoop, "sock_connect", _refuse_async)
+        # batch F: an unmarked test starts no server and opens no datagram path either
+        monkeypatch.setattr(asyncio.BaseEventLoop, "create_server", _refuse_async)
+        monkeypatch.setattr(asyncio.BaseEventLoop, "create_datagram_endpoint", _refuse_async)
+        monkeypatch.setattr(socket.socket, "sendto", _refuse)
     # no test reads a key from the machine's environment
     monkeypatch.delenv("SARVAM_API_KEY", raising=False)

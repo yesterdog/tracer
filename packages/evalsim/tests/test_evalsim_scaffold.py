@@ -100,6 +100,7 @@ NEVER_LOCKED = (
 ALLOWED_IMPORTS = {
     "websockets",
     "aiortc",
+    "av",  # Phase 4 batch F, named change S-F5: audio frames of the WebRTC media path (lazy)
     "tracer_evalschema",
     "tracer_evalcore",
     "tracer_evalsim",

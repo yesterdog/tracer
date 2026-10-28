@@ -10,14 +10,23 @@ import importlib
 import json
 import re
 import ssl
+import time
+from collections import deque
 from collections.abc import Sequence
 from dataclasses import dataclass
+from fractions import Fraction
 from types import ModuleType
 from typing import Any
 
-from tracer_evalsim.errors import SetupFailedError, TargetRefusedError
+from tracer_evalsim.dialects.base import CloseInfo, Dialect
+from tracer_evalsim.errors import SetupFailedError, TargetRefusedError, TransportError
 from tracer_evalsim.limits import MAX_SDP_BYTES, MAX_SIGNALLING_RESPONSE_BYTES
-from tracer_evalsim.ws import BearerToken, ConnectionLabels, parse_target_url
+from tracer_evalsim.ws import (
+    BearerToken,
+    ConnectionLabels,
+    check_connection_labels,
+    parse_target_url,
+)
 
 __all__ = [
     "DIALECT_ID",
@@ -30,6 +39,7 @@ __all__ = [
     "load_aiortc",
     "make_webrtc_plan",
     "offer_request_body",
+    "open_webrtc",
     "parse_answer",
     "parse_ice_server",
     "patch_request_body",
@@ -44,7 +54,8 @@ SPEC_SOURCES = (
 )
 OFFER_SUFFIX = "/api/offer"
 _ICE = re.compile(r"(?:stuns?|turns?):[a-z0-9.\-\[\]:]{1,200}(?:\?transport=(?:udp|tcp))?")
-_PC_ID = re.compile(r"[A-Za-z0-9_.:-]{1,256}")
+# Pipecat 1.14.0 writes "SmallWebRTCConnection#0-<32 hex>" (found by the interop run, batch F)
+_PC_ID = re.compile(r"[A-Za-z0-9_.:#-]{1,256}")
 
 
 def parse_ice_server(text: str) -> str:
@@ -239,3 +250,167 @@ class HttpSignalling:
 
     async def patch_candidates(self, body: dict[str, Any]) -> dict[str, Any]:
         return await self._call("PATCH", body)
+
+
+class WebRtcConnection:
+    """The media of one ``smallwebrtc/1`` call as a ``WireConnection``: ``send`` hands one 20 ms PCM
+    frame to the outgoing audio track, ``recv`` returns the next frame of the remote audio track
+    (channel 0 of the decoded frame, 16-bit mono at the dialect rate) or ``None`` once the peer
+    connection is gone."""
+
+    def __init__(self, pc: Any, track: Any, incoming: asyncio.Queue[bytes | None]) -> None:
+        self._pc = pc
+        self._track = track
+        self._incoming = incoming
+        self._close_info: CloseInfo | None = None
+        self._closed = False
+
+    @property
+    def close_info(self) -> CloseInfo | None:
+        return self._close_info
+
+    async def send(self, message: bytes | str) -> None:
+        if self._closed or not isinstance(message, bytes):
+            raise TransportError(code="connection_closed")
+        self._track.push(message)
+
+    async def recv(self) -> bytes | str | None:
+        message = await self._incoming.get()
+        if message is None:
+            self._incoming.put_nowait(None)
+            if self._close_info is None:
+                self._close_info = CloseInfo(code=None, clean=False)
+        return message
+
+    async def close(self, code: int = 1000) -> None:
+        if not self._closed:
+            self._closed = True
+            await self._pc.close()
+        if self._close_info is None:
+            self._close_info = CloseInfo(code=code, clean=True)
+        self._incoming.put_nowait(None)
+
+
+def _outgoing_track(aiortc: ModuleType, rate: int) -> Any:
+    import av  # the optional extra: loaded only when a call is placed
+
+    samples = rate * 20 // 1000
+    track_base: Any = aiortc.mediastreams.MediaStreamTrack
+
+    class PushedAudio(track_base):  # type: ignore[misc,valid-type,unused-ignore]
+        kind = "audio"
+
+        def __init__(self) -> None:
+            super().__init__()
+            self._queue: deque[bytes] = deque()
+            self._start = 0.0
+            self._pts = 0
+
+        def push(self, frame: bytes) -> None:
+            self._queue.append(frame)
+
+        async def recv(self) -> Any:
+            if self.readyState != "live":
+                raise aiortc.mediastreams.MediaStreamError
+            if self._pts == 0:
+                self._start = time.monotonic()
+            else:
+                await asyncio.sleep(max(0.0, self._start + self._pts / rate - time.monotonic()))
+            data = self._queue.popleft() if self._queue else bytes(samples * 2)
+            frame = av.AudioFrame(format="s16", layout="mono", samples=samples)
+            frame.planes[0].update(data)
+            frame.pts = self._pts
+            frame.sample_rate = rate
+            frame.time_base = Fraction(1, rate)
+            self._pts += samples
+            return frame
+
+    return PushedAudio()
+
+
+def _channel_zero(frame: Any) -> bytes:
+    plane = bytes(frame.planes[0])
+    channels = len(frame.layout.channels)
+    width = frame.samples * 2
+    if frame.format.is_planar or channels == 1:
+        return plane[:width]
+    view = memoryview(plane[: width * channels]).cast("h")
+    return view[0::channels].tobytes()
+
+
+async def open_webrtc(
+    plan: WebRtcPlan,
+    dialect: Dialect,
+    *,
+    labels: ConnectionLabels,
+    token: BearerToken | None,
+    open_timeout_s: float,
+    close_timeout_s: float,
+) -> WebRtcConnection:
+    """Signal an offer to the target of ``plan`` and return the media connection once it is up.
+
+    Refusals come first and send nothing: the dialect, the labels, the token, the extra. No ICE
+    server is used unless the plan names one (host candidates only)."""
+    if dialect.dialect_id != DIALECT_ID:
+        raise TargetRefusedError(code="dialect_unknown")
+    check_connection_labels(DIALECT_ID, labels)
+    if labels.auth_token_env is None and token is not None:
+        raise TargetRefusedError(code="labels_inconsistent")
+    if labels.auth_token_env is not None and token is None:
+        raise TargetRefusedError(code="auth_token_missing")
+    aiortc = load_aiortc()
+    pc = aiortc.RTCPeerConnection(configuration=build_rtc_configuration(plan))
+    incoming: asyncio.Queue[bytes | None] = asyncio.Queue()
+    track = _outgoing_track(aiortc, dialect.sample_rate_hz)
+    pc.addTrack(track)
+    up = asyncio.Event()
+    connection = WebRtcConnection(pc, track, incoming)
+
+    async def pump(remote: Any) -> None:
+        try:
+            while True:
+                frame = await remote.recv()
+                if frame.sample_rate != dialect.sample_rate_hz:
+                    incoming.put_nowait(None)
+                    return
+                incoming.put_nowait(_channel_zero(frame))
+        except Exception:
+            incoming.put_nowait(None)
+
+    tasks: list[asyncio.Task[None]] = []
+
+    @pc.on("track")  # type: ignore[untyped-decorator,misc,unused-ignore]
+    def on_track(remote: Any) -> None:
+        if remote.kind == "audio":
+            tasks.append(asyncio.ensure_future(pump(remote)))
+
+    @pc.on("connectionstatechange")  # type: ignore[untyped-decorator,misc,unused-ignore]
+    async def on_state() -> None:
+        if pc.connectionState == "connected":
+            up.set()
+        elif pc.connectionState in ("failed", "closed", "disconnected"):
+            incoming.put_nowait(None)
+
+    try:
+        await pc.setLocalDescription(await pc.createOffer())
+        signalling = HttpSignalling(plan, labels=labels, token=token, timeout_s=open_timeout_s)
+        answer = parse_answer(
+            await signalling.post_offer(offer_request_body(pc.localDescription.sdp))
+        )
+        await pc.setRemoteDescription(
+            aiortc.RTCSessionDescription(sdp=answer.sdp, type=answer.type)
+        )
+        await asyncio.wait_for(up.wait(), open_timeout_s)
+    except TimeoutError:
+        await pc.close()
+        raise SetupFailedError(code="connect_timeout") from None
+    except (SetupFailedError, TargetRefusedError):
+        await pc.close()
+        raise
+    except asyncio.CancelledError:
+        await pc.close()
+        raise
+    except Exception:
+        await pc.close()
+        raise SetupFailedError(code="handshake_failed") from None
+    return connection

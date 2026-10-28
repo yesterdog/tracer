@@ -1,0 +1,177 @@
+# Tests of batch F that PASS on the current tree (red run, no spec change, no oracle code).
+# Each group says why a passing test is still a test of this batch.
+
+## test_e2e_sim_synthetic_mr.py: 3 passed. P4-28 pins the exact outputs of the batch E command; the expected values are derived by hand and by an independent writer in the test, then compared with the tree; they agree.
+  test_e2e_sim_synthetic_mr_exact_outputs
+  test_e2e_sim_twice_gives_the_same_bytes_modulo_ids
+  test_e2e_sim_report_and_store_consistent
+
+## test_guard_sim_outputs_and_allowlist.py: 39 passed. The negative cases (what the guard must NOT refuse), the repository false-positive test, the stdlib-only check and the .gitignore negatives: true before and after the change. The positive cases are in red-reasons.
+  test_guard_does_not_refuse_what_is_not_a_recording[tests/fixtures/real/clip.wav]
+  test_guard_does_not_refuse_what_is_not_a_recording[tools/capture/clips/silence_2s.wav]
+  test_guard_does_not_refuse_what_is_not_a_recording[docs/examples/synthetic-mr/stereo.wav]
+  test_guard_does_not_refuse_what_is_not_a_recording[docs/recording-notes.md]
+  test_guard_does_not_refuse_what_is_not_a_recording[docs/recording-2026.wav.txt]
+  test_guard_does_not_refuse_what_is_not_a_recording[src/recording.wav.py]
+  test_guard_refuses_a_renamed_simulated_call_log_by_the_shape_of_its_first_line
+  test_guard_does_not_refuse_what_is_not_a_cache_entry[docs/tts-cache.md]
+  test_guard_does_not_refuse_what_is_not_a_cache_entry[src/tts_cache.py]
+  test_guard_does_not_refuse_what_is_not_a_cache_entry[docs/tts-cache-design/notes.txt]
+  test_guard_does_not_refuse_what_is_not_a_cache_entry[packages/evalproviders/src/tracer_evalproviders/ttscache.py]
+  test_guard_does_not_refuse_what_is_not_a_recovery_file[docs/usage-recovery.md]
+  test_guard_does_not_refuse_what_is_not_a_recovery_file[data/usage.json]
+  test_guard_does_not_refuse_what_is_not_a_recovery_file[data/usage-recovery-notes.json]
+  test_guard_does_not_refuse_what_is_not_a_recovery_file[docs/recovery-format.md]
+  test_guard_does_not_refuse_what_is_not_a_recovery_file[src/recovery.py]
+  test_guard_does_not_refuse_what_is_not_an_allowlist[docs/links.txt]
+  test_guard_does_not_refuse_what_is_not_an_allowlist[docs/one.txt]
+  test_guard_does_not_refuse_what_is_not_an_allowlist[docs/allowlist-howto.md]
+  test_guard_does_not_refuse_what_is_not_an_allowlist[docs/notes.txt]
+  test_guard_does_not_refuse_what_is_not_an_allowlist[src/entry.py]
+  test_guard_does_not_refuse_what_is_not_an_allowlist[ops/mixed.txt]
+  test_guard_does_not_refuse_what_is_not_an_allowlist[packages/evalsim/src/tracer_evalsim/allowlist.py]
+  test_guard_does_not_refuse_what_is_not_an_allowlist[packages/evalsim/tests/test_allowlist_rules.py]
+  test_guard_does_not_refuse_what_is_not_an_allowlist[docs/phase4/allowlist-notes.md]
+  test_guard_still_refuses_what_it_refused_before
+  test_guard_script_adds_no_import_beyond_the_standard_library
+  test_guard_has_no_false_positive_on_this_repository
+  test_gitignore_lists_the_outputs_of_tracer_simulate_and_the_allowlist[out/usage-recovery-20261027T120000Z.json]
+  test_gitignore_does_not_hide_ordinary_files_of_phase_4[packages/evalsim/src/tracer_evalsim/allowlist.py]
+  test_gitignore_does_not_hide_ordinary_files_of_phase_4[packages/evalsim/tests/test_evalsim_fake_agent_and_allowlist.py]
+  test_gitignore_does_not_hide_ordinary_files_of_phase_4[packages/evalschema/tests/fixtures/real/pipecat-1.13.0/en/f6_stereo.wav]
+  test_gitignore_does_not_hide_ordinary_files_of_phase_4[packages/evalschema/tests/fixtures/real/sarvam-2026-10-23/clips/silence_2s.wav]
+  test_gitignore_does_not_hide_ordinary_files_of_phase_4[packages/evalproviders/src/tracer_evalproviders/simcalllog.py]
+  test_gitignore_does_not_hide_ordinary_files_of_phase_4[packages/evalproviders/src/tracer_evalproviders/ttscache.py]
+  test_gitignore_does_not_hide_ordinary_files_of_phase_4[tools/capture/sarvam_call_log.jsonl]
+  test_gitignore_does_not_hide_ordinary_files_of_phase_4[docs/adr/0026-simulated-caller-architecture.md]
+  test_gitignore_does_not_hide_ordinary_files_of_phase_4[docs/phase4/api-surface-batch-f.md]
+  test_gitignore_does_not_hide_ordinary_files_of_phase_4[docs/security/allowlist-notes.md]
+
+## test_key_canaries_all_channels.py: 21 passed. P4-30 canaries: the batch E code already keeps every secret out of every channel; the hostile providers and crash cases show it; the teeth are the leak mutants.
+  test_key_canaries_never_in_any_output_channel[tts-echo_401]
+  test_key_canaries_never_in_any_output_channel[tts-echo_500]
+  test_key_canaries_never_in_any_output_channel[tts-echo_200_text]
+  test_key_canaries_never_in_any_output_channel[tts-raise_connect]
+  test_key_canaries_never_in_any_output_channel[tts-raise_timeout]
+  test_key_canaries_never_in_any_output_channel[llm-echo_401]
+  test_key_canaries_never_in_any_output_channel[llm-echo_500]
+  test_key_canaries_never_in_any_output_channel[llm-echo_200_text]
+  test_key_canaries_never_in_any_output_channel[llm-raise_connect]
+  test_key_canaries_never_in_any_output_channel[llm-raise_timeout]
+  test_key_canaries_never_in_any_output_channel[stt-echo_401]
+  test_key_canaries_never_in_any_output_channel[stt-echo_500]
+  test_key_canaries_never_in_any_output_channel[stt-echo_200_text]
+  test_key_canaries_never_in_any_output_channel[stt-raise_connect]
+  test_key_canaries_never_in_any_output_channel[stt-raise_timeout]
+  test_the_canary_check_is_not_vacuous_a_stored_text_is_found
+  test_key_canaries_never_in_a_crash_after_a_paid_request[carrier]
+  test_key_canaries_never_in_a_crash_after_a_paid_request[runtime_error]
+  test_key_canaries_never_in_a_crash_after_a_paid_request[keyboard_interrupt]
+  test_key_canaries_never_in_a_crash_after_a_paid_request[store_carrier]
+  test_key_canaries_never_in_a_crash_after_a_paid_request[report_carrier]
+
+## test_tdeg_sim.py: 24 passed. P4-29 pins behaviour that batch E already built (the exit codes, the result statuses, the kept usage); red-first does not apply, the teeth are the mutants (mutants.txt).
+  test_the_matrix_has_the_ten_cases_of_the_scope_row
+  test_every_case_is_exactly_what_adr_0027_rule_16_says[setup_failed]
+  test_every_case_is_exactly_what_adr_0027_rule_16_says[agent_silent]
+  test_every_case_is_exactly_what_adr_0027_rule_16_says[comfort_noise]
+  test_every_case_is_exactly_what_adr_0027_rule_16_says[no_export]
+  test_every_case_is_exactly_what_adr_0027_rule_16_says[export_present]
+  test_every_case_is_exactly_what_adr_0027_rule_16_says[stt_failure]
+  test_every_case_is_exactly_what_adr_0027_rule_16_says[kill_switch]
+  test_every_case_is_exactly_what_adr_0027_rule_16_says[max_duration]
+  test_every_case_is_exactly_what_adr_0027_rule_16_says[max_silence]
+  test_every_case_is_exactly_what_adr_0027_rule_16_says[spend_cap]
+  test_tdeg_sim_setup_failed_all_not_applicable_exit_5
+  test_tdeg_sim_a_kill_switch_before_the_connection_is_a_call_that_never_happened
+  test_tdeg_sim_agent_silent_timing_not_measured
+  test_tdeg_sim_no_export_agreement_missing_input
+  test_tdeg_sim_export_present_agreement_scored
+  test_tdeg_sim_export_without_agent_turns_agreement_missing_input
+  test_tdeg_sim_stt_failure_missing_input_transcript
+  test_tdeg_sim_comfort_noise_agent_is_max_silence_not_a_hang
+  test_tdeg_sim_kill_switch_keeps_partial_recording_and_usage
+  test_tdeg_sim_a_cap_or_a_wait_that_ends_the_call_is_an_end_reason_not_a_failure[max_duration-max_duration-None]
+  test_tdeg_sim_a_cap_or_a_wait_that_ends_the_call_is_an_end_reason_not_a_failure[max_silence-max_silence-None]
+  test_tdeg_sim_a_cap_or_a_wait_that_ends_the_call_is_an_end_reason_not_a_failure[spend_cap-spend_cap-llm_tokens]
+  test_tdeg_sim_schema_identical_across_cases
+
+## test_phase4_batch_f_wiring.py: 4 passed. The 19 SCOPE names are counted and defined (the unit_tests_open_no_socket count of 4 needs the new evalsim test, which is a staged file); the root addopts are unchanged.
+  test_batch_f_scope_rows_name_nineteen_tests
+  test_batch_f_defines_exactly_the_scope_names_once
+  test_the_default_test_command_is_unchanged
+  test_the_tool_project_is_still_not_a_workspace_member_or_a_test_path
+
+## test_phase4_ci_interop.py: 18 passed. Same: the teeth of interop_problems, and the assertions that the OTHER jobs are unchanged.
+  test_only_the_interop_job_selects_the_integration_marker_or_names_the_tool
+  test_the_check_accepts_the_reviewed_shape
+  test_the_check_refuses_each_weakening[interop (scripted_bot on loopback, py3.13)-interop-name is]
+  test_the_check_refuses_each_weakening[runs-on: ubuntu-latest-runs-on: macos-latest-ubuntu]
+  test_the_check_refuses_each_weakening[    timeout-minutes: 30\n--timeout-minutes]
+  test_the_check_refuses_each_weakening[timeout-minutes: 30-timeout-minutes: 360-timeout-minutes]
+  test_the_check_refuses_each_weakening[    timeout-minutes: 30\n-    timeout-minutes: 30\n    continue-on-error: true\n-continue on error]
+  test_the_check_refuses_each_weakening[    timeout-minutes: 30\n-    timeout-minutes: 30\n    services: {pg: {image: x}}\n-services]
+  test_the_check_refuses_each_weakening[    timeout-minutes: 30\n-    timeout-minutes: 30\n    env: {SARVAM_API_KEY: x}\n-env]
+  test_the_check_refuses_each_weakening[persist-credentials: false-persist-credentials: true-credentials]
+  test_the_check_refuses_each_weakening[python-version: "3.13"-python-version: "3.11"-python-version]
+  test_the_check_refuses_each_weakening[uv sync --locked --project tools/samplebot-uv sync --project tools/samplebot-run steps]
+  test_the_check_refuses_each_weakening[uv sync --locked --project tools/samplebot-uv pip install pipecat-ai==1.14.0-run steps]
+  test_the_check_refuses_each_weakening[pytest -m integration packages/evalsim/tests-pytest packages/evalsim/tests-run steps]
+  test_the_check_refuses_each_weakening[pytest -m integration packages/evalsim/tests-pytest -m integration-run steps]
+  test_the_check_refuses_each_weakening[pytest -m integration packages/evalsim/tests-pytest -m integration packages/evalsim/tests || true-run steps]
+  test_the_check_refuses_each_weakening[pytest -m integration packages/evalsim/tests-pytest -m 'integration or postgres' packages/evalsim/tests-run steps]
+  test_the_check_refuses_each_weakening[actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1-actions/checkout@v4-pinned]
+
+## test_samplebot_static.py: 38 passed. The checker functions refuse each weakening of synthetic sources (the teeth tests); they test the test, not the tree.
+  test_samplebot_is_never_imported_by_a_tracer_package_script_or_test
+  test_the_model_rule_accepts_the_reviewed_shape
+  test_the_model_rule_refuses_each_weakening[scripted_bot.py-import argparse\n-import argparse\nimport openai\n-openai]
+  test_the_model_rule_refuses_each_weakening[scripted_bot.py-import argparse\n-import argparse\nimport httpx\n-httpx]
+  test_the_model_rule_refuses_each_weakening[scripted_bot.py-import argparse\n-import argparse\nimport numpy\n-numpy]
+  test_the_model_rule_refuses_each_weakening[scripted_bot.py-import argparse\n-import argparse\nimport urllib.request\n-urllib.request]
+  test_the_model_rule_refuses_each_weakening[scripted_bot.py-import argparse\n-import argparse\nimport os\nKEY = os.environ\n-environment]
+  test_the_model_rule_refuses_each_weakening[scripted_bot.py-import argparse\n-import argparse\nfrom tracer_evalsim import clock\n-tracer_evalsim]
+  test_the_model_rule_refuses_each_weakening[scripted_bot.py-import argparse\n-import argparse\nfrom pipecat.services.openai.llm import OpenAILLMService\n-pipecat.services]
+  test_the_model_rule_refuses_each_weakening[scripted_bot.py-import argparse\n-import argparse\nfrom pipecat.audio.vad.silero import SileroVADAnalyzer\n-pipecat.audio.vad]
+  test_the_model_rule_refuses_each_weakening[scripted_bot.py-import argparse\n-import argparse\nfrom pipecat.audio.turn.smart_turn.base import BaseSmartTurn\n-pipecat.audio.turn]
+  test_the_model_rule_refuses_each_weakening[scripted_bot.py-import argparse\n-import argparse\nfrom pipecat.processors.aggregators.llm_context import LLMContext\n-aggregators]
+  test_the_model_rule_refuses_each_weakening[scripted_bot.py-Pipeline([-Pipeline(vad_analyzer=1, x=[-vad_analyzer]
+  test_the_model_rule_refuses_each_weakening[scripted_bot.py-Pipeline([-Pipeline(model='m', x=[-model]
+  test_the_model_rule_refuses_each_weakening[scripted_bot.py-choices=["127.0.0.1", "::1", "localhost"]-choices=["127.0.0.1", "0.0.0.0"]---host]
+  test_the_model_rule_refuses_each_weakening[scripted_bot.py-parser.add_argument("--host", required=True,-parser.add_argument("--host", required=False,---host]
+  test_the_model_rule_refuses_each_weakening[scripted_bot.py-EndOfCallerTimer(end_of_caller_ms=scenario.end_of_caller_ms)-object()-not in the Pipeline]
+  test_the_model_rule_refuses_each_weakening[scripted_bot.py-Pipeline([-NotAPipeline([-no Pipeline]
+  test_the_model_rule_refuses_each_weakening[scripted_bot.py-return PipelineTask(pipeline)-return 'https://api.example.org'-https URL]
+  test_the_model_rule_refuses_each_weakening[end_of_caller.py-import asyncio\n-import asyncio\nimport audioop\n-audioop]
+  test_the_model_rule_refuses_each_weakening[end_of_caller.py-import asyncio\n-import asyncio\nfrom struct import unpack\n-unpack]
+  test_the_model_rule_refuses_each_weakening[end_of_caller.py-    def fire(self):-    def energy(self, pcm):\n        return abs(pcm)\n\n    def fire(self):-energy]
+  test_the_model_rule_refuses_each_weakening[end_of_caller.py-loop.call_later(self._ms / 1000, self.fire)-self.fire()-no timer]
+  test_the_model_rule_refuses_each_weakening[end_of_caller.py-FrameProcessor):-object):-not a FrameProcessor]
+  test_the_model_rule_refuses_each_weakening[end_of_caller.py-def __init__(self, *, end_of_caller_ms):-def __init__(self):-end_of_caller_ms]
+  test_the_model_rule_refuses_each_weakening[scenario.py-import json\n-import json\nimport requests\n-requests]
+  test_the_model_rule_refuses_each_weakening[scenario.py-import json\n-import json\nimport pipecat\n-not stdlib only]
+  test_the_model_rule_refuses_each_weakening[summary.py-import math\n-import math\nimport numpy\n-numpy]
+  test_the_twilio_rule_refuses_each_weakening[params=TwilioFrameSerializer.InputParams(auto_hang_up=False),-params=TwilioFrameSerializer.InputParams(auto_hang_up=True),-constant False]
+  test_the_twilio_rule_refuses_each_weakening[params=TwilioFrameSerializer.InputParams(auto_hang_up=False),-params=TwilioFrameSerializer.InputParams(),-auto_hang_up is not set]
+  test_the_twilio_rule_refuses_each_weakening[params=TwilioFrameSerializer.InputParams(auto_hang_up=False),-params=TwilioFrameSerializer.InputParams(auto_hang_up=flag),-constant False]
+  test_the_twilio_rule_refuses_each_weakening[call_sid=data["call_id"],-call_sid=data["call_id"], account_sid='x',-account_sid]
+  test_the_twilio_rule_refuses_each_weakening[call_sid=data["call_id"],-call_sid=data["call_id"], auth_token='x',-auth_token]
+  test_the_twilio_rule_refuses_each_weakening[call_sid=data["call_id"],-call_sid=data["call_id"], region='us1',-region]
+  test_the_twilio_rule_refuses_each_weakening[TwilioFrameSerializer(\n        stream_sid-TwilioFrameSerializer(\n        'x', stream_sid-positional]
+  test_the_twilio_rule_refuses_each_weakening[kind, data = await parse_telephony_websocket(websocket)-kind, data = None, {'stream_id': 'SM1', 'call_id': 'CA1'}-parse_telephony_websocket]
+  test_the_twilio_rule_refuses_each_weakening[def main():-URL = 'https://api.twilio.com/2010-04-01/Accounts'\n\n\ndef main():-api.twilio.com]
+  test_the_twilio_rule_refuses_each_weakening[def main():-SECRET = 'twilio auth token'\n\n\ndef main():-credential-shaped]
+
+## test_evalsim_integration_guard.py: 4 passed. Harness-level tests (the harness raises SamplebotUnavailable, builds the documented command, the marker is confined and nothing can skip itself): the staged support module satisfies them.
+  test_the_integration_marker_is_confined_to_the_declared_modules
+  test_no_integration_module_can_skip_itself
+  test_a_missing_sample_bot_is_a_failure_with_a_message_never_a_skip
+  test_the_default_command_runs_the_tool_in_its_own_locked_environment
+
+## test_evalsim_no_socket.py: 3 passed. The Phase 3 guard body and its companions that the current conftest already satisfies.
+  test_unit_tests_open_no_socket
+  test_unit_tests_open_no_socket_the_client_of_the_dialects_cannot_connect
+  test_unit_tests_open_no_socket_the_guard_clears_the_key_from_the_environment
+
+## test_evalsim_smallwebrtc_dialect.py: 1 passed. Tests that need no new code (a timing document accepts the dialect id).
+  test_a_timing_document_accepts_the_dialect_and_its_frames

@@ -282,10 +282,17 @@ def test_the_loopback_marker_is_confined_to_the_declared_modules() -> None:
         sorted(using - LOOPBACK_MODULES),
         sorted(LOOPBACK_MODULES - using),
     )
-    # `integration` (ADR 0026 rule 23: tools/samplebot, a separate job) is a different marker and is
-    # not used by these tests
+    # `integration` (ADR 0026 rule 23: tools/samplebot, a separate job) is a different marker: only
+    # the interop modules and the test of its guard use it (Phase 4 batch F, named change S-F4)
+    interop = {
+        "test_integration_calibration.py",
+        "test_integration_pipecat_protobuf.py",
+        "test_integration_pipecat_twilio.py",
+        "test_integration_pipecat_webrtc.py",
+        "test_evalsim_integration_guard.py",
+    }
     for path in HERE.glob("test_*.py"):
-        if path.name != Path(__file__).name:
+        if path.name != Path(__file__).name and path.name not in interop:
             assert "mark.integration" not in path.read_text(encoding="utf-8"), path.name
 
 
@@ -381,6 +388,10 @@ def test_the_real_conftest_applies_the_marker_exemption_and_nothing_wider(tmp_pa
     (tmp_path / "conftest.py").write_bytes((HERE / "conftest.py").read_bytes())
     (tmp_path / "evalsim_loopback_guard.py").write_bytes(
         (HERE / "evalsim_loopback_guard.py").read_bytes()
+    )
+    # Phase 4 batch F, named change S-F4: the conftest also imports the integration guard
+    (tmp_path / "evalsim_integration_guard.py").write_bytes(
+        (HERE / "evalsim_integration_guard.py").read_bytes()
     )
     (tmp_path / "test_inner.py").write_text(textwrap.dedent(INNER), encoding="utf-8")
     (tmp_path / "pytest.ini").write_text("[pytest]\n", encoding="utf-8")

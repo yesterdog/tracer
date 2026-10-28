@@ -51,21 +51,6 @@ DIALECT_HEADING = "## Dialect specifications"
 # ADR 0026 rules and invariants
 _P0026: frozenset[str] = frozenset(
     {
-        # P4-26
-        "test_samplebot_scripted_bot_uses_no_model",
-        # P4-27
-        "test_integration_calibration_gap_within_quantum",
-        "test_integration_protobuf_dialect_against_pipecat",
-        "test_integration_twilio_dialect_against_pipecat",
-        "test_integration_webrtc_against_pipecat_loopback",
-        # P4-28
-        "test_e2e_sim_synthetic_mr_exact_outputs",
-        # P4-29
-        "test_tdeg_sim_kill_switch_keeps_partial_recording_and_usage",
-        "test_tdeg_sim_setup_failed_all_not_applicable_exit_5",
-        # P4-30
-        "test_guard_rejects_staged_sim_outputs_and_allowlist",
-        "test_integration_tests_loopback_only",
         # P4-31
         "test_allowlist_mode_and_link_rules",
         "test_kill_switch_file_hangs_up_within_one_frame",
@@ -79,20 +64,7 @@ _P0026: frozenset[str] = frozenset(
 )
 
 # ADR 0027 rules and invariants
-_P0027: frozenset[str] = frozenset(
-    {
-        # P4-28
-        "test_e2e_sim_report_and_store_consistent",
-        "test_e2e_sim_synthetic_mr_exact_outputs",
-        # P4-29
-        "test_tdeg_sim_export_present_agreement_scored",
-        "test_tdeg_sim_kill_switch_keeps_partial_recording_and_usage",
-        "test_tdeg_sim_no_export_agreement_missing_input",
-        "test_tdeg_sim_schema_identical_across_cases",
-        "test_tdeg_sim_setup_failed_all_not_applicable_exit_5",
-        "test_tdeg_sim_stt_failure_missing_input_transcript",
-    }
-)
+_P0027: frozenset[str] = frozenset()
 
 # ADR 0028 rules and invariants
 _P0028: frozenset[str] = frozenset(
@@ -107,8 +79,6 @@ _P0028: frozenset[str] = frozenset(
 # ADR 0029 rules and invariants
 _P0029: frozenset[str] = frozenset(
     {
-        # P4-30
-        "test_key_canaries_never_in_any_output_channel",
         # P4-31
         "test_one_call_per_invocation_and_min_interval",
         "test_target_not_on_allowlist_refused_before_any_key_or_socket",
@@ -192,9 +162,6 @@ _P0030: frozenset[str] = frozenset(
 # ADR 0024 Phase 4 amendment (A1-A13, IA1-IA4)
 _P0024A: frozenset[str] = frozenset(
     {
-        # P4-30
-        "test_guard_rejects_staged_sim_outputs_and_allowlist",
-        "test_key_canaries_never_in_any_output_channel",
         # P4-J25
         "test_judge_key_canaries_never_in_any_output_channel",
     }
@@ -203,8 +170,6 @@ _P0024A: frozenset[str] = frozenset(
 # ADR 0023 Phase 4 amendment (A1-A4, IA1-IA2)
 _P0023A: frozenset[str] = frozenset(
     {
-        # P4-29
-        "test_tdeg_sim_export_present_agreement_scored",
         # P4-37
         "test_sim_concept_page_states_no_claims",
         # P4-J19
@@ -235,9 +200,7 @@ PENDING: dict[str, frozenset[str]] = {
 
 #: Names that an ADR cites only OUTSIDE its rules and invariants (Context, Ambiguities, ...),
 #: that no test defines yet and that SCOPE section A names. Same shrinking rule.
-PENDING_OUTSIDE_RULES: frozenset[str] = frozenset(
-    {"test_tdeg_sim_agent_silent_timing_not_measured"}
-)
+PENDING_OUTSIDE_RULES: frozenset[str] = frozenset()
 
 #: Test names that SCOPE Decisions D-a renamed. An ADR may still name the OLD name as history,
 #: outside its rules and invariants, only while SCOPE records the rename (old name written, new

@@ -1,0 +1,1880 @@
+...FFFFFF......FFF.FFFF....FFFF.....FFFFFFFFF............FFFFFF.FFF..... [ 31%]
+.......................................................F.F.............. [ 62%]
+...FFF.FFFFFFFF.................................................FFFFFFFF [ 94%]
+FFFFFFFF.FFFF                                                            [100%]
+=================================== FAILURES ===================================
+_____________ test_guard_rejects_staged_sim_outputs_and_allowlist ______________
+
+tmp_path = PosixPath('<tmp>/test_guard_rejects_staged_sim_0')
+
+    def test_guard_rejects_staged_sim_outputs_and_allowlist(tmp_path: Path) -> None:
+        repo = guard_repo(tmp_path)
+        assert run_guard(repo).returncode == 0, "a clean repository passes"
+        outputs: dict[str, tuple[bytes | str, str]] = {
+            "out/recording-20261027T120000Z.wav": (WAV, RECORDING_MESSAGE),
+            "out/sim_call_log.jsonl": (SIM_LOG_LINE, CALL_LOG_MESSAGE),
+            f"out/tts-cache/{HEX}": (b"\x00\x01\x02\x03", CACHE_MESSAGE),
+            "out/usage-recovery-20261027T120000Z.json": (RECOVERY_JSON, RECOVERY_MESSAGE),
+            "ops/allowlist.txt": (ENTRY, ALLOWLIST_MESSAGE),
+        }
+        # written but not staged: not a finding (the files are git-ignored in real use)
+        for path, (data, _message) in outputs.items():
+            target = repo / path
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(data.encode("utf-8") if isinstance(data, str) else data)
+        assert run_guard(repo).returncode == 0, "untracked outputs do not trip the guard"
+        # staged one at a time: exit 1, the path and the kind are named on stderr
+        for path, (_data, message) in outputs.items():
+            git(repo, "add", "-f", "--", path)
+            result = run_guard(repo)
+>           assert result.returncode == 1, path
+E           AssertionError: out/recording-20261027T120000Z.wav
+E           assert 0 == 1
+E            +  where 0 = CompletedProcess(args=['<scratch>'], returncode=0, stdout='', stderr='').returncode
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:114: AssertionError
+_ test_guard_refuses_a_recording_by_its_name_whatever_it_holds[recording-20261027T120000Z.wav] _
+
+tmp_path = PosixPath('<tmp>/test_guard_refuses_a_recording0')
+path = 'recording-20261027T120000Z.wav'
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "recording-20261027T120000Z.wav",
+            "out/recording-20261027T120000Z.wav",
+            "deep/er/out dir/recording-20261231T235959Z.wav",
+            "café/recording-20260101T000000Z.wav",
+        ],
+    )
+    def test_guard_refuses_a_recording_by_its_name_whatever_it_holds(tmp_path: Path, path: str) -> None:
+        repo = guard_repo(tmp_path)
+        _stage(repo, path, b"not audio\n")
+        result = run_guard(repo)
+>       assert result.returncode == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = CompletedProcess(args=['<scratch>'], returncode=0, stdout='', stderr='').returncode
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:157: AssertionError
+_ test_guard_refuses_a_recording_by_its_name_whatever_it_holds[out/recording-20261027T120000Z.wav] _
+
+tmp_path = PosixPath('<tmp>/test_guard_refuses_a_recording1')
+path = 'out/recording-20261027T120000Z.wav'
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "recording-20261027T120000Z.wav",
+            "out/recording-20261027T120000Z.wav",
+            "deep/er/out dir/recording-20261231T235959Z.wav",
+            "café/recording-20260101T000000Z.wav",
+        ],
+    )
+    def test_guard_refuses_a_recording_by_its_name_whatever_it_holds(tmp_path: Path, path: str) -> None:
+        repo = guard_repo(tmp_path)
+        _stage(repo, path, b"not audio\n")
+        result = run_guard(repo)
+>       assert result.returncode == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = CompletedProcess(args=['<scratch>'], returncode=0, stdout='', stderr='').returncode
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:157: AssertionError
+_ test_guard_refuses_a_recording_by_its_name_whatever_it_holds[deep/er/out dir/recording-20261231T235959Z.wav] _
+
+tmp_path = PosixPath('<tmp>/test_guard_refuses_a_recording2')
+path = 'deep/er/out dir/recording-20261231T235959Z.wav'
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "recording-20261027T120000Z.wav",
+            "out/recording-20261027T120000Z.wav",
+            "deep/er/out dir/recording-20261231T235959Z.wav",
+            "café/recording-20260101T000000Z.wav",
+        ],
+    )
+    def test_guard_refuses_a_recording_by_its_name_whatever_it_holds(tmp_path: Path, path: str) -> None:
+        repo = guard_repo(tmp_path)
+        _stage(repo, path, b"not audio\n")
+        result = run_guard(repo)
+>       assert result.returncode == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = CompletedProcess(args=['<scratch>'], returncode=0, stdout='', stderr='').returncode
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:157: AssertionError
+_ test_guard_refuses_a_recording_by_its_name_whatever_it_holds[caf\xe9/recording-20260101T000000Z.wav] _
+
+tmp_path = PosixPath('<tmp>/test_guard_refuses_a_recording3')
+path = 'café/recording-20260101T000000Z.wav'
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "recording-20261027T120000Z.wav",
+            "out/recording-20261027T120000Z.wav",
+            "deep/er/out dir/recording-20261231T235959Z.wav",
+            "café/recording-20260101T000000Z.wav",
+        ],
+    )
+    def test_guard_refuses_a_recording_by_its_name_whatever_it_holds(tmp_path: Path, path: str) -> None:
+        repo = guard_repo(tmp_path)
+        _stage(repo, path, b"not audio\n")
+        result = run_guard(repo)
+>       assert result.returncode == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = CompletedProcess(args=['<scratch>'], returncode=0, stdout='', stderr='').returncode
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:157: AssertionError
+________ test_guard_refuses_any_wav_in_a_directory_that_holds_an_output ________
+
+tmp_path = PosixPath('<tmp>/test_guard_refuses_any_wav_in_0')
+
+    def test_guard_refuses_any_wav_in_a_directory_that_holds_an_output(tmp_path: Path) -> None:
+        """The output directory is the unit: a recording renamed or copied inside it (a trimmed take, a
+        per-channel export) is as private as the original. The siblings decide, not the name."""
+        repo = guard_repo(tmp_path)
+        for sibling, data in (
+            ("tracer.sqlite", SQLITE_MAGIC + b"\x00" * 100),
+            ("sim_call_log.jsonl", SIM_LOG_LINE),
+            ("report-20261027T120000Z.html", "<html></html>\n"),
+        ):
+            folder = f"out-{sibling.split('.')[0].split('-')[0]}"
+            _stage(repo, f"{folder}/take-1.wav", WAV)
+            assert run_guard(repo).returncode == 0, "a lone wav is a fixture, not an output"
+            _stage(repo, f"{folder}/{sibling}", data)
+            result = run_guard(repo)
+            assert result.returncode == 1, sibling
+>           assert RECORDING_MESSAGE + f"{folder}/take-1.wav" in _lines(result), result.stderr
+E           AssertionError: tracer store file tracked, staged or in history: out-tracer/tracer.sqlite
+E             
+E           assert ('tracer simulated recording tracked, staged or in history: ' + 'out-tracer/take-1.wav') in ['tracer store file tracked, staged or in history: out-tracer/tracer.sqlite']
+E            +  where ['tracer store file tracked, staged or in history: out-tracer/tracer.sqlite'] = _lines(CompletedProcess(args=['<scratch>'], returncode=1, stdout='', stderr='tracer store file tracked, staged or in history: out-tracer/tracer.sqlite\n'))
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:176: AssertionError
+_ test_guard_refuses_a_simulated_call_log_by_its_name[out/sim_call_log.jsonl] __
+
+tmp_path = PosixPath('<tmp>/test_guard_refuses_a_simulated0')
+path = 'out/sim_call_log.jsonl'
+
+    @pytest.mark.parametrize(
+        "path", ["out/sim_call_log.jsonl", "sim_call_log.jsonl", "tools/other/sim_call_log.jsonl"]
+    )
+    def test_guard_refuses_a_simulated_call_log_by_its_name(tmp_path: Path, path: str) -> None:
+        repo = guard_repo(tmp_path)
+        _stage(repo, path, "{}\n")  # the name decides, whatever the first line says
+        result = run_guard(repo)
+>       assert result.returncode == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = CompletedProcess(args=['<scratch>'], returncode=0, stdout='', stderr='').returncode
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:211: AssertionError
+___ test_guard_refuses_a_simulated_call_log_by_its_name[sim_call_log.jsonl] ____
+
+tmp_path = PosixPath('<tmp>/test_guard_refuses_a_simulated1')
+path = 'sim_call_log.jsonl'
+
+    @pytest.mark.parametrize(
+        "path", ["out/sim_call_log.jsonl", "sim_call_log.jsonl", "tools/other/sim_call_log.jsonl"]
+    )
+    def test_guard_refuses_a_simulated_call_log_by_its_name(tmp_path: Path, path: str) -> None:
+        repo = guard_repo(tmp_path)
+        _stage(repo, path, "{}\n")  # the name decides, whatever the first line says
+        result = run_guard(repo)
+>       assert result.returncode == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = CompletedProcess(args=['<scratch>'], returncode=0, stdout='', stderr='').returncode
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:211: AssertionError
+_ test_guard_refuses_a_simulated_call_log_by_its_name[tools/other/sim_call_log.jsonl] _
+
+tmp_path = PosixPath('<tmp>/test_guard_refuses_a_simulated2')
+path = 'tools/other/sim_call_log.jsonl'
+
+    @pytest.mark.parametrize(
+        "path", ["out/sim_call_log.jsonl", "sim_call_log.jsonl", "tools/other/sim_call_log.jsonl"]
+    )
+    def test_guard_refuses_a_simulated_call_log_by_its_name(tmp_path: Path, path: str) -> None:
+        repo = guard_repo(tmp_path)
+        _stage(repo, path, "{}\n")  # the name decides, whatever the first line says
+        result = run_guard(repo)
+>       assert result.returncode == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = CompletedProcess(args=['<scratch>'], returncode=0, stdout='', stderr='').returncode
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:211: AssertionError
+_ test_guard_refuses_everything_under_a_tts_cache_directory[out/tts-cache/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef] _
+
+tmp_path = PosixPath('<tmp>/test_guard_refuses_everything_0')
+path = 'out/tts-cache/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            f"out/tts-cache/{HEX}",
+            f"tts-cache/{HEX}",
+            "deep/er/out/tts-cache/anything",
+            "out/tts-cache/sub/entry.bin",
+        ],
+    )
+    def test_guard_refuses_everything_under_a_tts_cache_directory(tmp_path: Path, path: str) -> None:
+        repo = guard_repo(tmp_path)
+        _stage(repo, path, b"\x00\x01")
+        result = run_guard(repo)
+>       assert result.returncode == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = CompletedProcess(args=['<scratch>'], returncode=0, stdout='', stderr='').returncode
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:236: AssertionError
+_ test_guard_refuses_everything_under_a_tts_cache_directory[tts-cache/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef] _
+
+tmp_path = PosixPath('<tmp>/test_guard_refuses_everything_1')
+path = 'tts-cache/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            f"out/tts-cache/{HEX}",
+            f"tts-cache/{HEX}",
+            "deep/er/out/tts-cache/anything",
+            "out/tts-cache/sub/entry.bin",
+        ],
+    )
+    def test_guard_refuses_everything_under_a_tts_cache_directory(tmp_path: Path, path: str) -> None:
+        repo = guard_repo(tmp_path)
+        _stage(repo, path, b"\x00\x01")
+        result = run_guard(repo)
+>       assert result.returncode == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = CompletedProcess(args=['<scratch>'], returncode=0, stdout='', stderr='').returncode
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:236: AssertionError
+_ test_guard_refuses_everything_under_a_tts_cache_directory[deep/er/out/tts-cache/anything] _
+
+tmp_path = PosixPath('<tmp>/test_guard_refuses_everything_2')
+path = 'deep/er/out/tts-cache/anything'
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            f"out/tts-cache/{HEX}",
+            f"tts-cache/{HEX}",
+            "deep/er/out/tts-cache/anything",
+            "out/tts-cache/sub/entry.bin",
+        ],
+    )
+    def test_guard_refuses_everything_under_a_tts_cache_directory(tmp_path: Path, path: str) -> None:
+        repo = guard_repo(tmp_path)
+        _stage(repo, path, b"\x00\x01")
+        result = run_guard(repo)
+>       assert result.returncode == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = CompletedProcess(args=['<scratch>'], returncode=0, stdout='', stderr='').returncode
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:236: AssertionError
+_ test_guard_refuses_everything_under_a_tts_cache_directory[out/tts-cache/sub/entry.bin] _
+
+tmp_path = PosixPath('<tmp>/test_guard_refuses_everything_3')
+path = 'out/tts-cache/sub/entry.bin'
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            f"out/tts-cache/{HEX}",
+            f"tts-cache/{HEX}",
+            "deep/er/out/tts-cache/anything",
+            "out/tts-cache/sub/entry.bin",
+        ],
+    )
+    def test_guard_refuses_everything_under_a_tts_cache_directory(tmp_path: Path, path: str) -> None:
+        repo = guard_repo(tmp_path)
+        _stage(repo, path, b"\x00\x01")
+        result = run_guard(repo)
+>       assert result.returncode == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = CompletedProcess(args=['<scratch>'], returncode=0, stdout='', stderr='').returncode
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:236: AssertionError
+_ test_guard_refuses_a_recovery_file_by_its_name[usage-recovery-20261027T120000Z.json] _
+
+tmp_path = PosixPath('<tmp>/test_guard_refuses_a_recovery_0')
+path = 'usage-recovery-20261027T120000Z.json'
+
+    @pytest.mark.parametrize(
+        "path",
+        ["usage-recovery-20261027T120000Z.json", "out/usage-recovery-20261231T235959Z.json"],
+    )
+    def test_guard_refuses_a_recovery_file_by_its_name(tmp_path: Path, path: str) -> None:
+        repo = guard_repo(tmp_path)
+        _stage(repo, path, "{}\n")
+        result = run_guard(repo)
+>       assert result.returncode == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = CompletedProcess(args=['<scratch>'], returncode=0, stdout='', stderr='').returncode
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:268: AssertionError
+_ test_guard_refuses_a_recovery_file_by_its_name[out/usage-recovery-20261231T235959Z.json] _
+
+tmp_path = PosixPath('<tmp>/test_guard_refuses_a_recovery_1')
+path = 'out/usage-recovery-20261231T235959Z.json'
+
+    @pytest.mark.parametrize(
+        "path",
+        ["usage-recovery-20261027T120000Z.json", "out/usage-recovery-20261231T235959Z.json"],
+    )
+    def test_guard_refuses_a_recovery_file_by_its_name(tmp_path: Path, path: str) -> None:
+        repo = guard_repo(tmp_path)
+        _stage(repo, path, "{}\n")
+        result = run_guard(repo)
+>       assert result.returncode == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = CompletedProcess(args=['<scratch>'], returncode=0, stdout='', stderr='').returncode
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:268: AssertionError
+_______ test_guard_refuses_a_renamed_recovery_file_by_its_format_member ________
+
+tmp_path = PosixPath('<tmp>/test_guard_refuses_a_renamed_r0')
+
+    def test_guard_refuses_a_renamed_recovery_file_by_its_format_member(tmp_path: Path) -> None:
+        repo = guard_repo(tmp_path)
+        _stage(repo, "notes/after-the-crash.json", RECOVERY_JSON)
+>       _refused_staged_and_tracked(repo, "notes/after-the-crash.json", RECOVERY_MESSAGE)
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:275: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = PosixPath('<tmp>/test_guard_refuses_a_renamed_r0/repo')
+path = 'notes/after-the-crash.json'
+message = 'tracer usage recovery file tracked, staged or in history: '
+
+    def _refused_staged_and_tracked(repo: Path, path: str, message: str) -> None:
+        for state in ("staged", "tracked"):
+            result = run_guard(repo)
+>           assert result.returncode == 1, (state, path)
+E           AssertionError: ('staged', 'notes/after-the-crash.json')
+E           assert 0 == 1
+E            +  where 0 = CompletedProcess(args=['<scratch>'], returncode=0, stdout='', stderr='').returncode
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:79: AssertionError
+_____ test_guard_refuses_a_recovery_file_whatever_the_order_of_its_members _____
+
+tmp_path = PosixPath('<tmp>/test_guard_refuses_a_recovery_2')
+
+    def test_guard_refuses_a_recovery_file_whatever_the_order_of_its_members(tmp_path: Path) -> None:
+        """A tool that sorts the keys (``jq -S``) moves ``format`` away from the first place."""
+        repo = guard_repo(tmp_path)
+        sorted_json = json.dumps(json.loads(RECOVERY_JSON), sort_keys=True) + "\n"
+        assert not sorted_json.startswith('{"format"')
+        _stage(repo, "notes/sorted.json", sorted_json)
+>       _refused_staged_and_tracked(repo, "notes/sorted.json", RECOVERY_MESSAGE)
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:284: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = PosixPath('<tmp>/test_guard_refuses_a_recovery_2/repo')
+path = 'notes/sorted.json'
+message = 'tracer usage recovery file tracked, staged or in history: '
+
+    def _refused_staged_and_tracked(repo: Path, path: str, message: str) -> None:
+        for state in ("staged", "tracked"):
+            result = run_guard(repo)
+>           assert result.returncode == 1, (state, path)
+E           AssertionError: ('staged', 'notes/sorted.json')
+E           assert 0 == 1
+E            +  where 0 = CompletedProcess(args=['<scratch>'], returncode=0, stdout='', stderr='').returncode
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:79: AssertionError
+___ test_guard_refuses_an_allowlist_by_its_name_whatever_it_holds[allowlist] ___
+
+tmp_path = PosixPath('<tmp>/test_guard_refuses_an_allowlis0')
+path = 'allowlist'
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "allowlist",
+            "allowlist.txt",
+            "ops/Allowlist.TXT",
+            "ops/agents.allowlist",
+            "deep/er/ops/targets.allowlist",
+        ],
+    )
+    def test_guard_refuses_an_allowlist_by_its_name_whatever_it_holds(
+        tmp_path: Path, path: str
+    ) -> None:
+        repo = guard_repo(tmp_path)
+        _stage(repo, path, "# nothing yet\n")
+        result = run_guard(repo)
+>       assert result.returncode == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = CompletedProcess(args=['<scratch>'], returncode=0, stdout='', stderr='').returncode
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:325: AssertionError
+_ test_guard_refuses_an_allowlist_by_its_name_whatever_it_holds[allowlist.txt] _
+
+tmp_path = PosixPath('<tmp>/test_guard_refuses_an_allowlis1')
+path = 'allowlist.txt'
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "allowlist",
+            "allowlist.txt",
+            "ops/Allowlist.TXT",
+            "ops/agents.allowlist",
+            "deep/er/ops/targets.allowlist",
+        ],
+    )
+    def test_guard_refuses_an_allowlist_by_its_name_whatever_it_holds(
+        tmp_path: Path, path: str
+    ) -> None:
+        repo = guard_repo(tmp_path)
+        _stage(repo, path, "# nothing yet\n")
+        result = run_guard(repo)
+>       assert result.returncode == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = CompletedProcess(args=['<scratch>'], returncode=0, stdout='', stderr='').returncode
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:325: AssertionError
+_ test_guard_refuses_an_allowlist_by_its_name_whatever_it_holds[ops/Allowlist.TXT] _
+
+tmp_path = PosixPath('<tmp>/test_guard_refuses_an_allowlis2')
+path = 'ops/Allowlist.TXT'
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "allowlist",
+            "allowlist.txt",
+            "ops/Allowlist.TXT",
+            "ops/agents.allowlist",
+            "deep/er/ops/targets.allowlist",
+        ],
+    )
+    def test_guard_refuses_an_allowlist_by_its_name_whatever_it_holds(
+        tmp_path: Path, path: str
+    ) -> None:
+        repo = guard_repo(tmp_path)
+        _stage(repo, path, "# nothing yet\n")
+        result = run_guard(repo)
+>       assert result.returncode == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = CompletedProcess(args=['<scratch>'], returncode=0, stdout='', stderr='').returncode
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:325: AssertionError
+_ test_guard_refuses_an_allowlist_by_its_name_whatever_it_holds[ops/agents.allowlist] _
+
+tmp_path = PosixPath('<tmp>/test_guard_refuses_an_allowlis3')
+path = 'ops/agents.allowlist'
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "allowlist",
+            "allowlist.txt",
+            "ops/Allowlist.TXT",
+            "ops/agents.allowlist",
+            "deep/er/ops/targets.allowlist",
+        ],
+    )
+    def test_guard_refuses_an_allowlist_by_its_name_whatever_it_holds(
+        tmp_path: Path, path: str
+    ) -> None:
+        repo = guard_repo(tmp_path)
+        _stage(repo, path, "# nothing yet\n")
+        result = run_guard(repo)
+>       assert result.returncode == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = CompletedProcess(args=['<scratch>'], returncode=0, stdout='', stderr='').returncode
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:325: AssertionError
+_ test_guard_refuses_an_allowlist_by_its_name_whatever_it_holds[deep/er/ops/targets.allowlist] _
+
+tmp_path = PosixPath('<tmp>/test_guard_refuses_an_allowlis4')
+path = 'deep/er/ops/targets.allowlist'
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "allowlist",
+            "allowlist.txt",
+            "ops/Allowlist.TXT",
+            "ops/agents.allowlist",
+            "deep/er/ops/targets.allowlist",
+        ],
+    )
+    def test_guard_refuses_an_allowlist_by_its_name_whatever_it_holds(
+        tmp_path: Path, path: str
+    ) -> None:
+        repo = guard_repo(tmp_path)
+        _stage(repo, path, "# nothing yet\n")
+        result = run_guard(repo)
+>       assert result.returncode == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = CompletedProcess(args=['<scratch>'], returncode=0, stdout='', stderr='').returncode
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:325: AssertionError
+___ test_guard_refuses_a_renamed_allowlist_by_its_content[ops/targets.conf0] ___
+
+tmp_path = PosixPath('<tmp>/test_guard_refuses_a_renamed_a0')
+path = 'ops/targets.conf'
+data = 'ws://127.0.0.1:8765/ws-client auth_token_env=AGENT_BEARER origin=http://localhost:3000\n'
+
+    @_rows(
+        [
+            ("ops/targets.conf", ENTRY),
+            ("ops/targets.conf", "# the sample agent\n\n" + ENTRY + "wss://agent.example.org:443/ws\n"),
+            ("ops/t.txt", "http://localhost:7860/api/offer\n"),
+            ("ops/t2.txt", "ws://127.0.0.1:8765/ws-client bot_holds_telephony_credentials=false\n"),
+        ],
+    )
+    def test_guard_refuses_a_renamed_allowlist_by_its_content(
+        tmp_path: Path, path: str, data: bytes | str
+    ) -> None:
+        repo = guard_repo(tmp_path)
+        _stage(repo, path, data)
+>       _refused_staged_and_tracked(repo, path, ALLOWLIST_MESSAGE)
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:342: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = PosixPath('<tmp>/test_guard_refuses_a_renamed_a0/repo')
+path = 'ops/targets.conf'
+message = 'tracer target allowlist tracked, staged or in history: '
+
+    def _refused_staged_and_tracked(repo: Path, path: str, message: str) -> None:
+        for state in ("staged", "tracked"):
+            result = run_guard(repo)
+>           assert result.returncode == 1, (state, path)
+E           AssertionError: ('staged', 'ops/targets.conf')
+E           assert 0 == 1
+E            +  where 0 = CompletedProcess(args=['<scratch>'], returncode=0, stdout='', stderr='').returncode
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:79: AssertionError
+___ test_guard_refuses_a_renamed_allowlist_by_its_content[ops/targets.conf1] ___
+
+tmp_path = PosixPath('<tmp>/test_guard_refuses_a_renamed_a1')
+path = 'ops/targets.conf'
+data = '# the sample agent\n\nws://127.0.0.1:8765/ws-client auth_token_env=AGENT_BEARER origin=http://localhost:3000\nwss://agent.example.org:443/ws\n'
+
+    @_rows(
+        [
+            ("ops/targets.conf", ENTRY),
+            ("ops/targets.conf", "# the sample agent\n\n" + ENTRY + "wss://agent.example.org:443/ws\n"),
+            ("ops/t.txt", "http://localhost:7860/api/offer\n"),
+            ("ops/t2.txt", "ws://127.0.0.1:8765/ws-client bot_holds_telephony_credentials=false\n"),
+        ],
+    )
+    def test_guard_refuses_a_renamed_allowlist_by_its_content(
+        tmp_path: Path, path: str, data: bytes | str
+    ) -> None:
+        repo = guard_repo(tmp_path)
+        _stage(repo, path, data)
+>       _refused_staged_and_tracked(repo, path, ALLOWLIST_MESSAGE)
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:342: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = PosixPath('<tmp>/test_guard_refuses_a_renamed_a1/repo')
+path = 'ops/targets.conf'
+message = 'tracer target allowlist tracked, staged or in history: '
+
+    def _refused_staged_and_tracked(repo: Path, path: str, message: str) -> None:
+        for state in ("staged", "tracked"):
+            result = run_guard(repo)
+>           assert result.returncode == 1, (state, path)
+E           AssertionError: ('staged', 'ops/targets.conf')
+E           assert 0 == 1
+E            +  where 0 = CompletedProcess(args=['<scratch>'], returncode=0, stdout='', stderr='').returncode
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:79: AssertionError
+_______ test_guard_refuses_a_renamed_allowlist_by_its_content[ops/t.txt] _______
+
+tmp_path = PosixPath('<tmp>/test_guard_refuses_a_renamed_a2')
+path = 'ops/t.txt', data = 'http://localhost:7860/api/offer\n'
+
+    @_rows(
+        [
+            ("ops/targets.conf", ENTRY),
+            ("ops/targets.conf", "# the sample agent\n\n" + ENTRY + "wss://agent.example.org:443/ws\n"),
+            ("ops/t.txt", "http://localhost:7860/api/offer\n"),
+            ("ops/t2.txt", "ws://127.0.0.1:8765/ws-client bot_holds_telephony_credentials=false\n"),
+        ],
+    )
+    def test_guard_refuses_a_renamed_allowlist_by_its_content(
+        tmp_path: Path, path: str, data: bytes | str
+    ) -> None:
+        repo = guard_repo(tmp_path)
+        _stage(repo, path, data)
+>       _refused_staged_and_tracked(repo, path, ALLOWLIST_MESSAGE)
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:342: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = PosixPath('<tmp>/test_guard_refuses_a_renamed_a2/repo')
+path = 'ops/t.txt'
+message = 'tracer target allowlist tracked, staged or in history: '
+
+    def _refused_staged_and_tracked(repo: Path, path: str, message: str) -> None:
+        for state in ("staged", "tracked"):
+            result = run_guard(repo)
+>           assert result.returncode == 1, (state, path)
+E           AssertionError: ('staged', 'ops/t.txt')
+E           assert 0 == 1
+E            +  where 0 = CompletedProcess(args=['<scratch>'], returncode=0, stdout='', stderr='').returncode
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:79: AssertionError
+______ test_guard_refuses_a_renamed_allowlist_by_its_content[ops/t2.txt] _______
+
+tmp_path = PosixPath('<tmp>/test_guard_refuses_a_renamed_a3')
+path = 'ops/t2.txt'
+data = 'ws://127.0.0.1:8765/ws-client bot_holds_telephony_credentials=false\n'
+
+    @_rows(
+        [
+            ("ops/targets.conf", ENTRY),
+            ("ops/targets.conf", "# the sample agent\n\n" + ENTRY + "wss://agent.example.org:443/ws\n"),
+            ("ops/t.txt", "http://localhost:7860/api/offer\n"),
+            ("ops/t2.txt", "ws://127.0.0.1:8765/ws-client bot_holds_telephony_credentials=false\n"),
+        ],
+    )
+    def test_guard_refuses_a_renamed_allowlist_by_its_content(
+        tmp_path: Path, path: str, data: bytes | str
+    ) -> None:
+        repo = guard_repo(tmp_path)
+        _stage(repo, path, data)
+>       _refused_staged_and_tracked(repo, path, ALLOWLIST_MESSAGE)
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:342: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = PosixPath('<tmp>/test_guard_refuses_a_renamed_a3/repo')
+path = 'ops/t2.txt'
+message = 'tracer target allowlist tracked, staged or in history: '
+
+    def _refused_staged_and_tracked(repo: Path, path: str, message: str) -> None:
+        for state in ("staged", "tracked"):
+            result = run_guard(repo)
+>           assert result.returncode == 1, (state, path)
+E           AssertionError: ('staged', 'ops/t2.txt')
+E           assert 0 == 1
+E            +  where 0 = CompletedProcess(args=['<scratch>'], returncode=0, stdout='', stderr='').returncode
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:79: AssertionError
+_ test_gitignore_lists_the_outputs_of_tracer_simulate_and_the_allowlist[out/recording-20261027T120000Z.wav] _
+
+path = 'out/recording-20261027T120000Z.wav'
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "out/recording-20261027T120000Z.wav",
+            "deep/er/out/recording-20261231T235959Z.wav",
+            "out/sim_call_log.jsonl",
+            "deep/er/out/sim_call_log.jsonl",
+            f"out/tts-cache/{HEX}",
+            "tts-cache/anything",
+            "out/usage-recovery-20261027T120000Z.json",
+            "allowlist.txt",
+            "ops/allowlist.txt",
+            "ops/agents.allowlist",
+        ],
+    )
+    def test_gitignore_lists_the_outputs_of_tracer_simulate_and_the_allowlist(path: str) -> None:
+>       assert _ignored(path), f"{path} is not git-ignored"
+E       AssertionError: out/recording-20261027T120000Z.wav is not git-ignored
+E       assert False
+E        +  where False = _ignored('out/recording-20261027T120000Z.wav')
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:472: AssertionError
+_ test_gitignore_lists_the_outputs_of_tracer_simulate_and_the_allowlist[deep/er/out/recording-20261231T235959Z.wav] _
+
+path = 'deep/er/out/recording-20261231T235959Z.wav'
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "out/recording-20261027T120000Z.wav",
+            "deep/er/out/recording-20261231T235959Z.wav",
+            "out/sim_call_log.jsonl",
+            "deep/er/out/sim_call_log.jsonl",
+            f"out/tts-cache/{HEX}",
+            "tts-cache/anything",
+            "out/usage-recovery-20261027T120000Z.json",
+            "allowlist.txt",
+            "ops/allowlist.txt",
+            "ops/agents.allowlist",
+        ],
+    )
+    def test_gitignore_lists_the_outputs_of_tracer_simulate_and_the_allowlist(path: str) -> None:
+>       assert _ignored(path), f"{path} is not git-ignored"
+E       AssertionError: deep/er/out/recording-20261231T235959Z.wav is not git-ignored
+E       assert False
+E        +  where False = _ignored('deep/er/out/recording-20261231T235959Z.wav')
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:472: AssertionError
+_ test_gitignore_lists_the_outputs_of_tracer_simulate_and_the_allowlist[out/sim_call_log.jsonl] _
+
+path = 'out/sim_call_log.jsonl'
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "out/recording-20261027T120000Z.wav",
+            "deep/er/out/recording-20261231T235959Z.wav",
+            "out/sim_call_log.jsonl",
+            "deep/er/out/sim_call_log.jsonl",
+            f"out/tts-cache/{HEX}",
+            "tts-cache/anything",
+            "out/usage-recovery-20261027T120000Z.json",
+            "allowlist.txt",
+            "ops/allowlist.txt",
+            "ops/agents.allowlist",
+        ],
+    )
+    def test_gitignore_lists_the_outputs_of_tracer_simulate_and_the_allowlist(path: str) -> None:
+>       assert _ignored(path), f"{path} is not git-ignored"
+E       AssertionError: out/sim_call_log.jsonl is not git-ignored
+E       assert False
+E        +  where False = _ignored('out/sim_call_log.jsonl')
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:472: AssertionError
+_ test_gitignore_lists_the_outputs_of_tracer_simulate_and_the_allowlist[deep/er/out/sim_call_log.jsonl] _
+
+path = 'deep/er/out/sim_call_log.jsonl'
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "out/recording-20261027T120000Z.wav",
+            "deep/er/out/recording-20261231T235959Z.wav",
+            "out/sim_call_log.jsonl",
+            "deep/er/out/sim_call_log.jsonl",
+            f"out/tts-cache/{HEX}",
+            "tts-cache/anything",
+            "out/usage-recovery-20261027T120000Z.json",
+            "allowlist.txt",
+            "ops/allowlist.txt",
+            "ops/agents.allowlist",
+        ],
+    )
+    def test_gitignore_lists_the_outputs_of_tracer_simulate_and_the_allowlist(path: str) -> None:
+>       assert _ignored(path), f"{path} is not git-ignored"
+E       AssertionError: deep/er/out/sim_call_log.jsonl is not git-ignored
+E       assert False
+E        +  where False = _ignored('deep/er/out/sim_call_log.jsonl')
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:472: AssertionError
+_ test_gitignore_lists_the_outputs_of_tracer_simulate_and_the_allowlist[out/tts-cache/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef] _
+
+path = 'out/tts-cache/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "out/recording-20261027T120000Z.wav",
+            "deep/er/out/recording-20261231T235959Z.wav",
+            "out/sim_call_log.jsonl",
+            "deep/er/out/sim_call_log.jsonl",
+            f"out/tts-cache/{HEX}",
+            "tts-cache/anything",
+            "out/usage-recovery-20261027T120000Z.json",
+            "allowlist.txt",
+            "ops/allowlist.txt",
+            "ops/agents.allowlist",
+        ],
+    )
+    def test_gitignore_lists_the_outputs_of_tracer_simulate_and_the_allowlist(path: str) -> None:
+>       assert _ignored(path), f"{path} is not git-ignored"
+E       AssertionError: out/tts-cache/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef is not git-ignored
+E       assert False
+E        +  where False = _ignored('out/tts-cache/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:472: AssertionError
+_ test_gitignore_lists_the_outputs_of_tracer_simulate_and_the_allowlist[tts-cache/anything] _
+
+path = 'tts-cache/anything'
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "out/recording-20261027T120000Z.wav",
+            "deep/er/out/recording-20261231T235959Z.wav",
+            "out/sim_call_log.jsonl",
+            "deep/er/out/sim_call_log.jsonl",
+            f"out/tts-cache/{HEX}",
+            "tts-cache/anything",
+            "out/usage-recovery-20261027T120000Z.json",
+            "allowlist.txt",
+            "ops/allowlist.txt",
+            "ops/agents.allowlist",
+        ],
+    )
+    def test_gitignore_lists_the_outputs_of_tracer_simulate_and_the_allowlist(path: str) -> None:
+>       assert _ignored(path), f"{path} is not git-ignored"
+E       AssertionError: tts-cache/anything is not git-ignored
+E       assert False
+E        +  where False = _ignored('tts-cache/anything')
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:472: AssertionError
+_ test_gitignore_lists_the_outputs_of_tracer_simulate_and_the_allowlist[allowlist.txt] _
+
+path = 'allowlist.txt'
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "out/recording-20261027T120000Z.wav",
+            "deep/er/out/recording-20261231T235959Z.wav",
+            "out/sim_call_log.jsonl",
+            "deep/er/out/sim_call_log.jsonl",
+            f"out/tts-cache/{HEX}",
+            "tts-cache/anything",
+            "out/usage-recovery-20261027T120000Z.json",
+            "allowlist.txt",
+            "ops/allowlist.txt",
+            "ops/agents.allowlist",
+        ],
+    )
+    def test_gitignore_lists_the_outputs_of_tracer_simulate_and_the_allowlist(path: str) -> None:
+>       assert _ignored(path), f"{path} is not git-ignored"
+E       AssertionError: allowlist.txt is not git-ignored
+E       assert False
+E        +  where False = _ignored('allowlist.txt')
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:472: AssertionError
+_ test_gitignore_lists_the_outputs_of_tracer_simulate_and_the_allowlist[ops/allowlist.txt] _
+
+path = 'ops/allowlist.txt'
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "out/recording-20261027T120000Z.wav",
+            "deep/er/out/recording-20261231T235959Z.wav",
+            "out/sim_call_log.jsonl",
+            "deep/er/out/sim_call_log.jsonl",
+            f"out/tts-cache/{HEX}",
+            "tts-cache/anything",
+            "out/usage-recovery-20261027T120000Z.json",
+            "allowlist.txt",
+            "ops/allowlist.txt",
+            "ops/agents.allowlist",
+        ],
+    )
+    def test_gitignore_lists_the_outputs_of_tracer_simulate_and_the_allowlist(path: str) -> None:
+>       assert _ignored(path), f"{path} is not git-ignored"
+E       AssertionError: ops/allowlist.txt is not git-ignored
+E       assert False
+E        +  where False = _ignored('ops/allowlist.txt')
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:472: AssertionError
+_ test_gitignore_lists_the_outputs_of_tracer_simulate_and_the_allowlist[ops/agents.allowlist] _
+
+path = 'ops/agents.allowlist'
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "out/recording-20261027T120000Z.wav",
+            "deep/er/out/recording-20261231T235959Z.wav",
+            "out/sim_call_log.jsonl",
+            "deep/er/out/sim_call_log.jsonl",
+            f"out/tts-cache/{HEX}",
+            "tts-cache/anything",
+            "out/usage-recovery-20261027T120000Z.json",
+            "allowlist.txt",
+            "ops/allowlist.txt",
+            "ops/agents.allowlist",
+        ],
+    )
+    def test_gitignore_lists_the_outputs_of_tracer_simulate_and_the_allowlist(path: str) -> None:
+>       assert _ignored(path), f"{path} is not git-ignored"
+E       AssertionError: ops/agents.allowlist is not git-ignored
+E       assert False
+E        +  where False = _ignored('ops/agents.allowlist')
+
+packages/cli/tests/test_guard_sim_outputs_and_allowlist.py:472: AssertionError
+______________ test_ci_has_the_interop_job_of_the_reviewed_shape _______________
+
+    def test_ci_has_the_interop_job_of_the_reviewed_shape() -> None:
+>       assert interop_problems(_workflow()) == []
+E       AssertionError: assert ['no job interop'] == []
+E         
+E         Left contains one more item: 'no job interop'
+E         Use -v to get more diff
+
+packages/evalcore/tests/test_phase4_ci_interop.py:122: AssertionError
+___________ test_the_interop_job_does_not_build_or_publish_the_tool ____________
+
+    def test_the_interop_job_does_not_build_or_publish_the_tool() -> None:
+        """The tool is never built into a wheel, never uploaded and never installed in the root
+        environment (``test_samplebot_and_pipecat_are_not_installed_in_the_tracer_environment``)."""
+>       job = _workflow()["jobs"][JOB]
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'interop'
+
+packages/evalcore/tests/test_phase4_ci_interop.py:149: KeyError
+__________________ test_samplebot_layout_readme_and_own_lock ___________________
+
+    def test_samplebot_layout_readme_and_own_lock() -> None:
+        """P4-26 acceptance: the files of the tool project exist, it has its own README and its own
+        lock (a separate uv project, not a member of the workspace, not in the root lock), the lock pins
+        Pipecat exactly and holds no tracer package. The existing scaffold tests check the rest."""
+        for name in REQUIRED_FILES:
+>           assert (PACKAGE / name).is_file(), name
+E           AssertionError: __init__.py
+E           assert False
+E            +  where False = is_file()
+E            +    where is_file = (PosixPath('tools/samplebot/samplebot') / '__init__.py').is_file
+
+packages/evalcore/tests/test_samplebot_static.py:310: AssertionError
+__________________ test_samplebot_scripted_bot_uses_no_model ___________________
+
+    def test_samplebot_scripted_bot_uses_no_model() -> None:
+        """ADR 0026 rule 20 and invariant I1: ``scripted_bot`` is a Pipecat 1.14.0 pipeline with no
+        model: no service (speech-to-text, text-to-speech, LLM), no voice-activity or turn model, no
+        network client, no key and no environment read, and the end of the caller is a timer on the
+        arrival of frames (an energy threshold or a VAD would be a model or a number nobody measured,
+        ADR 0026 rule 10). The pipeline module needs only Pipecat, FastAPI and uvicorn."""
+        sources = real_sources()
+>       assert set(REQUIRED_FILES) <= set(sources), sorted(sources)
+E       AssertionError: []
+E       assert {'__init__.py... 'summary.py'} <= set()
+E         
+E         Extra items in the left set:
+E         'replies.py'
+E         'summary.py'
+E         '__init__.py'
+E         'scripted_bot.py'
+E         'end_of_caller.py'
+E         'scenario.py'
+
+packages/evalcore/tests/test_samplebot_static.py:342: AssertionError
+________ test_samplebot_twilio_runs_without_auto_hang_up_or_credentials ________
+
+    def test_samplebot_twilio_runs_without_auto_hang_up_or_credentials() -> None:
+        """ADR 0026 rule 6 (BL-299): Pipecat's Twilio serializer, with ``auto_hang_up`` on (its default)
+        and real credentials, posts ``Status=completed`` to Twilio's REST API for the ``callSid`` it was
+        given. The sample bot runs the route with it off, no account SID, no auth token, no region and
+        no edge, and takes the stream and call identifiers from the opening messages of the caller
+        (``parse_telephony_websocket``), so it never sends a request to Twilio."""
+>       assert samplebot_twilio_problems(real_sources()) == []
+E       AssertionError: assert ['no TwilioFr...ny_websocket'] == []
+E         
+E         Left contains 3 more items, first extra item: 'no TwilioFrameSerializer'
+E         Use -v to get more diff
+
+packages/evalcore/tests/test_samplebot_static.py:356: AssertionError
+_______ test_samplebot_binds_loopback_only_with_no_default_for_any_value _______
+
+    def test_samplebot_binds_loopback_only_with_no_default_for_any_value() -> None:
+        """The bot is a test fixture on the operator's machine: ``--host`` is required and can only be a
+        loopback name or address; ``--sample-rate``, ``--scenario``, ``--dialect`` and ``--port`` are
+        required too (no hidden default decides what a call does); nothing writes a wildcard address."""
+        sources = real_sources()
+>       tree = _tree(sources["scripted_bot.py"], "scripted_bot.py")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'scripted_bot.py'
+
+packages/evalcore/tests/test_samplebot_static.py:390: KeyError
+_____________ test_samplebot_llm_bot_waits_for_the_owner_answer_o3 _____________
+
+    def test_samplebot_llm_bot_waits_for_the_owner_answer_o3() -> None:
+        """P4-26 (b): the ``llm_bot`` follows the owner's answer O3 (the stack of the agent model) and is
+        owner-gated to run; O3 is open, so nothing of it exists and nothing refers to it. A later batch
+        adds the file with its own tests (BACKLOG)."""
+        assert not (PACKAGE / "llm_bot.py").exists()
+>       assert "llm_bot" not in real_sources()["scripted_bot.py"]
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'scripted_bot.py'
+
+packages/evalcore/tests/test_samplebot_static.py:418: KeyError
+___________________ test_samplebot_scenario_parser_is_strict ___________________
+
+    def test_samplebot_scenario_parser_is_strict() -> None:
+        """``tracer.samplebot_scenario/1``: strict JSON, closed keys, no default, a refusal that is a
+        stable code (``ScenarioError.code``, ``str(error)`` is the code) and never a value."""
+>       module = _load("scenario")
+                 ^^^^^^^^^^^^^^^^^
+
+packages/evalcore/tests/test_samplebot_static.py:451: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalcore/tests/test_samplebot_static.py:430: in _load
+    spec.loader.exec_module(module)
+<frozen importlib._bootstrap_external>:1019: in exec_module
+    ???
+<frozen importlib._bootstrap_external>:1156: in get_code
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_frozen_importlib_external.SourceFileLoader object at 0x10c1cb3b0>
+path = 'tools/samplebot/samplebot/scenario.py'
+
+>   ???
+E   FileNotFoundError: [Errno 2] No such file or directory: 'tools/samplebot/samplebot/scenario.py'
+
+<frozen importlib._bootstrap_external>:1214: FileNotFoundError
+__ test_samplebot_tone_is_deterministic_and_has_the_scenario_frequency[8000] ___
+
+rate = 8000
+
+    @pytest.mark.parametrize("rate", [8000, 16000, 48000])
+    def test_samplebot_tone_is_deterministic_and_has_the_scenario_frequency(rate: int) -> None:
+        """A reply is a pure sine (no file, no model): ``rate * ms / 1000`` samples, 16-bit little
+        endian, never above the level, silent at sample 0, the same bytes on every call and every
+        Python, and a frequency the zero crossings give back within 2 per cent."""
+>       replies = _load("replies")
+                  ^^^^^^^^^^^^^^^^
+
+packages/evalcore/tests/test_samplebot_static.py:511: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalcore/tests/test_samplebot_static.py:430: in _load
+    spec.loader.exec_module(module)
+<frozen importlib._bootstrap_external>:1019: in exec_module
+    ???
+<frozen importlib._bootstrap_external>:1156: in get_code
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_frozen_importlib_external.SourceFileLoader object at 0x10c1c8770>
+path = 'tools/samplebot/samplebot/replies.py'
+
+>   ???
+E   FileNotFoundError: [Errno 2] No such file or directory: 'tools/samplebot/samplebot/replies.py'
+
+<frozen importlib._bootstrap_external>:1214: FileNotFoundError
+__ test_samplebot_tone_is_deterministic_and_has_the_scenario_frequency[16000] __
+
+rate = 16000
+
+    @pytest.mark.parametrize("rate", [8000, 16000, 48000])
+    def test_samplebot_tone_is_deterministic_and_has_the_scenario_frequency(rate: int) -> None:
+        """A reply is a pure sine (no file, no model): ``rate * ms / 1000`` samples, 16-bit little
+        endian, never above the level, silent at sample 0, the same bytes on every call and every
+        Python, and a frequency the zero crossings give back within 2 per cent."""
+>       replies = _load("replies")
+                  ^^^^^^^^^^^^^^^^
+
+packages/evalcore/tests/test_samplebot_static.py:511: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalcore/tests/test_samplebot_static.py:430: in _load
+    spec.loader.exec_module(module)
+<frozen importlib._bootstrap_external>:1019: in exec_module
+    ???
+<frozen importlib._bootstrap_external>:1156: in get_code
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_frozen_importlib_external.SourceFileLoader object at 0x10c1c84d0>
+path = 'tools/samplebot/samplebot/replies.py'
+
+>   ???
+E   FileNotFoundError: [Errno 2] No such file or directory: 'tools/samplebot/samplebot/replies.py'
+
+<frozen importlib._bootstrap_external>:1214: FileNotFoundError
+__ test_samplebot_tone_is_deterministic_and_has_the_scenario_frequency[48000] __
+
+rate = 48000
+
+    @pytest.mark.parametrize("rate", [8000, 16000, 48000])
+    def test_samplebot_tone_is_deterministic_and_has_the_scenario_frequency(rate: int) -> None:
+        """A reply is a pure sine (no file, no model): ``rate * ms / 1000`` samples, 16-bit little
+        endian, never above the level, silent at sample 0, the same bytes on every call and every
+        Python, and a frequency the zero crossings give back within 2 per cent."""
+>       replies = _load("replies")
+                  ^^^^^^^^^^^^^^^^
+
+packages/evalcore/tests/test_samplebot_static.py:511: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalcore/tests/test_samplebot_static.py:430: in _load
+    spec.loader.exec_module(module)
+<frozen importlib._bootstrap_external>:1019: in exec_module
+    ???
+<frozen importlib._bootstrap_external>:1156: in get_code
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_frozen_importlib_external.SourceFileLoader object at 0x10c1c8b30>
+path = 'tools/samplebot/samplebot/replies.py'
+
+>   ???
+E   FileNotFoundError: [Errno 2] No such file or directory: 'tools/samplebot/samplebot/replies.py'
+
+<frozen importlib._bootstrap_external>:1214: FileNotFoundError
+_______ test_samplebot_summary_estimates_the_frequency_by_zero_crossings _______
+
+    def test_samplebot_summary_estimates_the_frequency_by_zero_crossings() -> None:
+        """The bot reports what it heard of each caller turn as a zero-crossing frequency; the test
+        builds its own sine (an independent writer) and a flat signal."""
+>       summary = _load("summary")
+                  ^^^^^^^^^^^^^^^^
+
+packages/evalcore/tests/test_samplebot_static.py:532: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalcore/tests/test_samplebot_static.py:430: in _load
+    spec.loader.exec_module(module)
+<frozen importlib._bootstrap_external>:1019: in exec_module
+    ???
+<frozen importlib._bootstrap_external>:1156: in get_code
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_frozen_importlib_external.SourceFileLoader object at 0x10be9d670>
+path = 'tools/samplebot/samplebot/summary.py'
+
+>   ???
+E   FileNotFoundError: [Errno 2] No such file or directory: 'tools/samplebot/samplebot/summary.py'
+
+<frozen importlib._bootstrap_external>:1214: FileNotFoundError
+____________ test_samplebot_call_summary_counts_turns_and_frequency ____________
+
+    def test_samplebot_call_summary_counts_turns_and_frequency() -> None:
+        """``CallTally`` turns the audio the bot received into the ``call_summary`` object it prints:
+        per caller turn the audio length in ms, the number of audio frames and the frequency; and the
+        totals. The keys are exactly these (the interop tests read them)."""
+>       summary = _load("summary")
+                  ^^^^^^^^^^^^^^^^
+
+packages/evalcore/tests/test_samplebot_static.py:556: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalcore/tests/test_samplebot_static.py:430: in _load
+    spec.loader.exec_module(module)
+<frozen importlib._bootstrap_external>:1019: in exec_module
+    ???
+<frozen importlib._bootstrap_external>:1156: in get_code
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_frozen_importlib_external.SourceFileLoader object at 0x10be9f350>
+path = 'tools/samplebot/samplebot/summary.py'
+
+>   ???
+E   FileNotFoundError: [Errno 2] No such file or directory: 'tools/samplebot/samplebot/summary.py'
+
+<frozen importlib._bootstrap_external>:1214: FileNotFoundError
+___ test_the_dialect_is_a_dialect_of_the_runner_with_the_documented_identity ___
+
+    def test_the_dialect_is_a_dialect_of_the_runner_with_the_documented_identity() -> None:
+        base = mod("dialects.base")
+        webrtc = mod("webrtc")
+>       d = dialect_class()(sample_rate_hz=48000)
+            ^^^^^^^^^^^^^^^
+
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:43: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:33: in dialect_class
+    return mod("dialects.smallwebrtc").SmallWebRtcDialect
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalsim/tests/evalsim_support_imports.py:19: in mod
+    return importlib.import_module(f"tracer_evalsim.{name}")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalsim.dialects.smallwebrtc'
+import_ = <function _gcd_import at 0x103d6c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalsim.dialects.smallwebrtc'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________ test_the_dialect_passes_pcm_through_in_either_direction[8000] _________
+
+rate = 8000
+
+    @pytest.mark.parametrize("rate", [8000, 16000, 24000, 48000])
+    def test_the_dialect_passes_pcm_through_in_either_direction(rate: int) -> None:
+>       d = dialect_class()(sample_rate_hz=rate)
+            ^^^^^^^^^^^^^^^
+
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:55: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:33: in dialect_class
+    return mod("dialects.smallwebrtc").SmallWebRtcDialect
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalsim/tests/evalsim_support_imports.py:19: in mod
+    return importlib.import_module(f"tracer_evalsim.{name}")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalsim.dialects.smallwebrtc'
+import_ = <function _gcd_import at 0x103d6c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalsim.dialects.smallwebrtc'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________ test_the_dialect_passes_pcm_through_in_either_direction[16000] ________
+
+rate = 16000
+
+    @pytest.mark.parametrize("rate", [8000, 16000, 24000, 48000])
+    def test_the_dialect_passes_pcm_through_in_either_direction(rate: int) -> None:
+>       d = dialect_class()(sample_rate_hz=rate)
+            ^^^^^^^^^^^^^^^
+
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:55: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:33: in dialect_class
+    return mod("dialects.smallwebrtc").SmallWebRtcDialect
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalsim/tests/evalsim_support_imports.py:19: in mod
+    return importlib.import_module(f"tracer_evalsim.{name}")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalsim.dialects.smallwebrtc'
+import_ = <function _gcd_import at 0x103d6c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalsim.dialects.smallwebrtc'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________ test_the_dialect_passes_pcm_through_in_either_direction[24000] ________
+
+rate = 24000
+
+    @pytest.mark.parametrize("rate", [8000, 16000, 24000, 48000])
+    def test_the_dialect_passes_pcm_through_in_either_direction(rate: int) -> None:
+>       d = dialect_class()(sample_rate_hz=rate)
+            ^^^^^^^^^^^^^^^
+
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:55: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:33: in dialect_class
+    return mod("dialects.smallwebrtc").SmallWebRtcDialect
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalsim/tests/evalsim_support_imports.py:19: in mod
+    return importlib.import_module(f"tracer_evalsim.{name}")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalsim.dialects.smallwebrtc'
+import_ = <function _gcd_import at 0x103d6c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalsim.dialects.smallwebrtc'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________ test_the_dialect_passes_pcm_through_in_either_direction[48000] ________
+
+rate = 48000
+
+    @pytest.mark.parametrize("rate", [8000, 16000, 24000, 48000])
+    def test_the_dialect_passes_pcm_through_in_either_direction(rate: int) -> None:
+>       d = dialect_class()(sample_rate_hz=rate)
+            ^^^^^^^^^^^^^^^
+
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:55: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:33: in dialect_class
+    return mod("dialects.smallwebrtc").SmallWebRtcDialect
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalsim/tests/evalsim_support_imports.py:19: in mod
+    return importlib.import_module(f"tracer_evalsim.{name}")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalsim.dialects.smallwebrtc'
+import_ = <function _gcd_import at 0x103d6c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalsim.dialects.smallwebrtc'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__________ test_the_dialect_refuses_what_is_not_a_frame_or_not_audio ___________
+
+    def test_the_dialect_refuses_what_is_not_a_frame_or_not_audio() -> None:
+>       d = dialect_class()(sample_rate_hz=48000)
+            ^^^^^^^^^^^^^^^
+
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:70: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:33: in dialect_class
+    return mod("dialects.smallwebrtc").SmallWebRtcDialect
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalsim/tests/evalsim_support_imports.py:19: in mod
+    return importlib.import_module(f"tracer_evalsim.{name}")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalsim.dialects.smallwebrtc'
+import_ = <function _gcd_import at 0x103d6c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalsim.dialects.smallwebrtc'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_ test_the_rate_is_a_whole_number_of_hertz_from_8000_to_48000_in_steps_of_50[0] _
+
+rate = 0
+
+    @pytest.mark.parametrize(
+        "rate", [0, 7999, 8001, 48050, 96000, -48000, True, 48000.0, "48000", None]
+    )
+    def test_the_rate_is_a_whole_number_of_hertz_from_8000_to_48000_in_steps_of_50(rate: Any) -> None:
+        with pytest.raises(ValueError):
+>           dialect_class()(sample_rate_hz=rate)
+            ^^^^^^^^^^^^^^^
+
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:33: in dialect_class
+    return mod("dialects.smallwebrtc").SmallWebRtcDialect
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalsim/tests/evalsim_support_imports.py:19: in mod
+    return importlib.import_module(f"tracer_evalsim.{name}")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalsim.dialects.smallwebrtc'
+import_ = <function _gcd_import at 0x103d6c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalsim.dialects.smallwebrtc'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_ test_the_rate_is_a_whole_number_of_hertz_from_8000_to_48000_in_steps_of_50[7999] _
+
+rate = 7999
+
+    @pytest.mark.parametrize(
+        "rate", [0, 7999, 8001, 48050, 96000, -48000, True, 48000.0, "48000", None]
+    )
+    def test_the_rate_is_a_whole_number_of_hertz_from_8000_to_48000_in_steps_of_50(rate: Any) -> None:
+        with pytest.raises(ValueError):
+>           dialect_class()(sample_rate_hz=rate)
+            ^^^^^^^^^^^^^^^
+
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:33: in dialect_class
+    return mod("dialects.smallwebrtc").SmallWebRtcDialect
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalsim/tests/evalsim_support_imports.py:19: in mod
+    return importlib.import_module(f"tracer_evalsim.{name}")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalsim.dialects.smallwebrtc'
+import_ = <function _gcd_import at 0x103d6c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalsim.dialects.smallwebrtc'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_ test_the_rate_is_a_whole_number_of_hertz_from_8000_to_48000_in_steps_of_50[8001] _
+
+rate = 8001
+
+    @pytest.mark.parametrize(
+        "rate", [0, 7999, 8001, 48050, 96000, -48000, True, 48000.0, "48000", None]
+    )
+    def test_the_rate_is_a_whole_number_of_hertz_from_8000_to_48000_in_steps_of_50(rate: Any) -> None:
+        with pytest.raises(ValueError):
+>           dialect_class()(sample_rate_hz=rate)
+            ^^^^^^^^^^^^^^^
+
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:33: in dialect_class
+    return mod("dialects.smallwebrtc").SmallWebRtcDialect
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalsim/tests/evalsim_support_imports.py:19: in mod
+    return importlib.import_module(f"tracer_evalsim.{name}")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalsim.dialects.smallwebrtc'
+import_ = <function _gcd_import at 0x103d6c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalsim.dialects.smallwebrtc'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_ test_the_rate_is_a_whole_number_of_hertz_from_8000_to_48000_in_steps_of_50[48050] _
+
+rate = 48050
+
+    @pytest.mark.parametrize(
+        "rate", [0, 7999, 8001, 48050, 96000, -48000, True, 48000.0, "48000", None]
+    )
+    def test_the_rate_is_a_whole_number_of_hertz_from_8000_to_48000_in_steps_of_50(rate: Any) -> None:
+        with pytest.raises(ValueError):
+>           dialect_class()(sample_rate_hz=rate)
+            ^^^^^^^^^^^^^^^
+
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:33: in dialect_class
+    return mod("dialects.smallwebrtc").SmallWebRtcDialect
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalsim/tests/evalsim_support_imports.py:19: in mod
+    return importlib.import_module(f"tracer_evalsim.{name}")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalsim.dialects.smallwebrtc'
+import_ = <function _gcd_import at 0x103d6c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalsim.dialects.smallwebrtc'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_ test_the_rate_is_a_whole_number_of_hertz_from_8000_to_48000_in_steps_of_50[96000] _
+
+rate = 96000
+
+    @pytest.mark.parametrize(
+        "rate", [0, 7999, 8001, 48050, 96000, -48000, True, 48000.0, "48000", None]
+    )
+    def test_the_rate_is_a_whole_number_of_hertz_from_8000_to_48000_in_steps_of_50(rate: Any) -> None:
+        with pytest.raises(ValueError):
+>           dialect_class()(sample_rate_hz=rate)
+            ^^^^^^^^^^^^^^^
+
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:33: in dialect_class
+    return mod("dialects.smallwebrtc").SmallWebRtcDialect
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalsim/tests/evalsim_support_imports.py:19: in mod
+    return importlib.import_module(f"tracer_evalsim.{name}")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalsim.dialects.smallwebrtc'
+import_ = <function _gcd_import at 0x103d6c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalsim.dialects.smallwebrtc'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_ test_the_rate_is_a_whole_number_of_hertz_from_8000_to_48000_in_steps_of_50[-48000] _
+
+rate = -48000
+
+    @pytest.mark.parametrize(
+        "rate", [0, 7999, 8001, 48050, 96000, -48000, True, 48000.0, "48000", None]
+    )
+    def test_the_rate_is_a_whole_number_of_hertz_from_8000_to_48000_in_steps_of_50(rate: Any) -> None:
+        with pytest.raises(ValueError):
+>           dialect_class()(sample_rate_hz=rate)
+            ^^^^^^^^^^^^^^^
+
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:33: in dialect_class
+    return mod("dialects.smallwebrtc").SmallWebRtcDialect
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalsim/tests/evalsim_support_imports.py:19: in mod
+    return importlib.import_module(f"tracer_evalsim.{name}")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalsim.dialects.smallwebrtc'
+import_ = <function _gcd_import at 0x103d6c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalsim.dialects.smallwebrtc'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_ test_the_rate_is_a_whole_number_of_hertz_from_8000_to_48000_in_steps_of_50[True] _
+
+rate = True
+
+    @pytest.mark.parametrize(
+        "rate", [0, 7999, 8001, 48050, 96000, -48000, True, 48000.0, "48000", None]
+    )
+    def test_the_rate_is_a_whole_number_of_hertz_from_8000_to_48000_in_steps_of_50(rate: Any) -> None:
+        with pytest.raises(ValueError):
+>           dialect_class()(sample_rate_hz=rate)
+            ^^^^^^^^^^^^^^^
+
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:33: in dialect_class
+    return mod("dialects.smallwebrtc").SmallWebRtcDialect
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalsim/tests/evalsim_support_imports.py:19: in mod
+    return importlib.import_module(f"tracer_evalsim.{name}")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalsim.dialects.smallwebrtc'
+import_ = <function _gcd_import at 0x103d6c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalsim.dialects.smallwebrtc'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_ test_the_rate_is_a_whole_number_of_hertz_from_8000_to_48000_in_steps_of_50[48000.0] _
+
+rate = 48000.0
+
+    @pytest.mark.parametrize(
+        "rate", [0, 7999, 8001, 48050, 96000, -48000, True, 48000.0, "48000", None]
+    )
+    def test_the_rate_is_a_whole_number_of_hertz_from_8000_to_48000_in_steps_of_50(rate: Any) -> None:
+        with pytest.raises(ValueError):
+>           dialect_class()(sample_rate_hz=rate)
+            ^^^^^^^^^^^^^^^
+
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:33: in dialect_class
+    return mod("dialects.smallwebrtc").SmallWebRtcDialect
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalsim/tests/evalsim_support_imports.py:19: in mod
+    return importlib.import_module(f"tracer_evalsim.{name}")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalsim.dialects.smallwebrtc'
+import_ = <function _gcd_import at 0x103d6c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalsim.dialects.smallwebrtc'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_ test_the_rate_is_a_whole_number_of_hertz_from_8000_to_48000_in_steps_of_50[48000] _
+
+rate = '48000'
+
+    @pytest.mark.parametrize(
+        "rate", [0, 7999, 8001, 48050, 96000, -48000, True, 48000.0, "48000", None]
+    )
+    def test_the_rate_is_a_whole_number_of_hertz_from_8000_to_48000_in_steps_of_50(rate: Any) -> None:
+        with pytest.raises(ValueError):
+>           dialect_class()(sample_rate_hz=rate)
+            ^^^^^^^^^^^^^^^
+
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:33: in dialect_class
+    return mod("dialects.smallwebrtc").SmallWebRtcDialect
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalsim/tests/evalsim_support_imports.py:19: in mod
+    return importlib.import_module(f"tracer_evalsim.{name}")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalsim.dialects.smallwebrtc'
+import_ = <function _gcd_import at 0x103d6c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalsim.dialects.smallwebrtc'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_ test_the_rate_is_a_whole_number_of_hertz_from_8000_to_48000_in_steps_of_50[None] _
+
+rate = None
+
+    @pytest.mark.parametrize(
+        "rate", [0, 7999, 8001, 48050, 96000, -48000, True, 48000.0, "48000", None]
+    )
+    def test_the_rate_is_a_whole_number_of_hertz_from_8000_to_48000_in_steps_of_50(rate: Any) -> None:
+        with pytest.raises(ValueError):
+>           dialect_class()(sample_rate_hz=rate)
+            ^^^^^^^^^^^^^^^
+
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:33: in dialect_class
+    return mod("dialects.smallwebrtc").SmallWebRtcDialect
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalsim/tests/evalsim_support_imports.py:19: in mod
+    return importlib.import_module(f"tracer_evalsim.{name}")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalsim.dialects.smallwebrtc'
+import_ = <function _gcd_import at 0x103d6c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalsim.dialects.smallwebrtc'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_______ test_the_modules_import_without_the_extra_in_a_fresh_interpreter _______
+
+    def test_the_modules_import_without_the_extra_in_a_fresh_interpreter() -> None:
+        code = (
+            "import sys; sys.modules['aiortc'] = None; sys.modules['av'] = None\n"
+            "import tracer_evalsim.webrtc as w\n"
+            "import tracer_evalsim.dialects.smallwebrtc as d\n"
+            "print(d.SmallWebRtcDialect(sample_rate_hz=48000).dialect_id, hasattr(w, 'open_webrtc'))\n"
+        )
+        done = subprocess.run(  # noqa: S603
+            [sys.executable, "-I", "-c", code], capture_output=True, text=True, timeout=120, check=False
+        )
+>       assert done.returncode == 0, done.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "<string>", line 3, in <module>
+E             import tracer_evalsim.dialects.smallwebrtc as d
+E         ModuleNotFoundError: No module named 'tracer_evalsim.dialects.smallwebrtc'
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['<scratch> as d\nModuleNotFoundError: No module named \'tracer_evalsim.dialects.smallwebrtc\'\n').returncode
+
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:129: AssertionError
+_______________ test_open_webrtc_has_the_shape_of_open_websocket _______________
+
+    def test_open_webrtc_has_the_shape_of_open_websocket() -> None:
+        webrtc = mod("webrtc")
+        ws = mod("ws")
+>       assert inspect.iscoroutinefunction(webrtc.open_webrtc)
+                                           ^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'tracer_evalsim.webrtc' has no attribute 'open_webrtc'
+
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:136: AttributeError
+___________ test_open_webrtc_refuses_before_any_io_without_the_extra ___________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10be204b0>
+
+    def test_open_webrtc_refuses_before_any_io_without_the_extra(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """ADR 0026 rule 7: without the extra the connection is a refusal that names the extra, raised
+        before any socket (the test guard would turn a connection attempt into an AssertionError)."""
+        webrtc, errors, ws = mod("webrtc"), mod("errors"), mod("ws")
+        plan = webrtc.make_webrtc_plan("http://127.0.0.1:7860/api/offer", ())
+>       d = dialect_class()(sample_rate_hz=48000)
+            ^^^^^^^^^^^^^^^
+
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:157: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:33: in dialect_class
+    return mod("dialects.smallwebrtc").SmallWebRtcDialect
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalsim/tests/evalsim_support_imports.py:19: in mod
+    return importlib.import_module(f"tracer_evalsim.{name}")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalsim.dialects.smallwebrtc'
+import_ = <function _gcd_import at 0x103d6c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalsim.dialects.smallwebrtc'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_ test_open_webrtc_refuses_inconsistent_labels_and_other_dialects_before_any_io _
+
+    def test_open_webrtc_refuses_inconsistent_labels_and_other_dialects_before_any_io() -> None:
+        webrtc, errors, ws = mod("webrtc"), mod("errors"), mod("ws")
+        plan = webrtc.make_webrtc_plan("http://127.0.0.1:7860/api/offer", ())
+>       d = dialect_class()(sample_rate_hz=48000)
+            ^^^^^^^^^^^^^^^
+
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:175: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py:33: in dialect_class
+    return mod("dialects.smallwebrtc").SmallWebRtcDialect
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packages/evalsim/tests/evalsim_support_imports.py:19: in mod
+    return importlib.import_module(f"tracer_evalsim.{name}")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<home>/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1395: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'tracer_evalsim.dialects.smallwebrtc'
+import_ = <function _gcd_import at 0x103d6c4a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'tracer_evalsim.dialects.smallwebrtc'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+=========================== short test summary info ============================
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_guard_rejects_staged_sim_outputs_and_allowlist
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_guard_refuses_a_recording_by_its_name_whatever_it_holds[recording-20261027T120000Z.wav]
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_guard_refuses_a_recording_by_its_name_whatever_it_holds[out/recording-20261027T120000Z.wav]
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_guard_refuses_a_recording_by_its_name_whatever_it_holds[deep/er/out dir/recording-20261231T235959Z.wav]
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_guard_refuses_a_recording_by_its_name_whatever_it_holds[caf\xe9/recording-20260101T000000Z.wav]
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_guard_refuses_any_wav_in_a_directory_that_holds_an_output
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_guard_refuses_a_simulated_call_log_by_its_name[out/sim_call_log.jsonl]
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_guard_refuses_a_simulated_call_log_by_its_name[sim_call_log.jsonl]
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_guard_refuses_a_simulated_call_log_by_its_name[tools/other/sim_call_log.jsonl]
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_guard_refuses_everything_under_a_tts_cache_directory[out/tts-cache/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef]
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_guard_refuses_everything_under_a_tts_cache_directory[tts-cache/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef]
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_guard_refuses_everything_under_a_tts_cache_directory[deep/er/out/tts-cache/anything]
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_guard_refuses_everything_under_a_tts_cache_directory[out/tts-cache/sub/entry.bin]
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_guard_refuses_a_recovery_file_by_its_name[usage-recovery-20261027T120000Z.json]
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_guard_refuses_a_recovery_file_by_its_name[out/usage-recovery-20261231T235959Z.json]
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_guard_refuses_a_renamed_recovery_file_by_its_format_member
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_guard_refuses_a_recovery_file_whatever_the_order_of_its_members
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_guard_refuses_an_allowlist_by_its_name_whatever_it_holds[allowlist]
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_guard_refuses_an_allowlist_by_its_name_whatever_it_holds[allowlist.txt]
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_guard_refuses_an_allowlist_by_its_name_whatever_it_holds[ops/Allowlist.TXT]
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_guard_refuses_an_allowlist_by_its_name_whatever_it_holds[ops/agents.allowlist]
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_guard_refuses_an_allowlist_by_its_name_whatever_it_holds[deep/er/ops/targets.allowlist]
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_guard_refuses_a_renamed_allowlist_by_its_content[ops/targets.conf0]
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_guard_refuses_a_renamed_allowlist_by_its_content[ops/targets.conf1]
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_guard_refuses_a_renamed_allowlist_by_its_content[ops/t.txt]
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_guard_refuses_a_renamed_allowlist_by_its_content[ops/t2.txt]
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_gitignore_lists_the_outputs_of_tracer_simulate_and_the_allowlist[out/recording-20261027T120000Z.wav]
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_gitignore_lists_the_outputs_of_tracer_simulate_and_the_allowlist[deep/er/out/recording-20261231T235959Z.wav]
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_gitignore_lists_the_outputs_of_tracer_simulate_and_the_allowlist[out/sim_call_log.jsonl]
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_gitignore_lists_the_outputs_of_tracer_simulate_and_the_allowlist[deep/er/out/sim_call_log.jsonl]
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_gitignore_lists_the_outputs_of_tracer_simulate_and_the_allowlist[out/tts-cache/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef]
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_gitignore_lists_the_outputs_of_tracer_simulate_and_the_allowlist[tts-cache/anything]
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_gitignore_lists_the_outputs_of_tracer_simulate_and_the_allowlist[allowlist.txt]
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_gitignore_lists_the_outputs_of_tracer_simulate_and_the_allowlist[ops/allowlist.txt]
+FAILED packages/cli/tests/test_guard_sim_outputs_and_allowlist.py::test_gitignore_lists_the_outputs_of_tracer_simulate_and_the_allowlist[ops/agents.allowlist]
+FAILED packages/evalcore/tests/test_phase4_ci_interop.py::test_ci_has_the_interop_job_of_the_reviewed_shape
+FAILED packages/evalcore/tests/test_phase4_ci_interop.py::test_the_interop_job_does_not_build_or_publish_the_tool
+FAILED packages/evalcore/tests/test_samplebot_static.py::test_samplebot_layout_readme_and_own_lock
+FAILED packages/evalcore/tests/test_samplebot_static.py::test_samplebot_scripted_bot_uses_no_model
+FAILED packages/evalcore/tests/test_samplebot_static.py::test_samplebot_twilio_runs_without_auto_hang_up_or_credentials
+FAILED packages/evalcore/tests/test_samplebot_static.py::test_samplebot_binds_loopback_only_with_no_default_for_any_value
+FAILED packages/evalcore/tests/test_samplebot_static.py::test_samplebot_llm_bot_waits_for_the_owner_answer_o3
+FAILED packages/evalcore/tests/test_samplebot_static.py::test_samplebot_scenario_parser_is_strict
+FAILED packages/evalcore/tests/test_samplebot_static.py::test_samplebot_tone_is_deterministic_and_has_the_scenario_frequency[8000]
+FAILED packages/evalcore/tests/test_samplebot_static.py::test_samplebot_tone_is_deterministic_and_has_the_scenario_frequency[16000]
+FAILED packages/evalcore/tests/test_samplebot_static.py::test_samplebot_tone_is_deterministic_and_has_the_scenario_frequency[48000]
+FAILED packages/evalcore/tests/test_samplebot_static.py::test_samplebot_summary_estimates_the_frequency_by_zero_crossings
+FAILED packages/evalcore/tests/test_samplebot_static.py::test_samplebot_call_summary_counts_turns_and_frequency
+FAILED packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py::test_the_dialect_is_a_dialect_of_the_runner_with_the_documented_identity
+FAILED packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py::test_the_dialect_passes_pcm_through_in_either_direction[8000]
+FAILED packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py::test_the_dialect_passes_pcm_through_in_either_direction[16000]
+FAILED packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py::test_the_dialect_passes_pcm_through_in_either_direction[24000]
+FAILED packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py::test_the_dialect_passes_pcm_through_in_either_direction[48000]
+FAILED packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py::test_the_dialect_refuses_what_is_not_a_frame_or_not_audio
+FAILED packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py::test_the_rate_is_a_whole_number_of_hertz_from_8000_to_48000_in_steps_of_50[0]
+FAILED packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py::test_the_rate_is_a_whole_number_of_hertz_from_8000_to_48000_in_steps_of_50[7999]
+FAILED packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py::test_the_rate_is_a_whole_number_of_hertz_from_8000_to_48000_in_steps_of_50[8001]
+FAILED packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py::test_the_rate_is_a_whole_number_of_hertz_from_8000_to_48000_in_steps_of_50[48050]
+FAILED packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py::test_the_rate_is_a_whole_number_of_hertz_from_8000_to_48000_in_steps_of_50[96000]
+FAILED packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py::test_the_rate_is_a_whole_number_of_hertz_from_8000_to_48000_in_steps_of_50[-48000]
+FAILED packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py::test_the_rate_is_a_whole_number_of_hertz_from_8000_to_48000_in_steps_of_50[True]
+FAILED packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py::test_the_rate_is_a_whole_number_of_hertz_from_8000_to_48000_in_steps_of_50[48000.0]
+FAILED packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py::test_the_rate_is_a_whole_number_of_hertz_from_8000_to_48000_in_steps_of_50[48000]
+FAILED packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py::test_the_rate_is_a_whole_number_of_hertz_from_8000_to_48000_in_steps_of_50[None]
+FAILED packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py::test_the_modules_import_without_the_extra_in_a_fresh_interpreter
+FAILED packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py::test_open_webrtc_has_the_shape_of_open_websocket
+FAILED packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py::test_open_webrtc_refuses_before_any_io_without_the_extra
+FAILED packages/evalsim/tests/test_evalsim_smallwebrtc_dialect.py::test_open_webrtc_refuses_inconsistent_labels_and_other_dialects_before_any_io
+68 failed, 161 passed, 11 deselected in 19.80s

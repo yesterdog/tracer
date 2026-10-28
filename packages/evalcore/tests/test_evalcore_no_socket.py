@@ -21,7 +21,7 @@ import pytest
 from evalcore_batchf_support import ROOT, SCOPE  # type: ignore[import-not-found,unused-ignore]
 
 PACKAGES = ROOT / "packages"
-GUARDED = ("evalcore", "evalproviders", "cli")
+GUARDED = ("evalcore", "evalproviders", "cli", "evalsim")  # Phase 4 batch F, named change S-F2
 #: The calls every guard must replace (the names of the attributes).
 GUARDED_ATTRIBUTES = {
     ("socket.socket", "connect"),

@@ -140,8 +140,11 @@ def test_ci_phase4_wheel_is_built_and_checked() -> None:
     assert check > max(builds), "the artifact check runs after every wheel is built"
     assert "uv run --locked --all-groups python scripts/check_licenses.py\n" in text + "\n"
     assert text.count("uv build --package tracer-evalsim") == 1
-    # the sample bots are not built, installed or locked by the main jobs
+    # the sample bots are not built, installed or locked by the main jobs; the one job that runs the
+    # interop tests syncs the tool project from its own lock (Phase 4 batch F, named change S-F3)
     for name, other in _workflow()["jobs"].items():
+        if name == "interop":
+            continue
         run_text = "\n".join(_runs(other))
         assert "samplebot" not in run_text, name
         assert "pipecat" not in run_text.lower(), name

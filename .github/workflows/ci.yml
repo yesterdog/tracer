@@ -87,6 +87,25 @@ jobs:
       - run: uv sync --locked --all-groups
       - run: uv run --locked --all-groups pytest
 
+  # The interop tests (P4-27): evalsim against the Pipecat 1.14.0 sample bot of tools/samplebot, on
+  # loopback, no key. They carry the marker `integration`, which the evalsim conftest deselects in
+  # every other job. The tool has its own lock and its own environment.
+  interop:
+    name: interop (scripted_bot on loopback, py3.13)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+        with:
+          version: ${{ env.UV_VERSION }}
+          python-version: "3.13"
+      - run: uv sync --locked --all-groups
+      - run: uv sync --locked --project tools/samplebot
+      - run: uv run --locked --all-groups pytest -m integration packages/evalsim/tests
+
   test-py315:
     name: test (py3.15, non-blocking)
     runs-on: ubuntu-latest
