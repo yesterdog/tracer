@@ -32,7 +32,12 @@ from typing import Any, Final, TextIO
 
 from tracer_cli import report, store, summary
 from tracer_cli.replay import ReplayStt
-from tracer_cli.simargs import add_simulate_arguments, simulate_usage_problem
+from tracer_cli.simargs import (
+    add_judge_arguments,
+    add_simulate_arguments,
+    judge_usage_problem,
+    simulate_usage_problem,
+)
 from tracer_evalcore import definitions, pipeline
 from tracer_evalcore.align import ALIGN_MAX_TOKENS
 from tracer_evalcore.audio.chunker import (
@@ -418,10 +423,73 @@ def build_parser(
         streams=streams,
     )
     add_simulate_arguments(simulate)
+    judge = commands.add_parser(
+        "judge",
+        help="re-judge a stored judged run (an uncalibrated signal)",
+        description=(
+            "Re-judge the stored answers of a judged simulated run with the same model, once or "
+            "K times, and store one rescoring bundle for each repeat. The answers do not change, "
+            "so the repeats measure the judge, not the agent. Every value that decides a request "
+            "or its spend is yours: none has a default."
+        ),
+        epilog=_EXIT_CODE_HELP,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        allow_abbrev=False,
+        streams=streams,
+    )
+    judge.add_argument("--out", required=True, metavar="DIR", help="the output directory (store)")
+    judge.add_argument("--bundle", required=True, metavar="ID", help="the judged run bundle")
+    judge.add_argument(
+        "--repeats",
+        type=_repeats,
+        default=1,
+        metavar="K",
+        help="how many times to re-judge, 1 to 100 (default 1)",
+    )
+    judge.add_argument("--env-file", metavar="FILE", help="read the judge key from this file only")
+    judge.add_argument("--dry-run", action="store_true", help="print the plan and send nothing")
+    add_judge_arguments(judge, required=True)
+    labels = commands.add_parser(
+        "labels",
+        help="the human-label loop of the judge",
+        description="Blind packets, labels files and counts of the judge against human labels.",
+        allow_abbrev=False,
+        streams=streams,
+    )
+    steps = labels.add_subparsers(dest="labels_command", parser_class=_Parser)
+    packet = steps.add_parser(
+        "packet", help="write a blind packet", allow_abbrev=False, streams=streams
+    )
+    packet.add_argument("--out", required=True, metavar="DIR", help="the output directory (store)")
+    packet.add_argument("--bundle", required=True, metavar="ID", help="the judged run bundle")
+    packet.add_argument("--golden", required=True, metavar="FILE", help="the golden set of the run")
+    check = steps.add_parser(
+        "check", help="validate a labels file and keep a copy", allow_abbrev=False, streams=streams
+    )
+    check.add_argument("--out", required=True, metavar="DIR", help="the output directory (store)")
+    check.add_argument(
+        "--labels", required=True, metavar="FILE", help="the labels file (tracer.judge_labels/1)"
+    )
+    agreement = steps.add_parser(
+        "agreement",
+        help="counts of the judge against the labels",
+        allow_abbrev=False,
+        streams=streams,
+    )
+    agreement.add_argument(
+        "--out", required=True, metavar="DIR", help="the output directory (store)"
+    )
+    agreement.add_argument("--bundle", required=True, metavar="ID", help="the judged run bundle")
     return parser
 
 
 # ------------------------------------------------------------------------------------ the inputs
+
+
+def _repeats(value: str) -> int:
+    if re.fullmatch(r"[1-9][0-9]{0,2}", value) is None or int(value) > 100:
+        raise argparse.ArgumentTypeError("use a whole number from 1 to 100")
+    return int(value)
 
 
 def _printable(message: str) -> str:
@@ -910,6 +978,12 @@ def run(argv: Sequence[str], environment: Environment) -> int:
             problem = simulate_usage_problem(args)
             if problem is not None:
                 raise UsageError(problem, parser.format_usage())
+        if args.command == "judge":
+            problem = judge_usage_problem(args)
+            if problem is not None:
+                raise UsageError(problem, parser.format_usage())
+        if args.command == "labels" and args.labels_command is None:
+            raise UsageError("use packet, check or agreement", parser.format_usage())
     except UsageError as error:
         environment.stderr.write(error.usage)
         environment.stderr.write(f"tracer: error: {_printable(str(error))}\n")
@@ -922,6 +996,14 @@ def run(argv: Sequence[str], environment: Environment) -> int:
             from tracer_cli import simulate as simulate_module
 
             return simulate_module.run_simulate(args, environment)
+        if args.command == "judge":
+            from tracer_cli import judgecmd
+
+            return judgecmd.run_judge(args, environment)
+        if args.command == "labels":
+            from tracer_cli import labelscmd
+
+            return labelscmd.run_labels(args, environment)
         return _score(args, environment)
     except (Refusal, InputRefusedError, SttConfigurationError, CatalogRefusedError) as error:
         environment.stderr.write(f"error: {_printable(str(error))}\n")

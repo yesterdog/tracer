@@ -22,7 +22,14 @@ from tracer_evalschema.bundle import RunBundle
 from tracer_evalschema.ids import RunBundleId
 from tracer_evalschema.project import Project
 
-__all__ = ["STORE_FILE_NAME", "StoredRun", "load_run", "open_sqlite_store", "store_run"]
+__all__ = [
+    "STORE_FILE_NAME",
+    "StoredRun",
+    "load_run",
+    "open_sqlite_store",
+    "store_rescoring",
+    "store_run",
+]
 
 STORE_FILE_NAME = "tracer.sqlite"
 
@@ -75,3 +82,10 @@ def load_run(engine: Any, bundle_id: RunBundleId) -> RunBundle:
     if loaded.bundle is None:
         raise RuntimeError("the store returned an incomplete run bundle")
     return loaded.bundle
+
+
+def store_rescoring(engine: Any, bundle: RunBundle) -> StoredRun:
+    """Store a rescoring bundle of a run that is already stored (ADR 0022 rule 5): the project,
+    the target and the snapshot are in the store, and every shared record is stored once."""
+    result = tracer_evaldb.store_run_bundle(engine, bundle)
+    return StoredRun(cast(RunBundleId, bundle.id), result.created, dict(result.inserted))

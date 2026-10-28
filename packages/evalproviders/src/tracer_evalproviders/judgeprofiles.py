@@ -17,8 +17,9 @@ from dataclasses import dataclass
 from typing import Any, Final
 
 from tracer_evalcore.errors import InputRefusedError
-from tracer_evalcore.judge import JudgeRequest
+from tracer_evalcore.judge import JudgeParams, JudgeRequest
 from tracer_evalcore.judgeoutput import JUDGE_OUTPUT_RESPONSE_SCHEMA
+from tracer_evalcore.llm import LlmMessage
 
 __all__ = [
     "DOSSIER_PATH",
@@ -31,6 +32,7 @@ __all__ = [
     "checked_extra_headers",
     "get_profile",
     "params_as_sent",
+    "planned_params",
     "request_headers",
 ]
 
@@ -201,6 +203,23 @@ def params_as_sent(profile: JudgeProfile, request: JudgeRequest) -> dict[str, An
     if "response_format" in body:
         sent["response_format"] = "json_schema"
     return sent
+
+
+def planned_params(profile: JudgeProfile, params: JudgeParams) -> dict[str, Any]:
+    """What ``params_as_sent`` will record for these settings, before any request exists (the
+    document ``tracer.judge_profile/1`` of step 2). A setting the profile does not support is
+    refused here as it would be at the first request, and the extra headers are checked too."""
+    probe = JudgeRequest(
+        index=0,
+        item_id="probe",
+        attempt=1,
+        match_mode="all_facts",
+        fact_count=1,
+        messages=(LlmMessage(role="system", content="-"), LlmMessage(role="user", content="-")),
+        params=params,
+    )
+    checked_extra_headers(profile, params.extra_headers)
+    return params_as_sent(profile, probe)
 
 
 def checked_extra_headers(

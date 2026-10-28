@@ -15,6 +15,8 @@ import socket
 
 import pytest
 
+from cli_p4j2_support import assert_judge_tests_open_no_socket  # type: ignore[import-not-found,unused-ignore]
+
 
 def test_unit_tests_open_no_socket() -> None:
     with pytest.raises(AssertionError, match="network"):
@@ -33,3 +35,5 @@ def test_unit_tests_open_no_socket() -> None:
             loop.run_until_complete(loop.sock_connect(socket.socket(), ("127.0.0.1", 9)))
     finally:
         loop.close()
+    # batch J (P4-J25): the judge's tests build no client, no server and no socket of their own
+    assert_judge_tests_open_no_socket()

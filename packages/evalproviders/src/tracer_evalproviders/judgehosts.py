@@ -36,7 +36,9 @@ __all__ = [
     "JudgeAllowlistError",
     "JudgeEndpoint",
     "Resolver",
+    "bind_checked",
     "bind_endpoint",
+    "check_endpoint",
     "find_judge_endpoint",
     "parse_judge_allowlist",
     "read_judge_allowlist",
@@ -279,6 +281,36 @@ def _check_resolution(endpoint: JudgeEndpoint, resolver: Resolver) -> None:
         raise JudgeAllowlistError("dns_answer_not_public")
 
 
+def check_endpoint(
+    entries: Sequence[JudgeEndpoint],
+    *,
+    url: str,
+    profile: str,
+    resolver: Resolver | None = None,
+    first_request_gate: bool = False,
+) -> JudgeEndpoint:
+    """The first three steps of ``bind_endpoint`` (the entry, its profile, the DNS answers) and
+    never the key: the check of step 2 of the command, before any key is read."""
+    entry = find_judge_endpoint(entries, url, profile)
+    chosen = judgeprofiles.get_profile(entry.profile)
+    judgeprofiles.check_real_run(chosen, first_request_gate=first_request_gate)
+    _check_resolution(entry, system_resolver if resolver is None else resolver)
+    return entry
+
+
+def bind_checked(
+    entry: JudgeEndpoint,
+    *,
+    environ: Mapping[str, str] | None = None,
+    env_file: str | os.PathLike[str] | None = None,
+) -> BoundEndpoint:
+    """Read the key of a checked entry by its variable name (step 6 of the command)."""
+    key = None
+    if entry.key_env is not None:
+        key = load_named_key(entry.key_env, environ=environ, env_file=env_file)
+    return BoundEndpoint(entry, judgeprofiles.get_profile(entry.profile), key)
+
+
 def bind_endpoint(
     entries: Sequence[JudgeEndpoint],
     *,
@@ -293,11 +325,7 @@ def bind_endpoint(
 
     Each step refuses before the next: a refusal leaves the environment, the env file and (before
     the resolution step) the resolver untouched."""
-    entry = find_judge_endpoint(entries, url, profile)
-    chosen = judgeprofiles.get_profile(entry.profile)
-    judgeprofiles.check_real_run(chosen, first_request_gate=first_request_gate)
-    _check_resolution(entry, system_resolver if resolver is None else resolver)
-    key = None
-    if entry.key_env is not None:
-        key = load_named_key(entry.key_env, environ=environ, env_file=env_file)
-    return BoundEndpoint(entry, chosen, key)
+    entry = check_endpoint(
+        entries, url=url, profile=profile, resolver=resolver, first_request_gate=first_request_gate
+    )
+    return bind_checked(entry, environ=environ, env_file=env_file)

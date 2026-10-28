@@ -449,7 +449,8 @@ def test_cli_has_no_export_command(tmp_path: Path) -> None:
     # BL-140 (redaction of shared exports) stays open: no command shares, exports, redacts or
     # uploads a run
     action, _ = _subparser()
-    assert set(action.choices) == {"score", "simulate"}  # Phase 4 spec change (P4-01)
+    # Phase 4 spec changes (P4-01; batch J part 2: P4-J18 and P4-J21 add judge and labels)
+    assert set(action.choices) == {"score", "simulate", "judge", "labels"}
     cli = cli_mod()
     for name in ("export", "share", "redact", "upload", "publish", "report", "bundle"):
         folder = tmp_path / name

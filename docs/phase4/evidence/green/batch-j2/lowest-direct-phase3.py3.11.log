@@ -1,0 +1,136 @@
+$ pytest packages/evalcore packages/evalproviders packages/cli tests (phase 3 leg)
+........................................................................ [  1%]
+........................................................................ [  3%]
+........................................................................ [  5%]
+........................................................................ [  6%]
+........................................................................ [  8%]
+........................................................................ [ 10%]
+........................................................................ [ 12%]
+........................................................................ [ 13%]
+........................................................................ [ 15%]
+........................................................................ [ 17%]
+........................................................................ [ 19%]
+........................................................................ [ 20%]
+..................................................................s..... [ 22%]
+........................................................................ [ 24%]
+........................................................................ [ 25%]
+........................................................................ [ 27%]
+........................................................................ [ 29%]
+........................................................................ [ 31%]
+........................................................................ [ 32%]
+........................................................................ [ 34%]
+........................................................................ [ 36%]
+........................................................................ [ 38%]
+........................................................................ [ 39%]
+........................................................................ [ 41%]
+........................................................................ [ 43%]
+........................................................................ [ 45%]
+........................................................................ [ 46%]
+........................................................................ [ 48%]
+........................................................................ [ 50%]
+........................................................................ [ 51%]
+........................................................................ [ 53%]
+........................................................................ [ 55%]
+........................................................................ [ 57%]
+........................................................................ [ 58%]
+........................................................................ [ 60%]
+........................................................................ [ 62%]
+........................................................................ [ 64%]
+........................................................................ [ 65%]
+........................................................................ [ 67%]
+........................................................................ [ 69%]
+........................................................................ [ 70%]
+........................................................................ [ 72%]
+........................................................................ [ 74%]
+........................................................................ [ 76%]
+........................................................................ [ 77%]
+........................................................................ [ 79%]
+........................................................................ [ 81%]
+........................................................................ [ 83%]
+........................................................................ [ 84%]
+........................................................................ [ 86%]
+........................................................................ [ 88%]
+........................................................................ [ 90%]
+........................................................................ [ 91%]
+........................................................................ [ 93%]
+........................................................................ [ 95%]
+........................................................................ [ 96%]
+........................................................................ [ 98%]
+........................................................                 [100%]
+=============================== warnings summary ===============================
+packages/evalproviders/tests/test_sarvam_followup.py::test_env_file_two_definitions_refused[two-keys]
+packages/evalproviders/tests/test_sarvam_followup.py::test_env_file_two_definitions_refused[same-key-twice]
+packages/evalproviders/tests/test_sarvam_followup.py::test_env_file_two_definitions_refused[export-and-plain]
+packages/evalproviders/tests/test_sarvam_followup.py::test_env_file_two_definitions_refused[quoted-and-spaced]
+packages/evalproviders/tests/test_sarvam_followup.py::test_env_file_two_definitions_refused[second-is-empty]
+  <scratch>:100: EnvFileModeWarning: the env file can be read by other users (mode 0o644); run chmod 600 on it
+    secrets_mod().load_api_key(env_file=path, environ=environ)
+
+packages/evalproviders/tests/test_sarvam_followup.py::test_env_file_two_definitions_refused_before_the_out_dir_exists
+packages/evalproviders/tests/test_sarvam_secrets.py::test_missing_key_refuses_before_any_request[empty in file-environ4-SARVAM_API_KEY=\n]
+packages/evalproviders/tests/test_sarvam_secrets.py::test_missing_key_refuses_before_any_request[blank in file-environ5-SARVAM_API_KEY=   \n]
+packages/evalproviders/tests/test_sarvam_secrets.py::test_missing_key_refuses_before_any_request[empty quotes in file-environ6-SARVAM_API_KEY=""\n]
+packages/evalproviders/tests/test_sarvam_secrets.py::test_missing_key_refuses_before_any_request[variable missing in file-environ7-OTHER=1\n]
+packages/evalproviders/tests/test_sarvam_secrets.py::test_missing_key_refuses_before_any_request[empty file-environ8-]
+  <scratch>:117: EnvFileModeWarning: the env file can be read by other users (mode 0o644); run chmod 600 on it
+    key = load_api_key(environ=environ, env_file=env_file)
+
+packages/evalproviders/tests/test_sarvam_followup.py::test_env_file_one_definition_among_decoys_is_still_read
+  <scratch>:130: EnvFileModeWarning: the env file can be read by other users (mode 0o644); run chmod 600 on it
+    assert secrets_mod().load_api_key(env_file=path).reveal() == CANARY_KEY
+
+packages/evalproviders/tests/test_sarvam_secrets.py::test_key_never_in_logs_at_debug_loading_the_key
+  <scratch>:248: EnvFileModeWarning: the env file can be read by other users (mode 0o644); run chmod 600 on it
+    secrets_mod().load_api_key(environ={}, env_file=env_file)
+
+packages/evalproviders/tests/test_sarvam_secrets.py::test_env_file_reads_only_named_variable[plain]
+packages/evalproviders/tests/test_sarvam_secrets.py::test_env_file_reads_only_named_variable[export]
+packages/evalproviders/tests/test_sarvam_secrets.py::test_env_file_reads_only_named_variable[double quotes]
+packages/evalproviders/tests/test_sarvam_secrets.py::test_env_file_reads_only_named_variable[single quotes]
+packages/evalproviders/tests/test_sarvam_secrets.py::test_env_file_reads_only_named_variable[crlf]
+packages/evalproviders/tests/test_sarvam_secrets.py::test_env_file_reads_only_named_variable[no final newline]
+packages/evalproviders/tests/test_sarvam_secrets.py::test_env_file_reads_only_named_variable[trailing blanks]
+packages/evalproviders/tests/test_sarvam_secrets.py::test_env_file_reads_only_named_variable[between other lines]
+packages/evalproviders/tests/test_sarvam_secrets.py::test_env_file_reads_only_named_variable[garbage around]
+  <scratch>:332: EnvFileModeWarning: the env file can be read by other users (mode 0o644); run chmod 600 on it
+    key = secrets_mod().load_api_key(environ={}, env_file=env_file)
+
+packages/evalproviders/tests/test_sarvam_secrets.py::test_env_file_reads_only_named_variable_other_lines_are_never_parsed
+  <scratch>:346: EnvFileModeWarning: the env file can be read by other users (mode 0o644); run chmod 600 on it
+    assert secrets_mod().load_api_key(environ={}, env_file=env_file).reveal() == CANARY_KEY
+
+packages/evalproviders/tests/test_sarvam_secrets.py::test_env_file_value_is_kept_whole
+  <scratch>:353: EnvFileModeWarning: the env file can be read by other users (mode 0o644); run chmod 600 on it
+    assert secrets_mod().load_api_key(environ={}, env_file=env_file).reveal() == value
+
+packages/evalproviders/tests/test_sarvam_secrets.py::test_env_file_wins_over_the_environment_and_does_not_fall_back
+  <scratch>:360: EnvFileModeWarning: the env file can be read by other users (mode 0o644); run chmod 600 on it
+    key = secrets_mod().load_api_key(environ={"SARVAM_API_KEY": other}, env_file=env_file)
+
+packages/evalproviders/tests/test_sarvam_secrets.py::test_env_file_wins_over_the_environment_and_does_not_fall_back
+  <scratch>:365: EnvFileModeWarning: the env file can be read by other users (mode 0o644); run chmod 600 on it
+    secrets_mod().load_api_key(environ={"SARVAM_API_KEY": other}, env_file=empty)
+
+packages/evalproviders/tests/test_sarvam_secrets.py::test_env_file_errors_quote_no_line_and_no_path
+  <scratch>:374: EnvFileModeWarning: the env file can be read by other users (mode 0o644); run chmod 600 on it
+    secrets_mod().load_api_key(environ={}, env_file=case)
+
+packages/evalproviders/tests/test_sarvam_secrets.py::test_missing_key_refuses_before_any_request[empty in file-environ4-SARVAM_API_KEY=\n]
+packages/evalproviders/tests/test_sarvam_secrets.py::test_missing_key_refuses_before_any_request[blank in file-environ5-SARVAM_API_KEY=   \n]
+packages/evalproviders/tests/test_sarvam_secrets.py::test_missing_key_refuses_before_any_request[empty quotes in file-environ6-SARVAM_API_KEY=""\n]
+packages/evalproviders/tests/test_sarvam_secrets.py::test_missing_key_refuses_before_any_request[variable missing in file-environ7-OTHER=1\n]
+packages/evalproviders/tests/test_sarvam_secrets.py::test_missing_key_refuses_before_any_request[empty file-environ8-]
+  <scratch>:418: EnvFileModeWarning: the env file can be read by other users (mode 0o644); run chmod 600 on it
+    secrets_mod().load_api_key(environ=environ, env_file=kwargs.get("env_file"))
+
+packages/evalproviders/tests/test_sarvam_sim_keys.py::test_a_missing_or_unusable_key_is_that_roles_own_error[stt]
+packages/evalproviders/tests/test_sarvam_sim_keys.py::test_a_missing_or_unusable_key_is_that_roles_own_error[tts]
+packages/evalproviders/tests/test_sarvam_sim_keys.py::test_a_missing_or_unusable_key_is_that_roles_own_error[llm]
+  <scratch>:222: EnvFileModeWarning: the env file can be read by other users (mode 0o644); run chmod 600 on it
+    key = load_api_key(environ=environ, env_file=env_file)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [1] packages/evalcore/tests/test_phase4_adr_index_and_gate.py:145: opt-in gate check (TRACER_PHASE4_GATE=1); pending sets shrink as Phase 4 lands
+4159 passed, 1 skipped, 18 deselected, 35 warnings in 159.57s (0:02:39)
+exit 0

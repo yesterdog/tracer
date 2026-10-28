@@ -1,0 +1,95 @@
+red on the current tree (HEAD d5b78f6 + the staged tests + spec-change.diff), Python 3.13: 189 failed, grouped by the first line of the failure
+
+  46  TypeError: SimWorld.__init__() got an unexpected keyword argument 'judge_resolver'
+        e.g. test_cli_judge_canaries::test_judge_key_canaries_never_in_any_output_channel[interrupted-env-file]
+        e.g. test_cli_judge_canaries::test_judge_key_canaries_never_in_any_output_channel[interrupted-environment]
+        e.g. test_cli_judge_canaries::test_judge_key_canaries_never_in_any_output_channel[ok-env-file]
+  34  ModuleNotFoundError: No module named 'tracer_evalcore.judgeconfig'
+        e.g. test_judge_config::test_a_valid_configuration_is_read_into_the_judge_parameters
+        e.g. test_judge_config::test_a_value_shaped_like_a_key_is_refused_wherever_it_is_and_never_quoted
+        e.g. test_judge_config::test_each_setting_is_checked_and_a_refusal_is_a_code[changes0-judge_config_profile]
+  32  AssertionError: ('', 'usage: tracer [-h] {score, ...
+        e.g. test_cli_judge_command::test_a_judge_directory_open_to_others_is_made_private_with_a_warning
+        e.g. test_cli_judge_command::test_simulate_with_a_replay_engine_reproduces_the_judgements_of_the_recorded_run
+        e.g. test_cli_judge_command::test_tracer_judge_checks_the_golden_set_and_the_bundle
+  18  AssertionError: ('bundle', '') ...
+        e.g. test_cli_judge_injection::test_judge_injection_cannot_change_output_format[array]
+        e.g. test_cli_judge_injection::test_judge_injection_cannot_change_output_format[bom]
+        e.g. test_cli_judge_injection::test_judge_injection_cannot_change_output_format[fenced]
+   8  AttributeError: module 'tracer_evalproviders.judgeprofiles' has no attribute 'planned_params'
+        e.g. test_judge_commands_support::test_planned_params_are_what_the_first_request_records[anthropic_compat/1]
+        e.g. test_judge_commands_support::test_planned_params_are_what_the_first_request_records[gemini_compat/1]
+        e.g. test_judge_commands_support::test_planned_params_are_what_the_first_request_records[local_loopback/1]
+   7  ModuleNotFoundError: No module named 'tracer_evalcore.judgerun'
+        e.g. test_judge_run::test_a_skipped_judgement_is_an_error_with_no_request_and_no_trace_of_one
+        e.g. test_judge_run::test_judge_bundle_decides_a_window_that_is_not_ok_before_it_asks_the_judge
+        e.g. test_judge_run::test_judge_bundle_judges_every_item_in_golden_order_one_request_at_a_time
+   5  AssertionError: assert 64 == 2
+        e.g. test_cli_judge_injection::test_judge_injection_cannot_flip_verdict_without_consistent_fields
+        e.g. test_cli_judge_tdeg::test_tdeg_judge_auth_failure_stops_requests_and_errors_remaining
+        e.g. test_cli_judge_tdeg::test_tdeg_judge_cannot_tell_is_judge_undetermined_error
+   5  ValueError: not enough values to unpack (expected 1, got 0)
+        e.g. test_cli_judge_report::test_judge_report_never_claims_accuracy_or_quality[fake:agrees]
+        e.g. test_cli_judge_report::test_judge_report_never_claims_accuracy_or_quality[fake:auth_failure]
+        e.g. test_cli_judge_report::test_judge_report_never_claims_accuracy_or_quality[fake:cannot_tell]
+   4  AttributeError: module 'tracer_evalcore.judgelabels' has no attribute 'JudgedItem'
+        e.g. test_judge_labels_loop::test_agreement_counts_one_labeller_is_the_exact_contingency_table
+        e.g. test_judge_labels_loop::test_agreement_counts_refuse_what_cannot_be_counted
+        e.g. test_judge_labels_loop::test_agreement_counts_two_labellers_add_the_human_by_human_table
+   3  AttributeError: module 'tracer_evalproviders.judgehosts' has no attribute 'check_endpoint'. Did you mean: 'bind_endpoint
+        e.g. test_cli_judge_canaries::test_judge_tests_open_no_socket_except_through_a_mock_transport
+        e.g. test_judge_commands_support::test_check_endpoint_reads_no_key_and_bind_checked_reads_only_the_key_of_the_entry
+        e.g. test_judge_commands_support::test_check_endpoint_refuses_in_order_before_the_resolver_and_never_touches_the_environment
+   2  assert '--bundle' in "usage: tracer [-h] {score, ...
+        e.g. test_cli_labels::test_labels_usage_errors[command3---bundle]
+        e.g. test_cli_labels::test_labels_usage_errors[command4---bundle]
+   1  assert 64 == 4
+        e.g. test_cli_judge_command::test_tracer_judge_refuses_run_without_judge_definitions
+   1  AssertionError: assert 64 == 0
+        e.g. test_cli_judge_store::test_judged_and_rescoring_bundles_store_on_both_backends[sqlite]
+   1  AssertionError: assert 64 == 1
+        e.g. test_cli_judge_store::test_a_failed_store_write_keeps_the_judge_usage_and_the_report
+   1  assert (64, "usage: ...simulate')\n") == (4, 'er ...
+        e.g. test_cli_labels::test_labels_check_does_not_need_a_store_that_is_not_there
+   1  assert 'use packet, check or agreement' in "usag ...
+        e.g. test_cli_labels::test_labels_usage_errors[command0-use packet, check or agreement]
+   1  assert 'packet' in "usage: tracer [-h] {score,si ...
+        e.g. test_cli_labels::test_labels_usage_errors[command1-packet]
+   1  assert '--labels' in "usage: tracer [-h] {score, ...
+        e.g. test_cli_labels::test_labels_usage_errors[command2---labels]
+   1  AttributeError: module 'tracer_cli.simulate' has no attribute 'STEPS_WITH_JUDGE'
+        e.g. test_cli_simulate_judge_order::test_simulate_with_golden_order_of_operations_pinned
+   1  KeyError: 'max_judge_requests'
+        e.g. test_cli_simulate_judge_order::test_judge_caps_required_for_real_engine_no_defaults
+   1  AssertionError: ('agrees', '', 'usage: tracer [- ...
+        e.g. test_cli_simulate_judge_order::test_simulate_judge_errors_exit_2[agrees-0]
+   1  AssertionError: ('disagrees', '', 'usage: tracer ...
+        e.g. test_cli_simulate_judge_order::test_simulate_judge_errors_exit_2[disagrees-0]
+   1  AssertionError: ('cannot_tell', '', 'usage: trac ...
+        e.g. test_cli_simulate_judge_order::test_simulate_judge_errors_exit_2[cannot_tell-2]
+   1  AssertionError: ('invalid', '', 'usage: tracer [ ...
+        e.g. test_cli_simulate_judge_order::test_simulate_judge_errors_exit_2[invalid-2]
+   1  AssertionError: ('invalid_once', '', 'usage: tra ...
+        e.g. test_cli_simulate_judge_order::test_simulate_judge_errors_exit_2[invalid_once-0]
+   1  AssertionError: ('fenced', '', 'usage: tracer [- ...
+        e.g. test_cli_simulate_judge_order::test_simulate_judge_errors_exit_2[fenced-2]
+   1  AssertionError: ('auth_failure', '', 'usage: tra ...
+        e.g. test_cli_simulate_judge_order::test_simulate_judge_errors_exit_2[auth_failure-2]
+   1  AssertionError: out<path>
+        e.g. test_guard_judge_files::test_guard_rejects_staged_judge_exchanges_labels_and_allowlist
+   1  AssertionError: out<path> is not git-ignored
+        e.g. test_guard_judge_files::test_the_judge_files_are_git_ignored
+   1  AttributeError: module 'tracer_evalcore.judgelabels' has no attribute 'parse_judge_labels'. Did you mean: 'validate_judg
+        e.g. test_judge_labels_loop::test_labels_file_strict_closed_keys_and_version
+   1  AttributeError: module 'tracer_evalcore.judgelabels' has no attribute 'JUDGE_CATEGORIES'
+        e.g. test_judge_labels_loop::test_the_row_of_the_table_is_the_verdict_or_why_there_is_none
+   1  AttributeError: module 'tracer_evalcore.judgelabels' has no attribute 'judged_items'
+        e.g. test_judge_labels_loop::test_judged_items_are_read_from_the_stored_records_in_golden_order
+   1  AttributeError: module 'tracer_evalcore.judgelabels' has no attribute 'build_packet'
+        e.g. test_judge_labels_loop::test_the_packet_is_blind_by_construction
+   1  AttributeError: module 'tracer_evalproviders.judgeexchange' has no attribute 'JudgeExchangeModeWarning'
+        e.g. test_judge_commands_support::test_exchange_store_tightens_an_existing_judge_directory_open_to_others
+   1  Failed: DID NOT RAISE JudgeExchangeError
+        e.g. test_judge_commands_support::test_exchange_store_refuses_a_link_or_a_file_in_place_of_the_judge_directory
+   1  AttributeError: module 'tracer_evalproviders.judgeexchange' has no attribute 'planned_fake_params'
+        e.g. test_judge_commands_support::test_planned_fake_params_are_what_the_fake_engine_records

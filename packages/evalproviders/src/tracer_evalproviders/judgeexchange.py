@@ -18,6 +18,7 @@ import json
 import os
 import re
 import stat
+import warnings
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any, Final
@@ -28,6 +29,7 @@ from tracer_evalcore.judge import (
     JudgeConfigurationError,
     JudgeContext,
     JudgeOutcome,
+    JudgeParams,
     JudgeRequest,
     JudgeResponseInvalid,
 )
@@ -45,11 +47,13 @@ __all__ = [
     "ExchangeStore",
     "FakeJudge",
     "JudgeExchangeError",
+    "JudgeExchangeModeWarning",
     "ReplayJudge",
     "create_fake_judge",
     "create_replay_judge",
     "exchange_directory",
     "exchange_file_name",
+    "planned_fake_params",
 ]
 
 EXCHANGE_DIR_NAME: Final = "judge"
@@ -64,6 +68,11 @@ FAKE_SCENARIOS: Final = (
     "auth_failure",
 )
 _ITEM_ID: Final = re.compile(r"[a-z][a-z0-9]*(?:_[a-z0-9]+)*")
+
+
+class JudgeExchangeModeWarning(UserWarning):
+    """The ``judge`` directory under the output directory was open to other users and was made
+    private. The text names no path."""
 
 
 class JudgeExchangeError(InputRefusedError):
@@ -88,9 +97,11 @@ def exchange_file_name(item_id: object, attempt: object) -> str:
     return f"item-{item_id}-{attempt}.json"
 
 
-def _private_directory(path: Path) -> None:
+def _private_directory(path: Path, *, tighten: bool = False) -> None:
     """Create ``path`` (and any missing parent) with mode 0700, or accept an existing real
-    directory that no other user can use."""
+    directory that no other user can use. With ``tighten`` (the level this module itself creates,
+    ``<out>/judge``) an existing directory open to others is made 0700 and a warning is issued; a
+    link or a file is always refused. The user's own output directory is never changed."""
     try:
         info = os.lstat(path)
     except FileNotFoundError:
@@ -100,8 +111,17 @@ def _private_directory(path: Path) -> None:
             os.mkdir(path, 0o700)
         os.chmod(path, 0o700)
         info = os.lstat(path)
-    if stat.S_ISLNK(info.st_mode) or not stat.S_ISDIR(info.st_mode) or info.st_mode & 0o077:
+    if stat.S_ISLNK(info.st_mode) or not stat.S_ISDIR(info.st_mode):
         raise JudgeExchangeError("exchange_directory_not_private")
+    if info.st_mode & 0o077:
+        if not tighten:
+            raise JudgeExchangeError("exchange_directory_not_private")
+        os.chmod(path, 0o700)
+        warnings.warn(
+            "the judge directory was open to other users and is now private",
+            JudgeExchangeModeWarning,
+            stacklevel=3,
+        )
 
 
 def _read_all(descriptor: int, limit: int) -> bytes:
@@ -159,6 +179,9 @@ class ExchangeStore:
 
     def __init__(self, directory: str | os.PathLike[str]) -> None:
         self.directory = Path(directory)
+        parent = self.directory.parent
+        if parent.name == EXCHANGE_DIR_NAME and os.path.lexists(parent):
+            _private_directory(parent, tighten=True)
         _private_directory(self.directory)
 
     def write(self, item_id: str, attempt: int, document: Mapping[str, Any]) -> str:
@@ -323,9 +346,7 @@ class FakeJudge:
             text = "```json\n" + agrees + "\n```"
         else:
             text = "I cannot answer in the requested form."
-        sent: dict[str, Any] = {"max_tokens": request.params.max_tokens}
-        if request.params.temperature is not None:
-            sent["temperature"] = request.params.temperature
+        sent = planned_fake_params(request.params)
         return JudgeOutcome(
             text=text,
             finish_reason="stop",
@@ -336,6 +357,14 @@ class FakeJudge:
             usage=(),
             failure=None,
         )
+
+
+def planned_fake_params(params: JudgeParams) -> dict[str, Any]:
+    """What the fake engine records as sent (the ``params`` of the document of a fake run)."""
+    sent: dict[str, Any] = {"max_tokens": params.max_tokens}
+    if params.temperature is not None:
+        sent["temperature"] = params.temperature
+    return sent
 
 
 def create_fake_judge(scenario: str) -> FakeJudge:

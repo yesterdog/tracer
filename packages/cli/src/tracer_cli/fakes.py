@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 from collections.abc import Sequence
+from decimal import Decimal
 from typing import ClassVar, Final
 
 from tracer_evalcore.audio.chunker import ChunkPlan
@@ -60,8 +61,9 @@ class ScenarioStt:
     model: ClassVar[str] = FAKE_STT_MODEL
     streams_usage: ClassVar[bool] = False
 
-    def __init__(self, texts: Sequence[str]) -> None:
+    def __init__(self, texts: Sequence[str], *, timed: bool = False) -> None:
         self._texts = tuple(texts)
+        self._timed = timed
         self._next = 0
 
     def transcribe(self, plan: ChunkPlan, context: SttContext) -> SttOutcome:
@@ -70,15 +72,24 @@ class ScenarioStt:
             if self._next >= len(self._texts):
                 failure = SttResponseInvalid(chunk_index=chunk.index, reason="fake_texts_exhausted")
                 return SttOutcome(None, (), (), (), failure)
-            body = json.dumps(
-                {
-                    "request_id": f"fake-{self._next:04d}",
-                    "transcript": self._texts[self._next],
-                    "language_code": "mr-IN",
-                }
-            ).encode("utf-8")
+            text = json.dumps(self._texts[self._next])
+            body = (
+                "{"
+                f'"request_id": {json.dumps(f"fake-{self._next:04d}")}, '
+                f'"transcript": {text}, '
+                '"language_code": "mr-IN"'
+            )
+            if self._timed:
+                # one phrase that spans the chunk, so the turn starts where the agent's segment
+                # starts (a judged run needs the time of the agent's turns, ADR 0030 rule 4)
+                seconds = Decimal(chunk.frames) / Decimal(chunk.sample_rate_hz)
+                body += (
+                    f', "timestamps": {{"words": [{text}], '
+                    f'"start_time_seconds": [0], "end_time_seconds": [{seconds}]}}'
+                )
+            encoded = (body + "}").encode()
             self._next += 1
-            answered.append(ChunkResponse(chunk.index, parse_response(body), None, 1))
+            answered.append(ChunkResponse(chunk.index, parse_response(encoded), None, 1))
         outcome = map_responses(plan, answered, model=FAKE_STT_MODEL, context=context)
         if outcome.transcript is None:
             return outcome

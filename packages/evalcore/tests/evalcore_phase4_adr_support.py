@@ -92,61 +92,9 @@ _P0029: frozenset[str] = frozenset(
     }
 )
 
-# ADR 0030 rules and invariants (batch J; the names of P4-J17 and later)
+# ADR 0030 rules and invariants (batch J; the names of P4-J26 and later)
 _P0030: frozenset[str] = frozenset(
     {
-        # P4-J17
-        "test_judge_caps_required_for_real_engine_no_defaults",
-        "test_judge_refusals_before_any_key_read_or_connect",
-        "test_judge_usage_survives_ctrl_c_mid_judging",
-        "test_simulate_dry_run_prints_judge_plan_and_sends_nothing",
-        "test_simulate_judge_errors_exit_2",
-        "test_simulate_with_golden_order_of_operations_pinned",
-        # P4-J18
-        "test_tracer_judge_model_must_equal_definition_model_ref",
-        "test_tracer_judge_refuses_run_without_judge_definitions",
-        "test_tracer_judge_repeats_store_one_bundle_each",
-        "test_tracer_judge_rescoring_bundle_shares_records_and_adds_judge_results",
-        # P4-J19
-        "test_judge_lines_labelled_uncalibrated_everywhere",
-        "test_judge_report_never_claims_accuracy_or_quality",
-        "test_judge_report_shows_counts_with_denominators",
-        "test_judge_report_states_outcome_not_evaluated",
-        # P4-J20
-        "test_judged_and_rescoring_bundles_store_on_both_backends",
-        "test_judged_bundle_round_trips_through_store_byte_identical",
-        # P4-J21
-        "test_agreement_report_counts_only_never_rates_or_accuracy",
-        "test_agreement_report_human_human_counts_when_two_labellers",
-        "test_agreement_report_unlabelled_never_counted_as_disagreement",
-        "test_label_packet_never_shows_judge_verdict",
-        "test_labels_file_strict_closed_keys_and_version",
-        "test_labels_import_content_addressed_and_private",
-        # P4-J22
-        "test_judge_injection_cannot_change_output_format",
-        "test_judge_injection_cannot_flip_verdict_without_consistent_fields",
-        "test_judge_injection_cannot_leak_expected_facts_into_any_output",
-        "test_judge_injection_cannot_store_free_text",
-        "test_judge_injection_forged_delimiter_stays_data",
-        "test_judge_never_receives_caller_brain_prompt_or_profile_values",
-        # P4-J23
-        "test_tdeg_judge_auth_failure_stops_requests_and_errors_remaining",
-        "test_tdeg_judge_cannot_tell_is_judge_undetermined_error",
-        "test_tdeg_judge_cap_reached_no_request_beyond_cap",
-        "test_tdeg_judge_empty_answer_window_is_error_never_disagrees",
-        "test_tdeg_judge_invalid_output_twice_is_error",
-        "test_tdeg_judge_non_mr_turn_unsupported_language_all_items",
-        "test_tdeg_judge_question_not_sent_is_error_never_disagrees",
-        "test_tdeg_judge_schema_identical_across_cases",
-        "test_tdeg_judge_setup_failed_all_missing_input_no_request",
-        "test_tdeg_judge_stt_failed_missing_input_no_request",
-        "test_tdeg_run_without_golden_set_unchanged",
-        # P4-J24
-        "test_e2e_judge_report_store_and_agreement_consistent",
-        "test_e2e_judge_synthetic_mr_exact_outputs",
-        # P4-J25
-        "test_guard_rejects_staged_judge_exchanges_labels_and_allowlist",
-        "test_judge_key_canaries_never_in_any_output_channel",
         # P4-J26
         "test_p4j_audit_items_cite_tests",
         # P4-J29
@@ -160,22 +108,13 @@ _P0030: frozenset[str] = frozenset(
 )
 
 # ADR 0024 Phase 4 amendment (A1-A13, IA1-IA4)
-_P0024A: frozenset[str] = frozenset(
-    {
-        # P4-J25
-        "test_judge_key_canaries_never_in_any_output_channel",
-    }
-)
+_P0024A: frozenset[str] = frozenset()
 
 # ADR 0023 Phase 4 amendment (A1-A4, IA1-IA2)
 _P0023A: frozenset[str] = frozenset(
     {
         # P4-37
         "test_sim_concept_page_states_no_claims",
-        # P4-J19
-        "test_judge_report_never_claims_accuracy_or_quality",
-        # P4-J21
-        "test_agreement_report_counts_only_never_rates_or_accuracy",
         # P4-J30
         "test_judge_concept_page_states_no_claims",
     }

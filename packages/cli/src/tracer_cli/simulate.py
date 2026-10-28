@@ -20,6 +20,7 @@ import contextlib
 import hashlib
 import os
 import signal
+import warnings
 from collections.abc import Awaitable, Callable, Iterator, Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -28,7 +29,7 @@ from pathlib import Path
 from typing import Any, Final, Protocol, TypeVar
 
 from tracer_cli import cli as cli_module
-from tracer_cli import simsummary, store
+from tracer_cli import judgeplan, simsummary, store
 from tracer_cli.cli import (
     EXIT_UNEXPECTED,
     MAX_CONFIG_FILE_BYTES,
@@ -37,6 +38,7 @@ from tracer_cli.cli import (
     Refusal,
 )
 from tracer_cli.fakes import FakeTts, ScenarioStt
+from tracer_cli.judgesummary import plan_lines
 from tracer_cli.replay import ReplayStt
 from tracer_cli.report import RelativeAudio, relative_audio_src
 from tracer_cli.simargs import CAP_OPTIONS
@@ -46,7 +48,11 @@ from tracer_evalcore.brain import CallerBrain
 from tracer_evalcore.brains import LlmBrain, ReplayBrain, ReplayDirectoryError
 from tracer_evalcore.callstate import effective_max_duration_ms
 from tracer_evalcore.errors import InputRefusedError
+from tracer_evalcore.golden import bind_golden_set
 from tracer_evalcore.importers.voicera import read_voicera_export
+from tracer_evalcore.judge import JudgeContext
+from tracer_evalcore.judgerecords import JudgeSetup, with_judge_results
+from tracer_evalcore.judgerun import judge_bundle
 from tracer_evalcore.llm import LlmContext, LlmOutcome, LlmRequest
 from tracer_evalcore.pipeline import CostParts
 from tracer_evalcore.prompt import prompt_inputs
@@ -98,6 +104,12 @@ from tracer_evalcore.tts import (
 )
 from tracer_evalcore.turntaking import TurnTakingPolicy
 from tracer_evalproviders.cost import compute_usage_cost
+from tracer_evalproviders.judgeexchange import (
+    ExchangeStore,
+    JudgeExchangeModeWarning,
+    exchange_directory,
+)
+from tracer_evalproviders.judgehosts import BoundEndpoint, JudgeEndpoint, Resolver
 from tracer_evalproviders.sarvam.chat import create_sarvam_llm
 from tracer_evalproviders.sarvam.engine import create_sarvam_stt_for_run
 from tracer_evalproviders.sarvam.tts import create_sarvam_tts
@@ -144,6 +156,7 @@ from tracer_evalsim.ws import (
 __all__ = [
     "RECORDING_NAME",
     "STEPS",
+    "STEPS_WITH_JUDGE",
     "ConnectRequest",
     "EngineSeam",
     "SimWorld",
@@ -167,6 +180,12 @@ STEPS: Final = (
     "scoring",
     "store_write",
     "report",
+)
+#: the steps of a judged run: the judge is step 13b, after scoring and before the store (Q-J6)
+STEPS_WITH_JUDGE: Final = (
+    *STEPS[: STEPS.index("scoring") + 1],
+    "judge",
+    *STEPS[STEPS.index("scoring") + 1 :],
 )
 RECORDING_NAME: Final = "recording-{stamp}.wav"
 _MIN_SEARCH_MS: Final = 5_000
@@ -236,6 +255,7 @@ class SimWorld:
     signals: SignalSource | None = None
     trace: Callable[[str], None] | None = None
     run_blocking: Callable[[Callable[[], Any]], Awaitable[Any]] | None = None
+    judge_resolver: Resolver | None = None  # the DNS lookup of a public judge entry
 
 
 class _Ledger:
@@ -324,6 +344,17 @@ class _Inputs:
     replay: ReplayBrain | None
     wait_ms: int
     policy: TurnTakingPolicy
+    judge: judgeplan.JudgeInputs | None = None
+
+
+@dataclass(frozen=True)
+class _JudgeRun:
+    """The judge of one run, after the checks: what step 13b needs."""
+
+    inputs: judgeplan.JudgeInputs
+    setup: JudgeSetup
+    bound: BoundEndpoint | None
+    reference_sha256: str | None  # printed, never stored (api-surface-batch-j2 section 2, A-J2-5)
 
 
 def _engine_kind(value: str) -> str:
@@ -381,6 +412,15 @@ def _step1_parse(args: argparse.Namespace, created_at: datetime) -> _Inputs:
     if args.stt == "fake":
         assert scenario is not None  # noqa: S101  (the usage check guarantees --agent)
         speech_texts(scenario)
+    judge_inputs: judgeplan.JudgeInputs | None = None
+    if args.judge is not None:
+        judge_inputs = judgeplan.parse_inputs(args, _read_file)
+        bind_golden_set(
+            judge_inputs.golden,
+            evaluator,
+            caller_mode=caller["mode"],
+            barge_in_turns={b["turn_index"] for b in profile_file.barge_ins},
+        )
     scripted: tuple[str, ...] = ()
     replay: ReplayBrain | None = None
     if caller["mode"] == "scripted":
@@ -426,6 +466,7 @@ def _step1_parse(args: argparse.Namespace, created_at: datetime) -> _Inputs:
         replay=replay,
         wait_ms=policy.wait_for_agent_silence_ms,
         policy=policy,
+        judge=judge_inputs,
     )
 
 
@@ -482,7 +523,10 @@ def _step4_caps(args: argparse.Namespace, document: Mapping[str, Any]) -> None:
 
 
 def _build_configuration(
-    inputs: _Inputs, document: Mapping[str, Any], created_at: datetime
+    inputs: _Inputs,
+    document: Mapping[str, Any],
+    created_at: datetime,
+    setup: JudgeSetup | None = None,
 ) -> SimulatedConfiguration:
     try:
         return build_simulated_configuration(
@@ -493,6 +537,7 @@ def _build_configuration(
             flag_min_confidence=inputs.profile_file.flag_min_confidence,
             normaliser=inputs.profile_file.normaliser,
             created_at=created_at,
+            judge=setup,
         )
     except (ValueError, TypeError) as error:
         if isinstance(error, InputRefusedError):
@@ -587,6 +632,22 @@ def _dry_run(args: argparse.Namespace, inputs: _Inputs, environment: Environment
         ("max stt seconds", args.max_stt_seconds),
     ):
         out.append(f"{label}: {'not set' if value is None else value}")
+    if inputs.judge is not None:
+        golden = inputs.judge.golden
+        modes: dict[str, int] = {}
+        for item in golden.items:
+            modes[item.match_mode] = modes.get(item.match_mode, 0) + 1
+        out.extend(
+            plan_lines(
+                engine=inputs.judge.engine,
+                model=inputs.judge.config.params.model,
+                golden_key=golden.key,
+                modes=modes,
+                max_tokens=inputs.judge.config.params.max_tokens,
+                max_requests=args.max_judge_requests,
+                max_tokens_total=args.max_judge_tokens,
+            )
+        )
     out.append("dry run: nothing was sent")
     environment.stdout.write("".join(f"{line}\n" for line in out))
     return 0
@@ -741,12 +802,25 @@ def run_simulate(args: argparse.Namespace, environment: Environment) -> int:
         return _dry_run(args, inputs, environment)
     trace("allowlist")
     labels, document = _pre_call_errors(lambda: _step2_allowlist(args, inputs))
+    entry: JudgeEndpoint | None = None
+    if inputs.judge is not None:
+        entry = _pre_call_errors(
+            lambda: judgeplan.check_allowlist(args, inputs.judge, resolver=world.judge_resolver)  # type: ignore[arg-type]
+        )
     trace("authorisation")
     if args.authorisation_reference is None:
         raise Refusal("authorisation_reference_missing")
     reference_hash = authorisation_reference_sha256(args.authorisation_reference)
+    judge_reference_hash: str | None = None
+    if inputs.judge is not None:
+        reference = _pre_call_errors(lambda: judgeplan.check_reference(args, inputs.judge))  # type: ignore[arg-type]
+        judge_reference_hash = (
+            None if reference is None else authorisation_reference_sha256(reference)
+        )
     trace("caps")
     _pre_call_errors(lambda: _step4_caps(args, document))
+    if inputs.judge is not None:
+        _pre_call_errors(lambda: judgeplan.check_caps(args, inputs.judge))  # type: ignore[arg-type]
     trace("output_probe")
     if "?" in str(out_dir.resolve()):
         raise Refusal("output_path_invalid: the output path must not contain a question mark")
@@ -759,7 +833,10 @@ def run_simulate(args: argparse.Namespace, environment: Environment) -> int:
     for existing in (report_path, recording_path):
         if os.path.lexists(existing):
             raise Refusal("report_exists: a file with this name is already in the output directory")
-    configuration = _build_configuration(inputs, document, created_at)
+    setup: JudgeSetup | None = None
+    if inputs.judge is not None:
+        setup = _pre_call_errors(lambda: judgeplan.build_setup(args, inputs.judge, entry))  # type: ignore[arg-type]
+    configuration = _build_configuration(inputs, document, created_at, setup)
 
     trace("keys_and_call_log")
     token: BearerToken | None = None
@@ -779,6 +856,14 @@ def run_simulate(args: argparse.Namespace, environment: Environment) -> int:
                 )
             except (ValueError, SttError) as error:
                 raise Refusal(str(getattr(error, "reason", None) or type(error).__name__)) from None
+    judge: _JudgeRun | None = None
+    if inputs.judge is not None and setup is not None:
+        bound = judgeplan.bind_key(
+            entry,
+            environ=environment.environ,
+            env_file=None if args.env_file is None else Path(args.env_file),
+        )
+        judge = _JudgeRun(inputs.judge, setup, bound, judge_reference_hash)
     ledger = _Ledger()
     recovery = _Recovery(out_dir, created_at, ledger, environment)
     try:
@@ -805,6 +890,7 @@ def run_simulate(args: argparse.Namespace, environment: Environment) -> int:
             call_log=call_log,
             engines=engines,
             recovery=recovery,
+            judge=judge,
         )
     except BaseException as error:
         recovery.write_once("call", error, None)
@@ -836,6 +922,7 @@ def _after_keys(
     call_log: SimCallLog,
     engines: list[Any],
     recovery: _Recovery,
+    judge: _JudgeRun | None = None,
 ) -> int:
     out_dir = Path(args.out)
     env_file = None if args.env_file is None else Path(args.env_file)
@@ -893,7 +980,9 @@ def _after_keys(
     engines.append(tts_engine)
     if args.stt == "fake":
         assert inputs.scenario is not None  # noqa: S101
-        base_stt: SttEngine = ScenarioStt(speech_texts(inputs.scenario))
+        base_stt: SttEngine = ScenarioStt(
+            speech_texts(inputs.scenario), timed=inputs.judge is not None
+        )
     elif args.stt.startswith("fake:"):
         base_stt = ReplayStt(Path(args.stt[len("fake:") :]))
     else:
@@ -1039,6 +1128,8 @@ def _after_keys(
             counting=counting,
             cache_hits=cache_hits,
             recovery=recovery,
+            judge=judge,
+            engines=engines,
         )
     finally:
         database.dispose()
@@ -1097,6 +1188,68 @@ def _execute(
     return result
 
 
+def _judge_step(
+    args: argparse.Namespace,
+    environment: Environment,
+    judge: _JudgeRun,
+    bundle: RunBundle,
+    *,
+    ledger: _Ledger,
+    call_log: SimCallLog,
+    recovery: _Recovery,
+    engines: list[Any],
+    call_end_ms: int,
+    run_id: RunId,
+    created_at: datetime,
+) -> RunBundle:
+    """Step 13b: the items in golden order, one request in flight. The usage of every answered
+    request reaches the ledger before the next request, so an interrupt keeps it."""
+    from tracer_evalcore.judgerecords import judge_applicable_items
+
+    try:
+        exchanges = None
+        if judge.inputs.kind == "profile" and judge_applicable_items(
+            snapshot=bundle.snapshot,
+            run=bundle.run,
+            transcripts=bundle.transcripts,
+            turns=bundle.turns,
+        ):
+            with warnings.catch_warnings(record=True) as caught:
+                warnings.simplefilter("always")
+                exchanges = ExchangeStore(exchange_directory(Path(args.out), run_id))
+            for item in caught:
+                if issubclass(item.category, JudgeExchangeModeWarning):
+                    environment.stderr.write(f"warning: {item.message}\n")
+        engine = judgeplan.build_engine(
+            args,
+            judge.inputs,
+            judge.bound,
+            call_log=call_log,
+            exchanges=exchanges,
+            transport=environment.transport,
+            sleep=environment.sleep,
+        )
+        engines.append(engine)
+        done = judge_bundle(
+            bundle=bundle,
+            setup=judge.setup,
+            engine=engine,
+            params=judge.inputs.config.params,
+            context=JudgeContext(run_id=run_id, created_at=created_at),
+            call_end_ms=call_end_ms,
+            on_usage=ledger.add,
+            created_at=created_at,
+        )
+    except BaseException as error:
+        recovery.write_once("judge", error, None)
+        raise
+    cost = compute_usage_cost(ledger.records, catalog=None, created_at=created_at)
+    updated = bundle.model_copy(
+        update={"cost_records": list(cost.records), "cost_summaries": [cost.summary]}
+    )
+    return with_judge_results(updated, done.results, done.usage)
+
+
 def _call_and_save(
     args: argparse.Namespace,
     environment: Environment,
@@ -1126,6 +1279,8 @@ def _call_and_save(
     counting: _CountingLlm | None,
     cache_hits: int,
     recovery: _Recovery,
+    judge: _JudgeRun | None = None,
+    engines: list[Any] | None = None,
 ) -> int:
     out_dir = Path(args.out)
     profile = inputs.profile_file
@@ -1329,6 +1484,21 @@ def _call_and_save(
         costs=costs,
         created_at=created_at,
     )
+    if judge is not None:
+        trace("judge")
+        bundle = _judge_step(
+            args,
+            environment,
+            judge,
+            bundle,
+            ledger=ledger,
+            call_log=call_log,
+            recovery=recovery,
+            engines=engines if engines is not None else [],
+            call_end_ms=outcome_document["connected_ms"] or 0,
+            run_id=run_id,
+            created_at=created_at,
+        )
 
     failures: list[Exception] = []
     stored = None
@@ -1361,6 +1531,10 @@ def _call_and_save(
         "".join(f"{label}: {value}\n" for label, value in simsummary.sim_summary_lines(bundle))
     )
     environment.stdout.write(f"bundle: {bundle.id}\n")
+    if judge is not None and judge.reference_sha256 is not None:
+        environment.stdout.write(
+            f"judge authorisation reference: sha256 {judge.reference_sha256}\n"
+        )
     environment.stdout.write(
         f"store: {out_dir / store.STORE_FILE_NAME if stored is not None else 'not written'}\n"
     )

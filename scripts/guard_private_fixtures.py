@@ -54,6 +54,21 @@ JUDGE_EXCHANGE = "tracer judge exchange file"
 # <out>/judge/<run>/item-<id>-<attempt>.json: the request and the raw reply of one judge request
 JUDGE_EXCHANGE_NAME = re.compile(r"(?:^|/)judge/[^/]+/item-[a-z0-9_]+-[12]\.json\Z")
 JUDGE_EXCHANGE_MARKER = re.compile(rb'"format"\s*:\s*"tracer\.judge_exchange/1"')
+JUDGE_LABELS = "tracer judge labels file"
+JUDGE_PACKET = "tracer judge label packet"
+JUDGE_ALLOWLIST = "tracer judge allowlist"
+# <out>/labels/labels-<sha256>.json and <out>/labels/packet-<bundle id>.json: a person's judgement
+# of a call and what the person was shown (ADR 0030 rule 22)
+JUDGE_LABELS_NAME = re.compile(r"(?:^|/)labels/labels-[A-Za-z0-9_.-]+\.json\Z")
+JUDGE_PACKET_NAME = re.compile(r"(?:^|/)labels/packet-[A-Za-z0-9_.-]+\.json\Z")
+JUDGE_LABELS_MARKER = re.compile(rb'"format"\s*:\s*"tracer\.judge_labels/1"')
+JUDGE_PACKET_MARKER = re.compile(rb'"format"\s*:\s*"tracer\.judge_packet/1"')
+# the owner's judge allowlist: by name, or by a line that is an entry (ADR 0030 rule 14)
+JUDGE_ALLOWLIST_NAME = re.compile(r"(?:^|/)judge[-_]allowlist(?:\.(?:txt|local|conf|list))?\Z")
+JUDGE_ALLOWLIST_ENTRY = re.compile(
+    rb"^https?://\S+[ \t]+profile=[a-z_]+/[0-9]+(?:[ \t]+key_env=[A-Z][A-Z0-9_]*)?[ \t]*$",
+    re.MULTILINE,
+)
 SIM_RECORDING = "tracer simulated recording"
 TTS_CACHE = "tracer TTS cache entry"
 RECOVERY = "tracer usage recovery file"
@@ -88,6 +103,12 @@ def kind_by_name(path: str) -> str | None:
         return CALL_LOG
     if JUDGE_EXCHANGE_NAME.search(path):
         return JUDGE_EXCHANGE
+    if JUDGE_LABELS_NAME.search(path):
+        return JUDGE_LABELS
+    if JUDGE_PACKET_NAME.search(path):
+        return JUDGE_PACKET
+    if JUDGE_ALLOWLIST_NAME.search(path):
+        return JUDGE_ALLOWLIST
     if name == SIM_CALL_LOG_NAME:
         return CALL_LOG
     if RECORDING_NAME.fullmatch(name):
@@ -136,6 +157,12 @@ def _is_allowlist(head: bytes) -> bool:
     )
 
 
+def _is_json_object(head: bytes) -> bool:
+    """A file that is a JSON object (the form of a labels file and of a packet): text that only
+    quotes a member, such as a diff, a document or a test, is not a finding."""
+    return head.lstrip(b"\xef\xbb\xbf \t\r\n").startswith(b"{")
+
+
 def kind_by_content(path: str, head: bytes) -> str | None:
     if head.startswith(SQLITE_MAGIC):
         return STORE
@@ -145,6 +172,12 @@ def kind_by_content(path: str, head: bytes) -> str | None:
             return REPORT
     if JUDGE_EXCHANGE_MARKER.search(head):
         return JUDGE_EXCHANGE
+    if _is_json_object(head) and JUDGE_LABELS_MARKER.search(head):
+        return JUDGE_LABELS
+    if _is_json_object(head) and JUDGE_PACKET_MARKER.search(head):
+        return JUDGE_PACKET
+    if JUDGE_ALLOWLIST_ENTRY.search(head):
+        return JUDGE_ALLOWLIST
     if path.lower().endswith(".jsonl"):
         first = head.split(b"\n", 1)[0]
         if b'"bytes_sent"' in first and b'"audio_seconds"' in first:

@@ -14,7 +14,9 @@ __all__ = [
     "AUTHORISATION_REFERENCE_MAX_CHARS",
     "CAP_OPTIONS",
     "SIM_EXIT_CODES",
+    "add_judge_arguments",
     "add_simulate_arguments",
+    "judge_usage_problem",
     "simulate_usage_problem",
 ]
 
@@ -90,6 +92,88 @@ def _language(value: str) -> str:
     if re.fullmatch(r"[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*", value) is None:
         raise argparse.ArgumentTypeError("not a language tag")
     return value
+
+
+def _judge_engine(value: str) -> str:
+    if re.fullmatch(r"[a-z][a-z0-9_]*/[0-9]{1,3}", value):
+        return value
+    for prefix in ("fake:", "replay:"):
+        if value.startswith(prefix) and len(value) > len(prefix):
+            return value
+    raise argparse.ArgumentTypeError("use a profile name, fake:SCENARIO or replay:DIRECTORY")
+
+
+def add_judge_arguments(parser: argparse.ArgumentParser, *, required: bool) -> None:
+    """The options of the judge, shared by ``simulate`` (all optional, together) and ``judge``
+    (the golden set, the configuration and the engine are required)."""
+    parser.add_argument(
+        "--golden", required=required, metavar="FILE", help="the golden set (tracer.golden_set/1)"
+    )
+    parser.add_argument(
+        "--judge-config",
+        required=required,
+        metavar="FILE",
+        help="the judge configuration (tracer.judge_config/1); every value is yours",
+    )
+    parser.add_argument(
+        "--judge",
+        required=required,
+        type=_judge_engine,
+        metavar="ENGINE",
+        help="a profile name such as openrouter/1, fake:SCENARIO or replay:DIRECTORY",
+    )
+    parser.add_argument(
+        "--judge-allowlist",
+        metavar="FILE",
+        help="the judge endpoints you allow (required for a profile engine; mode 0600)",
+    )
+    parser.add_argument(
+        "--max-judge-requests",
+        type=_cap(_MAX_SAFE),
+        metavar="N",
+        help="spend cap on judge requests, regenerations included (required for a profile engine)",
+    )
+    parser.add_argument(
+        "--max-judge-tokens",
+        type=_cap(_MAX_SAFE),
+        metavar="N",
+        help="spend cap on judge tokens (required for a profile engine)",
+    )
+    parser.add_argument(
+        "--judge-authorisation-reference",
+        type=_reference,
+        metavar="TEXT",
+        help="who authorised sending the call text to this provider (required for a real "
+        "provider; only its SHA-256 is stored)",
+    )
+    parser.add_argument(
+        "--judge-first-request-gate",
+        action="store_true",
+        default=None,
+        help="the owner-gated first request of a profile that is not yet verified",
+    )
+
+
+def judge_usage_problem(args: argparse.Namespace) -> str | None:
+    """The usage error that depends on more than one judge option, or ``None``."""
+    given = [args.golden, args.judge_config, args.judge]
+    extras = {
+        "--judge-allowlist": args.judge_allowlist,
+        "--max-judge-requests": args.max_judge_requests,
+        "--max-judge-tokens": args.max_judge_tokens,
+        "--judge-authorisation-reference": args.judge_authorisation_reference,
+        "--judge-first-request-gate": args.judge_first_request_gate or None,
+    }
+    if any(x is None for x in given):
+        if any(x is not None for x in given):
+            return "--golden, --judge-config and --judge go together"
+        used = [name for name, value in extras.items() if value is not None]
+        return f"{used[0]} needs --golden, --judge-config and --judge" if used else None
+    if args.judge.startswith(("fake:", "replay:")):
+        used = [name for name, value in extras.items() if value is not None]
+        if used:
+            return f"{used[0]} applies to a profile engine only"
+    return None
 
 
 def add_simulate_arguments(parser: argparse.ArgumentParser) -> None:
@@ -172,6 +256,7 @@ def add_simulate_arguments(parser: argparse.ArgumentParser) -> None:
         "--env-file", metavar="FILE", help="read the key SARVAM_API_KEY from this file only"
     )
     parser.add_argument("--dry-run", action="store_true", help="print the plan and send nothing")
+    add_judge_arguments(parser, required=False)
 
 
 def simulate_usage_problem(args: argparse.Namespace) -> str | None:
@@ -184,4 +269,4 @@ def simulate_usage_problem(args: argparse.Namespace) -> str | None:
         return "--agent-transcript and --declared-language go together"
     if args.stt == "fake" and args.agent is None:
         return "--stt fake needs --agent fake:SCENARIO"
-    return None
+    return judge_usage_problem(args)

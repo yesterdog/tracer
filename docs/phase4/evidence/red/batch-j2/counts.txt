@@ -1,0 +1,13 @@
+batch J part 2 (P4-J17..P4-J25), 204 tests in 16 new files (+ 2 support modules; the Postgres case of one test is deselected: 1), 2026-10-28
+base: HEAD d5b78f6 (batch F committed); the oracle is oracle-src.patch; the shared test edits are spec-change.diff (3 files)
+python  red(spec change, no oracle)  oracle(new files + test_cli_no_socket)  whole workspace with oracle
+3.11    189 failed, 16 passed        205 passed, 1 deselected               15255 passed, 1 skipped, 1301 deselected
+3.12    189 failed, 16 passed        205 passed, 1 deselected               15255 passed, 1 skipped, 1301 deselected
+3.13    189 failed, 16 passed        205 passed, 1 deselected               15255 passed, 1 skipped, 1301 deselected
+3.14    189 failed, 16 passed        205 passed, 1 deselected               15255 passed, 1 skipped, 1301 deselected
+red without the spec change (3.13): 192 failed, 13 passed
+oracle lint on the mirror: ruff check, ruff format --check, mypy strict (550 source files), scripts/guard_private_fixtures.py: clean
+gitleaks (dir scan with the repository config) on the evidence directory and the contract: no leaks
+mutants: 152  killed: 149  survived: 3 (all classified equivalent)  noapply: 0  (killed on a rerun after a test was added: 5)
+not run: Postgres parity (no Docker), Python 3.15, the lowest-direct dependency leg, hosted CI, any real provider
+note: the whole-workspace runs used the mirror's editable installs repointed to the oracle mirror for the run (the fresh-interpreter test of the WebRTC dialect, which runs with -I, ignores PYTHONPATH)

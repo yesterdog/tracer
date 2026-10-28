@@ -18,6 +18,7 @@ import base64
 from typing import Any, Final
 
 from tracer_cli import simsummary
+from tracer_cli.judgesummary import JUDGE_HEADLINE, item_text, judge_lines, judge_profile_of
 from tracer_cli.report import (
     SEEK_SCRIPT,
     STYLE,
@@ -31,6 +32,7 @@ from tracer_cli.report import (
     content_security_policy,
 )
 from tracer_cli.summary import cost_text
+from tracer_evalcore.judgelabels import judged_items
 from tracer_evalcore.simscore import SIM_AGREEMENT_KEYS, SIM_TIMING_KEYS
 from tracer_evalschema.bundle import RunBundle
 from tracer_evalschema.transcript import Transcript, Turn
@@ -298,7 +300,55 @@ def _agreement(bundle: RunBundle, facts: simsummary.SimFacts) -> str:
     )
 
 
+JUDGE_NOTE: Final = (
+    "This section is an uncalibrated judge signal: what a language model said about whether the "
+    "agent's answer to each golden question agrees with the expected facts. It is a signal to "
+    "look at, not a measurement of the agent. Each count is shown with the number of items it "
+    "is out of, and nothing here estimates how far the signal can be relied on."
+)
+
+
+def _judge(bundle: RunBundle) -> str:
+    profile = judge_profile_of(bundle)
+    if profile is None:
+        return ""
+    summary = "".join(
+        _el("tr", _el("th", _e(label)) + _el("td", _e(value)))
+        for label, value in judge_lines(bundle)
+        if not label.startswith("judge item ")
+    )
+    rows = []
+    for item in judged_items(bundle):
+        seqs = ", ".join(str(n) for n in item.window_turn_seqs)
+        window = f"answer window: agent turns {seqs}" if seqs else "answer window: no agent turn"
+        rows.append(
+            _el(
+                "li",
+                _el("strong", _e(item.item_id))
+                + " "
+                + _el("span", _e(item_text(item)), **{"class": "judge-verdict"})
+                + _el("div", _e(window))
+                + _ut("div", "question", item.question),
+                id=f"judge-item-{item.item_id}",
+                data_item=item.item_id,
+                data_status=item.status,
+                data_verdict="" if item.verdict is None else item.verdict,
+            )
+        )
+    return _el(
+        "section",
+        _el("h2", "Uncalibrated judge signal")
+        + _el("p", _e(JUDGE_NOTE), id="judge-note")
+        + _el("table", _el("tbody", summary), id="judge-summary")
+        + _el("ol", "".join(rows), id="judge-items"),
+        id="judge",
+        data_calibration="uncalibrated",
+        data_headline=JUDGE_HEADLINE,
+    )
+
+
 def _usage(bundle: RunBundle) -> str:
+    judged = judge_profile_of(bundle) is not None
     rows = "".join(
         _el(
             "tr",
@@ -308,6 +358,7 @@ def _usage(bundle: RunBundle) -> str:
             ("synthesis (text to speech)", "sim_caller_tts", "usage-tts"),
             ("caller model", "sim_caller_llm", "usage-llm"),
             ("speech-to-text", "stt", "usage-stt"),
+            *((("judge model (uncalibrated signal)", "judge", "usage-judge"),) if judged else ()),
         )
     )
     rows += _el("tr", _el("th", "cost") + _el("td", _e(cost_text(bundle)), id="usage-cost"))
@@ -368,6 +419,7 @@ def render_sim_report(bundle: RunBundle, *, audio: RelativeAudio | EmbeddedAudio
         _timing(facts),
         _lines(bundle),
         _agreement(bundle, facts),
+        _judge(bundle),
         _usage(bundle),
         _counts(facts),
         _warnings(bundle),

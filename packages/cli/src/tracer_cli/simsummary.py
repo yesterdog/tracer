@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from typing import Any, Final
 
+from tracer_cli.judgesummary import judge_lines, judge_usage_present
 from tracer_cli.summary import cost_text
 from tracer_evalcore.registry import COUNT_KEY, MER_KEY, SHARE_KEY
 from tracer_evalcore.simoutcome import SIM_OUTCOME_METADATA_KEY
@@ -138,7 +139,7 @@ def stage_usage_text(bundle: RunBundle, stage: str) -> str:
 
     if stage == "sim_caller_tts":
         return f"{count('requests')} requests, {count('input_characters')} characters"
-    if stage == "sim_caller_llm":
+    if stage in ("sim_caller_llm", "judge"):
         return (
             f"{count('requests')} requests, {count('input_tokens')} input tokens, "
             f"{count('output_tokens')} output tokens"
@@ -198,9 +199,12 @@ def sim_summary_lines(bundle: RunBundle) -> list[tuple[str, str]]:
         lines.append(("cap reached", str(cap)))
     lines.extend(timing_lines(facts))
     lines.extend(_agreement_lines(bundle, facts))
+    lines.extend(judge_lines(bundle))
     lines.append(("tts usage", stage_usage_text(bundle, "sim_caller_tts")))
     lines.append(("llm usage", stage_usage_text(bundle, "sim_caller_llm")))
     lines.append(("stt usage", stage_usage_text(bundle, "stt")))
+    if judge_usage_present(bundle):
+        lines.append(("judge usage", stage_usage_text(bundle, "judge")))
     lines.append(("cost", cost_text(bundle)))
     lines.append(("ingest warnings", str(len(bundle.run.ingest_warnings))))
     return lines

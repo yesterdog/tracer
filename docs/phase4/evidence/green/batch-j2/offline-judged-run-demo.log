@@ -1,0 +1,89 @@
+inputs written: ['agent.json', 'evaluator.json', 'golden.json', 'judge.json', 'persona.json', 'sim_profile.json']
+== 1. simulate with the golden set and the fake judge
+exit code: 2
+judge: uncalibrated signal (golden set mr_apparatus_set, engine fake/1, model fake-judge)
+judge agrees: 9 of 10 items
+judge disagrees: 0 of 10 items
+judge cannot_tell: 0 of 10 items
+judge error: 1 of 10 items
+judge not applicable: 0 of 10 items
+judge usage: none
+bundle: rbnd_01a18073-aeac-72a6-90b4-51eefb0ccd01
+store: <demo>/out/tracer.sqlite
+recording: <demo>/out/recording-20261028T030008Z.wav
+report: <demo>/out/report-20261028T030008Z.html
+== 2. tracer judge --repeats 2 (replays the stored answers)
+exit code: 2
+rescoring of: rbnd_01a18073-aeac-72a6-90b4-51eefb0ccd01
+repeats: 2
+repeat 1 of 2: rbnd_01a18073-b08f-74ad-a7e6-842e7e103cbf
+judge agrees: 0 of 10 items
+judge disagrees: 9 of 10 items
+judge cannot_tell: 0 of 10 items
+judge error: 1 of 10 items
+judge not applicable: 0 of 10 items
+judge usage: none
+judge changed from the stored run: 9 of 10 items
+repeat 2 of 2: rbnd_01a18073-b0b4-72f7-9862-69452ac1c20f
+judge agrees: 0 of 10 items
+judge disagrees: 9 of 10 items
+judge cannot_tell: 0 of 10 items
+judge error: 1 of 10 items
+judge not applicable: 0 of 10 items
+judge usage: none
+judge changed from the stored run: 9 of 10 items
+store: <demo>/out/tracer.sqlite
+== 3. labels packet
+packet: <demo>/out/labels/packet-rbnd_01a18073-aeac-72a6-90b4-51eefb0ccd01.json
+items: 10
+blind: the judge's verdict is not in the packet
+exit code: 0
+labels files written: ana.json bob.json
+== 4. labels check (twice: the second copy is not stored again)
+labels: ok
+labeller: ana
+labelled: 8 of 9 items
+unlabelled: 1 of 9 items
+stored: <demo>/out/labels/labels-df66d71b04a7d30a65271571d6811901561a6599176c6afa6f272e91d67b0e72.json
+labels: ok
+labeller: bob
+labelled: 5 of 6 items
+unlabelled: 1 of 6 items
+stored: <demo>/out/labels/labels-c6b622efa32fb9b3cb9d00f939450c3a859c17793a1b16382bcbdbe63e8db5fd.json
+stored: <demo>/out/labels/labels-df66d71b04a7d30a65271571d6811901561a6599176c6afa6f272e91d67b0e72.json (already stored)
+== 5. labels agreement
+agreement report: counts of an uncalibrated judge signal against human labels
+bundle: rbnd_01a18073-aeac-72a6-90b4-51eefb0ccd01
+items: 10
+labeller: ana (basis audio 8, stt_text 0, both 0)
+unlabelled by ana: 2 of 10 items (not counted as agreement or disagreement)
+labeller: bob (basis audio 0, stt_text 5, both 0)
+unlabelled by bob: 5 of 10 items (not counted as agreement or disagreement)
+labelled by one only: 5 of 10 items
+labelled by neither: 1 of 10 items
+-- (only the non-table lines are shown above; non-zero cells of the tables:)
+judge agrees, human agrees: 4 of 10 items
+judge agrees, human disagrees: 3 of 10 items
+judge agrees, human cannot_tell: 1 of 10 items
+unlabelled by ana: 2 of 10 items (not counted as agreement or disagreement)
+judge agrees, human agrees: 3 of 10 items
+judge agrees, human disagrees: 1 of 10 items
+judge no verdict, human disagrees: 1 of 10 items
+unlabelled by bob: 5 of 10 items (not counted as agreement or disagreement)
+ana agrees, bob agrees: 2 of 10 items
+ana disagrees, bob agrees: 1 of 10 items
+ana disagrees, bob disagrees: 1 of 10 items
+labelled by one only: 5 of 10 items
+labelled by neither: 1 of 10 items
+== files in the output directory (name, mode, size)
+drwx------ 224 .
+drwx------ 160 ./labels
+-rw------- 615 ./labels/labels-c6b622efa32fb9b3cb9d00f939450c3a859c17793a1b16382bcbdbe63e8db5fd.json
+-rw------- 836 ./labels/labels-df66d71b04a7d30a65271571d6811901561a6599176c6afa6f272e91d67b0e72.json
+-rw------- 6578 ./labels/packet-rbnd_01a18073-aeac-72a6-90b4-51eefb0ccd01.json
+-rw------- 1031904 ./recording-20261028T030008Z.wav
+-rw------- 22558 ./report-20261028T030008Z.html
+-rw------- 526 ./sim_call_log.jsonl
+-rw------- 761856 ./tracer.sqlite
+== the report parses as HTML
+parsed report-20261028T030008Z.html ids: ['judge', 'judge-note', 'judge-summary', 'judge-items', 'judge-item-mr_q00', 'judge-item-mr_q01'] ... judge items: 10

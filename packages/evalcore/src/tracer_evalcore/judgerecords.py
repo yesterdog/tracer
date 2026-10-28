@@ -54,6 +54,7 @@ __all__ = [
     "build_exchange_document",
     "build_judge_document",
     "build_judge_profile_document",
+    "judge_applicable_items",
     "judge_binding_params",
     "judge_definitions",
     "judge_metric_key",
@@ -693,6 +694,26 @@ def judge_definitions(setup: JudgeSetup, *, created_at: datetime) -> list[Metric
 
 
 # ---------------------------------------------------------------------------------- results
+
+
+def judge_applicable_items(
+    *,
+    snapshot: ConfigSnapshot,
+    run: Run,
+    transcripts: Sequence[Transcript],
+    turns: Sequence[Turn],
+) -> tuple[str, ...]:
+    """The item ids whose judge definition applies to the run (the others are ``not_applicable``
+    and need no judgement), in the order of the snapshot."""
+    stt = next((t for t in transcripts if t.source == "our_stt"), None)
+    stt_turns = [] if stt is None else [t for t in turns if t.transcript_id == stt.id]
+    read = [stt] if stt is not None else [t for t in transcripts if t.source != "script"]
+    return tuple(
+        d.key.removeprefix(JUDGE_KEY_PREFIX)
+        for d in snapshot.metric_definitions
+        if d.key.startswith(JUDGE_KEY_PREFIX)
+        and applicability(d, run, turns=stt_turns, transcripts=read).na_reason is None
+    )
 
 
 def judge_results(

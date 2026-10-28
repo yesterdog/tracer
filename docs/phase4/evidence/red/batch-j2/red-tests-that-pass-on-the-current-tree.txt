@@ -1,0 +1,30 @@
+Tests of batch J part 2 that pass on the current tree (HEAD d5b78f6 + the staged tests + spec-change.diff),
+16 of 204 collected (Python 3.11 to 3.14 alike). Each is listed with the reason it is not red.
+
+Inventory and wiring guards (they check the tests and the contract themselves, which exist in the
+mirror; three of them fail without the spec change, see red-without-spec-change.py3.13.txt):
+  packages/evalcore/tests/test_phase4_batch_j2_wiring.py::test_the_scope_rows_of_part_2_exist
+  packages/evalcore/tests/test_phase4_batch_j2_wiring.py::test_every_scope_name_of_part_2_is_defined_by_exactly_one_test
+  packages/evalcore/tests/test_phase4_batch_j2_wiring.py::test_no_scope_name_of_part_2_is_left_on_a_pending_set
+  packages/evalcore/tests/test_phase4_batch_j2_wiring.py::test_the_named_no_socket_test_of_the_cli_is_extended_to_the_judge
+  packages/evalcore/tests/test_phase4_batch_j2_wiring.py::test_the_command_set_test_knows_the_judge_and_labels_commands
+  packages/evalcore/tests/test_phase4_batch_j2_wiring.py::test_the_contract_lists_every_name_of_part_2_and_the_sections_the_tests_cite
+  packages/evalcore/tests/test_phase4_batch_j2_wiring.py::test_no_batch_j2_test_module_imports_a_batch_j_product_module_at_module_level
+  packages/evalcore/tests/test_phase4_batch_j2_wiring.py::test_the_batch_files_have_an_spdx_header_and_are_ascii
+  packages/evalcore/tests/test_phase4_batch_j2_wiring.py::test_the_batch_files_name_no_path_of_this_machine_and_no_out_of_scope_language
+
+The named no-socket test, extended by the spec change (the added check is test code, so it is not red):
+  packages/cli/tests/test_cli_no_socket.py::test_unit_tests_open_no_socket
+
+Tests that pin behaviour that part 1 or batch E already has (the findings of the part 1 dev report
+and negative controls; they must stay green):
+  packages/evalcore/tests/test_judge_run.py::test_answer_window_closes_at_the_earliest_start_of_any_later_caller_line
+      (the closing edge of the answer window is the earliest start of any later caller line)
+  packages/evalproviders/tests/test_judge_commands_support.py::test_the_usage_of_a_paid_reply_is_handed_out_before_its_exchange_file_is_written
+  packages/evalproviders/tests/test_judge_commands_support.py::test_a_short_read_does_not_truncate_an_exchange_file_or_an_allowlist
+  packages/evalproviders/tests/test_judge_commands_support.py::test_exchange_store_says_nothing_when_the_levels_are_private_or_new
+      (negative control of BL-337: a private or new level gives no warning and is not changed)
+  packages/cli/tests/test_cli_judge_canaries.py::test_judge_key_is_not_in_the_representation_of_anything_that_holds_it
+      (the part 1 objects already hide the key; this pins it for the objects the command builds)
+  packages/cli/tests/test_cli_judge_report.py::test_a_run_without_a_golden_set_has_no_judge_section_and_no_judge_line
+      (a run without a golden set is what batch E builds)

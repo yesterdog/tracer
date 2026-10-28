@@ -1,0 +1,28 @@
+# CI sequence of the interop job, Python 3.13, own environment for the workspace, the tool project in tools/samplebot/.venv
+$ uv sync --locked --all-groups
+Resolved 75 packages in 2ms
+Checked 72 packages in 7ms
+$ uv sync --locked --project tools/samplebot
+Resolved 111 packages in 1ms
+Checked 104 packages in 15ms
+$ uv run --locked --all-groups pytest -m integration packages/evalsim/tests -v
+============================= test session starts ==============================
+platform darwin -- Python 3.13.15, pytest-9.1.1, pluggy-1.7.0 -- <scratch>
+hypothesis profile 'default'
+rootdir: <repo>
+configfile: pyproject.toml
+plugins: hypothesis-6.170.5, anyio-4.15.1, platformdirs-4.13.5
+collecting ... collected 508 items / 497 deselected / 11 selected
+packages/evalsim/tests/test_integration_calibration.py::test_integration_calibration_gap_within_quantum[protobuf] PASSED [  9%]
+packages/evalsim/tests/test_integration_calibration.py::test_integration_calibration_gap_within_quantum[twilio] PASSED [ 18%]
+packages/evalsim/tests/test_integration_calibration.py::test_integration_calibration_gap_within_quantum[webrtc] PASSED [ 27%]
+packages/evalsim/tests/test_integration_pipecat_protobuf.py::test_integration_protobuf_dialect_against_pipecat PASSED [ 36%]
+packages/evalsim/tests/test_integration_pipecat_protobuf.py::test_integration_protobuf_an_agent_hang_up_is_an_agent_hang_up PASSED [ 45%]
+packages/evalsim/tests/test_integration_pipecat_protobuf.py::test_integration_protobuf_sequential_calls_are_independent PASSED [ 54%]
+packages/evalsim/tests/test_integration_pipecat_twilio.py::test_integration_twilio_dialect_against_pipecat PASSED [ 63%]
+packages/evalsim/tests/test_integration_pipecat_twilio.py::test_integration_twilio_an_agent_hang_up_is_an_agent_hang_up PASSED [ 72%]
+packages/evalsim/tests/test_integration_pipecat_twilio.py::test_integration_twilio_no_mark_is_needed_and_none_is_waited_for PASSED [ 81%]
+packages/evalsim/tests/test_integration_pipecat_webrtc.py::test_integration_webrtc_against_pipecat_loopback PASSED [ 90%]
+packages/evalsim/tests/test_integration_pipecat_webrtc.py::test_integration_webrtc_the_call_ends_when_the_simulator_hangs_up PASSED [100%]
+================ 11 passed, 497 deselected in 249.90s (0:04:09) ================
+exit 0
