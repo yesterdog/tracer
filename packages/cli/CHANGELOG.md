@@ -78,6 +78,26 @@ First version. Everything below is new.
   relative path; `--embed-audio` (opt-in) puts the audio into the file, which then holds personal
   data. The report holds the call text. The same bundle gives the same bytes.
 
+### `tracer simulate` (Phase 4)
+
+- `tracer simulate` places one simulated call from a scripted synthetic caller (or, with an owner-valued profile, a language-model caller) to an agent, records both sides on a stereo recording and scores it. `--target FILE` with `--allowlist FILE` reaches an agent (owner-gated, with caps and the run book of ADR 0026); `--agent fake:FILE` runs the offline fake agent of `tracer-evalsim` and opens no socket. `--tts` is `sarvam` or `fake`; `--caller` is `scripted`, `sarvam` (a language-model caller) or `fake:DIRECTORY` (replayed lines); `--stt` is `sarvam`, `fake` (the words of the fake agent) or `fake:DIRECTORY` (recorded bodies). Every value that decides the call or its spend is an option or a file entry and none has a default.
+- Order of operations pinned by a trace: inputs, the target allowlist, the authorisation reference, the caps, the output probe, the keys and call logs, the call, scoring, the store and the report; a refusal comes before any key is read. `--authorisation-reference` is required for every run that is not a dry run; its SHA-256 is stored in the run's outcome record and its text never. `--dry-run` prints the plan and sends nothing.
+- Output: the lines of the call (result, end reason, "outcome: not evaluated", dialect, the labelled timings each "observed at the simulator over" the dialect with its quantum, the answered caller turns, the agreement with the agent's own export when `--agent-transcript` is given), the usage lines and `cost: not available` without usage; the store, the recording (`recording-<UTC>.wav`, channel 0 the caller and channel 1 the agent), the report and `sim_call_log.jsonl`.
+- Exit codes: 0, 1, 2, 3, 4 and 64 as for `tracer score`, and the new exit code 5, call not established (the run is still stored and every result is not applicable); when several apply the first of 1, 5, 3, 2, 0 wins. `tracer simulate --help` lists them.
+
+### The judge (Phase 4 batch J)
+
+- `tracer simulate --golden FILE --judge-config FILE --judge ENGINE` also asks a judge, once per golden item after scoring and before the store, whether the agent's answer agrees with the expected facts, as an uncalibrated signal (ADR 0030). `--judge` takes a profile name (`openrouter/1` and the others, owner-gated: `--judge-allowlist`, `--max-judge-requests`, `--max-judge-tokens`, `--judge-authorisation-reference`, and `--judge-first-request-gate` for a profile that is not verified), `fake:SCENARIO` (a deterministic engine that sends nothing) or `replay:DIRECTORY` (the stored exchange files).
+- Output: the judge lines ("judge: uncalibrated signal", the counts "n of N items", one line per item with the verdict, the reason code and the fact statuses, the judge usage) and a report section titled "Uncalibrated judge signal"; expected facts are never printed; a judge result of status `error` gives exit code 2, a verdict `disagrees` gives 0.
+- The judge authorisation reference is printed as `judge authorisation reference: sha256 <hex>` and is not stored in any record (BL-363); keep the hash with your own record.
+- `tracer judge --out DIR --bundle ID --golden FILE --judge-config FILE --judge ENGINE [--repeats K]` re-judges a stored judged run and stores one rescoring bundle per repeat (K from 1 to 100); it prints how many items changed from the stored run. It is refused when the run holds no judge definitions or the model differs.
+- `tracer labels packet|check|agreement`: `packet` writes a blind packet (never the judge's verdict), `check` validates a labels file and copies it content-addressed (mode 0600) under `<out>/labels/`, and `agreement` prints counts of the judge against the labels, with unlabelled items shown apart and no rate. The line `labelled: n of N items` of `check` counts the labels the file lists, not the items of the run (BL-350).
+
+### Documentation (P4-37, P4-J30)
+
+- The README has the sections "Simulate quick start (offline, no key, no network)" and "Judge quick start (offline, no key, no network)" and the exit codes of the three new commands; both quick starts are run by the test suite (`test_sim_readme_quick_start_runs_offline`, `test_judge_readme_quick_start_runs_offline`) with the real command, offline, and their expected output is compared line by line. The inputs are the invented files of `docs/examples/simulated-mr`.
+- The concept pages `docs/concepts/simulated-calls.md` and `docs/concepts/llm-judge.md` say what the commands report and, in a fenced sentence each, what is not claimed. A change of a printed label or of the report wording is a change in the README quick starts, the end-to-end tests and the report tests (BL-226).
+
 ### Findings
 
 - No test plays the report's audio or runs its seek script. The relative audio reference under

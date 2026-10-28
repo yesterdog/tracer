@@ -67,6 +67,16 @@ First version. Everything below is new.
 - The dry-run plan (`tracer_evalproviders.dryrun`) reads no key, opens no log and no connection and
   writes no file; it prints a cost only when the user supplied a USD price.
 
+### Sarvam text-to-speech and chat completions (Phase 4)
+
+- The Sarvam text-to-speech adapter and the Sarvam chat completions v2 adapter behind the `TtsEngine` and `LlmEngine` boundaries of `tracer-evalcore`, with the rules of ADR 0024 (a fixed endpoint, the key read at run time, the usage of each answered request handed out before the next). A content-addressed text-to-speech cache gives byte-identical caller audio on a re-run with no request. The call log of a simulated run holds counts and instants, no text.
+
+### The judge client (Phase 4 batch J)
+
+- A generic chat completions client for the judge (ADR 0030, no vendor SDK, `httpx` only) with a closed set of seven provider profiles: `anthropic_compat/1`, `gemini_compat/1`, `xai/1`, `openrouter/1`, `sarvam_v2/1`, `openai/1` and `local_loopback/1`. Each profile fixes what is sent and read. All seven are `unverified` in the dossier `docs/security/P4-J-providers.md`, which cites a URL and a retrieval date per fact or says "not verified"; an unverified profile is refused for a real run until its first owner-gated request is logged.
+- Pinned hosts: the owner's allowlist (a file of mode 0600 that is not a link, an exact `https://host[:port]/path` per entry with `profile=` and `key_env=`; `http` only for a literal loopback address), no redirects followed (`follow_redirects=False`), no proxy environment read (`trust_env=False`), TLS verified, and a private, loopback or link-local DNS answer refused for a public entry. The key is read by its variable name only after the entry matches and is bound to that host. The residual race between the client's DNS check and the connect is not claimed closed (BL-326).
+- Exchange files `<out>/judge/<run>/item-<id>-<attempt>.json` (mode 0600, opened without following links, git-ignored and guarded), the `replay:DIRECTORY` engine that reproduces the stored verdicts byte for byte, and the deterministic `fake:SCENARIO` engine that sends nothing. Judge usage is mapped exactly (cached tokens only when reported); cost is `not_available` without a USD catalog and credits are never stored as cost.
+
 ### Findings
 
 - Sarvam rounds phrase times to 2 decimals, while a phrase past the exact end of its chunk drops

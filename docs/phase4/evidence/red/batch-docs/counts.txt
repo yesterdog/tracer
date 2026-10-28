@@ -1,0 +1,11 @@
+Red run, HEAD e537821 plus the new test files, default Python 3.12.14 (uv run --locked pytest):
+  files: packages/evalcore/tests/test_concept_page_simulated_calls.py
+         packages/evalcore/tests/test_concept_page_llm_judge.py
+         packages/evalcore/tests/test_docs_changelogs_and_readmes_phase4.py
+         packages/cli/tests/test_cli_readme_sim_judge_quick_starts.py
+  372 collected: 357 failed, 15 passed.
+  The four SCOPE names fail: test_sim_readme_quick_start_runs_offline, test_judge_readme_quick_start_runs_offline,
+  test_sim_concept_page_states_no_claims, test_judge_concept_page_states_no_claims (red-named-tests.py3.12.txt).
+  The 15 that pass are listed in red-tests-that-pass-on-the-current-tree.txt: they test the checkers
+  themselves (table well-formed, missing section refused, missing index row refused), the
+  runner guards (a step that exits 64, the closed network) and the changelog checks that do not need new text.

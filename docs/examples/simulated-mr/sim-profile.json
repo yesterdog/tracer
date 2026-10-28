@@ -1,0 +1,40 @@
+{
+  "format": "tracer.sim_profile_file/1",
+  "dialect": "pipecat-protobuf/1",
+  "audio": {
+    "sample_rate_hz": 16000,
+    "channels": 1,
+    "frame_ms": 20,
+    "wire_codec": "pcm_s16le"
+  },
+  "turn_taking": {
+    "caller_speaks_first": true,
+    "wait_for_agent_silence_ms": 300,
+    "max_silence_ms": 3000
+  },
+  "barge_ins": [],
+  "caller": {
+    "mode": "scripted"
+  },
+  "voices": {
+    "caller-a": {
+      "provider": "fake",
+      "model": "tone",
+      "speaker": "test-voice",
+      "language_code": "mr-IN",
+      "pace": "1",
+      "sample_rate_hz": 16000,
+      "codec": "linear16"
+    }
+  },
+  "stt": {
+    "provider": "fake",
+    "model": "scenario-text",
+    "max_chunk_ms": 25000
+  },
+  "agreement": {
+    "flag_min_confidence": 0.5,
+    "normaliser": "mr-Deva/1"
+  },
+  "min_call_interval_ms": 0
+}

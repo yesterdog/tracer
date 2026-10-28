@@ -1,0 +1,15 @@
+Green run, HEAD e537821 plus the batch-docs change, default Python 3.12.14 (uv run --locked pytest -q), whole workspace:
+  11 failed, 16208 passed, 1 skipped, 1301 deselected in 636.44s.
+  The 11 failures are the ADR tests that read the pending sets of
+  packages/evalcore/tests/evalcore_phase4_adr_support.py: the four SCOPE names now exist, so the
+  sets must lose them (a named spec change for the lead, red/batch-docs/spec-change.diff). With that
+  change applied in a copy of the tree, the same ADR and pending-set tests pass (172 passed, 1 skipped;
+  spec-change-applied-in-a-copy.py3.12.log). No other failure.
+  The batch I README guard (test_r4_the_readme_exit_row_promises_the_recovery_only_where_the_code_gives_it)
+  is green: the exit codes of the new commands are a bullet list, not a second table row "| 1 |".
+New files (401 tests, all pass in 42.87 s; new-tests.py3.12.log):
+  packages/evalcore/tests/test_concept_page_simulated_calls.py (123 tests, with test_sim_concept_page_states_no_claims)
+  packages/evalcore/tests/test_concept_page_llm_judge.py (183 tests, with test_judge_concept_page_states_no_claims)
+  packages/evalcore/tests/test_docs_changelogs_and_readmes_phase4.py (14 tests)
+  packages/cli/tests/test_cli_readme_sim_judge_quick_starts.py (81 tests, with test_sim_readme_quick_start_runs_offline and test_judge_readme_quick_start_runs_offline)
+Not run: other Python versions, Postgres, hosted CI.

@@ -18,6 +18,8 @@ field-level details are in the generated [field reference](../schema/README.md).
 | [mappings-and-gaps.md](mappings-and-gaps.md) | source mappings, no fabrication, the gap register |
 | [storage.md](storage.md) | the relational store (`tracer-evaldb`): documents and projections, two backends, what the database does not do, deletion, migrations |
 | [recorded-call-scoring.md](recorded-call-scoring.md) | `tracer score` on a recorded call: agreement of the agent's export with a speech-to-text transcript, what is not claimed, roles and tier, cost, privacy and consent, the run book, known limits |
+| [simulated-calls.md](simulated-calls.md) | `tracer simulate`: one simulated call to an agent, what is measured (timings observed at the simulator over a wire dialect), what is not claimed, roles and tier, safety and spend, privacy, the offline quick start, known limits |
+| [llm-judge.md](llm-judge.md) | the LLM judge as an uncalibrated signal: golden sets, the answer window, provider profiles, the owner allowlist, caps, replay and repeats, the labeller guide, reading the output, exit codes, what is not claimed |
 
 Scope, in one paragraph: only the AI agent is evaluated. The caller is a human (recordings of
 real calls) or a simulator (test calls). Speaker roles are `caller`, `agent` and `unknown`;

@@ -183,7 +183,9 @@ def test_the_outside_rules_set_is_checked_against_the_scope() -> None:
         outside=sup.PENDING_OUTSIDE_RULES | {landed},
         scope=scope,
     )
-    inside = next(iter(sup.PENDING["0026"]))
+    # Phase 4 docs batch spec change S-D1: the set of ADR 0026 is empty now; ADR 0030 still has
+    # names pending (P4-J29 and P4-J32), cited inside its rules
+    inside = next(iter(sorted(sup.PENDING["0030"])))
     assert sup.pending_outside_problems(
         reads, defined=defined, outside=frozenset({inside}), scope=scope
     )

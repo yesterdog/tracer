@@ -1,0 +1,44 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+___________________ test_sim_readme_quick_start_runs_offline ___________________
+packages/cli/tests/test_cli_readme_sim_judge_quick_starts.py:85: in test_sim_readme_quick_start_runs_offline
+    assert sections(text).get(SIM_TITLE), f"packages/cli/README.md has no section {SIM_TITLE!r}"
+E   AssertionError: packages/cli/README.md has no section 'Simulate quick start (offline, no key, no network)'
+E   assert None
+E    +  where None = <built-in method get of dict object at 0x10b5c3dc0>('Simulate quick start (offline, no key, no network)')
+E    +    where <built-in method get of dict object at 0x10b5c3dc0> = {'Quick start (offline, no key, no network)': '\nRun these commands from the repository root, with the workspace insta...e numbers mean and do not mean, and the known limits: [concept page](../../docs/concepts/recorded-call-scoring.md).\n'}.get
+E    +      where {'Quick start (offline, no key, no network)': '\nRun these commands from the repository root, with the workspace insta...e numbers mean and do not mean, and the known limits: [concept page](../../docs/concepts/recorded-call-scoring.md).\n'} = sections("# tracer-cli\n\nThe `tracer` command line, version 0.0.1 (not released). `tracer score` compares the agent's transcri...he numbers mean and do not mean, and the known limits: [concept page](../../docs/concepts/recorded-call-scoring.md).\n")
+__________________ test_judge_readme_quick_start_runs_offline __________________
+packages/cli/tests/test_cli_readme_sim_judge_quick_starts.py:102: in test_judge_readme_quick_start_runs_offline
+    assert sections(text).get(JUDGE_TITLE), f"packages/cli/README.md has no section {JUDGE_TITLE!r}"
+E   AssertionError: packages/cli/README.md has no section 'Judge quick start (offline, no key, no network)'
+E   assert None
+E    +  where None = <built-in method get of dict object at 0x10b5c0440>('Judge quick start (offline, no key, no network)')
+E    +    where <built-in method get of dict object at 0x10b5c0440> = {'Quick start (offline, no key, no network)': '\nRun these commands from the repository root, with the workspace insta...e numbers mean and do not mean, and the known limits: [concept page](../../docs/concepts/recorded-call-scoring.md).\n'}.get
+E    +      where {'Quick start (offline, no key, no network)': '\nRun these commands from the repository root, with the workspace insta...e numbers mean and do not mean, and the known limits: [concept page](../../docs/concepts/recorded-call-scoring.md).\n'} = sections("# tracer-cli\n\nThe `tracer` command line, version 0.0.1 (not released). `tracer score` compares the agent's transcri...he numbers mean and do not mean, and the known limits: [concept page](../../docs/concepts/recorded-call-scoring.md).\n")
+____________________ test_sim_concept_page_states_no_claims ____________________
+packages/evalcore/tests/test_concept_page_simulated_calls.py:152: in test_sim_concept_page_states_no_claims
+    text = _real()
+           ^^^^^^^
+packages/evalcore/tests/test_concept_page_simulated_calls.py:135: in _real
+    assert PAGE.is_file(), f"{PAGE.relative_to(ROOT)} does not exist"
+E   AssertionError: docs/concepts/simulated-calls.md does not exist
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('<repo>/docs/concepts/simulated-calls.md').is_file
+___________________ test_judge_concept_page_states_no_claims ___________________
+packages/evalcore/tests/test_concept_page_llm_judge.py:227: in test_judge_concept_page_states_no_claims
+    text = _real()
+           ^^^^^^^
+packages/evalcore/tests/test_concept_page_llm_judge.py:210: in _real
+    assert PAGE.is_file(), f"{PAGE.relative_to(ROOT)} does not exist"
+E   AssertionError: docs/concepts/llm-judge.md does not exist
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('<repo>/docs/concepts/llm-judge.md').is_file
+=========================== short test summary info ============================
+FAILED packages/cli/tests/test_cli_readme_sim_judge_quick_starts.py::test_sim_readme_quick_start_runs_offline
+FAILED packages/cli/tests/test_cli_readme_sim_judge_quick_starts.py::test_judge_readme_quick_start_runs_offline
+FAILED packages/evalcore/tests/test_concept_page_simulated_calls.py::test_sim_concept_page_states_no_claims
+FAILED packages/evalcore/tests/test_concept_page_llm_judge.py::test_judge_concept_page_states_no_claims
+4 failed in 0.08s

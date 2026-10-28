@@ -64,7 +64,8 @@ def test_adr0026_is_accepted() -> None:
 
 def test_adr0026_pending_names_are_the_scope_names_of_later_tasks_only() -> None:
     pending = sup.PENDING["0026"]
-    assert pending, "ADR 0026 cites tests of later tasks; the set empties at the gate"
+    # Phase 4 docs batch spec change S-D1: P4-37 defines the last test ADR 0026 cites, so the set
+    # may be empty (it empties at the gate, and it has)
     assert pending <= sup.scope_names()
     assert not pending & sup.defined_tests()
     # no name that this very batch defines
@@ -93,16 +94,17 @@ def test_adr0026_check_refuses_pending_sets_that_do_not_fit() -> None:
     pending = sup.PENDING["0026"]
     kw = {"defined": defined, "scope": scope}
     assert sup.check_adr(SPEC, text, pending=pending, **kw) == sup.check_adr_file("0026")
-    # an empty set: every pending name is now an unknown name
-    assert sup.check_adr(SPEC, text, pending=frozenset(), **kw)
-    # a name SCOPE does not name
+    # Phase 4 docs batch spec change S-D1: the set may be empty, so the refusals are kept by naming
+    # a cited test that is not defined (it must be pending), a name SCOPE does not name, a name the
+    # ADR does not cite (stale) and a defined one on the set (it must leave it)
+    cited_defined = sorted(sup.cited(text) & defined)[0]
+    assert sup.check_adr(
+        SPEC, text, pending=pending, defined=defined - {cited_defined}, scope=scope
+    )
     assert sup.check_adr(SPEC, text, pending=pending | {"test_zz_invented"}, **kw)
-    # a name the ADR does not cite is stale (even when SCOPE names it)
-    stale = next(iter(scope - sup.cited(text) - defined))
+    stale = next(iter(sorted(scope - sup.cited(text) - defined)))
     assert sup.check_adr(SPEC, text, pending=pending | {stale}, **kw)
-    # a name a test defines must leave the set
-    landed = next(iter(sorted(pending)))
-    assert sup.check_adr(SPEC, text, pending=pending, defined=defined | {landed}, scope=scope)
+    assert sup.check_adr(SPEC, text, pending=pending | {cited_defined}, **kw)
 
 
 def test_the_mutant_names_are_the_mutants() -> None:

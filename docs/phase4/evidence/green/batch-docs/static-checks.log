@@ -1,0 +1,33 @@
+# static checks on HEAD e537821 plus the batch-docs change, default Python 3.12.14
+
+$ uv run --locked ruff check
+All checks passed!
+rc=0
+
+$ uv run --locked ruff format --check
+770 files already formatted
+rc=0
+
+$ uv run --locked mypy
+Success: no issues found in 587 source files
+rc=0
+
+$ uv run --locked python scripts/check_headers.py
+rc=0
+
+$ uv run --locked python scripts/guard_private_fixtures.py
+rc=0
+
+$ uv run --locked --all-groups python scripts/check_licenses.py
+73 ok, 0 failed
+rc=0
+
+$ uv run --locked python -m tracer_evalschema.schema_export --check
+rc=0
+
+$ uv run --locked python scripts/generate_field_docs.py --check
+rc=0
+
+$ uv lock --check
+Resolved 75 packages in 2ms
+rc=0

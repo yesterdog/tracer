@@ -59,7 +59,8 @@ def test_adr0023_phase4_amendment_says_where_it_is_machine_read() -> None:
 
 def test_adr0023_phase4_amendment_pending_names_are_scope_names_only() -> None:
     pending = sup.PENDING["0023A"]
-    assert pending, "the amendment cites tests of later tasks; the set empties at the gate"
+    # Phase 4 docs batch spec change S-D1: P4-37 and P4-J30 define the last tests the amendment
+    # cites, so the set may be empty (it empties at the gate, and it has)
     assert pending <= sup.scope_names()
     assert not pending & sup.defined_tests()
 
@@ -85,10 +86,19 @@ def test_adr0023_phase4_amendment_check_refuses_pending_sets_that_do_not_fit() -
     scope = sup.scope_names()
     pending = sup.PENDING["0023A"]
     assert sup.check_adr(SPEC, text, defined=defined, pending=pending, scope=scope) == []
-    assert sup.check_adr(SPEC, text, defined=defined, pending=frozenset(), scope=scope)
+    # Phase 4 docs batch spec change S-D1: the set may be empty, so the refusals are kept by naming
+    # a test the amendment cites that is not defined (it must be pending), an invented name, and a
+    # defined one on the set (it must leave it)
+    rules, invariants = sup.items_of(SPEC, text)
+    in_items = set().union(*(sup.cited(body) for _, body in rules + invariants))
+    cited_defined = sorted(in_items & defined)[0]
+    assert sup.check_adr(
+        SPEC, text, defined=defined - {cited_defined}, pending=pending, scope=scope
+    )
     assert sup.check_adr(SPEC, text, defined=defined, pending=pending | {"test_zz_x"}, scope=scope)
-    landed = sorted(pending)[0]
-    assert sup.check_adr(SPEC, text, defined=defined | {landed}, pending=pending, scope=scope)
+    assert sup.check_adr(
+        SPEC, text, defined=defined, pending=pending | {cited_defined}, scope=scope
+    )
 
 
 def test_adr0023_phase4_amendment_section_is_found_by_its_own_heading_only() -> None:

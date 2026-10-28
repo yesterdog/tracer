@@ -113,6 +113,19 @@ First version. Everything below is new.
   UUIDv7 values per call, so two runs of one call agree only after their ids are masked. A failed
   transcription is recorded as `missing_input` with a Run warning.
 
+### Simulated runs (Phase 4)
+
+- The simulator's configuration, outcome and timings are three closed, versioned documents in metadata, with no schema change: `tracer.sim_profile/1` (with the input file `tracer.sim_profile_file/1`), `tracer.sim_outcome/1` and `tracer.timing/1` (ADR 0027). Every timing value is an integer number of milliseconds read from the simulator's own monotonic clock, with its dialect and quantum.
+- Pure parts: the call state machine (ADR 0026 rule 9, with exactly one end reason per call), turn-taking, the stereo recorder and the G.711 decode, the engine boundaries for text-to-speech, language models and the caller brain (scripted, language-model and replay), the caller prompt and its output validator (table `mr-caller-charset/1`), the speech-to-text of a call in parts, the simulated run bundle and the shipped timing and partitioned agreement definitions.
+- The expected-outcome check stays inert: a simulated run has no verdict and every output says "outcome not evaluated".
+
+### The judge (Phase 4 batch J)
+
+- Golden sets (`tracer.golden_set/1`): strict JSON, closed keys, at most 100 items, 10 facts per item, 300 characters per fact and 1,000 per expected answer; each item's question must equal its scripted turn byte for byte; refused with a language-model caller and on a turn with a scheduled barge-in.
+- The answer window of an item (the `our_stt` agent turns that start between the end of the question and the next caller line), the fixed prompt templates with the agent's words JSON-encoded inside fences as untrusted data, the output validator (closed keys and values, cross-field rules, never repaired, one regeneration), the judge records (one `llm_judge` definition per item, `tracer.judge/1`, `tracer.judge_profile/1`) and the judge configuration `tracer.judge_config/1`. Every judge output is an uncalibrated signal: no confidence, no probability, no pass rule.
+- Labels: `tracer.judge_labels/1`, the blind packet `tracer.judge_packet/1` and the agreement counts (counts only, unlabelled never counted as disagreement).
+- `docs/concepts/simulated-calls.md` and `docs/concepts/llm-judge.md` say what these parts report and do not claim.
+
 ### Findings
 
 - The concept page `docs/concepts/recorded-call-scoring.md` lists the known limits of the scoring:
