@@ -1,0 +1,8 @@
+audit tests alone: 10 passed (5 per file) on the default Python 3.12 after the two documents exist.
+full workspace, default Python 3.12: 9 failed, 15764 passed, 1 skipped, 1301 deselected.
+The 9 failures are the existing ADR guards that still list the two new test names in their PENDING sets
+(evalcore_phase4_adr_support.py lines 55 for ADR 0026, 68 for ADR 0028, 89 for ADR 0030 hold
+test_p4_audit_items_cite_tests / test_p4j_audit_items_cite_tests; test_sim_core_conventions repeats the 0026 one).
+They are not edited here (instruction: report, do not weaken a guard); the lead removes the names from the pending sets.
+static: ruff check, ruff format --check, mypy strict (579 files), check_headers, guard_private_fixtures, check_licenses,
+schema_export --check, generate_field_docs --check, uv lock --check: all rc=0 (see static.txt).

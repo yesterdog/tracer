@@ -51,8 +51,6 @@ DIALECT_HEADING = "## Dialect specifications"
 # ADR 0026 rules and invariants
 _P0026: frozenset[str] = frozenset(
     {
-        # P4-32
-        "test_p4_audit_items_cite_tests",
         # P4-37
         "test_sim_concept_page_states_no_claims",
     }
@@ -62,12 +60,7 @@ _P0026: frozenset[str] = frozenset(
 _P0027: frozenset[str] = frozenset()
 
 # ADR 0028 rules and invariants
-_P0028: frozenset[str] = frozenset(
-    {
-        # P4-32
-        "test_p4_audit_items_cite_tests",
-    }
-)
+_P0028: frozenset[str] = frozenset()
 
 # ADR 0029 rules and invariants
 _P0029: frozenset[str] = frozenset(
@@ -85,8 +78,6 @@ _P0029: frozenset[str] = frozenset(
 # ADR 0030 rules and invariants (batch J; the names of P4-J26 and later)
 _P0030: frozenset[str] = frozenset(
     {
-        # P4-J26
-        "test_p4j_audit_items_cite_tests",
         # P4-J29
         "test_p4j_measurement_report_follows_template",
         # P4-J30
