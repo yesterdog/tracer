@@ -3,12 +3,15 @@
 """Turn-taking: when the simulated caller speaks (ADR 0026 rule 10, ADR 0028 rule 9).
 
 Pure: instants are integers of nanoseconds read by the caller from its own injected monotonic
-clock; nothing here reads a clock. Agent activity is a received frame holding any non-zero
-sample: no threshold, no model. The three policy values have no default.
+clock; nothing here reads a clock. Agent activity is a received frame whose decoded 16-bit
+samples reach ``activity_min_peak`` in absolute value (the optional fourth value; absent it is 1,
+which is any non-zero sample): no energy window, no model. The three policy values of the owner
+have no default.
 """
 
 from __future__ import annotations
 
+import struct
 from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any, Final
@@ -16,18 +19,25 @@ from typing import Any, Final
 from tracer_evalcore.errors import InputRefusedError
 
 __all__ = [
+    "ACTIVITY_MIN_PEAK_DEFAULT",
+    "ACTIVITY_MIN_PEAK_MAX",
+    "ACTIVITY_MIN_PEAK_MIN",
     "SPEAK_CAUSES",
     "TURN_DECISION_KINDS",
     "TurnDecision",
     "TurnTaker",
     "TurnTakingError",
     "TurnTakingPolicy",
+    "activity_min_peak_of",
     "agent_frame_is_active",
 ]
 
 TURN_DECISION_KINDS: Final = ("wait", "speak", "end")
 SPEAK_CAUSES: Final = ("caller_first", "agent_silent", "barge_in")
 _MAX: Final = 9007199254740991
+ACTIVITY_MIN_PEAK_MIN: Final = 1
+ACTIVITY_MIN_PEAK_MAX: Final = 32767
+ACTIVITY_MIN_PEAK_DEFAULT: Final = 1
 _NS_PER_MS: Final = 1_000_000
 
 
@@ -43,6 +53,12 @@ def _is_int(value: object) -> bool:
     return type(value) is int
 
 
+def _check_peak(value: object) -> int:
+    if type(value) is not int or not ACTIVITY_MIN_PEAK_MIN <= value <= ACTIVITY_MIN_PEAK_MAX:
+        raise TurnTakingError("activity_min_peak_invalid")
+    return value
+
+
 @dataclass(frozen=True)
 class TurnTakingPolicy:
     """The ``turn_taking`` object of ``tracer.sim_profile/1``; every value is required."""
@@ -50,6 +66,7 @@ class TurnTakingPolicy:
     caller_speaks_first: bool
     wait_for_agent_silence_ms: int
     max_silence_ms: int
+    activity_min_peak: int = ACTIVITY_MIN_PEAK_DEFAULT
 
     def __post_init__(self) -> None:
         if type(self.caller_speaks_first) is not bool:
@@ -60,30 +77,48 @@ class TurnTakingPolicy:
                 raise TurnTakingError(f"{name}_invalid")
         if self.max_silence_ms < self.wait_for_agent_silence_ms:
             raise TurnTakingError("max_silence_below_wait")
+        _check_peak(self.activity_min_peak)
 
     @classmethod
     def from_profile(cls, section: Mapping[str, Any]) -> TurnTakingPolicy:
-        """Read the profile's ``turn_taking`` object: exactly its three keys, no default."""
+        """Read the profile's ``turn_taking`` object: its three required keys with no default and
+        the optional ``activity_min_peak`` (absent: 1)."""
         keys = {"caller_speaks_first", "wait_for_agent_silence_ms", "max_silence_ms"}
         if not isinstance(section, Mapping):
             raise TurnTakingError("turn_taking_not_an_object")
         missing = sorted(keys - set(section))
         if missing:
             raise TurnTakingError(f"{missing[0]}_missing")
-        if set(section) - keys:
+        if set(section) - keys - {"activity_min_peak"}:
             raise TurnTakingError("turn_taking_unknown_key")
         return cls(
             caller_speaks_first=section["caller_speaks_first"],
             wait_for_agent_silence_ms=section["wait_for_agent_silence_ms"],
             max_silence_ms=section["max_silence_ms"],
+            activity_min_peak=activity_min_peak_of(section),
         )
 
 
-def agent_frame_is_active(pcm: bytes) -> bool:
-    """True iff the 16-bit little-endian frame holds any non-zero sample (no threshold)."""
+def activity_min_peak_of(section: Mapping[str, Any]) -> int:
+    """The ``activity_min_peak`` of a ``turn_taking`` object or of a timing document: its value,
+    or 1 when the member is missing (a document of an earlier batch)."""
+    if not isinstance(section, Mapping):
+        raise TurnTakingError("turn_taking_not_an_object")
+    if "activity_min_peak" not in section:
+        return ACTIVITY_MIN_PEAK_DEFAULT
+    return _check_peak(section["activity_min_peak"])
+
+
+def agent_frame_is_active(pcm: bytes, *, min_peak: int = ACTIVITY_MIN_PEAK_DEFAULT) -> bool:
+    """True iff the largest absolute value of the frame's 16-bit little-endian samples is at least
+    ``min_peak`` (1 to 32767; the default 1 is any non-zero sample)."""
     if type(pcm) is not bytes or not pcm or len(pcm) % 2:
         raise TurnTakingError("frame_invalid")
-    return any(pcm)
+    _check_peak(min_peak)
+    if min_peak == 1:
+        return any(pcm)
+    samples = struct.unpack(f"<{len(pcm) // 2}h", pcm)
+    return bool(max(max(samples), -min(samples)) >= min_peak)
 
 
 @dataclass(frozen=True)
@@ -169,7 +204,7 @@ class TurnTaker:
 
     def agent_frame(self, now_ns: int, pcm: bytes) -> bool:
         self._check_time(now_ns)
-        active = agent_frame_is_active(pcm)
+        active = agent_frame_is_active(pcm, min_peak=self._policy.activity_min_peak)
         self._clock = now_ns
         before = self._decide(now_ns)
         if before is not None:

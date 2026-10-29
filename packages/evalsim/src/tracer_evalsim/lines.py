@@ -26,18 +26,30 @@ from tracer_evalcore.llm import (
     LlmServerError,
     LlmTransportError,
 )
-from tracer_evalcore.tts import TtsCapReachedError, TtsError, TtsOutcome
+from tracer_evalcore.tts import (
+    TtsAuthError,
+    TtsCapReachedError,
+    TtsError,
+    TtsOutcome,
+    TtsRateLimited,
+    TtsRequestRejected,
+    TtsResponseInvalid,
+    TtsServerError,
+    TtsTransportError,
+)
 from tracer_evalsim.clock import Clock
 from tracer_evalsim.runner import CallerEnd, PreparedLine
 from tracer_evalsim.sender import split_frames
 
 __all__ = [
     "BRAIN_FAILURE_CODES",
+    "VOICE_FAILURE_CODES",
     "LlmLines",
     "PresynthesisedLines",
     "SynthesisedLine",
     "brain_failure_code",
     "run_in_thread",
+    "voice_failure_code",
 ]
 
 _MS: Final = 1_000_000
@@ -62,6 +74,25 @@ _BY_CLASS: Final = (
     (LlmResponseInvalid, "llm_response_invalid"),
 )
 
+#: the facts a failed voice leaves (BL-369): the class of the provider's error, as a stable code
+VOICE_FAILURE_CODES: Final = (
+    "tts_auth",
+    "tts_error",
+    "tts_rate_limited",
+    "tts_rejected",
+    "tts_response_invalid",
+    "tts_server_error",
+    "tts_transport",
+)
+_VOICE_BY_CLASS: Final = (
+    (TtsAuthError, "tts_auth"),
+    (TtsRequestRejected, "tts_rejected"),
+    (TtsRateLimited, "tts_rate_limited"),
+    (TtsServerError, "tts_server_error"),
+    (TtsTransportError, "tts_transport"),
+    (TtsResponseInvalid, "tts_response_invalid"),
+)
+
 
 def brain_failure_code(error: LlmError) -> str:
     """The code of a provider failure: its class, never its message."""
@@ -69,6 +100,14 @@ def brain_failure_code(error: LlmError) -> str:
         if isinstance(error, cls):
             return code
     return "llm_error"
+
+
+def voice_failure_code(error: TtsError) -> str:
+    """The code of a speech-synthesis failure: its class, never its message."""
+    for cls, code in _VOICE_BY_CLASS:
+        if isinstance(error, cls):
+            return code
+    return "tts_error"
 
 
 async def run_in_thread(function: Callable[[], T]) -> T:
@@ -167,8 +206,23 @@ class LlmLines:
         line = decision.line
         try:
             outcome: TtsOutcome = await self._run(lambda: self._synthesise(line, turn_index))
-        except TtsError:
-            return CallerEnd("transport_error", requests=requests)
+        except TtsCapReachedError:
+            return CallerEnd(
+                "spend_cap",
+                invalid_outputs=decision.invalid_outputs,
+                regenerations=decision.regenerations,
+                cap_reached="tts_chars",
+                requests=requests,
+            )
+        except TtsError as error:
+            return CallerEnd(
+                "voice_failed",
+                invalid_outputs=decision.invalid_outputs,
+                regenerations=decision.regenerations,
+                requests=requests,
+                failure_code=voice_failure_code(error),
+                failure_status=error.status,
+            )
         tts_ms = (self._clock.monotonic_ns() - started) // _MS
         if outcome.failure is not None:
             if isinstance(outcome.failure, TtsCapReachedError):
@@ -180,10 +234,12 @@ class LlmLines:
                     requests=requests,
                 )
             return CallerEnd(
-                "transport_error",
+                "voice_failed",
                 invalid_outputs=decision.invalid_outputs,
                 regenerations=decision.regenerations,
                 requests=requests,
+                failure_code=voice_failure_code(outcome.failure),
+                failure_status=outcome.failure.status,
             )
         assert outcome.audio is not None  # noqa: S101
         frames = tuple(split_frames(outcome.audio, sample_rate_hz=self._rate, codec=self._codec))

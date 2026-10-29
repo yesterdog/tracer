@@ -10,7 +10,7 @@ The quick starts are in [packages/cli/README.md](../../../packages/cli/README.md
 |---|---|
 | `evaluator.json` | `tracer.sim_evaluator/1`: the ten scripted caller lines of `sim-mr-s1`, exactly the fixture's `scripted_turns` (a test compares them) |
 | `persona.json` | `tracer.sim_persona/1`: the caller `caller-a`, language `mr`, no accent |
-| `sim-profile.json` | `tracer.sim_profile_file/1`: the dialect `pipecat-protobuf/1`, the audio format, the silence values, the fake voice and the fake speech-to-text; every value is written here because the command has no default |
+| `sim-profile.json` | `tracer.sim_profile_file/1`: the dialect `pipecat-protobuf/1`, the audio format, the silence values (and `activity_min_peak`, the one optional value: 1 is the rule of any non-zero sample, written here so that the label shows it), the fake voice and the fake speech-to-text; every value is written here because the command has no default |
 | `fake-agent.json` | `tracer.fake_agent/1`: the offline fake agent, a list of waits and replies (the replies are the `exact_facts` plants of the golden fixture, one per question); no socket is opened |
 | `golden-set.json` | `tracer.golden_set/1`: the ten items of the golden fixture, exactly its `golden_set` member (a test compares them) |
 | `judge-config.json` | `tracer.judge_config/1` for the engine `fake/1`: the model name is a label, there is no endpoint |

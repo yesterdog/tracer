@@ -22,7 +22,12 @@ from tracer_evalcore.callstate import CallMachine
 from tracer_evalcore.recorder import LogFrame, decode_to_pcm16
 from tracer_evalcore.simtiming import SelfTimes
 from tracer_evalcore.stt import SttCapReachedError, SttError
-from tracer_evalcore.turntaking import TurnDecision, TurnTaker, TurnTakingPolicy
+from tracer_evalcore.turntaking import (
+    TurnDecision,
+    TurnTaker,
+    TurnTakingPolicy,
+    agent_frame_is_active,
+)
 from tracer_evalsim.clock import Clock
 from tracer_evalsim.dialects.base import (
     AgentEvent,
@@ -612,7 +617,7 @@ class _Run:
             if pcm is None:
                 pcm = decode_to_pcm16(frame.codec, frame.payload)
                 self.pcm_cache[id(frame)] = pcm
-            if any(pcm):
+            if agent_frame_is_active(pcm, min_peak=self.s.policy.activity_min_peak):
                 found = frame.t_ns
         return found
 

@@ -1,0 +1,57 @@
+red on the current tree (HEAD 755f714 + the staged tests + spec-change.diff), Python 3.13: 103 failed, 438 passed, 1 skipped in 75.95s (0:01:15)
+grouped by the first line of the failure
+
+   7  tracer_evalcore.simoutcome.SimOutcomeError: schema:/end_reason
+        e.g. test_an_llm_call_that_lost_its_voice_is_a_valid_outcome
+        e.g. test_voice_failed_needs_an_llm_caller[scripted]
+        e.g. test_voice_failed_needs_an_llm_caller[replay]
+   4  tracer_evalcore.callstate.CallStateError: end_reason_invalid
+        e.g. test_a_voice_failure_without_a_status_leaves_the_status_empty
+        e.g. test_no_event_after_ended
+        e.g. test_no_state_is_entered_after_ended
+   4  AssertionError: assert ('script_comp...silence', ...) == ('script_comp...silence', ...)
+        e.g. test_the_end_reasons_are_the_twelve_of_batch_g_and_voice_failed_last
+        e.g. test_the_end_reasons_are_the_eleven_of_adr_0026_and_brain_failed_last
+        e.g. test_state_machine_transition_table_exact
+   3  AssertionError: assert ('transport_e...', None, None) == ('voice_faile...r_error', 500)
+        e.g. test_a_synthesis_that_fails_later_fails_the_same_way[0]
+        e.g. test_a_synthesis_that_fails_later_fails_the_same_way[1]
+        e.g. test_a_synthesis_that_fails_later_fails_the_same_way[4]
+   3  AssertionError: assert 'transport_error' == 'voice_failed'
+        e.g. test_the_brain_and_the_voice_both_run_through_the_blocking_runner[raise]
+        e.g. test_the_call_log_ends_with_voice_failed_and_counts
+        e.g. test_the_stored_voice_outcome_is_the_adr_document_with_the_new_reason
+   2  AssertionError: assert ['script_comp...silence', ...] == ['script_comp...silence', ...]
+        e.g. test_the_outcome_schema_lists_thirteen_end_reasons_in_the_same_order
+        e.g. test_the_outcome_schema_lists_twelve_end_reasons_in_the_same_order
+   2  AssertionError: assert 'a result was... model failed' == 'a result was... voice failed'
+        e.g. test_the_exit_code_table_says_what_two_means_with_the_voice
+        e.g. test_the_exit_code_table_says_what_two_means_now
+   1  AttributeError: module 'tracer_evalsim.lines' has no attribute 'VOICE_FAILURE_CODES'. Did you mean: 'BRAIN_FAILURE_CODES'?
+        e.g. test_the_voice_failure_codes_are_a_closed_sorted_list_of_machine_codes
+   1  AssertionError: assert 'transport_error' == 'spend_cap'
+        e.g. test_the_cap_of_the_voice_is_still_a_spend_cap_and_not_a_failure[raise]
+   1  AttributeError: module 'tracer_evalsim.lines' has no attribute 'voice_failure_code'. Did you mean: 'brain_failure_code'?
+        e.g. test_voice_failure_code_maps_by_class_in_the_order_of_the_contract
+   1  AssertionError: assert 'voice_failed' in ('script_complete', 'caller_end_call', 'agent_hangup', 'max_duration', 'max_turns', 'max_silence', ...)
+        e.g. test_the_call_machine_takes_voice_failed_from_every_connected_state
+   1  ValueError: 'voice failure: tts_server_error (HTTP 500)' is not in list
+        e.g. test_the_voice_line_sits_between_the_summary_and_the_paths
+   1  AssertionError: ('voice failure', "result: call established\nend reason: transport_error\noutcome: not evaluated\ndialect: pipecat-protobuf/1\ncaller audio: syn
+        e.g. test_the_voice_line_with_a_status_never_exposes_more_than_the_status
+   1  AssertionError: assert 0 == 2
+        e.g. test_exit_code_of_follows_the_precedence_with_voice_failed
+   1  AssertionError: ('result: call established
+        e.g. test_a_cache_entry_that_is_not_audio_is_a_voice_failure_with_no_status
+   1  AssertionError: assert '' == 'The simulate...t under test.'
+        e.g. test_the_report_says_the_voice_failed_and_says_nothing_about_the_agent
+   1  assert 0 == 2
+        e.g. test_a_voice_failed_run_round_trips_through_the_store_byte_identical
+   1  AssertionError: voice_failed_first
+        e.g. test_tdeg_sim_voice_failed_schema_identical_to_the_other_cases
+   1  AssertionError: assert 'end_reason_invalid' == 'end_reason_n...efore_connect'
+        e.g. test_setup_failure_is_an_end_reason_not_an_exception
+   1  AssertionError: assert {'$schema': '...': False, ...} == {'$schema': '...': False, ...}
+        e.g. test_shipped_sim_outcome_schema_equals_adr0027_block
+   1  ValueError: end_reason: not an accepted value
+        e.g. test_sim_call_log_connect_and_end_lines

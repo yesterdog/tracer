@@ -110,10 +110,10 @@ dialect: pipecat-protobuf/1
 caller audio: synthetic (generated speech, not a person)
 caller turns: 10 started, 10 completed
 agent segments: 10
-first agent audio: <ms> ms (observed at the simulator over pipecat-protobuf/1, quantum 20 ms)
-gap after the caller's line (median): <ms> ms (observed at the simulator over pipecat-protobuf/1, quantum 20 ms, N 10)
-overlap: 0 ms (observed at the simulator over pipecat-protobuf/1, quantum 20 ms)
-answered caller turns: 10 (observed at the simulator over pipecat-protobuf/1, quantum 20 ms)
+first agent audio: <ms> ms (observed at the simulator over pipecat-protobuf/1, quantum 20 ms, activity: any non-zero sample)
+gap after the caller's line (median): <ms> ms (observed at the simulator over pipecat-protobuf/1, quantum 20 ms, activity: any non-zero sample, N 10)
+overlap: 0 ms (observed at the simulator over pipecat-protobuf/1, quantum 20 ms, activity: any non-zero sample)
+answered caller turns: 10 (observed at the simulator over pipecat-protobuf/1, quantum 20 ms, activity: any non-zero sample)
 agreement: not scored (missing input agent_transcript)
 tts usage: none
 llm usage: none
@@ -204,7 +204,7 @@ The packet, the labels file and the exchange files of a real judge are call text
 
 - `0`: the call was established and every result is scored or not applicable
 - `1`: unexpected failure
-- `2`: a result was not scored, or the caller's language model failed
+- `2`: a result was not scored, or the caller's language model or voice failed
 - `3`: speech-to-text failed
 - `4`: input refused
 - `5`: call not established

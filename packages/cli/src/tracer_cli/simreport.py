@@ -34,6 +34,7 @@ from tracer_cli.report import (
 from tracer_cli.summary import cost_text
 from tracer_evalcore.judgelabels import judged_items
 from tracer_evalcore.simscore import SIM_AGREEMENT_KEYS, SIM_TIMING_KEYS
+from tracer_evalcore.simtiming import activity_wording
 from tracer_evalschema.bundle import RunBundle
 from tracer_evalschema.transcript import Transcript, Turn
 
@@ -45,6 +46,11 @@ SYNTHETIC_LABEL: Final = (
 )
 BRAIN_FAILED_NOTE: Final = (
     "The simulated caller's language model failed during the call, so the caller stopped "
+    "speaking before it had finished. This is a failure of the test caller, not a result about "
+    "the agent under test."
+)
+VOICE_FAILED_NOTE: Final = (
+    "The simulated caller's voice synthesis failed during the call, so the caller stopped "
     "speaking before it had finished. This is a failure of the test caller, not a result about "
     "the agent under test."
 )
@@ -102,6 +108,11 @@ def _header(facts: simsummary.SimFacts) -> str:
             *(
                 [_el("p", _e(BRAIN_FAILED_NOTE), id="brain-failed-note", **{"class": "warning"})]
                 if facts.outcome["end_reason"] == "brain_failed"
+                else []
+            ),
+            *(
+                [_el("p", _e(VOICE_FAILED_NOTE), id="voice-failed-note", **{"class": "warning"})]
+                if facts.outcome["end_reason"] == "voice_failed"
                 else []
             ),
         ]
@@ -216,6 +227,11 @@ def _timing(facts: simsummary.SimFacts) -> str:
         "sim_agent_response_gap_median_ms": facts.timing["gap_n"],
         "sim_barge_in_stop_ms": facts.timing["barge_in_n"],
     }
+    activity = (
+        f" activity: {activity_wording(facts.timing['activity_min_peak'])}."
+        if "activity_min_peak" in facts.timing
+        else ""
+    )
     for label, text in simsummary.timing_lines(facts):
         rows.append(_el("tr", _el("th", _e(label)) + _el("td", _e(text)), **{"class": "timing"}))
     for key, result in facts.results.items():
@@ -229,6 +245,8 @@ def _timing(facts: simsummary.SimFacts) -> str:
             "data-quantum-ms": quantum,
             "data-dialect": dialect,
         }
+        if "activity_min_peak" in facts.timing:
+            attributes["data-activity-min-peak"] = facts.timing["activity_min_peak"]
         if n is not None:
             attributes["data-n"] = n
         rows.append(_el("tr", _el("td", _e(key)), **{"class": "timing-record", **attributes}))
@@ -256,7 +274,7 @@ def _timing(facts: simsummary.SimFacts) -> str:
             _e(
                 f"observed at the simulator over {dialect}; quantum {quantum} ms (the larger of "
                 "the caller frame and the longest agent frame received); a median is the "
-                "nearest-rank value and shows N."
+                f"nearest-rank value and shows N.{activity}"
             ),
             id="timing-note",
         )

@@ -19,7 +19,12 @@ from typing import Any, Final
 from tracer_evalcore.errors import InputRefusedError
 from tracer_evalcore.recorder import LogFrame, RecorderFormat, _check, decode_to_pcm16
 from tracer_evalcore.simtypes import DIALECTS, FRAME_MS
-from tracer_evalcore.turntaking import agent_frame_is_active
+from tracer_evalcore.turntaking import (
+    ACTIVITY_MIN_PEAK_DEFAULT,
+    TurnTakingError,
+    activity_min_peak_of,
+    agent_frame_is_active,
+)
 
 __all__ = [
     "TIMING_EDGE_MISSING",
@@ -31,6 +36,7 @@ __all__ = [
     "SelfTimes",
     "TimingDocumentError",
     "TimingValue",
+    "activity_wording",
     "extract_timing",
     "nearest_rank_median",
     "timing_value",
@@ -94,6 +100,11 @@ _SCHEMA_TEXT: Final = r"""{
    "enum": [
     20
    ]
+  },
+  "activity_min_peak": {
+   "type": "integer",
+   "minimum": 1,
+   "maximum": 32767
   },
   "setup_ms": {
    "type": [
@@ -356,7 +367,14 @@ def extract_timing(
     observed_until_ns: int,
     caller_turns: Sequence[CallerTurn],
     agent_frames: Sequence[LogFrame],
+    activity_min_peak: int | None = None,
 ) -> dict[str, Any]:
+    """The timing document. ``activity_min_peak`` is the optional threshold of the sim profile: a
+    frame is active iff its decoded samples reach it in absolute value. ``None`` means the profile
+    did not give it (the rule is then 1, any non-zero sample, and the document has no member)."""
+    if activity_min_peak is not None:
+        activity_wording(activity_min_peak)
+    peak = ACTIVITY_MIN_PEAK_DEFAULT if activity_min_peak is None else activity_min_peak
     if dialect not in DIALECTS:
         raise TimingDocumentError("dialect_invalid")
     if not isinstance(fmt, RecorderFormat):
@@ -393,7 +411,7 @@ def extract_timing(
     )
     frame_ns = FRAME_MS * _MS
     if not established or connect_ended_ns is None:
-        return _finish(dialect, FRAME_MS, setup_ms, None, None, [])
+        return _finish(dialect, FRAME_MS, setup_ms, None, None, [], activity_min_peak)
     origin = connect_ended_ns
     _check(fmt, agent_frames, origin, "agent")
     previous_end = origin
@@ -409,7 +427,7 @@ def extract_timing(
     active = [
         (f.t_ns, _duration_ns(f))
         for f in agent_frames
-        if agent_frame_is_active(decode_to_pcm16(f.codec, f.payload))
+        if agent_frame_is_active(decode_to_pcm16(f.codec, f.payload), min_peak=peak)
     ]
     last_seen = max(
         [observed_until_ns, *(t.last_frame_ns + frame_ns for t in caller_turns),
@@ -449,7 +467,13 @@ def extract_timing(
             }
         )
     return _finish(
-        dialect, quantum, setup_ms, first_audio, sum(t["overlap_ms"] for t in turns), turns
+        dialect,
+        quantum,
+        setup_ms,
+        first_audio,
+        sum(t["overlap_ms"] for t in turns),
+        turns,
+        activity_min_peak,
     )
 
 
@@ -479,6 +503,7 @@ def _finish(
     first_audio: int | None,
     overlap: int | None,
     turns: list[dict[str, Any]],
+    activity_min_peak: int | None = None,
 ) -> dict[str, Any]:
     gaps = [t["gap_ms"] for t in turns if t["gap_ms"] is not None]
     stops = [t["barge_in_stop_ms"] for t in turns if t["barge_in_stop_ms"] is not None]
@@ -498,8 +523,20 @@ def _finish(
         "barge_in_n": len(stops),
         "turns": turns,
     }
+    if activity_min_peak is not None:
+        document["activity_min_peak"] = activity_min_peak
     validate_timing_document(document)
     return document
+
+
+def activity_wording(min_peak: int) -> str:
+    """The closed wording of the activity rule in a label: ``any non-zero sample`` for 1, else
+    ``peak >= N``. It states the rule applied, never what the audio is."""
+    try:
+        activity_min_peak_of({"activity_min_peak": min_peak})
+    except TurnTakingError:
+        raise TimingDocumentError("activity_min_peak_invalid") from None
+    return "any non-zero sample" if min_peak == 1 else f"peak >= {min_peak}"
 
 
 @dataclass(frozen=True)
@@ -544,8 +581,10 @@ def _ms_or_none(value: object, code: str) -> None:
 
 
 def validate_timing_document(document: Mapping[str, Any]) -> None:
-    if not isinstance(document, Mapping) or set(document) != _TOP:
+    if not isinstance(document, Mapping) or set(document) - {"activity_min_peak"} != _TOP:
         raise _bad("document_keys")
+    if "activity_min_peak" in document:
+        activity_wording(document["activity_min_peak"])
     if document["format"] != TIMING_FORMAT:
         raise _bad("format_invalid")
     if document["dialect"] not in DIALECTS:

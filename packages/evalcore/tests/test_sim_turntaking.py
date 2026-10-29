@@ -141,12 +141,18 @@ def test_wait_for_silence_parameter_has_no_default() -> None:
     cls = tt.TurnTakingPolicy
     # dataclass fields: required, no default, no factory
     fields = {f.name: f for f in dataclasses.fields(cls)}
-    assert tuple(fields) == POLICY_KEYS
-    for name, field in fields.items():
+    # BL-313: the one optional value, ``activity_min_peak``, follows the three required ones; it is
+    # the only field with a default and the default is 1 (any non-zero sample)
+    assert tuple(fields) == (*POLICY_KEYS, "activity_min_peak")
+    for name in POLICY_KEYS:
+        field = fields[name]
         assert field.default is dataclasses.MISSING, name
         assert field.default_factory is dataclasses.MISSING, name
+    assert fields["activity_min_peak"].default == 1
     assert all(
-        p.default is inspect.Parameter.empty for p in inspect.signature(cls).parameters.values()
+        p.default is inspect.Parameter.empty
+        for name, p in inspect.signature(cls).parameters.items()
+        if name in POLICY_KEYS
     )
     full = {"caller_speaks_first": False, "wait_for_agent_silence_ms": 800, "max_silence_ms": 5000}
     assert cls(**full).wait_for_agent_silence_ms == 800
@@ -167,7 +173,7 @@ def test_wait_for_silence_parameter_has_no_default() -> None:
     schema = _turn_taking_schema()
     assert tuple(sorted(schema["required"])) == tuple(sorted(POLICY_KEYS))
     assert "default" not in json.dumps(schema)
-    assert set(schema["properties"]) == set(POLICY_KEYS)
+    assert set(schema["properties"]) == {*POLICY_KEYS, "activity_min_peak"}
     # no module of the package gives any of them a default value (a parameter default, or an
     # assignment of a constant), whatever the spelling
     offences = []

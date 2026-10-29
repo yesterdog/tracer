@@ -20,7 +20,7 @@ from tracer_evalcore.registry import COUNT_KEY, MER_KEY, SHARE_KEY
 from tracer_evalcore.simoutcome import SIM_OUTCOME_METADATA_KEY
 from tracer_evalcore.simprofile import SIM_PROFILE_METADATA_KEY
 from tracer_evalcore.simscore import SIM_AGREEMENT_KEYS, SIM_TIMING_KEYS
-from tracer_evalcore.simtiming import TIMING_METADATA_KEY
+from tracer_evalcore.simtiming import TIMING_METADATA_KEY, activity_wording
 from tracer_evalschema.bundle import RunBundle
 from tracer_evalschema.primitives import canonical_decimal_text
 from tracer_evalschema.results import MetricResult
@@ -62,14 +62,14 @@ def sim_facts(bundle: RunBundle) -> SimFacts:
 
 def exit_code_of(bundle: RunBundle) -> int:
     """5 when the call was not established, 3 when the speech-to-text failed, 2 when a result is an
-    error or the caller's language model failed (``brain_failed``), else 0 (precedence 1, 5, 3, 2,
-    0; the 1 is the command's own, ADR 0026 rule 19)."""
+    error or the caller's language model or voice failed (``brain_failed``, ``voice_failed``),
+    else 0 (precedence 1, 5, 3, 2, 0; the 1 is the command's own, ADR 0026 rule 19)."""
     facts = sim_facts(bundle)
     if not facts.outcome["call_established"]:
         return EXIT_NO_CALL
     if any(w.code == "stt_failed" for w in bundle.run.ingest_warnings):
         return 3
-    if facts.outcome["end_reason"] == "brain_failed":
+    if facts.outcome["end_reason"] in ("brain_failed", "voice_failed"):
         return 2
     if any(r.status == "error" for r in bundle.results):
         return 2
@@ -84,9 +84,9 @@ def _edge(result: MetricResult) -> str:
     return "missing edge"
 
 
-def _not_measured(result: MetricResult) -> str:
+def _not_measured(result: MetricResult, rule: str = "") -> str:
     if result.status == "error":
-        return f"not measured ({_edge(result)})"
+        return f"not measured ({_edge(result)}{rule})"
     kinds = ", ".join(result.missing_kinds or [])
     reason = result.na_reason or "not_applicable"
     return f"not measured (missing input {kinds})" if kinds else f"not measured ({reason})"
@@ -96,6 +96,10 @@ def timing_lines(facts: SimFacts) -> list[tuple[str, str]]:
     dialect = facts.timing["dialect"]
     quantum = facts.timing["quantum_ms"]
     note = f"observed at the simulator over {dialect}, quantum {quantum} ms"
+    rule = ""
+    if "activity_min_peak" in facts.timing:
+        rule = f", activity: {activity_wording(facts.timing['activity_min_peak'])}"
+        note += rule
     rows = (
         ("sim_first_agent_audio_ms", "first agent audio", " ms", None),
         (
@@ -122,7 +126,7 @@ def timing_lines(facts: SimFacts) -> list[tuple[str, str]]:
             suffix = f", N {count}" if count is not None else ""
             lines.append((label, f"{result.value}{unit} ({note}{suffix})"))
         else:
-            lines.append((label, _not_measured(result)))
+            lines.append((label, _not_measured(result, rule)))
     return lines
 
 

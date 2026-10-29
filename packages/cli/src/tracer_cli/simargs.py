@@ -34,7 +34,7 @@ CAP_OPTIONS: Final = {
 SIM_EXIT_CODES: Final = {
     0: "the call was established and every result is scored or not applicable",
     1: "unexpected failure",
-    2: "a result was not scored, or the caller's language model failed",
+    2: "a result was not scored, or the caller's language model or voice failed",
     3: "speech-to-text failed",
     4: "input refused",
     5: "call not established",

@@ -1,0 +1,75 @@
+Tests of batch voice that pass on the current tree (HEAD 755f714 + the staged tests + spec-change.diff, no oracle),
+36 of the batch's new tests. Each is listed with the reason it is not red.
+
+  test_evalsim_voice_failed::test_the_cap_of_the_voice_is_still_a_spend_cap_and_not_a_failure[return]
+      regression guard: a cap returned in the outcome is already spend_cap naming tts_chars; kills a mutant that treats the cap as a failure
+  test_evalsim_voice_failed::test_the_brain_and_the_voice_both_run_through_the_blocking_runner[ok]
+      behaviour guard: both engine calls go through run_blocking on the success path, true today (the two failing variants are red)
+  test_evalsim_voice_failed::test_an_error_that_is_not_a_tts_error_is_not_swallowed
+      negative guard: a defect is not a provider failure; true today, kills a mutant that catches every exception
+  test_evalsim_voice_failed::test_a_good_synthesis_is_a_line_with_no_failure_facts
+      behaviour guard of the success path, true today; it must survive the change
+  test_evalsim_voice_failed::test_a_brain_that_ends_the_call_never_asks_the_voice
+      behaviour guard: a brain that ends the call never reaches the voice, true today
+  test_evalsim_voice_failed::test_a_failed_brain_is_still_brain_failed_and_never_reaches_the_voice
+      regression guard of BL-338: the brain is asked first and its failure keeps its own reason and codes
+  test_evalsim_voice_failed::test_voice_failed_and_brain_failed_are_two_reasons_with_the_same_fact_fields
+      regression guard: the runner carries the failure facts of brain_failed unchanged; true today
+  test_evalsim_voice_failed::test_only_the_llm_line_provider_can_lose_its_voice_during_a_call
+      reachability guard (contract section 6): true by construction today; it fails if a scripted or replay provider ever takes a synthesis function
+  test_evalsim_voice_failed::test_other_end_reasons_carry_no_voice_failure_status
+      regression guard: an ordinary call has no failure facts, true today
+  test_phase4_batch_voice_wiring::test_every_name_the_adr_text_cites_for_voice_failed_is_defined_by_exactly_one_test
+      inventory: the names exist in the staged files; true as soon as the files are copied
+  test_phase4_batch_voice_wiring::test_every_test_of_the_batch_is_defined_once_in_the_whole_workspace
+      inventory: no name of the batch repeats a name of the workspace, true as soon as the files are copied
+  test_phase4_batch_voice_wiring::test_no_name_of_the_batch_is_left_on_a_pending_set
+      inventory: no pending set holds a name of this batch, true today
+  test_phase4_batch_voice_wiring::test_the_contract_exists_and_the_sections_the_tests_cite_exist
+      documentation: the contract is delivered with the tests; red without it (see red-without-spec-change)
+  test_phase4_batch_voice_wiring::test_no_batch_voice_test_module_imports_a_tracer_module_at_module_level
+      static: no module-level Tracer import in the batch files, true as soon as the files are copied
+  test_phase4_batch_voice_wiring::test_the_spec_change_reached_the_tests_that_pin_the_thirteen_end_reasons
+      documentation: true once spec-change.diff is applied (red without it, see red-without-spec-change)
+  test_phase4_batch_voice_wiring::test_the_adr_text_says_thirteen_and_defines_the_new_reason
+      documentation: true once the docs hunks of spec-change.diff are applied (red without them)
+  test_cli_simulate_voice_failed::test_nothing_the_voice_provider_sent_reaches_any_output[401]
+      negative guard: no provider text, header or key reaches any output, true today in the transport_error path and it must stay true
+  test_cli_simulate_voice_failed::test_nothing_the_voice_provider_sent_reaches_any_output[403]
+      negative guard: no provider text, header or key reaches any output, true today in the transport_error path and it must stay true
+  test_cli_simulate_voice_failed::test_nothing_the_voice_provider_sent_reaches_any_output[400]
+      negative guard: no provider text, header or key reaches any output, true today in the transport_error path and it must stay true
+  test_cli_simulate_voice_failed::test_nothing_the_voice_provider_sent_reaches_any_output[422]
+      negative guard: no provider text, header or key reaches any output, true today in the transport_error path and it must stay true
+  test_cli_simulate_voice_failed::test_nothing_the_voice_provider_sent_reaches_any_output[429]
+      negative guard: no provider text, header or key reaches any output, true today in the transport_error path and it must stay true
+  test_cli_simulate_voice_failed::test_nothing_the_voice_provider_sent_reaches_any_output[500]
+      negative guard: no provider text, header or key reaches any output, true today in the transport_error path and it must stay true
+  test_cli_simulate_voice_failed::test_nothing_the_voice_provider_sent_reaches_any_output[503]
+      negative guard: no provider text, header or key reaches any output, true today in the transport_error path and it must stay true
+  test_cli_simulate_voice_failed::test_nothing_the_voice_provider_sent_reaches_any_output[transport]
+      negative guard: no provider text, header or key reaches any output, true today in the transport_error path and it must stay true
+  test_cli_simulate_voice_failed::test_nothing_the_voice_provider_sent_reaches_any_output[timeout]
+      negative guard: no provider text, header or key reaches any output, true today in the transport_error path and it must stay true
+  test_cli_simulate_voice_failed::test_nothing_the_voice_provider_sent_reaches_any_output[bad_json]
+      negative guard: no provider text, header or key reaches any output, true today in the transport_error path and it must stay true
+  test_cli_simulate_voice_failed::test_nothing_the_voice_provider_sent_reaches_any_output[no_audios]
+      negative guard: no provider text, header or key reaches any output, true today in the transport_error path and it must stay true
+  test_cli_simulate_voice_failed::test_nothing_the_voice_provider_sent_reaches_any_output[headerless]
+      negative guard: no provider text, header or key reaches any output, true today in the transport_error path and it must stay true
+  test_cli_simulate_voice_failed::test_a_spend_cap_of_the_voice_in_the_call_is_still_a_spend_cap
+      regression guard: a character cap in the call is spend_cap and exit 0 today and stays so
+  test_cli_simulate_voice_failed::test_a_failure_of_the_brain_is_still_brain_failed_and_names_its_own_line
+      regression guard of BL-338: a brain failure keeps its own line and exit 2
+  test_cli_simulate_voice_failed::test_a_scripted_caller_cannot_lose_its_voice_in_the_call[500]
+      reachability guard (contract section 6): a scripted run whose synthesis fails is the refusal before the call (exit 1), true today
+  test_cli_simulate_voice_failed::test_a_scripted_caller_cannot_lose_its_voice_in_the_call[401]
+      reachability guard (contract section 6): a scripted run whose synthesis fails is the refusal before the call (exit 1), true today
+  test_cli_simulate_voice_failed::test_a_scripted_caller_cannot_lose_its_voice_in_the_call[timeout]
+      reachability guard (contract section 6): a scripted run whose synthesis fails is the refusal before the call (exit 1), true today
+  test_cli_simulate_voice_failed::test_a_scripted_caller_cannot_lose_its_voice_in_the_call[headerless]
+      reachability guard (contract section 6): a scripted run whose synthesis fails is the refusal before the call (exit 1), true today
+  test_cli_simulate_voice_failed::test_the_brain_note_is_not_in_a_voice_report_and_the_voice_note_not_in_a_brain_report
+      regression guard: the brain report keeps its note and gains no voice note, true today for the part that exists
+  test_cli_simulate_voice_failed::test_other_reports_have_no_voice_note
+      negative guard: an ordinary report has no voice note, true today

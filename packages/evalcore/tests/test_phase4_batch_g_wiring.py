@@ -46,7 +46,7 @@ PRODUCT_MODULES = (
     "tracer_evalsim.guard",
     "tracer_evalsim.addresses",
 )
-TWELVE = (
+THIRTEEN = (
     "script_complete",
     "caller_end_call",
     "agent_hangup",
@@ -59,6 +59,7 @@ TWELVE = (
     "brain_invalid_output",
     "spend_cap",
     "brain_failed",
+    "voice_failed",
 )
 
 
@@ -140,7 +141,7 @@ def test_no_batch_g_test_module_imports_a_batch_g_product_module_at_module_level
 
 
 def test_the_spec_change_reached_the_tests_that_pin_the_end_reasons() -> None:
-    """S-G2: every test file that lists the end reasons lists the twelve, in this order."""
+    """S-G2: every test file that lists the end reasons lists the thirteen, in this order."""
     for relative in (
         "evalcore/tests/evalcore_batcha_support.py",
         "evalcore/tests/test_sim_outcome_doc.py",
@@ -150,7 +151,7 @@ def test_the_spec_change_reached_the_tests_that_pin_the_end_reasons() -> None:
         source = (sup.PACKAGES / relative).read_text("utf-8")
         found = re.search(r"END_REASONS[^=]*=\s*[\(\[]\s*([^\)\]]*)[\)\]]", source)
         assert found is not None, relative
-        assert tuple(re.findall(r'"([a-z_]+)"', found.group(1))) == TWELVE, relative
+        assert tuple(re.findall(r'"([a-z_]+)"', found.group(1))) == THIRTEEN, relative
 
 
 def test_the_adr_text_says_twelve_and_names_the_two_files() -> None:
@@ -159,14 +160,14 @@ def test_the_adr_text_says_twelve_and_names_the_two_files() -> None:
     rules = dict(sup.numbered(sup.heading_section(adr26, "## Decision"), r"(\d+)\. \*\*"))
     rule9 = rules["9"]
     listed = rule9[rule9.index("exactly the end reasons") : rule9.index("Every call ends")]
-    assert tuple(re.findall(r"`([a-z_]+)`", listed)) == TWELVE
+    assert tuple(re.findall(r"`([a-z_]+)`", listed)) == THIRTEEN
     guard = importlib.import_module("tracer_evalsim.guard")
     assert f"`{guard.KILL_SWITCH_FILE_NAME}`" in rules["17"]
     assert f"`{guard.CALL_LOCK_FILE_NAME}`" in rules["18"]
     assert "`brain_failed`" in rules["19"]
-    assert "twelve end reasons" in adr26
+    assert "thirteen end reasons" in adr26
     assert "eleven end reasons" not in adr26
-    assert "twelve end reasons" in sup.ADR29.read_text("utf-8")
-    assert '"spend_cap", "brain_failed"]' in sup.ADR27.read_text("utf-8")
+    assert "thirteen end reasons" in sup.ADR29.read_text("utf-8")
+    assert '"brain_failed", "voice_failed"]' in sup.ADR27.read_text("utf-8")
     scope = sup.SCOPE4.read_text("utf-8")
     assert "`spend_cap`, `brain_failed` (added 2026-10-28, BL-338)" in scope

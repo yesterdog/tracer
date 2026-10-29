@@ -42,6 +42,7 @@ END_REASONS = (
     "brain_invalid_output",
     "spend_cap",
     "brain_failed",
+    "voice_failed",
 )
 
 
@@ -101,12 +102,12 @@ def test_a_built_outcome_validates_and_is_never_evaluated() -> None:
 
 @pytest.mark.parametrize("end_reason", END_REASONS)
 def test_every_end_reason_is_a_valid_record(end_reason: str) -> None:
-    """The twelve end reasons of ADR 0026 rule 9, each recorded as itself."""
+    """The thirteen end reasons of ADR 0026 rule 9, each recorded as itself."""
     if end_reason == "setup_failed":
         document = outcome_document(established=False)
     elif end_reason == "spend_cap":
         document = outcome_document(end_reason=end_reason, cap_reached="tts_chars")
-    elif end_reason == "brain_failed":
+    elif end_reason in ("brain_failed", "voice_failed"):
         document = outcome_document(end_reason=end_reason, mode="llm")
     else:
         document = outcome_document(end_reason=end_reason)

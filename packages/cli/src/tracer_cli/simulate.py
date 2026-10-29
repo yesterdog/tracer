@@ -356,6 +356,7 @@ class _Inputs:
     replay: ReplayBrain | None
     wait_ms: int
     policy: TurnTakingPolicy
+    activity_min_peak: int | None = None  # as the file gave it; None: not given (the rule is 1)
     judge: judgeplan.JudgeInputs | None = None
 
 
@@ -478,6 +479,7 @@ def _step1_parse(args: argparse.Namespace, created_at: datetime) -> _Inputs:
         replay=replay,
         wait_ms=policy.wait_for_agent_silence_ms,
         policy=policy,
+        activity_min_peak=profile_file.turn_taking.get("activity_min_peak"),
         judge=judge_inputs,
     )
 
@@ -698,6 +700,7 @@ class _Transcriber:
         *,
         fmt: RecorderFormat,
         wait_ms: int,
+        activity_min_peak: int | None,
         max_chunk_ms: int,
         run_id: RunId,
         artifact_id: ArtifactId,
@@ -708,6 +711,7 @@ class _Transcriber:
         self.ledger = ledger
         self.fmt = fmt
         self.wait_ms = wait_ms
+        self.activity_min_peak = activity_min_peak
         self.max_chunk_ms = max_chunk_ms
         self.run_id = run_id
         self.artifact_id = artifact_id
@@ -735,6 +739,7 @@ class _Transcriber:
             channels=2,
             channel=channel,
             wait_for_agent_silence_ms=self.wait_ms,
+            activity_min_peak=self.activity_min_peak,
             max_chunk_ms=self.max_chunk_ms,
             search_ms=min(_MIN_SEARCH_MS, self.max_chunk_ms),
         )
@@ -1349,6 +1354,7 @@ def _call_and_save(
         ledger,
         fmt=fmt,
         wait_ms=inputs.wait_ms,
+        activity_min_peak=inputs.activity_min_peak,
         max_chunk_ms=profile.stt["max_chunk_ms"],
         run_id=run_id,
         artifact_id=artifact_id,
@@ -1431,6 +1437,7 @@ def _call_and_save(
         dialect=dialect.dialect_id,
         fmt=fmt,
         wait_for_agent_silence_ms=inputs.wait_ms,
+        activity_min_peak=inputs.activity_min_peak,
         connect_started_ns=None if kill_before_connect else result.connect_started_ns,
         connect_ended_ns=None if kill_before_connect else result.connect_ended_ns,
         established=established,
@@ -1604,10 +1611,11 @@ def _call_and_save(
     environment.stdout.write(
         "".join(f"{label}: {value}\n" for label, value in simsummary.sim_summary_lines(bundle))
     )
-    if result.end_reason == "brain_failed":
+    if result.end_reason in ("brain_failed", "voice_failed"):
         status = result.failure_http_status
+        label = "brain" if result.end_reason == "brain_failed" else "voice"
         environment.stdout.write(
-            f"brain failure: {result.failure_code}"
+            f"{label} failure: {result.failure_code}"
             + ("" if status is None else f" (HTTP {status})")
             + "\n"
         )

@@ -45,6 +45,7 @@ END_REASONS: Final = (
     "brain_invalid_output",
     "spend_cap",
     "brain_failed",
+    "voice_failed",
 )
 CALLER_MODES: Final = ("scripted", "llm", "replay")
 CAP_NAMES: Final = ("call_seconds", "tts_chars", "llm_tokens", "stt_seconds")

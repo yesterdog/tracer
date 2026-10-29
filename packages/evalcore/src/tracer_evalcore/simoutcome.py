@@ -86,7 +86,8 @@ _SCHEMA_TEXT: Final = r"""{
         "transport_error",
         "brain_invalid_output",
         "spend_cap",
-        "brain_failed"
+        "brain_failed",
+        "voice_failed"
       ]
     },
     "cap_reached": {
@@ -276,6 +277,8 @@ def validate_sim_outcome(document: Mapping[str, Any], *, brain_mode: str | None 
         raise SimOutcomeError("regenerations_above_invalid")
     if end == "brain_failed" and document["caller_text_origin"] != "llm":
         raise SimOutcomeError("brain_failed_without_llm_caller")
+    if end == "voice_failed" and document["caller_text_origin"] != "llm":
+        raise SimOutcomeError("voice_failed_without_llm_caller")
     if document["caller_text_origin"] == "scripted" and (
         counts["brain_requests"] or counts["llm_requests"]
     ):

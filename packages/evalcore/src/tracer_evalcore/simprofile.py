@@ -162,6 +162,11 @@ _SCHEMA_TEXT: Final = r"""{
           "type": "integer",
           "minimum": 1,
           "maximum": 9007199254740991
+        },
+        "activity_min_peak": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32767
         }
       }
     },

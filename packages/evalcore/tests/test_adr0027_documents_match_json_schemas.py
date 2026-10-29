@@ -60,6 +60,7 @@ END_REASONS = [
     "brain_invalid_output",
     "spend_cap",
     "brain_failed",
+    "voice_failed",
 ]
 STATES = [
     "preflight",
@@ -182,7 +183,7 @@ def cross_document_problems(
         if f"`{dialect}`" not in rule5:
             problems.append(f"ADR 0026 rule 5 does not name `{dialect}`")
     if outcome["end_reason"]["enum"] != END_REASONS:
-        problems.append("sim_outcome: end_reason enum is not the twelve reasons in order")
+        problems.append("sim_outcome: end_reason enum is not the thirteen reasons in order")
     rule9 = _rule(adr26, 9)
     for reason in END_REASONS:
         if f"`{reason}`" not in rule9:
@@ -747,13 +748,28 @@ def test_the_oneof_branches_are_exclusive_for_the_good_documents() -> None:
         assert len(matching) == 1, (caller["mode"], len(matching))
 
 
+#: BL-313: the only two optional keys of the three documents, each named by its document and path
+OPTIONAL_KEYS = {
+    ("tracer.sim_profile/1", "$.properties.turn_taking"): {"activity_min_peak"},
+    ("tracer.timing/1", "$"): {"activity_min_peak"},
+}
+
+
 def test_an_optional_looking_key_is_not_optional() -> None:
-    """Every key of every document is required (a fixed key set: absence is never a default)."""
+    """Every key of every document is required (a fixed key set: absence is never a default),
+    except the two optional ``activity_min_peak`` of BL-313 (absent means 1 and is read as 1)."""
+    seen: set[tuple[str, str]] = set()
     schemas = extract_schemas(sup.ADR27.read_text("utf-8"))
     for title, schema in schemas.items():
         for path, node in _walk(schema):
             if "object" in _types(node) and node.get("properties"):
-                assert set(node["required"]) == set(node["properties"]), f"{title} {path}"
+                optional = OPTIONAL_KEYS.get((title, path), set())
+                if optional:
+                    seen.add((title, path))
+                assert set(node["required"]) == set(node["properties"]) - optional, (
+                    f"{title} {path}"
+                )
+    assert seen == set(OPTIONAL_KEYS)
 
 
 # ---------------------------------------------------------------------- mutants of the ADR text
@@ -814,7 +830,7 @@ def _dialect_drift(text: str) -> str:
 
 
 def _drop_end_reason(text: str) -> str:
-    return text.replace('"spend_cap", "brain_failed"]', '"spend_cap"]', 1)
+    return text.replace('"brain_failed", "voice_failed"]', '"brain_failed"]', 1)
 
 
 def _drop_cap_name(text: str) -> str:

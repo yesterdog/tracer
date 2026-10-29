@@ -192,7 +192,7 @@ def test_the_call_log_ends_with_the_reason_and_counts(tmp_path: Path) -> None:
 def test_the_exit_code_table_says_what_two_means_now(capsys: pytest.CaptureFixture[str]) -> None:
     """ADR 0026 rule 19 (amended): 2 is also 'the caller's language model failed', in the table and
     in ``tracer simulate --help``. The Phase 3 table of ``tracer score`` does not change."""
-    meaning = "a result was not scored, or the caller's language model failed"
+    meaning = "a result was not scored, or the caller's language model or voice failed"
     simargs = mod("simargs")
     assert simargs.SIM_EXIT_CODES[2] == meaning
     assert simargs.SIM_EXIT_CODES.keys() == {0, 1, 2, 3, 4, 5, 64}

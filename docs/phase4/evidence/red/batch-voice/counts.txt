@@ -1,0 +1,16 @@
+batch voice (BL-369, the end reason voice_failed), 127 new test items in 5 test files (+ 1 support module), 2026-10-29
+base: HEAD 755f714; the oracle is oracle-src.patch (9 files: 8 source files and the cli README); the shared test edits and the ADR and SCOPE proposals are spec-change.diff (13 files, 35 exact-string edits, S-V1 to S-V7)
+selection for red and oracle: the 5 new test files + the shared test files the spec change edits + the ADR and index tests that read the changed documents = 542 items (1 skipped by design: the opt-in gate check)
+python  red(spec change, no oracle)    oracle(selection)    whole workspace with oracle
+3.11    103 failed, 438 passed, 1 skipped in 77.45s (0:01:17) | 541 passed, 1 skipped in 82.44s (0:01:22) | 16347 passed, 1 skipped, 1301 deselected, 35 warnings in 1062.90s (0:17:42)
+3.12    103 failed, 438 passed, 1 skipped in 95.19s (0:01:35) | 541 passed, 1 skipped in 79.94s (0:01:19) | 16347 passed, 1 skipped, 1301 deselected, 35 warnings in 1043.09s (0:17:23)
+3.13    103 failed, 438 passed, 1 skipped in 75.95s (0:01:15) | 541 passed, 1 skipped in 78.30s (0:01:18) | 16347 passed, 1 skipped, 1301 deselected, 35 warnings in 1036.96s (0:17:16)
+3.14    103 failed, 438 passed, 1 skipped in 78.59s (0:01:18) | 541 passed, 1 skipped in 64.89s (0:01:04) | 16347 passed, 1 skipped, 1301 deselected, 35 warnings in 1028.38s (0:17:08)
+red without the spec change (3.13): 93 failed, 447 passed, 1 skipped in 75.00s (0:01:15)
+mutants: 68  killed: 68  survived: 0  noapply: 0
+of the 127 new test items, 91 are red on the current tree and 36 pass (regression and negative guards, the reachability guards and the inventory), listed with their reasons in red-tests-that-pass-on-the-current-tree.txt
+oracle lint on the mirror: ruff check, ruff format --check, mypy strict (593 source files, tests included): clean; scripts/guard_private_fixtures.py: run on the mirror (see the report)
+secret scan: there is no gitleaks binary on this machine; the canary key and the username are scrubbed from the logs and a grep of the evidence directory, the contract and the staged tests found no key pattern
+mutants: 68 source and document mutants, each run on Python 3.13 with a fresh PYTHONPYCACHEPREFIX and the selection above: all killed (the first round had one survivor, an ADR sentence tag, which a new assertion of the wiring test killed)
+not run: Postgres parity (no Docker), Python 3.15, the lowest-direct dependency leg, hosted CI, any real provider, gitleaks
+note: the whole-workspace runs used editable installs of the oracle mirror; the mirror is a git repository with one commit (three Phase 3 tests call git) and carries .claude/agents (a Phase 1 drift test reads it)

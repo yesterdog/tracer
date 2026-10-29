@@ -70,6 +70,7 @@ First version. Everything below is new.
 ### Sarvam text-to-speech and chat completions (Phase 4)
 
 - The Sarvam text-to-speech adapter and the Sarvam chat completions v2 adapter behind the `TtsEngine` and `LlmEngine` boundaries of `tracer-evalcore`, with the rules of ADR 0024 (a fixed endpoint, the key read at run time, the usage of each answered request handed out before the next). A content-addressed text-to-speech cache gives byte-identical caller audio on a re-run with no request. The call log of a simulated run holds counts and instants, no text.
+- The call log accepts the end reason `voice_failed` (BL-369) in the `end` line.
 
 ### The judge client (Phase 4 batch J)
 

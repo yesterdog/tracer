@@ -1,0 +1,12 @@
+ruff check .                                   All checks passed!
+ruff format --check .                          787 files already formatted
+mypy (strict)                                  Success: no issues found in 601 source files
+scripts/check_headers.py                       rc=0
+scripts/guard_private_fixtures.py              rc=0
+scripts/check_licenses.py                      73 ok, 0 failed
+check_licenses.py --wheel dist --artifacts-only  12 ok, 0 failed (six wheels built into a scratch directory)
+python -m tracer_evalschema.schema_export --check  rc=0
+scripts/generate_field_docs.py --check         rc=0
+uv lock --check                                Resolved 75 packages, rc=0
+gitleaks 8.30.1 dir (fresh copy: tracked and untracked non-ignored files, config .gitleaks.toml, no env file, no private fixtures)
+                                               scanned ~139571445 bytes in 9.89s; no leaks found; rc=0

@@ -1,0 +1,28 @@
+Hand proof (a): the real `tracer simulate` command, the in-process fake agent (no socket), pipecat-protobuf/1,
+real clock. The agent streams a noise floor (frame peak 200) between speech bursts (frame peak 4000):
+25 noise frames, 10 speech, 150 noise, 5 speech, 150 noise, 5 speech, 100 noise.
+caller_speaks_first false, wait_for_agent_silence_ms 300, max_silence_ms 3000, two scripted lines.
+
+== activity_min_peak 500
+exit code: 0
+stderr: ''
+result: call established
+end reason: script_complete
+caller turns: 2 started, 2 completed
+agent segments: 3
+first agent audio: 500 ms (observed at the simulator over pipecat-protobuf/1, quantum 20 ms, activity: peak >= 500)
+gap after the caller's line (median): 2439 ms (observed at the simulator over pipecat-protobuf/1, quantum 20 ms, activity: peak >= 500, N 2)
+overlap: 0 ms (observed at the simulator over pipecat-protobuf/1, quantum 20 ms, activity: peak >= 500)
+answered caller turns: 2 (observed at the simulator over pipecat-protobuf/1, quantum 20 ms, activity: peak >= 500)
+
+== member absent (same agent, same files otherwise)
+exit code: 0
+stderr: ''
+result: call established
+end reason: max_silence
+caller turns: 0 started, 0 completed
+agent segments: 1
+first agent audio: not measured (missing input turn_timing)
+gap after the caller's line (median): not measured (missing input turn_timing)
+overlap: not measured (missing input turn_timing)
+answered caller turns: not measured (missing input turn_timing)

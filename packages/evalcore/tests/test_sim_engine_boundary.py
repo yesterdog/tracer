@@ -693,7 +693,7 @@ def test_sim_constants_are_the_ones_the_adrs_state() -> None:
     profile = _first_json(adr27, "## The `tracer.sim_profile/1` format")
     props = outcome["properties"]
     assert tuple(types.END_REASONS) == tuple(props["end_reason"]["enum"])
-    assert len(types.END_REASONS) == 12
+    assert len(types.END_REASONS) == 13
     assert tuple(types.CALLER_MODES) == tuple(props["caller_text_origin"]["enum"])
     assert tuple(f"{c}" for c in types.CAP_NAMES) == tuple(
         c for c in props["cap_reached"]["enum"] if c is not None

@@ -1,0 +1,14 @@
+batch activity (BL-313, the optional turn_taking.activity_min_peak),  96 new test functions (180 test items) in 6 test files (+ 2 support modules), 2026-10-29
+base: HEAD 755f714 minus the untracked docs/phase4/runbooks/RJ1.md (it fails test_guard_has_no_false_positive_on_this_repository on the CURRENT tree, contract A9); the oracle is oracle-src.patch (9 source files); the shared test edits and the ADR, SCOPE and document proposals are spec-change.diff (9 files, S-A1 to S-A10; spec-change.u0.diff is the same with no context, for composing with the voice batch)
+selection for red and oracle: the 6 new files + 54 shared test files that read the changed code or documents = 1705 items (1 skipped by design)
+python  red(spec change, no oracle)      oracle(selection)                 whole workspace with oracle
+3.11    136 failed, 1568 passed, 1 skipped | 1704 passed, 1 skipped | 16399 passed, 1 skipped, 1301 deselected
+3.12    136 failed, 1568 passed, 1 skipped | 1704 passed, 1 skipped | 16399 passed, 1 skipped, 1301 deselected
+3.13    136 failed, 1568 passed, 1 skipped | 1704 passed, 1 skipped | 16399 passed, 1 skipped, 1301 deselected
+3.14    136 failed, 1568 passed, 1 skipped | 1704 passed, 1 skipped | 16399 passed, 1 skipped, 1301 deselected
+red without the spec change (3.13): 132 failed, 1572 passed, 1 skipped (of the 180 new items 132 are red, 48 pass: red-tests-that-pass-on-the-current-tree.txt)
+whole workspace WITHOUT the spec change (first oracle, 3.13, before the last tests): 5 failed (accounted for in contract section 7)
+always-written alternative (A1), whole workspace 3.13: 6 existing tests fail (contract A1)
+mutants: 75 killed: 75 survived: 0 noapply: 0 (74 + 1 added; two re-run after a document edit; each run on 3.13 with a fresh PYTHONPYCACHEPREFIX; a first round had 2 survivors, killed by 2 added tests)
+lint on the oracle mirror: ruff check, ruff format --check, mypy (595 files, tests included), scripts/check_headers.py, scripts/guard_private_fixtures.py: clean
+not run: Postgres parity, Python 3.15, lowest-direct leg, hosted CI, any real provider, gitleaks (no binary; a pattern grep of the evidence found no key pattern)

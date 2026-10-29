@@ -35,6 +35,7 @@ _END_REASONS: Final = (
     "brain_invalid_output",
     "spend_cap",
     "brain_failed",
+    "voice_failed",
 )
 
 

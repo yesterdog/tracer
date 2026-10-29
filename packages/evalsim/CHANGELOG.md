@@ -18,6 +18,8 @@ First version. Everything below is new.
 ### Call runner
 
 - The asyncio call runner follows the call state machine of `tracer-evalcore`: the paced sender (20 ms frames in real time, backpressure, never a burst), the wall-clock watchdog that is independent of the state machine, and an injected clock that the tests replace with a virtual one. The line providers give the runner the caller brain as it sees it.
+- `LlmLines` ends the call with the new end reason `voice_failed` when the caller's speech synthesis fails (BL-369), whether the engine returns the failure or raises it, with the typed facts `voice_failure_code` (seven closed codes in `VOICE_FAILURE_CODES`) and the HTTP status; a character cap is `spend_cap` on both paths (a raised cap used to be `transport_error`), and the brain's counts are kept on both paths.
+- The runner reads the optional `activity_min_peak` of the turn-taking policy (BL-313) for its own activity rule, so the caller sees the pauses of an agent that streams a noise floor; the recording keeps every sample.
 
 ### Target safety
 

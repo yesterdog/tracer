@@ -21,6 +21,7 @@ from tracer_evalcore.audio.chunker import (
     chunk_pcm,
 )
 from tracer_evalcore.errors import InputRefusedError
+from tracer_evalcore.turntaking import ACTIVITY_MIN_PEAK_MAX, ACTIVITY_MIN_PEAK_MIN
 from tracer_evalschema.artifact import ChannelMap
 
 __all__ = [
@@ -74,13 +75,23 @@ def activity_chunk_plan(
     wait_for_agent_silence_ms: int,
     max_chunk_ms: int = DEFAULT_MAX_CHUNK_MS,
     search_ms: int = DEFAULT_SEARCH_MS,
+    activity_min_peak: int | None = None,
 ) -> ChunkPlan:
+    """The segments of the agent channel: the runs of active 20 ms frames, joined when closer than
+    the wait. A frame is active iff its largest absolute sample reaches ``activity_min_peak``
+    (``None``: the profile gave none, the rule is 1, any non-zero sample, and the plan records
+    none)."""
     _int("sample_rate_hz", sample_rate_hz, 1)
     _int("channels", channels, 1)
     _int("channel", channel, 0)
     _int("wait_for_agent_silence_ms", wait_for_agent_silence_ms, 1)
     _int("max_chunk_ms", max_chunk_ms, 1)
     _int("search_ms", search_ms, 0)
+    if activity_min_peak is not None:
+        _int("activity_min_peak", activity_min_peak, ACTIVITY_MIN_PEAK_MIN)
+        if activity_min_peak > ACTIVITY_MIN_PEAK_MAX:
+            raise ChunkerParameterError("activity_min_peak must be at most 32767")
+    peak = ACTIVITY_MIN_PEAK_MIN if activity_min_peak is None else activity_min_peak
     if search_ms > max_chunk_ms:
         raise ChunkerParameterError("search_ms must not exceed max_chunk_ms")
     if channels > 2:
@@ -100,7 +111,10 @@ def activity_chunk_plan(
     total = len(mono)
     size = sample_rate_hz * ACTIVITY_FRAME_MS // 1000
     count = -(-total // size) if size else 0
-    active = [any(mono[k * size : (k + 1) * size]) for k in range(count)]
+    active = []
+    for k in range(count):
+        frame = mono[k * size : (k + 1) * size]
+        active.append(any(frame) if peak == 1 else max(max(frame), -min(frame)) >= peak)
     runs: list[list[int]] = []
     for k, flag in enumerate(active):
         if not flag:
@@ -143,4 +157,5 @@ def activity_chunk_plan(
         chunks=tuple(chunks),
         channel=channel,
         activity_wait_ms=wait_for_agent_silence_ms,
+        activity_min_peak=activity_min_peak,
     )

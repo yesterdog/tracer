@@ -1,0 +1,39 @@
+tests of the batch that pass on the current tree (HEAD 755f714, no oracle, no spec change), Python 3.13: 48 of 180 items
+the other 132 items fail, each for the reason of the missing feature (see red-reasons.py3.13.txt)
+
+ 10  test_cli_simulate_activity_min_peak.py::test_a_bad_value_is_refused_at_step_1_with_one_code_before_anything_else
+     reason: negative guard: today the member is an unknown key of the closed turn_taking object, which is refused with the same code; after the change the same code is the refusal of a bad VALUE (killed by the range mutants)
+  1  test_cli_simulate_activity_min_peak.py::test_the_help_does_not_mention_the_threshold
+     reason: regression guard: no command line option for the value (the existing pattern); must stay true
+  1  test_cli_simulate_activity_min_peak.py::test_the_report_without_the_member_has_no_activity_attribute
+     reason: regression guard of section 9: a run without the member writes no activity word or attribute
+  1  test_cli_simulate_activity_min_peak.py::test_the_same_call_without_the_member_is_the_field_problem
+     reason: regression guard: the field problem (max_silence at 3000 ms, no caller turn) is today's behaviour when the member is absent and must not change
+  1  test_cli_simulate_activity_min_peak.py::test_there_is_no_command_line_option_for_the_threshold
+     reason: regression guard: no new option
+  1  test_cli_simulate_activity_min_peak.py::test_without_the_member_every_stored_document_is_the_one_of_the_earlier_batches
+     reason: regression guard of section 9: no new key in any stored document
+  1  test_evalsim_activity_threshold.py::test_the_runner_takes_the_threshold_from_the_policy_and_has_no_setting_of_its_own
+     reason: pin: RunnerSettings keeps its five fields
+  3  test_evalsim_activity_threshold.py::test_without_a_threshold_a_noise_floor_agent_never_looks_silent
+     reason: regression guard: [None-*] is the rule of today (no member); the [1-*] items are red because the keyword does not exist yet
+  1  test_phase4_batch_activity_wiring.py::test_every_name_the_adr_text_cites_for_the_threshold_is_defined_by_exactly_one_test
+     reason: inventory: the names exist once the files are moved (they do not depend on new code)
+  1  test_phase4_batch_activity_wiring.py::test_every_test_of_the_batch_is_defined_once_in_the_whole_workspace
+     reason: inventory
+  1  test_phase4_batch_activity_wiring.py::test_no_batch_activity_test_module_imports_a_tracer_module_at_module_level
+     reason: inventory (a convention of the batch)
+  1  test_phase4_batch_activity_wiring.py::test_no_name_of_the_batch_is_left_on_a_pending_set
+     reason: inventory
+  1  test_phase4_batch_activity_wiring.py::test_the_contract_exists_and_the_sections_the_tests_cite_exist
+     reason: inventory: the contract is in the tree
+  1  test_sim_activity_threshold.py::test_an_old_stored_profile_without_the_member_still_validates
+     reason: regression guard: documents of the earlier batches stay valid
+  1  test_sim_activity_threshold.py::test_an_unknown_turn_taking_key_is_still_refused
+     reason: regression guard: the closed object stays closed for any other key
+ 13  test_sim_activity_threshold.py::test_the_profile_file_refuses_an_activity_min_peak_that_is_not_an_integer_1_to_32767
+     reason: negative guard: refused today as an unknown key, with the same code; killed by the range and type mutants after the change
+  8  test_sim_activity_threshold.py::test_the_stored_profile_validator_refuses_a_bad_member_with_its_pointer
+     reason: negative guard: refused today as an unknown key with the same pointer; killed by the range and type mutants after the change
+  1  test_sim_activity_threshold.py::test_the_three_required_turn_taking_values_are_still_required
+     reason: regression guard: the member does not stand in for a required key

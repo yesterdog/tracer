@@ -104,6 +104,7 @@ END_REASONS = (
     "brain_invalid_output",
     "spend_cap",
     "brain_failed",
+    "voice_failed",
 )
 REQUESTABLE = tuple(r for r in END_REASONS if r != "setup_failed")
 

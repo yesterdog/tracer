@@ -94,6 +94,7 @@ class ChunkPlan:
     chunks: tuple[Chunk, ...]
     channel: int | None = None
     activity_wait_ms: int | None = None
+    activity_min_peak: int | None = None
 
     @property
     def wait_for_agent_silence_ms(self) -> int | None:
@@ -123,6 +124,8 @@ class ChunkPlan:
             document["channel"] = self.channel
             document["wait_for_agent_silence_ms"] = self.wait_for_agent_silence_ms
             document["frame_ms"] = _FRAME_MS
+            if self.activity_min_peak is not None:
+                document["activity_min_peak"] = self.activity_min_peak
         return document
 
 

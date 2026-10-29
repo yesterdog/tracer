@@ -50,8 +50,8 @@ def test_the_end_reasons_are_the_eleven_of_adr_0026_and_brain_failed_last() -> N
     the first eleven keep their place; ``BRAIN_END_REASONS`` (what a brain DECIDES) is unchanged
     because a failure is an exception of the engine, not a decision of the brain."""
     types = mod("simtypes")
-    assert tuple(types.END_REASONS) == (*ELEVEN, "brain_failed")
-    assert len(types.END_REASONS) == len(set(types.END_REASONS)) == 12
+    assert tuple(types.END_REASONS) == (*ELEVEN, "brain_failed", "voice_failed")
+    assert len(types.END_REASONS) == len(set(types.END_REASONS)) == 13
     assert set(mod("brain").BRAIN_END_REASONS) == {
         "script_complete",
         "caller_end_call",
@@ -97,7 +97,11 @@ def test_the_outcome_schema_lists_twelve_end_reasons_in_the_same_order() -> None
     """ADR 0027 (amended) and ``simtypes`` agree, member by member (the ADR block is compared with
     the shipped schema by ``test_shipped_sim_outcome_schema_equals_adr0027_block``)."""
     schema = mod("simoutcome").SIM_OUTCOME_JSON_SCHEMA
-    assert schema["properties"]["end_reason"]["enum"] == [*ELEVEN, "brain_failed"]
+    assert schema["properties"]["end_reason"]["enum"] == [
+        *ELEVEN,
+        "brain_failed",
+        "voice_failed",
+    ]
     assert list(mod("simtypes").END_REASONS) == schema["properties"]["end_reason"]["enum"]
 
 
